@@ -21,11 +21,13 @@ configuration.
 `components.json` schema 3 separates physical `checkouts` from logical
 `components`. A checkout owns its repository, branch, local destination,
 generation, license, and initialization-cohort membership. A component names
-its checkout and a safe relative `source`, plus provider roles, requirements,
-license, generation, and local build contract. The replacement/default and
-opt-in classic cohorts contain physical checkout identities. The built-in
-`default` and `classic` profiles are coherent stacks of logical components
-rather than aliases for every manifest entry.
+its checkout and a safe relative `source`, optional safe non-overlapping file
+or directory `source_includes`, plus provider roles, requirements, license,
+generation, and local build contract. Includes may be shared by components but
+cannot overlap a logical component source. The replacement/default and opt-in
+classic cohorts contain physical checkout identities. The built-in `default`
+and `classic` profiles are coherent stacks of logical components rather than
+aliases for every manifest entry.
 
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,
@@ -240,7 +242,11 @@ scenario, state, build-root, and cache requests are deduplicated and sorted.
 Multi-source writers retry all-or-none, releasing earlier coordinates before
 waiting on a busy later source. A queued writer precedes later readers only for
 that coordinate, and waits longer than 10 seconds report its owner operation
-and supported recovery action.
+and supported recovery action. Owner records are fully written and locked in a
+private staging directory before an atomic hard-link makes them diagnostically
+visible. Stale-record scans reap current-schema records only after the owner
+lock is released; legacy records remain untouched because their publication
+protocol did not guarantee that every visible record was already locked.
 
 Profile consumers lock the profile, derive the requested operation's transitive
 provider closure, acquire only those exact sources, revalidate, and capture
@@ -380,27 +386,36 @@ helper repeats containment, symlink, marker, schema, and purpose validation
 immediately before deletion.
 
 Commit-keyed source generations have closed repository/branch/checkout/tree/
-subpath metadata and a complete tree digest. Reuse additionally enumerates the
-exact recorded Git tree without replacement-object indirection and proves every
-generated path, entry type, executable mode, symlink target, and blob object ID
-through a pinned, no-follow descriptor traversal before selection. New staging
-trees are complete and sealed before descriptor-relative flushing of every file
-and directory. A pinned whole-tree identity, content, and mount-boundary
-inventory must still match immediately before a no-replace rename exposes the
-canonical key, and the container is flushed before success. A mismatch
-under descriptor-verified exact marker ownership atomically moves the complete
-generation identity to a retained recovery transaction only after recursively
-excluding nested mounts, then rebuilds the
-canonical key through the ordinary staging and no-replace publication path.
-Uncertain ownership fails closed without moving data. Recovery and interrupted
-staging remain recognized children of the marker-owned container, are protected
-while their generation lock is busy, and become independently reclaimable only
-through preview-first `builds` cleanup after the normal grace period. Once path,
-marker, key, and closed metadata ownership are exact, cleanup classifies a
+subpath metadata and authenticated closure digests. Generation schema 3 records
+the Git object for each declared sibling file or directory input, the logical
+source digest, and a framed digest of the complete source-plus-includes closure.
+Reuse additionally enumerates recorded Git trees without replacement-object
+indirection and proves generated paths, entry types, executable modes, symlink
+targets, and blob object IDs through pinned, no-follow descriptor traversal.
+The exporter completes any paths suppressed by `export-ignore` before that
+proof. Its temporary archive descriptor remains pinned through completion and
+extraction, whose entry creation and mode changes stay relative to pinned,
+no-follow generation directories. Mutation-based CMake tests operate on
+writable profile-local views rather than weakening the shared generation.
+Schema-1 generations remain recognizable to preview-first cleanup but cannot be
+reused as current build inputs. New staging trees are complete and sealed before
+descriptor-relative flushing of every file and directory. A pinned whole-tree
+identity, content, and mount-boundary inventory must still match immediately
+before a no-replace rename exposes the canonical key, and the container is
+flushed before success. A mismatch under descriptor-verified exact marker
+ownership atomically moves the complete generation identity to a retained
+recovery transaction only after recursively excluding nested mounts, then
+rebuilds the canonical key through the ordinary staging and no-replace
+publication path. Uncertain ownership fails closed without moving data. Once
+path, marker, key, and closed metadata ownership are exact, cleanup classifies a
 content-digest mismatch as removable corruption. Builds hold a per-key shared
-lock; cleanup apply revalidates ownership, content state, and age under its
-exclusive side before bounded removal. First-use container publication is
-checkout-serialized.
+lock; cleanup apply
+revalidates ownership, closure content, identity, and age under its exclusive
+side before bounded removal. First-use container publication is
+checkout-serialized. Recovery and interrupted staging remain recognized
+children of the marker-owned container, are protected while their generation
+lock is busy, and become independently reclaimable through preview-first
+`builds` cleanup after the normal grace period.
 
 The npm and compiler caches have exact purpose markers and atomically refreshed
 `.atrinik-cache.json` timestamps. The compiler cache metadata also fixes its

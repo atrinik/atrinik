@@ -149,6 +149,7 @@ ALL_BUILD_TARGETS = (
 )
 SOURCE_VIEW_METADATA = ".atrinik-source-view.json"
 SOURCE_VIEW_SCHEMA_VERSION = 2
+SOURCE_INCLUDE_VIEW_METADATA = ".atrinik-source-includes.json"
 CONFIGURE_METADATA = ".atrinik-configure.json"
 CONFIGURE_SCHEMA_VERSION = 2
 COMPILER_CACHE_PURPOSE = "compiler-cache"
@@ -207,7 +208,7 @@ BUILD_METADATA_SCHEMA_VERSION = 3
 PROFILE_RESOLUTION_METADATA = ".atrinik-profile-resolution.json"
 PROFILE_RESOLUTION_SCHEMA_VERSION = 3
 SOURCE_GENERATION_METADATA = ".atrinik-source-generation.json"
-SOURCE_GENERATION_SCHEMA_VERSION = 1
+SOURCE_GENERATION_SCHEMA_VERSION = 3
 CACHE_METADATA = ".atrinik-cache.json"
 WORKER_DEPENDENCY_METADATA = ".atrinik-worker-dependencies.json"
 WORKER_VIEW_METADATA = ".atrinik-worker-view.json"
@@ -1269,6 +1270,52 @@ def _tree_digest(
     return digest.hexdigest()
 
 
+def _source_closure_digest(generation: Path, includes: Iterable[str]) -> str:
+    """Authenticate a generated logical source and its declared sibling inputs."""
+
+    entries: dict[str, object] = {
+        "source": _tree_digest(
+            generation / "source",
+            set(),
+            bounded_symlinks=True,
+            reject_hardlinks=True,
+        )
+    }
+    for include in sorted(includes):
+        path = generation.joinpath(*PurePosixPath(include).parts)
+        try:
+            status = path.lstat()
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect generated source include {path}: {error}"
+            ) from error
+        if stat.S_ISDIR(status.st_mode):
+            entries[include] = _tree_digest(
+                path,
+                set(),
+                bounded_symlinks=True,
+                reject_hardlinks=True,
+            )
+        elif stat.S_ISREG(status.st_mode):
+            if status.st_nlink != 1:
+                raise WorkspaceError(
+                    f"generated source include is hard-linked: {path}"
+                )
+            entries[include] = {
+                "kind": "file",
+                "mode": stat.S_IMODE(status.st_mode),
+                "size": status.st_size,
+                "sha256": _file_digest(path, "generated source include"),
+            }
+        else:
+            raise WorkspaceError(
+                f"generated source include is not a regular file or directory: {path}"
+            )
+    return hashlib.sha256(
+        json.dumps(entries, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
 def _tree_digest_descriptor(
     root_fd: int,
     display: Path,
@@ -2209,13 +2256,16 @@ class Workspace:
                 "tree",
                 "source",
                 "source_tree",
+                "source_includes",
                 "source_tree_sha256",
+                "closure_tree_sha256",
             }
             or value.get("schema_version") != SOURCE_GENERATION_SCHEMA_VERSION
             or not all(
                 isinstance(value.get(field), str) and value[field]
                 for field in ("repository", "checkout", "branch", "source")
             )
+            or not isinstance(value.get("source_includes"), dict)
             or not all(
                 isinstance(value.get(field), str)
                 and re.fullmatch(r"[0-9a-f]{40,64}", value[field])
@@ -2224,13 +2274,22 @@ class Workspace:
                     "tree",
                     "source_tree",
                     "source_tree_sha256",
+                    "closure_tree_sha256",
                 )
+            )
+            or not all(
+                isinstance(path, str)
+                and isinstance(tree, str)
+                and re.fullmatch(r"[0-9a-f]{40,64}", tree)
+                for path, tree in value.get("source_includes", {}).items()
             )
             or not any(
                 component.checkout_name == value.get("checkout")
                 and component.repository == value.get("repository")
                 and component.branch == value.get("branch")
                 and component.source == value.get("source")
+                and set(component.source_includes)
+                == set(value.get("source_includes", {}))
                 for component in self.manifest.components
             )
         ):
@@ -2240,7 +2299,7 @@ class Workspace:
         identity = {
             field: value[field]
             for field in value
-            if field != "source_tree_sha256"
+            if field not in {"source_tree_sha256", "closure_tree_sha256"}
         }
         key = hashlib.sha256(
             json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
@@ -2266,13 +2325,53 @@ class Workspace:
         return value
 
     @staticmethod
-    def _extract_git_source_archive(archive_path: Path, output: Path) -> None:
+    def _extract_git_source_archive(
+        archive_path: Path | int, output: Path, *, existing_output: bool = False
+    ) -> None:
         """Extract a local Git archive without trusting archive paths or links."""
 
-        output.mkdir()
-        root = output.resolve()
+        flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+        parent_fd: int | None = None
+        root_fd: int | None = None
+        archive_file: Any = None
         try:
-            with tarfile.open(archive_path, mode="r:") as archive:
+            parent_fd = _open_directory_nofollow(output.parent, flags, create=True)
+            if not existing_output:
+                try:
+                    os.mkdir(output.name, 0o755, dir_fd=parent_fd)
+                except FileExistsError as error:
+                    raise WorkspaceError(
+                        f"Git source archive output already exists: {output}"
+                    ) from error
+            visible_root = os.stat(
+                output.name, dir_fd=parent_fd, follow_symlinks=False
+            )
+            root_fd = os.open(output.name, flags, dir_fd=parent_fd)
+            opened_root = os.fstat(root_fd)
+            root_mount = _descriptor_mount_id(root_fd)
+            if (
+                (visible_root.st_dev, visible_root.st_ino)
+                != (opened_root.st_dev, opened_root.st_ino)
+                or not stat.S_ISDIR(opened_root.st_mode)
+                or _descriptor_mount_id(parent_fd) != root_mount
+            ):
+                raise WorkspaceError(
+                    f"Git source archive output is not a regular directory: {output}"
+                )
+            archive_file = (
+                os.fdopen(os.dup(archive_path), "rb")
+                if isinstance(archive_path, int)
+                else None
+            )
+            if isinstance(archive_path, int):
+                os.lseek(archive_path, 0, os.SEEK_SET)
+                archive_file.seek(0)
+            seen: set[str] = set()
+            with tarfile.open(
+                archive_path if archive_file is None else None,
+                mode="r:",
+                fileobj=archive_file,
+            ) as archive:
                 for member in archive:
                     relative = PurePosixPath(member.name)
                     if (
@@ -2283,77 +2382,362 @@ class Workspace:
                         raise WorkspaceError(
                             f"Git source archive contains an unsafe path: {member.name!r}"
                         )
-                    destination = output.joinpath(*relative.parts)
-                    parent = destination.parent
-                    parent.mkdir(parents=True, exist_ok=True)
-                    if any(
-                        candidate.is_symlink()
-                        for candidate in (parent, *parent.parents)
-                        if candidate == output or output in candidate.parents
-                    ):
-                        raise WorkspaceError(
-                            f"Git source archive traverses a symbolic link: {member.name}"
-                        )
-                    if destination.exists() or destination.is_symlink():
-                        if (
-                            member.isdir()
-                            and destination.is_dir()
-                            and not destination.is_symlink()
-                        ):
-                            continue
+                    repeated = relative.as_posix() in seen
+                    if repeated and not member.isdir():
                         raise WorkspaceError(
                             f"Git source archive repeats a path: {member.name}"
                         )
-                    permissions = member.mode & 0o777
-                    if member.isdir():
-                        destination.mkdir()
-                        destination.chmod(permissions)
-                    elif member.isreg():
-                        stream = archive.extractfile(member)
-                        if stream is None:
-                            raise WorkspaceError(
-                                f"Git source archive cannot read file: {member.name}"
-                            )
-                        descriptor = os.open(
-                            destination,
-                            os.O_WRONLY
-                            | os.O_CREAT
-                            | os.O_EXCL
-                            | getattr(os, "O_NOFOLLOW", 0),
-                            permissions,
-                        )
+                    seen.add(relative.as_posix())
+                    directory_fd = os.dup(root_fd)
+                    try:
+                        for part in relative.parts[:-1]:
+                            try:
+                                child = os.stat(
+                                    part,
+                                    dir_fd=directory_fd,
+                                    follow_symlinks=False,
+                                )
+                            except FileNotFoundError:
+                                os.mkdir(part, 0o755, dir_fd=directory_fd)
+                                child = os.stat(
+                                    part,
+                                    dir_fd=directory_fd,
+                                    follow_symlinks=False,
+                                )
+                            if not stat.S_ISDIR(child.st_mode):
+                                if stat.S_ISLNK(child.st_mode):
+                                    raise WorkspaceError(
+                                        "Git source archive traverses a symbolic "
+                                        f"link: {member.name}"
+                                    )
+                                raise WorkspaceError(
+                                    "Git source archive ancestor is not a directory: "
+                                    f"{member.name}"
+                                )
+                            try:
+                                next_fd = os.open(part, flags, dir_fd=directory_fd)
+                            except OSError as error:
+                                raise WorkspaceError(
+                                    "Git source archive ancestor changed or cannot "
+                                    f"be opened safely: {member.name}"
+                                ) from error
+                            opened = os.fstat(next_fd)
+                            if (
+                                (opened.st_dev, opened.st_ino)
+                                != (child.st_dev, child.st_ino)
+                                or opened.st_dev != opened_root.st_dev
+                                or _descriptor_mount_id(next_fd) != root_mount
+                            ):
+                                os.close(next_fd)
+                                raise WorkspaceError(
+                                    "Git source archive ancestor changed or is "
+                                    f"mounted: {member.name}"
+                                )
+                            os.close(directory_fd)
+                            directory_fd = next_fd
+                        name = relative.parts[-1]
                         try:
-                            with stream, os.fdopen(
-                                descriptor, "wb", closefd=False
-                            ) as target:
-                                shutil.copyfileobj(stream, target, 1024 * 1024)
-                        finally:
-                            os.close(descriptor)
-                        destination.chmod(permissions)
-                    elif member.issym():
-                        target = member.linkname
-                        if not target or Path(target).is_absolute():
-                            raise WorkspaceError(
-                                f"Git source archive contains an unsafe link: {member.name}"
+                            existing = os.stat(
+                                name,
+                                dir_fd=directory_fd,
+                                follow_symlinks=False,
                             )
-                        resolved = destination.parent.joinpath(target).resolve(
-                            strict=False
-                        )
-                        try:
-                            resolved.relative_to(root)
-                        except ValueError as error:
+                        except FileNotFoundError:
+                            existing = None
+                        permissions = member.mode & 0o777
+                        if member.isdir():
+                            if existing is None:
+                                os.mkdir(name, permissions, dir_fd=directory_fd)
+                                existing = os.stat(
+                                    name,
+                                    dir_fd=directory_fd,
+                                    follow_symlinks=False,
+                                )
+                            elif (
+                                not (existing_output or repeated)
+                                or not stat.S_ISDIR(existing.st_mode)
+                            ):
+                                raise WorkspaceError(
+                                    f"Git source archive repeats a path: {member.name}"
+                                )
+                            try:
+                                descriptor = os.open(
+                                    name, flags, dir_fd=directory_fd
+                                )
+                            except OSError as error:
+                                raise WorkspaceError(
+                                    "Git source archive directory changed or cannot "
+                                    f"be opened safely: {member.name}"
+                                ) from error
+                            try:
+                                opened = os.fstat(descriptor)
+                                if (
+                                    (opened.st_dev, opened.st_ino)
+                                    != (existing.st_dev, existing.st_ino)
+                                    or opened.st_dev != opened_root.st_dev
+                                    or _descriptor_mount_id(descriptor) != root_mount
+                                ):
+                                    raise WorkspaceError(
+                                        "Git source archive directory changed or is "
+                                        f"mounted: {member.name}"
+                                    )
+                                os.fchmod(descriptor, permissions)
+                            finally:
+                                os.close(descriptor)
+                        elif member.isreg():
+                            if existing is not None:
+                                raise WorkspaceError(
+                                    f"Git source archive repeats a path: {member.name}"
+                                )
+                            stream = archive.extractfile(member)
+                            if stream is None:
+                                raise WorkspaceError(
+                                    f"Git source archive cannot read file: {member.name}"
+                                )
+                            descriptor = os.open(
+                                name,
+                                os.O_WRONLY
+                                | os.O_CREAT
+                                | os.O_EXCL
+                                | os.O_NOFOLLOW,
+                                permissions,
+                                dir_fd=directory_fd,
+                            )
+                            try:
+                                with stream, os.fdopen(
+                                    descriptor, "wb", closefd=False
+                                ) as target:
+                                    shutil.copyfileobj(stream, target, 1024 * 1024)
+                                    os.fchmod(descriptor, permissions)
+                            finally:
+                                os.close(descriptor)
+                        elif member.issym():
+                            if existing is not None:
+                                raise WorkspaceError(
+                                    f"Git source archive repeats a path: {member.name}"
+                                )
+                            target = member.linkname
+                            if not target or Path(target).is_absolute():
+                                raise WorkspaceError(
+                                    "Git source archive contains an unsafe link: "
+                                    f"{member.name}"
+                                )
+                            normalized = list(relative.parent.parts)
+                            bounded = True
+                            for part in PurePosixPath(target).parts:
+                                if part in {"", "."}:
+                                    continue
+                                if part == "..":
+                                    if not normalized:
+                                        bounded = False
+                                        break
+                                    normalized.pop()
+                                else:
+                                    normalized.append(part)
+                            if not bounded:
+                                raise WorkspaceError(
+                                    "Git source archive link escapes its generation: "
+                                    f"{member.name}"
+                                )
+                            os.symlink(target, name, dir_fd=directory_fd)
+                        else:
                             raise WorkspaceError(
-                                f"Git source archive link escapes its generation: {member.name}"
-                            ) from error
-                        destination.symlink_to(target)
-                    else:
-                        raise WorkspaceError(
-                            f"Git source archive contains an unsupported entry: {member.name}"
-                        )
+                                "Git source archive contains an unsupported entry: "
+                                f"{member.name}"
+                            )
+                    finally:
+                        os.close(directory_fd)
+            current_root = os.stat(
+                output.name, dir_fd=parent_fd, follow_symlinks=False
+            )
+            if (
+                (current_root.st_dev, current_root.st_ino)
+                != (opened_root.st_dev, opened_root.st_ino)
+                or (os.fstat(root_fd).st_dev, os.fstat(root_fd).st_ino)
+                != (opened_root.st_dev, opened_root.st_ino)
+            ):
+                raise WorkspaceError(
+                    f"Git source archive output changed during extraction: {output}"
+                )
+        except WorkspaceError:
+            raise
         except (OSError, tarfile.TarError) as error:
             raise WorkspaceError(
                 f"cannot extract immutable Git source archive: {error}"
             ) from error
+        finally:
+            if archive_file is not None:
+                archive_file.close()
+            if root_fd is not None:
+                os.close(root_fd)
+            if parent_fd is not None:
+                os.close(parent_fd)
+
+    @staticmethod
+    def _complete_git_source_archive(
+        checkout: Path,
+        archive: Path | int,
+        object_id: str,
+        prefix: str | None,
+        mode: bytes = b"040000",
+        kind: bytes = b"tree",
+    ) -> None:
+        """Restore entries omitted by Git archive's export-ignore attributes."""
+
+        expected: dict[str, tuple[bytes, bytes, bytes]] = {}
+        if kind == b"tree":
+            try:
+                result = subprocess.run(
+                    [
+                        "git",
+                        "--no-replace-objects",
+                        "-C",
+                        str(checkout),
+                        "ls-tree",
+                        "-r",
+                        "-t",
+                        "--full-tree",
+                        "-z",
+                        object_id,
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    pass_fds=active_lock_fds(),
+                )
+            except FileNotFoundError as error:
+                raise WorkspaceError("required command not found: git") from error
+            except subprocess.CalledProcessError as error:
+                detail = error.stderr.decode("utf-8", errors="replace").strip()
+                suffix = f": {detail}" if detail else ""
+                raise WorkspaceError(
+                    "cannot inspect immutable Git source archive" + suffix
+                ) from error
+            if prefix is not None:
+                expected[prefix] = (b"040000", b"tree", object_id.encode())
+            for entry in result.stdout.split(b"\0"):
+                if not entry:
+                    continue
+                try:
+                    metadata, relative_bytes = entry.split(b"\t", 1)
+                    entry_mode, entry_kind, entry_object = metadata.split(b" ", 2)
+                    relative = os.fsdecode(relative_bytes)
+                except ValueError as error:
+                    raise WorkspaceError(
+                        "recorded immutable Git archive listing is invalid"
+                    ) from error
+                name = f"{prefix}/{relative}" if prefix is not None else relative
+                expected[name] = (entry_mode, entry_kind, entry_object)
+        else:
+            if prefix is None:
+                raise WorkspaceError("recorded immutable Git archive listing is invalid")
+            expected[prefix] = (mode, kind, object_id.encode())
+
+        archive_file: Any = None
+        try:
+            archive_file = (
+                os.fdopen(os.dup(archive), "r+b")
+                if isinstance(archive, int)
+                else None
+            )
+            if isinstance(archive, int):
+                os.lseek(archive, 0, os.SEEK_SET)
+                archive_file.seek(0)
+            with tarfile.open(
+                archive if archive_file is None else None,
+                "r:",
+                fileobj=archive_file,
+            ) as stream:
+                present = {member.name.rstrip("/") for member in stream}
+            if archive_file is not None:
+                archive_file.seek(0)
+            with tarfile.open(
+                archive if archive_file is None else None,
+                "a:",
+                fileobj=archive_file,
+            ) as stream:
+                for name, (entry_mode, entry_kind, entry_object) in expected.items():
+                    if name in present:
+                        continue
+                    relative = PurePosixPath(name)
+                    if (
+                        not name
+                        or relative.is_absolute()
+                        or any(part in {"", ".", ".."} for part in relative.parts)
+                        or entry_mode
+                        not in {b"040000", b"100644", b"100755", b"120000"}
+                        or entry_kind not in {b"tree", b"blob"}
+                    ):
+                        raise WorkspaceError(
+                            "recorded immutable Git archive listing is invalid"
+                        )
+                    member = tarfile.TarInfo(name)
+                    member.uid = member.gid = 0
+                    member.uname = member.gname = ""
+                    member.mtime = 0
+                    if entry_kind == b"tree":
+                        if entry_mode != b"040000":
+                            raise WorkspaceError(
+                                "recorded immutable Git archive listing is invalid"
+                            )
+                        member.type = tarfile.DIRTYPE
+                        member.mode = 0o755
+                        stream.addfile(member)
+                        continue
+                    payload = tempfile.TemporaryFile()
+                    try:
+                        try:
+                            subprocess.run(
+                                [
+                                    "git",
+                                    "--no-replace-objects",
+                                    "-C",
+                                    str(checkout),
+                                    "cat-file",
+                                    "blob",
+                                    entry_object.decode(),
+                                ],
+                                check=True,
+                                stdout=payload,
+                                stderr=subprocess.PIPE,
+                                pass_fds=active_lock_fds(),
+                            )
+                        except FileNotFoundError as error:
+                            raise WorkspaceError(
+                                "required command not found: git"
+                            ) from error
+                        except subprocess.CalledProcessError as error:
+                            detail = error.stderr.decode(
+                                "utf-8", errors="replace"
+                            ).strip()
+                            suffix = f": {detail}" if detail else ""
+                            raise WorkspaceError(
+                                "cannot read immutable Git source object" + suffix
+                            ) from error
+                        member.size = payload.tell()
+                        payload.seek(0)
+                        if entry_mode == b"120000":
+                            target = payload.read()
+                            member.type = tarfile.SYMTYPE
+                            member.linkname = os.fsdecode(target)
+                            member.size = 0
+                            stream.addfile(member)
+                        else:
+                            member.mode = (
+                                0o755 if entry_mode == b"100755" else 0o644
+                            )
+                            stream.addfile(member, payload)
+                    finally:
+                        payload.close()
+        except WorkspaceError:
+            raise
+        except (OSError, tarfile.TarError, UnicodeError) as error:
+            raise WorkspaceError(
+                f"cannot complete immutable Git source archive: {error}"
+            ) from error
+        finally:
+            if archive_file is not None:
+                archive_file.close()
 
     @staticmethod
     def _validate_source_generation_git_tree(
@@ -2982,6 +3366,172 @@ class Workspace:
         finally:
             if descriptor is not None:
                 os.close(descriptor)
+    @staticmethod
+    def _validate_source_generation_git_closure(
+        checkout: Path,
+        generation: Path,
+        source_tree: str,
+        root_tree: str,
+        source_includes: dict[str, str],
+    ) -> None:
+        """Prove every materialized closure input has its recorded Git identity."""
+
+        Workspace._validate_source_generation_git_tree(
+            checkout, generation / "source", source_tree
+        )
+        algorithm = hashlib.sha1 if len(root_tree) == 40 else hashlib.sha256
+        for include, expected_object in sorted(source_includes.items()):
+            try:
+                result = subprocess.run(
+                    [
+                        "git",
+                        "--no-replace-objects",
+                        "-C",
+                        str(checkout),
+                        "ls-tree",
+                        "-z",
+                        root_tree,
+                        "--",
+                        include,
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    pass_fds=active_lock_fds(),
+                )
+            except FileNotFoundError as error:
+                raise WorkspaceError("required command not found: git") from error
+            except subprocess.CalledProcessError as error:
+                detail = error.stderr.decode("utf-8", errors="replace").strip()
+                suffix = f": {detail}" if detail else ""
+                raise WorkspaceError(
+                    "cannot inspect recorded immutable Git source include" + suffix
+                ) from error
+            entries = [entry for entry in result.stdout.split(b"\0") if entry]
+            try:
+                metadata, relative = entries[0].split(b"\t", 1)
+                mode, kind, object_id = metadata.split(b" ", 2)
+            except (IndexError, ValueError) as error:
+                raise WorkspaceError(
+                    "recorded immutable Git source include is invalid"
+                ) from error
+            if (
+                len(entries) != 1
+                or os.fsdecode(relative) != include
+                or object_id.decode("ascii", errors="replace") != expected_object
+                or len(object_id) not in {40, 64}
+                or not re.fullmatch(b"[0-9a-f]+", object_id)
+            ):
+                raise WorkspaceError(
+                    "recorded immutable Git source include is invalid"
+                )
+
+            include_path = generation.joinpath(*PurePosixPath(include).parts)
+            try:
+                include_status = include_path.lstat()
+            except FileNotFoundError as error:
+                raise _SourceGenerationCorrupt(
+                    f"immutable source include is missing: {include_path}"
+                ) from error
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect immutable source include {include_path}: {error}"
+                ) from error
+            if stat.S_ISDIR(include_status.st_mode):
+                if mode != b"040000" or kind != b"tree":
+                    raise _SourceGenerationCorrupt(
+                        "immutable source include does not match its recorded "
+                        f"Git entry: {include_path}"
+                    )
+                Workspace._validate_source_generation_git_tree(
+                    checkout, include_path, expected_object
+                )
+                continue
+            if (
+                not stat.S_ISREG(include_status.st_mode)
+                or kind != b"blob"
+                or mode not in {b"100644", b"100755"}
+            ):
+                raise _SourceGenerationCorrupt(
+                    "immutable source include does not match its recorded "
+                    f"Git entry: {include_path}"
+                )
+
+            parent_fd: int | None = None
+            descriptor: int | None = None
+            try:
+                flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+                parent_fd = _open_directory_nofollow(include_path.parent, flags)
+                visible = os.stat(
+                    include_path.name,
+                    dir_fd=parent_fd,
+                    follow_symlinks=False,
+                )
+                descriptor = os.open(
+                    include_path.name,
+                    os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                    dir_fd=parent_fd,
+                )
+                opened = os.fstat(descriptor)
+                def file_identity(value: os.stat_result) -> tuple[int, ...]:
+                    return (
+                        value.st_dev,
+                        value.st_ino,
+                        value.st_mode,
+                        value.st_nlink,
+                        value.st_size,
+                        value.st_mtime_ns,
+                        value.st_ctime_ns,
+                    )
+
+                if (
+                    file_identity(visible) != file_identity(opened)
+                    or not stat.S_ISREG(opened.st_mode)
+                    or opened.st_nlink != 1
+                    or _descriptor_mount_id(descriptor)
+                    != _descriptor_mount_id(parent_fd)
+                ):
+                    raise WorkspaceError(
+                        f"immutable source include changed while reading: {include_path}"
+                    )
+                digest = algorithm()
+                digest.update(f"blob {opened.st_size}\0".encode())
+                observed = 0
+                while chunk := os.read(descriptor, 1024 * 1024):
+                    observed += len(chunk)
+                    digest.update(chunk)
+                after = os.fstat(descriptor)
+                actual_mode = b"100755" if opened.st_mode & 0o111 else b"100644"
+                if (
+                    observed != opened.st_size
+                    or file_identity(opened) != file_identity(after)
+                    or actual_mode != mode
+                    or digest.hexdigest().encode() != object_id
+                ):
+                    raise _SourceGenerationCorrupt(
+                        "immutable source include does not match its recorded "
+                        f"Git entry: {include_path}"
+                    )
+                visible_after = os.stat(
+                    include_path.name,
+                    dir_fd=parent_fd,
+                    follow_symlinks=False,
+                )
+                if file_identity(visible) != file_identity(visible_after):
+                    raise WorkspaceError(
+                        f"immutable source include changed while reading: {include_path}"
+                    )
+            except WorkspaceError:
+                raise
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect immutable source include {include_path}: {error}"
+                ) from error
+            finally:
+                if descriptor is not None:
+                    os.close(descriptor)
+                if parent_fd is not None:
+                    os.close(parent_fd)
 
     def _materialize_primary_source(
         self,
@@ -3035,6 +3585,41 @@ class Workspace:
             capture=True,
             trace=False,
         )
+        source_includes: dict[str, str] = {}
+        source_include_entries: dict[str, tuple[bytes, bytes, bytes]] = {}
+        for include in component.source_includes:
+            listing = git(
+                checkout,
+                "--no-replace-objects",
+                "ls-tree",
+                tree,
+                "--",
+                include,
+                capture=True,
+                trace=False,
+            )
+            try:
+                metadata, listed_path = listing.split("\t", 1)
+                include_mode, include_kind, include_object = metadata.split(" ", 2)
+            except ValueError as error:
+                raise WorkspaceError(
+                    f"recorded immutable Git source include is invalid: {include}"
+                ) from error
+            if (
+                listed_path != include
+                or include_mode not in {"040000", "100644", "100755"}
+                or include_kind not in {"tree", "blob"}
+                or not re.fullmatch(r"[0-9a-f]{40,64}", include_object)
+            ):
+                raise WorkspaceError(
+                    f"recorded immutable Git source include is invalid: {include}"
+                )
+            source_includes[include] = include_object
+            source_include_entries[include] = (
+                include_mode.encode(),
+                include_kind.encode(),
+                include_object.encode(),
+            )
         identity = {
             "schema_version": SOURCE_GENERATION_SCHEMA_VERSION,
             "repository": component.repository,
@@ -3044,6 +3629,7 @@ class Workspace:
             "tree": tree,
             "source": component.source,
             "source_tree": source_tree,
+            "source_includes": source_includes,
         }
         key = hashlib.sha256(
             json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
@@ -3117,18 +3703,26 @@ class Workspace:
                         raise _SourceGenerationCorrupt(
                             f"immutable source generation is corrupt: {generation}"
                         )
-                    self._validate_source_generation_git_tree(
+                    self._validate_source_generation_git_closure(
                         checkout,
-                        generation / "source",
+                        generation,
                         source_tree,
+                        tree,
+                        source_includes,
                     )
-                    digest = _tree_digest(
+                    source_digest = _tree_digest(
                         generation / "source",
                         set(),
                         bounded_symlinks=True,
                         reject_hardlinks=True,
                     )
-                    if record["source_tree_sha256"] != digest:
+                    closure_digest = _source_closure_digest(
+                        generation, component.source_includes
+                    )
+                    if (
+                        record["source_tree_sha256"] != source_digest
+                        or record["closure_tree_sha256"] != closure_digest
+                    ):
                         raise _SourceGenerationCorrupt(
                             f"immutable source generation is corrupt: {generation}"
                         )
@@ -3148,34 +3742,105 @@ class Workspace:
             staging = Path(
                 tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
             )
-            archive_path = staging / "source.tar"
             try:
-                try:
-                    subprocess.run(
-                        [
-                            "git",
-                            "--no-replace-objects",
-                            "-C",
-                            str(checkout),
-                            "archive",
-                            "--format=tar",
-                            f"--output={archive_path}",
-                            source_tree,
-                        ],
-                        check=True,
-                        stderr=subprocess.PIPE,
-                        pass_fds=active_lock_fds(),
+                exports: list[
+                    tuple[
+                        str,
+                        str | None,
+                        Path,
+                        bool,
+                        str,
+                        str | None,
+                        bytes,
+                        bytes,
+                    ]
+                ] = [
+                    (
+                        source_tree,
+                        None,
+                        staging / "source",
+                        False,
+                        source_tree,
+                        None,
+                        b"040000",
+                        b"tree",
+                    ),
+                    *(
+                        (
+                            tree,
+                            include,
+                            staging,
+                            True,
+                            source_includes[include],
+                            include,
+                            source_include_entries[include][0],
+                            source_include_entries[include][1],
+                        )
+                        for include in component.source_includes
+                    ),
+                ]
+                for export_index, (
+                    archive_ref,
+                    archive_pathspec,
+                    destination,
+                    existing_output,
+                    archive_object,
+                    archive_prefix,
+                    archive_mode,
+                    archive_kind,
+                ) in enumerate(exports):
+                    archive_descriptor, archive_name = tempfile.mkstemp(
+                        prefix=f"atrinik-source-{export_index}-", suffix=".tar"
                     )
-                except FileNotFoundError as error:
-                    raise WorkspaceError("required command not found: git") from error
-                except subprocess.CalledProcessError as error:
-                    detail = error.stderr.decode("utf-8", errors="replace").strip()
-                    suffix = f": {detail}" if detail else ""
-                    raise WorkspaceError(
-                        f"cannot export immutable source generation{suffix}"
-                    ) from error
-                self._extract_git_source_archive(archive_path, staging / "source")
-                archive_path.unlink()
+                    archive_path = Path(archive_name)
+                    try:
+                        try:
+                            archive_command = [
+                                "git",
+                                "--no-replace-objects",
+                                "-C",
+                                str(checkout),
+                                "archive",
+                                "--format=tar",
+                                archive_ref,
+                            ]
+                            if archive_pathspec is not None:
+                                archive_command.extend(["--", archive_pathspec])
+                            subprocess.run(
+                                archive_command,
+                                check=True,
+                                stdout=archive_descriptor,
+                                stderr=subprocess.PIPE,
+                                pass_fds=active_lock_fds(),
+                            )
+                        except FileNotFoundError as error:
+                            raise WorkspaceError(
+                                "required command not found: git"
+                            ) from error
+                        except subprocess.CalledProcessError as error:
+                            detail = error.stderr.decode(
+                                "utf-8", errors="replace"
+                            ).strip()
+                            suffix = f": {detail}" if detail else ""
+                            raise WorkspaceError(
+                                f"cannot export immutable source generation{suffix}"
+                            ) from error
+                        self._complete_git_source_archive(
+                            checkout,
+                            archive_descriptor,
+                            archive_object,
+                            archive_prefix,
+                            archive_mode,
+                            archive_kind,
+                        )
+                        self._extract_git_source_archive(
+                            archive_descriptor,
+                            destination,
+                            existing_output=existing_output,
+                        )
+                    finally:
+                        os.close(archive_descriptor)
+                        archive_path.unlink(missing_ok=True)
                 current_checkout = checkout.stat()
                 current_source = source.stat()
                 current_git_common = self._git_common_directory(
@@ -3212,12 +3877,30 @@ class Workspace:
                     raise WorkspaceError(
                         f"clean primary source changed during materialization: {checkout}"
                     )
-                self._validate_source_generation_git_tree(
+                self._validate_source_generation_git_closure(
                     checkout,
-                    staging / "source",
+                    staging,
                     source_tree,
+                    tree,
+                    source_includes,
                 )
                 self._seal_runtime_generation(staging / "source")
+                for include in component.source_includes:
+                    include_path = staging.joinpath(
+                        *PurePosixPath(include).parts
+                    )
+                    include_status = include_path.lstat()
+                    if stat.S_ISDIR(include_status.st_mode):
+                        self._seal_runtime_generation(include_path)
+                    elif stat.S_ISREG(include_status.st_mode):
+                        include_path.chmod(
+                            stat.S_IMODE(include_status.st_mode) & ~0o222
+                        )
+                    else:
+                        raise WorkspaceError(
+                            "generated source include is not a regular file or "
+                            f"directory: {include_path}"
+                        )
                 record = {
                     **identity,
                     "source_tree_sha256": _tree_digest(
@@ -3225,6 +3908,9 @@ class Workspace:
                         set(),
                         bounded_symlinks=True,
                         reject_hardlinks=True,
+                    ),
+                    "closure_tree_sha256": _source_closure_digest(
+                        staging, component.source_includes
                     ),
                 }
                 durable_atomic_json(staging / SOURCE_GENERATION_METADATA, record)
@@ -3245,10 +3931,12 @@ class Workspace:
                 durable_device, durable_inode, durable_inventory = (
                     self._durably_sync_source_generation(staging)
                 )
-                self._validate_source_generation_git_tree(
+                self._validate_source_generation_git_closure(
                     checkout,
-                    staging / "source",
+                    staging,
                     source_tree,
+                    tree,
+                    source_includes,
                 )
                 if _tree_digest(
                     staging,
@@ -3380,7 +4068,7 @@ class Workspace:
     ) -> tuple[dict[str, Path], set[str], dict[Path, dict[str, Any]]]:
         stack = self.manifest.stack(profile["stack"])
         materialized = dict(selected)
-        checkout_results: dict[tuple[str, str], Path] = {}
+        checkout_results: dict[tuple[str, str, tuple[str, ...]], Path] = {}
         for role in sorted(selected):
             component = stack.providers[role]
             selector = profile["components"][component.name]
@@ -3395,7 +4083,11 @@ class Workspace:
                 or state["dirty"]
             ):
                 continue
-            cache_key = (component.checkout_name, component.source)
+            cache_key = (
+                component.checkout_name,
+                component.source,
+                component.source_includes,
+            )
             generated = checkout_results.get(cache_key)
             if generated is None:
                 generated = self._materialize_primary_source(
@@ -3539,6 +4231,12 @@ class Workspace:
                                 bounded_symlinks=True,
                                 reject_hardlinks=True,
                             )
+                            current_closure_digest = _source_closure_digest(
+                                path.parent,
+                                current_record.get("source_includes", {})
+                                if current_record is not None
+                                else (),
+                            )
                         except (OSError, WorkspaceError) as error:
                             raise WorkspaceError(
                                 "immutable source generation changed before lease handoff: "
@@ -3548,16 +4246,20 @@ class Workspace:
                             current_record != expected_record
                             or current_digest
                             != expected_record["source_tree_sha256"]
+                            or current_closure_digest
+                            != expected_record["closure_tree_sha256"]
                         ):
                             raise WorkspaceError(
                                 "immutable source generation changed before lease handoff: "
                                 f"{path}"
                             )
                         checkout = states[expected_record["checkout"]]["path"]
-                        self._validate_source_generation_git_tree(
+                        self._validate_source_generation_git_closure(
                             checkout,
-                            path,
+                            path.parent,
                             expected_record["source_tree"],
+                            expected_record["tree"],
+                            expected_record["source_includes"],
                         )
                     retained = []
                     for coordinate, context in reversed(source_contexts):
@@ -6070,6 +6772,8 @@ class Workspace:
     ) -> Path:
         key = self._profile_build_key(profile_name, selected)
         root = self.paths.builds / "profiles" / f"{profile_name}-{key}"
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
         with self._profile_build_lock(root, profile_name):
             self._force_reconfigure = force_reconfigure
             self._use_ccache = use_ccache
@@ -6110,9 +6814,20 @@ class Workspace:
                 if "libatrinik" in targets:
                     self._build_library(root, selected, tests)
                 if "client" in targets:
-                    self._build_client(root, selected, tests, sound_root=sound_root)
+                    self._build_client(
+                        root,
+                        selected,
+                        tests,
+                        component=stack.providers["client"],
+                        sound_root=sound_root,
+                    )
                 if "server" in targets:
-                    self._build_server(root, selected, tests)
+                    self._build_server(
+                        root,
+                        selected,
+                        tests,
+                        component=stack.providers["server"],
+                    )
             if "server" in targets:
                 self._generate_region_maps(root, profile_name, selected)
             if "metaserver-worker" in targets:
@@ -6601,13 +7316,20 @@ class Workspace:
     ) -> str:
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
-        providers = ",".join(
-            f"{role}={stack.providers[role].name}@"
-            f"{stack.providers[role].repository}@"
-            f"{stack.providers[role].branch}@"
-            f"{stack.providers[role].checkout_name}:"
-            f"{stack.providers[role].source}"
-            for role in sorted(selected)
+        providers = json.dumps(
+            {
+                role: {
+                    "name": stack.providers[role].name,
+                    "repository": stack.providers[role].repository,
+                    "branch": stack.providers[role].branch,
+                    "checkout": stack.providers[role].checkout_name,
+                    "source": stack.providers[role].source,
+                    "source_includes": stack.providers[role].source_includes,
+                }
+                for role in sorted(selected)
+            },
+            sort_keys=True,
+            separators=(",", ":"),
         )
         namespace = (
             f"profile-schema:{PROFILE_SCHEMA_VERSION};stack:{stack.name};"
@@ -6660,8 +7382,10 @@ class Workspace:
             ".git",
             MANAGED_MARKER,
             SOURCE_VIEW_METADATA,
+            SOURCE_INCLUDE_VIEW_METADATA,
         }
         copied_directories = copied_directories or set()
+        mutable_copies = self._source_generation_record(source) is not None
         try:
             source_head: str | None = git(
                 source, "rev-parse", "HEAD", capture=True, trace=False
@@ -6700,9 +7424,12 @@ class Workspace:
                         exclusions if copy_all else set(),
                         view,
                         exclusions,
+                        mutable_copies,
                     )
                 elif stat.S_ISREG(mode):
                     permissions = stat.S_IMODE(mode)
+                    if mutable_copies:
+                        permissions |= 0o600
                     value = hashlib.sha256(entry.read_bytes()).hexdigest()
                     same = (
                         destination.is_file()
@@ -6714,6 +7441,7 @@ class Workspace:
                         self._source_view_changed = True
                         self._remove_source_view_entry(destination)
                         shutil.copy2(entry, destination, follow_symlinks=False)
+                        destination.chmod(permissions)
                     digest = f"{permissions:o}:{value}"
                 elif stat.S_ISLNK(mode):
                     target, resolved_target = self._copied_source_symlink_target(
@@ -6849,13 +7577,51 @@ class Workspace:
         *,
         target_is_directory: bool,
     ) -> Path:
-        destination = view / relative
+        relative_path = PurePosixPath(relative)
+        if (
+            relative_path.is_absolute()
+            or not relative_path.parts
+            or any(part in {"", ".", ".."} for part in relative_path.parts)
+        ):
+            raise WorkspaceError(f"invalid source-view link path: {relative}")
+        destination = view.joinpath(*relative_path.parts)
+        parent = destination.parent
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+        try:
+            descriptor = _open_directory_nofollow(parent, flags, create=True)
+        except OSError as error:
+            raise WorkspaceError(
+                f"source-view link parent is unsafe: {parent}: {error}"
+            ) from error
         expected = str(target)
-        if not destination.is_symlink() or os.readlink(destination) != expected:
-            self._remove_source_view_entry(destination)
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.symlink_to(expected, target_is_directory=target_is_directory)
+        name = relative_path.name
+        try:
+            try:
+                metadata = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+            except FileNotFoundError:
+                metadata = None
+            if (
+                metadata is not None
+                and stat.S_ISLNK(metadata.st_mode)
+                and os.readlink(name, dir_fd=descriptor) == expected
+            ):
+                return destination
+            if metadata is not None:
+                if stat.S_ISDIR(metadata.st_mode):
+                    raise WorkspaceError(
+                        "source-view link destination is an unexpected directory: "
+                        f"{destination}"
+                    )
+                os.unlink(name, dir_fd=descriptor)
+            os.symlink(
+                expected,
+                name,
+                target_is_directory=target_is_directory,
+                dir_fd=descriptor,
+            )
             self._source_view_unchanged[str(view.resolve())] = False
+        finally:
+            os.close(descriptor)
         return destination
 
     def _source_view_directory(
@@ -6950,6 +7716,7 @@ class Workspace:
         exclusions: set[str],
         view: Path,
         top_level_exclusions: set[str],
+        mutable_copies: bool = False,
     ) -> str:
         if destination.is_symlink() or (destination.exists() and not destination.is_dir()):
             self._remove_source_view_entry(destination)
@@ -6957,11 +7724,15 @@ class Workspace:
             self._source_view_changed = True
         destination.mkdir(parents=True, exist_ok=True)
         source_permissions = stat.S_IMODE(source.lstat().st_mode)
-        if stat.S_IMODE(destination.lstat().st_mode) != source_permissions:
-            destination.chmod(source_permissions)
+        target_permissions = source_permissions | 0o700 if mutable_copies else source_permissions
+        destination_permissions = stat.S_IMODE(destination.lstat().st_mode)
+        if destination_permissions != target_permissions:
             self._source_view_changed = True
+        working_permissions = target_permissions | 0o700
+        if destination_permissions != working_permissions:
+            destination.chmod(working_permissions)
         digest = hashlib.sha256()
-        digest.update(f"directory:{source_permissions:o}\0".encode())
+        digest.update(f"directory:{target_permissions:o}\0".encode())
         expected: set[str] = set()
         for entry in sorted(source.iterdir(), key=lambda path: path.name):
             if entry.name in exclusions:
@@ -6985,10 +7756,13 @@ class Workspace:
                         exclusions,
                         view,
                         top_level_exclusions,
+                        mutable_copies,
                     ).encode()
                 )
             elif stat.S_ISREG(mode):
                 permissions = stat.S_IMODE(mode)
+                if mutable_copies:
+                    permissions |= 0o600
                 file_digest = hashlib.sha256()
                 try:
                     with entry.open("rb") as stream:
@@ -7017,6 +7791,7 @@ class Workspace:
                     self._source_view_changed = True
                     self._remove_source_view_entry(output)
                     shutil.copy2(entry, output, follow_symlinks=False)
+                    output.chmod(permissions)
             elif stat.S_ISLNK(mode):
                 target, resolved_target = self._copied_source_symlink_target(
                     entry,
@@ -7039,6 +7814,7 @@ class Workspace:
         for output in sorted(destination.iterdir(), key=lambda path: path.name):
             if output.name not in expected:
                 self._remove_source_view_entry(output)
+        destination.chmod(target_permissions)
         return digest.hexdigest()
 
     @classmethod
@@ -8405,7 +9181,25 @@ class Workspace:
         return identity
 
     def _build_protocol(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
-        self._cmake(selected["protocol"], root / "build" / "protocol", [], tests)
+        source = self._mutable_cmake_source_view(
+            root, "protocol", selected["protocol"]
+        )
+        self._cmake(source, root / "build" / "protocol", [], tests)
+
+    def _mutable_cmake_source_view(
+        self, root: Path, role: str, source: Path
+    ) -> Path:
+        """Copy sealed generated CMake inputs whose tests mutate local fixtures."""
+
+        if self._source_generation_record(source) is None:
+            return source
+        return self._profile_source_view(
+            root,
+            role,
+            source,
+            set(),
+            copy_all=True,
+        )
 
     @staticmethod
     def _uses_integrated_classic_build(
@@ -8531,12 +9325,103 @@ class Workspace:
             tests,
         )
 
+    def _prepare_component_source_includes(
+        self, root: Path, component: Component, source: Path, consumer: Path
+    ) -> None:
+        if not component.source_includes:
+            return
+        generation = self._source_generation_record(source)
+        if generation is not None:
+            closure_root = source.parent
+        else:
+            closure_root = source
+            if component.source != ".":
+                for _part in PurePosixPath(component.source).parts:
+                    closure_root = closure_root.parent
+        records: dict[str, dict[str, Any]] = {}
+        includes_unchanged = True
+        for include in component.source_includes:
+            include_source = closure_root.joinpath(*PurePosixPath(include).parts)
+            try:
+                status = include_source.lstat()
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot inspect component source include {include_source}: {error}"
+                ) from error
+            if stat.S_ISDIR(status.st_mode):
+                include_view = self._profile_source_view(
+                    root, include, include_source, set()
+                )
+                include_key = str(include_view.resolve())
+                includes_unchanged = (
+                    includes_unchanged
+                    and self._source_view_unchanged.get(include_key, False)
+                )
+                records[include] = {
+                    "kind": "directory",
+                    "view": load_regular_json(
+                        include_view / SOURCE_VIEW_METADATA,
+                        "component source include view",
+                    ),
+                }
+            elif stat.S_ISREG(status.st_mode):
+                destination = root.joinpath(
+                    "sources", *PurePosixPath(include).parts
+                )
+                expected_target = str(include_source)
+                link_unchanged = (
+                    destination.is_symlink()
+                    and os.readlink(destination) == expected_target
+                )
+                self._source_view_link(
+                    root / "sources",
+                    include,
+                    include_source,
+                    target_is_directory=False,
+                )
+                includes_unchanged = includes_unchanged and link_unchanged
+                records[include] = {
+                    "kind": "file",
+                    "source": str(include_source.resolve()),
+                    "mode": stat.S_IMODE(status.st_mode),
+                    "size": status.st_size,
+                    "sha256": _file_digest(
+                        include_source, "component source include"
+                    ),
+                }
+            else:
+                raise WorkspaceError(
+                    "component source include is not a regular file or directory: "
+                    f"{include_source}"
+                )
+        metadata = {
+            "schema_version": 1,
+            "purpose": f"source-includes:{component.name}",
+            "entries": records,
+        }
+        metadata_path = consumer / SOURCE_INCLUDE_VIEW_METADATA
+        try:
+            previous = load_regular_json(
+                metadata_path, "component source include metadata"
+            )
+        except WorkspaceError:
+            previous = None
+        includes_unchanged = includes_unchanged and previous == metadata
+        if previous != metadata:
+            atomic_json(metadata_path, metadata)
+        consumer_key = str(consumer.resolve())
+        self._source_view_unchanged[consumer_key] = (
+            self._source_view_unchanged.get(consumer_key, False)
+            and includes_unchanged
+        )
+
     def _build_client(
         self,
         root: Path,
         selected: dict[str, Path],
         tests: bool,
         *,
+        component: Component,
         sound_root: Path | None = None,
     ) -> None:
         view = self._profile_source_view(
@@ -8544,7 +9429,10 @@ class Workspace:
             "client",
             selected["client"],
             {"build", "sound"},
-            preserved_entries={"sound"},
+            preserved_entries={"sound", SOURCE_INCLUDE_VIEW_METADATA},
+        )
+        self._prepare_component_source_includes(
+            root, component, selected["client"], view
         )
         self._source_view_link(
             view,
@@ -8552,20 +9440,33 @@ class Workspace:
             sound_root or selected["sound"],
             target_is_directory=True,
         )
+        protocol = self._mutable_cmake_source_view(
+            root, "protocol", selected["protocol"]
+        )
+        library = self._mutable_cmake_source_view(
+            root, "libatrinik", selected["libatrinik"]
+        )
         self._cmake(
             view,
             root / "build" / "client",
             [
                 "-DENABLE_WARNING_ERRORS=ON",
                 "-DPACKAGE_TYPE=none",
-                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={selected['protocol']}",
-                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={selected['libatrinik']}",
+                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
+                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
             ],
             tests,
         )
         self._record_classic_graph(root, {"client"}, "standalone")
 
-    def _build_server(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
+    def _build_server(
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        tests: bool,
+        *,
+        component: Component,
+    ) -> None:
         view = self._profile_source_view(
             root,
             "server",
@@ -8585,7 +9486,14 @@ class Workspace:
             # CMake treats a top-level directory symlink as the object to copy,
             # which conflicts with the destination directory it just created.
             {"install_data"},
-            preserved_entries={"runtime", "resources"},
+            preserved_entries={
+                "runtime",
+                "resources",
+                SOURCE_INCLUDE_VIEW_METADATA,
+            },
+        )
+        self._prepare_component_source_includes(
+            root, component, selected["server"], view
         )
         self._source_view_directory(view, "runtime", {"content"})
         self._source_view_link(
@@ -8600,14 +9508,20 @@ class Workspace:
             root / "runtime" / "resources",
             target_is_directory=True,
         )
+        protocol = self._mutable_cmake_source_view(
+            root, "protocol", selected["protocol"]
+        )
+        library = self._mutable_cmake_source_view(
+            root, "libatrinik", selected["libatrinik"]
+        )
         self._cmake(
             view,
             root / "build" / "server",
             [
                 "-DENABLE_WARNING_ERRORS=ON",
                 "-DPACKAGE_TYPE=none",
-                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={selected['protocol']}",
-                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={selected['libatrinik']}",
+                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
+                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
                 "-DENABLE_PYTHON_PLUGIN=ON",
             ],
             tests,
@@ -8763,6 +9677,7 @@ class Workspace:
             working.mkdir()
             data = staging_root / "data"
             shutil.copytree(selected["server"] / "install_data", data)
+            self._make_tree_owner_writable(data)
             (data / "tmp").mkdir(exist_ok=True)
             assets = staging_root / "assets"
             assets.mkdir()
@@ -10716,6 +11631,7 @@ class Workspace:
             staging = Path(tempfile.mkdtemp(prefix=f".{path.name}.", dir=path.parent))
             try:
                 shutil.copytree(server_source / "install_data", staging, dirs_exist_ok=True)
+                self._make_tree_owner_writable(staging)
                 (staging / "tmp").mkdir()
                 if implementation is not None and write_implementation:
                     durable_atomic_json(
@@ -13066,6 +13982,32 @@ class Workspace:
                 self._clear_runtime_state_output_transaction(topology_root)
             finally:
                 os.close(descriptor)
+
+    @staticmethod
+    def _make_tree_owner_writable(root: Path) -> None:
+        directories: list[Path] = []
+        for directory, names, files in os.walk(root, followlinks=False):
+            current = Path(directory)
+            directories.append(current)
+            for name in names:
+                path = current / name
+                metadata = path.lstat()
+                if stat.S_ISLNK(metadata.st_mode):
+                    continue
+                if not stat.S_ISDIR(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"mutable source copy contains a special entry: {path}"
+                    )
+            for name in files:
+                path = current / name
+                metadata = path.lstat()
+                if not stat.S_ISREG(metadata.st_mode):
+                    raise WorkspaceError(
+                        f"mutable source copy contains a special entry: {path}"
+                    )
+                path.chmod(stat.S_IMODE(metadata.st_mode) | 0o600)
+        for directory in directories:
+            directory.chmod(stat.S_IMODE(directory.lstat().st_mode) | 0o700)
 
     @staticmethod
     def _seal_runtime_generation(root: Path) -> None:
