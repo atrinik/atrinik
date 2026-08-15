@@ -5104,6 +5104,56 @@ class WorkspaceTests(unittest.TestCase):
                 self.fail("unflushed replacement was yielded")
         self.assertTrue(swapped)
 
+    def test_source_generation_handoff_binds_terminal_sync_to_validation(
+        self,
+    ) -> None:
+        real_resync = self.workspace._durably_resync_source_generation
+        mutated = False
+
+        def mutate_before_terminal_sync(
+            generation: Path,
+            *,
+            expected_inventory: str | None = None,
+        ) -> None:
+            nonlocal mutated
+            if re.fullmatch(r"[0-9a-f]{64}", generation.name) and not mutated:
+                source = generation / "source"
+                target = source / "README"
+                generation_mode = stat.S_IMODE(generation.stat().st_mode)
+                source_mode = stat.S_IMODE(source.stat().st_mode)
+                target_mode = stat.S_IMODE(target.stat().st_mode)
+                generation.chmod(0o700)
+                source.chmod(0o700)
+                target.chmod(0o600)
+                target.write_text("corrupt after validation\n", encoding="utf-8")
+                target.chmod(target_mode)
+                source.chmod(source_mode)
+                generation.chmod(generation_mode)
+                mutated = True
+            real_resync(
+                generation,
+                expected_inventory=expected_inventory,
+            )
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_resync_source_generation",
+                side_effect=mutate_before_terminal_sync,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed before durable retry"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("post-validation corruption was yielded")
+        self.assertTrue(mutated)
+
     def test_source_generation_cleanup_before_record_collection_fails_closed(
         self,
     ) -> None:

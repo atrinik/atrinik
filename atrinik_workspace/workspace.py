@@ -3473,12 +3473,22 @@ class Workspace:
                 os.close(descriptor)
 
     @staticmethod
-    def _durably_resync_source_generation(generation: Path) -> None:
+    def _durably_resync_source_generation(
+        generation: Path, *, expected_inventory: str | None = None
+    ) -> None:
         """Make a visible canonical generation and its directory entry durable."""
 
         device, inode, durable_inventory = (
             Workspace._durably_sync_source_generation(generation)
         )
+        if (
+            expected_inventory is not None
+            and durable_inventory != expected_inventory
+        ):
+            raise WorkspaceError(
+                "source generation changed before durable retry: "
+                f"{generation}"
+            )
         container_fd: int | None = None
         generation_fd: int | None = None
         try:
@@ -3583,7 +3593,7 @@ class Workspace:
     @staticmethod
     def _validate_source_generation_boundary(
         generation: Path, *, require_sealed: bool = False
-    ) -> None:
+    ) -> str:
         """Prove a complete generation remains beneath one mount boundary."""
 
         container_fd: int | None = None
@@ -3624,7 +3634,7 @@ class Workspace:
                     "immutable source generation changed or is mounted: "
                     f"{generation}"
                 )
-            Workspace._source_generation_inventory(
+            inventory = Workspace._source_generation_inventory(
                 generation_fd,
                 generation,
                 sync=False,
@@ -3645,6 +3655,7 @@ class Workspace:
                     "immutable source generation changed during boundary proof: "
                     f"{generation}"
                 )
+            return inventory
         except OSError as error:
             raise WorkspaceError(
                 f"cannot inspect immutable source generation {generation}: {error}"
@@ -4002,7 +4013,7 @@ class Workspace:
                         tree,
                         source_includes,
                     )
-                    self._validate_source_generation_boundary(
+                    reuse_inventory = self._validate_source_generation_boundary(
                         generation, require_sealed=True
                     )
                     source_digest = _tree_digest(
@@ -4021,7 +4032,10 @@ class Workspace:
                         raise _SourceGenerationCorrupt(
                             f"immutable source generation is corrupt: {generation}"
                         )
-                    self._durably_resync_source_generation(generation)
+                    self._durably_resync_source_generation(
+                        generation,
+                        expected_inventory=reuse_inventory,
+                    )
                 except _SourceGenerationCorrupt as error:
                     try:
                         self._quarantine_source_generation(
@@ -4578,6 +4592,11 @@ class Workspace:
                         context.__enter__()
                         generation_contexts.append(context)
                     for path, expected_record in generation_records.items():
+                        expected_inventory = (
+                            self._validate_source_generation_boundary(
+                                path.parent, require_sealed=True
+                            )
+                        )
                         try:
                             current_record = self._source_generation_record(path)
                             current_digest = _tree_digest(
@@ -4619,7 +4638,10 @@ class Workspace:
                         self._validate_source_generation_boundary(
                             path.parent, require_sealed=True
                         )
-                        self._durably_resync_source_generation(path.parent)
+                        self._durably_resync_source_generation(
+                            path.parent,
+                            expected_inventory=expected_inventory,
+                        )
                     retained = []
                     for coordinate, context in reversed(source_contexts):
                         if coordinate in released:
