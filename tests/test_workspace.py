@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager, ExitStack, redirect_stderr
+from contextlib import contextmanager, ExitStack, nullcontext, redirect_stderr
 import ctypes
 import errno
 import fcntl
@@ -20408,6 +20408,9 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("private player data", readme)
 
     def test_windows_source_staging_overlays_read_only_generations(self) -> None:
+        self.workspace.manifest = Manifest.load(
+            Path(__file__).parents[1] / "components.json"
+        )
         selected: dict[str, Path] = {}
         classic_root = self.root / "sealed-classic"
         (classic_root / "cmake").mkdir(parents=True)
@@ -20420,8 +20423,17 @@ class WorkspaceTests(unittest.TestCase):
             source = classic_root / role
             source.mkdir()
             (source / "source.txt").write_text(role, encoding="utf-8")
-            source.chmod(0o555)
             selected[role] = source
+        command("git", "init", "-b", "main", cwd=classic_root)
+        command("git", "config", "user.name", "Tests", cwd=classic_root)
+        command(
+            "git", "config", "user.email", "tests@example.invalid", cwd=classic_root
+        )
+        command("git", "add", ".", cwd=classic_root)
+        command("git", "commit", "-m", "test: seed Classic staging", cwd=classic_root)
+        commit = command("git", "rev-parse", "HEAD", cwd=classic_root)
+        for role in ("client", "server", "protocol", "libatrinik"):
+            selected[role].chmod(0o555)
         (classic_root / "cmake").chmod(0o555)
         classic_root.chmod(0o555)
 
@@ -20456,13 +20468,30 @@ class WorkspaceTests(unittest.TestCase):
         )
         staging = self.root / "windows-sources"
         staging.mkdir()
+        profile = self.workspace._load_profile("classic", require_file=False)
+        snapshot = workspace_module.ProfileResolutionSnapshot(
+            "classic",
+            "c" * 64,
+            json.dumps(profile, sort_keys=True, separators=(",", ":")),
+            tuple((role, str(path)) for role, path in sorted(selected.items())),
+            json.dumps(
+                {
+                    "classic": {
+                        "path": str(classic_root),
+                        "head": commit,
+                        "dirty": False,
+                    }
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+        )
 
-        with mock.patch("atrinik_workspace.workspace.run") as execute:
-            self.workspace._stage_windows_profile_sources(
-                staging, build_root, selected
-            )
+        self.workspace._stage_windows_profile_sources(
+            staging, build_root, selected, snapshot
+        )
 
-        execute.assert_called_once_with(["git", "init", "--quiet"], cwd=staging)
+        self.assertTrue((staging / ".git").is_dir())
         self.assertEqual(
             (staging / "cmake" / "AtrinikVersion.cmake").read_text(
                 encoding="utf-8"
@@ -20487,6 +20516,233 @@ class WorkspaceTests(unittest.TestCase):
             .read_text(encoding="utf-8"),
             "resource",
         )
+
+    def test_windows_profile_packages_role_specific_classic_generations(self) -> None:
+        self.workspace.manifest = Manifest.load(
+            Path(__file__).parents[1] / "components.json"
+        )
+        profile = self.workspace._load_profile("classic", require_file=False)
+        commit = "a" * 40
+        tree = "b" * 40
+        selected: dict[str, Path] = {}
+        records: dict[Path, dict[str, object]] = {}
+        for role in ("client", "server", "protocol", "libatrinik"):
+            generation = self.root / f"generation-{role}"
+            source = generation / "source"
+            source.mkdir(parents=True)
+            (source / "source.txt").write_text(role, encoding="utf-8")
+            selected[role] = source
+            component = self.workspace.manifest.stack("classic").providers[role]
+            records[source] = {
+                "checkout": "classic",
+                "repository": "atrinik/classic",
+                "commit": commit,
+                "tree": tree,
+                "source": component.source,
+            }
+        client_root = selected["client"].parent
+        (client_root / "cmake").mkdir()
+        (client_root / "cmake" / "AtrinikVersion.cmake").write_text(
+            "version", encoding="utf-8"
+        )
+        for document in ("LICENSE.md", "ATTRIBUTIONS.md"):
+            (client_root / document).write_text(document, encoding="utf-8")
+        for role in ("sound", "content", "resources"):
+            selected[role] = self.root / role
+            selected[role].mkdir()
+
+        snapshot = workspace_module.ProfileResolutionSnapshot(
+            "classic",
+            "c" * 64,
+            json.dumps(profile, sort_keys=True, separators=(",", ":")),
+            tuple((role, str(path)) for role, path in sorted(selected.items())),
+            json.dumps(
+                {
+                    "classic": {
+                        "path": str(self.root / "classic"),
+                        "head": commit,
+                        "dirty": False,
+                    }
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+        )
+        build_root = self.root / "windows-build"
+        for path in (
+            build_root / "runtime" / "content" / "maps",
+            build_root / "runtime" / "content" / "lib",
+            build_root / "runtime" / "resources",
+        ):
+            path.mkdir(parents=True)
+            (path / "input.txt").write_text(path.name, encoding="utf-8")
+        atomic_json(
+            build_root / workspace_module.BUILD_METADATA,
+            {
+                "sound": {
+                    "mode": "source",
+                    "root": str(selected["sound"]),
+                    "source_commit": "d" * 40,
+                    "source_tree": "e" * 40,
+                    "source_clean": True,
+                },
+                "coordinates": {},
+            },
+        )
+        state = self.root / "state"
+        state.mkdir()
+        output = self.root / "packages" / "classic.zip"
+        archive_reached = mock.Mock()
+        staged_sources: list[Path] = []
+
+        def snapshot_state(_fd: int, _state: Path, destination: Path) -> str:
+            destination.mkdir()
+            (destination / "player.dat").write_text("state", encoding="utf-8")
+            return "f" * 64
+
+        def build_archives(staging: Path) -> tuple[Path, Path, dict[str, str]]:
+            staged_sources.append(staging)
+            self.assertEqual(
+                (staging / "client" / "source.txt").read_text(encoding="utf-8"),
+                "client",
+            )
+            self.assertEqual(
+                (staging / "server" / "source.txt").read_text(encoding="utf-8"),
+                "server",
+            )
+            client = self.root / "client.zip"
+            server = self.root / "server.zip"
+            client.write_bytes(b"client")
+            server.write_bytes(b"server")
+            return client, server, {"mode": "test", "image": ""}
+
+        def extract(_archive: Path, destination: Path, executable: str) -> None:
+            destination.mkdir()
+            (destination / executable).write_bytes(b"executable")
+            if executable == "atrinik-server.exe":
+                staged = staged_sources[0] / "server"
+                shutil.copytree(
+                    staged / "runtime" / "content" / "maps",
+                    destination / "maps",
+                )
+                shutil.copytree(
+                    staged / "runtime" / "content" / "lib",
+                    destination / "lib",
+                )
+                shutil.copytree(staged / "resources", destination / "resources")
+
+        def archive(_root: Path, destination: Path) -> None:
+            archive_reached()
+            destination.write_bytes(b"package")
+
+        state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+        state_lock = mock.Mock()
+        with (
+            mock.patch.object(self.workspace, "_require_classic_contracts"),
+            mock.patch.object(
+                self.workspace,
+                "_resolved_profile_operation",
+                return_value=nullcontext(snapshot),
+            ),
+            mock.patch.object(
+                self.workspace, "_build_resolved", return_value=build_root
+            ),
+            mock.patch.object(
+                self.workspace, "_topology_resolved_status", return_value={}
+            ),
+            mock.patch.object(
+                self.workspace, "_state_implementation", return_value={}
+            ),
+            mock.patch.object(self.workspace, "_state_location", return_value=state),
+            mock.patch.object(
+                self.workspace,
+                "_topology_state_lock",
+                return_value=nullcontext(state_lock),
+            ),
+            mock.patch.object(
+                self.workspace, "state_path", return_value=(state, state_fd)
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_snapshot_windows_profile_state",
+                side_effect=snapshot_state,
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_profile_build_lock",
+                return_value=nullcontext(),
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_source_generation_record",
+                side_effect=lambda path: records.get(path),
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_build_windows_profile_archives",
+                side_effect=build_archives,
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_extract_portable_windows_package",
+                side_effect=extract,
+            ),
+            mock.patch.object(
+                self.workspace, "_archive_windows_profile", side_effect=archive
+            ),
+        ):
+            result = self.workspace.package_windows_profile(
+                "classic", "default", output
+            )
+
+        archive_reached.assert_called_once_with()
+        state_lock.bind.assert_called_once()
+        self.assertEqual(result["path"], str(output))
+
+    def test_windows_source_staging_rejects_mixed_generation_identity(self) -> None:
+        self.workspace.manifest = Manifest.load(
+            Path(__file__).parents[1] / "components.json"
+        )
+        profile = self.workspace._load_profile("classic", require_file=False)
+        selected: dict[str, Path] = {}
+        records: dict[Path, dict[str, object]] = {}
+        for index, role in enumerate(("client", "server", "protocol", "libatrinik")):
+            source = self.root / f"generation-{role}" / "source"
+            source.mkdir(parents=True)
+            selected[role] = source
+            component = self.workspace.manifest.stack("classic").providers[role]
+            records[source] = {
+                "checkout": "classic",
+                "repository": "atrinik/classic",
+                "commit": ("a" if index != 1 else "c") * 40,
+                "tree": "b" * 40,
+                "source": component.source,
+            }
+        snapshot = workspace_module.ProfileResolutionSnapshot(
+            "classic",
+            "d" * 64,
+            json.dumps(profile, sort_keys=True, separators=(",", ":")),
+            tuple((role, str(path)) for role, path in sorted(selected.items())),
+            json.dumps(
+                {"classic": {"path": str(self.root / "classic"), "head": "a" * 40}},
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+        )
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_source_generation_record",
+                side_effect=lambda path: records[path],
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "checkout/repository/commit/tree identity"
+            ),
+        ):
+            self.workspace._stage_windows_profile_sources(
+                self.root / "staging", self.root / "build", selected, snapshot
+            )
 
     def test_windows_state_snapshot_reuses_existing_physical_lock(self) -> None:
         server = self.workspace.paths.repositories / "server"
