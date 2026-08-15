@@ -1631,14 +1631,19 @@ Its objective digest is the canonical object digest of:
 {"ledger_id":"LEDGER_ID","ledger_sha256":"CURRENT_LEDGER_SHA256","operation":"release"}
 ```
 
-It must postdate the active authority. Each PR row has exact `repository`,
+It must postdate the active authority and every selected PR's merge instant. Each PR row has exact `repository`,
 `number`, `node_id`, `state: "merged"`, equal recorded/observed head SHAs,
 `merge_commit_sha`, `merged_at`, and
-`ancestry: {"method":"git-merge-base-is-ancestor","result":"ancestor"}`.
-The helper re-observes every exact PR and issue through authenticated `gh`,
+either `ancestry: {"method":"git-merge-base-is-ancestor","result":"ancestor"}`
+or `{"method":"git-squash-change-equivalent","result":"equivalent"}`. The
+latter requires a single-parent squash commit whose parent-to-merge change is
+byte-for-byte the merge-base-to-recorded-head Git change.
+The helper pins `/usr/bin/gh`, forces `github.com`, scrubs host/config/path
+overrides, and re-observes every exact PR and issue through authenticated `gh`,
 requires the authenticated actor to equal the ledger actor, pins the exact
 clean recorded worktree and Git authority, and runs the ancestry check itself.
-Apply repeats the remote and Git proof after staging before installation. Each selected explicit/program
+Apply holds wrapper coordinate leases, repeats local proof after staging, and
+performs the remote sweep last before installation. Each selected explicit/program
 issue appears once with `closed` when in closing scope and `open` otherwise.
 Both mutation-state fields are `idle`; PR body/comment/readiness intents are
 terminal, and every artifact is bound and safe. Running resources and mutable
@@ -1673,7 +1678,7 @@ wrapper JSON. The helper parses schema 1, requires `dry-run` then successful
 preview `eligible` and apply `removed`/`completed_actions` rows. Those exact
 sets and their canonical digests must match. The authority kind is
 `explicit-post-cleanup`, allows exactly the ledger ID, uses the delivery actor,
-postdates release, and binds this canonical objective:
+strictly postdates both release and cleanup apply, and binds this canonical objective:
 
 ```json
 {"ledger_id":"LEDGER_ID","operation":"archive","release_sha256":"RELEASE_SHA256"}
@@ -1685,7 +1690,9 @@ resource rows exactly match every slot and say `removed` or `retained`, with the
 same terminal lifecycle. The one exception converts a ledger-recorded active
 scope to `removed`/`released`, reflecting its intervening wrapper release.
 That exception also requires the live scope subsystem's exact completed,
-generation-matched release journal; a caller-authored summary is insufficient.
+generation-matched release journal, embedded canonical plan and exact completed
+action set, plus live absence of every released coordinate; a caller-authored
+summary is insufficient.
 Archive preview/apply never removes those resources.
 It instead bundles canonical ledger, release, lock, optional report, migration
 marker/snapshot/source, and embedded intent bytes into one canonical bounded
@@ -1696,8 +1703,9 @@ member removal resumable and remains inert audit evidence.
 at or after `retain_until`. Apply rechecks helper time and the original
 digest/device/inode. Review the returned bound plan and
 feed the complete preview to `reclaim-apply`. Reclaim removes only that bundle;
-it never follows a path or touches a worktree/resource. A bounded exact receipt
-makes an interrupted post-unlink apply recoverable; unrelated absent-archive
+it never follows a path or touches a worktree/resource. Exact unlink first moves
+the inode into a private crash-recoverable quarantine. A bounded terminal receipt
+makes every post-unlink retry converge and remains inventory-classified as completed; unrelated absent-archive
 requests fail. Use a retention period required by
 project policy; never shorten it merely to clear inventory pressure.
 

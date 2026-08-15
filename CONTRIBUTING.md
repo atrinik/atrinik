@@ -148,10 +148,11 @@ workspaces; repository validation remains preview-only.
 
 For delivery-ledger lifecycle changes, cover post-merge authority and exact
 authenticated live PR/issue matching, post-stage clean-worktree ancestry,
-intent/resource refusal,
+exact squash integration, hostile GitHub CLI environment refusal, live wrapper
+lease/reference/resource rechecks, intent/resource refusal,
 release-before-inert ordering, cleanup preview/apply selection binding,
-scope-release journal proof, archive member identity, helper-clocked
-retention reclaim, stale plans, and same-
+scope-release journal/plan/action/absence proof, quarantined archive member
+identity, helper-clocked retention reclaim and terminal receipts, stale plans, and same-
 coordinate crash/retry/concurrency at every publication boundary. Tests may
 apply archive/reclaim only inside temporary test-owned review roots. Delivery
 must never invoke wrapper cleanup, and repository validation remains

@@ -1147,7 +1147,34 @@ class ScopeLifecycle:
                         return plan
                     if plan_sha256 is None or not _HEX64.fullmatch(plan_sha256):
                         raise WorkspaceError("scope release apply requires the exact --plan SHA256 from dry-run")
-                    if plan_sha256 != plan["plan_sha256"]:
+                    release_path = self._release_path(record["name"])
+                    if release_path.exists() or release_path.is_symlink():
+                        if release_path.is_symlink() or not release_path.is_file():
+                            raise WorkspaceError("scope release journal is unsafe")
+                        journal = load_regular_json(
+                            release_path, f"scope release {record['name']}"
+                        )
+                        if (
+                            not isinstance(journal, dict)
+                            or journal.get("plan_sha256") != plan_sha256
+                            or not isinstance(journal.get("plan"), dict)
+                            or set(journal["plan"])
+                            != {"schema_version", "scope", "generation", "items"}
+                            or journal["plan"].get("schema_version")
+                            != SCOPE_RELEASE_SCHEMA_VERSION
+                            or journal["plan"].get("scope") != record["name"]
+                            or journal["plan"].get("generation") != record["generation"]
+                            or not isinstance(journal["plan"].get("items"), list)
+                            or _canonical_sha256(journal["plan"]) != plan_sha256
+                        ):
+                            raise WorkspaceError("scope release journal plan is invalid")
+                        plan = {
+                            **journal["plan"],
+                            "mode": "dry-run",
+                            "plan_sha256": journal["plan_sha256"],
+                            "can_apply": True,
+                        }
+                    elif plan_sha256 != plan["plan_sha256"]:
                         raise WorkspaceError("scope release coordinates changed since preview; preview again")
                     blockers = [item for item in plan["items"] if item["disposition"] == "protected"]
                     if blockers:
@@ -1406,6 +1433,16 @@ class ScopeLifecycle:
                 or previous.get("generation") != record["generation"]
                 or not isinstance(previous.get("completed"), list)
                 or not all(isinstance(item, str) for item in previous["completed"])
+                or not isinstance(previous.get("plan"), dict)
+                or set(previous["plan"])
+                != {"schema_version", "scope", "generation", "items"}
+                or _canonical_sha256(previous["plan"])
+                != previous.get("plan_sha256")
+                or previous.get("plan") != {
+                    key: plan[key]
+                    for key in ("schema_version", "scope", "generation", "items")
+                }
+                or previous.get("plan_sha256") != plan["plan_sha256"]
             ):
                 raise WorkspaceError("scope release journal is invalid")
             completed = list(dict.fromkeys(previous["completed"]))
@@ -1414,6 +1451,10 @@ class ScopeLifecycle:
             "scope": record["name"],
             "generation": record["generation"],
             "plan_sha256": plan["plan_sha256"],
+            "plan": {
+                key: plan[key]
+                for key in ("schema_version", "scope", "generation", "items")
+            },
             "status": "applying",
             "completed": completed,
             "updated_at": _now(),
@@ -1423,6 +1464,11 @@ class ScopeLifecycle:
             if item["kind"] != "build" or item["disposition"] != "eligible":
                 continue
             root = Path(item["path"])
+            action = f"build:{item['path']}"
+            if action in journal["completed"]:
+                if root.exists() or root.is_symlink():
+                    raise WorkspaceError(f"completed scope build reappeared: {root}")
+                continue
             metadata_path = root / BUILD_METADATA
             marker_path = root / MANAGED_MARKER
             if (
@@ -1440,7 +1486,6 @@ class ScopeLifecycle:
                 root,
                 expected_identity={"device": item["device"], "inode": item["inode"]},
             )
-            action = f"build:{item['path']}"
             if action not in journal["completed"]:
                 journal["completed"].append(action)
             journal["updated_at"] = _now()
@@ -1448,26 +1493,29 @@ class ScopeLifecycle:
 
         profile_path = Path(record["profile"]["path"])
         if any(item["kind"] == "profile" and item["disposition"] == "eligible" for item in plan["items"]):
-            if (
-                profile_path.is_symlink()
-                or not profile_path.is_file()
-                or _file_sha256(profile_path) != record["profile"]["sha256"]
-                or (
-                    profile_path.stat(follow_symlinks=False).st_dev,
-                    profile_path.stat(follow_symlinks=False).st_ino,
-                )
-                != (
-                    record["profile"]["path_device"],
-                    record["profile"]["path_inode"],
-                )
-            ):
-                raise WorkspaceError("scope profile changed during release")
-            profile_path.unlink()
-            self.workspace._remove_physical_reference(profile_path)
-            if "profile" not in journal["completed"]:
+            if "profile" in journal["completed"]:
+                if profile_path.exists() or profile_path.is_symlink():
+                    raise WorkspaceError("completed scope profile reappeared")
+            else:
+                if (
+                    profile_path.is_symlink()
+                    or not profile_path.is_file()
+                    or _file_sha256(profile_path) != record["profile"]["sha256"]
+                    or (
+                        profile_path.stat(follow_symlinks=False).st_dev,
+                        profile_path.stat(follow_symlinks=False).st_ino,
+                    )
+                    != (
+                        record["profile"]["path_device"],
+                        record["profile"]["path_inode"],
+                    )
+                ):
+                    raise WorkspaceError("scope profile changed during release")
+                profile_path.unlink()
+                self.workspace._remove_physical_reference(profile_path)
                 journal["completed"].append("profile")
-            journal["updated_at"] = _now()
-            durable_atomic_json(self._release_path(record["name"]), journal)
+                journal["updated_at"] = _now()
+                durable_atomic_json(self._release_path(record["name"]), journal)
 
         by_checkout = {
             item["checkout"]: item
@@ -1479,6 +1527,11 @@ class ScopeLifecycle:
             if item["disposition"] != "eligible":
                 continue
             path = Path(row["path"])
+            action = f"worktree:{row['checkout']}"
+            if action in journal["completed"]:
+                if path.exists() or path.is_symlink():
+                    raise WorkspaceError(f"completed scope worktree reappeared: {path}")
+                continue
             if path.is_symlink() or not path.is_dir():
                 raise WorkspaceError(f"scope worktree changed during release: {path}")
             identity = path.stat(follow_symlinks=False)
@@ -1506,7 +1559,6 @@ class ScopeLifecycle:
             primary = Path(row["primary_path"])
             git(primary, "worktree", "remove", str(path), trace=False)
             git(primary, "branch", "-d", row["branch"], trace=False)
-            action = f"worktree:{row['checkout']}"
             if action not in journal["completed"]:
                 journal["completed"].append(action)
             journal["updated_at"] = _now()

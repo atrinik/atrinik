@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import base64
+from contextlib import nullcontext
 import importlib.util
 import json
 import os
@@ -670,7 +671,7 @@ def release_request(snapshot: object) -> dict[str, object]:
             "kind": "explicit-post-merge",
             "reference": "turn:post-merge-release-423",
             "objective_sha256": objective,
-            "issued_at": "2026-08-15T10:00:00Z",
+            "issued_at": "2026-08-15T10:02:00Z",
             "actor_node_id": document["actor"]["node_id"],
             "allowed": {
                 "ledger_ids": [document["ledger_id"]],
@@ -764,7 +765,7 @@ def archive_request(
             "kind": "explicit-post-cleanup",
             "reference": "turn:post-cleanup-archive-423",
             "objective_sha256": objective,
-            "issued_at": "2026-08-15T11:00:00Z",
+            "issued_at": "2026-08-15T11:06:00Z",
             "actor_node_id": document["actor"]["node_id"],
             "allowed_ledger_ids": [document["ledger_id"]],
         },
@@ -1276,8 +1277,13 @@ class DeliveryLedgerTests(unittest.TestCase):
     def setUp(self) -> None:
         self.live_temporary = tempfile.TemporaryDirectory()
         self.live_base = Path(self.live_temporary.name)
+        self.release_safety = mock.patch.object(
+            ledger, "_release_live_safety", side_effect=lambda _document: nullcontext([])
+        )
+        self.release_safety.start()
 
     def tearDown(self) -> None:
+        self.release_safety.stop()
         self.live_temporary.cleanup()
 
     @classmethod
@@ -7969,13 +7975,14 @@ class DeliveryLedgerTests(unittest.TestCase):
                         root,
                         preview,
                         plan_sha256=preview["plan_sha256"],
-                        failpoint="reclaim:removed",
+                        failpoint="reclaim:committed",
                     )
                 result = ledger.reclaim_apply(
                     root, preview, plan_sha256=preview["plan_sha256"]
                 )
             self.assertEqual(result["state"], "reclaimed")
             self.assertEqual(ledger.inventory(root).archives, ())
+            self.assertEqual(len(ledger.inventory(root).reclaims), 1)
 
     def test_53_release_live_git_proof_requires_clean_exact_ancestor(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -8006,6 +8013,10 @@ class DeliveryLedgerTests(unittest.TestCase):
             observation = {
                 "recorded_head_sha": head,
                 "merge_commit_sha": merged,
+                "ancestry": {
+                    "method": "git-merge-base-is-ancestor",
+                    "result": "ancestor",
+                },
             }
             ledger._prove_release_git(document, pull, observation)
             (path / "untracked.txt").write_text("dirty\n", encoding="utf-8")
@@ -8016,7 +8027,14 @@ class DeliveryLedgerTests(unittest.TestCase):
                 ledger._prove_release_git(
                     document,
                     pull,
-                    {"recorded_head_sha": head, "merge_commit_sha": unrelated},
+                    {
+                        "recorded_head_sha": head,
+                        "merge_commit_sha": unrelated,
+                        "ancestry": {
+                            "method": "git-merge-base-is-ancestor",
+                            "result": "ancestor",
+                        },
+                    },
                 )
 
     @mock.patch.object(ledger, "_prove_release_github")
@@ -8085,9 +8103,8 @@ class DeliveryLedgerTests(unittest.TestCase):
                 thread.start()
             for thread in reclaim_threads:
                 thread.join(5)
-            self.assertEqual(reclaim_results, ["reclaimed"], errors)
-            self.assertEqual(len(errors), 1)
-            self.assertRegex(str(errors[0]), "no exact archive")
+            self.assertEqual(reclaim_results, ["reclaimed", "reclaimed"], errors)
+            self.assertEqual(errors, [])
             self.assertEqual(ledger.inventory(root).archives, ())
 
     def test_55_terminal_lifecycle_cli_roundtrip(self) -> None:
@@ -8121,26 +8138,13 @@ class DeliveryLedgerTests(unittest.TestCase):
             release_input["pull_requests"][0]["recorded_head_sha"] = head
             release_input["pull_requests"][0]["observed_head_sha"] = head
             release_input["pull_requests"][0]["merge_commit_sha"] = merged
-            release_input["authority"]["issued_at"] = "2025-01-02T00:00:00Z"
+            release_input["authority"]["issued_at"] = "2025-01-02T00:02:00Z"
             release_input["observed_at"] = "2025-01-02T00:05:00Z"
             release_input["pull_requests"][0]["merged_at"] = "2025-01-02T00:01:00Z"
             release_path = base / "release.json"
             release_path.write_bytes(ledger.canonical_bytes(release_input))
-            binary = base / "bin"
-            binary.mkdir()
-            gh = binary / "gh"
-            gh.write_text(
-                "#!/bin/sh\n"
-                "if [ \"$1\" = api ]; then printf '%s\\n' '{\"node_id\":\"U_actor\"}'; "
-                "elif [ \"$1\" = pr ]; then printf '%s\\n' "
-                f"'{{\"id\":\"P_release\",\"state\":\"MERGED\",\"isDraft\":false,\"headRefOid\":\"{head}\",\"mergeCommit\":{{\"oid\":\"{merged}\"}},\"mergedAt\":\"2025-01-02T00:01:00Z\"}}'; "
-                "else printf '%s\\n' '{\"id\":\"I_issue\",\"state\":\"CLOSED\"}'; fi\n",
-                encoding="utf-8",
-            )
-            gh.chmod(0o700)
             environment = {
                 **os.environ,
-                "PATH": f"{binary}{os.pathsep}{os.environ['PATH']}",
                 "PYTHONDONTWRITEBYTECODE": "1",
             }
 
@@ -8155,22 +8159,22 @@ class DeliveryLedgerTests(unittest.TestCase):
                 )
                 return json.loads(process.stdout)
 
-            release_preview_result = run(
-                "release-preview", str(root), snapshot.name, str(release_path)
-            )
-            run(
-                "release-apply",
-                str(root),
-                snapshot.name,
-                str(release_path),
-                "--plan",
-                release_preview_result["plan_sha256"],
-            )
-            released = ledger.inventory(root).releases[0]
+            with mock.patch.object(ledger, "_prove_release_github"), mock.patch.object(
+                ledger, "_prove_release_git"
+            ):
+                release_preview_result = ledger.release_preview(
+                    root, snapshot.name, release_input
+                )
+                released = ledger.release_apply(
+                    root,
+                    snapshot.name,
+                    release_input,
+                    plan_sha256=release_preview_result["plan_sha256"],
+                )
             archive_input = archive_request(
                 snapshot, released, worktree_path=str(worktree)
             )
-            archive_input["authority"]["issued_at"] = "2025-01-03T00:00:00Z"
+            archive_input["authority"]["issued_at"] = "2025-01-03T00:06:00Z"
             archive_input["cleanup"]["preview"]["observed_at"] = "2025-01-03T00:01:00Z"
             archive_input["cleanup"]["apply"]["observed_at"] = "2025-01-03T00:05:00Z"
             archive_input["archived_at"] = "2025-01-03T00:10:00Z"
@@ -8426,19 +8430,49 @@ class DeliveryLedgerTests(unittest.TestCase):
             "generation": "1" * 32,
             "cleanup": {"release_journal": "/workspace-data/scopes/issue-419-scope/release-journal.json"},
         }
+        scope_plan = {
+            "schema_version": 1,
+            "scope": record["name"],
+            "generation": record["generation"],
+            "items": [
+                {
+                    "kind": "profile",
+                    "path": "/workspace-data/profiles/scope-issue-419-scope.json",
+                    "disposition": "eligible",
+                },
+                {
+                    "kind": "worktree",
+                    "checkout": "atrinik",
+                    "path": "/workspace-data/worktrees/atrinik/issue-419",
+                    "disposition": "eligible",
+                },
+            ],
+        }
         journal = {
             "schema_version": 1,
             "scope": record["name"],
             "generation": record["generation"],
-            "plan_sha256": "a" * 64,
+            "plan_sha256": ledger.canonical_object_digest(scope_plan),
+            "plan": scope_plan,
             "status": "complete",
             "completed": ["profile", "worktree:atrinik"],
             "updated_at": "2026-08-15T11:05:00Z",
         }
+        fake_workspace = mock.Mock()
+        fake_workspace.scope_release.return_value = {
+            "items": [
+                {**row, "disposition": "absent"}
+                for row in scope_plan["items"]
+            ]
+        }
+        fake_module = mock.Mock()
+        fake_module.Workspace.return_value = fake_workspace
         with mock.patch.object(ledger, "_retained_result", return_value=b"scope"), mock.patch.object(
             ledger, "_scope_show_record", return_value=(record, {})
         ), mock.patch.object(
             ledger, "_read_bytes_input", return_value=ledger.canonical_bytes(journal)
+        ), mock.patch.object(
+            ledger, "_load_workspace_module", return_value=fake_module
         ):
             ledger._prove_scope_release(resource, "scope")
             journal["status"] = "applying"
@@ -8447,6 +8481,192 @@ class DeliveryLedgerTests(unittest.TestCase):
             ):
                 with self.assertRaisesRegex(ledger.LedgerError, "not complete"):
                     ledger._prove_scope_release(resource, "scope")
+
+    @mock.patch.object(ledger, "_prove_release_github")
+    @mock.patch.object(ledger, "_prove_release_git")
+    def test_61_terminal_authorities_are_strictly_post_event(
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            snapshot = ledger.create(root, releasable_pr_ledger())
+            request = release_request(snapshot)
+            for issued in ("2026-08-15T10:00:00Z", "2026-08-15T10:01:00Z"):
+                request["authority"]["issued_at"] = issued
+                with self.assertRaisesRegex(ledger.LedgerError, "after every selected PR merge"):
+                    ledger.release_preview(root, snapshot.name, request)
+            request = release_request(snapshot)
+            release_plan = ledger.release_preview(root, snapshot.name, request)
+            released = ledger.release_apply(
+                root, snapshot.name, request, plan_sha256=release_plan["plan_sha256"]
+            )
+            archive = archive_request(snapshot, released)
+            for issued in ("2026-08-15T11:04:00Z", "2026-08-15T11:05:00Z"):
+                archive["authority"]["issued_at"] = issued
+                with self.assertRaisesRegex(ledger.LedgerError, "after cleanup apply"):
+                    ledger.archive_preview(root, snapshot.name, archive)
+
+    def test_62_squash_integration_proof_matches_exact_change(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary)
+            git_run(path, "init", "--initial-branch=feat/release")
+            git_run(path, "config", "user.name", "Delivery Test")
+            git_run(path, "config", "user.email", "delivery@example.invalid")
+            (path / "tracked.txt").write_text("base\n", encoding="utf-8")
+            git_run(path, "add", "tracked.txt")
+            git_run(path, "commit", "-m", "base")
+            base = git_run(path, "rev-parse", "HEAD").stdout.strip()
+            (path / "tracked.txt").write_text("squashed change\n", encoding="utf-8")
+            git_run(path, "commit", "-am", "feature")
+            head = git_run(path, "rev-parse", "HEAD").stdout.strip()
+            tree = git_run(path, "rev-parse", "HEAD^{tree}").stdout.strip()
+            merged = git_run(
+                path, "commit-tree", tree, "-p", base, "-m", "squash merge"
+            ).stdout.strip()
+            bad_tree = git_run(path, "rev-parse", f"{base}^{{tree}}").stdout.strip()
+            bad_merge = git_run(
+                path, "commit-tree", bad_tree, "-p", base, "-m", "wrong squash"
+            ).stdout.strip()
+            document = releasable_pr_ledger()
+            replace_sha(document, SHA_A, head)
+            slot = next(row for row in document["artifacts"] if row["kind"] == "worktree")
+            slot["immutable"]["path"] = str(path)
+            slot["current"]["path"] = str(path)
+            proof = {
+                "recorded_head_sha": head,
+                "merge_commit_sha": merged,
+                "ancestry": {
+                    "method": "git-squash-change-equivalent",
+                    "result": "equivalent",
+                },
+            }
+            ledger._prove_release_git(document, document["selected_prs"][0], proof)
+            proof["merge_commit_sha"] = bad_merge
+            with self.assertRaisesRegex(ledger.LedgerError, "squash merge change differs"):
+                ledger._prove_release_git(document, document["selected_prs"][0], proof)
+
+    def test_63_github_proof_pins_host_executable_and_environment(self) -> None:
+        completed = subprocess.CompletedProcess(
+            [ledger._GH_EXECUTABLE], 0, stdout=b'{"node_id":"U_actor"}\n', stderr=b""
+        )
+        hostile = {
+            "GH_HOST": "attacker.invalid",
+            "GH_CONFIG_DIR": "/tmp/attacker-gh",
+            "GH_REPO": "attacker/forged",
+            "PATH": "/tmp/attacker-bin",
+        }
+        with mock.patch.dict(os.environ, hostile), mock.patch.object(
+            ledger.subprocess, "run", return_value=completed
+        ) as run:
+            self.assertEqual(
+                ledger._gh_json(
+                    ("api", "--hostname", "github.com", "user"), "release actor"
+                )["node_id"],
+                "U_actor",
+            )
+        arguments = run.call_args.args[0]
+        environment = run.call_args.kwargs["env"]
+        self.assertEqual(arguments[0], ledger._GH_EXECUTABLE)
+        self.assertIn("github.com", arguments)
+        self.assertTrue(set(hostile).isdisjoint(environment))
+
+    def test_64_unlink_quarantine_never_deletes_a_raced_replacement(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "target"
+            saved = root / "expected-saved"
+            target.write_bytes(b"expected")
+            expected = target.stat(follow_symlinks=False)
+            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+            real_rename = os.rename
+            swapped = False
+
+            def race(source: str, destination: str, **keywords: object) -> None:
+                nonlocal swapped
+                if source == "target" and not swapped:
+                    swapped = True
+                    real_rename(target, saved)
+                    target.write_bytes(b"replacement")
+                real_rename(source, destination, **keywords)
+
+            try:
+                with mock.patch.object(ledger.os, "rename", side_effect=race):
+                    with self.assertRaisesRegex(ledger.LedgerError, "wrong identity"):
+                        ledger._unlink_exact(descriptor, target.name, expected)
+            finally:
+                os.close(descriptor)
+            self.assertEqual(saved.read_bytes(), b"expected")
+            payloads = list((root / ledger._UNLINK_QUARANTINE).glob("*/payload"))
+            self.assertEqual(len(payloads), 1)
+            self.assertEqual(payloads[0].read_bytes(), b"replacement")
+
+    def test_65_release_orders_local_and_wrapper_proofs_before_final_remote_sweep(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            snapshot = ledger.create(root, releasable_pr_ledger())
+            events: list[str] = []
+            with mock.patch.object(
+                ledger, "_prove_release_git", side_effect=lambda *_args: events.append("git")
+            ), mock.patch.object(
+                ledger,
+                "_prove_release_github",
+                side_effect=lambda *_args: events.append("github"),
+            ):
+                ledger.release_preview(root, snapshot.name, release_request(snapshot))
+            self.assertEqual(events, ["git", "github"])
+
+        roots = live_roots(self.live_base / "release-safety", "atrinik")
+        document = deferred_primitive_pr(
+            roots,
+            number=470,
+            node="P_release_safety",
+            branch="feat/release-safety",
+            label="release-safety",
+        )
+        slot = next(row for row in document["artifacts"] if row["kind"] == "worktree")
+        request = slot["primitive_request"]
+        path = live_worktree_path(request)
+        slot["state"] = "created"
+        slot["current"] = identity(
+            branch=request["branch"], path=str(path), head_sha=request["expected_head_sha"]
+        )
+        self.release_safety.stop()
+        try:
+            with ledger._release_live_safety(document) as guards:
+                (path / "late.txt").write_text("late\n", encoding="utf-8")
+                with self.assertRaisesRegex(ledger.LedgerError, "dirty"):
+                    guards[0].prove()
+        finally:
+            self.release_safety.start()
+
+        topology_name = "release-topology"
+        topology_path = Path(roots["workspace"]["path"]) / "topologies" / topology_name
+        topology_path.mkdir(parents=True)
+        resource_document = {
+            "resources": [
+                {
+                    "kind": "topology",
+                    "current": {
+                        "name": topology_name,
+                        "path": str(topology_path),
+                        "lifecycle": "stopped",
+                    },
+                }
+            ]
+        }
+        fake_workspace = mock.Mock()
+        fake_workspace.paths.topologies = topology_path.parent
+        fake_workspace._resource_locks.return_value = nullcontext()
+        fake_workspace.topology_status.side_effect = [
+            {"supervisor": {"liveness": "stopped"}, "services": {}},
+            {"supervisor": {"liveness": "live"}, "services": {}},
+        ]
+        fake_module = mock.Mock()
+        fake_module.Workspace.return_value = fake_workspace
+        with mock.patch.object(ledger, "_load_workspace_module", return_value=fake_module):
+            with ledger._release_resource_safety(resource_document, request) as guard:
+                with self.assertRaisesRegex(ledger.LedgerError, "became live"):
+                    guard.prove()
 
 
 if __name__ == "__main__":

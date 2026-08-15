@@ -633,7 +633,7 @@ class ScopeLifecycleTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "release has started"):
             self.workspace.scope_create(["client"], name="clean-release")
 
-    def test_resumed_release_preserves_prior_completed_actions(self) -> None:
+    def test_resumed_release_requires_and_preserves_exact_plan(self) -> None:
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="resume-release")
         preview = self.workspace.scope_release("resume-release", apply=False)
@@ -643,15 +643,22 @@ class ScopeLifecycleTests(unittest.TestCase):
             / "resume-release"
             / "release-journal.json"
         )
+        profile_path = Path(record["profile"]["path"])
+        profile_path.unlink()
+        self.workspace._remove_physical_reference(profile_path)
         scopes_module.durable_atomic_json(
             release_path,
             {
                 "schema_version": 1,
                 "scope": "resume-release",
                 "generation": record["generation"],
-                "plan_sha256": "0" * 64,
+                "plan_sha256": preview["plan_sha256"],
+                "plan": {
+                    key: preview[key]
+                    for key in ("schema_version", "scope", "generation", "items")
+                },
                 "status": "applying",
-                "completed": ["build:/already-removed"],
+                "completed": ["profile"],
                 "updated_at": "2026-08-14T00:00:00Z",
             },
         )
@@ -659,7 +666,6 @@ class ScopeLifecycleTests(unittest.TestCase):
             "resume-release", apply=True, plan_sha256=preview["plan_sha256"]
         )
         journal = json.loads(release_path.read_text(encoding="utf-8"))
-        self.assertIn("build:/already-removed", journal["completed"])
         self.assertIn("profile", journal["completed"])
         self.assertIn("worktree:client", journal["completed"])
 

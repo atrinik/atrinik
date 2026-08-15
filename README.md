@@ -1532,9 +1532,11 @@ python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
   release-apply build/reviews LEDGER_NAME release.json --plan PLAN_SHA256
 ~~~
 
-Release re-observes the exact terminal PR/issue state and actor through
-authenticated `gh`, verifies the recorded clean worktree and Git ancestry
-again after staging, and durably marks the ledger inert; it removes nothing. Next run the relevant
+Release uses a pinned `gh` against `github.com`, re-observes the exact terminal
+PR/issue state and actor, and requires authority issued strictly after merge.
+It holds wrapper leases while verifying the recorded clean worktree and either
+Git ancestry or exact squash-change equivalence again after staging, then
+durably marks the ledger inert; it removes nothing. Next run the relevant
 `./atrinik cleanup --dry-run --json`, review it, and independently run the same
 scoped command with `--apply`. Retain the exact raw preview/apply JSON in the
 archive evidence; the helper validates both reports and
@@ -1542,7 +1544,7 @@ derives their identical canonical target selection.
 An active scope can transition only when its live generation-matched scope
 release journal is complete.
 
-After cleanup, a new explicit post-cleanup authority may bundle the canonical
+After cleanup, a new explicit authority issued strictly after cleanup apply may bundle the canonical
 ledger, release marker, lock, report, migration evidence, and retained intent:
 
 ~~~sh
@@ -1556,7 +1558,8 @@ The one bounded archive remains audit evidence without reserving active
 coordinates. Once its recorded retention period has elapsed, use the
 helper-clocked
 `reclaim-preview` and pass the complete returned preview plus its digest to
-`reclaim-apply`. These helper commands never delete worktrees, profiles,
+`reclaim-apply`. Reclaim retains one bounded terminal retry receipt after its
+quarantined exact-inode removal. These helper commands never delete worktrees, profiles,
 topologies, state, branches, or runtime resources. See the issue-delivery
 ledger reference for the strict evidence schemas and crash-recovery rules.
 
