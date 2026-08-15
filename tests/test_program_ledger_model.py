@@ -276,15 +276,19 @@ class ProgramLedgerModel:
     def child_projection(
         cls, issues: list[dict[str, object]],
     ) -> list[dict[str, object]]:
+        def exact_field(value: object) -> dict[str, object]:
+            if isinstance(value, str):
+                return {
+                    "kind": "utf8",
+                    "sha256": hashlib.sha256(value.encode("utf-8")).hexdigest(),
+                }
+            return {"kind": "sentinel", "value": value}
+
         return [{
             "node": issue["node"],
             "creator": issue.get("creator"),
-            "title_sha256": hashlib.sha256(
-                cls.canonical(issue.get("title"))
-            ).hexdigest(),
-            "body_sha256": hashlib.sha256(
-                cls.canonical(issue.get("body"))
-            ).hexdigest(),
+            "title": exact_field(issue.get("title")),
+            "body": exact_field(issue.get("body")),
             "marker": issue.get("marker"),
             "child_marker": issue.get("child_marker"),
             "backlink": issue.get("backlink"),
@@ -1731,6 +1735,17 @@ class ProgramLedgerModelTests(unittest.TestCase):
         self.assertEqual(
             ProgramLedgerModel.result_stream([{"body": "é"}]),
             "54cc82f0270ab5b28544fd482dee4783da86df0c27133ac870ddf8bb5473f2c4",
+        )
+        child = ProgramLedgerModel.child_projection([{
+            "node": "issue-node", "title": "title", "body": "body",
+        }])[0]
+        self.assertEqual(
+            child["title"]["sha256"],
+            "aaf2320646108059a87ab5017a86aee454f5378ed95003dbb2e12f4ca5266e0e",
+        )
+        self.assertEqual(
+            child["body"]["sha256"],
+            "230d8358dc8e8890b4c58deeb62912ee2f20357ae92a5cc861b98e68fe31acb5",
         )
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.coordinate("R_e\N{COMBINING ACUTE ACCENT}", "I_1")
