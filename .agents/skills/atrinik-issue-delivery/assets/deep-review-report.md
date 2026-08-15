@@ -1,14 +1,23 @@
-# Deep self-review: `<owner>/<repository>#<issue>`
+# Deep self-review: `<owner>/<repository> <issue|PR> #<number>`
 
-This ignored local report tracks evidence for the complete current-base diff.
+This ignored local report tracks human evidence for the complete current-base
+diff. It is never ownership or recovery authority; the strict schema-v1 JSON
+sidecar managed by `scripts/delivery_ledger.py` is authoritative.
 Do not include credentials, confidential material, or unnecessarily actionable
 vulnerability detail. Do not commit or publish this report.
 
 ## Coordinates
 
-- Issue: `<URL>`
-- Pull request(s): `<URL(s)>`
-- Issue-closing path: `<default-branch PR URL or manual post-merge close>`
+- Entry mode: `<issue|PR>`
+- Selected issue(s): `<URL(s) or none>`
+- Selected pull request(s): `<one URL in PR mode; URL(s) or pending in issue mode>`
+- Claim/linkage state: `<claimed explicit issue | linked issues read-only | none>`
+- Issue-closing path: `<default-branch PR URL, manual post-merge close, or none>`
+- Report identity: `<canonical issue | canonical PR | migrated issue>`
+- State ledger: `<absolute sidecar path; schema v1; generation; SHA-256>`
+- Authority/program: `<kind/reference/actor; exact master/leaf/position or none>`
+- Artifact summary: `<non-authoritative mirror of planned/created/adopted slots>`
+- Migration evidence: `<none or exact source/snapshot/marker paths and hashes>`
 - Review started / last refreshed: `<UTC timestamps>`
 
 | Release line / owner | Target / fetched base | Head branch / SHA | Merge base | Worktree | Commits reviewed |
@@ -19,7 +28,7 @@ vulnerability detail. Do not commit or publish this report.
 
 | Requirement | Implementation | Tests or verification | Status / evidence |
 | --- | --- | --- | --- |
-| `<issue requirement>` | `<paths/symbols>` | `<commands/actions>` | `<met/deferred + evidence>` |
+| `<selected issue or PR requirement>` | `<paths/symbols>` | `<commands/actions>` | `<met/deferred + evidence>` |
 
 ## Complete diff inventory
 
@@ -95,6 +104,7 @@ accessibility/localization, docs and manual verification>`
 
 | Kind | Exact name/coordinates | Reused, created, or preserved | Reason / cleanup rule |
 | --- | --- | --- | --- |
+| Scope/worktree | `<scope slot/name/external generation; producer-linked current path>` | `<disposition>` | `<returned identity/digest and release rule>` |
 | Profile/build | `<value or none>` | `<disposition>` | `<evidence>` |
 | Server/client data | `<value or none>` | `<disposition>` | `<evidence>` |
 | Scenario/state | `<value or none>` | `<disposition>` | `<evidence>` |
@@ -116,6 +126,13 @@ accessibility/localization, docs and manual verification>`
 - Repeat: `<safe repeat/reset instructions>`
 - Shutdown and cleanup: `<exact commands; no cleanup apply>`
 
+## Remote publication evidence
+
+- Body ownership: `<contributor-owned/read-only or delivery-created>`
+- Marker/comment check: `<coordinate-bound marker; complete pagination; actor/match/action>`
+- Target drift: `<none or cancelled intent and replanned ledger generation>`
+- Rendered result: `<body/comment/linkage verification>`
+
 ## Exit audit
 
 - [ ] Every requirement is traced.
@@ -123,10 +140,17 @@ accessibility/localization, docs and manual verification>`
 - [ ] A fresh complete post-fix review found zero known actionable findings.
 - [ ] No prior finding reopened.
 - [ ] Required validation passed at final committed HEAD.
+- [ ] Live base/head refs and recomputed merge bases still match the reviewed
+      coordinates; every draft became ready only after review, validation, and
+      pre-readiness checks passed with determinate conflict-free mergeability
+      and no non-human blocker other than its draft state.
 - [ ] Rendered PR body, comments/threads, mergeability, and expected checks were
       rechecked at that same HEAD.
-- [ ] Issue remains open; no merge, self-approval, force-push, destructive reset,
-      credential disclosure, or cleanup apply occurred.
+- [ ] Contributor-owned bodies stayed read-only; marker/comment recovery used a
+      complete inventory, and target drift cancelled stale intents before replan.
+- [ ] Selected issues, if any, remain open; every PR remains unmerged; no
+      self-approval, force-push, destructive reset, credential disclosure, or
+      cleanup apply occurred.
 - [ ] Exact resources, verification, shutdown, repeat, cleanup, and blockers are
       ready for handoff.
 
