@@ -782,6 +782,77 @@ class ParserTests(unittest.TestCase):
         workspace_type.return_value.repository_status.assert_called_once_with(["client"])
         self.assertEqual(json.loads(output.call_args.args[0]), rows)
 
+    def test_worktree_list_wrapper_self_emits_complete_json_rows(self) -> None:
+        rows = [
+            (
+                "atrinik",
+                {
+                    "worktree": "/workspace/atrinik",
+                    "HEAD": "a" * 40,
+                    "branch": "refs/heads/main",
+                },
+            ),
+            (
+                "atrinik",
+                {
+                    "worktree": "/workspace/atrinik/linked worktree",
+                    "HEAD": "b" * 40,
+                    "detached": "",
+                    "locked": "inspection",
+                },
+            ),
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.list_wrapper_worktrees.return_value = rows
+            with mock.patch("builtins.print") as output:
+                result = main(["worktree", "list", "--wrapper-self", "--json"])
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.list_wrapper_worktrees.assert_called_once_with()
+        workspace_type.return_value.list_worktrees.assert_not_called()
+        self.assertEqual(
+            json.loads(output.call_args.args[0]),
+            [{"component": component, **record} for component, record in rows],
+        )
+
+    def test_worktree_list_manifest_mode_remains_unchanged(self) -> None:
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.list_worktrees.return_value = []
+            result = main(["worktree", "list", "client", "--json"])
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.list_worktrees.assert_called_once_with(["client"])
+        workspace_type.return_value.list_wrapper_worktrees.assert_not_called()
+
+    def test_worktree_list_wrapper_self_rejects_component_selectors(self) -> None:
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            with mock.patch("sys.stderr"):
+                result = main(
+                    ["worktree", "list", "client", "--wrapper-self", "--json"]
+                )
+
+        self.assertEqual(result, 1)
+        workspace_type.return_value.list_wrapper_worktrees.assert_not_called()
+        workspace_type.return_value.list_worktrees.assert_not_called()
+
+    def test_worktree_list_wrapper_self_bounds_retained_json(self) -> None:
+        rows = [
+            (
+                "atrinik",
+                {
+                    "worktree": "/workspace/" + "x" * (512 * 1024),
+                    "HEAD": "a" * 40,
+                    "branch": "refs/heads/main",
+                },
+            )
+        ]
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.list_wrapper_worktrees.return_value = rows
+            with mock.patch("sys.stderr"):
+                result = main(["worktree", "list", "--wrapper-self", "--json"])
+
+        self.assertEqual(result, 1)
+
     def test_profile_create_can_clone_another_profile(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             result = main(["profile", "create", "copy", "--from", "review"])
