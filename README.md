@@ -710,8 +710,15 @@ List or remove managed worktrees:
 ~~~sh
 ./atrinik worktree list
 ./atrinik worktree list --json
+./atrinik worktree list --wrapper-self --json
 ./atrinik worktree remove content maps-pr
 ~~~
+
+The default list remains manifest-owned. `--wrapper-self` instead emits the
+complete parser-driven Git inventory for the wrapper repository, tagging both
+its primary and linked worktrees as physical checkout `atrinik`. It cannot be
+combined with component selectors; use its JSON bytes directly when a workflow
+needs retained wrapper-self inventory evidence.
 
 Removal refuses dirty worktrees. Each worktree is a full Git worktree of its
 physical repository, so a classic worktree contains all five classic source
