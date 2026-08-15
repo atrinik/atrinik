@@ -7565,5 +7565,341 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertEqual(directory_snapshot(root), before)
 
 
+class TestTargetLineageVerification(unittest.TestCase):
+    """Live-prove target SHAs exist in Git and descend from predecessors."""
+
+    def setUp(self) -> None:
+        self.live_temporary = tempfile.TemporaryDirectory()
+        self.live_base = Path(self.live_temporary.name)
+
+    def tearDown(self) -> None:
+        self.live_temporary.cleanup()
+
+    def _make_git_repo(self, name: str = "repo") -> Path:
+        repo = self.live_base / name
+        repo.mkdir()
+        git_run(repo, "init", "--initial-branch=main")
+        git_run(repo, "remote", "add", "origin", "https://github.com/test/test.git")
+        (repo / "file.txt").write_text("initial\n", encoding="utf-8")
+        git_run(repo, "add", "file.txt")
+        git_run(repo, "commit", "-m", "initial commit")
+        return repo
+
+    def _commit_sha(self, repo: Path) -> str:
+        return git_run(repo, "rev-parse", "HEAD").stdout.strip()
+
+    def _open_repo_fd(self, repo: Path) -> str:
+        return str(repo.resolve())
+
+    def test_git_sha_exists_returns_true_for_real_commit(self) -> None:
+        repo = self._make_git_repo()
+        sha = self._commit_sha(repo)
+        descriptor = self._open_repo_fd(repo)
+        self.assertTrue(ledger._git_sha_exists(descriptor, sha, "test"))
+
+    def test_git_sha_exists_returns_false_for_nonexistent(self) -> None:
+        repo = self._make_git_repo()
+        descriptor = self._open_repo_fd(repo)
+        self.assertFalse(
+            ledger._git_sha_exists(descriptor, "d" * 40, "test")
+        )
+
+    def test_git_sha_exists_rejects_abbreviated_sha(self) -> None:
+        repo = self._make_git_repo()
+        descriptor = self._open_repo_fd(repo)
+        with self.assertRaisesRegex(ledger.LedgerError, "not a full 40-hex"):
+            ledger._git_sha_exists(descriptor, "abc123", "test")
+
+    def test_git_is_ancestor_returns_true_for_parent(self) -> None:
+        repo = self._make_git_repo()
+        parent_sha = self._commit_sha(repo)
+        (repo / "file.txt").write_text("second\n", encoding="utf-8")
+        git_run(repo, "add", "file.txt")
+        git_run(repo, "commit", "-m", "second commit")
+        child_sha = self._commit_sha(repo)
+        descriptor = self._open_repo_fd(repo)
+        self.assertTrue(
+            ledger._git_is_ancestor(descriptor, parent_sha, child_sha, "test")
+        )
+
+    def test_git_is_ancestor_returns_false_for_unrelated(self) -> None:
+        repo = self._make_git_repo()
+        sha_a = self._commit_sha(repo)
+        repo2 = self._make_git_repo("repo2")
+        (repo2 / "file.txt").write_text("different content\n", encoding="utf-8")
+        git_run(repo2, "add", "file.txt")
+        git_run(repo2, "commit", "-m", "different commit")
+        sha_b = self._commit_sha(repo2)
+        descriptor = self._open_repo_fd(repo)
+        self.assertFalse(
+            ledger._git_is_ancestor(descriptor, sha_a, sha_b, "test")
+        )
+
+    def test_verify_target_lineage_rejects_nonexistent_sha(self) -> None:
+        repo = self._make_git_repo()
+        sha = self._commit_sha(repo)
+        descriptor = self._open_repo_fd(repo)
+        old = {"targets": [{"repository": repository(), "head": {"branch": "feature", "lineage": [sha]}, "base": {"branch": "main", "lineage": [sha]}, "merge_base": {"initial_sha": sha, "current_sha": sha}}]}
+        new = {"targets": [{"repository": repository(), "head": {"branch": "feature", "lineage": [sha, "e" * 40]}, "base": {"branch": "main", "lineage": [sha]}, "merge_base": {"initial_sha": sha, "current_sha": sha}}]}
+        with self.assertRaisesRegex(ledger.LedgerError, "does not exist in Git"):
+            ledger._verify_target_lineage(descriptor, old, new, "test")
+
+    def test_verify_target_lineage_rejects_non_descendant(self) -> None:
+        repo = self._make_git_repo()
+        sha_root = self._commit_sha(repo)
+        (repo / "file.txt").write_text("branch_a\n", encoding="utf-8")
+        git_run(repo, "add", "file.txt")
+        git_run(repo, "commit", "-m", "branch a commit")
+        sha_a = self._commit_sha(repo)
+        git_run(repo, "checkout", "-b", "branch-b", sha_root)
+        (repo / "other.txt").write_text("branch b\n", encoding="utf-8")
+        git_run(repo, "add", "other.txt")
+        git_run(repo, "commit", "-m", "branch b commit")
+        sha_unrelated = self._commit_sha(repo)
+        descriptor = self._open_repo_fd(repo)
+        old = {"targets": [{"repository": repository(), "head": {"branch": "feature", "lineage": [sha_a]}, "base": {"branch": "main", "lineage": [sha_a]}, "merge_base": {"initial_sha": sha_a, "current_sha": sha_a}}]}
+        new = {"targets": [{"repository": repository(), "head": {"branch": "feature", "lineage": [sha_a, sha_unrelated]}, "base": {"branch": "main", "lineage": [sha_a]}, "merge_base": {"initial_sha": sha_a, "current_sha": sha_a}}]}
+        with self.assertRaisesRegex(ledger.LedgerError, "not a descendant"):
+            ledger._verify_target_lineage(descriptor, old, new, "test")
+
+    def test_verify_target_lineage_passes_valid_lineage(self) -> None:
+        repo = self._make_git_repo()
+        sha_a = self._commit_sha(repo)
+        (repo / "file.txt").write_text("second\n", encoding="utf-8")
+        git_run(repo, "add", "file.txt")
+        git_run(repo, "commit", "-m", "second commit")
+        sha_b = self._commit_sha(repo)
+        descriptor = self._open_repo_fd(repo)
+        old = {"targets": [{"repository": repository(), "head": {"branch": "feature", "lineage": [sha_a]}, "base": {"branch": "main", "lineage": [sha_a]}, "merge_base": {"initial_sha": sha_a, "current_sha": sha_a}}]}
+        new = {"targets": [{"repository": repository(), "head": {"branch": "feature", "lineage": [sha_a, sha_b]}, "base": {"branch": "main", "lineage": [sha_a]}, "merge_base": {"initial_sha": sha_a, "current_sha": sha_a}}]}
+        ledger._verify_target_lineage(descriptor, old, new, "test")
+
+    def test_cas_rejects_nonexistent_target_sha(self) -> None:
+        if sys.platform == "darwin" and os.environ.get("CI") != "true":
+            self.skipTest("ledger.create() requires _directory_fd which is Linux-only on macOS")
+        repo = self._make_git_repo()
+        sha = self._commit_sha(repo)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = issue_ledger()
+            replace_sha(document, SHA_A, sha)
+            snapshot = ledger.create(root, document)
+            replacement = next_generation(snapshot)
+            target_head = replacement["targets"][0]["head"]
+            target_head["current_sha"] = "f" * 40
+            target_head["lineage"].append("f" * 40)
+            wrapper = repo
+            with self.assertRaisesRegex(ledger.LedgerError, "does not exist in Git"):
+                ledger.cas(
+                    root,
+                    snapshot.name,
+                    replacement,
+                    **cas_arguments(snapshot),
+                    wrapper_root=wrapper,
+                )
+
+    def test_cas_accepts_valid_target_sha(self) -> None:
+        if sys.platform == "darwin" and os.environ.get("CI") != "true":
+            self.skipTest("ledger.create() requires _directory_fd which is Linux-only on macOS")
+        repo = self._make_git_repo()
+        sha = self._commit_sha(repo)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = issue_ledger()
+            replace_sha(document, SHA_A, sha)
+            snapshot = ledger.create(root, document)
+            (repo / "file.txt").write_text("second\n", encoding="utf-8")
+            git_run(repo, "add", "file.txt")
+            git_run(repo, "commit", "-m", "second commit")
+            new_sha = self._commit_sha(repo)
+            replacement = next_generation(snapshot)
+            target_head = replacement["targets"][0]["head"]
+            target_head["current_sha"] = new_sha
+            target_head["lineage"].append(new_sha)
+            wrapper = repo
+            result = ledger.cas(
+                root,
+                snapshot.name,
+                replacement,
+                **cas_arguments(snapshot),
+                wrapper_root=wrapper,
+            )
+            self.assertEqual(result.document["targets"][0]["head"]["current_sha"], new_sha)
+
+    def test_cas_without_wrapper_root_skips_verification(self) -> None:
+        if sys.platform == "darwin" and os.environ.get("CI") != "true":
+            self.skipTest("ledger.create() requires _directory_fd which is Linux-only on macOS")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = issue_ledger()
+            snapshot = ledger.create(root, document)
+            replacement = next_generation(snapshot)
+            target_head = replacement["targets"][0]["head"]
+            target_head["current_sha"] = "f" * 40
+            target_head["lineage"].append("f" * 40)
+            result = ledger.cas(
+                root,
+                snapshot.name,
+                replacement,
+                **cas_arguments(snapshot),
+                wrapper_root=None,
+            )
+            self.assertEqual(
+                result.document["targets"][0]["head"]["current_sha"], "f" * 40
+            )
+
+
+class TestTargetRecovery(unittest.TestCase):
+    """Recover from a committed coordinate typo by superseding target SHAs."""
+
+    def setUp(self) -> None:
+        self.live_temporary = tempfile.TemporaryDirectory()
+        self.live_base = Path(self.live_temporary.name)
+
+    def tearDown(self) -> None:
+        self.live_temporary.cleanup()
+
+    def _make_git_repo(self, name: str = "repo") -> Path:
+        repo = self.live_base / name
+        repo.mkdir()
+        git_run(repo, "init", "--initial-branch=main")
+        git_run(repo, "remote", "add", "origin", "https://github.com/test/test.git")
+        (repo / "file.txt").write_text("initial\n", encoding="utf-8")
+        git_run(repo, "add", "file.txt")
+        git_run(repo, "commit", "-m", "initial commit")
+        return repo
+
+    def _commit_sha(self, repo: Path) -> str:
+        return git_run(repo, "rev-parse", "HEAD").stdout.strip()
+
+    def test_target_recovery_supersedes_head_sha(self) -> None:
+        repo = self._make_git_repo()
+        sha = self._commit_sha(repo)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = issue_ledger()
+            replace_sha(document, SHA_A, sha)
+            snapshot = ledger.create(root, document)
+            (repo / "file.txt").write_text("fix\n", encoding="utf-8")
+            git_run(repo, "add", "file.txt")
+            git_run(repo, "commit", "-m", "fix commit")
+            corrected_sha = self._commit_sha(repo)
+            result = ledger.target_recovery(
+                root,
+                snapshot.name,
+                repository_node_id="R_repo",
+                head_branch="docs/issue-419",
+                corrected_head_sha=corrected_sha,
+                wrapper_root=repo,
+            )
+            self.assertEqual(
+                result.document["targets"][0]["head"]["current_sha"],
+                corrected_sha,
+            )
+            self.assertIn(
+                sha, result.document["targets"][0]["head"]["lineage"]
+            )
+            self.assertIn(
+                corrected_sha, result.document["targets"][0]["head"]["lineage"]
+            )
+
+    def test_target_recovery_is_idempotent(self) -> None:
+        repo = self._make_git_repo()
+        sha = self._commit_sha(repo)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = issue_ledger()
+            replace_sha(document, SHA_A, sha)
+            snapshot = ledger.create(root, document)
+            (repo / "file.txt").write_text("fix\n", encoding="utf-8")
+            git_run(repo, "add", "file.txt")
+            git_run(repo, "commit", "-m", "fix commit")
+            corrected_sha = self._commit_sha(repo)
+            result1 = ledger.target_recovery(
+                root,
+                snapshot.name,
+                repository_node_id="R_repo",
+                head_branch="docs/issue-419",
+                corrected_head_sha=corrected_sha,
+                wrapper_root=repo,
+            )
+            result2 = ledger.target_recovery(
+                root,
+                result1.name,
+                repository_node_id="R_repo",
+                head_branch="docs/issue-419",
+                corrected_head_sha=corrected_sha,
+                wrapper_root=repo,
+            )
+            self.assertEqual(result1.document, result2.document)
+
+    def test_target_recovery_rejects_wrong_node(self) -> None:
+        repo = self._make_git_repo()
+        sha = self._commit_sha(repo)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = issue_ledger()
+            replace_sha(document, SHA_A, sha)
+            snapshot = ledger.create(root, document)
+            (repo / "file.txt").write_text("fix\n", encoding="utf-8")
+            git_run(repo, "add", "file.txt")
+            git_run(repo, "commit", "-m", "fix commit")
+            corrected_sha = self._commit_sha(repo)
+            with self.assertRaisesRegex(ledger.LedgerError, "exactly one matching target"):
+                ledger.target_recovery(
+                    root,
+                    snapshot.name,
+                    repository_node_id="R_wrong",
+                    head_branch="docs/issue-419",
+                    corrected_head_sha=corrected_sha,
+                )
+
+    def test_target_recovery_increments_generation(self) -> None:
+        repo = self._make_git_repo()
+        sha = self._commit_sha(repo)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = issue_ledger()
+            replace_sha(document, SHA_A, sha)
+            snapshot = ledger.create(root, document)
+            (repo / "file.txt").write_text("fix\n", encoding="utf-8")
+            git_run(repo, "add", "file.txt")
+            git_run(repo, "commit", "-m", "fix commit")
+            corrected_sha = self._commit_sha(repo)
+            result = ledger.target_recovery(
+                root,
+                snapshot.name,
+                repository_node_id="R_repo",
+                head_branch="docs/issue-419",
+                corrected_head_sha=corrected_sha,
+                wrapper_root=repo,
+            )
+            self.assertEqual(
+                result.document["generation"],
+                snapshot.document["generation"] + 1,
+            )
+            self.assertEqual(
+                result.document["previous_byte_digest"],
+                snapshot.digest,
+            )
+
+    def test_target_recovery_rejects_invalid_sha(self) -> None:
+        repo = self._make_git_repo()
+        sha = self._commit_sha(repo)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = issue_ledger()
+            replace_sha(document, SHA_A, sha)
+            snapshot = ledger.create(root, document)
+            with self.assertRaisesRegex(ledger.LedgerError, "not a full 40-hex"):
+                ledger.target_recovery(
+                    root,
+                    snapshot.name,
+                    repository_node_id="R_repo",
+                    head_branch="docs/issue-419",
+                    corrected_head_sha="abc",
+                )
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import base64
 import binascii
+import copy
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
@@ -1715,6 +1716,10 @@ def _git(
     """Run one bounded read-only Git query against a pinned directory."""
 
     allowed = {0} if accepted is None else accepted
+    if sys.platform == "darwin":
+        fd_path = f"/dev/fd/{descriptor}"
+    else:
+        fd_path = f"/proc/self/fd/{descriptor}"
     command = [
         "git",
         "--no-pager",
@@ -1725,7 +1730,7 @@ def _git(
         "-c",
         "core.untrackedCache=false",
         "-C",
-        f"/proc/self/fd/{descriptor}",
+        fd_path,
         *arguments,
     ]
     environment = {
@@ -1819,6 +1824,168 @@ def _one_git_line(raw: bytes, context: str) -> str:
     if not result or _contains_control(result):
         raise LedgerError(f"{context} is invalid")
     return result
+
+
+def _resolve_descriptor_path(descriptor: int) -> str:
+    """Return a filesystem path for *descriptor* usable with ``git -C``."""
+
+    if sys.platform == "darwin":
+        try:
+            return os.fsdecode(
+                subprocess.check_output(
+                    ["lsof", "-F", "n", "-p", str(os.getpid())],
+                    stderr=subprocess.DEVNULL,
+                ).split(b"\n")[0][1:]
+            )
+        except (subprocess.CalledProcessError, IndexError, UnicodeDecodeError):
+            pass
+    return f"/proc/self/fd/{descriptor}"
+
+
+def _git_sha_exists(
+    descriptor_or_path: int | str | Path, sha: str, context: str
+) -> bool:
+    """Return True if *sha* resolves to an existing Git commit object."""
+
+    if not COMMIT_RE.fullmatch(sha):
+        raise LedgerError(f"{context} SHA is not a full 40-hex commit")
+    if isinstance(descriptor_or_path, int):
+        fd_path = _resolve_descriptor_path(descriptor_or_path)
+    else:
+        fd_path = str(Path(descriptor_or_path).resolve())
+    try:
+        proc = subprocess.run(
+            ["git", "-C", fd_path, "cat-file", "-e", f"{sha}^{{commit}}"],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        return proc.returncode == 0
+    except OSError as error:
+        raise LedgerError(f"{context} Git existence probe failed: {error}") from error
+
+
+def _git_is_ancestor(
+    descriptor_or_path: int | str | Path,
+    ancestor: str,
+    descendant: str,
+    context: str,
+) -> bool:
+    """Return True if *ancestor* is an ancestor of *descendant*."""
+
+    if not COMMIT_RE.fullmatch(ancestor):
+        raise LedgerError(f"{context} ancestor SHA is not a full 40-hex commit")
+    if not COMMIT_RE.fullmatch(descendant):
+        raise LedgerError(f"{context} descendant SHA is not a full 40-hex commit")
+    if isinstance(descriptor_or_path, int):
+        fd_path = _resolve_descriptor_path(descriptor_or_path)
+    else:
+        fd_path = str(Path(descriptor_or_path).resolve())
+    try:
+        proc = subprocess.run(
+            [
+                "git", "-C", fd_path,
+                "merge-base", "--is-ancestor", ancestor, descendant,
+            ],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        return proc.returncode == 0
+    except OSError as error:
+        raise LedgerError(f"{context} Git ancestry probe failed: {error}") from error
+
+
+def _verify_target_lineage(
+    descriptor: int,
+    old: Mapping[str, Any],
+    new: Mapping[str, Any],
+    context: str,
+) -> None:
+    """Live-prove every appended target SHA exists and descends from its predecessor.
+
+    This is called inside ``_transition`` after the in-memory prefix check has
+    already confirmed the structural append-only property.  We verify the Git
+    object store for each newly appended SHA and confirm the merge-base is a
+    true common ancestor of base and head.
+    """
+
+    old_targets = {
+        (row["repository"]["node_id"], row["head"]["branch"]): row
+        for row in old["targets"]
+    }
+    new_targets = {
+        (row["repository"]["node_id"], row["head"]["branch"]): row
+        for row in new["targets"]
+    }
+    for key, before in old_targets.items():
+        after = new_targets[key]
+        repo_node = after["repository"]["node_id"]
+        repo_owner = after["repository"]["owner"]
+        repo_name = after["repository"]["name"]
+        repo_ctx = f"{context} target {repo_owner}/{repo_name}"
+        for field in ("base", "head"):
+            old_lineage = before[field]["lineage"]
+            new_lineage = after[field]["lineage"]
+            appended = new_lineage[len(old_lineage):]
+            for index, sha in enumerate(appended):
+                position = len(old_lineage) + index
+                if not _git_sha_exists(
+                    descriptor,
+                    sha,
+                    f"{repo_ctx} {field} lineage[{position}]",
+                ):
+                    raise LedgerError(
+                        f"target {field} lineage[{position}] SHA does not "
+                        f"exist in Git: {sha}"
+                    )
+            if len(old_lineage) > 0 and appended:
+                predecessor = old_lineage[-1]
+                successor = appended[0]
+                if not _git_is_ancestor(
+                    descriptor,
+                    predecessor,
+                    successor,
+                    f"{repo_ctx} {field} lineage advancement",
+                ):
+                    raise LedgerError(
+                        f"target {field} lineage advancement is not a "
+                        f"descendant: {predecessor} -> {successor}"
+                    )
+        merge_before = before["merge_base"]
+        merge_after = after["merge_base"]
+        if merge_after["current_sha"] != merge_before["current_sha"]:
+            if not _git_sha_exists(
+                descriptor,
+                merge_after["current_sha"],
+                f"{repo_ctx} merge_base",
+            ):
+                raise LedgerError(
+                    f"target merge_base SHA does not exist in Git: "
+                    f"{merge_after['current_sha']}"
+                )
+            base_head = after["base"]["head_sha"] if "head_sha" in after["base"] else after["base"]["lineage"][-1]
+            head_head = after["head"]["lineage"][-1]
+            if not _git_is_ancestor(
+                descriptor,
+                merge_after["current_sha"],
+                base_head,
+                f"{repo_ctx} merge_base -> base",
+            ):
+                raise LedgerError(
+                    f"target merge_base is not an ancestor of base: "
+                    f"{merge_after['current_sha']}"
+                )
+            if not _git_is_ancestor(
+                descriptor,
+                merge_after["current_sha"],
+                head_head,
+                f"{repo_ctx} merge_base -> head",
+            ):
+                raise LedgerError(
+                    f"target merge_base is not an ancestor of head: "
+                    f"{merge_after['current_sha']}"
+                )
 
 
 def _git_worktree_records(raw: bytes, context: str) -> list[dict[str, str]]:
@@ -4559,6 +4726,80 @@ def classify_body_recovery(
     )
 
 
+def target_recovery(
+    root: Path | str,
+    name: str,
+    *,
+    repository_node_id: str,
+    head_branch: str,
+    corrected_head_sha: str,
+    corrected_merge_base_sha: str | None = None,
+    wrapper_root: Path | str | None = None,
+) -> Snapshot:
+    """Recover from a committed coordinate typo by superseding target SHAs.
+
+    This preserves the erroneous bytes as audit evidence and records the
+    correction with full provenance. The recovery is idempotent: re-running
+    with the same corrected SHAs is a no-op.
+    """
+
+    name = _direct_name(name)
+    _string(repository_node_id, "repository_node_id", NODE_RE)
+    _string(head_branch, "head_branch", BRANCH_RE)
+    _string(corrected_head_sha, "corrected_head_sha", COMMIT_RE)
+    if corrected_merge_base_sha is not None:
+        _string(corrected_merge_base_sha, "corrected_merge_base_sha", COMMIT_RE)
+
+    snapshot = inspect(root, name)
+    document = snapshot.document
+    targets = [
+        target
+        for target in document["targets"]
+        if target["repository"]["node_id"] == repository_node_id
+        and target["head"]["branch"] == head_branch
+    ]
+    if len(targets) != 1:
+        raise LedgerError(
+            "target recovery requires exactly one matching target "
+            f"(node={repository_node_id}, branch={head_branch})"
+        )
+    target = targets[0]
+
+    if target["head"]["current_sha"] == corrected_head_sha:
+        if corrected_merge_base_sha is None or (
+            target["merge_base"]["current_sha"] == corrected_merge_base_sha
+        ):
+            return snapshot
+
+    new_document = copy.deepcopy(document)
+    new_target = next(
+        t
+        for t in new_document["targets"]
+        if t["repository"]["node_id"] == repository_node_id
+        and t["head"]["branch"] == head_branch
+    )
+    old_head_sha = new_target["head"]["current_sha"]
+    new_target["head"]["current_sha"] = corrected_head_sha
+    new_target["head"]["lineage"] = [*new_target["head"]["lineage"], corrected_head_sha]
+    if corrected_merge_base_sha is not None:
+        new_target["merge_base"]["current_sha"] = corrected_merge_base_sha
+
+    new_document["generation"] = document["generation"] + 1
+    new_document["previous_byte_digest"] = snapshot.digest
+    new_document["history"] = [*document["history"], snapshot.digest]
+
+    return cas(
+        root,
+        name,
+        new_document,
+        expected_generation=document["generation"],
+        expected_digest=snapshot.digest,
+        expected_device=snapshot.device,
+        expected_inode=snapshot.inode,
+        wrapper_root=wrapper_root,
+    )
+
+
 def _delivery_surface_marker(
     item: Mapping[str, Any], pull: Mapping[str, Any], surface: str
 ) -> str:
@@ -5421,6 +5662,7 @@ def bind_worktree_cas(
     expected_inode: int,
     create_output_raw: bytes | None = None,
     failpoint: Failpoint = None,
+    wrapper_root: Path | str | None = None,
 ) -> dict[str, Any]:
     """Classify, re-prove, and CAS one primitive worktree as one operation."""
 
@@ -5517,6 +5759,7 @@ def bind_worktree_cas(
                 failpoint=failpoint,
                 _precommit=revalidate,
                 _binding_capability=capability,
+                wrapper_root=wrapper_root,
             )
     return _atomic_binding_output(classification, installed)
 
@@ -5534,6 +5777,7 @@ def bind_scope_cas(
     expected_device: int,
     expected_inode: int,
     failpoint: Failpoint = None,
+    wrapper_root: Path | str | None = None,
 ) -> dict[str, Any]:
     """Classify, re-prove, and CAS one scope/branch/worktree atomically."""
 
@@ -5635,6 +5879,7 @@ def bind_scope_cas(
                 failpoint=failpoint,
                 _precommit=revalidate,
                 _binding_capability=capability,
+                wrapper_root=wrapper_root,
             )
     return _atomic_binding_output(classification, installed)
 
@@ -7350,6 +7595,7 @@ def _transition(
     old_digest: str,
     *,
     _binding_capability: _AtomicBindingCapability | None = None,
+    _git_dir: Path | str | None = None,
 ) -> None:
     immutable = {
         "schema_version",
@@ -7413,6 +7659,8 @@ def _transition(
             before["merge_base"]["current_sha"]
             != after["merge_base"]["current_sha"]
         )
+    if _git_dir is not None:
+        _verify_target_lineage(_git_dir, old, new, "CAS target lineage proof")
     old_artifacts = {row["slot_id"]: row for row in old["artifacts"]}
     new_artifacts = {row["slot_id"]: row for row in new["artifacts"]}
     if set(old_artifacts) != set(new_artifacts):
@@ -7901,6 +8149,7 @@ def cas(
     failpoint: Failpoint = None,
     _precommit: Callable[[], None] | None = None,
     _binding_capability: _AtomicBindingCapability | None = None,
+    wrapper_root: Path | str | None = None,
 ) -> Snapshot:
     name = _direct_name(name)
     prepared = prepare(document)
@@ -8011,6 +8260,7 @@ def cas(
                 prepared,
                 current.digest,
                 _binding_capability=_binding_capability,
+                _git_dir=wrapper_root,
             )
             stage_status = _ensure_stage(
                 directory,
@@ -8648,6 +8898,11 @@ def parser() -> argparse.ArgumentParser:
     cas_parser.add_argument("--expected-digest", required=True)
     cas_parser.add_argument("--expected-device", required=True, type=int)
     cas_parser.add_argument("--expected-inode", required=True, type=int)
+    cas_parser.add_argument(
+        "--wrapper-root",
+        default=None,
+        help="wrapper root for live Git target SHA verification",
+    )
     migration_parser = commands.add_parser(
         "migrate", help="recover one exact legacy or pre-schema report"
     )
@@ -8688,6 +8943,31 @@ def parser() -> argparse.ArgumentParser:
     recovery_parser.add_argument("live_digest", help="SHA-256 digest or the word absent")
     recovery_parser.add_argument(
         "live_updated_at", help="exact live UTC updatedAt timestamp or the word absent"
+    )
+    target_recovery_parser = commands.add_parser(
+        "target-recovery",
+        help="recover from a committed coordinate typo by superseding target SHAs",
+    )
+    target_recovery_parser.add_argument("root", help="initialized review root")
+    target_recovery_parser.add_argument("name", help="direct canonical ledger filename")
+    target_recovery_parser.add_argument(
+        "repository_node_id", help="repository node ID of the affected target"
+    )
+    target_recovery_parser.add_argument(
+        "head_branch", help="head branch of the affected target"
+    )
+    target_recovery_parser.add_argument(
+        "corrected_head_sha", help="corrected head commit SHA (40-hex)"
+    )
+    target_recovery_parser.add_argument(
+        "--corrected-merge-base-sha",
+        default=None,
+        help="corrected merge-base commit SHA (40-hex), if changed",
+    )
+    target_recovery_parser.add_argument(
+        "--wrapper-root",
+        default=None,
+        help="wrapper root for live Git verification",
     )
     pr_payload_parser = commands.add_parser(
         "pr-create-payload", help="show one exact durable planned PR body payload"
@@ -8741,6 +9021,11 @@ def parser() -> argparse.ArgumentParser:
     worktree_cas_parser.add_argument("--expected-digest", required=True)
     worktree_cas_parser.add_argument("--expected-device", required=True, type=int)
     worktree_cas_parser.add_argument("--expected-inode", required=True, type=int)
+    worktree_cas_parser.add_argument(
+        "--wrapper-root",
+        default=None,
+        help="wrapper root for live Git target SHA verification",
+    )
     scope_bind_parser = commands.add_parser(
         "scope-bind", help="classify retained scope-show schema-v1 JSON"
     )
@@ -8772,6 +9057,11 @@ def parser() -> argparse.ArgumentParser:
     scope_cas_parser.add_argument("--expected-digest", required=True)
     scope_cas_parser.add_argument("--expected-device", required=True, type=int)
     scope_cas_parser.add_argument("--expected-inode", required=True, type=int)
+    scope_cas_parser.add_argument(
+        "--wrapper-root",
+        default=None,
+        help="wrapper root for live Git target SHA verification",
+    )
     comment_parser = commands.add_parser(
         "comment-check", help="classify a fully paginated marked-comment inventory"
     )
@@ -8796,6 +9086,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         elif arguments.command == "create":
             _print(create(arguments.root, _read_input(arguments.input)).json())
         elif arguments.command == "cas":
+            wrapper = getattr(arguments, "wrapper_root", None)
+            if wrapper is not None:
+                wrapper = str(Path(wrapper).resolve())
             _print(
                 cas(
                     arguments.root,
@@ -8805,6 +9098,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     expected_digest=arguments.expected_digest,
                     expected_device=arguments.expected_device,
                     expected_inode=arguments.expected_inode,
+                    wrapper_root=wrapper,
                 ).json()
             )
         elif arguments.command == "migrate":
@@ -8865,6 +9159,20 @@ def main(argv: Sequence[str] | None = None) -> int:
                     ),
                 }
             )
+        elif arguments.command == "target-recovery":
+            wrapper = arguments.wrapper_root
+            if wrapper is not None:
+                wrapper = str(Path(wrapper).resolve())
+            result = target_recovery(
+                arguments.root,
+                arguments.name,
+                repository_node_id=arguments.repository_node_id,
+                head_branch=arguments.head_branch,
+                corrected_head_sha=arguments.corrected_head_sha,
+                corrected_merge_base_sha=arguments.corrected_merge_base_sha,
+                wrapper_root=wrapper,
+            )
+            _print(result.json())
         elif arguments.command == "pr-create-payload":
             snapshot = inspect(arguments.root, arguments.name)
             _print(
@@ -8918,6 +9226,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
         elif arguments.command == "worktree-bind-cas":
+            wrapper = getattr(arguments, "wrapper_root", None)
+            if wrapper is not None:
+                wrapper = str(Path(wrapper).resolve())
             _print(
                 bind_worktree_cas(
                     arguments.root,
@@ -8934,6 +9245,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                         if arguments.create_output is None
                         else _read_bytes_input(arguments.create_output)
                     ),
+                    wrapper_root=wrapper,
                 )
             )
         elif arguments.command == "scope-bind":
@@ -8959,6 +9271,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
         elif arguments.command == "scope-bind-cas":
+            wrapper = getattr(arguments, "wrapper_root", None)
+            if wrapper is not None:
+                wrapper = str(Path(wrapper).resolve())
             _print(
                 bind_scope_cas(
                     arguments.root,
@@ -8971,6 +9286,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     expected_digest=arguments.expected_digest,
                     expected_device=arguments.expected_device,
                     expected_inode=arguments.expected_inode,
+                    wrapper_root=wrapper,
                 )
             )
         else:
