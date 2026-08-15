@@ -18,6 +18,7 @@ import platform
 from pathlib import Path, PurePosixPath
 import re
 import secrets
+import selectors
 import shlex
 import shutil
 import signal
@@ -1677,8 +1678,91 @@ _WORKTREE_PORCELAIN_KEYS = {
 }
 _WORKTREE_PORCELAIN_FLAGS = {"bare", "detached", "locked", "prunable"}
 _WORKTREE_INVENTORY_LIMIT = 1024 * 1024
+_WORKTREE_INVENTORY_ERROR_LIMIT = 64 * 1024
 _WORKTREE_INVENTORY_ENTRIES = 4096
+_WORKTREE_INVENTORY_TIMEOUT = 30.0
 _WORKTREE_HEAD_RE = re.compile(r"[0-9a-f]{40}")
+
+
+def _run_wrapper_worktree_inventory(
+    repository: Path, pass_fds: tuple[int, ...]
+) -> bytes:
+    """Capture one Git worktree inventory with live byte and time bounds."""
+
+    try:
+        process = subprocess.Popen(
+            [
+                "git",
+                "-C",
+                str(repository),
+                "worktree",
+                "list",
+                "--porcelain",
+                "-z",
+            ],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            pass_fds=pass_fds,
+        )
+    except FileNotFoundError as error:
+        raise WorkspaceError("required command not found: git") from error
+    except OSError as error:
+        raise WorkspaceError(f"cannot list wrapper worktrees: {error}") from error
+    if process.stdout is None or process.stderr is None:  # pragma: no cover
+        process.kill()
+        process.wait()
+        raise WorkspaceError("cannot list wrapper worktrees: Git pipes are unavailable")
+    stdout_fd = process.stdout.fileno()
+    stderr_fd = process.stderr.fileno()
+    output = {stdout_fd: bytearray(), stderr_fd: bytearray()}
+    limits = {
+        stdout_fd: _WORKTREE_INVENTORY_LIMIT,
+        stderr_fd: _WORKTREE_INVENTORY_ERROR_LIMIT,
+    }
+    selector = selectors.DefaultSelector()
+    selector.register(process.stdout, selectors.EVENT_READ)
+    selector.register(process.stderr, selectors.EVENT_READ)
+    deadline = time.monotonic() + _WORKTREE_INVENTORY_TIMEOUT
+    try:
+        while selector.get_map():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise WorkspaceError("wrapper worktree inventory timed out")
+            events = selector.select(remaining)
+            if not events:
+                raise WorkspaceError("wrapper worktree inventory timed out")
+            for key, _ in events:
+                chunk = os.read(key.fd, 65536)
+                if not chunk:
+                    selector.unregister(key.fileobj)
+                    continue
+                output[key.fd].extend(chunk)
+                if len(output[key.fd]) > limits[key.fd]:
+                    raise WorkspaceError(
+                        "wrapper worktree inventory output is not bounded"
+                    )
+        remaining = max(0.001, deadline - time.monotonic())
+        returncode = process.wait(timeout=remaining)
+    except (WorkspaceError, subprocess.TimeoutExpired) as error:
+        process.kill()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            pass
+        if isinstance(error, WorkspaceError):
+            raise
+        raise WorkspaceError("wrapper worktree inventory timed out") from error
+    finally:
+        selector.close()
+        process.stdout.close()
+        process.stderr.close()
+    stderr = bytes(output[stderr_fd])
+    if returncode:
+        detail = stderr.decode("utf-8", errors="replace").strip()
+        suffix = f": {detail}" if detail else ""
+        raise WorkspaceError(f"cannot list wrapper worktrees{suffix}")
+    return bytes(output[stdout_fd])
 
 
 def _parse_worktree_porcelain(raw: bytes) -> list[dict[str, str]]:
@@ -1720,6 +1804,7 @@ def _parse_worktree_porcelain(raw: bytes) -> list[dict[str, str]]:
             key not in _WORKTREE_PORCELAIN_KEYS
             or key in current
             or (not separator and key not in _WORKTREE_PORCELAIN_FLAGS)
+            or (separator and key in {"bare", "detached"})
             or any(
                 ord(character) < 32 or ord(character) == 127
                 for character in value
@@ -1736,6 +1821,7 @@ def _parse_worktree_porcelain(raw: bytes) -> list[dict[str, str]]:
         path = Path(record["worktree"])
         if (
             not path.is_absolute()
+            or record["worktree"] == "/"
             or str(path) != record["worktree"]
             or os.path.normpath(record["worktree"]) != record["worktree"]
         ):
@@ -5055,33 +5141,13 @@ class Workspace:
             "list wrapper worktrees",
         )
         with self._resource_locks([request]):
-            try:
-                result = subprocess.run(
-                    [
-                        "git",
-                        "-C",
-                        str(self.paths.repository),
-                        "worktree",
-                        "list",
-                        "--porcelain",
-                        "-z",
-                    ],
-                    check=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    pass_fds=active_lock_fds(),
-                )
-            except FileNotFoundError as error:
-                raise WorkspaceError("required command not found: git") from error
-            except subprocess.CalledProcessError as error:
-                detail = error.stderr.decode("utf-8", errors="replace").strip()
-                suffix = f": {detail}" if detail else ""
-                raise WorkspaceError(f"cannot list wrapper worktrees{suffix}") from error
-            except subprocess.TimeoutExpired as error:
-                raise WorkspaceError("wrapper worktree inventory timed out") from error
             return [
                 ("atrinik", record)
-                for record in _parse_worktree_porcelain(result.stdout)
+                for record in _parse_worktree_porcelain(
+                    _run_wrapper_worktree_inventory(
+                        self.paths.repository, active_lock_fds()
+                    )
+                )
             ]
 
     def create_profile(self, name: str, source: str = "default") -> Path:

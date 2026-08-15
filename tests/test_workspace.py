@@ -1537,9 +1537,13 @@ class WorkspaceTests(unittest.TestCase):
             "branch and detached": valid.replace(
                 b"branch refs/heads/main", b"branch refs/heads/main\0detached"
             ),
+            "valued detached flag": valid.replace(
+                b"branch refs/heads/main", b"detached unexpected"
+            ),
             "invalid utf8": valid.replace(b"/repo", b"/repo\xff"),
             "control in path": valid.replace(b"/repo", b"/repo\nunsafe"),
             "noncanonical path": valid.replace(b"/repo", b"/repo/../other"),
+            "root path": valid.replace(b"/repo", b"/"),
             "case alias": valid + valid.replace(b"/repo", b"/REPO"),
         }
         for name, raw in invalid.items():
@@ -1548,6 +1552,58 @@ class WorkspaceTests(unittest.TestCase):
                     WorkspaceError, "worktree inventory"
                 ):
                     _parse_worktree_porcelain(raw)
+
+    def test_wrapper_worktree_porcelain_rejects_byte_and_record_overflow(self) -> None:
+        record = (
+            b"worktree /repo\0HEAD " + b"a" * 40
+            + b"\0branch refs/heads/main\0\0"
+        )
+
+        with self.assertRaisesRegex(WorkspaceError, "not bounded"):
+            _parse_worktree_porcelain(
+                record + b"x" * workspace_module._WORKTREE_INVENTORY_LIMIT
+            )
+        with self.assertRaisesRegex(WorkspaceError, "oversized"):
+            _parse_worktree_porcelain(record * 4097)
+
+    def test_wrapper_worktree_capture_enforces_live_byte_bound(self) -> None:
+        real_popen = subprocess.Popen
+
+        def oversized(*_arguments: object, **keywords: object) -> subprocess.Popen[bytes]:
+            return real_popen(
+                [
+                    sys.executable,
+                    "-c",
+                    "import sys; sys.stdout.buffer.write(b'x' * (1024 * 1024 + 1))",
+                ],
+                **keywords,
+            )
+
+        with mock.patch(
+            "atrinik_workspace.workspace.subprocess.Popen", side_effect=oversized
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "not bounded"):
+                workspace_module._run_wrapper_worktree_inventory(self.wrapper, ())
+
+    def test_wrapper_worktree_capture_enforces_live_timeout(self) -> None:
+        real_popen = subprocess.Popen
+
+        def stalled(*_arguments: object, **keywords: object) -> subprocess.Popen[bytes]:
+            return real_popen(
+                [sys.executable, "-c", "import time; time.sleep(60)"],
+                **keywords,
+            )
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.subprocess.Popen", side_effect=stalled
+            ),
+            mock.patch.object(
+                workspace_module, "_WORKTREE_INVENTORY_TIMEOUT", 0.05
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "timed out"):
+                workspace_module._run_wrapper_worktree_inventory(self.wrapper, ())
 
     def test_worktree_sync_excludes_protected_paths_before_dirty_check(self) -> None:
         repository = self.workspace.paths.repositories / "content"
