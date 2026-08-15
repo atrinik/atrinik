@@ -770,7 +770,11 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 mock.patch.object(supervisor_module.threading, "Thread"),
                 mock.patch.object(supervisor_module, "terminate", return_value=True),
                 mock.patch.object(supervisor_module.os, "close") as close,
-                mock.patch.object(supervisor_module.os, "waitpid") as waitpid,
+                mock.patch.object(
+                    supervisor_module.os,
+                    "waitpid",
+                    side_effect=ChildProcessError,
+                ) as waitpid,
             ):
                 self.assertEqual(
                     supervise(
@@ -833,6 +837,10 @@ class ServerReadinessCaptureTests(unittest.TestCase):
             self.assertEqual(supervisor_module.main(), 1)
 
     def test_main_closes_every_current_lease_after_startup_failure(self) -> None:
+        def close_descriptor(descriptor: int) -> None:
+            if descriptor == 6:
+                raise OSError("process-tree descriptor already closed")
+
         arguments = [
             "atrinik-supervisor",
             "--spec",
@@ -864,7 +872,9 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 side_effect=RuntimeError("invalid runtime"),
             ),
             mock.patch.object(supervisor_module, "atomic_status"),
-            mock.patch.object(supervisor_module.os, "close") as close,
+            mock.patch.object(
+                supervisor_module.os, "close", side_effect=close_descriptor
+            ) as close,
             mock.patch.object(sys, "stderr"),
         ):
             self.assertEqual(supervisor_module.main(), 1)
