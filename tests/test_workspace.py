@@ -3212,6 +3212,46 @@ class WorkspaceTests(unittest.TestCase):
         self.assertTrue((rebuilt / "runtime-paths.txt").is_file())
         self.assertTrue(displaced.is_dir())
 
+    def test_source_generation_admission_preserves_inspection_uncertainty(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["resources"]
+
+        source = resolve()
+        generation = source.parent
+        original_lstat = Path.lstat
+
+        def fail_generation_inspection(path: Path) -> os.stat_result:
+            if path == generation:
+                raise PermissionError("injected generation inspection failure")
+            return original_lstat(path)
+
+        with (
+            mock.patch.object(
+                Path, "lstat", autospec=True, side_effect=fail_generation_inspection
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_extract_git_source_archive",
+                wraps=self.workspace._extract_git_source_archive,
+            ) as extract,
+            self.assertRaisesRegex(
+                WorkspaceError, "cannot inspect immutable source generation"
+            ),
+        ):
+            resolve()
+
+        extract.assert_not_called()
+        self.assertTrue(generation.is_dir())
+        self.assertTrue((generation / "source" / "runtime-paths.txt").is_file())
+
     def test_server_build_recovers_incomplete_resources_at_cmake_boundary(
         self,
     ) -> None:
