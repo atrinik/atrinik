@@ -2305,6 +2305,30 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(resolve(), source)
         self.assertIsInstance(load_json(metadata), dict)
 
+    def test_source_generation_reuse_recovers_duplicate_metadata_keys(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        generation.chmod(0o700)
+        metadata.chmod(0o600)
+        metadata.write_text(
+            '{"schema_version": 1, "schema_version": 1}\n',
+            encoding="utf-8",
+        )
+        self.workspace._seal_runtime_generation(generation)
+
+        self.assertEqual(resolve(), source)
+        self.assertIsInstance(load_json(metadata), dict)
+
     def test_source_generation_reuse_recovers_missing_source(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
@@ -3827,6 +3851,56 @@ class WorkspaceTests(unittest.TestCase):
                 materialize_clean_primaries=True,
             ):
                 self.fail("replaced source generation was yielded")
+
+    def test_source_generation_rejects_entry_swap_after_final_inventory(
+        self,
+    ) -> None:
+        real_inventory = self.workspace._source_generation_inventory
+        swapped = False
+
+        def swap_after_inventory(
+            root_fd: int,
+            root: Path,
+            *,
+            sync: bool,
+            allow_unsafe: bool,
+        ) -> str:
+            nonlocal swapped
+            inventory = real_inventory(
+                root_fd,
+                root,
+                sync=sync,
+                allow_unsafe=allow_unsafe,
+            )
+            if not sync and not allow_unsafe and not swapped:
+                swapped = True
+                root.rename(root.with_name(f"{root.name}-displaced"))
+                root.mkdir()
+            return inventory
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_source_generation_inventory",
+                side_effect=swap_after_inventory,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed before publication"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("swapped source generation was yielded")
+
+        self.assertTrue(swapped)
+        container = self.workspace.paths.builds / "source-generations" / "resources"
+        self.assertFalse(
+            any(re.fullmatch(r"[0-9a-f]{64}", path.name) for path in container.iterdir())
+        )
 
     def test_source_generation_reports_container_fsync_uncertainty(self) -> None:
         published = False
