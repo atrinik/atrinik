@@ -56,6 +56,8 @@ from .workspace import (
 
 
 CLEANUP_SCHEMA_VERSION = 1
+CLEANUP_JOURNAL_SCHEMA_VERSION = 2
+CLEANUP_JOURNAL_LIMIT = 4096
 WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS = frozenset(
     {1, 2, 3, WORKER_DEPENDENCY_SCHEMA_VERSION}
 )
@@ -1194,7 +1196,145 @@ class Cleanup:
             raise WorkspaceError(
                 f"workspace ownership marker is invalid: {self.paths.marker}"
             )
-        report = self._plan(selected_scopes, older_than_days, selected_names, "apply")
+        request = {
+            "scopes": selected_scopes,
+            "older_than_days": older_than_days,
+            "filters": sorted(selected_names or []),
+        }
+        coordinate = hashlib.sha256(
+            json.dumps(request, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        with self.workspace._resource_locks(
+            [
+                self.workspace._lease_request(
+                    "registry",
+                    f"cleanup:{coordinate}",
+                    "exclusive",
+                    "resume workspace cleanup",
+                )
+            ],
+            include_wrapper=False,
+        ):
+            return self._execute_apply(
+                selected_scopes, older_than_days, selected_names, request
+            )
+
+    def _resumable_journal(
+        self, request: dict[str, Any]
+    ) -> tuple[Path, dict[str, Any]] | None:
+        root = self.paths.workspace / "cleanup-journals"
+        if not root.exists() and not root.is_symlink():
+            return None
+        if root.is_symlink() or not root.is_dir():
+            raise WorkspaceError(f"cleanup journal root is unsafe: {root}")
+        try:
+            paths = sorted(root.iterdir(), key=lambda path: path.name)
+        except OSError as error:
+            raise WorkspaceError(f"cannot inspect cleanup journals: {error}") from error
+        if len(paths) > CLEANUP_JOURNAL_LIMIT:
+            raise WorkspaceError("cleanup journal inventory is oversized")
+        matches: list[tuple[Path, dict[str, Any]]] = []
+        for path in paths:
+            if path.suffix != ".json":
+                continue
+            if path.is_symlink() or not path.is_file():
+                raise WorkspaceError(f"cleanup journal is unsafe: {path}")
+            value = load_regular_json(path, f"cleanup journal {path.name}")
+            if (
+                not isinstance(value, dict)
+                or value.get("schema_version") != CLEANUP_JOURNAL_SCHEMA_VERSION
+                or value.get("status") != "in-progress"
+                or value.get("request") != request
+            ):
+                continue
+            required = {
+                "schema_version",
+                "started_at",
+                "status",
+                "request",
+                "report",
+                "targets",
+                "completed",
+                "in_flight",
+            }
+            if set(value) != required:
+                raise WorkspaceError(f"cleanup journal is invalid: {path}")
+            report = value["report"]
+            if (
+                not isinstance(report, dict)
+                or report.get("schema_version") != CLEANUP_SCHEMA_VERSION
+                or report.get("mode") != "apply"
+                or report.get("scopes") != request["scopes"]
+                or report.get("older_than_days") != request["older_than_days"]
+                or report.get("filters") != request["filters"]
+                or not isinstance(report.get("items"), list)
+            ):
+                raise WorkspaceError(f"cleanup journal report is invalid: {path}")
+            if any(
+                not isinstance(item, dict)
+                or not isinstance(item.get("kind"), str)
+                or not isinstance(item.get("path"), str)
+                or not isinstance(item.get("disposition"), str)
+                for item in report["items"]
+            ):
+                raise WorkspaceError(f"cleanup journal report items are invalid: {path}")
+            targets = value["targets"]
+            expected = [
+                {"kind": item.get("kind"), "path": item.get("path")}
+                for item in sorted(
+                    (
+                        item
+                        for item in report["items"]
+                        if isinstance(item, dict)
+                        and item.get("disposition") == "eligible"
+                    ),
+                    key=self._apply_order,
+                )
+            ]
+            completed = value["completed"]
+            in_flight = value["in_flight"]
+            valid_action = lambda action: (
+                isinstance(action, dict)
+                and set(action) == {"kind", "path"}
+                and isinstance(action["kind"], str)
+                and isinstance(action["path"], str)
+            )
+            if (
+                not isinstance(targets, list)
+                or targets != expected
+                or any(not valid_action(action) for action in targets)
+                or not isinstance(completed, list)
+                or any(not valid_action(action) for action in completed)
+                or any(action not in targets for action in completed)
+                or len({(row["kind"], row["path"]) for row in completed})
+                != len(completed)
+                or (
+                    in_flight is not None
+                    and (not valid_action(in_flight) or in_flight not in targets)
+                )
+                or in_flight in completed
+            ):
+                raise WorkspaceError(f"cleanup journal progress is invalid: {path}")
+            matches.append((path, value))
+        if len(matches) > 1:
+            raise WorkspaceError("multiple cleanup journals require the same retry")
+        if matches:
+            return matches[0]
+        return None
+
+    def _execute_apply(
+        self,
+        selected_scopes: list[str],
+        older_than_days: int,
+        selected_names: set[str] | None,
+        request: dict[str, Any],
+    ) -> dict[str, Any]:
+        resumed = self._resumable_journal(request)
+        if resumed is None:
+            report = self._plan(selected_scopes, older_than_days, selected_names, "apply")
+        else:
+            journal_path, journal = resumed
+            report = json.loads(json.dumps(journal["report"]))
         if report["summary"]["error_count"]:
             report["aborted"] = True
             return report
@@ -1203,25 +1343,64 @@ class Cleanup:
         ]
         targets.sort(key=self._apply_order)
         mutated = False
-        completed: set[tuple[str, str]] = set()
-        report["completed_actions"] = []
-        journal_path = (
-            self.paths.workspace
-            / "cleanup-journals"
-            / f"{self.now.strftime('%Y%m%dT%H%M%S%fZ')}-{secrets.token_hex(6)}.json"
-        )
-        journal: dict[str, Any] = {
-            "schema_version": 1,
-            "started_at": self.now.isoformat(),
-            "status": "in-progress",
-            "targets": [
-                {"kind": target["kind"], "path": target["path"]}
-                for target in targets
-            ],
-            "completed": [],
+        if resumed is None:
+            completed_actions: list[dict[str, str]] = []
+            journal_path = (
+                self.paths.workspace
+                / "cleanup-journals"
+                / f"{self.now.strftime('%Y%m%dT%H%M%S%fZ')}-{secrets.token_hex(6)}.json"
+            )
+            journal = {
+                "schema_version": CLEANUP_JOURNAL_SCHEMA_VERSION,
+                "started_at": self.now.isoformat().replace("+00:00", "Z"),
+                "status": "in-progress",
+                "request": request,
+                "report": json.loads(json.dumps(report)),
+                "targets": [
+                    {"kind": target["kind"], "path": target["path"]}
+                    for target in targets
+                ],
+                "completed": [],
+                "in_flight": None,
+            }
+            durable_atomic_json(journal_path, journal)
+        else:
+            completed_actions = list(journal["completed"])
+        completed = {
+            (action["kind"], action["path"]) for action in completed_actions
         }
-        durable_atomic_json(journal_path, journal)
+        mutated = bool(completed)
+        report["completed_actions"] = completed_actions
         report["journal"] = str(journal_path)
+        report["mutation_attempted"] = bool(completed or journal["in_flight"])
+
+        def record_completed(target: dict[str, Any]) -> None:
+            nonlocal mutated
+            related = [target]
+            if target["kind"] == "prunable-metadata":
+                related = [
+                    candidate
+                    for candidate in targets
+                    if candidate["kind"] == "prunable-metadata"
+                    and candidate["owner"] == target["owner"]
+                ]
+            for candidate in related:
+                action = {
+                    "kind": candidate["kind"],
+                    "path": candidate["path"],
+                }
+                identity = (action["kind"], action["path"])
+                if identity not in completed:
+                    completed.add(identity)
+                    completed_actions.append(action)
+                candidate["disposition"] = "removed"
+                candidate["reasons"] = ["removed"]
+            journal["completed"] = list(completed_actions)
+            journal["in_flight"] = None
+            report["completed_actions"] = list(completed_actions)
+            durable_atomic_json(journal_path, journal)
+            mutated = True
+
         for target in targets:
             with ExitStack() as target_stack:
                 if target["kind"] in {"worktree", "prunable-metadata"}:
@@ -1314,7 +1493,15 @@ class Cleanup:
                         continue
                 identity = (target["kind"], target["path"])
                 if identity in completed:
+                    target["disposition"] = "removed"
+                    target["reasons"] = ["removed"]
                     continue
+                action = {"kind": target["kind"], "path": target["path"]}
+                if journal["in_flight"] == action:
+                    path = Path(target["path"])
+                    if not path.exists() and not path.is_symlink():
+                        record_completed(target)
+                        continue
                 try:
                     match = self._revalidate_target(
                         target,
@@ -1350,29 +1537,32 @@ class Cleanup:
                         target[key] = value
                 target.update(credited)
                 report["mutation_attempted"] = True
+                journal["in_flight"] = action
+                try:
+                    durable_atomic_json(journal_path, journal)
+                except (OSError, RuntimeError, WorkspaceError) as error:
+                    report["aborted"] = True
+                    report["journal_error"] = (
+                        "cleanup could not durably record its next action before "
+                        f"removal: {error}"
+                    )
+                    break
                 try:
                     self._remove(match, older_than_days)
                 except LockBusyError as error:
                     target["disposition"] = "skipped"
                     target["reasons"] = ["resource_busy"]
                     target["error"] = str(error)
-                    continue
+                    report["aborted"] = True
+                    break
                 except (OSError, RuntimeError, WorkspaceError) as error:
                     target["disposition"] = "error"
                     target["reasons"] = ["removal_failed"]
                     target["error"] = str(error)
                     report["aborted"] = True
                     break
-                target["disposition"] = "removed"
-                target["reasons"] = ["removed"]
-                mutated = True
-                completed.add(identity)
-                report["completed_actions"].append(
-                    {"kind": target["kind"], "path": target["path"]}
-                )
-                journal["completed"] = list(report["completed_actions"])
                 try:
-                    durable_atomic_json(journal_path, journal)
+                    record_completed(target)
                 except (OSError, RuntimeError, WorkspaceError) as error:
                     report["aborted"] = True
                     report["journal_error"] = (
@@ -1380,20 +1570,15 @@ class Cleanup:
                         f"refresh its progress journal: {error}"
                     )
                     break
-                if target["kind"] == "prunable-metadata":
-                    for related in targets:
-                        if (
-                            related["kind"] == "prunable-metadata"
-                            and related["owner"] == target["owner"]
-                        ):
-                            related["disposition"] = "removed"
-                            related["reasons"] = ["removed"]
-                            completed.add((related["kind"], related["path"]))
         report["mutated"] = mutated
         report.setdefault("mutation_attempted", False)
         report["summary"] = self._summary(report["items"])
-        journal["status"] = "aborted" if report.get("aborted") else "complete"
-        journal["finished_at"] = datetime.now(timezone.utc).isoformat()
+        target_identities = {(row["kind"], row["path"]) for row in journal["targets"]}
+        if completed == target_identities:
+            journal["status"] = "complete"
+            journal["finished_at"] = datetime.now(timezone.utc).isoformat().replace(
+                "+00:00", "Z"
+            )
         try:
             durable_atomic_json(journal_path, journal)
         except (OSError, RuntimeError, WorkspaceError) as error:

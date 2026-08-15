@@ -280,10 +280,15 @@ the helper validates both reports and derives one identical eligible/removed
 target selection, safe removed worktrees, and terminal resources. Archive
 accepts an active-to-released scope transition only with its live exact
 completed scope-release journal, canonical release plan, exact completed action
-set, and live coordinate absence, and rejects cleanup targets outside the ledger.
+set, and live coordinate absence. The scope journal owns its produced-worktree
+removal; generic cleanup evidence covers only the remaining ledger targets and
+cannot synthesize that action. Archive rejects cleanup targets outside the ledger.
 The wrapper's canonical complete cleanup journal must exactly match the retained
-apply report. Registry, Git-admin, source, profile, topology, and scope-build
-coordinates stay leased through a final absence recheck and archive installation.
+apply report. Cleanup persists the exact request and original selection plus an
+in-flight action before each removal; an identical retry resumes that journal
+through post-removal or pre-terminal interruption instead of replanning away an
+already removed target. Registry, Git-admin, source, profile, topology, and
+scope-build coordinates stay leased through a final absence recheck and archive installation.
 It installs a bounded canonical bundle
 before unlinking the exact ledger, release, persistent lock, report, migration
 marker/snapshot/source, and embedded intent material. During a crash, the
@@ -295,8 +300,10 @@ Every archive has an explicit UTC retention horizon. Reclaim preview uses the
 helper clock and binds its name, byte digest, device, inode, and observation
 instant after that horizon; apply rechecks time and removes only that exact
 archive. Exact inode removal first enters a crash-recoverable quarantine, and a
-fixed completion checkpoint makes an exact retry converge after unlink until
-the next reclaim replaces it, without accumulating one receipt per delivery.
+hard-crash recovery restores the helper-owned transaction traversal mode before
+reopening and identity-checking it. A fixed completion checkpoint makes an
+exact retry converge after unlink until the next reclaim replaces it, without
+accumulating one receipt per delivery.
 Neither archive nor reclaim traverses or mutates
 worktrees, Git branches/objects, profiles, topology/state, or runtime resources.
 This reduces each completed delivery to one bounded record and permits explicit

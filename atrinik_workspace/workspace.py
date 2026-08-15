@@ -16162,6 +16162,7 @@ class Workspace:
         if not status_path.is_file() or status_path.is_symlink():
             raise WorkspaceError(f"topology has not been started: {name}")
         status = load_json(status_path)
+        published_status = copy.deepcopy(status)
         required = {
             "schema_version",
             "name",
@@ -16869,7 +16870,28 @@ class Workspace:
             or supervisor_running
             or any(service["running"] for service in services.values())
         )
-        if current_runtime_record and retained and not runtime_active:
+        runtime_release_published = bool(
+            status.get("stopped_at") is not None
+            and not status["ready"]
+            and isinstance(status.get("shutdown"), dict)
+            and all(
+                service["status"] == "exited" for service in services.values()
+            )
+        )
+        if (
+            current_runtime_record
+            and retained
+            and not runtime_active
+            and not runtime_release_published
+        ):
+            latest = load_json(status_path)
+            if (
+                isinstance(latest, dict)
+                and latest != published_status
+                and latest.get("control") == status.get("control")
+                and latest.get("stopped_at") is not None
+            ):
+                return self.topology_status(name)
             raise WorkspaceError(
                 f"topology runtime generation lease is not retained: {name}"
             )

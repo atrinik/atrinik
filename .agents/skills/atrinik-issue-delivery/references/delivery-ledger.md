@@ -1689,15 +1689,22 @@ match the ledger and say `removed`, retaining the last safe observation. Its
 resource rows exactly match every slot and say `removed` or `retained`, with the
 same terminal lifecycle. The one exception converts a ledger-recorded active
 scope to `removed`/`released`, reflecting its intervening wrapper release.
+Its scope-produced worktree is absent from the generic cleanup
+eligible/removed selection: the exact completed scope-release journal, not a
+synthetic generic-cleanup action, is its removal evidence.
 That exception also requires the live scope subsystem's exact completed,
 generation-matched release journal, embedded canonical plan and exact completed
 action set, plus live absence of every released coordinate; a caller-authored
 summary is insufficient.
 The apply report must also name the exact canonical wrapper cleanup journal;
 that journal must be complete and its targets/completed actions must equal the
-retained report. Archive holds the wrapper's registry, Git-admin, source,
-profile, topology, and scope-build coordinates from final absence proof through
-archive installation, then repeats the proof immediately before the link.
+retained report. Cleanup journals bind the original request and report, persist
+one in-flight action before removal, and are resumed only by the identical
+request until every original target is complete. Archive holds the wrapper's
+physical-reference registry, Git-admin, source, profile, topology,
+state/scenario, and canonical profile-build coordinates from final absence
+proof through archive installation, then repeats the proof immediately before
+the link.
 Archive preview/apply never removes those resources.
 It instead bundles canonical ledger, release, lock, optional report, migration
 marker/snapshot/source, and embedded intent bytes into one canonical bounded
@@ -1710,7 +1717,9 @@ digest/device/inode. Review the returned bound plan and
 feed the complete preview to `reclaim-apply`. Reclaim removes only that bundle;
 it never follows a path or touches a worktree/resource. Exact unlink first moves
 the inode into a private crash-recoverable quarantine whose durable intent is
-inventory-recovered before link-count validation. One fixed completion
+inventory-recovered before link-count validation. Recovery restores the
+helper-owned transaction directory's traversal mode after process death before
+opening and identity-checking it. One fixed completion
 checkpoint makes an exact post-unlink retry converge until the next successful
 reclaim replaces that checkpoint, so completed deliveries cannot accumulate
 one receipt apiece; unrelated absent-archive requests fail. Use a retention period required by

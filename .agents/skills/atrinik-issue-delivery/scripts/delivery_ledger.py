@@ -1180,20 +1180,31 @@ def _prove_cleanup_journal(cleanup: Mapping[str, Any], workspace_root: str) -> N
     journal_root = Path(workspace_root) / "cleanup-journals"
     if journal_path.parent != journal_root or journal_path.name in {"", ".", ".."}:
         raise LedgerError("archive cleanup journal escaped the wrapper journal root")
+    journal_value = _decode(
+        _read_bytes_input(str(journal_path)), "archive cleanup journal"
+    )
+    if not isinstance(journal_value, dict):
+        raise LedgerError("archive cleanup journal is not an object")
+    schema_version = journal_value.get("schema_version")
+    fields = {
+        "schema_version",
+        "started_at",
+        "status",
+        "targets",
+        "completed",
+        "finished_at",
+    }
+    if schema_version == 2:
+        fields.update({"request", "report", "in_flight"})
     journal = _exact(
-        _decode(_read_bytes_input(str(journal_path)), "archive cleanup journal"),
-        {
-            "schema_version",
-            "started_at",
-            "status",
-            "targets",
-            "completed",
-            "finished_at",
-        },
+        journal_value,
+        fields,
         "archive cleanup journal",
     )
-    if journal["schema_version"] != 1 or journal["status"] != "complete":
+    if journal["schema_version"] not in {1, 2} or journal["status"] != "complete":
         raise LedgerError("archive cleanup journal is not complete")
+    if schema_version == 2 and journal["in_flight"] is not None:
+        raise LedgerError("archive cleanup journal has an unfinished action")
     for field in ("started_at", "finished_at"):
         _timestamp_key(
             _string(journal[field], f"archive cleanup journal.{field}", TIMESTAMP_RE),
@@ -1308,7 +1319,30 @@ def _archive_request(
             or observed["lifecycle"] != lifecycle
         ):
             raise LedgerError("archive cleanup resource lifecycle is unsafe or mismatched")
-    expected_cleanup_targets = {("worktree", path) for path in expected_worktrees}
+    scope_released_worktrees = {
+        (slot["current"] or slot["immutable"])["path"]
+        for slot in snapshot.document["artifacts"]
+        if slot["kind"] == "worktree"
+        and slot.get("producer_resource_slot") is not None
+        and any(
+            resource["slot_id"] == slot["producer_resource_slot"]
+            and resource["kind"] == "scope"
+            and resource["current"] is not None
+            and resource["current"]["lifecycle"] == "active"
+            and observed_resources[resource["slot_id"]]
+            == {
+                "slot_id": resource["slot_id"],
+                "disposition": "removed",
+                "lifecycle": "released",
+            }
+            for resource in snapshot.document["resources"]
+        )
+    }
+    expected_cleanup_targets = {
+        ("worktree", path)
+        for path in expected_worktrees
+        if path not in scope_released_worktrees
+    }
     expected_cleanup_targets.update(
         (resource["kind"], resource["current"]["path"])
         for slot_id, resource in expected_resources.items()
@@ -7321,9 +7355,31 @@ def _recover_unlink_quarantine(directory: int) -> None:
         for token in names:
             if not re.fullmatch(r"[0-9a-f]{64}", token):
                 raise LedgerError(f"unsafe unlink transaction name: {token}")
+            # A live unlink removes read permission while it retains the open
+            # directory descriptor. Process death skips that descriptor's
+            # cleanup, so restore the helper-owned recovery mode before open.
+            try:
+                token_status = os.stat(token, dir_fd=quarantine, follow_symlinks=False)
+                if not stat.S_ISDIR(token_status.st_mode):
+                    raise LedgerError(f"unlink transaction is not a directory: {token}")
+                _require_trusted_directory(token_status, "unlink transaction")
+                os.chmod(token, 0o700, dir_fd=quarantine, follow_symlinks=False)
+            except OSError as error:
+                raise LedgerError(f"cannot restore unlink transaction {token}: {error}") from error
             transaction = os.open(token, root_flags, dir_fd=quarantine)
             try:
-                _require_trusted_directory(os.fstat(transaction), "unlink transaction")
+                opened_transaction = os.fstat(transaction)
+                visible_transaction = os.stat(
+                    token, dir_fd=quarantine, follow_symlinks=False
+                )
+                _require_trusted_directory(opened_transaction, "unlink transaction")
+                if (
+                    (opened_transaction.st_dev, opened_transaction.st_ino)
+                    != (visible_transaction.st_dev, visible_transaction.st_ino)
+                    or (opened_transaction.st_dev, opened_transaction.st_ino)
+                    != (token_status.st_dev, token_status.st_ino)
+                ):
+                    raise LedgerError("unlink transaction changed during recovery")
                 entries = set(os.listdir(transaction))
                 if not entries:
                     os.close(transaction)
@@ -9263,6 +9319,37 @@ def _archive_plan_locked(
     return document, raw, digest, name
 
 
+def _archive_build_roots(
+    scopes: Mapping[str, tuple[Mapping[str, Any], Mapping[str, Any], bytes]],
+    resources: list[Mapping[str, Any]],
+) -> list[Path]:
+    """Return one build root for each canonical profile-build lock."""
+
+    roots: dict[str, Path] = {}
+
+    def add(root: Path) -> None:
+        previous = roots.get(root.name)
+        if previous is not None and previous != root:
+            raise LedgerError("archive build lock coordinate maps to multiple roots")
+        roots.setdefault(root.name, root)
+
+    for _slot_id, (_resource, _record, journal_raw) in scopes.items():
+        journal = _decode(journal_raw, "archive scope release journal")
+        for item in journal["plan"]["items"]:
+            if item.get("kind") != "build" or item.get("disposition") != "eligible":
+                continue
+            add(Path(item["path"]))
+    for resource in resources:
+        current = resource["current"]
+        if (
+            current is not None
+            and resource["kind"] == "build"
+            and current["path"] is not None
+        ):
+            add(Path(current["path"]))
+    return list(roots.values())
+
+
 @contextmanager
 def _archive_live_safety(
     snapshot: Snapshot, request: Mapping[str, Any]
@@ -9384,11 +9471,21 @@ def _archive_live_safety(
         }
         for resource in document["resources"]:
             current = resource["current"]
-            if current is None or resource["kind"] == "scope":
+            kind = resource["kind"]
+            # Scope coordinates have dedicated leases above, build roots use
+            # their canonical profile-build locks below, and the shared
+            # physical-reference registry lease covers reference resources.
+            if current is None or kind in {"scope", "build", "reference"}:
                 continue
+            if kind == "runtime":
+                raise LedgerError(
+                    "archive runtime resource lacks an exact lease mapping"
+                )
+            if kind not in {"profile", "topology", "scenario", "state"}:
+                raise LedgerError(f"archive resource lease kind is unsupported: {kind}")
             leases.append(
                 workspace._lease_request(
-                    resource["kind"],
+                    kind,
                     current["name"],
                     "shared",
                     "delivery archive proof",
@@ -9396,8 +9493,12 @@ def _archive_live_safety(
             )
         with ExitStack() as stack:
             stack.enter_context(workspace._resource_locks(leases, nonblocking=True))
+            acquired_build_locks: set[Path] = set()
+
             def acquire_build_lock(root: Path) -> None:
                 lock_path = workspace.paths.builds / "locks" / f"{root.name}.lock"
+                if lock_path in acquired_build_locks:
+                    return
                 lock_path.parent.mkdir(parents=True, exist_ok=True)
                 descriptor = os.open(
                     lock_path,
@@ -9410,21 +9511,10 @@ def _archive_live_safety(
                     os.close(descriptor)
                     raise
                 build_descriptors.append(descriptor)
+                acquired_build_locks.add(lock_path)
 
-            for _slot_id, (_resource, _record, journal_raw) in scopes.items():
-                journal = _decode(journal_raw, "archive scope release journal")
-                for item in journal["plan"]["items"]:
-                    if item.get("kind") != "build" or item.get("disposition") != "eligible":
-                        continue
-                    acquire_build_lock(Path(item["path"]))
-            for resource in document["resources"]:
-                current = resource["current"]
-                if (
-                    current is not None
-                    and resource["kind"] == "build"
-                    and current["path"] is not None
-                ):
-                    acquire_build_lock(Path(current["path"]))
+            for root in _archive_build_roots(scopes, document["resources"]):
+                acquire_build_lock(root)
 
             def recheck() -> None:
                 _prove_cleanup_journal(request["cleanup"], workspace_root)

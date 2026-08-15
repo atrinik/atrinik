@@ -1166,17 +1166,36 @@ class ScopeLifecycle:
                         ):
                             raise WorkspaceError("scope release journal plan is invalid")
                         journal = candidate
-                        plan = {
-                            **journal["plan"],
-                            "mode": "dry-run",
-                            "plan_sha256": journal["plan_sha256"],
-                            "can_apply": True,
-                        }
+                        pristine = (
+                            set(journal)
+                            == {
+                                "schema_version",
+                                "scope",
+                                "generation",
+                                "plan_sha256",
+                                "plan",
+                                "status",
+                                "completed",
+                                "in_flight",
+                                "pending_builds",
+                                "updated_at",
+                            }
+                            and journal.get("status") == "applying"
+                            and journal.get("completed") == []
+                            and journal.get("in_flight") is None
+                        )
+                        if not pristine:
+                            plan = {
+                                **journal["plan"],
+                                "mode": "dry-run",
+                                "plan_sha256": journal["plan_sha256"],
+                                "can_apply": True,
+                            }
                     if not apply:
                         return plan
                     if plan_sha256 is None or not _HEX64.fullmatch(plan_sha256):
                         raise WorkspaceError("scope release apply requires the exact --plan SHA256 from dry-run")
-                    if journal is not None:
+                    if journal is not None and not pristine:
                         if journal["plan_sha256"] != plan_sha256:
                             raise WorkspaceError("scope release journal plan is invalid")
                     elif plan_sha256 != plan["plan_sha256"]:
@@ -1750,6 +1769,12 @@ class ScopeLifecycle:
             if release_path.is_symlink() or not release_path.is_file():
                 raise WorkspaceError("scope release journal is unsafe")
             previous = load_regular_json(release_path, f"scope release {record['name']}")
+            pristine = (
+                isinstance(previous, dict)
+                and previous.get("status") == "applying"
+                and previous.get("completed") == []
+                and previous.get("in_flight") is None
+            )
             if (
                 not isinstance(previous, dict)
                 or previous.get("schema_version") != SCOPE_RELEASE_SCHEMA_VERSION
@@ -1764,11 +1789,13 @@ class ScopeLifecycle:
                 != {"schema_version", "scope", "generation", "items"}
                 or _canonical_sha256(previous["plan"])
                 != previous.get("plan_sha256")
-                or previous.get("plan") != {
+                or not pristine
+                and previous.get("plan") != {
                     key: plan[key]
                     for key in ("schema_version", "scope", "generation", "items")
                 }
-                or previous.get("plan_sha256") != plan["plan_sha256"]
+                or not pristine
+                and previous.get("plan_sha256") != plan["plan_sha256"]
                 or previous.get("status") not in {"applying", "complete"}
                 or previous["completed"]
                 != expected_actions[: len(previous["completed"])]
@@ -1821,8 +1848,13 @@ class ScopeLifecycle:
                 )
             ):
                 raise WorkspaceError("scope release journal is invalid")
-            completed = list(dict.fromkeys(previous["completed"]))
-            in_flight = previous.get("in_flight")
+            if pristine:
+                previous = {}
+                completed = []
+                in_flight = None
+            else:
+                completed = list(dict.fromkeys(previous["completed"]))
+                in_flight = previous.get("in_flight")
         else:
             previous = {}
             in_flight = None

@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import base64
 from contextlib import nullcontext
+import hashlib
 import importlib.util
 import json
 import os
@@ -8732,6 +8733,34 @@ class DeliveryLedgerTests(unittest.TestCase):
                 quarantine = root / ledger._UNLINK_QUARANTINE
                 self.assertEqual(list(quarantine.iterdir()), [])
 
+    def test_66b_unlink_quarantine_recovers_after_process_death_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "candidate.tmp"
+            target.write_bytes(b"evidence")
+            target.chmod(0o600)
+            expected = target.stat(follow_symlinks=False)
+            token = hashlib.sha256(
+                f"{target.name}\0{expected.st_dev}\0{expected.st_ino}".encode("utf-8")
+            ).hexdigest()
+            transaction = root / ledger._UNLINK_QUARANTINE / token
+            transaction.mkdir(parents=True, mode=0o700)
+            receipt = {
+                "schema_version": 1,
+                "name": target.name,
+                "device": expected.st_dev,
+                "inode": expected.st_ino,
+            }
+            receipt_path = transaction / "receipt.json"
+            receipt_path.write_bytes(ledger.canonical_bytes(receipt))
+            receipt_path.chmod(0o600)
+            target.rename(transaction / "payload")
+            transaction.chmod(0o300)
+
+            ledger.inventory(root)
+
+            self.assertEqual(list((root / ledger._UNLINK_QUARANTINE).iterdir()), [])
+
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
     @mock.patch.object(
@@ -8800,12 +8829,44 @@ class DeliveryLedgerTests(unittest.TestCase):
         )
         slot["current"] = {"path": str(path)}
         workspace_root = Path(roots["workspace"]["path"])
+        build_path = workspace_root / "build" / "profiles" / "scope-build"
+        document["resources"] = [
+            {
+                "slot_id": "build",
+                "kind": "build",
+                "current": {
+                    "name": "scope-build",
+                    "path": str(build_path),
+                    "lifecycle": "static",
+                },
+            },
+            {
+                "slot_id": "reference",
+                "kind": "reference",
+                "current": {
+                    "name": "scope-reference",
+                    "path": None,
+                    "lifecycle": "static",
+                },
+            },
+        ]
         with mock.patch.dict(
             os.environ, {"ATRINIK_WORKSPACE_DIR": str(workspace_root)}
         ):
             module = ledger._load_workspace_module(roots["wrapper"]["path"])
             workspace = module.Workspace(Path(roots["wrapper"]["path"]), backfill_references=False)
             workspace.paths.ensure()
+            cleanup_output = workspace.cleanup(["worktrees"], 0, [], True)
+            ledger._prove_cleanup_journal(
+                {
+                    "apply": {
+                        "output": inline_payload(
+                            ledger.canonical_bytes(cleanup_output)
+                        )
+                    }
+                },
+                str(workspace_root),
+            )
             workspace.close()
         journal_path = workspace_root / "cleanup-journals" / "archive.json"
         action = {"kind": "worktree", "path": str(path)}
@@ -8829,7 +8890,18 @@ class DeliveryLedgerTests(unittest.TestCase):
         request = {
             "cleanup": {
                 "apply": {"output": inline_payload(ledger.canonical_bytes(apply_output))},
-                "resources": [],
+                "resources": [
+                    {
+                        "slot_id": "build",
+                        "disposition": "removed",
+                        "lifecycle": "static",
+                    },
+                    {
+                        "slot_id": "reference",
+                        "disposition": "retained",
+                        "lifecycle": "static",
+                    },
+                ],
             }
         }
         snapshot = mock.Mock(document=document)
@@ -8852,6 +8924,89 @@ class DeliveryLedgerTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ledger.LedgerError, "differs from the apply report"):
             ledger._prove_cleanup_journal(request["cleanup"], str(workspace_root))
+
+    def test_68b_archive_build_locks_dedupe_scope_and_resource_overlap(self) -> None:
+        build = "/workspace-data/build/profiles/scope-build"
+        journal = ledger.canonical_bytes(
+            {
+                "plan": {
+                    "items": [
+                        {
+                            "kind": "build",
+                            "path": build,
+                            "disposition": "eligible",
+                        }
+                    ]
+                }
+            }
+        )
+        scopes = {"scope": ({}, {}, journal)}
+        resources = [
+            {
+                "kind": "build",
+                "current": {
+                    "name": "scope-build",
+                    "path": build,
+                    "lifecycle": "static",
+                },
+            }
+        ]
+
+        self.assertEqual(ledger._archive_build_roots(scopes, resources), [Path(build)])
+        resources[0]["current"]["path"] = f"/other-root/{Path(build).name}"
+        with self.assertRaisesRegex(ledger.LedgerError, "multiple roots"):
+            ledger._archive_build_roots(scopes, resources)
+
+    def test_69_scope_release_owns_its_worktree_cleanup_evidence(self) -> None:
+        document = releasable_pr_ledger()
+        worktree = next(
+            row for row in document["artifacts"] if row["kind"] == "worktree"
+        )
+        worktree["producer_resource_slot"] = "scope"
+        document["resources"] = [
+            {
+                "slot_id": "scope",
+                "kind": "scope",
+                "current": {"lifecycle": "active"},
+            }
+        ]
+        snapshot = type(
+            "SnapshotView", (), {"document": document, "digest": "a" * 64}
+        )()
+        release = type(
+            "ReleaseView",
+            (),
+            {
+                "digest": "b" * 64,
+                "document": {"observed_at": "2026-08-15T10:05:00Z"},
+            },
+        )()
+        request = archive_request(snapshot, release)
+        request["cleanup"]["resources"] = [
+            {
+                "slot_id": "scope",
+                "disposition": "removed",
+                "lifecycle": "released",
+            }
+        ]
+        for phase in ("preview", "apply"):
+            retained = request["cleanup"][phase]["output"]
+            output = json.loads(base64.b64decode(retained["raw_base64"]))
+            output["items"] = []
+            if phase == "apply":
+                output["completed_actions"] = []
+                output["mutated"] = False
+                output["mutation_attempted"] = False
+            request["cleanup"][phase]["output"] = inline_payload(
+                ledger.canonical_bytes(output)
+            )
+
+        self.assertEqual(
+            ledger._archive_request(
+                snapshot, release, request, live_scope_proof=False
+            ),
+            request,
+        )
 
 
 if __name__ == "__main__":

@@ -1023,6 +1023,54 @@ class ScopeLifecycleTests(unittest.TestCase):
         self.assertIn("profile", journal["completed"])
         self.assertIn("worktree:client", journal["completed"])
 
+    def test_pristine_release_journal_can_replan_after_pre_action_drift(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="pristine-replan")
+        preview = self.workspace.scope_release("pristine-replan", apply=False)
+        stale_plan = {
+            key: copy.deepcopy(preview[key])
+            for key in ("schema_version", "scope", "generation", "items")
+        }
+        topology = next(
+            item for item in stale_plan["items"] if item["kind"] == "topology"
+        )
+        topology["reasons"] = ["stale-pre-action-observation"]
+        stale_digest = scopes_module._canonical_sha256(stale_plan)
+        release_path = (
+            self.workspace_directory
+            / "scopes"
+            / "pristine-replan"
+            / "release-journal.json"
+        )
+        scopes_module.durable_atomic_json(
+            release_path,
+            {
+                "schema_version": 1,
+                "scope": "pristine-replan",
+                "generation": record["generation"],
+                "plan_sha256": stale_digest,
+                "plan": stale_plan,
+                "status": "applying",
+                "completed": [],
+                "in_flight": None,
+                "pending_builds": [],
+                "updated_at": "2026-08-14T00:00:00Z",
+            },
+        )
+
+        replanned = self.workspace.scope_release("pristine-replan", apply=False)
+        self.assertEqual(replanned["plan_sha256"], preview["plan_sha256"])
+        self.assertNotEqual(replanned["plan_sha256"], stale_digest)
+        result = self.workspace.scope_release(
+            "pristine-replan",
+            apply=True,
+            plan_sha256=replanned["plan_sha256"],
+        )
+        self.assertTrue(result["released"])
+        journal = json.loads(release_path.read_text(encoding="utf-8"))
+        self.assertEqual(journal["plan_sha256"], replanned["plan_sha256"])
+        self.assertEqual(journal["status"], "complete")
+
     def test_release_recovers_each_destructive_before_journal_crash(self) -> None:
         self.make_checkout("client")
 

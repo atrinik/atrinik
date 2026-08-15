@@ -16761,10 +16761,29 @@ class WorkspaceTests(unittest.TestCase):
         hardlinked_path = Path(hardlinked["state_policy"]["path"])
         hardlink_target = self.root / "temporary-clean-hardlink"
         os.link(hardlinked_path / "motd", hardlink_target)
-        with self.assertRaisesRegex(
-            WorkspaceError, "retained because its integrity could not be proved"
+        real_bound_lease_locked = workspace_module.bound_lease_locked
+
+        def runtime_lease_observation(
+            path: Path, generation: str, identity: dict[str, int]
+        ) -> bool:
+            status = load_json(
+                self.workspace.paths.topologies
+                / "temporary-hardlinked"
+                / "status.json"
+            )
+            if status.get("stopped_at") is not None:
+                return False
+            return real_bound_lease_locked(path, generation, identity)
+
+        with mock.patch.object(
+            workspace_module,
+            "bound_lease_locked",
+            side_effect=runtime_lease_observation,
         ):
-            self.workspace.topology_down("temporary-hardlinked", timeout=5)
+            with self.assertRaisesRegex(
+                WorkspaceError, "retained because its integrity could not be proved"
+            ):
+                self.workspace.topology_down("temporary-hardlinked", timeout=5)
         self.assertEqual(
             self.workspace.topology_status("temporary-hardlinked")["state_policy"][
                 "lifecycle"

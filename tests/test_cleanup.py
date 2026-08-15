@@ -1881,10 +1881,24 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(by_path[str(removable)]["disposition"], "removed")
         self.assertFalse(removable.exists())
         journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
-        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(journal["status"], "in-progress")
         self.assertEqual(
             journal["completed"],
             [{"kind": "worktree", "path": str(removable)}],
+        )
+        with mock.patch.object(
+            Cleanup,
+            "_github_pulls",
+            side_effect=lambda _repository, head: self.merged_pull(head),
+        ):
+            resumed = self.workspace.cleanup(["worktrees"], 7, [], True)
+        self.assertEqual(resumed["journal"], report["journal"])
+        self.assertFalse(busy.exists())
+        journal = json.loads(Path(report["journal"]).read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(
+            {(row["kind"], row["path"]) for row in journal["completed"]},
+            {(row["kind"], row["path"]) for row in journal["targets"]},
         )
 
     def test_apply_skips_worktree_during_relocated_reference_backfill(self) -> None:
@@ -2548,6 +2562,13 @@ class CleanupTests(unittest.TestCase):
         self.assertTrue(second.exists())
         self.assertTrue(report["aborted"])
 
+        resumed = self.workspace.cleanup(["builds"], 7, [], True)
+        self.assertEqual(resumed["journal"], report["journal"])
+        self.assertFalse(second.exists())
+        journal = json.loads(Path(resumed["journal"]).read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(journal["completed"], journal["targets"])
+
     def test_apply_reports_progress_journal_failure_after_removal(self) -> None:
         first = self.make_build("first", "a" * 12)
         second = self.make_build("second", "b" * 12)
@@ -2557,7 +2578,12 @@ class CleanupTests(unittest.TestCase):
         def publish(path: Path, value: object) -> None:
             nonlocal publications
             publications += 1
-            if publications > 1:
+            if (
+                isinstance(value, dict)
+                and value.get("status") == "in-progress"
+                and value.get("completed")
+                and value.get("in_flight") is None
+            ):
                 raise WorkspaceError("injected journal failure")
             real_atomic_json(path, value)
 
@@ -2576,6 +2602,88 @@ class CleanupTests(unittest.TestCase):
         )
         self.assertTrue(report["aborted"])
         self.assertIn("journal failure", report["journal_error"])
+
+    def test_apply_resumes_after_removal_before_progress_checkpoint(self) -> None:
+        first = self.make_build("first", "a" * 12)
+        second = self.make_build("second", "b" * 12)
+        real_publish = cleanup_module.durable_atomic_json
+        killed = False
+
+        def publish(path: Path, value: object) -> None:
+            nonlocal killed
+            if (
+                not killed
+                and isinstance(value, dict)
+                and value.get("status") == "in-progress"
+                and len(value.get("completed", [])) == 1
+                and value.get("in_flight") is None
+            ):
+                killed = True
+                raise SystemExit("killed after removal")
+            real_publish(path, value)
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.durable_atomic_json", side_effect=publish
+        ):
+            with self.assertRaisesRegex(SystemExit, "killed after removal"):
+                self.workspace.cleanup(["builds"], 7, [], True)
+
+        journal_path = next(
+            (self.workspace.paths.workspace / "cleanup-journals").iterdir()
+        )
+        interrupted = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(interrupted["completed"], [])
+        self.assertEqual(
+            interrupted["in_flight"],
+            {"kind": "profile-build", "path": str(first)},
+        )
+        self.assertFalse(first.exists())
+
+        report = self.workspace.cleanup(["builds"], 7, [], True)
+
+        self.assertEqual(report["journal"], str(journal_path))
+        self.assertFalse(second.exists())
+        journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "complete")
+        self.assertIsNone(journal["in_flight"])
+        self.assertEqual(journal["completed"], journal["targets"])
+
+    def test_apply_resumes_after_progress_before_terminal_checkpoint(self) -> None:
+        build = self.make_build("terminal", "c" * 12)
+        real_publish = cleanup_module.durable_atomic_json
+        killed = False
+
+        def publish(path: Path, value: object) -> None:
+            nonlocal killed
+            if (
+                not killed
+                and isinstance(value, dict)
+                and value.get("status") == "complete"
+            ):
+                killed = True
+                raise SystemExit("killed before terminal checkpoint")
+            real_publish(path, value)
+
+        with mock.patch(
+            "atrinik_workspace.cleanup.durable_atomic_json", side_effect=publish
+        ):
+            with self.assertRaisesRegex(SystemExit, "killed before terminal checkpoint"):
+                self.workspace.cleanup(["builds"], 7, [], True)
+
+        journal_path = next(
+            (self.workspace.paths.workspace / "cleanup-journals").iterdir()
+        )
+        interrupted = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(interrupted["status"], "in-progress")
+        self.assertEqual(interrupted["completed"], interrupted["targets"])
+        self.assertFalse(build.exists())
+
+        report = self.workspace.cleanup(["builds"], 7, [], True)
+
+        self.assertEqual(report["journal"], str(journal_path))
+        journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "complete")
+        self.assertEqual(journal["completed"], journal["targets"])
 
     def test_apply_reports_revalidation_error_after_a_completed_mutation(self) -> None:
         first = self.make_build("first", "a" * 12)

@@ -912,9 +912,12 @@ candidate without rescanning unrelated report-only payloads. Any new uncertainty
 fails closed. Busy targets are skipped so they do not convoy unrelated cleanup.
 Eligible topology records come first, then profile builds and explicit
 sound-cache entries, exact Git worktrees, other explicit caches, and safely
-shared prunable Git metadata. `workspace/cleanup-journals/` records the ordered
-targets and is atomically refreshed after every completed action; interruption
-therefore preserves exact progress without claiming rollback.
+shared prunable Git metadata. `workspace/cleanup-journals/` records the exact
+request, original report, ordered targets, and one write-ahead in-flight action.
+The same cleanup request resumes that journal after interruption, recognizes a
+completed in-flight removal, and reaches one complete receipt without changing
+the original target selection. Busy or transiently failing targets leave the
+journal resumable while disjoint targets may still complete.
 
 ## Composing coherent component sources
 
@@ -1626,7 +1629,8 @@ derives their identical canonical target selection, verifies the wrapper's
 complete cleanup journal, and holds the exact wrapper coordinates through a
 final absence recheck and archive installation.
 An active scope can transition only when its live generation-matched scope
-release journal is complete.
+release journal is complete. That journal is the removal evidence for its
+scope-produced worktree, which is not fabricated as a generic cleanup action.
 
 After cleanup, a new explicit authority issued strictly after cleanup apply may bundle the canonical
 ledger, release marker, lock, report, migration evidence, and retained intent:
