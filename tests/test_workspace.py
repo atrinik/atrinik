@@ -4625,6 +4625,9 @@ class WorkspaceTests(unittest.TestCase):
                 generation = container / destination
                 source_root = generation / "source"
                 target = source_root / "runtime-paths.txt"
+                original = target.stat()
+                generation_mode = stat.S_IMODE(generation.stat().st_mode)
+                source_mode = stat.S_IMODE(source_root.stat().st_mode)
                 payload = target.read_bytes()
                 mode = stat.S_IMODE(target.stat().st_mode)
                 generation.chmod(0o700)
@@ -4632,8 +4635,12 @@ class WorkspaceTests(unittest.TestCase):
                 target.unlink()
                 target.write_bytes(payload)
                 target.chmod(mode)
-                source_root.chmod(0o500)
-                generation.chmod(0o500)
+                os.utime(
+                    target,
+                    ns=(original.st_atime_ns, original.st_mtime_ns),
+                )
+                source_root.chmod(source_mode)
+                generation.chmod(generation_mode)
                 swapped = True
 
         with (
@@ -4667,16 +4674,33 @@ class WorkspaceTests(unittest.TestCase):
         )
         retry_syncs: list[Path] = []
         real_sync = self.workspace._durably_sync_source_generation
+        real_fsync = os.fsync
+        container_status = container.stat()
+        container_synced = False
 
         def observe_retry_sync(generation: Path) -> tuple[int, int, str]:
             retry_syncs.append(generation)
             return real_sync(generation)
 
+        def observe_retry_fsync(descriptor: int) -> None:
+            nonlocal container_synced
+            opened = os.fstat(descriptor)
+            if (opened.st_dev, opened.st_ino) == (
+                container_status.st_dev,
+                container_status.st_ino,
+            ):
+                container_synced = True
+            real_fsync(descriptor)
+
         with (
             mock.patch.object(
-                self.workspace,
+                workspace_module.Workspace,
                 "_durably_sync_source_generation",
                 side_effect=observe_retry_sync,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=observe_retry_fsync,
             ),
             self.workspace._resolved_profile_operation(
                 "default",
@@ -4687,6 +4711,7 @@ class WorkspaceTests(unittest.TestCase):
         ):
             self.assertTrue(snapshot.paths()["resources"].is_dir())
         self.assertTrue(retry_syncs)
+        self.assertTrue(container_synced)
 
     def test_source_generation_reports_container_fsync_uncertainty(self) -> None:
         published = False
@@ -4852,6 +4877,74 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 self.fail("writable source generation was yielded")
         self.assertTrue(mutated)
+
+    def test_source_generation_handoff_syncs_replaced_identical_entry(self) -> None:
+        real_shared_lock = shared_lock
+        real_fsync = os.fsync
+        mutated_identity: tuple[int, int] | None = None
+        mutated_entry_synced = False
+
+        def replace_before_handoff(path: Path, description: str):
+            nonlocal mutated_identity
+            if "source-generation-" in path.name and mutated_identity is None:
+                container = (
+                    self.workspace.paths.builds
+                    / "source-generations"
+                    / "client"
+                )
+                generation = next(
+                    child
+                    for child in container.iterdir()
+                    if re.fullmatch(r"[0-9a-f]{64}", child.name)
+                )
+                source = generation / "source"
+                target = source / "README"
+                original = target.stat()
+                generation_mode = stat.S_IMODE(generation.stat().st_mode)
+                source_mode = stat.S_IMODE(source.stat().st_mode)
+                payload = target.read_bytes()
+                mode = stat.S_IMODE(target.stat().st_mode)
+                generation.chmod(0o700)
+                source.chmod(0o700)
+                target.unlink()
+                target.write_bytes(payload)
+                target.chmod(mode)
+                os.utime(
+                    target,
+                    ns=(original.st_atime_ns, original.st_mtime_ns),
+                )
+                replaced = target.stat()
+                mutated_identity = (replaced.st_dev, replaced.st_ino)
+                source.chmod(source_mode)
+                generation.chmod(generation_mode)
+            return real_shared_lock(path, description)
+
+        def observe_fsync(descriptor: int) -> None:
+            nonlocal mutated_entry_synced
+            opened = os.fstat(descriptor)
+            if mutated_identity == (opened.st_dev, opened.st_ino):
+                mutated_entry_synced = True
+            real_fsync(descriptor)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.shared_lock",
+                side_effect=replace_before_handoff,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=observe_fsync,
+            ),
+            self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot,
+        ):
+            self.assertTrue(snapshot.paths()["client"].is_dir())
+        self.assertIsNotNone(mutated_identity)
+        self.assertTrue(mutated_entry_synced)
 
     def test_source_generation_cleanup_before_record_collection_fails_closed(
         self,

@@ -3445,6 +3445,74 @@ class Workspace:
                 os.close(descriptor)
 
     @staticmethod
+    def _durably_resync_source_generation(generation: Path) -> None:
+        """Make a visible canonical generation and its directory entry durable."""
+
+        device, inode, durable_inventory = (
+            Workspace._durably_sync_source_generation(generation)
+        )
+        container_fd: int | None = None
+        generation_fd: int | None = None
+        try:
+            flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+            container_fd = _open_directory_nofollow(generation.parent, flags)
+            visible = os.stat(
+                generation.name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
+            generation_fd = os.open(
+                generation.name,
+                flags,
+                dir_fd=container_fd,
+            )
+            opened = os.fstat(generation_fd)
+            if (
+                (visible.st_dev, visible.st_ino) != (device, inode)
+                or (opened.st_dev, opened.st_ino) != (device, inode)
+                or opened.st_dev != os.fstat(container_fd).st_dev
+                or _descriptor_mount_id(generation_fd)
+                != _descriptor_mount_id(container_fd)
+                or Workspace._source_generation_inventory(
+                    generation_fd,
+                    generation,
+                    sync=False,
+                    allow_unsafe=False,
+                )
+                != durable_inventory
+            ):
+                raise WorkspaceError(
+                    "source generation changed during durable retry: "
+                    f"{generation}"
+                )
+            os.fsync(container_fd)
+            confirmed = os.stat(
+                generation.name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
+            opened_after = os.fstat(generation_fd)
+            if (confirmed.st_dev, confirmed.st_ino) != (device, inode) or (
+                opened_after.st_dev,
+                opened_after.st_ino,
+            ) != (device, inode):
+                raise WorkspaceError(
+                    "source generation changed during durable retry: "
+                    f"{generation}"
+                )
+        except WorkspaceError:
+            raise
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot make visible source generation durable {generation}: {error}"
+            ) from error
+        finally:
+            if generation_fd is not None:
+                os.close(generation_fd)
+            if container_fd is not None:
+                os.close(container_fd)
+
+    @staticmethod
     def _validate_source_generation_boundary(
         generation: Path, *, require_sealed: bool = False
     ) -> None:
@@ -3885,7 +3953,7 @@ class Workspace:
                         raise _SourceGenerationCorrupt(
                             f"immutable source generation is corrupt: {generation}"
                         )
-                    self._durably_sync_source_generation(generation)
+                    self._durably_resync_source_generation(generation)
                 except _SourceGenerationCorrupt as error:
                     try:
                         self._quarantine_source_generation(
@@ -4444,6 +4512,47 @@ class Workspace:
                                 f"{path}"
                             )
                         checkout = states[expected_record["checkout"]]["path"]
+                        self._validate_source_generation_git_closure(
+                            checkout,
+                            path.parent,
+                            expected_record["source_tree"],
+                            expected_record["tree"],
+                            expected_record["source_includes"],
+                        )
+                        self._validate_source_generation_boundary(
+                            path.parent, require_sealed=True
+                        )
+                        self._durably_resync_source_generation(path.parent)
+                        try:
+                            durable_record = self._source_generation_record(path)
+                            durable_digest = _tree_digest(
+                                path,
+                                set(),
+                                bounded_symlinks=True,
+                                reject_hardlinks=True,
+                            )
+                            durable_closure_digest = _source_closure_digest(
+                                path.parent,
+                                durable_record.get("source_includes", {})
+                                if durable_record is not None
+                                else (),
+                            )
+                        except (OSError, WorkspaceError) as error:
+                            raise WorkspaceError(
+                                "immutable source generation changed after durable "
+                                f"lease handoff: {path}"
+                            ) from error
+                        if (
+                            durable_record != expected_record
+                            or durable_digest
+                            != expected_record["source_tree_sha256"]
+                            or durable_closure_digest
+                            != expected_record["closure_tree_sha256"]
+                        ):
+                            raise WorkspaceError(
+                                "immutable source generation changed after durable "
+                                f"lease handoff: {path}"
+                            )
                         self._validate_source_generation_git_closure(
                             checkout,
                             path.parent,
