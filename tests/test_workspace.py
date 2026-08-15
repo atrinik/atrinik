@@ -2132,6 +2132,45 @@ class WorkspaceTests(unittest.TestCase):
             )
         )
 
+    def test_source_generation_recovery_preserves_metadata_io_uncertainty(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        real_load = workspace_module.load_regular_json
+
+        def fail_metadata(path: Path, description: str) -> object:
+            if path == metadata:
+                raise WorkspaceError("transient metadata I/O failure")
+            return real_load(path, description)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.load_regular_json",
+                side_effect=fail_metadata,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "metadata I/O failure"),
+        ):
+            resolve()
+
+        self.assertTrue(generation.is_dir())
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
+        )
+
     def test_source_generation_recovery_preserves_failed_quarantine(
         self,
     ) -> None:
@@ -2243,6 +2282,95 @@ class WorkspaceTests(unittest.TestCase):
                 quarantined[0]
                 / workspace_module.SOURCE_GENERATION_METADATA
             ).exists()
+        )
+
+    def test_source_generation_reuse_recovers_malformed_metadata(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        generation.chmod(0o700)
+        metadata.chmod(0o600)
+        metadata.write_text("{malformed\n", encoding="utf-8")
+        self.workspace._seal_runtime_generation(generation)
+
+        self.assertEqual(resolve(), source)
+        self.assertIsInstance(load_json(metadata), dict)
+
+    def test_source_generation_reuse_recovers_missing_source(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        remove_owned_tree(source)
+        self.workspace._seal_runtime_generation(generation)
+
+        recovered = resolve()
+        self.assertEqual(recovered, source)
+        self.assertTrue((recovered / "README").is_file())
+
+    def test_source_generation_quarantine_rejects_nested_mount(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        (generation / workspace_module.SOURCE_GENERATION_METADATA).unlink()
+        nested = generation / "nested-mount"
+        nested.mkdir()
+        nested_identity = nested.stat()
+        self.workspace._seal_runtime_generation(generation)
+        real_mount_id = workspace_module._descriptor_mount_id
+
+        def mount_id(descriptor: int) -> object:
+            opened = os.fstat(descriptor)
+            if (opened.st_dev, opened.st_ino) == (
+                nested_identity.st_dev,
+                nested_identity.st_ino,
+            ):
+                return ("injected", 2)
+            return real_mount_id(descriptor)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._descriptor_mount_id",
+                side_effect=mount_id,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "corrupt and cannot be recovered safely"
+            ),
+        ):
+            resolve()
+
+        self.assertTrue(generation.is_dir())
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
         )
 
     def test_source_generation_recovery_serializes_concurrent_consumers(
@@ -3425,7 +3553,7 @@ class WorkspaceTests(unittest.TestCase):
         real_fsync = os.fsync
         real_rename = workspace_module.rename_no_replace_at
 
-        def observe_sync(staging: Path) -> tuple[int, int]:
+        def observe_sync(staging: Path) -> tuple[int, int, str]:
             nonlocal syncing
             syncing = True
             identity = real_sync(staging)
@@ -3495,7 +3623,7 @@ class WorkspaceTests(unittest.TestCase):
         target.write_text("payload\n", encoding="utf-8")
         os.link(target, hardlinks / "alias")
         with self.assertRaisesRegex(
-            WorkspaceError, "changed before durability"
+            WorkspaceError, "changed or is mounted"
         ):
             self.workspace._durably_sync_source_generation(hardlinks)
 
@@ -3537,7 +3665,7 @@ class WorkspaceTests(unittest.TestCase):
     ) -> None:
         real_sync = self.workspace._durably_sync_source_generation
 
-        def mutate_after_sync(staging: Path) -> tuple[int, int]:
+        def mutate_after_sync(staging: Path) -> tuple[int, int, str]:
             identity = real_sync(staging)
             source = staging / "source"
             target = source / "runtime-paths.txt"
@@ -3573,7 +3701,7 @@ class WorkspaceTests(unittest.TestCase):
     def test_source_generation_rejects_metadata_change_after_durability(self) -> None:
         real_sync = self.workspace._durably_sync_source_generation
 
-        def mutate_after_sync(staging: Path) -> tuple[int, int]:
+        def mutate_after_sync(staging: Path) -> tuple[int, int, str]:
             identity = real_sync(staging)
             metadata = staging / workspace_module.SOURCE_GENERATION_METADATA
             staging.chmod(0o700)
@@ -3599,14 +3727,88 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 self.fail("changed source generation was yielded")
 
+    def test_source_generation_rejects_restored_change_after_durability(
+        self,
+    ) -> None:
+        real_sync = self.workspace._durably_sync_source_generation
+
+        def mutate_and_restore(staging: Path) -> tuple[int, int, str]:
+            identity = real_sync(staging)
+            target = staging / "source" / "runtime-paths.txt"
+            original = target.read_bytes()
+            mode = stat.S_IMODE(target.stat().st_mode)
+            target.chmod(0o600)
+            target.write_bytes(b"temporary unflushed change\n")
+            target.write_bytes(original)
+            target.chmod(mode)
+            return identity
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=mutate_and_restore,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "changed after durability"),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("restored but unflushed generation was yielded")
+
+    def test_source_generation_rejects_nested_mount_before_publication(
+        self,
+    ) -> None:
+        real_sync = self.workspace._durably_sync_source_generation
+        real_mount_id = workspace_module._descriptor_mount_id
+        durable = False
+        metadata_identity: tuple[int, int] | None = None
+
+        def observe_sync(staging: Path) -> tuple[int, int, str]:
+            nonlocal durable, metadata_identity
+            identity = real_sync(staging)
+            metadata = (staging / workspace_module.SOURCE_GENERATION_METADATA).stat()
+            metadata_identity = (metadata.st_dev, metadata.st_ino)
+            durable = True
+            return identity
+
+        def mount_id(descriptor: int) -> object:
+            opened = os.fstat(descriptor)
+            if durable and metadata_identity == (opened.st_dev, opened.st_ino):
+                return ("injected", 2)
+            return real_mount_id(descriptor)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=observe_sync,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace._descriptor_mount_id",
+                side_effect=mount_id,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "mount"),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("mounted source generation was yielded")
+
     def test_source_generation_rejects_root_replacement_before_publication(
         self,
     ) -> None:
         real_sync = self.workspace._durably_sync_source_generation
 
-        def report_wrong_identity(staging: Path) -> tuple[int, int]:
-            device, inode = real_sync(staging)
-            return device, inode + 1
+        def report_wrong_identity(staging: Path) -> tuple[int, int, str]:
+            device, inode, inventory = real_sync(staging)
+            return device, inode + 1, inventory
 
         with (
             mock.patch.object(

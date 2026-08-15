@@ -1203,12 +1203,14 @@ transitive provider closure, then locks only those selected sources and
 revalidates them. Clean primary inputs are exported atomically into reusable,
 commit/tree/subpath-keyed read-only generations below
 `workspace/build/source-generations/`. Publication flushes every sealed source
-file and directory before the no-replace rename, then flushes the containing
-directory; reuse verifies ownership metadata and a
+file and directory, compares a descriptor-pinned whole-tree identity, content,
+and mount-boundary inventory immediately before the no-replace rename, then
+flushes the containing directory; reuse verifies ownership metadata and a
 complete tree digest plus the exact recorded Git tree and the captured checkout,
 source, and common-Git filesystem identities. An incomplete generation with
-exact marker ownership is atomically retained as a recovery transaction and
-rebuilt at its canonical key; uncertain ownership fails closed. Recovery
+exact marker ownership is atomically retained as a recovery transaction only
+after a pinned traversal excludes nested mounts, then rebuilt at its canonical
+key; uncertain ownership fails closed. Recovery
 transactions remain visible to preview-first `builds` cleanup and its normal
 grace period. No generation links or hard-links back to mutable primary files.
 Every generated path is revalidated after the build takes its shared pin; only

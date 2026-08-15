@@ -385,10 +385,12 @@ exact recorded Git tree without replacement-object indirection and proves every
 generated path, entry type, executable mode, symlink target, and blob object ID
 through a pinned, no-follow descriptor traversal before selection. New staging
 trees are complete and sealed before descriptor-relative flushing of every file
-and directory; only then does a no-replace rename expose the canonical key, and
-the container is flushed before success. A mismatch
+and directory. A pinned whole-tree identity, content, and mount-boundary
+inventory must still match immediately before a no-replace rename exposes the
+canonical key, and the container is flushed before success. A mismatch
 under descriptor-verified exact marker ownership atomically moves the complete
-generation identity to a retained recovery transaction, then rebuilds the
+generation identity to a retained recovery transaction only after recursively
+excluding nested mounts, then rebuilds the
 canonical key through the ordinary staging and no-replace publication path.
 Uncertain ownership fails closed without moving data. Recovery and interrupted
 staging remain recognized children of the marker-owned container, are protected
