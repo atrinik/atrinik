@@ -13415,16 +13415,97 @@ class Workspace:
         staging: Path,
         build_root: Path,
         selected: dict[str, Path],
+        snapshot: ProfileResolutionSnapshot | None = None,
     ) -> None:
         source_exclusions = frozenset({".git", "build", MANAGED_MARKER})
-        classic_root = selected["client"].parent
-        if any(
-            selected[role].parent != classic_root
-            for role in ("server", "protocol", "libatrinik")
-        ):
-            raise WorkspaceError(
-                "Windows package Classic sources do not share one monorepo root"
-            )
+        classic_roles = ("client", "server", "protocol", "libatrinik")
+        classic_roots = {role: selected[role].parent for role in classic_roles}
+        if snapshot is None:
+            classic_root = classic_roots["client"]
+            if any(classic_roots[role] != classic_root for role in classic_roles):
+                raise WorkspaceError(
+                    "Windows package Classic sources do not share one monorepo root"
+                )
+        else:
+            profile = snapshot.profile()
+            stack = self.manifest.stack(profile["stack"])
+            states = snapshot.checkout_states()
+            identities: dict[str, tuple[str, str, str, str]] = {}
+            kinds: set[str] = set()
+            path_trees: dict[tuple[str, str, str], str] = {}
+            for role in classic_roles:
+                component = stack.providers[role]
+                state = states.get(component.checkout_name)
+                if state is None:
+                    raise WorkspaceError(
+                        f"Windows package Classic source identity is missing: {role}"
+                    )
+                generation = self._source_generation_record(selected[role])
+                if generation is not None:
+                    if generation["source"] != component.source:
+                        raise WorkspaceError(
+                            f"Windows package Classic source role is invalid: {role}"
+                        )
+                    identities[role] = (
+                        generation["checkout"],
+                        generation["repository"],
+                        generation["commit"],
+                        generation["tree"],
+                    )
+                    kinds.add("generation")
+                    continue
+
+                checkout = Path(state["path"])
+                expected = (
+                    checkout
+                    if component.source == "."
+                    else checkout.joinpath(*PurePosixPath(component.source).parts)
+                ).resolve()
+                if selected[role].resolve() != expected:
+                    raise WorkspaceError(
+                        f"Windows package Classic source path is invalid: {role}"
+                    )
+                commit = state.get("head")
+                if not isinstance(commit, str) or not re.fullmatch(
+                    r"[0-9a-f]{40,64}", commit
+                ):
+                    raise WorkspaceError(
+                        f"Windows package Classic source commit is invalid: {role}"
+                    )
+                tree_key = (component.checkout_name, component.repository, commit)
+                tree = path_trees.get(tree_key)
+                if tree is None:
+                    tree = git(
+                        checkout,
+                        "--no-replace-objects",
+                        "rev-parse",
+                        f"{commit}^{{tree}}",
+                        capture=True,
+                        trace=False,
+                    )
+                    if not re.fullmatch(r"[0-9a-f]{40,64}", tree):
+                        raise WorkspaceError(
+                            f"Windows package Classic source tree is invalid: {role}"
+                        )
+                    path_trees[tree_key] = tree
+                identities[role] = (
+                    component.checkout_name,
+                    component.repository,
+                    commit,
+                    tree,
+                )
+                kinds.add("path")
+
+            if len(kinds) != 1 or len(set(identities.values())) != 1:
+                raise WorkspaceError(
+                    "Windows package Classic sources do not share one "
+                    "checkout/repository/commit/tree identity"
+                )
+            if kinds == {"path"} and len(set(classic_roots.values())) != 1:
+                raise WorkspaceError(
+                    "Windows package Classic sources do not share one monorepo root"
+                )
+            classic_root = classic_roots["client"]
         self._copy_runtime_tree(
             classic_root / "cmake", staging / "cmake", source_exclusions
         )
@@ -13786,7 +13867,7 @@ class Workspace:
                 with self._profile_build_lock(build_root, profile_name):
                     (staging / "sources").mkdir()
                     self._stage_windows_profile_sources(
-                        staging / "sources", build_root, selected
+                        staging / "sources", build_root, selected, snapshot
                     )
                     staged_server = staging / "sources" / "server"
                     staged_runtime_paths = {
