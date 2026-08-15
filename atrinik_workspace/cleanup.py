@@ -45,10 +45,10 @@ from .workspace import (
     TEMPORARY_STATE_METADATA,
     TEMPORARY_STATE_SCHEMA_VERSION,
     _descriptor_mount_id,
+    _descriptor_path,
     _open_directory_nofollow,
     _owned_tree_tombstone_path,
     _remote_matches,
-    _tree_digest,
     exclusive_lock,
     load_regular_json,
     remove_owned_tree,
@@ -408,6 +408,256 @@ def _tree_usage(
         datetime.fromtimestamp(maximum, timezone.utc) if maximum is not None else None
     )
     return sizes, observed, None
+
+
+def _tree_usage_descriptor(
+    root_fd: int, display: Path
+) -> tuple[
+    dict[tuple[int, int], int],
+    datetime | None,
+    str | None,
+    str | None,
+    str | None,
+    str | None,
+]:
+    """Measure and fingerprint one pinned source generation tree."""
+
+    sizes: dict[tuple[int, int], int] = {}
+    maximum: float | None = None
+    root = os.fstat(root_fd)
+    root_mount = _descriptor_mount_id(root_fd)
+    evidence = hashlib.sha256()
+    semantic = hashlib.sha256()
+    content_errors: list[str] = []
+
+    def digest_record(digest: Any, *fields: object) -> None:
+        encoded = json.dumps(
+            fields, ensure_ascii=True, separators=(",", ":")
+        ).encode()
+        digest.update(len(encoded).to_bytes(8, "big"))
+        digest.update(encoded)
+
+    def record(metadata: os.stat_result) -> None:
+        nonlocal maximum
+        sizes.setdefault(
+            (metadata.st_dev, metadata.st_ino), metadata.st_blocks * 512
+        )
+        maximum = (
+            metadata.st_mtime
+            if maximum is None
+            else max(maximum, metadata.st_mtime)
+        )
+
+    def visit(directory_fd: int, relative: PurePosixPath) -> None:
+        for name in sorted(os.listdir(directory_fd)):
+            child = os.stat(
+                name,
+                dir_fd=directory_fd,
+                follow_symlinks=False,
+            )
+            record(child)
+            child_relative = relative / name
+            child_display = display / child_relative.as_posix()
+            evidence_fields = (
+                child_relative.as_posix(),
+                child.st_dev,
+                child.st_ino,
+                child.st_mode,
+                child.st_nlink,
+                child.st_size,
+                child.st_mtime_ns,
+                child.st_ctime_ns,
+            )
+            if stat.S_ISDIR(child.st_mode):
+                try:
+                    descriptor = os.open(
+                        name,
+                        os.O_RDONLY
+                        | os.O_CLOEXEC
+                        | os.O_DIRECTORY
+                        | os.O_NOFOLLOW,
+                        dir_fd=directory_fd,
+                    )
+                except OSError as error:
+                    digest_record(
+                        evidence,
+                        "unreadable-directory",
+                        *evidence_fields,
+                        error.errno,
+                    )
+                    digest_record(
+                        semantic,
+                        "directory",
+                        child_relative.as_posix(),
+                        stat.S_IMODE(child.st_mode),
+                    )
+                    content_errors.append(
+                        "cannot read generated source directory: "
+                        f"{child_display}: {error}"
+                    )
+                    continue
+                try:
+                    opened = os.fstat(descriptor)
+                    if (
+                        (opened.st_dev, opened.st_ino)
+                        != (child.st_dev, child.st_ino)
+                        or opened.st_dev != root.st_dev
+                        or _descriptor_mount_id(descriptor) != root_mount
+                    ):
+                        raise WorkspaceError(
+                            "source generation changed during usage inventory: "
+                            f"{child_display}"
+                        )
+                    digest_record(evidence, "directory", *evidence_fields)
+                    digest_record(
+                        semantic,
+                        "directory",
+                        child_relative.as_posix(),
+                        stat.S_IMODE(opened.st_mode),
+                    )
+                    visit(descriptor, child_relative)
+                finally:
+                    os.close(descriptor)
+            elif stat.S_ISREG(child.st_mode):
+                try:
+                    descriptor = os.open(
+                        name,
+                        os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                        dir_fd=directory_fd,
+                    )
+                except OSError as error:
+                    digest_record(
+                        evidence,
+                        "unreadable-file",
+                        *evidence_fields,
+                        error.errno,
+                    )
+                    content_errors.append(
+                        "cannot read generated source file: "
+                        f"{child_display}: {error}"
+                    )
+                    continue
+                try:
+                    opened = os.fstat(descriptor)
+                    if (
+                        (opened.st_dev, opened.st_ino)
+                        != (child.st_dev, child.st_ino)
+                        or opened.st_dev != root.st_dev
+                        or _descriptor_mount_id(descriptor) != root_mount
+                    ):
+                        raise WorkspaceError(
+                            "source generation changed during usage inventory: "
+                            f"{child_display}"
+                        )
+                    digest = hashlib.sha256()
+                    while chunk := os.read(descriptor, 1024 * 1024):
+                        digest.update(chunk)
+                    after = os.fstat(descriptor)
+                    if (
+                        (after.st_dev, after.st_ino, after.st_mode, after.st_nlink,
+                         after.st_size, after.st_mtime_ns, after.st_ctime_ns)
+                        != (opened.st_dev, opened.st_ino, opened.st_mode,
+                            opened.st_nlink, opened.st_size, opened.st_mtime_ns,
+                            opened.st_ctime_ns)
+                    ):
+                        raise WorkspaceError(
+                            "source generation changed during usage inventory: "
+                            f"{child_display}"
+                        )
+                    file_digest = digest.hexdigest()
+                    digest_record(evidence, "file", *evidence_fields, file_digest)
+                    digest_record(
+                        semantic,
+                        "file",
+                        child_relative.as_posix(),
+                        stat.S_IMODE(opened.st_mode),
+                        opened.st_size,
+                        file_digest,
+                    )
+                    if opened.st_nlink != 1:
+                        content_errors.append(
+                            "generated source contains a hard-linked file: "
+                            f"{child_display}"
+                        )
+                finally:
+                    os.close(descriptor)
+            elif stat.S_ISLNK(child.st_mode):
+                target = os.readlink(name, dir_fd=directory_fd)
+                after = os.stat(
+                    name, dir_fd=directory_fd, follow_symlinks=False
+                )
+                if (after.st_dev, after.st_ino, after.st_mode, after.st_ctime_ns) != (
+                    child.st_dev,
+                    child.st_ino,
+                    child.st_mode,
+                    child.st_ctime_ns,
+                ):
+                    raise WorkspaceError(
+                        "source generation changed during usage inventory: "
+                        f"{child_display}"
+                    )
+                digest_record(evidence, "symlink", *evidence_fields, target)
+                digest_record(
+                    semantic,
+                    "symlink",
+                    child_relative.as_posix(),
+                    stat.S_IMODE(child.st_mode),
+                    target,
+                )
+                target_path = PurePosixPath(target)
+                bounded = not target_path.is_absolute()
+                normalized_parts = list(child_relative.parent.parts)
+                for part in target_path.parts:
+                    if part in {"", "."}:
+                        continue
+                    if part == "..":
+                        if not normalized_parts:
+                            bounded = False
+                            break
+                        normalized_parts.pop()
+                    else:
+                        normalized_parts.append(part)
+                if not bounded:
+                    content_errors.append(
+                        f"source generation contains an unsafe link: {child_display}"
+                    )
+            else:
+                digest_record(evidence, "unsupported", *evidence_fields)
+                content_errors.append(
+                    "source generation contains an unsupported entry: "
+                    f"{child_display}"
+                )
+
+    try:
+        record(root)
+        digest_record(
+            evidence,
+            "root",
+            root.st_dev,
+            root.st_ino,
+            root.st_mode,
+            root.st_nlink,
+            root.st_size,
+            root.st_mtime_ns,
+            root.st_ctime_ns,
+        )
+        digest_record(semantic, "root", stat.S_IMODE(root.st_mode))
+        visit(root_fd, PurePosixPath())
+    except (OSError, RuntimeError, WorkspaceError) as error:
+        return {}, None, str(error), None, None, None
+    observed = (
+        datetime.fromtimestamp(maximum, timezone.utc)
+        if maximum is not None
+        else None
+    )
+    return (
+        sizes,
+        observed,
+        None,
+        evidence.hexdigest(),
+        semantic.hexdigest(),
+        content_errors[0] if content_errors else None,
+    )
 
 
 def _temporary_tree_usage(
@@ -1266,6 +1516,7 @@ class Cleanup:
             self._strip_internal(item)
             if kind in {
                 "worker-dependency-transaction",
+                "source-generation",
                 "source-generation-transaction",
                 "sound-cache",
                 "temporary-state",
@@ -1666,6 +1917,7 @@ class Cleanup:
     def _references(self) -> tuple[dict[str, Any], set[str]]:
         references: dict[str, Any] = {
             "profiles": {},
+            "scopes": {},
             "scenarios": {},
             "topologies": {},
             "live_builds": {},
@@ -1675,6 +1927,7 @@ class Cleanup:
         errors: set[str] = set()
         collectors = (
             (self._profile_references, "profile_inventory_error"),
+            (self._scope_references, "scope_inventory_error"),
             (self._scenario_references, "scenario_inventory_error"),
             (self._topology_references, "topology_inventory_error"),
             (self._migration_references, "migration_inventory_error"),
@@ -1854,6 +2107,13 @@ class Cleanup:
                     self._add_reference(references["profiles"], selected, path.stem)
             except (OSError, WorkspaceError):
                 errors.add("profile_inventory_error")
+
+    def _scope_references(self, references: dict[str, Any], errors: set[str]) -> None:
+        try:
+            for name, path in self.workspace._scope_reference_records():
+                self._add_reference(references["scopes"], path, name)
+        except (OSError, RuntimeError, WorkspaceError):
+            errors.add("scope_inventory_error")
 
     def _scenario_references(self, references: dict[str, Any], errors: set[str]) -> None:
         if not self.paths.scenarios.is_dir() or self.paths.scenarios.is_symlink():
@@ -2295,6 +2555,7 @@ class Cleanup:
             item["reasons"].append("active_wrapper_view")
         reference_reasons = {
             "profiles": "profile_reference",
+            "scopes": "scope_reference",
             "scenarios": "scenario_reference",
             "topologies": "topology_reference",
             "migration": "migration_reference",
@@ -3052,20 +3313,62 @@ class Cleanup:
             else "atrinik/atrinik"
         )
         item = _base_item("source-generation", checkout, repository, path)
-        inodes, observed, walk_error = _tree_usage(path)
+        inodes: dict[tuple[int, int], int] = {}
+        observed: datetime | None = None
+        walk_error: str | None = None
         item["_inodes"] = inodes
         key = path.name
         item["key"] = key
         item["checkout"] = checkout
-        if walk_error:
-            item["reasons"].append("filesystem_traversal_error")
-            item["error"] = walk_error
+        parent_fd: int | None = None
+        root_fd: int | None = None
+        source_fd: int | None = None
         try:
-            marker = path / MANAGED_MARKER
-            metadata_path = path / SOURCE_GENERATION_METADATA
-            source = path / "source"
+            flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+            parent_fd = _open_directory_nofollow(path.parent, flags)
+            root_status = os.stat(
+                path.name,
+                dir_fd=parent_fd,
+                follow_symlinks=False,
+            )
+            root_fd = os.open(path.name, flags, dir_fd=parent_fd)
+            opened_root = os.fstat(root_fd)
+            if (
+                (opened_root.st_dev, opened_root.st_ino)
+                != (root_status.st_dev, root_status.st_ino)
+                or opened_root.st_dev != os.fstat(parent_fd).st_dev
+                or _descriptor_mount_id(root_fd)
+                != _descriptor_mount_id(parent_fd)
+            ):
+                raise WorkspaceError(
+                    "source generation root changed or is mounted"
+                )
+            stable_root = _descriptor_path(root_fd)
+            (
+                inodes,
+                observed,
+                walk_error,
+                generation_evidence,
+                _generation_digest,
+                generation_content_error,
+            ) = _tree_usage_descriptor(root_fd, path)
+            item["_inodes"] = inodes
+            if walk_error or generation_evidence is None:
+                raise WorkspaceError(
+                    walk_error or "source generation evidence is unavailable"
+                )
+            marker = stable_root / MANAGED_MARKER
+            metadata_path = stable_root / SOURCE_GENERATION_METADATA
             metadata = load_regular_json(
                 metadata_path, "immutable source generation metadata"
+            )
+            marker_status = os.stat(
+                MANAGED_MARKER, dir_fd=root_fd, follow_symlinks=False
+            )
+            metadata_status = os.stat(
+                SOURCE_GENERATION_METADATA,
+                dir_fd=root_fd,
+                follow_symlinks=False,
             )
             identity = (
                 {
@@ -3093,16 +3396,18 @@ class Cleanup:
             )
             if (
                 not re.fullmatch(r"[0-9a-f]{64}", key)
-                or path.is_symlink()
-                or not path.is_dir()
-                or marker.is_symlink()
-                or load_json(marker)
+                or not stat.S_ISDIR(opened_root.st_mode)
+                or not stat.S_ISREG(marker_status.st_mode)
+                or marker_status.st_nlink != 1
+                or marker_status.st_dev != opened_root.st_dev
+                or not stat.S_ISREG(metadata_status.st_mode)
+                or metadata_status.st_nlink != 1
+                or metadata_status.st_dev != opened_root.st_dev
+                or load_regular_json(marker, "source generation ownership marker")
                 != {
                     "schema_version": SCHEMA_VERSION,
                     "purpose": f"source-generation:{key}",
                 }
-                or metadata_path.is_symlink()
-                or not metadata_path.is_file()
                 or not isinstance(metadata, dict)
                 or set(metadata) != SOURCE_GENERATION_METADATA_KEYS
                 or metadata.get("schema_version")
@@ -3120,19 +3425,109 @@ class Cleanup:
                         "source_tree_sha256",
                     )
                 )
-                or metadata.get("source_tree_sha256")
-                != _tree_digest(
-                    source,
-                    set(),
-                    bounded_symlinks=True,
-                    reject_hardlinks=True,
-                )
             ):
                 raise WorkspaceError("source generation metadata is invalid")
             item["source_tree_sha256"] = metadata["source_tree_sha256"]
+            try:
+                source_status = os.stat(
+                    "source", dir_fd=root_fd, follow_symlinks=False
+                )
+                source_fd = os.open("source", flags, dir_fd=root_fd)
+                opened_source = os.fstat(source_fd)
+                if (
+                    (opened_source.st_dev, opened_source.st_ino)
+                    != (source_status.st_dev, source_status.st_ino)
+                    or opened_source.st_dev != opened_root.st_dev
+                    or _descriptor_mount_id(source_fd)
+                    != _descriptor_mount_id(root_fd)
+                ):
+                    raise WorkspaceError(
+                        "source generation content root changed or is mounted"
+                    )
+                (
+                    _source_inodes,
+                    _source_observed,
+                    source_walk_error,
+                    _source_evidence,
+                    observed_digest,
+                    source_content_error,
+                ) = _tree_usage_descriptor(source_fd, path / "source")
+                if source_walk_error or observed_digest is None:
+                    raise WorkspaceError(
+                        source_walk_error
+                        or "source generation content evidence is unavailable"
+                    )
+                item["source_tree_observed_sha256"] = observed_digest
+                content_error = source_content_error or generation_content_error
+                if content_error:
+                    raise WorkspaceError(content_error)
+                if observed_digest != metadata["source_tree_sha256"]:
+                    raise WorkspaceError(
+                        "source generation content digest does not match metadata"
+                    )
+            except (OSError, RuntimeError, WorkspaceError) as error:
+                item["reasons"].append("corrupt_source_generation")
+                item["content_error"] = str(error)
+            (
+                _final_inodes,
+                _final_observed,
+                final_walk_error,
+                final_evidence,
+                _final_digest,
+                _final_content_error,
+            ) = _tree_usage_descriptor(root_fd, path)
+            if (
+                final_walk_error
+                or final_evidence is None
+                or final_evidence != generation_evidence
+            ):
+                raise WorkspaceError(
+                    final_walk_error
+                    or "source generation changed during validation"
+                )
+            item["generation_evidence_sha256"] = final_evidence
+            current_root = os.stat(
+                path.name,
+                dir_fd=parent_fd,
+                follow_symlinks=False,
+            )
+            if (
+                current_root.st_dev,
+                current_root.st_ino,
+                current_root.st_mode,
+                current_root.st_nlink,
+                current_root.st_size,
+                current_root.st_mtime_ns,
+                current_root.st_ctime_ns,
+            ) != (
+                opened_root.st_dev,
+                opened_root.st_ino,
+                opened_root.st_mode,
+                opened_root.st_nlink,
+                opened_root.st_size,
+                opened_root.st_mtime_ns,
+                opened_root.st_ctime_ns,
+            ):
+                raise WorkspaceError(
+                    "source generation identity changed during validation"
+                )
+            item["_identity"] = {
+                "device": opened_root.st_dev,
+                "inode": opened_root.st_ino,
+            }
         except (OSError, RuntimeError, WorkspaceError) as error:
             item["reasons"].append("invalid_source_generation")
             item["error"] = str(error)
+        finally:
+            if source_fd is not None:
+                os.close(source_fd)
+            if root_fd is not None:
+                os.close(root_fd)
+            if parent_fd is not None:
+                os.close(parent_fd)
+        if walk_error:
+            item["reasons"].append("filesystem_traversal_error")
+            item["error"] = walk_error
         if check_lock and re.fullmatch(r"[0-9a-f]{64}", key):
             busy, lock_error = self._lock_busy(
                 self.paths.builds / "locks" / f"source-generation-{key}.lock"
@@ -3153,9 +3548,11 @@ class Cleanup:
             elif age < older_than_days * 86400:
                 item["reasons"].append("younger_than_grace_period")
         item["reasons"] = sorted(set(item["reasons"]))
-        if not item["reasons"]:
+        blocking_reasons = set(item["reasons"]) - {"corrupt_source_generation"}
+        if not blocking_reasons:
             item["disposition"] = "eligible"
-            item["reasons"] = ["stale_source_generation"]
+            if not item["reasons"]:
+                item["reasons"] = ["stale_source_generation"]
         return item
 
     def _worker_dependency_caches(
@@ -5378,11 +5775,20 @@ class Cleanup:
                     current["disposition"] != "eligible"
                     or current.get("source_tree_sha256")
                     != item.get("source_tree_sha256")
+                    or current.get("source_tree_observed_sha256")
+                    != item.get("source_tree_observed_sha256")
+                    or current.get("content_error") != item.get("content_error")
+                    or current.get("generation_evidence_sha256")
+                    != item.get("generation_evidence_sha256")
+                    or current.get("_identity") != item.get("_identity")
                 ):
                     raise WorkspaceError(
                         "source generation changed before removal"
                     )
-                remove_owned_tree(path)
+                remove_owned_tree(
+                    path,
+                    expected_identity=current["_identity"],
+                )
         elif item["kind"] == "source-generation-transaction":
             key = item["key"]
             lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"

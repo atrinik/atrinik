@@ -10,6 +10,131 @@ from atrinik_workspace.model import WorkspaceError
 
 
 class ParserTests(unittest.TestCase):
+    def test_scope_human_output_reports_exact_coordinates(self) -> None:
+        record = {
+            "name": "review",
+            "generation": "generation-1",
+            "status": "complete",
+            "profile": {"name": "scope-review", "path": "/profiles/scope-review.json"},
+            "topology": {"name": "scope-review", "path": "/topologies/scope-review"},
+            "worktrees": [
+                {
+                    "checkout": "client",
+                    "branch": "scope/review/client",
+                    "path": "/worktrees/client/scope-review",
+                }
+            ],
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scope_create.return_value = record
+            with mock.patch("builtins.print") as output:
+                result = main(["scope", "create", "client", "--name", "review"])
+
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            [call.args[0] for call in output.call_args_list],
+            [
+                "scope\treview\tgeneration-1",
+                "profile\tscope-review\t/profiles/scope-review.json",
+                "topology\tscope-review\t/topologies/scope-review",
+                "worktree\tclient\tscope/review/client\t/worktrees/client/scope-review",
+            ],
+        )
+
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scope_list.return_value = [record]
+            with mock.patch("builtins.print") as output:
+                result = main(["scope", "list"])
+        self.assertEqual(result, 0)
+        output.assert_called_once_with("review\tcomplete\tscope-review\tscope-review")
+
+    def test_scope_release_human_output_and_preview_guard(self) -> None:
+        release = {
+            "scope": "review",
+            "mode": "dry-run",
+            "plan_sha256": "a" * 64,
+            "items": [
+                {
+                    "disposition": "candidate",
+                    "kind": "profile",
+                    "path": "/profiles/scope-review.json",
+                    "reasons": [],
+                },
+                {
+                    "disposition": "protected",
+                    "kind": "state",
+                    "path": None,
+                    "reasons": ["persistent state"],
+                },
+            ],
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scope_release.return_value = release
+            with mock.patch("builtins.print") as output:
+                result = main(["scope", "release", "review", "--dry-run"])
+
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            [call.args[0] for call in output.call_args_list],
+            [
+                "scope\treview\tdry-run",
+                f"plan\t{'a' * 64}",
+                "candidate\tprofile\t/profiles/scope-review.json\t",
+                "protected\tstate\t-\tpersistent state",
+            ],
+        )
+        with mock.patch("atrinik_workspace.cli.Workspace"):
+            with mock.patch("sys.stderr"):
+                result = main(
+                    ["scope", "release", "review", "--dry-run", "--plan", "a" * 64]
+                )
+        self.assertEqual(result, 1)
+
+    def test_scope_create_dispatches_exact_coordinates_as_json(self) -> None:
+        record = {"schema_version": 1, "name": "review", "status": "complete"}
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scope_create.return_value = record
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "scope", "create", "classic-server", "content",
+                        "--name", "review", "--from", "classic",
+                        "--branch", "classic=feat/review", "--state", "shared",
+                        "--json",
+                    ]
+                )
+        self.assertEqual(result, 0)
+        workspace_type.return_value.scope_create.assert_called_once_with(
+            ["classic-server", "content"],
+            name="review",
+            base_profile="classic",
+            labels=[],
+            branches=["classic=feat/review"],
+            start_points=[],
+            topology=None,
+            state_mode="named",
+            state_name="shared",
+        )
+        self.assertEqual(json.loads(output.call_args.args[0]), record)
+
+    def test_scope_release_requires_preview_mode_and_forwards_plan(self) -> None:
+        options = parser().parse_args(
+            ["scope", "release", "review", "--apply", "--plan", "a" * 64]
+        )
+        self.assertTrue(options.apply)
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scope_release.return_value = {
+                "scope": "review", "mode": "apply", "plan_sha256": "a" * 64,
+                "items": [],
+            }
+            result = main(
+                ["scope", "release", "review", "--apply", "--plan", "a" * 64, "--json"]
+            )
+        self.assertEqual(result, 0)
+        workspace_type.return_value.scope_release.assert_called_once_with(
+            "review", apply=True, plan_sha256="a" * 64
+        )
+
     def test_cleanup_accepts_the_explicit_topologies_scope(self) -> None:
         options = parser().parse_args(["cleanup", "--scope", "topologies"])
         self.assertEqual(options.scope, ["topologies"])

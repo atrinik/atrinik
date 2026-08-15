@@ -48,6 +48,8 @@
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
+- Prefer `scope create` for agents; use JSON handoff and
+  preview/apply release. Primitives remain.
 - Use wrapper commands and paths; never reconstruct managed paths. Give
   concurrent topologies distinct names, states, ports, and client config;
   prefer temporary state.
@@ -58,10 +60,10 @@
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
   holders per `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse follows `docs/PROVENANCE.md` and its canonical identity registry;
-  any rights, identity, temporal, authorship, or scope uncertainty fails closed.
-- Update `supply-chain/inventory.json` when dependency ownership or validation
-  changes. Keep Actions/images immutable, add no submodules, and audit a
-  complete profile. Only aggregate-root workflows and Dependabot are active.
+  rights, identity, temporal, authorship, or scope uncertainty fails closed.
+- Update `supply-chain/inventory.json` when dependency ownership/validation
+  changes. Keep Actions/images immutable, add no submodules, and audit a full
+  profile. Only aggregate-root workflows and Dependabot are active.
 - Commits and PR titles use `type(optional-scope)!: concise description`. PR
   bodies require renderable GitHub-Flavored Markdown and actual line breaks,
   never visible literal `\n` separators. Feed multi-section bodies by file or

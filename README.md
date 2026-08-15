@@ -343,7 +343,13 @@ options fail closed; project
 `.npmrc` is supported through an authenticated copy. The hashed lifecycle-script
 environment and source
 metadata also participate in the key. `npm ci` remains the only
-installer. A second
+installer. Copied root metadata is authenticated before the wrapper temporarily
+restores owner-only write access needed by dependency-install and source-view
+transactions; the source mode is reapplied before view publication. Sealed
+immutable source generations therefore cannot block staging writes. Worker
+checks receive temporary full owner access with group and other write access
+disabled for allowed generated outputs, and the sealed root mode is restored
+afterward. A second
 input-identical build reuses that installation and an unchanged profile source
 view. Because enabled dependency lifecycle scripts can observe root files, the
 complete non-generated source digest participates in every dependency key and
@@ -601,6 +607,69 @@ that exact content lease. `build all` requests the union of every target's
 dependency closure and retains or snapshots every input without weakening
 coherence.
 
+## Agent development scopes
+
+Use one wrapper-owned development scope as the default entry point for
+concurrent agent work. Provisioning resolves every logical selector to its
+physical checkout, creates one full worktree per selected checkout, publishes
+one immutable derived profile, reserves a topology name and state policy, and
+publishes the completed scope record last:
+
+~~~sh
+./atrinik scope create classic-server --name issue-402 --from classic --json
+~~~
+
+Omit `--name` for a timestamped, collision-resistant `agent-*` name. A supplied
+name is stable: repeating the exact completed request returns the existing
+record, while a different component, label, branch, start point, topology, or
+state request fails without replacing it. Multiple Classic selectors still
+produce exactly one `classic` worktree containing all five `classic-*` source
+directories. Per-checkout coordinates can be selected deliberately:
+
+~~~sh
+./atrinik scope create classic-server content --name issue-402 \
+  --from classic \
+  --label classic=issue-402-classic \
+  --branch classic=feat/agent-development-scopes \
+  --start-point classic=origin/main \
+  --json
+~~~
+
+Automated scopes default to generation-owned temporary state. Persistent state
+is opt-in with `--state NAME` for an existing registered state or
+`--default-state` for the shared default. Provisioning does not start a
+topology or create persistent state.
+
+The secret-free JSON record under `workspace/scopes/<name>/scope.json` contains
+the scope name/generation/request digest; base profile and stack; requested
+logical components; every repository, checkout, label, branch, start point,
+commit, tree, path, and common-Git identity; the immutable profile name/path
+and digest; topology name/path; state ownership/lifecycle; and exact supported
+path, build, topology, log, shutdown, and release commands. Use those returned
+commands rather than reconstructing managed paths. `scope show` and `scope
+list` return the same validated records.
+
+Creation journals every worktree, profile-reference, profile, and completed
+record publication boundary. A failed transaction removes only exact newly
+created worktrees and profiles that remain clean, unchanged, and unreferenced;
+changed or uncertain inputs and the durable journal remain as explicit cleanup
+references for recovery.
+
+Scope release is explicit and hash-bound preview-first:
+
+~~~sh
+./atrinik scope release issue-402 --dry-run --json
+./atrinik scope release issue-402 --apply --plan PLAN_SHA256 --json
+~~~
+
+Apply recomputes the plan under the exact leases and refuses a stale plan,
+live or unreachable topology, retained generation, active lease, dirty,
+detached, replaced, ambiguously owned, or unexpectedly referenced worktree,
+changed profile, or uncertain build root. Named and default persistent state
+is always retained. Stopped topology history remains owned by the separate
+topology-cleanup lifecycle. The completed scope record and release journal are
+retained as recovery evidence.
+
 ## Checkout worktrees
 
 Create a branch and full-repository worktree from a checkout's remote default
@@ -632,7 +701,8 @@ List or remove managed worktrees:
 Removal refuses dirty worktrees. Each worktree is a full Git worktree of its
 physical repository, so a classic worktree contains all five classic source
 directories. Ordinary `git commit`, `git push`, and `gh pr create` work from
-inside it.
+inside it. These primitive commands remain supported for manual composition;
+prefer an atomic scope for concurrent automated development.
 
 ## Previewing and reclaiming stale workspace data
 
@@ -717,12 +787,20 @@ reclaimed regardless of age unless another protection applies.
 
 Immutable source generations use the same default `builds` scope and grace
 period. Cleanup authenticates their checkout/key path, ownership marker,
-closed commit/tree/subpath metadata, and complete tree digest. An active build
-holds the generation's shared lock; apply takes its exclusive side and repeats
-identity, digest, and age validation before bounded removal. Generation staging
-transactions within the marker-owned container are separately inventoried,
-remain protected under an active generation lock, and are reclaimable after
-interruption and the normal grace period.
+and closed commit/tree/subpath metadata before considering removal. Build
+selection separately proves the complete tree digest and exact path,
+entry-type, executable-mode, symlink-target, and blob identity against the
+recorded Git source tree; a mismatch fails the build without deleting the
+generation. Once ownership is unambiguous, cleanup reports content-digest
+corruption as an explicitly eligible `corrupt_source_generation`. Inspect
+recovery with `./atrinik cleanup --scope builds
+--older-than 0 --dry-run --json`; after reviewing the exact protected or
+eligible generation, use the same scoped command with `--apply`. An active
+build holds the generation's shared lock; apply takes its exclusive side and
+repeats ownership, content state, and age validation before bounded removal.
+Generation staging transactions within the marker-owned container are
+separately inventoried, remain protected under an active generation lock, and
+are reclaimable after interruption and the normal grace period.
 
 Worker dependency entries under `workspace/build/worker-dependencies/` use the
 same default `builds` scope and grace period. Cleanup requires the exact parent
