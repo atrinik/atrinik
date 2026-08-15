@@ -884,13 +884,28 @@ class ProgramLedgerModel:
             or not isinstance(comment["node"], str) or not comment["node"]
             or not isinstance(comment["author"], str) or not comment["author"]
             or not isinstance(comment["body"], str)
+            or not self.string_is_bounded(comment["node"])
+            or not self.string_is_bounded(comment["author"])
+            or not self.string_is_bounded(comment["body"])
             or (
                 comment["marker"] is not None
-                and not isinstance(comment["marker"], str)
+                and (
+                    not isinstance(comment["marker"], str)
+                    or not self.string_is_bounded(comment["marker"])
+                )
             )
             for comment in comments
         ):
             raise StopClosed("comment scan contains malformed full-stream evidence")
+        for comment in comments:
+            parsed_marker = (
+                "program-marker"
+                if comment["body"] in {"old-body", "intended-body"} else None
+            )
+            if "<!-- atrinik-program-delivery:" in comment["body"]:
+                raise StopClosed("comment body contains a malformed reserved marker")
+            if comment["marker"] != parsed_marker:
+                raise StopClosed("comment marker claim differs from exact body bytes")
         derived_namespace = [
             (comment["node"], comment["author"], comment["marker"], comment["body"])
             for comment in comments if comment["marker"] is not None
@@ -957,10 +972,18 @@ class ProgramLedgerModel:
         candidates, evidence = [], []
         for issue in issues:
             marker = issue.get("marker")
+            body_has_child_prefix = (
+                isinstance(issue.get("body"), str)
+                and "<!-- atrinik-program-child:" in issue["body"]
+            )
             other_match = any(issue.get(field) is True for field in (
                 "title", "body", "backlink", "parent"
             ))
-            if marker == "matching" or issue.get("child_marker") == "program-child-marker" or other_match:
+            if (
+                marker == "matching"
+                or issue.get("child_marker") == "program-child-marker"
+                or body_has_child_prefix or other_match
+            ):
                 candidates.append(issue)
             else:
                 evidence.append(issue)
@@ -988,7 +1011,17 @@ class ProgramLedgerModel:
         complete: bool = True, child_parent: str | None = None,
         scan: object = AUTO_SCAN,
     ) -> None:
-        relationships = relationships or []
+        if relationships is None:
+            relationships = []
+        if (
+            not isinstance(relationships, list)
+            or any(
+                not isinstance(node, str) or not node
+                for node in relationships
+            )
+            or len(relationships) != len(set(relationships))
+        ):
+            raise StopClosed("parent scan contains malformed relationship identities")
         proof = [{"child_parent": child_parent, "parent_subissues": relationships}]
         self._observe(
             "parent", stream, self.result_stream(proof),
@@ -2269,6 +2302,12 @@ class ProgramLedgerModelTests(unittest.TestCase):
         for malformed in (7, True, {}):
             with self.subTest(malformed=malformed), self.assertRaises(StopClosed):
                 ProgramLedgerModel().observe_comment(comments=malformed)
+        for body in ("\ud800", "<!-- atrinik-program-delivery:malformed -->"):
+            with self.subTest(body=body), self.assertRaises(StopClosed):
+                ProgramLedgerModel().observe_comment(comments=[{
+                    "node": "ordinary", "author": "other", "marker": None,
+                    "body": body,
+                }])
 
         drifted = ProgramLedgerModel()
         drifted.record["comment"].update(phase="bound", node="comment-node")
@@ -2313,6 +2352,12 @@ class ProgramLedgerModelTests(unittest.TestCase):
         candidates, evidence = model.classify_child(unrelated)
         self.assertEqual(candidates, [])
         self.assertEqual(evidence, unrelated)
+        prefixed = {
+            "node": "prefixed-node",
+            "body": "<!-- atrinik-program-child:malformed -->",
+        }
+        candidates, _ = ProgramLedgerModel().classify_child([prefixed])
+        self.assertEqual(candidates, [prefixed])
         model.plan_create()
         with self.assertRaises(StopClosed):
             ProgramLedgerModel().classify_child([], "before", "after")
@@ -2691,6 +2736,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
         )
 
     def test_native_link_requires_exact_two_way_absence_before_call(self) -> None:
+        for malformed in (False, 0, {}):
+            with self.subTest(malformed=malformed), self.assertRaises(StopClosed):
+                ProgramLedgerModel().observe_parent(malformed)
         for child_parent in ("master", "other"):
             with self.subTest(child_parent=child_parent):
                 model = ProgramLedgerModel()
