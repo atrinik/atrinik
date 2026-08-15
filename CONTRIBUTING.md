@@ -147,9 +147,11 @@ ambiguous inputs. Scope release tests may apply only to temporary test-owned
 workspaces; repository validation remains preview-only.
 
 For delivery-ledger lifecycle changes, cover post-merge authority and exact
-PR/issue matching, live clean-worktree ancestry, intent/resource refusal,
+authenticated live PR/issue matching, post-stage clean-worktree ancestry,
+intent/resource refusal,
 release-before-inert ordering, cleanup preview/apply selection binding,
-archive member identity, retention-gated reclaim, stale plans, and same-
+scope-release journal proof, archive member identity, helper-clocked
+retention reclaim, stale plans, and same-
 coordinate crash/retry/concurrency at every publication boundary. Tests may
 apply archive/reclaim only inside temporary test-owned review roots. Delivery
 must never invoke wrapper cleanup, and repository validation remains

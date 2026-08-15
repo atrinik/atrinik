@@ -115,7 +115,7 @@ python3 scripts/delivery_ledger.py release-preview REVIEW_ROOT LEDGER_NAME INPUT
 python3 scripts/delivery_ledger.py release-apply REVIEW_ROOT LEDGER_NAME INPUT --plan SHA256
 python3 scripts/delivery_ledger.py archive-preview REVIEW_ROOT LEDGER_NAME INPUT
 python3 scripts/delivery_ledger.py archive-apply REVIEW_ROOT LEDGER_NAME INPUT --plan SHA256
-python3 scripts/delivery_ledger.py reclaim-preview REVIEW_ROOT ARCHIVE_NAME OBSERVED_AT
+python3 scripts/delivery_ledger.py reclaim-preview REVIEW_ROOT ARCHIVE_NAME
 python3 scripts/delivery_ledger.py reclaim-apply REVIEW_ROOT PREVIEW --plan SHA256
 ```
 
@@ -1609,8 +1609,7 @@ stop for code-level recovery; never improvise file repair.
 | Bound-comment update `in-flight` | Fully paginate; bind intended result, or update the exact known node if it still has recorded old bytes. |
 | Ready intent with draft still true | Refetch; mark ready only at the exit gate, or CAS-cancel before target drift. |
 
-Every operation inventories under an exclusive no-follow root lock. Mutations
-of active ledgers also use a persistent per-ledger lock and re-inventory inside
+Every operation inventories under an exclusive no-follow root lock. Mutations also use a persistent per-ledger lock for active ledgers and re-inventory inside
 it. Terminal lifecycle transactions remain under the root lock while archiving
 that persistent lock itself. Recognized staging participates in collision
 detection; a pending operation for the same target blocks an unrelated
@@ -1636,8 +1635,10 @@ It must postdate the active authority. Each PR row has exact `repository`,
 `number`, `node_id`, `state: "merged"`, equal recorded/observed head SHAs,
 `merge_commit_sha`, `merged_at`, and
 `ancestry: {"method":"git-merge-base-is-ancestor","result":"ancestor"}`.
-The helper pins the exact clean, attached, unlocked recorded worktree and Git
-authority and runs that ancestry check itself. Each selected explicit/program
+The helper re-observes every exact PR and issue through authenticated `gh`,
+requires the authenticated actor to equal the ledger actor, pins the exact
+clean recorded worktree and Git authority, and runs the ancestry check itself.
+Apply repeats the remote and Git proof after staging before installation. Each selected explicit/program
 issue appears once with `closed` when in closing scope and `open` otherwise.
 Both mutation-state fields are `idle`; PR body/comment/readiness intents are
 terminal, and every artifact is bound and safe. Running resources and mutable
@@ -1683,17 +1684,21 @@ match the ledger and say `removed`, retaining the last safe observation. Its
 resource rows exactly match every slot and say `removed` or `retained`, with the
 same terminal lifecycle. The one exception converts a ledger-recorded active
 scope to `removed`/`released`, reflecting its intervening wrapper release.
+That exception also requires the live scope subsystem's exact completed,
+generation-matched release journal; a caller-authored summary is insufficient.
 Archive preview/apply never removes those resources.
 It instead bundles canonical ledger, release, lock, optional report, migration
 marker/snapshot/source, and embedded intent bytes into one canonical bounded
 archive before exact member unlinking. The installed archive makes interrupted
 member removal resumable and remains inert audit evidence.
 
-`reclaim-preview` accepts one exact archive and a UTC observation at or after
-`retain_until`. Review the returned archive digest/device/inode-bound plan and
+`reclaim-preview` derives current UTC itself and accepts one exact archive only
+at or after `retain_until`. Apply rechecks helper time and the original
+digest/device/inode. Review the returned bound plan and
 feed the complete preview to `reclaim-apply`. Reclaim removes only that bundle;
-it never follows a path or touches a worktree/resource. Exact concurrent or
-post-unlink retries converge on `reclaimed`. Use a retention period required by
+it never follows a path or touches a worktree/resource. A bounded exact receipt
+makes an interrupted post-unlink apply recoverable; unrelated absent-archive
+requests fail. Use a retention period required by
 project policy; never shorten it merely to clear inventory pressure.
 
 ## Observe strict prohibitions

@@ -7728,9 +7728,10 @@ class DeliveryLedgerTests(unittest.TestCase):
                     ledger.create(root, candidate)
                 self.assertEqual(directory_snapshot(root), before)
 
+    @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
     def test_47_terminal_release_is_hash_bound_resumable_and_makes_ownership_inert(
-        self, _git_proof: mock.Mock
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
         for failpoint in ("release:staged", "release:installed", "release:cleaned"):
             with self.subTest(failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
@@ -7772,9 +7773,10 @@ class DeliveryLedgerTests(unittest.TestCase):
                     ledger.create(root, alias)
                 self.assertEqual(ledger.create(root, successor).document, successor)
 
+    @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
     def test_48_release_rejects_stale_unrelated_and_in_flight_authority(
-        self, _git_proof: mock.Mock
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -7801,9 +7803,10 @@ class DeliveryLedgerTests(unittest.TestCase):
             with self.assertRaisesRegex(ledger.LedgerError, "final state"):
                 ledger.release_preview(root, snapshot.name, wrong_issue)
 
+    @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
     def test_49_concurrent_release_retries_converge_on_one_marker(
-        self, _git_proof: mock.Mock
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -7835,9 +7838,10 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(len(set(results)), 1)
             self.assertEqual(len(ledger.inventory(root).releases), 1)
 
+    @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
     def test_50_archive_is_cleanup_gated_crash_resumable_and_preserves_evidence(
-        self, _git_proof: mock.Mock
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
         member_failpoint = (
             "archive:member:.atrinik-atrinik-pr-423.md.ledger.json.lock"
@@ -7851,6 +7855,8 @@ class DeliveryLedgerTests(unittest.TestCase):
             with self.subTest(failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 snapshot = ledger.create(root, releasable_pr_ledger())
+                report_name = snapshot.name.removesuffix(".ledger.json")
+                (root / report_name).write_bytes(b"review evidence\n" + b"x" * 800_000)
                 release_input = release_request(snapshot)
                 release_plan = ledger.release_preview(root, snapshot.name, release_input)
                 released = ledger.release_apply(
@@ -7887,9 +7893,10 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertIn(ledger._release_name(snapshot.name), member_names)
                 self.assertFalse((root / snapshot.name).exists())
 
+    @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
     def test_51_archive_rejects_cleanup_drift_and_unsafe_worktree_evidence(
-        self, _git_proof: mock.Mock
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -7923,9 +7930,10 @@ class DeliveryLedgerTests(unittest.TestCase):
             with self.assertRaisesRegex(ledger.LedgerError, "not clean"):
                 ledger.archive_preview(root, snapshot.name, unsafe)
 
+    @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
     def test_52_reclaim_is_retention_and_exact_preview_gated(
-        self, _git_proof: mock.Mock
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -7946,25 +7954,26 @@ class DeliveryLedgerTests(unittest.TestCase):
                 request,
                 plan_sha256=archive_plan["plan_sha256"],
             )
-            with self.assertRaisesRegex(ledger.LedgerError, "retention period"):
-                ledger.reclaim_preview(root, archived.name, "2026-09-01T00:00:00Z")
-            preview = ledger.reclaim_preview(
-                root, archived.name, "2026-09-16T00:00:00Z"
-            )
+            with mock.patch.object(ledger, "_utc_now", return_value="2026-09-01T00:00:00Z"):
+                with self.assertRaisesRegex(ledger.LedgerError, "retention period"):
+                    ledger.reclaim_preview(root, archived.name)
+            with mock.patch.object(ledger, "_utc_now", return_value="2026-09-16T00:00:00Z"):
+                preview = ledger.reclaim_preview(root, archived.name)
             with self.assertRaisesRegex(ledger.LedgerError, "exact eligible preview"):
                 ledger.reclaim_apply(
                     root, preview, plan_sha256="0" * 64
                 )
-            with self.assertRaises(ledger.InjectedCrash):
-                ledger.reclaim_apply(
-                    root,
-                    preview,
-                    plan_sha256=preview["plan_sha256"],
-                    failpoint="reclaim:removed",
+            with mock.patch.object(ledger, "_utc_now", return_value="2026-09-16T00:00:00Z"):
+                with self.assertRaises(ledger.InjectedCrash):
+                    ledger.reclaim_apply(
+                        root,
+                        preview,
+                        plan_sha256=preview["plan_sha256"],
+                        failpoint="reclaim:removed",
+                    )
+                result = ledger.reclaim_apply(
+                    root, preview, plan_sha256=preview["plan_sha256"]
                 )
-            result = ledger.reclaim_apply(
-                root, preview, plan_sha256=preview["plan_sha256"]
-            )
             self.assertEqual(result["state"], "reclaimed")
             self.assertEqual(ledger.inventory(root).archives, ())
 
@@ -8010,9 +8019,10 @@ class DeliveryLedgerTests(unittest.TestCase):
                     {"recorded_head_sha": head, "merge_commit_sha": unrelated},
                 )
 
+    @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
     def test_54_concurrent_archive_and_reclaim_retries_converge(
-        self, _git_proof: mock.Mock
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -8051,20 +8061,22 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(errors, [])
             self.assertEqual(len(set(archive_results)), 1)
             archived = ledger.inventory(root).archives[0]
-            reclaim = ledger.reclaim_preview(
-                root, archived.name, "2026-09-16T00:00:00Z"
-            )
+            with mock.patch.object(ledger, "_utc_now", return_value="2026-09-16T00:00:00Z"):
+                reclaim = ledger.reclaim_preview(root, archived.name)
             reclaim_results: list[str] = []
 
             def apply_reclaim() -> None:
                 try:
-                    reclaim_results.append(
-                        ledger.reclaim_apply(
-                            root,
-                            reclaim,
-                            plan_sha256=reclaim["plan_sha256"],
-                        )["state"]
-                    )
+                    with mock.patch.object(
+                        ledger, "_utc_now", return_value="2026-09-16T00:00:00Z"
+                    ):
+                        reclaim_results.append(
+                            ledger.reclaim_apply(
+                                root,
+                                reclaim,
+                                plan_sha256=reclaim["plan_sha256"],
+                            )["state"]
+                        )
                 except BaseException as error:  # pragma: no cover - asserted below
                     errors.append(error)
 
@@ -8073,8 +8085,9 @@ class DeliveryLedgerTests(unittest.TestCase):
                 thread.start()
             for thread in reclaim_threads:
                 thread.join(5)
-            self.assertEqual(errors, [])
-            self.assertEqual(reclaim_results, ["reclaimed", "reclaimed"])
+            self.assertEqual(reclaim_results, ["reclaimed"], errors)
+            self.assertEqual(len(errors), 1)
+            self.assertRegex(str(errors[0]), "no exact archive")
             self.assertEqual(ledger.inventory(root).archives, ())
 
     def test_55_terminal_lifecycle_cli_roundtrip(self) -> None:
@@ -8096,6 +8109,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 worktree, "commit-tree", tree, "-p", head, "-m", "merge result"
             ).stdout.strip()
             document = releasable_pr_ledger()
+            document["authority"]["issued_at"] = "2025-01-01T00:00:00Z"
             replace_sha(document, SHA_A, head)
             slot = next(
                 row for row in document["artifacts"] if row["kind"] == "worktree"
@@ -8107,9 +8121,28 @@ class DeliveryLedgerTests(unittest.TestCase):
             release_input["pull_requests"][0]["recorded_head_sha"] = head
             release_input["pull_requests"][0]["observed_head_sha"] = head
             release_input["pull_requests"][0]["merge_commit_sha"] = merged
+            release_input["authority"]["issued_at"] = "2025-01-02T00:00:00Z"
+            release_input["observed_at"] = "2025-01-02T00:05:00Z"
+            release_input["pull_requests"][0]["merged_at"] = "2025-01-02T00:01:00Z"
             release_path = base / "release.json"
             release_path.write_bytes(ledger.canonical_bytes(release_input))
-            environment = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+            binary = base / "bin"
+            binary.mkdir()
+            gh = binary / "gh"
+            gh.write_text(
+                "#!/bin/sh\n"
+                "if [ \"$1\" = api ]; then printf '%s\\n' '{\"node_id\":\"U_actor\"}'; "
+                "elif [ \"$1\" = pr ]; then printf '%s\\n' "
+                f"'{{\"id\":\"P_release\",\"state\":\"MERGED\",\"isDraft\":false,\"headRefOid\":\"{head}\",\"mergeCommit\":{{\"oid\":\"{merged}\"}},\"mergedAt\":\"2025-01-02T00:01:00Z\"}}'; "
+                "else printf '%s\\n' '{\"id\":\"I_issue\",\"state\":\"CLOSED\"}'; fi\n",
+                encoding="utf-8",
+            )
+            gh.chmod(0o700)
+            environment = {
+                **os.environ,
+                "PATH": f"{binary}{os.pathsep}{os.environ['PATH']}",
+                "PYTHONDONTWRITEBYTECODE": "1",
+            }
 
             def run(*arguments: str) -> dict[str, object]:
                 process = subprocess.run(
@@ -8137,6 +8170,11 @@ class DeliveryLedgerTests(unittest.TestCase):
             archive_input = archive_request(
                 snapshot, released, worktree_path=str(worktree)
             )
+            archive_input["authority"]["issued_at"] = "2025-01-03T00:00:00Z"
+            archive_input["cleanup"]["preview"]["observed_at"] = "2025-01-03T00:01:00Z"
+            archive_input["cleanup"]["apply"]["observed_at"] = "2025-01-03T00:05:00Z"
+            archive_input["archived_at"] = "2025-01-03T00:10:00Z"
+            archive_input["retain_until"] = "2025-01-04T00:00:00Z"
             archive_path = base / "archive.json"
             archive_path.write_bytes(ledger.canonical_bytes(archive_input))
             archive_preview_result = run(
@@ -8154,7 +8192,6 @@ class DeliveryLedgerTests(unittest.TestCase):
                 "reclaim-preview",
                 str(root),
                 archive_result["name"],
-                "2026-09-16T00:00:00Z",
             )
             reclaim_path = base / "reclaim.json"
             reclaim_path.write_bytes(ledger.canonical_bytes(reclaim_preview_result))
@@ -8169,9 +8206,10 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertTrue(worktree.exists())
             self.assertEqual(ledger.inventory(root).archives, ())
 
+    @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
     def test_56_migrated_evidence_archive_recovers_after_marker_removal(
-        self, _git_proof: mock.Mock
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
     ) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -8216,6 +8254,199 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertIn(source.name, members)
             self.assertIn(snapshot.document["migration"]["snapshot"]["name"], members)
             self.assertIn(snapshot.document["migration"]["marker_name"], members)
+
+    @mock.patch.object(ledger, "_prove_release_github")
+    @mock.patch.object(ledger, "_prove_release_git")
+    def test_57_terminal_security_regressions_fail_closed(
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            snapshot = ledger.create(root, releasable_pr_ledger())
+            release_input = release_request(snapshot)
+            release_plan = ledger.release_preview(root, snapshot.name, release_input)
+            released = ledger.release_apply(
+                root,
+                snapshot.name,
+                release_input,
+                plan_sha256=release_plan["plan_sha256"],
+            )
+            with self.assertRaisesRegex(ledger.LedgerError, "terminally released"):
+                ledger.cas(root, snapshot.name, next_generation(snapshot), **cas_arguments(snapshot))
+
+            unrelated = archive_request(snapshot, released)
+            for phase, disposition in (("preview", "eligible"), ("apply", "removed")):
+                raw = base64.b64decode(unrelated["cleanup"][phase]["output"]["raw_base64"])
+                output = json.loads(raw)
+                output["items"].append(
+                    {
+                        "kind": "build",
+                        "owner": "atrinik",
+                        "path": "/workspace/build/unrelated",
+                        "reasons": [],
+                        "disposition": disposition,
+                    }
+                )
+                if phase == "apply":
+                    output["completed_actions"].append(
+                        {"kind": "build", "path": "/workspace/build/unrelated"}
+                    )
+                unrelated["cleanup"][phase]["output"] = inline_payload(
+                    ledger.canonical_bytes(output)
+                )
+            with self.assertRaisesRegex(ledger.LedgerError, "exact ledger-owned targets"):
+                ledger.archive_preview(root, snapshot.name, unrelated)
+
+            request = archive_request(snapshot, released)
+            archive_plan = ledger.archive_preview(root, snapshot.name, request)
+            archived = ledger.archive_apply(
+                root,
+                snapshot.name,
+                request,
+                plan_sha256=archive_plan["plan_sha256"],
+            )
+            forged = copy.deepcopy(archived.document)
+            forged["authority"]["objective_sha256"] = "0" * 64
+            (root / archived.name).write_bytes(ledger.canonical_bytes(forged))
+            with self.assertRaisesRegex(ledger.LedgerError, "objective"):
+                ledger.inventory(root)
+
+        malformed = {
+            "mode": "preview",
+            "plan_sha256": "0" * 64,
+            "archive": ".atrinik-atrinik-pr-423.md.ledger.json.archive-" + "1" * 64 + ".json",
+            "archive_sha256": "2" * 64,
+            "device": 1,
+            "inode": 1,
+            "observed_at": "2026-09-16T00:00:00Z",
+            "state": "eligible",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            with self.assertRaisesRegex(ledger.LedgerError, "malformed or unrelated"):
+                ledger.reclaim_apply(
+                    Path(temporary), malformed, plan_sha256="0" * 64
+                )
+
+    def test_58_release_reobserves_authenticated_github_state(self) -> None:
+        document = releasable_pr_ledger()
+        request = release_request(type("SnapshotView", (), {"document": document, "digest": "a" * 64})())
+        with mock.patch.object(
+            ledger,
+            "_gh_json",
+            side_effect=[
+                {"node_id": "U_actor"},
+                {
+                    "id": "P_release",
+                    "state": "MERGED",
+                    "isDraft": False,
+                    "headRefOid": SHA_A,
+                    "mergeCommit": {"oid": SHA_B},
+                    "mergedAt": "2026-08-15T10:01:00Z",
+                },
+                {"id": "I_issue", "state": "CLOSED"},
+            ],
+        ) as query:
+            ledger._prove_release_github(document, request)
+        self.assertEqual(query.call_count, 3)
+        with mock.patch.object(
+            ledger,
+            "_gh_json",
+            side_effect=[
+                {"node_id": "U_actor"},
+                {
+                    "id": "P_release",
+                    "state": "OPEN",
+                    "isDraft": False,
+                    "headRefOid": SHA_A,
+                    "mergeCommit": None,
+                    "mergedAt": None,
+                },
+            ],
+        ):
+            with self.assertRaisesRegex(ledger.LedgerError, "GitHub PR state"):
+                ledger._prove_release_github(document, request)
+
+    @mock.patch.object(ledger, "_prove_release_github")
+    def test_59_release_reproof_catches_post_stage_worktree_mutation(
+        self, _github_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            root = base / "reviews"
+            root.mkdir()
+            worktree = base / "worktree"
+            worktree.mkdir()
+            git_run(worktree, "init", "--initial-branch=feat/release")
+            git_run(worktree, "config", "user.name", "Delivery Test")
+            git_run(worktree, "config", "user.email", "delivery@example.invalid")
+            (worktree / "tracked.txt").write_text("release\n", encoding="utf-8")
+            git_run(worktree, "add", "tracked.txt")
+            git_run(worktree, "commit", "-m", "release head")
+            head = git_run(worktree, "rev-parse", "HEAD").stdout.strip()
+            tree = git_run(worktree, "rev-parse", "HEAD^{tree}").stdout.strip()
+            merged = git_run(
+                worktree, "commit-tree", tree, "-p", head, "-m", "merge result"
+            ).stdout.strip()
+            document = releasable_pr_ledger()
+            replace_sha(document, SHA_A, head)
+            slot = next(row for row in document["artifacts"] if row["kind"] == "worktree")
+            slot["immutable"]["path"] = str(worktree)
+            slot["current"]["path"] = str(worktree)
+            snapshot = ledger.create(root, document)
+            request = release_request(snapshot)
+            request["pull_requests"][0].update(
+                recorded_head_sha=head,
+                observed_head_sha=head,
+                merge_commit_sha=merged,
+            )
+            preview = ledger.release_preview(root, snapshot.name, request)
+
+            def mutate(stage: str) -> None:
+                if stage == "release:staged":
+                    (worktree / "late.txt").write_text("late\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(ledger.LedgerError, "dirty"):
+                ledger.release_apply(
+                    root,
+                    snapshot.name,
+                    request,
+                    plan_sha256=preview["plan_sha256"],
+                    failpoint=mutate,
+                )
+            self.assertEqual(ledger.inventory(root).releases, ())
+
+    def test_60_archive_requires_live_completed_scope_release_journal(self) -> None:
+        resource = {
+            "request": scope_request(),
+            "immutable": {"repository": repository()},
+            "current": {"binding": {"raw_base64": "", "sha256": "0" * 64}},
+        }
+        record = {
+            "name": "issue-419-scope",
+            "generation": "1" * 32,
+            "cleanup": {"release_journal": "/workspace-data/scopes/issue-419-scope/release-journal.json"},
+        }
+        journal = {
+            "schema_version": 1,
+            "scope": record["name"],
+            "generation": record["generation"],
+            "plan_sha256": "a" * 64,
+            "status": "complete",
+            "completed": ["profile", "worktree:atrinik"],
+            "updated_at": "2026-08-15T11:05:00Z",
+        }
+        with mock.patch.object(ledger, "_retained_result", return_value=b"scope"), mock.patch.object(
+            ledger, "_scope_show_record", return_value=(record, {})
+        ), mock.patch.object(
+            ledger, "_read_bytes_input", return_value=ledger.canonical_bytes(journal)
+        ):
+            ledger._prove_scope_release(resource, "scope")
+            journal["status"] = "applying"
+            with mock.patch.object(
+                ledger, "_read_bytes_input", return_value=ledger.canonical_bytes(journal)
+            ):
+                with self.assertRaisesRegex(ledger.LedgerError, "not complete"):
+                    ledger._prove_scope_release(resource, "scope")
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ import base64
 import binascii
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 import fcntl
 import hashlib
 import importlib
@@ -130,6 +130,10 @@ _ARCHIVE_RE = re.compile(
 _ARCHIVE_STAGE_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.archive-"
     r"(?P<ledger>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
+)
+_RECLAIM_RECEIPT_RE = re.compile(
+    r"^\.(?P<archive>\..+\.md\.ledger\.json\.archive-[0-9a-f]{64}\.json)"
+    r"\.reclaim-(?P<plan>[0-9a-f]{64})\.json$"
 )
 _CANONICAL_REPORT_RE = re.compile(
     r"^(?P<owner>[a-z0-9][a-z0-9._-]*)-(?P<repo>[a-z0-9][a-z0-9._-]*)-"
@@ -281,6 +285,7 @@ class ArchiveRecord:
     digest: str
     device: int
     inode: int
+    status: os.stat_result
 
     def json(self) -> dict[str, Any]:
         return {
@@ -560,7 +565,7 @@ def _release_pull(value: Any, context: str) -> tuple[Any, ...]:
         raise LedgerError(f"{context}.ancestry is not a successful Git ancestry proof")
     if observed != recorded:
         raise LedgerError(f"{context} observed head differs from the recorded head")
-    return (*repository, number, node, recorded, merge, merged_at)
+    return (*repository, number, node)
 
 
 def _release_issue(value: Any, context: str) -> tuple[Any, ...]:
@@ -570,7 +575,7 @@ def _release_issue(value: Any, context: str) -> tuple[Any, ...]:
     node = _string(item["node_id"], f"{context}.node_id", NODE_RE)
     if item["state"] not in {"open", "closed"}:
         raise LedgerError(f"{context}.state must be open or closed")
-    return (*repository, number, node, item["state"])
+    return (*repository, number, node)
 
 
 def _validate_release_document(value: Any, context: str) -> dict[str, Any]:
@@ -658,6 +663,8 @@ def _release_document(
         authority[2], "release authority issued_at"
     ):
         raise LedgerError("release observation predates release authority")
+    if live_proof:
+        _prove_release_github(snapshot.document, validated)
 
     expected_pulls: dict[tuple[str, int, str], tuple[dict[str, Any], str]] = {}
     for pull in snapshot.document["selected_prs"]:
@@ -743,6 +750,82 @@ def _release_document(
         if current is None or unsafe:
             raise LedgerError("release is blocked by an active delivery resource")
     return validated
+
+
+def _gh_json(arguments: Sequence[str], context: str) -> Any:
+    """Run one bounded authenticated GitHub CLI observation."""
+
+    environment = {
+        key: value for key, value in os.environ.items() if not key.startswith("GIT_")
+    }
+    environment.update(LC_ALL="C", LANG="C", GH_PAGER="cat", PAGER="cat", NO_COLOR="1")
+    try:
+        process = subprocess.run(
+            ["gh", *arguments],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=30,
+            env=environment,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise LedgerError(f"cannot prove {context} through authenticated gh: {error}") from error
+    if len(process.stdout) > MAX_BYTES or len(process.stderr) > MAX_BYTES:
+        raise LedgerError(f"{context} gh output is not bounded")
+    if process.returncode != 0:
+        detail = process.stderr.decode("utf-8", "replace").strip()
+        raise LedgerError(f"cannot prove {context} through authenticated gh: {detail or process.returncode}")
+    return _decode_value(process.stdout, f"{context} gh output")
+
+
+def _prove_release_github(
+    document: Mapping[str, Any], observation: Mapping[str, Any]
+) -> None:
+    """Re-observe exact terminal GitHub state with the authenticated CLI actor."""
+
+    actor = _gh_json(("api", "user"), "release actor")
+    if not isinstance(actor, dict) or actor.get("node_id") != document["actor"]["node_id"]:
+        raise LedgerError("authenticated GitHub actor differs from release authority")
+    for row in observation["pull_requests"]:
+        repository = row["repository"]
+        live = _gh_json(
+            (
+                "pr", "view", str(row["number"]),
+                "--repo", f"{repository['owner']}/{repository['name']}",
+                "--json", "id,state,isDraft,headRefOid,mergeCommit,mergedAt",
+            ),
+            f"release PR {row['number']}",
+        )
+        if not isinstance(live, dict):
+            raise LedgerError("release PR observation is not an object")
+        merge = live.get("mergeCommit")
+        if (
+            live.get("id") != row["node_id"]
+            or live.get("state") != "MERGED"
+            or live.get("isDraft") is not False
+            or live.get("headRefOid") != row["observed_head_sha"]
+            or not isinstance(merge, dict)
+            or merge.get("oid") != row["merge_commit_sha"]
+            or live.get("mergedAt") != row["merged_at"]
+        ):
+            raise LedgerError("authenticated GitHub PR state differs from release evidence")
+    for row in observation["issues"]:
+        repository = row["repository"]
+        live = _gh_json(
+            (
+                "issue", "view", str(row["number"]),
+                "--repo", f"{repository['owner']}/{repository['name']}",
+                "--json", "id,state",
+            ),
+            f"release issue {row['number']}",
+        )
+        if (
+            not isinstance(live, dict)
+            or live.get("id") != row["node_id"]
+            or live.get("state") != row["state"].upper()
+        ):
+            raise LedgerError("authenticated GitHub issue state differs from release evidence")
 
 
 def _prove_release_git(
@@ -992,7 +1075,11 @@ def _archive_cleanup(value: Any, context: str) -> dict[str, Any]:
 
 
 def _archive_request(
-    snapshot: Snapshot, release: ReleaseRecord, value: Mapping[str, Any]
+    snapshot: Snapshot,
+    release: ReleaseRecord,
+    value: Mapping[str, Any],
+    *,
+    live_scope_proof: bool = True,
 ) -> dict[str, Any]:
     request = _exact(
         _decode(canonical_bytes(value), "archive request"),
@@ -1045,11 +1132,6 @@ def _archive_request(
     cleanup_selection = _cleanup_observation(
         cleanup["apply"], "archive request.cleanup.apply", "apply"
     )[3]
-    selected_worktrees = {
-        path for kind, path in cleanup_selection if kind == "worktree"
-    }
-    if selected_worktrees != expected_worktrees:
-        raise LedgerError("raw cleanup output does not remove the exact ledger worktrees")
     expected_resources = {row["slot_id"]: row for row in snapshot.document["resources"]}
     observed_resources = {row["slot_id"]: row for row in cleanup["resources"]}
     if set(observed_resources) != set(expected_resources):
@@ -1066,12 +1148,69 @@ def _archive_request(
                 "lifecycle": "released",
             }
         )
+        if released_scope and live_scope_proof:
+            _prove_scope_release(resource, f"archive resource {slot_id}")
         if not released_scope and (
             lifecycle in {"active", "running"}
             or observed["lifecycle"] != lifecycle
         ):
             raise LedgerError("archive cleanup resource lifecycle is unsafe or mismatched")
+    expected_cleanup_targets = {("worktree", path) for path in expected_worktrees}
+    expected_cleanup_targets.update(
+        (resource["kind"], resource["current"]["path"])
+        for slot_id, resource in expected_resources.items()
+        if observed_resources[slot_id]["disposition"] == "removed"
+        and resource["kind"] != "scope"
+        and resource["current"] is not None
+        and resource["current"]["path"] is not None
+    )
+    if cleanup_selection != expected_cleanup_targets:
+        raise LedgerError("raw cleanup output does not match exact ledger-owned targets")
     return request
+
+
+def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
+    """Verify the scope subsystem's durable completed release journal."""
+
+    current = resource["current"]
+    raw = _retained_result(current["binding"], f"{context}.binding")
+    record, _row = _scope_show_record(
+        raw,
+        resource["request"],
+        resource["immutable"]["repository"],
+        f"{context}.scope_show",
+    )
+    journal_path = record["cleanup"]["release_journal"]
+    journal = _decode(_read_bytes_input(journal_path), f"{context}.release_journal")
+    journal = _exact(
+        journal,
+        {
+            "schema_version",
+            "scope",
+            "generation",
+            "plan_sha256",
+            "status",
+            "completed",
+            "updated_at",
+        },
+        f"{context}.release_journal",
+    )
+    if (
+        journal["schema_version"] != 1
+        or journal["scope"] != record["name"]
+        or journal["generation"] != record["generation"]
+        or journal["status"] != "complete"
+    ):
+        raise LedgerError(f"{context} scope release journal is not complete and exact")
+    _string(journal["plan_sha256"], f"{context}.release_journal.plan", SHA256_RE)
+    _string(journal["updated_at"], f"{context}.release_journal.updated_at", TIMESTAMP_RE)
+    _timestamp_key(journal["updated_at"], f"{context}.release_journal.updated_at")
+    if (
+        not isinstance(journal["completed"], list)
+        or not all(isinstance(row, str) and row for row in journal["completed"])
+        or len(journal["completed"]) != len(set(journal["completed"]))
+    ):
+        raise LedgerError(f"{context} scope release journal actions are invalid")
 
 
 def _archive_member(name: str, raw: bytes, status: os.stat_result) -> dict[str, Any]:
@@ -1150,7 +1289,7 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
     if ledger_member is None or release_member is None:
         raise LedgerError(f"{context} lost its canonical ledger or release marker")
     ledger_raw, _ledger_mode, ledger_device, ledger_inode = ledger_member
-    release_raw, _release_mode, _release_device, _release_inode = release_member
+    release_raw, _release_mode, release_device, release_inode = release_member
     if (
         byte_digest(ledger_raw) != ledger_identity[3]
         or byte_digest(release_raw) != item["release_sha256"]
@@ -1195,6 +1334,26 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
         archived_snapshot, release_request, live_proof=False
     ) != release_document:
         raise LedgerError(f"{context} release member does not bind the archived ledger")
+    archived_release = ReleaseRecord(
+        _release_name(ledger_identity[0]),
+        ledger_identity[0],
+        release_document,
+        release_raw,
+        item["release_sha256"],
+        release_device,
+        release_inode,
+    )
+    archive_request = {
+        key: item[key]
+        for key in ("authority", "archived_at", "retain_until", "cleanup")
+    }
+    if _archive_request(
+        archived_snapshot,
+        archived_release,
+        archive_request,
+        live_scope_proof=False,
+    ) != archive_request:
+        raise LedgerError(f"{context} request does not bind the archived ledger")
     if len(canonical_bytes(item)) > MAX_ARCHIVE_BYTES:
         raise LedgerError(f"{context} exceeds {MAX_ARCHIVE_BYTES} bytes")
     return item
@@ -1211,7 +1370,14 @@ def _archive_record(name: str, raw: bytes, status: os.stat_result) -> ArchiveRec
     if name != expected:
         raise LedgerError(f"archive filename is noncanonical: {name}")
     return ArchiveRecord(
-        name, ledger_name, document, raw, byte_digest(raw), status.st_dev, status.st_ino
+        name,
+        ledger_name,
+        document,
+        raw,
+        byte_digest(raw),
+        status.st_dev,
+        status.st_ino,
+        status,
     )
 
 
@@ -1330,6 +1496,12 @@ def _timestamp_is_equal(left: str, right: str) -> bool:
     return _timestamp_key(left, "left timestamp") == _timestamp_key(
         right, "right timestamp"
     )
+
+
+def _utc_now() -> str:
+    """Return one helper-owned current UTC observation."""
+
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _repository(value: Any, context: str) -> tuple[str, str, str]:
@@ -6748,6 +6920,7 @@ def _ensure_stage(
     *,
     allow_prefix_resume: bool = False,
     expected_nlinks: set[int] | None = None,
+    limit: int = MAX_BYTES,
 ) -> os.stat_result:
     allowed_links = expected_nlinks or {1}
     try:
@@ -6760,6 +6933,7 @@ def _ensure_stage(
             name,
             managed=True,
             expected_nlinks=allowed_links,
+            limit=limit,
         )
         if existing != raw and not (
             allow_prefix_resume and len(existing) < len(raw) and raw.startswith(existing)
@@ -6788,6 +6962,7 @@ def _ensure_stage(
             managed=True,
             expected_nlinks=allowed_links,
             sync=True,
+            limit=limit,
         )
         if exact != raw:
             raise LedgerError(f"staging content mismatch after resume: {name}")
@@ -7212,6 +7387,7 @@ def _inventory_locked(directory: int) -> Inventory:
     archives: list[ArchiveRecord] = []
     managed_stats: dict[str, os.stat_result] = {}
     inventory_bytes = 0
+    counted_inodes: set[tuple[int, int]] = set()
     for name in names:
         folded = name.casefold()
         if folded.endswith(LEDGER_SUFFIX) and not name.endswith(LEDGER_SUFFIX):
@@ -7234,7 +7410,10 @@ def _inventory_locked(directory: int) -> Inventory:
             status = os.stat(name, dir_fd=directory, follow_symlinks=False)
             if not stat.S_ISREG(status.st_mode):
                 raise LedgerError(f"delivery entry is not a regular file: {name}")
-            inventory_bytes += status.st_size
+            identity = (status.st_dev, status.st_ino)
+            if identity not in counted_inodes:
+                counted_inodes.add(identity)
+                inventory_bytes += status.st_size
             if inventory_bytes > MAX_INVENTORY_BYTES:
                 raise LedgerError(
                     f"delivery inventory exceeds {MAX_INVENTORY_BYTES} bytes"
@@ -7298,6 +7477,23 @@ def _inventory_locked(directory: int) -> Inventory:
                 continue
             if byte_digest(raw) != archive_stage_match.group("candidate"):
                 raise LedgerError(f"archive staging identity is invalid: {name}")
+            continue
+        reclaim_receipt_match = _RECLAIM_RECEIPT_RE.fullmatch(name)
+        if reclaim_receipt_match:
+            raw, status = _read_regular(
+                directory, name, managed=True, expected_nlinks={1}
+            )
+            managed_stats[name] = status
+            preview = _validate_reclaim_preview(_decode(raw, name))
+            if (
+                preview["archive"] != reclaim_receipt_match.group("archive")
+                or preview["plan_sha256"] != reclaim_receipt_match.group("plan")
+                or raw != canonical_bytes(preview)
+            ):
+                raise LedgerError(f"reclaim receipt identity is invalid: {name}")
+            pending.append(
+                PendingOperation("reclaim", preview["archive"], name)
+            )
             continue
         release_match = _RELEASE_RE.fullmatch(name)
         if release_match:
@@ -8392,6 +8588,18 @@ def release_apply(
             != (snapshot.device, snapshot.inode)
         ):
             raise LedgerError("release ledger tuple changed before installation")
+        # Staging is a deliberate crash boundary. Repeat every live Git proof
+        # after it so an external worktree mutation cannot ride an older proof
+        # into the terminal marker.
+        rechecked_document, rechecked_raw, rechecked_candidate = _release_plan(
+            current_snapshot, request, live_proof=True
+        )
+        if (
+            rechecked_document != document
+            or rechecked_raw != raw
+            or rechecked_candidate != candidate
+        ):
+            raise LedgerError("release evidence changed before installation")
         try:
             os.link(
                 stage,
@@ -8597,6 +8805,7 @@ def archive_apply(
                 raw,
                 allow_prefix_resume=True,
                 expected_nlinks={1, 2},
+                limit=MAX_ARCHIVE_BYTES,
             )
             _hit(failpoint, "archive:staged")
             try:
@@ -8658,10 +8867,48 @@ def archive_apply(
         return matches[0]
 
 
-def reclaim_preview(root: Path | str, name: str, observed_at: str) -> dict[str, Any]:
-    archive_name = _direct_name(name, "archive name")
-    observed = _string(observed_at, "reclaim observed_at", TIMESTAMP_RE)
+def _validate_reclaim_preview(value: Any) -> dict[str, Any]:
+    item = _exact(
+        value,
+        {
+            "mode",
+            "plan_sha256",
+            "archive",
+            "archive_sha256",
+            "device",
+            "inode",
+            "observed_at",
+            "state",
+        },
+        "reclaim preview",
+    )
+    if item["mode"] != "preview" or item["state"] != "eligible":
+        raise LedgerError("reclaim apply requires an eligible preview")
+    archive = _direct_name(item["archive"], "reclaim archive")
+    digest = _string(item["archive_sha256"], "reclaim archive digest", SHA256_RE)
+    device = _integer(item["device"], "reclaim archive device", minimum=0)
+    inode = _integer(item["inode"], "reclaim archive inode")
+    observed = _string(item["observed_at"], "reclaim observed_at", TIMESTAMP_RE)
     _timestamp_key(observed, "reclaim observed_at")
+    plan = _string(item["plan_sha256"], "reclaim plan digest", SHA256_RE)
+    expected = canonical_object_digest(
+        {
+            "operation": "reclaim",
+            "archive": archive,
+            "sha256": digest,
+            "device": device,
+            "inode": inode,
+            "observed_at": observed,
+        }
+    )
+    if plan != expected:
+        raise LedgerError("reclaim preview plan is malformed or unrelated")
+    return item
+
+
+def reclaim_preview(root: Path | str, name: str) -> dict[str, Any]:
+    archive_name = _direct_name(name, "archive name")
+    observed = _utc_now()
     with _locked_root(Path(root)) as directory:
         current = _inventory_locked(directory)
         matches = [row for row in current.archives if row.name == archive_name]
@@ -8702,27 +8949,31 @@ def reclaim_apply(
     failpoint: Failpoint = None,
 ) -> dict[str, Any]:
     plan = _string(plan_sha256, "reclaim plan digest", SHA256_RE)
-    item = _exact(
-        _decode(canonical_bytes(preview), "reclaim preview"),
-        {
-            "mode",
-            "plan_sha256",
-            "archive",
-            "archive_sha256",
-            "device",
-            "inode",
-            "observed_at",
-            "state",
-        },
-        "reclaim preview",
+    item = _validate_reclaim_preview(
+        _decode(canonical_bytes(preview), "reclaim preview")
     )
-    if item["mode"] != "preview" or item["state"] != "eligible" or item["plan_sha256"] != plan:
+    if item["plan_sha256"] != plan:
         raise LedgerError("reclaim apply requires its exact eligible preview")
     archive_name = _direct_name(item["archive"], "reclaim archive")
+    receipt_name = f".{archive_name}.reclaim-{plan}.json"
+    preview_raw = canonical_bytes(item)
     with _locked_root(Path(root)) as directory:
+        _require_names_fit(directory, (archive_name, receipt_name))
         current = _inventory_locked(directory)
         matches = [row for row in current.archives if row.name == archive_name]
+        receipts = [
+            row for row in current.pending
+            if row.kind == "reclaim" and row.target == archive_name
+        ]
         if not matches:
+            if len(receipts) != 1 or receipts[0].staging != receipt_name:
+                raise LedgerError("reclaim has no exact archive or interrupted receipt")
+            receipt_raw, receipt_status = _read_regular(
+                directory, receipt_name, managed=True, expected_nlinks={1}
+            )
+            if receipt_raw != preview_raw:
+                raise LedgerError("reclaim receipt differs from the exact preview")
+            _unlink_exact(directory, receipt_name, receipt_status)
             return {
                 "mode": "apply",
                 "plan_sha256": plan,
@@ -8731,6 +8982,14 @@ def reclaim_apply(
             }
         if len(matches) != 1:
             raise LedgerError("reclaim archive identity is ambiguous")
+        if receipts:
+            if len(receipts) != 1 or receipts[0].staging != receipt_name:
+                raise LedgerError("reclaim receipt identity is ambiguous")
+            receipt_raw, _receipt_status = _read_regular(
+                directory, receipt_name, managed=True, expected_nlinks={1}
+            )
+            if receipt_raw != preview_raw:
+                raise LedgerError("reclaim receipt differs from the exact preview")
         archive = matches[0]
         expected = canonical_object_digest(
             {
@@ -8749,12 +9008,22 @@ def reclaim_apply(
             or item["inode"] != archive.inode
         ):
             raise LedgerError("reclaim archive tuple or plan changed")
-        _unlink_exact(
-            directory,
-            archive.name,
-            os.stat(archive.name, dir_fd=directory, follow_symlinks=False),
-        )
+        now = _utc_now()
+        if _timestamp_key(now, "reclaim apply time") < _timestamp_key(
+            archive.document["retain_until"], "archive retain_until"
+        ):
+            raise LedgerError("archive retention period has not elapsed")
+        if not receipts:
+            _ensure_stage(directory, receipt_name, preview_raw)
+        _hit(failpoint, "reclaim:prepared")
+        _unlink_exact(directory, archive.name, archive.status)
         _hit(failpoint, "reclaim:removed")
+        receipt_raw, receipt_status = _read_regular(
+            directory, receipt_name, managed=True, expected_nlinks={1}
+        )
+        if receipt_raw != preview_raw:
+            raise LedgerError("reclaim receipt changed before completion")
+        _unlink_exact(directory, receipt_name, receipt_status)
         return {
             "mode": "apply",
             "plan_sha256": plan,
@@ -9463,6 +9732,8 @@ def cas(
     with _locked_root(Path(root)) as directory:
         _require_names_fit(directory, (name, stage, proof, f".{name}.lock"))
         initial_inventory = _inventory_locked(directory)
+        if any(row.ledger_name == name for row in initial_inventory.releases):
+            raise LedgerError("terminally released ledger cannot be updated")
         _check_candidate_inventory(
             initial_inventory,
             prepared,
@@ -9471,6 +9742,8 @@ def cas(
         )
         with _ledger_lock(directory, name):
             current_inventory = _inventory_locked(directory)
+            if any(row.ledger_name == name for row in current_inventory.releases):
+                raise LedgerError("terminally released ledger cannot be updated")
             _check_candidate_inventory(
                 current_inventory,
                 prepared,
@@ -10178,7 +10451,6 @@ def parser() -> argparse.ArgumentParser:
     )
     reclaim_preview_parser.add_argument("root", help="initialized review root")
     reclaim_preview_parser.add_argument("name", help="direct canonical archive filename")
-    reclaim_preview_parser.add_argument("observed_at", help="exact UTC observation timestamp")
     reclaim_apply_parser = commands.add_parser(
         "reclaim-apply", help="apply one exact reclaim preview"
     )
@@ -10374,9 +10646,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 ).json()
             )
         elif arguments.command == "reclaim-preview":
-            _print(
-                reclaim_preview(arguments.root, arguments.name, arguments.observed_at)
-            )
+            _print(reclaim_preview(arguments.root, arguments.name))
         elif arguments.command == "reclaim-apply":
             _print(
                 reclaim_apply(

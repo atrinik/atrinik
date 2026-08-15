@@ -286,3 +286,4 @@ actually exist; do not fabricate placeholders.
 Keep issues open, PRs unmerged, and evidence preserved. A separate post-merge
 request must follow the ledger reference's terminal lifecycle; delivery grants
 no cleanup authority and helper lifecycle commands never remove resources.
+It must never trigger implicitly.
