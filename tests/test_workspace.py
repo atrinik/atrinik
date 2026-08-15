@@ -2840,6 +2840,63 @@ class WorkspaceTests(unittest.TestCase):
             )
         )
 
+    @unittest.skipUnless(
+        hasattr(os, "mkfifo") and hasattr(os, "O_PATH"),
+        "requires POSIX FIFO path descriptors",
+    )
+    def test_source_generation_quarantine_rejects_mounted_special_entry(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        (generation / workspace_module.SOURCE_GENERATION_METADATA).unlink()
+        self.workspace._seal_runtime_generation(generation)
+        generation.chmod(0o700)
+        special = generation / "mounted-fifo"
+        os.mkfifo(special)
+        special_identity = special.lstat()
+        generation.chmod(0o500)
+        real_mount_id = workspace_module._descriptor_mount_id
+
+        def mount_id(descriptor: int) -> object:
+            opened = os.fstat(descriptor)
+            if (opened.st_dev, opened.st_ino) == (
+                special_identity.st_dev,
+                special_identity.st_ino,
+            ):
+                return ("injected", 4)
+            return real_mount_id(descriptor)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._descriptor_mount_id",
+                side_effect=mount_id,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "corrupt and cannot be recovered safely"
+            ),
+        ):
+            resolve()
+
+        self.assertTrue(generation.is_dir())
+        self.assertTrue(stat.S_ISFIFO(special.lstat().st_mode))
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
+        )
+
     def test_source_generation_quarantine_rolls_back_child_swap(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
@@ -4608,6 +4665,28 @@ class WorkspaceTests(unittest.TestCase):
             ),
             1,
         )
+        retry_syncs: list[Path] = []
+        real_sync = self.workspace._durably_sync_source_generation
+
+        def observe_retry_sync(generation: Path) -> tuple[int, int, str]:
+            retry_syncs.append(generation)
+            return real_sync(generation)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=observe_retry_sync,
+            ),
+            self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot,
+        ):
+            self.assertTrue(snapshot.paths()["resources"].is_dir())
+        self.assertTrue(retry_syncs)
 
     def test_source_generation_reports_container_fsync_uncertainty(self) -> None:
         published = False
@@ -4730,6 +4809,49 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 self.fail("removed source generation was yielded")
         self.assertTrue(cleanup_ran)
+
+    def test_source_generation_handoff_rejects_newly_writable_tree(self) -> None:
+        real_validate = self.workspace._validate_source_generation_git_closure
+        mutated = False
+
+        def make_writable_before_handoff(
+            checkout: Path,
+            generation: Path,
+            source_tree: str,
+            root_tree: str,
+            source_includes: dict[str, str],
+        ) -> None:
+            nonlocal mutated
+            if re.fullmatch(r"[0-9a-f]{64}", generation.name) and not mutated:
+                source = generation / "source"
+                generation.chmod(0o700)
+                source.chmod(0o700)
+                (source / "README").chmod(0o600)
+                mutated = True
+            real_validate(
+                checkout,
+                generation,
+                source_tree,
+                root_tree,
+                source_includes,
+            )
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_validate_source_generation_git_closure",
+                side_effect=make_writable_before_handoff,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "writable"),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("writable source generation was yielded")
+        self.assertTrue(mutated)
 
     def test_source_generation_cleanup_before_record_collection_fails_closed(
         self,

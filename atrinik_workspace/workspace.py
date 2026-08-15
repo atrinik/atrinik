@@ -3373,12 +3373,29 @@ class Workspace:
                             raise _SourceGenerationCorrupt(
                                 f"source generation contains a special entry: {path}"
                             )
-                        if metadata.st_dev != root_device:
+                        path_flag = getattr(os, "O_PATH", None)
+                        if path_flag is None:
                             raise WorkspaceError(
-                                "source generation entry is on another device: "
+                                "cannot prove source generation special-entry "
+                                f"mount identity: {path}"
+                            )
+                        descriptor = os.open(
+                            name,
+                            path_flag | os.O_CLOEXEC | os.O_NOFOLLOW,
+                            dir_fd=directory_fd,
+                        )
+                        opened = os.fstat(descriptor)
+                        if (
+                            stable_identity(opened) != stable_identity(metadata)
+                            or opened.st_dev != root_device
+                            or _descriptor_mount_id(descriptor) != root_mount
+                        ):
+                            raise WorkspaceError(
+                                "source generation special entry changed or is "
+                                "mounted: "
                                 f"{path}"
                             )
-                        record("special", child_relative, stable_identity(metadata))
+                        record("special", child_relative, stable_identity(opened))
                 except OSError as error:
                     raise WorkspaceError(
                         f"cannot inventory source generation: {path}: {error}"
@@ -3868,6 +3885,7 @@ class Workspace:
                         raise _SourceGenerationCorrupt(
                             f"immutable source generation is corrupt: {generation}"
                         )
+                    self._durably_sync_source_generation(generation)
                 except _SourceGenerationCorrupt as error:
                     try:
                         self._quarantine_source_generation(
@@ -4432,6 +4450,9 @@ class Workspace:
                             expected_record["source_tree"],
                             expected_record["tree"],
                             expected_record["source_includes"],
+                        )
+                        self._validate_source_generation_boundary(
+                            path.parent, require_sealed=True
                         )
                     retained = []
                     for coordinate, context in reversed(source_contexts):
