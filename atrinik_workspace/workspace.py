@@ -17965,7 +17965,19 @@ class Workspace:
                             f"topology supervisor failed: {failure['error']}"
                         )
                     if status_path.is_file():
-                        status = self.topology_status(name)
+                        try:
+                            status = self.topology_status(name)
+                        except WorkspaceError as error:
+                            if (
+                                str(error)
+                                == f"topology runtime generation lease is not retained: {name}"
+                                and process.poll() is not None
+                            ):
+                                raise WorkspaceError(
+                                    "topology supervisor exited during startup; inspect "
+                                    f"{topology_root / 'supervisor.log'}"
+                                ) from error
+                            raise
                         runtime = status.get("runtime")
                         if (
                             isinstance(runtime, dict)
