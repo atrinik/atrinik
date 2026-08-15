@@ -512,6 +512,9 @@ def worktree_list_bytes(
     live_worktree_path(request)
     if request["physical_checkout"] == "atrinik" and use_wrapper_command:
         wrapper = Path(request["roots"]["wrapper"]["path"])
+        # Capture post-trust producer behavior from the known-good copied
+        # wrapper without inheriting CI secrets or Python/Git selector controls.
+        # Trust-before-import adversaries use retained raw evidence below.
         result = subprocess.run(
             [
                 str(wrapper / "atrinik"),
@@ -525,12 +528,12 @@ def worktree_list_bytes(
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             env={
-                **os.environ,
                 "ATRINIK_WORKSPACE_DIR": request["roots"]["workspace"]["path"],
-                "LC_ALL": "C",
                 "GIT_CONFIG_NOSYSTEM": "1",
                 "GIT_CONFIG_GLOBAL": "/dev/null",
                 "GIT_CONFIG_SYSTEM": "/dev/null",
+                "LC_ALL": "C",
+                "PATH": os.defpath,
             },
         )
         return result.stdout
