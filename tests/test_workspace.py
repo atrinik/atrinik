@@ -5154,6 +5154,57 @@ class WorkspaceTests(unittest.TestCase):
                 self.fail("post-validation corruption was yielded")
         self.assertTrue(mutated)
 
+    def test_source_generation_handoff_binds_terminal_sync_to_visible_path(
+        self,
+    ) -> None:
+        real_inventory = workspace_module.Workspace._source_generation_inventory
+        canonical_syncs: dict[Path, int] = {}
+        swapped = False
+
+        def swap_visible_path_after_terminal_sync(
+            root_fd: int,
+            root: Path,
+            *,
+            sync: bool,
+            allow_unsafe: bool,
+        ) -> str:
+            nonlocal swapped
+            inventory = real_inventory(
+                root_fd,
+                root,
+                sync=sync,
+                allow_unsafe=allow_unsafe,
+            )
+            if sync and re.fullmatch(r"[0-9a-f]{64}", root.name):
+                canonical_syncs[root] = canonical_syncs.get(root, 0) + 1
+                if canonical_syncs[root] == 4 and not swapped:
+                    replacement = root.with_name(f"{root.name}-replacement")
+                    displaced = root.with_name(f"{root.name}-displaced")
+                    shutil.copytree(root, replacement, symlinks=True)
+                    root.rename(displaced)
+                    replacement.rename(root)
+                    swapped = True
+            return inventory
+
+        with (
+            mock.patch.object(
+                workspace_module.Workspace,
+                "_source_generation_inventory",
+                side_effect=swap_visible_path_after_terminal_sync,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed during durable retry"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("replacement canonical path was yielded")
+        self.assertTrue(swapped)
+
     def test_source_generation_cleanup_before_record_collection_fails_closed(
         self,
     ) -> None:

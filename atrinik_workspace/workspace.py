@@ -3505,6 +3505,15 @@ class Workspace:
                 dir_fd=container_fd,
             )
             opened = os.fstat(generation_fd)
+            stable_fields = (
+                "st_dev",
+                "st_ino",
+                "st_mode",
+                "st_nlink",
+                "st_size",
+                "st_mtime_ns",
+                "st_ctime_ns",
+            )
             if (
                 (visible.st_dev, visible.st_ino) != (device, inode)
                 or (opened.st_dev, opened.st_ino) != (device, inode)
@@ -3550,15 +3559,6 @@ class Workspace:
                 follow_symlinks=False,
             )
             opened_after = os.fstat(generation_fd)
-            stable_fields = (
-                "st_dev",
-                "st_ino",
-                "st_mode",
-                "st_nlink",
-                "st_size",
-                "st_mtime_ns",
-                "st_ctime_ns",
-            )
             if any(
                 getattr(confirmed, field) != getattr(opened, field)
                 or getattr(opened_after, field) != getattr(opened, field)
@@ -3574,6 +3574,35 @@ class Workspace:
                 sync=True,
                 allow_unsafe=False,
             ) != durable_inventory:
+                raise WorkspaceError(
+                    "source generation changed during durable retry: "
+                    f"{generation}"
+                )
+            final_visible = os.stat(
+                generation.name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
+            final_opened = os.fstat(generation_fd)
+            if any(
+                getattr(final_visible, field) != getattr(opened, field)
+                or getattr(final_opened, field) != getattr(opened, field)
+                for field in stable_fields
+            ):
+                raise WorkspaceError(
+                    "source generation changed during durable retry: "
+                    f"{generation}"
+                )
+            os.fsync(container_fd)
+            durable_visible = os.stat(
+                generation.name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
+            if any(
+                getattr(durable_visible, field) != getattr(final_visible, field)
+                for field in stable_fields
+            ):
                 raise WorkspaceError(
                     "source generation changed during durable retry: "
                     f"{generation}"
