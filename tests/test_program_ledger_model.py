@@ -878,7 +878,7 @@ class ProgramLedgerModel:
                 {"node": node, "author": author, "marker": marker, "body": text}
                 for node, author, marker, text in namespace
             ]
-        if any(
+        if not isinstance(comments, list) or any(
             not isinstance(comment, dict)
             or set(comment) != {"node", "author", "marker", "body"}
             or not isinstance(comment["node"], str) or not comment["node"]
@@ -897,22 +897,46 @@ class ProgramLedgerModel:
         ]
         if namespace is not None and namespace != derived_namespace:
             raise StopClosed("comment namespace contradicts the full stream")
-        expected = [("comment-node", "actor", "program-marker", body)]
-        if (
-            (derived_namespace and derived_namespace != expected)
-            or (authoritative_marker and derived_namespace != expected)
+        phase = self.record["comment"]["phase"]
+        node = self.record["comment"]["node"]
+        allowed_bodies = (
+            {"intended-body"} if phase == "in-flight" and node is None
+            else {"old-body", "intended-body"} if phase == "in-flight"
+            else {"old-body"}
+        )
+        marker_exact = (
+            len(derived_namespace) == 1
+            and derived_namespace[0][0:3]
+            == ("comment-node", "actor", "program-marker")
+            and derived_namespace[0][3] in allowed_bodies
+        )
+        if (derived_namespace and not marker_exact) or (
+            authoritative_marker and not marker_exact
         ):
             raise StopClosed("comment marker/node/author/body is not exact")
         results = [
             {"node": node, "author": author, "marker": marker, "body": text}
             for node, author, marker, text in derived_namespace
         ]
-        content_digest = hashlib.sha256(self.canonical(comments)).hexdigest()
+        body_sizes = [len(comment["body"].encode("utf-8")) for comment in comments]
+        if (
+            len(comments) > 10_000
+            or any(size > 65_536 for size in body_sizes)
+            or sum(body_sizes) > 16 * 1024 * 1024
+        ):
+            raise StopClosed("comment stream exceeds remote observation bounds")
+        projection = [{
+            "node": comment["node"], "author": comment["author"],
+            "marker": comment["marker"],
+            "body_sha256": hashlib.sha256(
+                comment["body"].encode("utf-8")
+            ).hexdigest(),
+        } for comment in comments]
+        content_digest = hashlib.sha256(self.canonical(projection)).hexdigest()
         observed_count = len(derived_namespace)
         if count is not None and count != observed_count:
             raise StopClosed("comment marker count contradicts the full stream")
         node_ids = [comment["node"] for comment in comments]
-        body_sizes = [len(comment["body"].encode("utf-8")) for comment in comments]
         self._observe(
             "comment", content_digest, self.result_stream(results),
             observed_count, complete, scan, node_ids, body_sizes,
@@ -2242,6 +2266,28 @@ class ProgramLedgerModelTests(unittest.TestCase):
             )
         with self.assertRaises(StopClosed):
             ProgramLedgerModel().observe_comment(comments=[None])
+        for malformed in (7, True, {}):
+            with self.subTest(malformed=malformed), self.assertRaises(StopClosed):
+                ProgramLedgerModel().observe_comment(comments=malformed)
+
+        drifted = ProgramLedgerModel()
+        drifted.record["comment"].update(phase="bound", node="comment-node")
+        with self.assertRaises(StopClosed):
+            drifted.observe_comment(
+                body="externally-edited",
+                comments=[{
+                    "node": "comment-node", "author": "actor",
+                    "marker": "program-marker", "body": "externally-edited",
+                }],
+            )
+
+        large = ProgramLedgerModel()
+        large.observe_comment(comments=[{
+            "node": f"ordinary-{index}", "author": "other", "marker": None,
+            "body": "x" * 65_536,
+        } for index in range(129)])
+        large.plan_comment()
+        self.assertEqual(large.record["observation"]["comment"]["nodes"], 129)
 
     def test_child_duplicate_classifier_scopes_markers_and_predicates(self) -> None:
         blockers = (
