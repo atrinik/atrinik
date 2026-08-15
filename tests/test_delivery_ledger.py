@@ -512,6 +512,9 @@ def worktree_list_bytes(
     live_worktree_path(request)
     if request["physical_checkout"] == "atrinik" and use_wrapper_command:
         wrapper = Path(request["roots"]["wrapper"]["path"])
+        git_executable = shutil.which("git")
+        if git_executable is None:  # pragma: no cover - test prerequisite
+            raise RuntimeError("git executable is unavailable")
         # Capture post-trust producer behavior from the known-good copied
         # wrapper without inheriting CI secrets or Python/Git selector controls.
         # Trust-before-import adversaries use retained raw evidence below.
@@ -535,7 +538,7 @@ def worktree_list_bytes(
                 "GIT_CONFIG_GLOBAL": "/dev/null",
                 "GIT_CONFIG_SYSTEM": "/dev/null",
                 "LC_ALL": "C",
-                "PATH": os.defpath,
+                "PATH": str(Path(git_executable).resolve().parent),
             },
         )
         return result.stdout
