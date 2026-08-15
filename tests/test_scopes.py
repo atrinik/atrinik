@@ -1172,6 +1172,118 @@ class ScopeLifecycleTests(unittest.TestCase):
         self.assertIn("profile", journal["completed"])
         self.assertIn("worktree:client", journal["completed"])
 
+    def test_release_rejects_malformed_journal_coordinates(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="invalid-journal")
+        lifecycle = ScopeLifecycle(self.workspace)
+        preview = self.workspace.scope_release("invalid-journal", apply=False)
+        release_path = Path(record["cleanup"]["release_journal"])
+
+        self.assertEqual(
+            self.workspace._scope_release_live_plan("invalid-journal")[
+                "plan_sha256"
+            ],
+            preview["plan_sha256"],
+        )
+        worktree = record["worktrees"][0]
+        self.assertTrue(
+            self.workspace._worktree_path_registered(
+                Path(worktree["primary_path"]), Path(worktree["path"])
+            )
+        )
+
+        with self.assertRaisesRegex(WorkspaceError, "build path is invalid"):
+            lifecycle._release_build_root(record, None)
+        with self.assertRaisesRegex(WorkspaceError, "build path is invalid"):
+            lifecycle._release_build_root(record, str(release_path))
+        with self.assertRaisesRegex(WorkspaceError, "journal plan is invalid"):
+            lifecycle._journal_build_roots(record, {"plan": None})
+        with self.assertRaisesRegex(WorkspaceError, "journal plan is invalid"):
+            lifecycle._journal_build_roots(record, {"plan": {"items": [None]}})
+        with self.assertRaisesRegex(WorkspaceError, "journal is invalid"):
+            lifecycle._journal_build_roots(
+                record, {"plan": {"items": []}, "pending_builds": {}}
+            )
+        with self.assertRaisesRegex(WorkspaceError, "journal is invalid"):
+            lifecycle._journal_build_roots(
+                record, {"plan": {"items": []}, "pending_builds": [None]}
+            )
+
+        release_path.symlink_to(record["profile"]["path"])
+        with self.assertRaisesRegex(WorkspaceError, "journal is unsafe"):
+            lifecycle._release_journal_build_roots(record)
+        with mock.patch.object(
+            ScopeLifecycle, "_release_journal_build_roots", return_value=set()
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "journal is unsafe"):
+                self.workspace.scope_release("invalid-journal", apply=False)
+        release_path.unlink()
+
+        scopes_module.durable_atomic_json(release_path, {})
+        with self.assertRaisesRegex(WorkspaceError, "journal plan is invalid"):
+            lifecycle._release_journal_build_roots(record)
+        with mock.patch.object(
+            ScopeLifecycle, "_release_journal_build_roots", return_value=set()
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "journal plan is invalid"):
+                self.workspace.scope_release("invalid-journal", apply=False)
+
+        fake_build = (
+            self.workspace.paths.builds
+            / "profiles"
+            / f"{record['profile']['name']}-{'f' * 64}"
+        )
+        changed_plan = {
+            "schema_version": preview["schema_version"],
+            "scope": record["name"],
+            "generation": record["generation"],
+            "items": [
+                {
+                    "kind": "build",
+                    "disposition": "eligible",
+                    "path": str(fake_build),
+                }
+            ],
+        }
+        scopes_module.durable_atomic_json(
+            release_path,
+            {
+                "plan": changed_plan,
+                "plan_sha256": scopes_module._canonical_sha256(changed_plan),
+            },
+        )
+        with mock.patch.object(
+            ScopeLifecycle, "_release_journal_build_roots", return_value=set()
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "journal build coordinates changed"
+            ):
+                self.workspace.scope_release("invalid-journal", apply=False)
+
+        retained_plan = {
+            key: copy.deepcopy(preview[key])
+            for key in ("schema_version", "scope", "generation", "items")
+        }
+        scopes_module.durable_atomic_json(
+            release_path,
+            {
+                "schema_version": 1,
+                "scope": record["name"],
+                "generation": record["generation"],
+                "plan_sha256": preview["plan_sha256"],
+                "plan": retained_plan,
+                "status": "applying",
+                "completed": ["profile"],
+                "in_flight": None,
+                "pending_builds": [],
+                "updated_at": "2026-08-14T00:00:00Z",
+            },
+        )
+        with self.assertRaisesRegex(WorkspaceError, "journal plan is invalid"):
+            self.workspace.scope_release(
+                "invalid-journal", apply=True, plan_sha256="f" * 64
+            )
+
     def test_pristine_release_journal_can_replan_after_pre_action_drift(self) -> None:
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="pristine-replan")
