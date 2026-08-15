@@ -475,6 +475,25 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("references/delivery-ledger.md", body)
         self.assertIn("references/deep-review-checklist.md", body)
         self.assertIn("assets/deep-review-report.md", body)
+        fetch_head = normalized_ledger.index(
+            "fetch --no-tags origin refs/heads/docs/issue-419"
+        )
+        verify_head = normalized_ledger.index("FETCH_HEAD^{commit}")
+        create_branch = normalized_ledger.index(
+            'git -C "$DELIVERY_PRIMARY_ROOT" branch --no-track'
+        )
+        attach_worktree = normalized_ledger.index(
+            '"$DELIVERY_WRAPPER_ROOT/atrinik" worktree create client issue-419'
+        )
+        self.assertLess(fetch_head, verify_head)
+        self.assertLess(verify_head, create_branch)
+        self.assertLess(create_branch, attach_worktree)
+        self.assertIn('docs/issue-419 "$DELIVERY_HEAD_SHA"', normalized_ledger)
+        self.assertIn("--branch docs/issue-419 --existing", normalized_ledger)
+        self.assertIn(
+            "non-forcing `git branch` stops if the supposedly absent local branch appeared",
+            normalized_ledger,
+        )
         self.assertIn("| ID | Severity | Location |", report)
         self.assertIn("Entry mode: `<issue|PR>`", report)
         self.assertIn("Selected issue(s): `<URL(s) or none>`", report)

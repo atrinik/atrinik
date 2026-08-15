@@ -2031,6 +2031,74 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(created.document["issues"]["explicit"], [])
             self.assertEqual(created.document["closing_scope"], [])
 
+        # PR-adoption detail: an absent local branch is created non-forcing at
+        # the exact fetched PR head before existing-branch worktree attachment.
+        with self.subTest(
+            context="absent PR branch starts at verified head"
+        ), tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            remote = root / "remote.git"
+            seed = root / "seed"
+            primary = root / "primary"
+            worktree = root / "worktree"
+            remote.mkdir()
+            seed.mkdir()
+            git_run(remote, "init", "--bare")
+            git_run(seed, "init", "--initial-branch=main")
+            git_run(seed, "config", "user.name", "Delivery Test")
+            git_run(seed, "config", "user.email", "delivery@example.invalid")
+            (seed / "tracked.txt").write_text("base\n", encoding="utf-8")
+            git_run(seed, "add", "tracked.txt")
+            git_run(seed, "commit", "-m", "base")
+            base = git_run(seed, "rev-parse", "HEAD").stdout.strip()
+            git_run(seed, "switch", "-c", "Feature/Exact")
+            (seed / "tracked.txt").write_text("head\n", encoding="utf-8")
+            git_run(seed, "commit", "-am", "head")
+            verified_head = git_run(seed, "rev-parse", "HEAD").stdout.strip()
+            git_run(seed, "remote", "add", "origin", str(remote))
+            git_run(seed, "push", "origin", "main", "Feature/Exact")
+            git_run(root, "clone", str(remote), str(primary))
+            self.assertNotEqual(base, verified_head)
+            self.assertEqual(
+                git_run(
+                    primary,
+                    "show-ref",
+                    "--verify",
+                    "--quiet",
+                    "refs/heads/Feature/Exact",
+                    check=False,
+                ).returncode,
+                1,
+            )
+
+            git_run(
+                primary,
+                "fetch",
+                "--no-tags",
+                "origin",
+                "refs/heads/Feature/Exact",
+            )
+            fetched = git_run(
+                primary,
+                "rev-parse",
+                "--verify",
+                "--end-of-options",
+                "FETCH_HEAD^{commit}",
+            ).stdout.strip()
+            self.assertEqual(fetched, verified_head)
+            git_run(
+                primary,
+                "branch",
+                "--no-track",
+                "--",
+                "Feature/Exact",
+                verified_head,
+            )
+            git_run(primary, "worktree", "add", "--", str(worktree), "Feature/Exact")
+            attached_head = git_run(worktree, "rev-parse", "HEAD").stdout.strip()
+            self.assertEqual(attached_head, verified_head)
+            self.assertNotEqual(attached_head, base)
+
         # 6. Multiple incidental issue references stay mapped but are never
         # promoted into explicit/closing authority.
         with self.subTest(context="multiple incidental links"), tempfile.TemporaryDirectory() as temporary:

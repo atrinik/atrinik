@@ -990,6 +990,13 @@ DELIVERY_WORKTREE_SAFETY=/tmp/atrinik-pr-423-worktree-safety.json
 DELIVERY_WORKTREE_BINDING=/tmp/atrinik-pr-423-worktree-binding.json
 DELIVERY_WORKTREE_OUTPUT=/tmp/atrinik-pr-423-worktree-create.out
 DELIVERY_OBSERVED_AT=2026-08-14T18:05:00Z
+DELIVERY_PRIMARY_ROOT=/workspaces/atrinik/client
+DELIVERY_HEAD_SHA=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+git -C "$DELIVERY_PRIMARY_ROOT" fetch --no-tags origin refs/heads/docs/issue-419
+test "$(git -C "$DELIVERY_PRIMARY_ROOT" rev-parse --verify \
+  --end-of-options 'FETCH_HEAD^{commit}')" = "$DELIVERY_HEAD_SHA"
+git -C "$DELIVERY_PRIMARY_ROOT" branch --no-track -- \
+  docs/issue-419 "$DELIVERY_HEAD_SHA"
 "$DELIVERY_WRAPPER_ROOT/atrinik" worktree create client issue-419 \
   --branch docs/issue-419 --existing > "$DELIVERY_WORKTREE_OUTPUT"
 "$DELIVERY_WRAPPER_ROOT/atrinik" worktree list --json > "$DELIVERY_WORKTREE_LIST"
@@ -1008,6 +1015,15 @@ python3 scripts/delivery_ledger.py worktree-bind-cas \
   --expected-inode "$DELIVERY_EXPECTED_INODE" \
   > "$DELIVERY_WORKTREE_BINDING"
 ```
+
+Set `DELIVERY_PRIMARY_ROOT` from the ledger's exact precommitted
+`roots.primary.path`, never by reconstructing a managed checkout path. The
+fetch must return the still-live verified PR head. The equality check stops on
+head drift, and non-forcing `git branch` stops if the supposedly absent local
+branch appeared; only then may `--existing` attach it. For the genesis shape
+whose exact local branch is already adopted, omit these three branch-creation
+commands and reprove that its tip still equals `DELIVERY_HEAD_SHA` before the
+attachment.
 
 Proceed on `classification: bind-exact`; an exact completed retry returns
 `bound-match`. `worktree-bind-cas` admits no candidate document: under pinned
