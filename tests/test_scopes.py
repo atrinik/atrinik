@@ -1653,12 +1653,13 @@ class ScopeLifecycleTests(unittest.TestCase):
             locking_module._lease_owner_summary(
                 owners.with_name(owners.name.removesuffix(".owners"))
             )
-            remaining = list(owners.iterdir())
+            remaining = list(owners.glob("*.json"))
             self.assertEqual(
                 remaining,
                 [],
                 [json.loads(path.read_text(encoding="utf-8")) for path in remaining],
             )
+            self.assertEqual(list((owners / ".pending").iterdir()), [])
 
     def test_live_scope_a_does_not_block_scope_b_release(self) -> None:
         self.make_checkout("client")

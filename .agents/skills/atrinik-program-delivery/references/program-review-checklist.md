@@ -69,8 +69,10 @@ cannot prove alone.
   changes in any ledger it creates?
 - Does a self-maintaining ledger predeclare each line's immutable horizon,
   exact suffix count/order, and per-ordinal changed-path allowlist, fail on any
-  other suffix, and record the resulting SHAs durably in the master?
-- Is the master body/checklist synchronized with reality and free of stale
-  counts, coordinates, dependencies, and artifact requirements?
+  other suffix, and record the resulting SHAs durably in the ignored report and
+  final handoff pending a program-level ledger?
+- Does the contributor master body remain read-only while the ignored report
+  and final handoff stay synchronized with current counts, coordinates,
+  dependencies, and artifact requirements?
 - Is there zero known actionable work, and is the only remaining action an
   explicitly named human closure or release step?

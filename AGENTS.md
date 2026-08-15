@@ -32,10 +32,10 @@
 ## Core behaviors and patterns
 
 - Use `atrinik-multi-repo-workspace` for wrapper ownership, profiles, worktrees,
-  migration, cleanup, releases, CLI, or layout; use
-  `atrinik-guidance-maintenance` for guidance audits.
-- Use `atrinik-issue-delivery` only when explicitly invoked for
-  issue-to-ready-PR delivery; it stops before merge.
+  migration, cleanup, releases, CLI, or layout. Add only applicable specialist
+  skills; use `atrinik-guidance-maintenance` for guidance audits.
+- Use `atrinik-issue-delivery` only when explicitly invoked for an issue or
+  existing PR; it stops before merge.
 - Use `atrinik-program-delivery` only when explicitly invoked for an ordered
   master issue; it composes leaves across merge gates and stops before merge or
   issue closure.
@@ -48,8 +48,8 @@
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
-- Prefer `scope create` with JSON handoff and preview/apply release; only proven
-  clean stopped topology history permits it. Primitives remain.
+- Prefer `scope create` for agents; use JSON handoff and
+  preview/apply release. Primitives remain.
 - Use wrapper commands and paths; never reconstruct managed paths. Give
   concurrent topologies distinct names, states, ports, and client config;
   prefer temporary state.

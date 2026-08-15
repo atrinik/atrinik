@@ -377,6 +377,7 @@ class Component:
     name: str
     checkout_name: str
     source: str
+    source_includes: tuple[str, ...]
     repository: str
     branch: str
     checkout: str
@@ -508,6 +509,7 @@ class Manifest:
                     name=name,
                     checkout_name=name,
                     source=".",
+                    source_includes=(),
                     repository=repository,
                     branch=branch,
                     checkout=name,
@@ -673,6 +675,9 @@ class Manifest:
         components: list[Component] = []
         names: set[str] = set()
         sources: dict[str, list[tuple[str, PurePosixPath]]] = {}
+        source_includes_by_checkout: dict[
+            str, list[tuple[str, PurePosixPath]]
+        ] = {}
         required = {
             "name",
             "checkout",
@@ -683,7 +688,7 @@ class Manifest:
             "requires",
             "license",
         }
-        allowed = required | {"build_by_stack"}
+        allowed = required | {"build_by_stack", "source_includes"}
         for index, raw in enumerate(raw_components):
             context = f"component {index}"
             if not isinstance(raw, dict):
@@ -704,6 +709,37 @@ class Manifest:
                 raise WorkspaceError(f"{context}.checkout names an unknown checkout")
             checkout = by_checkout[checkout_name]
             source = _validate_source(raw["source"], f"{context}.source")
+            raw_source_includes = raw.get("source_includes", [])
+            if not isinstance(raw_source_includes, list):
+                raise WorkspaceError(f"{context}.source_includes must be an array")
+            source_includes = tuple(
+                _validate_source(value, f"{context}.source_includes {include_index}")
+                for include_index, value in enumerate(raw_source_includes)
+            )
+            if len(set(source_includes)) != len(source_includes):
+                raise WorkspaceError(
+                    f"{context}.source_includes contains duplicate directories"
+                )
+            reserved_generation_paths = {
+                PurePosixPath("source"),
+                PurePosixPath(MANAGED_MARKER),
+                PurePosixPath(".atrinik-source-generation.json"),
+            }
+            if any(
+                include == reserved or reserved in include.parents
+                for include in map(PurePosixPath, source_includes)
+                for reserved in reserved_generation_paths
+            ):
+                raise WorkspaceError(
+                    f"{context}.source_includes overlaps a reserved generation path"
+                )
+            closure_paths = [PurePosixPath(source), *map(PurePosixPath, source_includes)]
+            for path_index, path in enumerate(closure_paths):
+                for other in closure_paths[:path_index]:
+                    if path == other or path in other.parents or other in path.parents:
+                        raise WorkspaceError(
+                            f"{context} source closure paths overlap: {other}, {path}"
+                        )
             build = raw["build"]
             raw_build_by_stack = raw.get("build_by_stack", {})
             generation = raw["generation"]
@@ -773,6 +809,18 @@ class Manifest:
             if name in names:
                 raise WorkspaceError(f"duplicate component name: {name}")
             source_path = PurePosixPath(source)
+            for other_name, other_include in source_includes_by_checkout.get(
+                checkout_name, []
+            ):
+                if (
+                    source_path == other_include
+                    or source_path in other_include.parents
+                    or other_include in source_path.parents
+                ):
+                    raise WorkspaceError(
+                        f"component source overlaps declared source include in checkout "
+                        f"{checkout_name}: {other_name}, {name}"
+                    )
             for other_name, other_source in sources.get(checkout_name, []):
                 if (
                     source_path == other_source
@@ -783,13 +831,28 @@ class Manifest:
                         f"component sources overlap in checkout {checkout_name}: "
                         f"{other_name}, {name}"
                     )
+            for include in map(PurePosixPath, source_includes):
+                for other_name, other_source in sources.get(checkout_name, []):
+                    if (
+                        include == other_source
+                        or include in other_source.parents
+                        or other_source in include.parents
+                    ):
+                        raise WorkspaceError(
+                            f"component source include overlaps a component source in "
+                            f"checkout {checkout_name}: {name}, {other_name}"
+                        )
             names.add(name)
             sources.setdefault(checkout_name, []).append((name, source_path))
+            source_includes_by_checkout.setdefault(checkout_name, []).extend(
+                (name, PurePosixPath(include)) for include in source_includes
+            )
             components.append(
                 Component(
                     name=name,
                     checkout_name=checkout_name,
                     source=source,
+                    source_includes=source_includes,
                     repository=checkout.repository,
                     branch=checkout.branch,
                     checkout=checkout.path,

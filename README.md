@@ -598,6 +598,21 @@ A target build resolves only that target's transitive provider inputs. During
 its bounded preparation phase, each clean primary input is exported from its
 exact Git commit into a wrapper-owned, read-only source generation; the build
 then releases that primary's source lease before configure, compile, and tests.
+The manifest may give a logical component strict checkout-relative
+`source_includes` for shared sibling files or directories that its build reads
+outside the logical `source` directory. Those inputs are exported beside the
+logical source, enter the immutable generation key and authenticated closure
+digest, and are reproduced beside the component's build source view. The
+Classic client and server both declare the repository-root `cmake/` modules,
+license, and attributions this way, so their supported scoped builds retain
+`client/` and `server/` as the paths printed by `atrinik path` while using one
+authoritative copy of each shared input.
+Generation export restores paths hidden by Git `export-ignore` attributes so
+the published bytes still match the recorded tree. Archive publication retains
+its temporary descriptor, and extraction creates entries and applies modes
+relative to pinned, no-follow generation directories. CMake dependencies that
+run mutation-based tests receive writable profile-local copies; the shared
+generation itself remains sealed.
 Consequently a long-running build from a Classic feature worktree does not
 block `sync --with classic` from advancing unrelated or snapshotted clean
 primaries. Dirty sources and selected worktrees remain live inputs and retain
@@ -1251,11 +1266,16 @@ time, skips busy candidates, and journals completed actions in
 
 Waits longer than 10 seconds report the resource kind, stable coordinate, known
 owner operation, and supported recovery command without relying on a
-namespace-local PID. The wrapper fails closed when advisory shared locking or
-resource identity is unavailable. Active preparation leases are inherited by
-subprocesses. Build and startup hold profile, source, and build-root leases only
-until a sealed runtime generation is published. Foreground processes then
-retain the runtime-generation lease plus server state when applicable;
+namespace-local PID. Owner records are written and locked in a private staging
+directory, then linked atomically into the diagnostic namespace; stale-record
+scans therefore never observe a new record before its live-owner lock is
+established. Legacy records are retained conservatively because their visible
+publication predates that invariant. The wrapper fails closed when advisory
+shared locking or resource identity is unavailable. Active preparation leases
+are inherited by subprocesses. Build and startup hold profile, source, and
+build-root leases only until a sealed runtime generation is published.
+Foreground processes then retain the runtime-generation lease plus server state
+when applicable;
 supervisors and guardians retain only runtime-generation, process-tree,
 server-state, and generation-specific port-reservation leases.
 
