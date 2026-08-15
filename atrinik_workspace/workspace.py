@@ -3558,6 +3558,16 @@ class Workspace:
                     "source generation changed during durable retry: "
                     f"{generation}"
                 )
+            if Workspace._source_generation_inventory(
+                generation_fd,
+                generation,
+                sync=True,
+                allow_unsafe=False,
+            ) != durable_inventory:
+                raise WorkspaceError(
+                    "source generation changed during durable retry: "
+                    f"{generation}"
+                )
         except WorkspaceError:
             raise
         except OSError as error:
@@ -4610,46 +4620,6 @@ class Workspace:
                             path.parent, require_sealed=True
                         )
                         self._durably_resync_source_generation(path.parent)
-                        try:
-                            durable_record = self._source_generation_record(path)
-                            durable_digest = _tree_digest(
-                                path,
-                                set(),
-                                bounded_symlinks=True,
-                                reject_hardlinks=True,
-                            )
-                            durable_closure_digest = _source_closure_digest(
-                                path.parent,
-                                durable_record.get("source_includes", {})
-                                if durable_record is not None
-                                else (),
-                            )
-                        except (OSError, WorkspaceError) as error:
-                            raise WorkspaceError(
-                                "immutable source generation changed after durable "
-                                f"lease handoff: {path}"
-                            ) from error
-                        if (
-                            durable_record != expected_record
-                            or durable_digest
-                            != expected_record["source_tree_sha256"]
-                            or durable_closure_digest
-                            != expected_record["closure_tree_sha256"]
-                        ):
-                            raise WorkspaceError(
-                                "immutable source generation changed after durable "
-                                f"lease handoff: {path}"
-                            )
-                        self._validate_source_generation_git_closure(
-                            checkout,
-                            path.parent,
-                            expected_record["source_tree"],
-                            expected_record["tree"],
-                            expected_record["source_includes"],
-                        )
-                        self._validate_source_generation_boundary(
-                            path.parent, require_sealed=True
-                        )
                     retained = []
                     for coordinate, context in reversed(source_contexts):
                         if coordinate in released:
