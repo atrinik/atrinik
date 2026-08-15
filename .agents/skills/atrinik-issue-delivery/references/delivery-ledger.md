@@ -18,6 +18,7 @@ the ownership and recovery boundary.
 - [Plan and recover comments](#plan-and-recover-comments)
 - [Migrate prior evidence](#migrate-prior-evidence)
 - [Recover interrupted transactions](#recover-interrupted-transactions)
+- [Release, archive, and reclaim after merge](#release-archive-and-reclaim-after-merge)
 - [Observe strict prohibitions](#observe-strict-prohibitions)
 
 ## Establish the trust boundary
@@ -110,6 +111,12 @@ python3 scripts/delivery_ledger.py body-plan REVIEW_ROOT LEDGER_NAME PR_NODE_ID 
 python3 scripts/delivery_ledger.py body-recovery REVIEW_ROOT LEDGER_NAME PR_NODE_ID LIVE_SHA256 LIVE_UPDATED_AT
 python3 scripts/delivery_ledger.py body-recovery REVIEW_ROOT LEDGER_NAME PR_NODE_ID absent absent
 python3 scripts/delivery_ledger.py comment-check REVIEW_ROOT LEDGER_NAME PR_NODE_ID INPUT
+python3 scripts/delivery_ledger.py release-preview REVIEW_ROOT LEDGER_NAME INPUT
+python3 scripts/delivery_ledger.py release-apply REVIEW_ROOT LEDGER_NAME INPUT --plan SHA256
+python3 scripts/delivery_ledger.py archive-preview REVIEW_ROOT LEDGER_NAME INPUT
+python3 scripts/delivery_ledger.py archive-apply REVIEW_ROOT LEDGER_NAME INPUT --plan SHA256
+python3 scripts/delivery_ledger.py reclaim-preview REVIEW_ROOT ARCHIVE_NAME OBSERVED_AT
+python3 scripts/delivery_ledger.py reclaim-apply REVIEW_ROOT PREVIEW --plan SHA256
 ```
 
 `prepare` validates and returns a normalized document. Stored bytes are stricter:
@@ -158,6 +165,14 @@ routes stop. Diagnostics never expose the URL or credentials.
 Immediately reprove that route and push only with explicit
 `git push origin HEAD_BRANCH` in the same scrubbed selector environment. Never
 use an implicit remote or disable credential helpers.
+
+Release/archive/reclaim are a separate post-merge lifecycle. Their previews are
+read-only and each apply accepts only the exact preview digest. A release marker
+is the sole event that makes coordinates inert. Inventory reports active
+records in `ledgers`, installed terminal markers in `releases`, and bundled
+history in `archives`. `historical_ledgers` retains decoded inert snapshots for
+audit and global node/coordinate identity consistency; staged or interrupted
+work remains in `pending`.
 
 ## Apply the schema grammar
 
@@ -1591,14 +1606,97 @@ stop for code-level recovery; never improvise file repair.
 | Ready intent with draft still true | Refetch; mark ready only at the exit gate, or CAS-cancel before target drift. |
 
 Every operation inventories under an exclusive no-follow root lock. Mutations
-also use a persistent per-ledger lock and re-inventory inside it. Recognized
-staging participates in collision detection; an unrelated pending operation
-blocks a mutation even when its target differs.
+of active ledgers also use a persistent per-ledger lock and re-inventory inside
+it. Terminal lifecycle transactions remain under the root lock while archiving
+that persistent lock itself. Recognized staging participates in collision
+detection; a pending operation for the same target blocks an unrelated
+lifecycle candidate.
+
+## Release, archive, and reclaim after merge
+
+PR-ready handoff, a merged PR, and an issue closing do not grant ledger cleanup
+authority. Begin only from a new explicit post-merge request. Keep the issue
+delivery itself stopped before merge and issue closure.
+
+Prepare release evidence with exactly `authority`, `observed_at`,
+`pull_requests`, `issues`, `mutation_state`, and `cleanup`. The authority kind
+is `explicit-post-merge`; its actor is the delivery actor, its single allowed
+ledger ID is exact, and its PR/issue allowlists equal the selected coordinates.
+Its objective digest is the canonical object digest of:
+
+```json
+{"ledger_id":"LEDGER_ID","ledger_sha256":"CURRENT_LEDGER_SHA256","operation":"release"}
+```
+
+It must postdate the active authority. Each PR row has exact `repository`,
+`number`, `node_id`, `state: "merged"`, equal recorded/observed head SHAs,
+`merge_commit_sha`, `merged_at`, and
+`ancestry: {"method":"git-merge-base-is-ancestor","result":"ancestor"}`.
+The helper pins the exact clean, attached, unlocked recorded worktree and Git
+authority and runs that ancestry check itself. Each selected explicit/program
+issue appears once with `closed` when in closing scope and `open` otherwise.
+Both mutation-state fields are `idle`; PR body/comment/readiness intents are
+terminal, and every artifact is bound and safe. Running resources and mutable
+active state/scenario resources block. A completed active scope may remain only
+so the separately previewed cleanup can release it after ledger release.
+The cleanup object is exactly:
+
+```json
+{
+  "apply_command": "./atrinik cleanup --apply --json",
+  "policy": "explicit-preview-first",
+  "preview_command": "./atrinik cleanup --dry-run --json"
+}
+```
+
+Run `release-preview`, review it, then pass its `plan_sha256` to
+`release-apply`. The crash-resumable complete marker is installed and fsynced
+before inventory excludes that ledger from overlap ownership. It retains the
+exact ledger generation/digest/device/inode and all post-merge evidence.
+
+Cleanup remains an independent wrapper operation. Run the recorded dry-run,
+retain its raw digest and canonical selection digest, review it, then run the
+same scoped apply and retain its raw digest. Delivery never invokes cleanup.
+Cleanup remains responsible for refusing dirty, detached, locked, active,
+referenced, foreign, uncertain, or mismatched worktrees/resources.
+
+Only after cleanup may archive evidence have exact `authority`, `archived_at`,
+`retain_until`, and `cleanup`. Each cleanup preview/apply row retains exact
+`{output, observed_at}`; `output` is the canonical inline payload of the raw
+wrapper JSON. The helper parses schema 1, requires `dry-run` then successful
+`apply`, no inventory/error/abort state, and derives the target selection from
+preview `eligible` and apply `removed`/`completed_actions` rows. Those exact
+sets and their canonical digests must match. The authority kind is
+`explicit-post-cleanup`, allows exactly the ledger ID, uses the delivery actor,
+postdates release, and binds this canonical objective:
+
+```json
+{"ledger_id":"LEDGER_ID","operation":"archive","release_sha256":"RELEASE_SHA256"}
+```
+
+Cleanup apply is later than preview. Its sorted worktree rows exactly
+match the ledger and say `removed`, retaining the last safe observation. Its
+resource rows exactly match every slot and say `removed` or `retained`, with the
+same terminal lifecycle. The one exception converts a ledger-recorded active
+scope to `removed`/`released`, reflecting its intervening wrapper release.
+Archive preview/apply never removes those resources.
+It instead bundles canonical ledger, release, lock, optional report, migration
+marker/snapshot/source, and embedded intent bytes into one canonical bounded
+archive before exact member unlinking. The installed archive makes interrupted
+member removal resumable and remains inert audit evidence.
+
+`reclaim-preview` accepts one exact archive and a UTC observation at or after
+`retain_until`. Review the returned archive digest/device/inode-bound plan and
+feed the complete preview to `reclaim-apply`. Reclaim removes only that bundle;
+it never follows a path or touches a worktree/resource. Exact concurrent or
+post-unlink retries converge on `reclaimed`. Use a retention period required by
+project policy; never shorten it merely to clear inventory pressure.
 
 ## Observe strict prohibitions
 
 - Never hand-create, edit, chmod, link, unlink, rename, truncate, or replace a
-  ledger, lock, stage, migration marker, snapshot, or managed report copy.
+  ledger, release, archive, lock, stage, migration marker, snapshot, or managed
+  report copy.
 - Never bypass `inventory`, ignore an unexpected entry, combine identities from
   separate `inspect` calls, or reuse a stale CAS tuple.
 - Never run fresh `create` after a delivery-owned external mutation. Use only a
@@ -1625,5 +1723,6 @@ blocks a mutation even when its target differs.
   intent. Never encode rewritten Git history as descendant lineage.
 - Never put credentials, tokens, passwords, confidential data, or unnecessary
   vulnerability detail in inputs, ledgers, comments, bodies, reports, or logs.
-- Never merge, close issues, force-push, apply cleanup, or treat this local
-  state machine as additional GitHub authority.
+- Never merge, close issues, force-push, apply cleanup from issue delivery, or
+  treat this local state machine as additional GitHub authority. Never infer
+  post-merge release/archive authority from a delivery goal or ready PR.

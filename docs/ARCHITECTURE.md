@@ -233,6 +233,39 @@ exact candidate leases and freshly revalidates that target immediately before
 removal. Busy or newly ambiguous candidates are preserved; completed removals
 are journaled before the ordered sequence continues.
 
+Issue/PR delivery ledgers use a separate three-stage terminal state machine.
+An active schema-1 ledger owns its issue, PR, repository/head, worktree, and
+resource coordinates even after a ready handoff. Only a new explicit
+post-merge authority can produce a hash-bound release plan. Apply pins the
+recorded worktree/Git authority, requires it clean and quiescent, verifies the
+recorded PR head is an ancestor of the observed merge result, matches every
+selected PR and expected issue state, rejects remote intent or active resource
+mutation state, then installs and fsyncs a complete release marker. A completed
+active scope may remain solely for the following wrapper release; running and
+mutable active resources still block. Inventory excludes
+coordinates only after that marker is durable; a candidate stage remains
+active and blocking.
+
+The release marker grants no removal authority. Wrapper cleanup remains a
+separate preview/apply operation and never receives implicit invocation from
+delivery. A later archive request retains the exact cleanup preview/apply JSON;
+the helper validates both reports and derives one identical eligible/removed
+target selection, safe removed worktrees, and terminal resources. Archive
+installs a bounded canonical bundle
+before unlinking the exact ledger, release, persistent lock, report, migration
+marker/snapshot/source, and embedded intent material. During a crash, the
+installed bundle is the recovery authority; replacement, link, byte, mode,
+device, or inode drift fails closed. The archive itself is inert audit history
+and cannot reserve active coordinates.
+
+Every archive has an explicit UTC retention horizon. Reclaim preview binds its
+name, byte digest, device, inode, and observation instant after that horizon;
+apply removes only that exact archive. A concurrent or interrupted retry
+converges on the same result. Neither archive nor reclaim traverses or mutates
+worktrees, Git branches/objects, profiles, topology/state, or runtime resources.
+This reduces each completed delivery to one bounded record and permits explicit
+eventual reclamation before the review-root entry/byte limits are exhausted.
+
 Ordinary operations use fair exact-coordinate leases. Workspace-local
 coordinates live below `workspace/leases/`; physical Git-administration,
 source, port, and persistent-reference coordination lives below the wrapper's

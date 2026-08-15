@@ -622,6 +622,170 @@ def json_bytes(value: object) -> bytes:
     return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
+def releasable_pr_ledger(number: int = 423) -> dict[str, object]:
+    selected_issue = issue(419, "I_issue")
+    document = pr_ledger(
+        number,
+        pr_node="P_release",
+        branch="feat/release",
+        worktree="/workspace/worktrees/release",
+        explicit_issue=selected_issue,
+    )
+    document["selected_prs"][0]["draft"] = False
+    worktree = next(
+        row for row in document["artifacts"] if row["kind"] == "worktree"
+    )
+    worktree["immutable"]["path"] = "/workspace/worktrees/release"
+    worktree["primitive_request"] = None
+    worktree["primitive_result"] = None
+    worktree["state"] = "adopted"
+    worktree["current"] = identity(
+        branch="feat/release",
+        path="/workspace/worktrees/release",
+        head_sha=SHA_A,
+    )
+    worktree["safety"] = copy.deepcopy(ledger.SAFE_ARTIFACT_STATE)
+    return document
+
+
+def release_request(snapshot: object) -> dict[str, object]:
+    document = snapshot.document
+    pull = document["selected_prs"][0]
+    selected_issue = document["issues"]["explicit"][0]
+    objective = ledger.canonical_object_digest(
+        {
+            "operation": "release",
+            "ledger_id": document["ledger_id"],
+            "ledger_sha256": snapshot.digest,
+        }
+    )
+    return {
+        "authority": {
+            "kind": "explicit-post-merge",
+            "reference": "turn:post-merge-release-423",
+            "objective_sha256": objective,
+            "issued_at": "2026-08-15T10:00:00Z",
+            "actor_node_id": document["actor"]["node_id"],
+            "allowed": {
+                "ledger_ids": [document["ledger_id"]],
+                "pull_requests": [pull["node_id"]],
+                "issues": [selected_issue["node_id"]],
+            },
+        },
+        "observed_at": "2026-08-15T10:05:00Z",
+        "pull_requests": [
+            {
+                "repository": copy.deepcopy(pull["repository"]),
+                "number": pull["number"],
+                "node_id": pull["node_id"],
+                "state": "merged",
+                "recorded_head_sha": SHA_A,
+                "observed_head_sha": SHA_A,
+                "merge_commit_sha": SHA_B,
+                "merged_at": "2026-08-15T10:01:00Z",
+                "ancestry": {
+                    "method": "git-merge-base-is-ancestor",
+                    "result": "ancestor",
+                },
+            }
+        ],
+        "issues": [
+            {
+                "repository": copy.deepcopy(selected_issue["repository"]),
+                "number": selected_issue["number"],
+                "node_id": selected_issue["node_id"],
+                "state": "closed",
+            }
+        ],
+        "mutation_state": {"local": "idle", "remote": "idle"},
+        "cleanup": {
+            "policy": "explicit-preview-first",
+            "preview_command": "./atrinik cleanup --dry-run --json",
+            "apply_command": "./atrinik cleanup --apply --json",
+        },
+    }
+
+
+def archive_request(
+    snapshot: object,
+    release: object,
+    *,
+    worktree_path: str = "/workspace/worktrees/release",
+) -> dict[str, object]:
+    document = snapshot.document
+    objective = ledger.canonical_object_digest(
+        {
+            "operation": "archive",
+            "ledger_id": document["ledger_id"],
+            "release_sha256": release.digest,
+        }
+    )
+    cleanup_target = {
+        "kind": "worktree",
+        "owner": "atrinik",
+        "path": worktree_path,
+        "reasons": [],
+    }
+    preview_output = {
+        "schema_version": 1,
+        "mode": "dry-run",
+        "scopes": ["worktrees"],
+        "older_than_days": 7,
+        "filters": ["atrinik"],
+        "inventory_errors": [],
+        "items": [{**cleanup_target, "disposition": "eligible"}],
+        "summary": {"error_count": 0},
+    }
+    apply_output = {
+        "schema_version": 1,
+        "mode": "apply",
+        "scopes": ["worktrees"],
+        "older_than_days": 7,
+        "filters": ["atrinik"],
+        "inventory_errors": [],
+        "items": [{**cleanup_target, "disposition": "removed"}],
+        "summary": {"error_count": 0},
+        "aborted": False,
+        "completed_actions": [
+            {"kind": "worktree", "path": worktree_path}
+        ],
+        "journal": "/workspace/cleanup-journals/release.json",
+        "mutated": True,
+        "mutation_attempted": True,
+    }
+    return {
+        "authority": {
+            "kind": "explicit-post-cleanup",
+            "reference": "turn:post-cleanup-archive-423",
+            "objective_sha256": objective,
+            "issued_at": "2026-08-15T11:00:00Z",
+            "actor_node_id": document["actor"]["node_id"],
+            "allowed_ledger_ids": [document["ledger_id"]],
+        },
+        "archived_at": "2026-08-15T11:10:00Z",
+        "retain_until": "2026-09-15T11:10:00Z",
+        "cleanup": {
+            "policy": "explicit-preview-first",
+            "preview": {
+                "output": inline_payload(ledger.canonical_bytes(preview_output)),
+                "observed_at": "2026-08-15T11:01:00Z",
+            },
+            "apply": {
+                "output": inline_payload(ledger.canonical_bytes(apply_output)),
+                "observed_at": "2026-08-15T11:05:00Z",
+            },
+            "worktrees": [
+                {
+                    "path": worktree_path,
+                    "disposition": "removed",
+                    "safety": copy.deepcopy(ledger.SAFE_ARTIFACT_STATE),
+                }
+            ],
+            "resources": [],
+        },
+    }
+
+
 def issue_ledger(
     *,
     number: int = 419,
@@ -7557,6 +7721,495 @@ class DeliveryLedgerTests(unittest.TestCase):
                 ):
                     ledger.create(root, candidate)
                 self.assertEqual(directory_snapshot(root), before)
+
+    @mock.patch.object(ledger, "_prove_release_git")
+    def test_47_terminal_release_is_hash_bound_resumable_and_makes_ownership_inert(
+        self, _git_proof: mock.Mock
+    ) -> None:
+        for failpoint in ("release:staged", "release:installed", "release:cleaned"):
+            with self.subTest(failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                snapshot = ledger.create(root, releasable_pr_ledger())
+                request = release_request(snapshot)
+                preview = ledger.release_preview(root, snapshot.name, request)
+                self.assertEqual(preview["mode"], "preview")
+                self.assertEqual(preview["state"], "eligible")
+                with self.assertRaises(ledger.InjectedCrash):
+                    ledger.release_apply(
+                        root,
+                        snapshot.name,
+                        request,
+                        plan_sha256=preview["plan_sha256"],
+                        failpoint=failpoint,
+                    )
+                released = ledger.release_apply(
+                    root,
+                    snapshot.name,
+                    request,
+                    plan_sha256=preview["plan_sha256"],
+                )
+                self.assertEqual(released.document["state"], "complete")
+                current = ledger.inventory(root)
+                self.assertEqual(current.ledgers, ())
+                self.assertEqual(current.pending, ())
+                self.assertEqual([row.ledger_name for row in current.releases], [snapshot.name])
+
+                successor = issue_ledger(
+                    number=420,
+                    issue_node="I_successor",
+                    branch="feat/release",
+                    worktree="/workspace/worktrees/release",
+                )
+                alias = copy.deepcopy(successor)
+                retarget_repository(alias, repository("atrinik", "R_alias"))
+                with self.assertRaisesRegex(ledger.LedgerError, "repository coordinate"):
+                    ledger.create(root, alias)
+                self.assertEqual(ledger.create(root, successor).document, successor)
+
+    @mock.patch.object(ledger, "_prove_release_git")
+    def test_48_release_rejects_stale_unrelated_and_in_flight_authority(
+        self, _git_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            snapshot = ledger.create(root, releasable_pr_ledger())
+            request = release_request(snapshot)
+            preview = ledger.release_preview(root, snapshot.name, request)
+            stale = copy.deepcopy(request)
+            stale["authority"]["objective_sha256"] = "0" * 64
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(ledger.LedgerError, "objective"):
+                ledger.release_apply(
+                    root,
+                    snapshot.name,
+                    stale,
+                    plan_sha256=preview["plan_sha256"],
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            in_flight = copy.deepcopy(request)
+            in_flight["mutation_state"]["remote"] = "in-flight"
+            with self.assertRaisesRegex(ledger.LedgerError, "mutation in flight"):
+                ledger.release_preview(root, snapshot.name, in_flight)
+            wrong_issue = copy.deepcopy(request)
+            wrong_issue["issues"][0]["state"] = "open"
+            with self.assertRaisesRegex(ledger.LedgerError, "final state"):
+                ledger.release_preview(root, snapshot.name, wrong_issue)
+
+    @mock.patch.object(ledger, "_prove_release_git")
+    def test_49_concurrent_release_retries_converge_on_one_marker(
+        self, _git_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            snapshot = ledger.create(root, releasable_pr_ledger())
+            request = release_request(snapshot)
+            plan = ledger.release_preview(root, snapshot.name, request)["plan_sha256"]
+            results: list[str] = []
+            errors: list[BaseException] = []
+
+            def apply() -> None:
+                try:
+                    results.append(
+                        ledger.release_apply(
+                            root,
+                            snapshot.name,
+                            request,
+                            plan_sha256=plan,
+                        ).digest
+                    )
+                except BaseException as error:  # pragma: no cover - asserted below
+                    errors.append(error)
+
+            threads = [threading.Thread(target=apply) for _ in range(2)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join(5)
+            self.assertEqual(errors, [])
+            self.assertEqual(len(set(results)), 1)
+            self.assertEqual(len(ledger.inventory(root).releases), 1)
+
+    @mock.patch.object(ledger, "_prove_release_git")
+    def test_50_archive_is_cleanup_gated_crash_resumable_and_preserves_evidence(
+        self, _git_proof: mock.Mock
+    ) -> None:
+        member_failpoint = (
+            "archive:member:.atrinik-atrinik-pr-423.md.ledger.json.lock"
+        )
+        for failpoint in (
+            "archive:staged",
+            "archive:installed",
+            member_failpoint,
+            "archive:cleaned",
+        ):
+            with self.subTest(failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                snapshot = ledger.create(root, releasable_pr_ledger())
+                release_input = release_request(snapshot)
+                release_plan = ledger.release_preview(root, snapshot.name, release_input)
+                released = ledger.release_apply(
+                    root,
+                    snapshot.name,
+                    release_input,
+                    plan_sha256=release_plan["plan_sha256"],
+                )
+                request = archive_request(snapshot, released)
+                preview = ledger.archive_preview(root, snapshot.name, request)
+                self.assertEqual(preview["state"], "eligible")
+                with self.assertRaises(ledger.InjectedCrash):
+                    ledger.archive_apply(
+                        root,
+                        snapshot.name,
+                        request,
+                        plan_sha256=preview["plan_sha256"],
+                        failpoint=failpoint,
+                    )
+                archived = ledger.archive_apply(
+                    root,
+                    snapshot.name,
+                    request,
+                    plan_sha256=preview["plan_sha256"],
+                )
+                current = ledger.inventory(root)
+                self.assertEqual(current.ledgers, ())
+                self.assertEqual(current.releases, ())
+                self.assertEqual(current.pending, ())
+                self.assertEqual([row.name for row in current.archives], [archived.name])
+                member_names = {row["name"] for row in archived.document["members"]}
+                self.assertIn(snapshot.name, member_names)
+                self.assertIn(f".{snapshot.name}.lock", member_names)
+                self.assertIn(ledger._release_name(snapshot.name), member_names)
+                self.assertFalse((root / snapshot.name).exists())
+
+    @mock.patch.object(ledger, "_prove_release_git")
+    def test_51_archive_rejects_cleanup_drift_and_unsafe_worktree_evidence(
+        self, _git_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            snapshot = ledger.create(root, releasable_pr_ledger())
+            release_input = release_request(snapshot)
+            release_plan = ledger.release_preview(root, snapshot.name, release_input)
+            released = ledger.release_apply(
+                root,
+                snapshot.name,
+                release_input,
+                plan_sha256=release_plan["plan_sha256"],
+            )
+            mismatched = archive_request(snapshot, released)
+            apply_raw = base64.b64decode(
+                mismatched["cleanup"]["apply"]["output"]["raw_base64"]
+            )
+            apply_output = json.loads(apply_raw)
+            apply_output["items"][0]["path"] = "/workspace/worktrees/other"
+            apply_output["completed_actions"][0]["path"] = (
+                "/workspace/worktrees/other"
+            )
+            mismatched["cleanup"]["apply"]["output"] = inline_payload(
+                ledger.canonical_bytes(apply_output)
+            )
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(ledger.LedgerError, "selections differ"):
+                ledger.archive_preview(root, snapshot.name, mismatched)
+            self.assertEqual(directory_snapshot(root), before)
+            unsafe = archive_request(snapshot, released)
+            unsafe["cleanup"]["worktrees"][0]["safety"]["clean"] = False
+            with self.assertRaisesRegex(ledger.LedgerError, "not clean"):
+                ledger.archive_preview(root, snapshot.name, unsafe)
+
+    @mock.patch.object(ledger, "_prove_release_git")
+    def test_52_reclaim_is_retention_and_exact_preview_gated(
+        self, _git_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            snapshot = ledger.create(root, releasable_pr_ledger())
+            release_input = release_request(snapshot)
+            release_plan = ledger.release_preview(root, snapshot.name, release_input)
+            released = ledger.release_apply(
+                root,
+                snapshot.name,
+                release_input,
+                plan_sha256=release_plan["plan_sha256"],
+            )
+            request = archive_request(snapshot, released)
+            archive_plan = ledger.archive_preview(root, snapshot.name, request)
+            archived = ledger.archive_apply(
+                root,
+                snapshot.name,
+                request,
+                plan_sha256=archive_plan["plan_sha256"],
+            )
+            with self.assertRaisesRegex(ledger.LedgerError, "retention period"):
+                ledger.reclaim_preview(root, archived.name, "2026-09-01T00:00:00Z")
+            preview = ledger.reclaim_preview(
+                root, archived.name, "2026-09-16T00:00:00Z"
+            )
+            with self.assertRaisesRegex(ledger.LedgerError, "exact eligible preview"):
+                ledger.reclaim_apply(
+                    root, preview, plan_sha256="0" * 64
+                )
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.reclaim_apply(
+                    root,
+                    preview,
+                    plan_sha256=preview["plan_sha256"],
+                    failpoint="reclaim:removed",
+                )
+            result = ledger.reclaim_apply(
+                root, preview, plan_sha256=preview["plan_sha256"]
+            )
+            self.assertEqual(result["state"], "reclaimed")
+            self.assertEqual(ledger.inventory(root).archives, ())
+
+    def test_53_release_live_git_proof_requires_clean_exact_ancestor(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "release-worktree"
+            path.mkdir()
+            git_run(path, "init", "--initial-branch=feat/release")
+            git_run(path, "config", "user.name", "Delivery Test")
+            git_run(path, "config", "user.email", "delivery@example.invalid")
+            (path / "tracked.txt").write_text("release\n", encoding="utf-8")
+            git_run(path, "add", "tracked.txt")
+            git_run(path, "commit", "-m", "release head")
+            head = git_run(path, "rev-parse", "HEAD").stdout.strip()
+            tree = git_run(path, "rev-parse", "HEAD^{tree}").stdout.strip()
+            merged = git_run(
+                path, "commit-tree", tree, "-p", head, "-m", "merge result"
+            ).stdout.strip()
+            unrelated = git_run(
+                path, "commit-tree", tree, "-m", "unrelated result"
+            ).stdout.strip()
+            document = releasable_pr_ledger()
+            replace_sha(document, SHA_A, head)
+            worktree = next(
+                row for row in document["artifacts"] if row["kind"] == "worktree"
+            )
+            worktree["immutable"]["path"] = str(path)
+            worktree["current"]["path"] = str(path)
+            pull = document["selected_prs"][0]
+            observation = {
+                "recorded_head_sha": head,
+                "merge_commit_sha": merged,
+            }
+            ledger._prove_release_git(document, pull, observation)
+            (path / "untracked.txt").write_text("dirty\n", encoding="utf-8")
+            with self.assertRaisesRegex(ledger.LedgerError, "dirty"):
+                ledger._prove_release_git(document, pull, observation)
+            (path / "untracked.txt").unlink()
+            with self.assertRaisesRegex(ledger.LedgerError, "not an ancestor"):
+                ledger._prove_release_git(
+                    document,
+                    pull,
+                    {"recorded_head_sha": head, "merge_commit_sha": unrelated},
+                )
+
+    @mock.patch.object(ledger, "_prove_release_git")
+    def test_54_concurrent_archive_and_reclaim_retries_converge(
+        self, _git_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            snapshot = ledger.create(root, releasable_pr_ledger())
+            release_input = release_request(snapshot)
+            release_plan = ledger.release_preview(root, snapshot.name, release_input)
+            released = ledger.release_apply(
+                root,
+                snapshot.name,
+                release_input,
+                plan_sha256=release_plan["plan_sha256"],
+            )
+            request = archive_request(snapshot, released)
+            plan = ledger.archive_preview(root, snapshot.name, request)["plan_sha256"]
+            archive_results: list[str] = []
+            errors: list[BaseException] = []
+
+            def apply_archive() -> None:
+                try:
+                    archive_results.append(
+                        ledger.archive_apply(
+                            root,
+                            snapshot.name,
+                            request,
+                            plan_sha256=plan,
+                        ).digest
+                    )
+                except BaseException as error:  # pragma: no cover - asserted below
+                    errors.append(error)
+
+            archive_threads = [threading.Thread(target=apply_archive) for _ in range(2)]
+            for thread in archive_threads:
+                thread.start()
+            for thread in archive_threads:
+                thread.join(5)
+            self.assertEqual(errors, [])
+            self.assertEqual(len(set(archive_results)), 1)
+            archived = ledger.inventory(root).archives[0]
+            reclaim = ledger.reclaim_preview(
+                root, archived.name, "2026-09-16T00:00:00Z"
+            )
+            reclaim_results: list[str] = []
+
+            def apply_reclaim() -> None:
+                try:
+                    reclaim_results.append(
+                        ledger.reclaim_apply(
+                            root,
+                            reclaim,
+                            plan_sha256=reclaim["plan_sha256"],
+                        )["state"]
+                    )
+                except BaseException as error:  # pragma: no cover - asserted below
+                    errors.append(error)
+
+            reclaim_threads = [threading.Thread(target=apply_reclaim) for _ in range(2)]
+            for thread in reclaim_threads:
+                thread.start()
+            for thread in reclaim_threads:
+                thread.join(5)
+            self.assertEqual(errors, [])
+            self.assertEqual(reclaim_results, ["reclaimed", "reclaimed"])
+            self.assertEqual(ledger.inventory(root).archives, ())
+
+    def test_55_terminal_lifecycle_cli_roundtrip(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            root = base / "reviews"
+            root.mkdir()
+            worktree = base / "worktree"
+            worktree.mkdir()
+            git_run(worktree, "init", "--initial-branch=feat/release")
+            git_run(worktree, "config", "user.name", "Delivery Test")
+            git_run(worktree, "config", "user.email", "delivery@example.invalid")
+            (worktree / "tracked.txt").write_text("release\n", encoding="utf-8")
+            git_run(worktree, "add", "tracked.txt")
+            git_run(worktree, "commit", "-m", "release head")
+            head = git_run(worktree, "rev-parse", "HEAD").stdout.strip()
+            tree = git_run(worktree, "rev-parse", "HEAD^{tree}").stdout.strip()
+            merged = git_run(
+                worktree, "commit-tree", tree, "-p", head, "-m", "merge result"
+            ).stdout.strip()
+            document = releasable_pr_ledger()
+            replace_sha(document, SHA_A, head)
+            slot = next(
+                row for row in document["artifacts"] if row["kind"] == "worktree"
+            )
+            slot["immutable"]["path"] = str(worktree)
+            slot["current"]["path"] = str(worktree)
+            snapshot = ledger.create(root, document)
+            release_input = release_request(snapshot)
+            release_input["pull_requests"][0]["recorded_head_sha"] = head
+            release_input["pull_requests"][0]["observed_head_sha"] = head
+            release_input["pull_requests"][0]["merge_commit_sha"] = merged
+            release_path = base / "release.json"
+            release_path.write_bytes(ledger.canonical_bytes(release_input))
+            environment = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+
+            def run(*arguments: str) -> dict[str, object]:
+                process = subprocess.run(
+                    [sys.executable, str(SCRIPT), *arguments],
+                    check=True,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    env=environment,
+                )
+                return json.loads(process.stdout)
+
+            release_preview_result = run(
+                "release-preview", str(root), snapshot.name, str(release_path)
+            )
+            run(
+                "release-apply",
+                str(root),
+                snapshot.name,
+                str(release_path),
+                "--plan",
+                release_preview_result["plan_sha256"],
+            )
+            released = ledger.inventory(root).releases[0]
+            archive_input = archive_request(
+                snapshot, released, worktree_path=str(worktree)
+            )
+            archive_path = base / "archive.json"
+            archive_path.write_bytes(ledger.canonical_bytes(archive_input))
+            archive_preview_result = run(
+                "archive-preview", str(root), snapshot.name, str(archive_path)
+            )
+            archive_result = run(
+                "archive-apply",
+                str(root),
+                snapshot.name,
+                str(archive_path),
+                "--plan",
+                archive_preview_result["plan_sha256"],
+            )
+            reclaim_preview_result = run(
+                "reclaim-preview",
+                str(root),
+                archive_result["name"],
+                "2026-09-16T00:00:00Z",
+            )
+            reclaim_path = base / "reclaim.json"
+            reclaim_path.write_bytes(ledger.canonical_bytes(reclaim_preview_result))
+            reclaimed = run(
+                "reclaim-apply",
+                str(root),
+                str(reclaim_path),
+                "--plan",
+                reclaim_preview_result["plan_sha256"],
+            )
+            self.assertEqual(reclaimed["state"], "reclaimed")
+            self.assertTrue(worktree.exists())
+            self.assertEqual(ledger.inventory(root).archives, ())
+
+    @mock.patch.object(ledger, "_prove_release_git")
+    def test_56_migrated_evidence_archive_recovers_after_marker_removal(
+        self, _git_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = releasable_pr_ledger()
+            document["authority"]["kind"] = "explicit-recovery"
+            source = root / "atrinik-atrinik-pr-423.md"
+            source.write_bytes(b"pre-schema review evidence\n")
+            snapshot = ledger.migrate(
+                root,
+                source.name,
+                document,
+                kind="pre-schema",
+                expected_source_digest=ledger.byte_digest(source.read_bytes()),
+            )
+            release_input = release_request(snapshot)
+            release_plan = ledger.release_preview(root, snapshot.name, release_input)
+            released = ledger.release_apply(
+                root,
+                snapshot.name,
+                release_input,
+                plan_sha256=release_plan["plan_sha256"],
+            )
+            request = archive_request(snapshot, released)
+            archive_plan = ledger.archive_preview(root, snapshot.name, request)
+            failpoint = f"archive:member:.{snapshot.name}.migration.json"
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.archive_apply(
+                    root,
+                    snapshot.name,
+                    request,
+                    plan_sha256=archive_plan["plan_sha256"],
+                    failpoint=failpoint,
+                )
+            self.assertEqual(len(ledger.inventory(root).archives), 1)
+            archived = ledger.archive_apply(
+                root,
+                snapshot.name,
+                request,
+                plan_sha256=archive_plan["plan_sha256"],
+            )
+            members = {row["name"] for row in archived.document["members"]}
+            self.assertIn(source.name, members)
+            self.assertIn(snapshot.document["migration"]["snapshot"]["name"], members)
+            self.assertIn(snapshot.document["migration"]["marker_name"], members)
 
 
 if __name__ == "__main__":

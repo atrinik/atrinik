@@ -1513,6 +1513,42 @@ registered or scenario state, migration evidence, commits, or branches. Only the
 `temporary-states` scope can reclaim an abandoned, unregistered, disposable
 generation state after exact revalidation.
 
+Delivery-ledger sidecars are not ordinary cleanup targets. A merge-ready PR
+keeps its active coordinates and recovery evidence. After the PR is externally
+merged and selected issues reach their expected states, a separately authorized
+operator prepares exact post-merge evidence and runs:
+
+~~~sh
+python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+  release-preview build/reviews LEDGER_NAME release.json
+python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+  release-apply build/reviews LEDGER_NAME release.json --plan PLAN_SHA256
+~~~
+
+Release verifies the recorded clean worktree and Git ancestry and durably marks
+the ledger inert; it does not remove anything. Next run the relevant
+`./atrinik cleanup --dry-run --json`, review it, and independently run the same
+scoped command with `--apply`. Retain the exact raw preview/apply JSON in the
+archive evidence; the helper validates both reports and
+derives their identical canonical target selection.
+
+After cleanup, a new explicit post-cleanup authority may bundle the canonical
+ledger, release marker, lock, report, migration evidence, and retained intent:
+
+~~~sh
+python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+  archive-preview build/reviews LEDGER_NAME archive.json
+python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+  archive-apply build/reviews LEDGER_NAME archive.json --plan PLAN_SHA256
+~~~
+
+The one bounded archive remains audit evidence without reserving active
+coordinates. Once its recorded retention period has elapsed, use
+`reclaim-preview` and pass the complete returned preview plus its digest to
+`reclaim-apply`. These helper commands never delete worktrees, profiles,
+topologies, state, branches, or runtime resources. See the issue-delivery
+ledger reference for the strict evidence schemas and crash-recovery rules.
+
 ## Server state policies
 
 The built-in state named `default` is initialized once at

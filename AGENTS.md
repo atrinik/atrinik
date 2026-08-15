@@ -41,10 +41,10 @@
   issue closure.
 - Never replace or move a dirty primary checkout, remove a dirty worktree, or
   overwrite mutable server data. Preserve recoverable migration inputs.
-- Cleanup is explicit and preview-first: run
-  `./atrinik cleanup --dry-run --json` before the same scoped `--apply`; never
-  invoke it implicitly. Preserve dirty, detached, locked, active, referenced,
-  or uncertain targets; historical proof fails closed.
+- Cleanup is preview-first; delivery completion grants none. Ledger terminal
+  transactions stay separate from `./atrinik cleanup`. Preserve dirty,
+  detached, locked, active, referenced, or uncertain targets; history fails
+  closed.
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.

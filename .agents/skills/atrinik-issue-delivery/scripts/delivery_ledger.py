@@ -38,6 +38,7 @@ MAX_BYTES = 1024 * 1024
 MAX_RETAINED_RESULT_BYTES = 512 * 1024
 MAX_INVENTORY_ENTRIES = 4096
 MAX_INVENTORY_BYTES = 32 * 1024 * 1024
+MAX_ARCHIVE_BYTES = 16 * 1024 * 1024
 LEDGER_SUFFIX = ".md.ledger.json"
 ENTRY_MODES = {"issue", "pr"}
 ARTIFACT_KINDS = {"branch", "worktree", "pull_request"}
@@ -115,6 +116,21 @@ _SNAPSHOT_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.migration-source\.snapshot$"
 )
 _LEDGER_LOCK_RE = re.compile(r"^\..+\.md\.ledger\.json\.lock$")
+_RELEASE_RE = re.compile(
+    r"^\.(?P<target>.+\.md\.ledger\.json)\.release\.json$"
+)
+_RELEASE_STAGE_RE = re.compile(
+    r"^\.(?P<target>.+\.md\.ledger\.json)\.release-"
+    r"(?P<candidate>[0-9a-f]{64})\.tmp$"
+)
+_ARCHIVE_RE = re.compile(
+    r"^\.(?P<target>.+\.md\.ledger\.json)\.archive-"
+    r"(?P<ledger>[0-9a-f]{64})\.json$"
+)
+_ARCHIVE_STAGE_RE = re.compile(
+    r"^\.(?P<target>.+\.md\.ledger\.json)\.archive-"
+    r"(?P<ledger>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
+)
 _CANONICAL_REPORT_RE = re.compile(
     r"^(?P<owner>[a-z0-9][a-z0-9._-]*)-(?P<repo>[a-z0-9][a-z0-9._-]*)-"
     r"(?P<mode>issue|pr)-(?P<number>[1-9][0-9]*)\.md$"
@@ -235,6 +251,48 @@ class LegacyClaim:
         }
 
 
+@dataclass(frozen=True)
+class ReleaseRecord:
+    name: str
+    ledger_name: str
+    document: dict[str, Any]
+    raw: bytes
+    digest: str
+    device: int
+    inode: int
+
+    def json(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "ledger_name": self.ledger_name,
+            "digest": self.digest,
+            "device": self.device,
+            "inode": self.inode,
+            "document": self.document,
+        }
+
+
+@dataclass(frozen=True)
+class ArchiveRecord:
+    name: str
+    ledger_name: str
+    document: dict[str, Any]
+    raw: bytes
+    digest: str
+    device: int
+    inode: int
+
+    def json(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "ledger_name": self.ledger_name,
+            "digest": self.digest,
+            "device": self.device,
+            "inode": self.inode,
+            "document": self.document,
+        }
+
+
 @dataclass
 class _LiveWorktreeGuard:
     """Pinned no-follow roots for one exact live Git worktree proof."""
@@ -333,6 +391,9 @@ class Inventory:
     ledgers: tuple[Snapshot, ...]
     pending: tuple[PendingOperation, ...]
     legacy_reports: tuple[LegacyClaim, ...] = ()
+    releases: tuple[ReleaseRecord, ...] = ()
+    archives: tuple[ArchiveRecord, ...] = ()
+    historical_ledgers: tuple[Snapshot, ...] = ()
 
     def json(self) -> dict[str, Any]:
         return {
@@ -340,6 +401,9 @@ class Inventory:
             "ledgers": [item.json() for item in self.ledgers],
             "pending": [item.json() for item in self.pending],
             "legacy_reports": [item.json() for item in self.legacy_reports],
+            "releases": [item.json() for item in self.releases],
+            "archives": [item.json() for item in self.archives],
+            "historical_ledgers": [item.json() for item in self.historical_ledgers],
         }
 
 
@@ -359,9 +423,9 @@ def _duplicate_keys(pairs: Iterable[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def _decode_value(raw: bytes, context: str) -> Any:
-    if len(raw) > MAX_BYTES:
-        raise LedgerError(f"{context} exceeds {MAX_BYTES} bytes")
+def _decode_value(raw: bytes, context: str, *, limit: int = MAX_BYTES) -> Any:
+    if len(raw) > limit:
+        raise LedgerError(f"{context} exceeds {limit} bytes")
     try:
         return json.loads(raw.decode("utf-8"), object_pairs_hook=_duplicate_keys)
     except LedgerError:
@@ -370,8 +434,8 @@ def _decode_value(raw: bytes, context: str) -> Any:
         raise LedgerError(f"invalid JSON in {context}: {error}") from error
 
 
-def _decode(raw: bytes, context: str) -> dict[str, Any]:
-    value = _decode_value(raw, context)
+def _decode(raw: bytes, context: str, *, limit: int = MAX_BYTES) -> dict[str, Any]:
+    value = _decode_value(raw, context, limit=limit)
     if not isinstance(value, dict):
         raise LedgerError(f"{context} root must be an object")
     return value
@@ -398,6 +462,757 @@ def canonical_object_digest(value: Any) -> str:
     except (TypeError, ValueError, RecursionError, UnicodeError) as error:
         raise LedgerError(f"value cannot be canonically hashed: {error}") from error
     return byte_digest(raw)
+
+
+def _release_name(ledger_name: str) -> str:
+    return f".{_direct_name(ledger_name, 'release ledger name')}.release.json"
+
+
+def _release_ledger_identity(value: Any, context: str) -> tuple[Any, ...]:
+    item = _exact(
+        value,
+        {"name", "ledger_id", "generation", "sha256", "device", "inode"},
+        context,
+    )
+    name = _direct_name(item["name"], f"{context}.name")
+    if not name.endswith(LEDGER_SUFFIX):
+        raise LedgerError(f"{context}.name is not a canonical ledger name")
+    ledger_id = _string(item["ledger_id"], f"{context}.ledger_id", REFERENCE_RE)
+    generation = _integer(item["generation"], f"{context}.generation")
+    digest = _string(item["sha256"], f"{context}.sha256", SHA256_RE)
+    device = _integer(item["device"], f"{context}.device", minimum=0)
+    inode = _integer(item["inode"], f"{context}.inode")
+    return name, ledger_id, generation, digest, device, inode
+
+
+def _release_authority(value: Any, context: str) -> tuple[Any, ...]:
+    item = _exact(
+        value,
+        {
+            "kind",
+            "reference",
+            "objective_sha256",
+            "issued_at",
+            "actor_node_id",
+            "allowed",
+        },
+        context,
+    )
+    if item["kind"] != "explicit-post-merge":
+        raise LedgerError(f"{context}.kind must be explicit-post-merge")
+    reference = _string(item["reference"], f"{context}.reference", REFERENCE_RE)
+    objective = _string(
+        item["objective_sha256"], f"{context}.objective_sha256", SHA256_RE
+    )
+    issued_at = _string(item["issued_at"], f"{context}.issued_at", TIMESTAMP_RE)
+    _timestamp_key(issued_at, f"{context}.issued_at")
+    actor = _string(item["actor_node_id"], f"{context}.actor_node_id", NODE_RE)
+    allowed = _exact(
+        item["allowed"], {"ledger_ids", "pull_requests", "issues"}, f"{context}.allowed"
+    )
+    ledgers = tuple(
+        _string(row, f"{context}.allowed.ledger_ids[{index}]", REFERENCE_RE)
+        for index, row in enumerate(allowed["ledger_ids"])
+    ) if isinstance(allowed["ledger_ids"], list) else ()
+    pulls = _sorted_node_ids(
+        allowed["pull_requests"], f"{context}.allowed.pull_requests"
+    )
+    issues = _sorted_node_ids(allowed["issues"], f"{context}.allowed.issues")
+    if list(ledgers) != sorted(set(ledgers)) or len(ledgers) != 1:
+        raise LedgerError(f"{context}.allowed.ledger_ids must contain one sorted ledger ID")
+    return reference, objective, issued_at, actor, ledgers, pulls, issues
+
+
+def _release_pull(value: Any, context: str) -> tuple[Any, ...]:
+    item = _exact(
+        value,
+        {
+            "repository",
+            "number",
+            "node_id",
+            "state",
+            "recorded_head_sha",
+            "observed_head_sha",
+            "merge_commit_sha",
+            "merged_at",
+            "ancestry",
+        },
+        context,
+    )
+    repository = _repository(item["repository"], f"{context}.repository")
+    number = _integer(item["number"], f"{context}.number")
+    node = _string(item["node_id"], f"{context}.node_id", NODE_RE)
+    if item["state"] != "merged":
+        raise LedgerError(f"{context}.state must be merged")
+    recorded = _string(
+        item["recorded_head_sha"], f"{context}.recorded_head_sha", COMMIT_RE
+    )
+    observed = _string(
+        item["observed_head_sha"], f"{context}.observed_head_sha", COMMIT_RE
+    )
+    merge = _string(item["merge_commit_sha"], f"{context}.merge_commit_sha", COMMIT_RE)
+    merged_at = _string(item["merged_at"], f"{context}.merged_at", TIMESTAMP_RE)
+    _timestamp_key(merged_at, f"{context}.merged_at")
+    ancestry = _exact(
+        item["ancestry"], {"method", "result"}, f"{context}.ancestry"
+    )
+    if ancestry != {"method": "git-merge-base-is-ancestor", "result": "ancestor"}:
+        raise LedgerError(f"{context}.ancestry is not a successful Git ancestry proof")
+    if observed != recorded:
+        raise LedgerError(f"{context} observed head differs from the recorded head")
+    return (*repository, number, node, recorded, merge, merged_at)
+
+
+def _release_issue(value: Any, context: str) -> tuple[Any, ...]:
+    item = _exact(value, {"repository", "number", "node_id", "state"}, context)
+    repository = _repository(item["repository"], f"{context}.repository")
+    number = _integer(item["number"], f"{context}.number")
+    node = _string(item["node_id"], f"{context}.node_id", NODE_RE)
+    if item["state"] not in {"open", "closed"}:
+        raise LedgerError(f"{context}.state must be open or closed")
+    return (*repository, number, node, item["state"])
+
+
+def _validate_release_document(value: Any, context: str) -> dict[str, Any]:
+    item = _exact(
+        value,
+        {
+            "transaction",
+            "state",
+            "ledger",
+            "authority",
+            "observed_at",
+            "pull_requests",
+            "issues",
+            "mutation_state",
+            "cleanup",
+        },
+        context,
+    )
+    if item["transaction"] != "delivery-ledger-release-v1" or item["state"] != "complete":
+        raise LedgerError(f"{context} transaction/state is invalid")
+    _release_ledger_identity(item["ledger"], f"{context}.ledger")
+    _release_authority(item["authority"], f"{context}.authority")
+    observed_at = _string(item["observed_at"], f"{context}.observed_at", TIMESTAMP_RE)
+    _timestamp_key(observed_at, f"{context}.observed_at")
+    pulls = _ordered_unique(
+        item["pull_requests"], f"{context}.pull_requests", _release_pull
+    )
+    if not pulls:
+        raise LedgerError(f"{context}.pull_requests must not be empty")
+    _ordered_unique(item["issues"], f"{context}.issues", _release_issue)
+    mutation = _exact(item["mutation_state"], {"local", "remote"}, f"{context}.mutation_state")
+    if mutation != {"local": "idle", "remote": "idle"}:
+        raise LedgerError(f"{context} has a delivery-owned mutation in flight")
+    cleanup = _exact(
+        item["cleanup"], {"policy", "preview_command", "apply_command"}, f"{context}.cleanup"
+    )
+    if cleanup != {
+        "policy": "explicit-preview-first",
+        "preview_command": "./atrinik cleanup --dry-run --json",
+        "apply_command": "./atrinik cleanup --apply --json",
+    }:
+        raise LedgerError(
+            f"{context}.cleanup does not preserve the explicit preview-first boundary"
+        )
+    if len(canonical_bytes(item)) > MAX_BYTES:
+        raise LedgerError(f"{context} exceeds {MAX_BYTES} bytes")
+    return item
+
+
+def _release_document(
+    snapshot: Snapshot, request: Mapping[str, Any], *, live_proof: bool = True
+) -> dict[str, Any]:
+    request_copy = _decode(canonical_bytes(request), "release request")
+    document = {
+        "transaction": "delivery-ledger-release-v1",
+        "state": "complete",
+        "ledger": {
+            "name": snapshot.name,
+            "ledger_id": snapshot.document["ledger_id"],
+            "generation": snapshot.document["generation"],
+            "sha256": snapshot.digest,
+            "device": snapshot.device,
+            "inode": snapshot.inode,
+        },
+        **request_copy,
+    }
+    validated = _validate_release_document(document, "release")
+    authority = _release_authority(validated["authority"], "release.authority")
+    expected_objective = canonical_object_digest(
+        {
+            "operation": "release",
+            "ledger_id": snapshot.document["ledger_id"],
+            "ledger_sha256": snapshot.digest,
+        }
+    )
+    if authority[1] != expected_objective:
+        raise LedgerError("release authority objective does not bind the current ledger")
+    if authority[3] != snapshot.document["actor"]["node_id"]:
+        raise LedgerError("release authority actor differs from the delivery actor")
+    if authority[4] != (snapshot.document["ledger_id"],):
+        raise LedgerError("release authority does not allow exactly this ledger")
+    if not _timestamp_is_after(authority[2], snapshot.document["authority"]["issued_at"]):
+        raise LedgerError("release authority must postdate active delivery authority")
+    if _timestamp_key(validated["observed_at"], "release observed_at") < _timestamp_key(
+        authority[2], "release authority issued_at"
+    ):
+        raise LedgerError("release observation predates release authority")
+
+    expected_pulls: dict[tuple[str, int, str], tuple[dict[str, Any], str]] = {}
+    for pull in snapshot.document["selected_prs"]:
+        targets = [
+            target for target in snapshot.document["targets"]
+            if target["repository"] == pull["repository"]
+            and target["head"]["branch"] == pull["head_branch"]
+        ]
+        if len(targets) != 1:
+            raise LedgerError("release selected PR lacks one exact target")
+        expected_pulls[(pull["repository"]["node_id"], pull["number"], pull["node_id"])] = (
+            pull,
+            targets[0]["head"]["current_sha"],
+        )
+    observed_pulls = {
+        (row["repository"]["node_id"], row["number"], row["node_id"]): row
+        for row in validated["pull_requests"]
+    }
+    if set(observed_pulls) != set(expected_pulls):
+        raise LedgerError("release PR evidence differs from the exact selected PR set")
+    for key, (_pull, head_sha) in expected_pulls.items():
+        row = observed_pulls[key]
+        if row["repository"] != _pull["repository"] or row["recorded_head_sha"] != head_sha:
+            raise LedgerError("release PR evidence differs from recorded coordinates")
+        if _timestamp_key(row["merged_at"], "release PR merged_at") > _timestamp_key(
+            validated["observed_at"], "release observed_at"
+        ):
+            raise LedgerError("release PR merge time follows its observation")
+        if live_proof:
+            _prove_release_git(snapshot.document, _pull, row)
+    if set(authority[5]) != {pull["node_id"] for pull in snapshot.document["selected_prs"]}:
+        raise LedgerError("release authority PR allowlist differs from selected PRs")
+
+    selected_issues: dict[tuple[str, int, str], tuple[dict[str, Any], str]] = {}
+    closing_nodes = {row["node_id"] for row in snapshot.document["closing_scope"]}
+    issue_rows = list(snapshot.document["issues"]["explicit"])
+    if snapshot.document["program"] is not None:
+        issue_rows.extend(
+            [
+                snapshot.document["program"]["master_issue"],
+                snapshot.document["program"]["leaf_issue"],
+            ]
+        )
+    for issue in issue_rows:
+        key = (issue["repository"]["node_id"], issue["number"], issue["node_id"])
+        selected_issues[key] = (issue, "closed" if issue["node_id"] in closing_nodes else "open")
+    observed_issues = {
+        (row["repository"]["node_id"], row["number"], row["node_id"]): row
+        for row in validated["issues"]
+    }
+    if set(observed_issues) != set(selected_issues):
+        raise LedgerError("release issue evidence differs from the exact selected issue set")
+    for key, (issue, state) in selected_issues.items():
+        if (
+            observed_issues[key]["repository"] != issue["repository"]
+            or observed_issues[key]["state"] != state
+        ):
+            raise LedgerError("release issue final state is not the expected state")
+    if set(authority[6]) != {
+        issue["node_id"] for issue, _state in selected_issues.values()
+    }:
+        raise LedgerError("release authority issue allowlist differs from selected issues")
+
+    for pull in snapshot.document["selected_prs"]:
+        if (
+            pull["draft"] is not False
+            or pull["draft_intent"] is not None
+            or pull["body"]["state"] == "update-planned"
+            or pull["comment"]["state"] in {"planned", "in-flight"}
+        ):
+            raise LedgerError("release is blocked by an in-flight remote intent")
+    for artifact in snapshot.document["artifacts"]:
+        if artifact["state"] == "planned" or artifact["safety"] != SAFE_ARTIFACT_STATE:
+            raise LedgerError("release requires every artifact to be bound and safe")
+    for resource in snapshot.document["resources"]:
+        current = resource["current"]
+        if resource["state"] == "planned":
+            continue
+        lifecycle = None if current is None else current["lifecycle"]
+        unsafe = lifecycle == "running" or (
+            lifecycle == "active" and resource["kind"] != "scope"
+        )
+        if current is None or unsafe:
+            raise LedgerError("release is blocked by an active delivery resource")
+    return validated
+
+
+def _prove_release_git(
+    document: Mapping[str, Any],
+    pull: Mapping[str, Any],
+    observation: Mapping[str, Any],
+) -> None:
+    """Prove the recorded worktree is quiescent and its head reached the merge."""
+
+    worktrees = [
+        slot
+        for slot in document["artifacts"]
+        if slot["kind"] == "worktree"
+        and slot["current"] is not None
+        and slot["current"]["repository"] == pull["repository"]
+        and slot["current"]["branch"] == pull["head_branch"]
+    ]
+    if len(worktrees) != 1:
+        raise LedgerError("release requires one exact bound worktree per selected PR")
+    current = worktrees[0]["current"]
+    path = current["path"]
+    if path is None:
+        raise LedgerError("release worktree lacks a path")
+    try:
+        descriptor = _directory_fd(Path(path))
+    except OSError as error:
+        raise LedgerError(f"cannot open release worktree {path}: {error}") from error
+    authority: _PinnedGitAuthority | None = None
+    try:
+        opened = os.fstat(descriptor)
+        visible = os.stat(path, follow_symlinks=False)
+        _require_trusted_directory(opened, f"release worktree {path}")
+        if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+            raise LedgerError("release worktree changed while opening")
+        authority = _pin_checkout_git_authority(
+            descriptor,
+            path,
+            "release worktree",
+            expected_branch=pull["head_branch"],
+            expected_head=observation["recorded_head_sha"],
+            require_index=True,
+        )
+        _, status_raw = _git(
+            descriptor,
+            (
+                "status",
+                "--porcelain=v1",
+                "--untracked-files=all",
+                "--ignore-submodules=none",
+            ),
+            "release worktree cleanliness",
+        )
+        if status_raw:
+            raise LedgerError("release worktree is dirty")
+        result, _ = _git(
+            descriptor,
+            (
+                "merge-base",
+                "--is-ancestor",
+                observation["recorded_head_sha"],
+                observation["merge_commit_sha"],
+            ),
+            "release merge ancestry",
+            accepted={0, 1},
+        )
+        if result != 0:
+            raise LedgerError("recorded PR head is not an ancestor of the merge result")
+        authority.recheck()
+        after = os.stat(path, follow_symlinks=False)
+        if (opened.st_dev, opened.st_ino) != (after.st_dev, after.st_ino):
+            raise LedgerError("release worktree changed during proof")
+    finally:
+        if authority is not None:
+            authority.close()
+        os.close(descriptor)
+
+
+def _release_record(name: str, raw: bytes, status: os.stat_result) -> ReleaseRecord:
+    document = _validate_release_document(_decode(raw, name), name)
+    if raw != canonical_bytes(document):
+        raise LedgerError(f"release marker bytes are noncanonical: {name}")
+    ledger_name = document["ledger"]["name"]
+    if name != _release_name(ledger_name):
+        raise LedgerError(f"release marker filename is noncanonical: {name}")
+    return ReleaseRecord(
+        name, ledger_name, document, raw, byte_digest(raw), status.st_dev, status.st_ino
+    )
+
+
+def _archive_authority(value: Any, context: str) -> tuple[Any, ...]:
+    item = _exact(
+        value,
+        {
+            "kind",
+            "reference",
+            "objective_sha256",
+            "issued_at",
+            "actor_node_id",
+            "allowed_ledger_ids",
+        },
+        context,
+    )
+    if item["kind"] != "explicit-post-cleanup":
+        raise LedgerError(f"{context}.kind must be explicit-post-cleanup")
+    reference = _string(item["reference"], f"{context}.reference", REFERENCE_RE)
+    objective = _string(
+        item["objective_sha256"], f"{context}.objective_sha256", SHA256_RE
+    )
+    issued = _string(item["issued_at"], f"{context}.issued_at", TIMESTAMP_RE)
+    _timestamp_key(issued, f"{context}.issued_at")
+    actor = _string(item["actor_node_id"], f"{context}.actor_node_id", NODE_RE)
+    ledger_ids = item["allowed_ledger_ids"]
+    if not isinstance(ledger_ids, list):
+        raise LedgerError(f"{context}.allowed_ledger_ids must be an array")
+    validated = tuple(
+        _string(row, f"{context}.allowed_ledger_ids[{index}]", REFERENCE_RE)
+        for index, row in enumerate(ledger_ids)
+    )
+    if list(validated) != sorted(set(validated)) or len(validated) != 1:
+        raise LedgerError(f"{context}.allowed_ledger_ids must contain one sorted ledger ID")
+    return reference, objective, issued, actor, validated
+
+
+def _cleanup_observation(
+    value: Any, context: str, mode: str
+) -> tuple[str, str, str, frozenset[tuple[str, str]]]:
+    item = _exact(value, {"output", "observed_at"}, context)
+    raw = _inline_payload(item["output"], f"{context}.output", utf8=True)
+    output = _decode(raw, f"{context}.output")
+    required = {
+        "schema_version",
+        "mode",
+        "scopes",
+        "older_than_days",
+        "filters",
+        "inventory_errors",
+        "items",
+        "summary",
+    }
+    allowed = required | {
+        "aborted",
+        "completed_actions",
+        "journal",
+        "journal_error",
+        "mutated",
+        "mutation_attempted",
+    }
+    if not required.issubset(output) or set(output) - allowed:
+        raise LedgerError(f"{context}.output is not a cleanup report")
+    if output["schema_version"] != 1 or isinstance(output["schema_version"], bool):
+        raise LedgerError(f"{context}.output schema is invalid")
+    if output["mode"] != mode:
+        raise LedgerError(f"{context}.output mode must be {mode}")
+    if output["inventory_errors"] != []:
+        raise LedgerError(f"{context}.output contains inventory errors")
+    summary = output["summary"]
+    if not isinstance(summary, dict) or summary.get("error_count") != 0:
+        raise LedgerError(f"{context}.output reports cleanup errors")
+    if not isinstance(output["items"], list) or len(output["items"]) > MAX_INVENTORY_ENTRIES:
+        raise LedgerError(f"{context}.output items are invalid or oversized")
+    disposition = "eligible" if mode == "dry-run" else "removed"
+    selected: set[tuple[str, str]] = set()
+    for index, row in enumerate(output["items"]):
+        if not isinstance(row, dict):
+            raise LedgerError(f"{context}.output.items[{index}] is not an object")
+        if row.get("disposition") != disposition:
+            continue
+        kind = _string(
+            row.get("kind"), f"{context}.output.items[{index}].kind", REFERENCE_RE
+        )
+        path = _absolute_path(
+            row.get("path"), f"{context}.output.items[{index}].path"
+        )
+        if (kind, path) in selected:
+            raise LedgerError(f"{context}.output contains a duplicate cleanup target")
+        selected.add((kind, path))
+    if mode == "apply":
+        if output.get("aborted", False) is not False:
+            raise LedgerError(f"{context}.output cleanup apply was aborted")
+        completed = output.get("completed_actions")
+        if not isinstance(completed, list):
+            raise LedgerError(f"{context}.output lacks completed cleanup actions")
+        completed_set: set[tuple[str, str]] = set()
+        for index, row in enumerate(completed):
+            action = _exact(row, {"kind", "path"}, f"{context}.completed_actions[{index}]")
+            completed_set.add(
+                (
+                    _string(action["kind"], f"{context}.completed kind", REFERENCE_RE),
+                    _absolute_path(action["path"], f"{context}.completed path"),
+                )
+            )
+        if completed_set != selected or len(completed_set) != len(completed):
+            raise LedgerError(f"{context}.output completed actions differ from removals")
+    digest = byte_digest(raw)
+    selection = canonical_object_digest(
+        [{"kind": kind, "path": path} for kind, path in sorted(selected)]
+    )
+    observed = _string(item["observed_at"], f"{context}.observed_at", TIMESTAMP_RE)
+    _timestamp_key(observed, f"{context}.observed_at")
+    return digest, selection, observed, frozenset(selected)
+
+
+def _archive_worktree(value: Any, context: str) -> tuple[str]:
+    item = _exact(value, {"path", "disposition", "safety"}, context)
+    path = _absolute_path(item["path"], f"{context}.path")
+    if item["disposition"] != "removed":
+        raise LedgerError(f"{context}.disposition must be removed")
+    safety = _exact(item["safety"], set(SAFE_ARTIFACT_STATE), f"{context}.safety")
+    if safety != SAFE_ARTIFACT_STATE:
+        raise LedgerError(
+            f"{context} was not clean, attached, unlocked, inactive, owned, and certain"
+        )
+    return (path,)
+
+
+def _archive_resource(value: Any, context: str) -> tuple[str]:
+    item = _exact(value, {"slot_id", "disposition", "lifecycle"}, context)
+    slot = _string(item["slot_id"], f"{context}.slot_id", SLOT_RE)
+    if item["disposition"] not in {"removed", "retained"}:
+        raise LedgerError(f"{context}.disposition is invalid")
+    if item["lifecycle"] not in {None, "consumed", "ready", "released", "static", "stopped"}:
+        raise LedgerError(f"{context}.lifecycle is active or invalid")
+    return (slot,)
+
+
+def _archive_cleanup(value: Any, context: str) -> dict[str, Any]:
+    item = _exact(
+        value,
+        {"policy", "preview", "apply", "worktrees", "resources"},
+        context,
+    )
+    if item["policy"] != "explicit-preview-first":
+        raise LedgerError(f"{context}.policy must be explicit-preview-first")
+    preview = _cleanup_observation(
+        item["preview"], f"{context}.preview", "dry-run"
+    )
+    applied = _cleanup_observation(item["apply"], f"{context}.apply", "apply")
+    if preview[1] != applied[1]:
+        raise LedgerError(f"{context} preview/apply selections differ")
+    if preview[3] != applied[3]:
+        raise LedgerError(f"{context} preview/apply targets differ")
+    if not _timestamp_is_after(applied[2], preview[2]):
+        raise LedgerError(f"{context} apply must postdate preview")
+    _ordered_unique(item["worktrees"], f"{context}.worktrees", _archive_worktree)
+    _ordered_unique(item["resources"], f"{context}.resources", _archive_resource)
+    return item
+
+
+def _archive_request(
+    snapshot: Snapshot, release: ReleaseRecord, value: Mapping[str, Any]
+) -> dict[str, Any]:
+    request = _exact(
+        _decode(canonical_bytes(value), "archive request"),
+        {"authority", "archived_at", "retain_until", "cleanup"},
+        "archive request",
+    )
+    authority = _archive_authority(request["authority"], "archive request.authority")
+    archived_at = _string(
+        request["archived_at"], "archive request.archived_at", TIMESTAMP_RE
+    )
+    retain_until = _string(
+        request["retain_until"], "archive request.retain_until", TIMESTAMP_RE
+    )
+    _timestamp_key(archived_at, "archive request.archived_at")
+    if not _timestamp_is_after(retain_until, archived_at):
+        raise LedgerError("archive retention must end after archival")
+    cleanup = _archive_cleanup(request["cleanup"], "archive request.cleanup")
+    if _timestamp_key(archived_at, "archive request.archived_at") < _timestamp_key(
+        cleanup["apply"]["observed_at"], "archive cleanup apply observed_at"
+    ):
+        raise LedgerError("archive time predates cleanup apply")
+    expected_objective = canonical_object_digest(
+        {
+            "operation": "archive",
+            "ledger_id": snapshot.document["ledger_id"],
+            "release_sha256": release.digest,
+        }
+    )
+    if authority[1] != expected_objective:
+        raise LedgerError("archive authority objective does not bind the release")
+    if authority[3] != snapshot.document["actor"]["node_id"] or authority[4] != (
+        snapshot.document["ledger_id"],
+    ):
+        raise LedgerError("archive authority is unrelated to the released ledger")
+    if not _timestamp_is_after(authority[2], release.document["observed_at"]):
+        raise LedgerError("archive authority must postdate terminal release evidence")
+    if _timestamp_key(cleanup["preview"]["observed_at"], "cleanup preview") < _timestamp_key(
+        authority[2], "archive authority"
+    ):
+        raise LedgerError("cleanup preview predates archive authority")
+
+    expected_worktrees = {
+        (slot["current"] or slot["immutable"])["path"]
+        for slot in snapshot.document["artifacts"]
+        if slot["kind"] == "worktree"
+    }
+    observed_worktrees = {row["path"] for row in cleanup["worktrees"]}
+    if observed_worktrees != expected_worktrees:
+        raise LedgerError("archive cleanup worktrees differ from the ledger")
+    cleanup_selection = _cleanup_observation(
+        cleanup["apply"], "archive request.cleanup.apply", "apply"
+    )[3]
+    selected_worktrees = {
+        path for kind, path in cleanup_selection if kind == "worktree"
+    }
+    if selected_worktrees != expected_worktrees:
+        raise LedgerError("raw cleanup output does not remove the exact ledger worktrees")
+    expected_resources = {row["slot_id"]: row for row in snapshot.document["resources"]}
+    observed_resources = {row["slot_id"]: row for row in cleanup["resources"]}
+    if set(observed_resources) != set(expected_resources):
+        raise LedgerError("archive cleanup resources differ from the ledger")
+    for slot_id, resource in expected_resources.items():
+        lifecycle = None if resource["current"] is None else resource["current"]["lifecycle"]
+        observed = observed_resources[slot_id]
+        released_scope = (
+            resource["kind"] == "scope"
+            and lifecycle == "active"
+            and observed == {
+                "slot_id": slot_id,
+                "disposition": "removed",
+                "lifecycle": "released",
+            }
+        )
+        if not released_scope and (
+            lifecycle in {"active", "running"}
+            or observed["lifecycle"] != lifecycle
+        ):
+            raise LedgerError("archive cleanup resource lifecycle is unsafe or mismatched")
+    return request
+
+
+def _archive_member(name: str, raw: bytes, status: os.stat_result) -> dict[str, Any]:
+    _require_trusted_regular(status, f"archive member {name}")
+    return {
+        "name": _direct_name(name, "archive member name"),
+        "mode": stat.S_IMODE(status.st_mode),
+        "device": status.st_dev,
+        "inode": status.st_ino,
+        "sha256": byte_digest(raw),
+        "raw_base64": base64.b64encode(raw).decode("ascii"),
+    }
+
+
+def _archive_member_bytes(value: Any, context: str) -> tuple[str, bytes, int, int, int]:
+    item = _exact(
+        value,
+        {"name", "mode", "device", "inode", "sha256", "raw_base64"},
+        context,
+    )
+    name = _direct_name(item["name"], f"{context}.name")
+    mode = _integer(item["mode"], f"{context}.mode", minimum=0)
+    if mode > 0o777 or mode & 0o022:
+        raise LedgerError(f"{context}.mode is unsafe")
+    device = _integer(item["device"], f"{context}.device", minimum=0)
+    inode = _integer(item["inode"], f"{context}.inode")
+    digest = _string(item["sha256"], f"{context}.sha256", SHA256_RE)
+    encoded = item["raw_base64"]
+    if not isinstance(encoded, str) or len(encoded) > MAX_ARCHIVE_BYTES:
+        raise LedgerError(f"{context}.raw_base64 is invalid")
+    try:
+        raw = base64.b64decode(encoded.encode("ascii"), validate=True)
+    except (UnicodeError, ValueError, binascii.Error) as error:
+        raise LedgerError(f"{context}.raw_base64 is invalid") from error
+    if base64.b64encode(raw).decode("ascii") != encoded or byte_digest(raw) != digest:
+        raise LedgerError(f"{context} bytes are noncanonical or mismatched")
+    return name, raw, mode, device, inode
+
+
+def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
+    item = _exact(
+        value,
+        {
+            "transaction",
+            "state",
+            "ledger",
+            "release_sha256",
+            "authority",
+            "archived_at",
+            "retain_until",
+            "cleanup",
+            "members",
+        },
+        context,
+    )
+    if item["transaction"] != "delivery-ledger-archive-v1" or item["state"] != "complete":
+        raise LedgerError(f"{context} transaction/state is invalid")
+    ledger_identity = _release_ledger_identity(item["ledger"], f"{context}.ledger")
+    _string(item["release_sha256"], f"{context}.release_sha256", SHA256_RE)
+    _archive_authority(item["authority"], f"{context}.authority")
+    _string(item["archived_at"], f"{context}.archived_at", TIMESTAMP_RE)
+    _string(item["retain_until"], f"{context}.retain_until", TIMESTAMP_RE)
+    _archive_cleanup(item["cleanup"], f"{context}.cleanup")
+    if not isinstance(item["members"], list) or not item["members"]:
+        raise LedgerError(f"{context}.members must be a non-empty array")
+    members = [
+        _archive_member_bytes(row, f"{context}.members[{index}]")
+        for index, row in enumerate(item["members"])
+    ]
+    names = [row[0] for row in members]
+    if names != sorted(set(names), key=str.casefold):
+        raise LedgerError(f"{context}.members must have unique sorted names")
+    by_name = {name: row for name, *row in members}
+    ledger_member = by_name.get(ledger_identity[0])
+    release_member = by_name.get(_release_name(ledger_identity[0]))
+    if ledger_member is None or release_member is None:
+        raise LedgerError(f"{context} lost its canonical ledger or release marker")
+    ledger_raw, _ledger_mode, ledger_device, ledger_inode = ledger_member
+    release_raw, _release_mode, _release_device, _release_inode = release_member
+    if (
+        byte_digest(ledger_raw) != ledger_identity[3]
+        or byte_digest(release_raw) != item["release_sha256"]
+    ):
+        raise LedgerError(f"{context} member identities do not match archive metadata")
+    ledger_document = _decode(ledger_raw, f"{context} ledger member")
+    validate(ledger_document)
+    if (
+        ledger_raw != canonical_bytes(ledger_document)
+        or canonical_name(ledger_document) != ledger_identity[0]
+        or ledger_document["ledger_id"] != ledger_identity[1]
+        or ledger_document["generation"] != ledger_identity[2]
+        or (ledger_device, ledger_inode) != (ledger_identity[4], ledger_identity[5])
+    ):
+        raise LedgerError(f"{context} canonical ledger member is mismatched")
+    release_document = _validate_release_document(
+        _decode(release_raw, f"{context} release member"),
+        f"{context} release member",
+    )
+    if release_raw != canonical_bytes(release_document):
+        raise LedgerError(f"{context} release member is noncanonical")
+    archived_snapshot = Snapshot(
+        ledger_identity[0],
+        ledger_document,
+        ledger_raw,
+        ledger_identity[3],
+        ledger_identity[4],
+        ledger_identity[5],
+    )
+    release_request = {
+        key: release_document[key]
+        for key in (
+            "authority",
+            "observed_at",
+            "pull_requests",
+            "issues",
+            "mutation_state",
+            "cleanup",
+        )
+    }
+    if _release_document(
+        archived_snapshot, release_request, live_proof=False
+    ) != release_document:
+        raise LedgerError(f"{context} release member does not bind the archived ledger")
+    if len(canonical_bytes(item)) > MAX_ARCHIVE_BYTES:
+        raise LedgerError(f"{context} exceeds {MAX_ARCHIVE_BYTES} bytes")
+    return item
+
+
+def _archive_record(name: str, raw: bytes, status: os.stat_result) -> ArchiveRecord:
+    document = _validate_archive_document(
+        _decode(raw, name, limit=MAX_ARCHIVE_BYTES), name
+    )
+    if raw != canonical_bytes(document):
+        raise LedgerError(f"archive bytes are noncanonical: {name}")
+    ledger_name = document["ledger"]["name"]
+    expected = f".{ledger_name}.archive-{document['ledger']['sha256']}.json"
+    if name != expected:
+        raise LedgerError(f"archive filename is noncanonical: {name}")
+    return ArchiveRecord(
+        name, ledger_name, document, raw, byte_digest(raw), status.st_dev, status.st_ino
+    )
 
 
 def _exact(value: Any, keys: set[str], context: str) -> dict[str, Any]:
@@ -5808,6 +6623,7 @@ def _read_regular(
     managed: bool = False,
     expected_nlinks: set[int] | None = None,
     sync: bool = False,
+    limit: int = MAX_BYTES,
 ) -> tuple[bytes, os.stat_result]:
     name = _direct_name(name)
     flags = (
@@ -5833,13 +6649,13 @@ def _read_regular(
         chunks: list[bytes] = []
         size = 0
         while True:
-            chunk = os.read(descriptor, min(65536, MAX_BYTES + 1 - size))
+            chunk = os.read(descriptor, min(65536, limit + 1 - size))
             if not chunk:
                 break
             chunks.append(chunk)
             size += len(chunk)
-            if size > MAX_BYTES:
-                raise LedgerError(f"{name} exceeds {MAX_BYTES} bytes")
+            if size > limit:
+                raise LedgerError(f"{name} exceeds {limit} bytes")
         after = os.fstat(descriptor)
         visible_after = os.stat(name, dir_fd=directory, follow_symlinks=False)
         identity_before = (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns)
@@ -6111,7 +6927,12 @@ def _conflict_keys(snapshot: Snapshot) -> Iterator[tuple[str, tuple[Any, ...]]]:
             )
 
 
-def _reject_overlaps(snapshots: Sequence[Snapshot], *, allow_name: str | None = None) -> None:
+def _reject_overlaps(
+    snapshots: Sequence[Snapshot],
+    *,
+    allow_name: str | None = None,
+    inert_keys: frozenset[tuple[str, str]] = frozenset(),
+) -> None:
     owners: dict[tuple[str, tuple[Any, ...]], Snapshot] = {}
     ledger_ids: dict[str, Snapshot] = {}
     repository_coordinates: dict[tuple[str, str], str] = {}
@@ -6185,6 +7006,8 @@ def _reject_overlaps(snapshots: Sequence[Snapshot], *, allow_name: str | None = 
                     remember_pr(slot["current"])
         for resource in document["resources"]:
             remember_repository(resource["immutable"]["repository"])
+        if (snapshot.name, snapshot.digest) in inert_keys:
+            continue
         for issue in document["issues"]["explicit"]:
             coordinate = (
                 issue["repository"]["owner"].casefold(),
@@ -6385,6 +7208,8 @@ def _inventory_locked(directory: int) -> Inventory:
     preparation_stages: dict[str, dict[str, Any] | None] = {}
     snapshots: dict[str, tuple[str, bytes, os.stat_result]] = {}
     legacy_reports: list[LegacyClaim] = []
+    releases: list[ReleaseRecord] = []
+    archives: list[ArchiveRecord] = []
     managed_stats: dict[str, os.stat_result] = {}
     inventory_bytes = 0
     for name in names:
@@ -6419,6 +7244,10 @@ def _inventory_locked(directory: int) -> Inventory:
             paired = paired_target is not None and (
                 paired_target in name_set
                 or f".{paired_target}.migration.json" in name_set
+                or any(
+                    archive_name.startswith(f".{paired_target}.archive-")
+                    for archive_name in name_set
+                )
             )
             if not paired:
                 report_raw, _ = _read_regular(directory, name)
@@ -6429,6 +7258,75 @@ def _inventory_locked(directory: int) -> Inventory:
             managed_stats[name] = os.stat(name, dir_fd=directory, follow_symlinks=False)
             ledgers.append(snapshot)
             committed.append(snapshot)
+            continue
+        archive_match = _ARCHIVE_RE.fullmatch(name)
+        if archive_match:
+            raw, status = _read_regular(
+                directory,
+                name,
+                managed=True,
+                expected_nlinks={1, 2},
+                limit=MAX_ARCHIVE_BYTES,
+            )
+            managed_stats[name] = status
+            archive = _archive_record(name, raw, status)
+            if (
+                archive.ledger_name != archive_match.group("target")
+                or archive.document["ledger"]["sha256"] != archive_match.group("ledger")
+            ):
+                raise LedgerError(f"archive target mismatch: {name}")
+            archives.append(archive)
+            continue
+        archive_stage_match = _ARCHIVE_STAGE_RE.fullmatch(name)
+        if archive_stage_match:
+            raw, status = _read_regular(
+                directory,
+                name,
+                managed=True,
+                expected_nlinks={1, 2},
+                limit=MAX_ARCHIVE_BYTES,
+            )
+            managed_stats[name] = status
+            pending.append(
+                PendingOperation("archive", archive_stage_match.group("target"), name)
+            )
+            try:
+                _validate_archive_document(
+                    _decode(raw, name, limit=MAX_ARCHIVE_BYTES), name
+                )
+            except LedgerError:
+                continue
+            if byte_digest(raw) != archive_stage_match.group("candidate"):
+                raise LedgerError(f"archive staging identity is invalid: {name}")
+            continue
+        release_match = _RELEASE_RE.fullmatch(name)
+        if release_match:
+            raw, status = _read_regular(
+                directory, name, managed=True, expected_nlinks={1, 2}
+            )
+            managed_stats[name] = status
+            release = _release_record(name, raw, status)
+            if release.ledger_name != release_match.group("target"):
+                raise LedgerError(f"release marker target mismatch: {name}")
+            releases.append(release)
+            continue
+        release_stage_match = _RELEASE_STAGE_RE.fullmatch(name)
+        if release_stage_match:
+            raw, status = _read_regular(
+                directory, name, managed=True, expected_nlinks={1, 2}
+            )
+            managed_stats[name] = status
+            pending.append(
+                PendingOperation("release", release_stage_match.group("target"), name)
+            )
+            try:
+                release = _release_record(
+                    _release_name(release_stage_match.group("target")), raw, status
+                )
+            except LedgerError:
+                continue
+            if byte_digest(raw) != release_stage_match.group("candidate"):
+                raise LedgerError(f"release staging identity is invalid: {name}")
             continue
         marker_match = _MIGRATION_RE.fullmatch(name)
         if marker_match:
@@ -6646,12 +7544,33 @@ def _inventory_locked(directory: int) -> Inventory:
         allowed_pair = False
         if len(linked_names) == 2:
             first, second = linked_names
-            for pattern in (_CREATE_STAGE_RE, _MIGRATE_STAGE_RE):
+            for pattern in (
+                _CREATE_STAGE_RE,
+                _MIGRATE_STAGE_RE,
+                _RELEASE_STAGE_RE,
+                _ARCHIVE_STAGE_RE,
+            ):
                 match = pattern.fullmatch(first)
-                if match is not None and second == match.group("target"):
+                if match is not None and second == (
+                    _release_name(match.group("target"))
+                    if pattern is _RELEASE_STAGE_RE
+                    else (
+                        f".{match.group('target')}.archive-{match.group('ledger')}.json"
+                        if pattern is _ARCHIVE_STAGE_RE
+                        else match.group("target")
+                    )
+                ):
                     allowed_pair = True
                 match = pattern.fullmatch(second)
-                if match is not None and first == match.group("target"):
+                if match is not None and first == (
+                    _release_name(match.group("target"))
+                    if pattern is _RELEASE_STAGE_RE
+                    else (
+                        f".{match.group('target')}.archive-{match.group('ledger')}.json"
+                        if pattern is _ARCHIVE_STAGE_RE
+                        else match.group("target")
+                    )
+                ):
                     allowed_pair = True
             plan_name = next(
                 (value for value in linked_names if _MARKER_PLAN_STAGE_RE.fullmatch(value)),
@@ -6704,7 +7623,10 @@ def _inventory_locked(directory: int) -> Inventory:
             != (marker_status.st_dev, marker_status.st_ino)
         ):
             raise LedgerError(f"migration plan staging/install mismatch: {destination}")
+    archived_targets = {archive.ledger_name for archive in archives}
     for destination, marker in markers.items():
+        if destination in archived_targets:
+            continue
         source_name, source_digest, source_device, source_inode = _source(
             marker["source"], "migration marker source"
         )
@@ -6806,11 +7728,11 @@ def _inventory_locked(directory: int) -> Inventory:
         }:
             raise LedgerError(f"orphaned migration completion stage: {marker_name}")
     for destination in snapshots:
-        if destination not in markers:
+        if destination not in markers and destination not in archived_targets:
             raise LedgerError(f"orphaned migration snapshot: {snapshots[destination][0]}")
     for snapshot in committed:
         migration = snapshot.document["migration"]
-        if migration is None:
+        if migration is None or snapshot.name in archived_targets:
             continue
         marker = markers.get(snapshot.name)
         if marker is None:
@@ -6837,11 +7759,113 @@ def _inventory_locked(directory: int) -> Inventory:
     for snapshot in ledgers:
         unique[(snapshot.name, snapshot.digest)] = snapshot
     result = list(unique.values())
-    _reject_overlaps(result)
+    release_unique: dict[tuple[str, str], ReleaseRecord] = {}
+    for release in releases:
+        release_unique[(release.ledger_name, release.digest)] = release
+    release_result = list(release_unique.values())
+    releases_by_ledger: dict[str, ReleaseRecord] = {}
+    snapshots_by_name = {snapshot.name: snapshot for snapshot in committed}
+    for release in release_result:
+        prior = releases_by_ledger.get(release.ledger_name)
+        if prior is not None and prior.digest != release.digest:
+            raise LedgerError(f"multiple release candidates exist for {release.ledger_name}")
+        snapshot = snapshots_by_name.get(release.ledger_name)
+        if snapshot is None:
+            if release.ledger_name in archived_targets:
+                continue
+            raise LedgerError(f"release marker lost its canonical ledger: {release.ledger_name}")
+        identity = release.document["ledger"]
+        if (
+            identity["ledger_id"] != snapshot.document["ledger_id"]
+            or identity["generation"] != snapshot.document["generation"]
+            or identity["sha256"] != snapshot.digest
+            or identity["device"] != snapshot.device
+            or identity["inode"] != snapshot.inode
+        ):
+            raise LedgerError(f"release marker is stale for {release.ledger_name}")
+        request = {
+            key: release.document[key]
+            for key in (
+                "authority",
+                "observed_at",
+                "pull_requests",
+                "issues",
+                "mutation_state",
+                "cleanup",
+            )
+        }
+        if _release_document(snapshot, request, live_proof=False) != release.document:
+            raise LedgerError(f"release marker does not match {release.ledger_name}")
+        releases_by_ledger[release.ledger_name] = release
+    archive_by_ledger: dict[str, ArchiveRecord] = {}
+    for archive in archives:
+        prior = archive_by_ledger.get(archive.ledger_name)
+        if prior is not None and prior.digest != archive.digest:
+            raise LedgerError(f"multiple archives exist for {archive.ledger_name}")
+        archive_by_ledger[archive.ledger_name] = archive
+    active = [
+        snapshot
+        for snapshot in result
+        if snapshot.name not in releases_by_ledger
+        and snapshot.name not in archive_by_ledger
+    ]
+    archived_snapshots: list[Snapshot] = []
+    for archive in archive_by_ledger.values():
+        member = next(
+            row
+            for row in archive.document["members"]
+            if row["name"] == archive.ledger_name
+        )
+        ledger_raw = base64.b64decode(member["raw_base64"].encode("ascii"))
+        archived_snapshots.append(
+            Snapshot(
+                archive.ledger_name,
+                _decode(ledger_raw, f"archive {archive.name} ledger"),
+                ledger_raw,
+                archive.document["ledger"]["sha256"],
+                archive.document["ledger"]["device"],
+                archive.document["ledger"]["inode"],
+            )
+        )
+    all_by_identity = {
+        (snapshot.name, snapshot.digest): snapshot
+        for snapshot in [*result, *archived_snapshots]
+    }
+    _reject_overlaps(
+        list(all_by_identity.values()),
+        inert_keys=frozenset(
+            {
+                *(
+                    (name, release.document["ledger"]["sha256"])
+                    for name, release in releases_by_ledger.items()
+                ),
+                *(
+                    (name, archive.document["ledger"]["sha256"])
+                    for name, archive in archive_by_ledger.items()
+                ),
+            }
+        ),
+    )
     committed_keys = {(item.name, item.digest) for item in committed}
     committed_result = tuple(
-        item for item in result if (item.name, item.digest) in committed_keys
+        item
+        for item in result
+        if (item.name, item.digest) in committed_keys
+        and item.name not in releases_by_ledger
+        and item.name not in archive_by_ledger
     )
+    historical_by_identity = {
+        (snapshot.name, snapshot.digest): snapshot
+        for snapshot in [
+            *(
+                snapshot
+                for snapshot in result
+                if snapshot.name in releases_by_ledger
+                or snapshot.name in archive_by_ledger
+            ),
+            *archived_snapshots,
+        ]
+    }
     pending = [
         item
         for item in pending
@@ -6855,6 +7879,22 @@ def _inventory_locked(directory: int) -> Inventory:
         committed_result,
         tuple(sorted(pending, key=lambda item: (item.target, item.kind))),
         tuple(sorted(legacy_reports, key=lambda item: item.name)),
+        tuple(
+            sorted(
+                (
+                    release for name, release in releases_by_ledger.items()
+                    if name not in archive_by_ledger
+                ),
+                key=lambda item: item.ledger_name,
+            )
+        ),
+        tuple(sorted(archive_by_ledger.values(), key=lambda item: item.ledger_name)),
+        tuple(
+            sorted(
+                historical_by_identity.values(),
+                key=lambda item: (item.name, item.digest),
+            )
+        ),
     )
 
 
@@ -7018,7 +8058,13 @@ def _check_candidate_inventory(
     )
     target = canonical_name(candidate)
     proposed = Snapshot(target, dict(candidate), raw, byte_digest(raw), 0, 0)
-    _reject_overlaps([*current.ledgers, proposed])
+    historical_keys = frozenset(
+        (snapshot.name, snapshot.digest) for snapshot in current.historical_ledgers
+    )
+    _reject_overlaps(
+        [*current.ledgers, *current.historical_ledgers, proposed],
+        inert_keys=historical_keys,
+    )
 
 
 def _require_trusted_regular(
@@ -7249,6 +8295,472 @@ def init_root(wrapper_root: Path | str) -> dict[str, Any]:
 def inventory(root: Path | str) -> Inventory:
     with _locked_root(Path(root)) as directory:
         return _inventory_locked(directory)
+
+
+def _release_plan(
+    snapshot: Snapshot, request: Mapping[str, Any], *, live_proof: bool = True
+) -> tuple[dict[str, Any], bytes, str]:
+    document = _release_document(snapshot, request, live_proof=live_proof)
+    raw = canonical_bytes(document)
+    return document, raw, byte_digest(raw)
+
+
+def release_preview(
+    root: Path | str, name: str, request: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Return a mutation-free plan for one exact post-merge release."""
+
+    target = _direct_name(name)
+    with _locked_root(Path(root)) as directory:
+        current = _inventory_locked(directory)
+        if any(item.target == target for item in current.pending):
+            raise LedgerError(f"release is blocked by a pending operation for {target}")
+        snapshot = _snapshot(directory, target)
+        marker_name = _release_name(target)
+        existing = next(
+            (row for row in current.releases if row.ledger_name == target), None
+        )
+        document, raw, plan = _release_plan(
+            snapshot, request, live_proof=existing is None
+        )
+        if existing is not None and existing.raw != raw:
+            raise LedgerError(f"ledger already has a different terminal release: {target}")
+        return {
+            "mode": "preview",
+            "plan_sha256": plan,
+            "marker": marker_name,
+            "ledger": document["ledger"],
+            "state": "released" if existing is not None else "eligible",
+        }
+
+
+def release_apply(
+    root: Path | str,
+    name: str,
+    request: Mapping[str, Any],
+    *,
+    plan_sha256: str,
+    failpoint: Failpoint = None,
+) -> ReleaseRecord:
+    """Durably release active coordinates after an exact hash-bound preview."""
+
+    target = _direct_name(name)
+    _string(plan_sha256, "release plan digest", SHA256_RE)
+    with _locked_root(Path(root)) as directory:
+        current = _inventory_locked(directory)
+        snapshot = _snapshot(directory, target)
+        marker_name = _release_name(target)
+        existing = next(
+            (row for row in current.releases if row.ledger_name == target), None
+        )
+        document, raw, candidate = _release_plan(
+            snapshot, request, live_proof=existing is None
+        )
+        if candidate != plan_sha256:
+            raise LedgerError("release plan digest is stale or unrelated")
+        stage = f".{target}.release-{candidate}.tmp"
+        _require_names_fit(directory, (marker_name, stage))
+        allowed_stage = ("release", target, stage)
+        unexpected = [
+            item for item in current.pending
+            if item.target == target and (item.kind, item.target, item.staging) != allowed_stage
+        ]
+        if unexpected:
+            raise LedgerError(f"release is blocked by a pending operation for {target}")
+        if existing is not None:
+            if existing.raw != raw:
+                raise LedgerError(f"ledger already has a different terminal release: {target}")
+            if _exists(directory, stage):
+                staged_raw, staged_status = _read_regular(
+                    directory, stage, managed=True, expected_nlinks={2}
+                )
+                if staged_raw != raw:
+                    raise LedgerError(f"release staging content mismatch: {stage}")
+                _unlink_exact(directory, stage, staged_status)
+            return existing
+        stage_status = _ensure_stage(
+            directory, stage, raw, allow_prefix_resume=True, expected_nlinks={1, 2}
+        )
+        _hit(failpoint, "release:staged")
+        # The root lock excludes every helper writer. Re-read the ledger tuple
+        # immediately before installation so stale authority cannot win.
+        current_snapshot = _snapshot(directory, target)
+        if (
+            current_snapshot.digest != snapshot.digest
+            or current_snapshot.document["generation"] != snapshot.document["generation"]
+            or (current_snapshot.device, current_snapshot.inode)
+            != (snapshot.device, snapshot.inode)
+        ):
+            raise LedgerError("release ledger tuple changed before installation")
+        try:
+            os.link(
+                stage,
+                marker_name,
+                src_dir_fd=directory,
+                dst_dir_fd=directory,
+                follow_symlinks=False,
+            )
+        except FileExistsError as error:
+            raise LedgerError(f"release marker appeared: {marker_name}") from error
+        _fsync(directory, f"review root after installing {marker_name}")
+        _hit(failpoint, "release:installed")
+        marker_raw, marker_status = _read_regular(
+            directory, marker_name, managed=True, expected_nlinks={2}
+        )
+        if marker_raw != raw or (marker_status.st_dev, marker_status.st_ino) != (
+            stage_status.st_dev,
+            stage_status.st_ino,
+        ):
+            raise LedgerError("installed release marker differs from its staged candidate")
+        _unlink_exact(directory, stage, stage_status)
+        _hit(failpoint, "release:cleaned")
+        final = _inventory_locked(directory)
+        matches = [row for row in final.releases if row.ledger_name == target]
+        if len(matches) != 1 or matches[0].raw != raw:
+            raise LedgerError("terminal release did not become authoritative")
+        return matches[0]
+
+
+def _archive_member_names(snapshot: Snapshot) -> list[str]:
+    names = {
+        snapshot.name,
+        _release_name(snapshot.name),
+        f".{snapshot.name}.lock",
+        snapshot.name.removesuffix(".ledger.json"),
+    }
+    migration = snapshot.document["migration"]
+    if migration is not None:
+        names.update(
+            {
+                migration["source"]["name"],
+                migration["snapshot"]["name"],
+                migration["canonical_report"],
+                migration["marker_name"],
+            }
+        )
+    return sorted(names, key=str.casefold)
+
+
+def _archive_plan_locked(
+    directory: int,
+    snapshot: Snapshot,
+    release: ReleaseRecord,
+    request: Mapping[str, Any],
+) -> tuple[dict[str, Any], bytes, str, str]:
+    prepared = _archive_request(snapshot, release, request)
+    members: list[dict[str, Any]] = []
+    for name in _archive_member_names(snapshot):
+        try:
+            raw, status = _read_regular(directory, name)
+        except LedgerError:
+            if name in {snapshot.name, _release_name(snapshot.name), f".{snapshot.name}.lock"}:
+                raise LedgerError(f"required archive member is missing or unsafe: {name}")
+            continue
+        members.append(_archive_member(name, raw, status))
+    document = _validate_archive_document(
+        {
+            "transaction": "delivery-ledger-archive-v1",
+            "state": "complete",
+            "ledger": release.document["ledger"],
+            "release_sha256": release.digest,
+            **prepared,
+            "members": members,
+        },
+        "archive",
+    )
+    raw = canonical_bytes(document)
+    digest = byte_digest(raw)
+    name = f".{snapshot.name}.archive-{snapshot.digest}.json"
+    return document, raw, digest, name
+
+
+def _archive_request_from_document(document: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        key: document[key]
+        for key in ("authority", "archived_at", "retain_until", "cleanup")
+    }
+
+
+def archive_preview(
+    root: Path | str, name: str, request: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Preview archival after a separately completed cleanup preview/apply."""
+
+    target = _direct_name(name)
+    with _locked_root(Path(root)) as directory:
+        current = _inventory_locked(directory)
+        archived = next(
+            (row for row in current.archives if row.ledger_name == target), None
+        )
+        if archived is not None:
+            if _archive_request_from_document(archived.document) != _decode(
+                canonical_bytes(request), "archive request"
+            ):
+                raise LedgerError(f"ledger already has a different archive: {target}")
+            return {
+                "mode": "preview",
+                "plan_sha256": archived.digest,
+                "archive": archived.name,
+                "ledger": archived.document["ledger"],
+                "state": "archived",
+            }
+        if any(item.target == target for item in current.pending):
+            raise LedgerError(f"archive is blocked by a pending operation for {target}")
+        snapshot = _snapshot(directory, target)
+        release = next(
+            (row for row in current.releases if row.ledger_name == target), None
+        )
+        if release is None:
+            raise LedgerError("archive requires an authoritative terminal release")
+        document, _raw, plan, archive_name = _archive_plan_locked(
+            directory, snapshot, release, request
+        )
+        return {
+            "mode": "preview",
+            "plan_sha256": plan,
+            "archive": archive_name,
+            "ledger": document["ledger"],
+            "state": "eligible",
+        }
+
+
+def _finish_archive_members(
+    directory: int, archive: ArchiveRecord, *, failpoint: Failpoint = None
+) -> None:
+    for index, member in enumerate(archive.document["members"]):
+        name, raw, mode, device, inode = _archive_member_bytes(
+            member, f"archive member[{index}]"
+        )
+        try:
+            current_raw, status = _read_regular(directory, name)
+        except LedgerError as error:
+            try:
+                os.stat(name, dir_fd=directory, follow_symlinks=False)
+            except FileNotFoundError:
+                continue
+            raise error
+        if (
+            current_raw != raw
+            or stat.S_IMODE(status.st_mode) != mode
+            or (status.st_dev, status.st_ino) != (device, inode)
+        ):
+            raise LedgerError(f"archive member changed before removal: {name}")
+        _unlink_exact(directory, name, status)
+        _hit(failpoint, f"archive:member:{name}")
+
+
+def archive_apply(
+    root: Path | str,
+    name: str,
+    request: Mapping[str, Any],
+    *,
+    plan_sha256: str,
+    failpoint: Failpoint = None,
+) -> ArchiveRecord:
+    """Bundle helper evidence; never remove the worktree or runtime resources."""
+
+    target = _direct_name(name)
+    _string(plan_sha256, "archive plan digest", SHA256_RE)
+    with _locked_root(Path(root)) as directory:
+        current = _inventory_locked(directory)
+        archived = next(
+            (row for row in current.archives if row.ledger_name == target), None
+        )
+        stage: str | None = None
+        if archived is None:
+            snapshot = _snapshot(directory, target)
+            release = next(
+                (row for row in current.releases if row.ledger_name == target), None
+            )
+            if release is None:
+                raise LedgerError("archive requires an authoritative terminal release")
+            _document, raw, candidate, archive_name = _archive_plan_locked(
+                directory, snapshot, release, request
+            )
+            if candidate != plan_sha256:
+                raise LedgerError("archive plan digest is stale or unrelated")
+            stage = (
+                f".{target}.archive-{snapshot.digest}-to-{candidate}.tmp"
+            )
+            _require_names_fit(directory, (archive_name, stage))
+            unexpected = [
+                item for item in current.pending
+                if item.target == target
+                and (item.kind, item.target, item.staging)
+                != ("archive", target, stage)
+            ]
+            if unexpected:
+                raise LedgerError(f"archive is blocked by a pending operation for {target}")
+            stage_status = _ensure_stage(
+                directory,
+                stage,
+                raw,
+                allow_prefix_resume=True,
+                expected_nlinks={1, 2},
+            )
+            _hit(failpoint, "archive:staged")
+            try:
+                os.link(
+                    stage,
+                    archive_name,
+                    src_dir_fd=directory,
+                    dst_dir_fd=directory,
+                    follow_symlinks=False,
+                )
+            except FileExistsError as error:
+                raise LedgerError(f"archive appeared: {archive_name}") from error
+            _fsync(directory, f"review root after installing {archive_name}")
+            _hit(failpoint, "archive:installed")
+            archive_raw, archive_status = _read_regular(
+                directory,
+                archive_name,
+                managed=True,
+                expected_nlinks={2},
+                limit=MAX_ARCHIVE_BYTES,
+            )
+            if archive_raw != raw or (archive_status.st_dev, archive_status.st_ino) != (
+                stage_status.st_dev,
+                stage_status.st_ino,
+            ):
+                raise LedgerError("installed archive differs from its staged candidate")
+            archived = _archive_record(archive_name, archive_raw, archive_status)
+        else:
+            if archived.digest != plan_sha256:
+                raise LedgerError("archive plan digest is stale or unrelated")
+            if _archive_request_from_document(archived.document) != _decode(
+                canonical_bytes(request), "archive request"
+            ):
+                raise LedgerError("archive request differs from the installed archive")
+            matching_stages = [
+                item.staging for item in current.pending
+                if item.kind == "archive" and item.target == target
+            ]
+            if len(matching_stages) > 1:
+                raise LedgerError("multiple archive stages exist")
+            stage = matching_stages[0] if matching_stages else None
+        _finish_archive_members(directory, archived, failpoint=failpoint)
+        if stage is not None and _exists(directory, stage):
+            stage_raw, stage_status = _read_regular(
+                directory,
+                stage,
+                managed=True,
+                expected_nlinks={2},
+                limit=MAX_ARCHIVE_BYTES,
+            )
+            if stage_raw != archived.raw:
+                raise LedgerError("archive staging content changed")
+            _unlink_exact(directory, stage, stage_status)
+        _hit(failpoint, "archive:cleaned")
+        final = _inventory_locked(directory)
+        matches = [row for row in final.archives if row.ledger_name == target]
+        if len(matches) != 1 or matches[0].digest != plan_sha256:
+            raise LedgerError("archive did not reach its terminal state")
+        return matches[0]
+
+
+def reclaim_preview(root: Path | str, name: str, observed_at: str) -> dict[str, Any]:
+    archive_name = _direct_name(name, "archive name")
+    observed = _string(observed_at, "reclaim observed_at", TIMESTAMP_RE)
+    _timestamp_key(observed, "reclaim observed_at")
+    with _locked_root(Path(root)) as directory:
+        current = _inventory_locked(directory)
+        matches = [row for row in current.archives if row.name == archive_name]
+        if len(matches) != 1:
+            raise LedgerError("reclaim requires one exact archive")
+        archive = matches[0]
+        if _timestamp_key(observed, "reclaim observed_at") < _timestamp_key(
+            archive.document["retain_until"], "archive retain_until"
+        ):
+            raise LedgerError("archive retention period has not elapsed")
+        plan = canonical_object_digest(
+            {
+                "operation": "reclaim",
+                "archive": archive.name,
+                "sha256": archive.digest,
+                "device": archive.device,
+                "inode": archive.inode,
+                "observed_at": observed,
+            }
+        )
+        return {
+            "mode": "preview",
+            "plan_sha256": plan,
+            "archive": archive.name,
+            "archive_sha256": archive.digest,
+            "device": archive.device,
+            "inode": archive.inode,
+            "observed_at": observed,
+            "state": "eligible",
+        }
+
+
+def reclaim_apply(
+    root: Path | str,
+    preview: Mapping[str, Any],
+    *,
+    plan_sha256: str,
+    failpoint: Failpoint = None,
+) -> dict[str, Any]:
+    plan = _string(plan_sha256, "reclaim plan digest", SHA256_RE)
+    item = _exact(
+        _decode(canonical_bytes(preview), "reclaim preview"),
+        {
+            "mode",
+            "plan_sha256",
+            "archive",
+            "archive_sha256",
+            "device",
+            "inode",
+            "observed_at",
+            "state",
+        },
+        "reclaim preview",
+    )
+    if item["mode"] != "preview" or item["state"] != "eligible" or item["plan_sha256"] != plan:
+        raise LedgerError("reclaim apply requires its exact eligible preview")
+    archive_name = _direct_name(item["archive"], "reclaim archive")
+    with _locked_root(Path(root)) as directory:
+        current = _inventory_locked(directory)
+        matches = [row for row in current.archives if row.name == archive_name]
+        if not matches:
+            return {
+                "mode": "apply",
+                "plan_sha256": plan,
+                "archive": archive_name,
+                "state": "reclaimed",
+            }
+        if len(matches) != 1:
+            raise LedgerError("reclaim archive identity is ambiguous")
+        archive = matches[0]
+        expected = canonical_object_digest(
+            {
+                "operation": "reclaim",
+                "archive": archive.name,
+                "sha256": archive.digest,
+                "device": archive.device,
+                "inode": archive.inode,
+                "observed_at": item["observed_at"],
+            }
+        )
+        if (
+            expected != plan
+            or item["archive_sha256"] != archive.digest
+            or item["device"] != archive.device
+            or item["inode"] != archive.inode
+        ):
+            raise LedgerError("reclaim archive tuple or plan changed")
+        _unlink_exact(
+            directory,
+            archive.name,
+            os.stat(archive.name, dir_fd=directory, follow_symlinks=False),
+        )
+        _hit(failpoint, "reclaim:removed")
+        return {
+            "mode": "apply",
+            "plan_sha256": plan,
+            "archive": archive.name,
+            "state": "reclaimed",
+        }
 
 
 def inspect(root: Path | str, name: str) -> Snapshot:
@@ -8635,6 +10147,44 @@ def parser() -> argparse.ArgumentParser:
         "inventory", help="read-only inventory of issue and PR ledgers"
     )
     inventory_parser.add_argument("root", help="initialized review root")
+    release_preview_parser = commands.add_parser(
+        "release-preview", help="preview one explicit post-merge terminal release"
+    )
+    release_preview_parser.add_argument("root", help="initialized review root")
+    release_preview_parser.add_argument("name", help="direct canonical ledger filename")
+    release_preview_parser.add_argument("input", help="bounded no-follow release evidence JSON")
+    release_apply_parser = commands.add_parser(
+        "release-apply", help="apply one hash-bound terminal release"
+    )
+    release_apply_parser.add_argument("root", help="initialized review root")
+    release_apply_parser.add_argument("name", help="direct canonical ledger filename")
+    release_apply_parser.add_argument("input", help="bounded no-follow release evidence JSON")
+    release_apply_parser.add_argument("--plan", required=True, help="exact preview digest")
+    archive_preview_parser = commands.add_parser(
+        "archive-preview", help="preview bundling one released ledger after cleanup"
+    )
+    archive_preview_parser.add_argument("root", help="initialized review root")
+    archive_preview_parser.add_argument("name", help="direct canonical ledger filename")
+    archive_preview_parser.add_argument("input", help="bounded no-follow archive evidence JSON")
+    archive_apply_parser = commands.add_parser(
+        "archive-apply", help="apply one hash-bound evidence archive"
+    )
+    archive_apply_parser.add_argument("root", help="initialized review root")
+    archive_apply_parser.add_argument("name", help="direct canonical ledger filename")
+    archive_apply_parser.add_argument("input", help="bounded no-follow archive evidence JSON")
+    archive_apply_parser.add_argument("--plan", required=True, help="exact preview digest")
+    reclaim_preview_parser = commands.add_parser(
+        "reclaim-preview", help="preview retention-gated archive reclamation"
+    )
+    reclaim_preview_parser.add_argument("root", help="initialized review root")
+    reclaim_preview_parser.add_argument("name", help="direct canonical archive filename")
+    reclaim_preview_parser.add_argument("observed_at", help="exact UTC observation timestamp")
+    reclaim_apply_parser = commands.add_parser(
+        "reclaim-apply", help="apply one exact reclaim preview"
+    )
+    reclaim_apply_parser.add_argument("root", help="initialized review root")
+    reclaim_apply_parser.add_argument("input", help="bounded no-follow reclaim preview JSON")
+    reclaim_apply_parser.add_argument("--plan", required=True, help="exact preview digest")
     create_parser = commands.add_parser(
         "create", help="atomically create a strict generation-1 ledger"
     )
@@ -8793,6 +10343,48 @@ def main(argv: Sequence[str] | None = None) -> int:
             _print(inspect(arguments.root, arguments.name).json())
         elif arguments.command == "inventory":
             _print(inventory(arguments.root).json())
+        elif arguments.command == "release-preview":
+            _print(
+                release_preview(
+                    arguments.root, arguments.name, _read_input(arguments.input)
+                )
+            )
+        elif arguments.command == "release-apply":
+            _print(
+                release_apply(
+                    arguments.root,
+                    arguments.name,
+                    _read_input(arguments.input),
+                    plan_sha256=arguments.plan,
+                ).json()
+            )
+        elif arguments.command == "archive-preview":
+            _print(
+                archive_preview(
+                    arguments.root, arguments.name, _read_input(arguments.input)
+                )
+            )
+        elif arguments.command == "archive-apply":
+            _print(
+                archive_apply(
+                    arguments.root,
+                    arguments.name,
+                    _read_input(arguments.input),
+                    plan_sha256=arguments.plan,
+                ).json()
+            )
+        elif arguments.command == "reclaim-preview":
+            _print(
+                reclaim_preview(arguments.root, arguments.name, arguments.observed_at)
+            )
+        elif arguments.command == "reclaim-apply":
+            _print(
+                reclaim_apply(
+                    arguments.root,
+                    _read_input(arguments.input),
+                    plan_sha256=arguments.plan,
+                )
+            )
         elif arguments.command == "create":
             _print(create(arguments.root, _read_input(arguments.input)).json())
         elif arguments.command == "cas":

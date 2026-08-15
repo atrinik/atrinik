@@ -58,8 +58,8 @@ remain supported. Release only with the freshly previewed plan digest:
 ./atrinik scope release REVIEW --apply --plan PLAN_SHA256 --json
 ```
 
-Release never stops topologies or deletes persistent state. Unsafe or uncertain
-coordinates fail closed and retain their recovery journals.
+Release never stops topologies or deletes persistent state; uncertainty retains
+recovery journals.
 
 Reclaim review data only through preview-first cleanup:
 
@@ -74,8 +74,9 @@ Repeat a scoped command with `--apply` after review. Defaults cover
 worktrees/builds; caches and topology history are opt-in, and topologies are
 excluded from `all`. Reclaim only stopped, released, exact marker-owned records;
 unsafe or uncertain targets fail closed. Apply sound-cache before its worktree.
-See `README.md` and `docs/ARCHITECTURE.md` for historical wrapper-worktree proof
-and exact apply-time revalidation.
+
+Delivery sidecars are not cleanup targets. Follow issue delivery's separate
+terminal contract; its helper never removes workspace resources.
 
 ## Compose coherent sources
 
