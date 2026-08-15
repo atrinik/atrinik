@@ -3593,20 +3593,6 @@ class Workspace:
                     "source generation changed during durable retry: "
                     f"{generation}"
                 )
-            os.fsync(container_fd)
-            durable_visible = os.stat(
-                generation.name,
-                dir_fd=container_fd,
-                follow_symlinks=False,
-            )
-            if any(
-                getattr(durable_visible, field) != getattr(final_visible, field)
-                for field in stable_fields
-            ):
-                raise WorkspaceError(
-                    "source generation changed during durable retry: "
-                    f"{generation}"
-                )
         except WorkspaceError:
             raise
         except OSError as error:
