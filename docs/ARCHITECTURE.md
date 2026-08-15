@@ -439,17 +439,26 @@ extraction, whose entry creation and mode changes stay relative to pinned,
 no-follow generation directories. Mutation-based CMake tests operate on
 writable profile-local views rather than weakening the shared generation.
 Schema-1 generations remain recognizable to preview-first cleanup but cannot be
-reused as current build inputs. A mismatch fails closed and leaves recovery to
-the explicit `builds` cleanup boundary. Once path, marker, key, and closed
-metadata ownership are exact, cleanup classifies a content-digest mismatch as
-removable corruption. Builds authenticate an existing generation while holding
-its per-key shared lock; only an absent generation enters exclusive creation
-with a recheck. Cleanup apply
+reused as current build inputs. New staging trees are complete and sealed before
+descriptor-relative flushing of every file and directory. A pinned whole-tree
+identity, content, and mount-boundary inventory must still match immediately
+before a no-replace rename exposes the canonical key, and the container is
+flushed before success. A mismatch under descriptor-verified exact marker
+ownership atomically moves the complete generation identity to a retained
+recovery transaction only after recursively excluding nested mounts, then
+rebuilds the canonical key through the ordinary staging and no-replace
+publication path. Uncertain ownership fails closed without moving data. Once
+path, marker, key, and closed metadata ownership are exact, cleanup classifies a
+content-digest mismatch as removable corruption. Builds hold a per-key shared
+lock while authenticating an existing generation; only an absent or
+conclusively corrupt generation enters exclusive creation with a recheck.
+Cleanup apply
 revalidates ownership, closure content, identity, and age under its exclusive
 side before bounded removal. First-use container publication is
-checkout-serialized. Interrupted staging remains a recognized child of its
-marker-owned container, is protected while its generation lock is busy, and
-becomes independently reclaimable after the normal grace period.
+checkout-serialized. Recovery and interrupted staging remain recognized
+children of the marker-owned container, are protected while their generation
+lock is busy, and become independently reclaimable through preview-first
+`builds` cleanup after the normal grace period.
 
 The npm and compiler caches have exact purpose markers and atomically refreshed
 `.atrinik-cache.json` timestamps. The compiler cache metadata also fixes its
