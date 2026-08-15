@@ -849,9 +849,9 @@ class ProgramLedgerModel:
         scan.used = True
 
     def observe_comment(
-        self, stream: str = "comment-stable", count: int | None = None,
-        complete: bool = True,
+        self, count: int | None = None, complete: bool = True,
         namespace: list[tuple[str, str, str, str]] | None = None,
+        comments: list[dict[str, object]] | None = None,
         body: str = "old-body",
         scan: object = AUTO_SCAN,
     ) -> None:
@@ -860,6 +860,11 @@ class ProgramLedgerModel:
             or self.record["comment"]["node"] is not None
             or bool(count)
         )
+        if namespace is None and comments is not None:
+            namespace = [
+                (comment["node"], comment["author"], comment["marker"], comment["body"])
+                for comment in comments if comment.get("marker") is not None
+            ]
         if namespace is None:
             namespace = (
                 [("comment-node", "actor", "program-marker", body)]
@@ -872,15 +877,27 @@ class ProgramLedgerModel:
             {"node": node, "author": author, "marker": marker, "body": text}
             for node, author, marker, text in namespace
         ]
+        if comments is None:
+            comments = copy.deepcopy(results)
+        if any(
+            not isinstance(comment, dict)
+            or set(comment) != {"node", "author", "marker", "body"}
+            or not isinstance(comment["node"], str) or not comment["node"]
+            or not isinstance(comment["author"], str) or not comment["author"]
+            or not isinstance(comment["body"], str)
+            or (
+                comment["marker"] is not None
+                and not isinstance(comment["marker"], str)
+            )
+            for comment in comments
+        ):
+            raise StopClosed("comment scan contains malformed full-stream evidence")
+        content_digest = hashlib.sha256(self.canonical(comments)).hexdigest()
         observed_count = int(marker_required) if count is None else count
-        node_ids = [result["node"] for result in results]
-        node_ids.extend(
-            f"conflict-{index}" for index in range(len(node_ids), observed_count)
-        )
-        body_sizes = [len(result["body"].encode("utf-8")) for result in results]
-        body_sizes.extend(0 for _ in range(len(body_sizes), observed_count))
+        node_ids = [comment["node"] for comment in comments]
+        body_sizes = [len(comment["body"].encode("utf-8")) for comment in comments]
         self._observe(
-            "comment", stream, self.result_stream(results),
+            "comment", content_digest, self.result_stream(results),
             observed_count, complete, scan, node_ids, body_sizes,
         )
 
@@ -1281,8 +1298,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         if slot == "comment":
             results = [self.exact_comment()]
             model.observe_comment(
-                stream="full-comment-stream-with-unrelated", count=1,
-                body="intended-body",
+                count=1, body="intended-body",
             )
         elif slot == "create":
             results = [self.exact_child()]
@@ -1710,8 +1726,12 @@ class ProgramLedgerModelTests(unittest.TestCase):
         self.assertEqual(child.remote_calls["create"], 0)
 
         replayed = ProgramLedgerModel()
+        empty_comment_digest = hashlib.sha256(
+            ProgramLedgerModel.canonical([])
+        ).hexdigest()
         first = replayed.issue_scan(
-            "comment", [], [], "comment-stable", "comment-stable", body_sizes=[]
+            "comment", [], [], empty_comment_digest, empty_comment_digest,
+            body_sizes=[]
         )
         replay = copy.deepcopy(first)
         replayed.observe_comment(scan=first)
@@ -2066,7 +2086,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         patch.rekey(patch.record["authority"], ["leaf-1", "leaf-2"], "comment-node")
         self.refresh_before_arm(patch, "comment")
         patch.execute(patch.arm("comment"))
-        patch.observe_comment(stream="old-recovery", count=1)
+        patch.observe_comment(count=1)
         with self.assertRaises(StopClosed):
             patch.finish_patch("old-body", "comment-node")
 
@@ -2145,7 +2165,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             model.record, 41, model.record["self_inode"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
-        model.observe_comment(stream="ordinary-old", count=1)
+        model.observe_comment(count=1)
         with self.assertRaises(StopClosed):
             model.finish_patch("drifted-body", "comment-node")
         with self.assertRaises(StopClosed):
@@ -2154,7 +2174,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             model.record, 41, model.record["self_inode"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
-        model.observe_comment(stream="ordinary-old", count=1)
+        model.observe_comment(count=1)
         retry = model.finish_patch("old-body", "comment-node")
         self.assertIsNotNone(retry)
         copied_retry = copy.deepcopy(retry)
@@ -2165,7 +2185,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             model.record, 41, model.record["self_inode"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
-        model.observe_comment(stream="ordinary-intended", count=1, body="intended-body")
+        model.observe_comment(count=1, body="intended-body")
         model.finish_patch("intended-body", "comment-node")
         self.assertEqual(model.record["comment"]["phase"], "bound")
         self.assertEqual(model.record["graph"], original_graph)
@@ -2181,7 +2201,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             applied.record, 41, applied.record["self_inode"], applied.digest(),
             applied.record["authority"], remote_calls=applied.remote_calls,
         )
-        applied.observe_comment(stream="ordinary-applied", count=1, body="intended-body")
+        applied.observe_comment(count=1, body="intended-body")
         applied.finish_patch("intended-body", "comment-node")
         self.assertEqual(applied.record["comment"]["phase"], "bound")
         self.assertEqual(applied.remote_calls["comment"], 2)
@@ -2272,18 +2292,31 @@ class ProgramLedgerModelTests(unittest.TestCase):
 
     def test_arm_requires_new_identical_post_plan_observation(self) -> None:
         model = ProgramLedgerModel()
-        model.observe_comment(stream="first")
+        first = [{
+            "node": "unrelated-comment", "author": "other", "marker": None,
+            "body": "aaaa",
+        }]
+        changed = [dict(first[0], body="bbbb")]
+        model.observe_comment(comments=first)
         model.plan_comment()
         with self.assertRaises(StopClosed):
             model.arm("comment")
-        model.observe_comment(stream="changed")
+        model.observe_comment(comments=changed)
         with self.assertRaises(StopClosed):
             model.arm("comment")
-        model.observe_comment(stream="first")
+        model.observe_comment(comments=first)
         with self.assertRaises(StopClosed):
             model.arm("comment")
-        model.observe_comment(stream="first")
+        model.observe_comment(comments=first)
         model.arm("comment")
+
+        author_drift = ProgramLedgerModel()
+        author_drift.observe_comment(comments=first)
+        author_drift.plan_comment()
+        author_drift.observe_comment(comments=[dict(first[0], author="another")])
+        with self.assertRaises(StopClosed):
+            author_drift.arm("comment")
+        self.assertEqual(author_drift.remote_calls["comment"], 0)
 
     def test_stable_forbidden_state_never_arms_mutation(self) -> None:
         comment = ProgramLedgerModel()
@@ -2496,12 +2529,12 @@ class ProgramLedgerModelTests(unittest.TestCase):
             model.record, 41, model.record["self_inode"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
-        model.observe_comment(stream="patch-old", count=1)
+        model.observe_comment(count=1)
         with self.assertRaises(StopClosed):
             model.finish_patch("drifted-body", "comment-node")
         with self.assertRaises(StopClosed):
             model.finish_patch("old-body", "comment-node")
-        model.observe_comment(stream="patch-old", count=1)
+        model.observe_comment(count=1)
         retry = model.finish_patch("old-body", "comment-node")
         self.assertIsNotNone(retry)
         self.assertEqual(model.record["graph"], ["leaf-1"])
@@ -2511,7 +2544,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             model.record, 41, model.record["self_inode"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
-        model.observe_comment(stream="patch-intended", count=1, body="intended-body")
+        model.observe_comment(count=1, body="intended-body")
         model.finish_patch("intended-body", "comment-node")
         self.assertEqual(model.record["comment"]["node"], "comment-node")
         self.assertEqual(model.record["graph"], ["leaf-1", "leaf-2"])
@@ -2638,9 +2671,14 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model.execute(permit)
         wrong = dict(self.exact_comment(), author="other")
         results = [self.exact_comment(), wrong]
-        model.observe_comment(stream=model.result_stream(results), count=2)
         with self.assertRaises(StopClosed):
-            model.bind_comment(results)
+            model.observe_comment(
+                namespace=[
+                    (item["node"], item["author"], item["marker"], item["body"])
+                    for item in results
+                ],
+                comments=results, count=2,
+            )
 
     def test_create_and_link_cannot_plan_twice_or_out_of_order(self) -> None:
         model = ProgramLedgerModel()
