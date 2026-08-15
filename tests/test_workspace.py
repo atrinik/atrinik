@@ -59,6 +59,7 @@ from atrinik_workspace.workspace import (
     Workspace,
     _copy_regular_file as real_copy_regular_file,
     _copy_worker_source as real_copy_worker_source,
+    _parse_worktree_porcelain,
     _tree_digest,
     _remote_matches as real_remote_matches,
     display_arguments,
@@ -1485,6 +1486,124 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "dirty primary"):
             self.workspace.sync(["client"], "none")
         self.assertTrue((checkout / "dirty").is_file())
+
+    def test_wrapper_worktree_porcelain_preserves_complete_safe_records(self) -> None:
+        raw = (
+            b"worktree /repo with spaces+plus_underscore\0"
+            b"HEAD " + b"a" * 40 + b"\0"
+            b"branch refs/heads/feat/safe+branch_name\0"
+            b"locked maintenance window\0\0"
+            b"worktree /repo/linked@safe\0"
+            b"HEAD " + b"b" * 40 + b"\0"
+            b"detached\0"
+            b"prunable gitdir file points to non-existent location\0\0"
+        )
+
+        self.assertEqual(
+            _parse_worktree_porcelain(raw),
+            [
+                {
+                    "worktree": "/repo with spaces+plus_underscore",
+                    "HEAD": "a" * 40,
+                    "branch": "refs/heads/feat/safe+branch_name",
+                    "locked": "maintenance window",
+                },
+                {
+                    "worktree": "/repo/linked@safe",
+                    "HEAD": "b" * 40,
+                    "detached": "",
+                    "prunable": "gitdir file points to non-existent location",
+                },
+            ],
+        )
+
+    def test_wrapper_worktree_porcelain_rejects_malformed_or_ambiguous_rows(self) -> None:
+        valid = (
+            b"worktree /repo\0HEAD " + b"a" * 40
+            + b"\0branch refs/heads/main\0\0"
+        )
+        invalid = {
+            "not delimited": valid[:-1],
+            "unknown field": valid.replace(b"branch ", b"unknown "),
+            "duplicate field": valid.replace(
+                b"HEAD " + b"a" * 40,
+                b"HEAD " + b"a" * 40 + b"\0HEAD " + b"b" * 40,
+            ),
+            "missing head": valid.replace(b"HEAD " + b"a" * 40 + b"\0", b""),
+            "invalid head": valid.replace(b"a" * 40, b"not-a-commit"),
+            "non-head branch": valid.replace(
+                b"refs/heads/main", b"refs/remotes/origin/main"
+            ),
+            "branch and detached": valid.replace(
+                b"branch refs/heads/main", b"branch refs/heads/main\0detached"
+            ),
+            "valued detached flag": valid.replace(
+                b"branch refs/heads/main", b"detached unexpected"
+            ),
+            "invalid utf8": valid.replace(b"/repo", b"/repo\xff"),
+            "control in path": valid.replace(b"/repo", b"/repo\nunsafe"),
+            "noncanonical path": valid.replace(b"/repo", b"/repo/../other"),
+            "root path": valid.replace(b"/repo", b"/"),
+            "case alias": valid + valid.replace(b"/repo", b"/REPO"),
+        }
+        for name, raw in invalid.items():
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(
+                    WorkspaceError, "worktree inventory"
+                ):
+                    _parse_worktree_porcelain(raw)
+
+    def test_wrapper_worktree_porcelain_rejects_byte_and_record_overflow(self) -> None:
+        record = (
+            b"worktree /repo\0HEAD " + b"a" * 40
+            + b"\0branch refs/heads/main\0\0"
+        )
+
+        with self.assertRaisesRegex(WorkspaceError, "not bounded"):
+            _parse_worktree_porcelain(
+                record + b"x" * workspace_module._WORKTREE_INVENTORY_LIMIT
+            )
+        with self.assertRaisesRegex(WorkspaceError, "oversized"):
+            _parse_worktree_porcelain(record * 4097)
+
+    def test_wrapper_worktree_capture_enforces_live_byte_bound(self) -> None:
+        real_popen = subprocess.Popen
+
+        def oversized(*_arguments: object, **keywords: object) -> subprocess.Popen[bytes]:
+            return real_popen(
+                [
+                    sys.executable,
+                    "-c",
+                    "import sys; sys.stdout.buffer.write(b'x' * (1024 * 1024 + 1))",
+                ],
+                **keywords,
+            )
+
+        with mock.patch(
+            "atrinik_workspace.workspace.subprocess.Popen", side_effect=oversized
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "not bounded"):
+                workspace_module._run_wrapper_worktree_inventory(self.wrapper, ())
+
+    def test_wrapper_worktree_capture_enforces_live_timeout(self) -> None:
+        real_popen = subprocess.Popen
+
+        def stalled(*_arguments: object, **keywords: object) -> subprocess.Popen[bytes]:
+            return real_popen(
+                [sys.executable, "-c", "import time; time.sleep(60)"],
+                **keywords,
+            )
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.subprocess.Popen", side_effect=stalled
+            ),
+            mock.patch.object(
+                workspace_module, "_WORKTREE_INVENTORY_TIMEOUT", 0.05
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "timed out"):
+                workspace_module._run_wrapper_worktree_inventory(self.wrapper, ())
 
     def test_worktree_sync_excludes_protected_paths_before_dirty_check(self) -> None:
         repository = self.workspace.paths.repositories / "content"
@@ -13464,6 +13583,56 @@ class WorkspaceTests(unittest.TestCase):
         finally:
             shutil.rmtree(namespace)
             detached.rename(namespace)
+
+    def test_wrapper_worktree_inventory_lists_primary_and_linked_rows(self) -> None:
+        self.workspace.close()
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Tests", cwd=self.wrapper)
+        command(
+            "git", "config", "user.email", "tests@example.invalid", cwd=self.wrapper
+        )
+        command("git", "add", "components.json", cwd=self.wrapper)
+        command("git", "commit", "-m", "feat: seed wrapper", cwd=self.wrapper)
+        linked_root = self.root / "linked wrapper+safe"
+        command(
+            "git",
+            "worktree",
+            "add",
+            "-b",
+            "test/linked+wrapper_safe",
+            str(linked_root),
+            cwd=self.wrapper,
+        )
+        command(
+            "git",
+            "worktree",
+            "lock",
+            "--reason",
+            "delivery evidence",
+            str(linked_root),
+            cwd=self.wrapper,
+        )
+        self.workspace = Workspace(self.wrapper)
+
+        rows = self.workspace.list_wrapper_worktrees()
+
+        self.assertEqual(
+            [component for component, _ in rows], ["atrinik", "atrinik"]
+        )
+        self.assertEqual(
+            [record["worktree"] for _, record in rows],
+            [str(self.wrapper), str(linked_root)],
+        )
+        self.assertEqual(rows[0][1]["branch"], "refs/heads/main")
+        self.assertEqual(
+            rows[1][1],
+            {
+                "worktree": str(linked_root),
+                "HEAD": rows[1][1]["HEAD"],
+                "branch": "refs/heads/test/linked+wrapper_safe",
+                "locked": "delivery evidence",
+            },
+        )
 
     def test_git_checkout_common_namespace_resolution_fails_closed(self) -> None:
         (self.wrapper / ".git").mkdir()

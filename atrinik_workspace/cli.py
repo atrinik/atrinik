@@ -169,6 +169,11 @@ def parser() -> argparse.ArgumentParser:
     mark(worktree_remove.add_argument("label"), "worktree")
     worktree_list = worktree_commands.add_parser("list")
     mark(worktree_list.add_argument("components", nargs="*"), "component")
+    worktree_list.add_argument(
+        "--wrapper-self",
+        action="store_true",
+        help="list the wrapper repository's complete Git worktree inventory",
+    )
     worktree_list.add_argument("--json", action="store_true")
 
     scope = commands.add_parser(
@@ -786,18 +791,32 @@ def main(arguments: list[str] | None = None) -> int:
             elif options.worktree_command == "remove":
                 workspace.remove_worktree(options.component, options.label)
             else:
-                rows = workspace.list_worktrees(options.components)
-                if options.json:
-                    print(
-                        json.dumps(
-                            [
-                                {"component": component, **record}
-                                for component, record in rows
-                            ],
-                            indent=2,
-                            sort_keys=True,
-                        )
+                if options.wrapper_self and options.components:
+                    raise WorkspaceError(
+                        "--wrapper-self cannot be combined with component selectors"
                     )
+                rows = (
+                    workspace.list_wrapper_worktrees()
+                    if options.wrapper_self
+                    else workspace.list_worktrees(options.components)
+                )
+                if options.json:
+                    rendered = json.dumps(
+                        [
+                            {"component": component, **record}
+                            for component, record in rows
+                        ],
+                        indent=2,
+                        sort_keys=True,
+                    )
+                    if (
+                        options.wrapper_self
+                        and len(rendered.encode("utf-8")) + 1 > 512 * 1024
+                    ):
+                        raise WorkspaceError(
+                            "wrapper worktree inventory JSON exceeds the retained-evidence limit"
+                        )
+                    print(rendered)
                 else:
                     for component, record in rows:
                         branch = record.get("branch", "detached").removeprefix(
