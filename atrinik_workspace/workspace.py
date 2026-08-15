@@ -3112,7 +3112,7 @@ class Workspace:
                 raise WorkspaceError(
                     f"immutable source generation ownership is invalid: {generation}"
                 )
-            Workspace._source_generation_inventory(
+            retained_inventory = Workspace._source_generation_inventory(
                 generation_fd,
                 generation,
                 sync=False,
@@ -3148,6 +3148,33 @@ class Workspace:
                 container_fd,
                 quarantine_name,
             )
+            try:
+                quarantined_inventory = Workspace._source_generation_inventory(
+                    generation_fd,
+                    container / quarantine_name,
+                    sync=False,
+                    allow_unsafe=True,
+                )
+                if quarantined_inventory != retained_inventory:
+                    raise WorkspaceError(
+                        "source generation changed during recovery: "
+                        f"{container / quarantine_name}"
+                    )
+            except WorkspaceError as error:
+                try:
+                    rename_no_replace_at(
+                        container_fd,
+                        quarantine_name,
+                        container_fd,
+                        key,
+                    )
+                    os.fsync(container_fd)
+                except (OSError, WorkspaceError) as rollback_error:
+                    raise WorkspaceError(
+                        "corrupt source generation recovery and rollback are "
+                        f"uncertain: {generation}: {rollback_error}"
+                    ) from error
+                raise
             os.fsync(container_fd)
             quarantined = os.stat(
                 quarantine_name,
@@ -3186,6 +3213,10 @@ class Workspace:
         root_metadata = os.fstat(root_fd)
         root_device = root_metadata.st_dev
         root_mount = _descriptor_mount_id(root_fd)
+        if not allow_unsafe and root_metadata.st_mode & 0o222:
+            raise _SourceGenerationCorrupt(
+                f"immutable source generation is writable: {root}"
+            )
         digest = hashlib.sha256()
 
         def stable_identity(metadata: os.stat_result) -> tuple[int, ...]:
@@ -3208,7 +3239,12 @@ class Workspace:
             directory_fd: int, display: Path, relative: str
         ) -> None:
             directory_before = os.fstat(directory_fd)
-            record("directory", relative, stable_identity(directory_before))
+            directory_identity = stable_identity(directory_before)
+            record(
+                "directory",
+                relative,
+                directory_identity[:-1] if not relative else directory_identity,
+            )
             try:
                 entries = sorted(os.listdir(directory_fd))
             except OSError as error:
@@ -3244,6 +3280,10 @@ class Workspace:
                                 "source generation changed or is mounted: "
                                 f"{path}"
                             )
+                        if not allow_unsafe and opened.st_mode & 0o222:
+                            raise _SourceGenerationCorrupt(
+                                f"immutable source generation is writable: {path}"
+                            )
                         inventory_directory(descriptor, path, child_relative)
                         if stable_identity(os.fstat(descriptor)) != stable_identity(
                             opened
@@ -3261,13 +3301,19 @@ class Workspace:
                         opened = os.fstat(descriptor)
                         if (
                             stable_identity(opened) != stable_identity(metadata)
-                            or (not allow_unsafe and opened.st_nlink != 1)
                             or opened.st_dev != root_device
                             or _descriptor_mount_id(descriptor) != root_mount
                         ):
                             raise WorkspaceError(
                                 "source generation changed or is mounted: "
                                 f"{path}"
+                            )
+                        if not allow_unsafe and (
+                            opened.st_nlink != 1 or opened.st_mode & 0o222
+                        ):
+                            raise _SourceGenerationCorrupt(
+                                "immutable source generation contains an unsafe "
+                                f"file: {path}"
                             )
                         if sync:
                             os.fsync(descriptor)
@@ -3310,7 +3356,7 @@ class Workspace:
                         )
                     else:
                         if not allow_unsafe:
-                            raise WorkspaceError(
+                            raise _SourceGenerationCorrupt(
                                 f"source generation contains a special entry: {path}"
                             )
                         if metadata.st_dev != root_device:
@@ -3366,6 +3412,82 @@ class Workspace:
         finally:
             if descriptor is not None:
                 os.close(descriptor)
+
+    @staticmethod
+    def _validate_source_generation_boundary(
+        generation: Path, *, require_sealed: bool = False
+    ) -> None:
+        """Prove a complete generation remains beneath one mount boundary."""
+
+        container_fd: int | None = None
+        generation_fd: int | None = None
+        try:
+            flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+            container_fd = _open_directory_nofollow(generation.parent, flags)
+            visible = os.stat(
+                generation.name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
+            generation_fd = os.open(
+                generation.name,
+                flags,
+                dir_fd=container_fd,
+            )
+            opened = os.fstat(generation_fd)
+            stable_fields = (
+                "st_dev",
+                "st_ino",
+                "st_mode",
+                "st_nlink",
+                "st_size",
+                "st_mtime_ns",
+                "st_ctime_ns",
+            )
+            if (
+                any(
+                    getattr(visible, field) != getattr(opened, field)
+                    for field in stable_fields
+                )
+                or opened.st_dev != os.fstat(container_fd).st_dev
+                or _descriptor_mount_id(generation_fd)
+                != _descriptor_mount_id(container_fd)
+            ):
+                raise WorkspaceError(
+                    "immutable source generation changed or is mounted: "
+                    f"{generation}"
+                )
+            Workspace._source_generation_inventory(
+                generation_fd,
+                generation,
+                sync=False,
+                allow_unsafe=not require_sealed,
+            )
+            confirmed = os.stat(
+                generation.name,
+                dir_fd=container_fd,
+                follow_symlinks=False,
+            )
+            opened_after = os.fstat(generation_fd)
+            if any(
+                getattr(confirmed, field) != getattr(opened, field)
+                or getattr(opened_after, field) != getattr(opened, field)
+                for field in stable_fields
+            ):
+                raise WorkspaceError(
+                    "immutable source generation changed during boundary proof: "
+                    f"{generation}"
+                )
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect immutable source generation {generation}: {error}"
+            ) from error
+        finally:
+            if generation_fd is not None:
+                os.close(generation_fd)
+            if container_fd is not None:
+                os.close(container_fd)
+
     @staticmethod
     def _validate_source_generation_git_closure(
         checkout: Path,
@@ -3376,6 +3498,7 @@ class Workspace:
     ) -> None:
         """Prove every materialized closure input has its recorded Git identity."""
 
+        Workspace._validate_source_generation_boundary(generation)
         Workspace._validate_source_generation_git_tree(
             checkout, generation / "source", source_tree
         )
@@ -3473,6 +3596,7 @@ class Workspace:
                     dir_fd=parent_fd,
                 )
                 opened = os.fstat(descriptor)
+
                 def file_identity(value: os.stat_result) -> tuple[int, ...]:
                     return (
                         value.st_dev,
@@ -3532,6 +3656,7 @@ class Workspace:
                     os.close(descriptor)
                 if parent_fd is not None:
                     os.close(parent_fd)
+        Workspace._validate_source_generation_boundary(generation)
 
     def _materialize_primary_source(
         self,
@@ -3710,6 +3835,9 @@ class Workspace:
                         tree,
                         source_includes,
                     )
+                    self._validate_source_generation_boundary(
+                        generation, require_sealed=True
+                    )
                     source_digest = _tree_digest(
                         generation / "source",
                         set(),
@@ -3742,6 +3870,11 @@ class Workspace:
             staging = Path(
                 tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
             )
+            staging_metadata = staging.stat()
+            staging_identity = {
+                "device": staging_metadata.st_dev,
+                "inode": staging_metadata.st_ino,
+            }
             try:
                 exports: list[
                     tuple[
@@ -4043,6 +4176,23 @@ class Workspace:
                             f"uncertain: {generation}"
                         )
                     try:
+                        published_inventory = self._source_generation_inventory(
+                            staging_fd,
+                            generation,
+                            sync=False,
+                            allow_unsafe=False,
+                        )
+                    except WorkspaceError as error:
+                        raise AtomicJsonCommitUncertain(
+                            "immutable source generation changed after durable "
+                            f"publication: {generation}: {error}"
+                        ) from error
+                    if published_inventory != durable_inventory:
+                        raise AtomicJsonCommitUncertain(
+                            "immutable source generation changed after durable "
+                            f"publication: {generation}"
+                        )
+                    try:
                         os.fsync(container_fd)
                     except OSError as error:
                         raise AtomicJsonCommitUncertain(
@@ -4056,7 +4206,15 @@ class Workspace:
                         os.close(container_fd)
             except BaseException:
                 if staging.exists() and not staging.is_symlink():
-                    remove_owned_tree(staging)
+                    try:
+                        remove_owned_tree(
+                            staging,
+                            expected_identity=staging_identity,
+                        )
+                    except WorkspaceError:
+                        # Preserve both trees when the staging pathname no
+                        # longer identifies the directory created above.
+                        pass
                 raise
         return generation / "source"
 

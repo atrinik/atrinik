@@ -2460,6 +2460,43 @@ class WorkspaceTests(unittest.TestCase):
             )
         ]
         self.assertEqual(len(quarantined), 2)
+        nested_include = "cmake/AtrinikVersion.cmake"
+        nested_object = command(
+            "git",
+            "rev-parse",
+            f"HEAD:{nested_include}",
+            cwd=classic,
+        )
+        nested_parent = server_generation / "cmake"
+        nested_parent_identity = nested_parent.stat()
+        real_mount_id = workspace_module._descriptor_mount_id
+
+        def nested_mount_id(descriptor: int) -> object:
+            opened = os.fstat(descriptor)
+            if (opened.st_dev, opened.st_ino) == (
+                nested_parent_identity.st_dev,
+                nested_parent_identity.st_ino,
+            ):
+                return ("injected", 3)
+            return real_mount_id(descriptor)
+
+        recovered_record = load_json(
+            server_generation / workspace_module.SOURCE_GENERATION_METADATA
+        )
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._descriptor_mount_id",
+                side_effect=nested_mount_id,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "mounted"),
+        ):
+            self.workspace._validate_source_generation_git_closure(
+                classic,
+                server_generation,
+                recovered_record["source_tree"],
+                recovered_record["tree"],
+                {nested_include: nested_object},
+            )
 
     def test_source_generation_reuse_recovers_coherent_missing_git_entry(self) -> None:
         def resolve() -> Path:
@@ -2506,6 +2543,53 @@ class WorkspaceTests(unittest.TestCase):
         ]
         self.assertEqual(len(quarantined), 1)
         self.assertFalse((quarantined[0] / "source" / "README").exists())
+
+    def test_source_generation_reuse_recovers_writable_tree(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        target = source / "README"
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        target.chmod(0o600)
+        record = load_json(metadata)
+        record["source_tree_sha256"] = _tree_digest(
+            source,
+            set(),
+            bounded_symlinks=True,
+            reject_hardlinks=True,
+        )
+        record["closure_tree_sha256"] = workspace_module._source_closure_digest(
+            generation, record["source_includes"]
+        )
+        metadata.chmod(0o600)
+        atomic_json(metadata, record)
+        metadata.chmod(0o400)
+        generation.chmod(0o500)
+
+        recovered = resolve()
+        self.assertEqual(recovered, source)
+        self.assertFalse(recovered.stat().st_mode & 0o222)
+        self.assertFalse((recovered / "README").stat().st_mode & 0o222)
+        quarantined = [
+            path
+            for path in generation.parent.iterdir()
+            if path.name.startswith(f"{generation.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertTrue((quarantined[0] / "source").stat().st_mode & 0o222)
+        self.assertTrue(
+            (quarantined[0] / "source" / "README").stat().st_mode & 0o222
+        )
 
     def test_source_generation_reuse_recovers_missing_metadata(self) -> None:
         def resolve() -> Path:
@@ -2654,6 +2738,72 @@ class WorkspaceTests(unittest.TestCase):
             )
         )
 
+    def test_source_generation_quarantine_rolls_back_child_swap(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        (generation / workspace_module.SOURCE_GENERATION_METADATA).unlink()
+        self.workspace._seal_runtime_generation(generation)
+        real_rename = workspace_module.rename_no_replace_at
+        swapped = False
+
+        def swap_after_quarantine(
+            source_directory_fd: int,
+            source_name: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            nonlocal swapped
+            real_rename(
+                source_directory_fd,
+                source_name,
+                destination_directory_fd,
+                destination,
+            )
+            if "-staging-recovery_" in destination:
+                quarantined = generation.parent / destination
+                quarantined_source = quarantined / "source"
+                target = quarantined_source / "README"
+                payload = target.read_bytes()
+                mode = stat.S_IMODE(target.stat().st_mode)
+                quarantined.chmod(0o700)
+                quarantined_source.chmod(0o700)
+                target.unlink()
+                target.write_bytes(payload)
+                target.chmod(mode)
+                quarantined_source.chmod(0o500)
+                quarantined.chmod(0o500)
+                swapped = True
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=swap_after_quarantine,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "corrupt and cannot be recovered safely"
+            ),
+        ):
+            resolve()
+
+        self.assertTrue(swapped)
+        self.assertTrue(generation.is_dir())
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
+        )
+
     def test_source_generation_recovery_serializes_concurrent_consumers(
         self,
     ) -> None:
@@ -2792,13 +2942,22 @@ class WorkspaceTests(unittest.TestCase):
             _role: str,
             _source: Path,
             _exclusions: set[str],
-            _copied_directories: set[str],
-            *,
-            preserved_entries: set[str],
+            _copied_directories: set[str] | None = None,
+            copy_all: bool = False,
+            preserved_entries: set[str] | None = None,
         ) -> Path:
-            self.assertEqual(preserved_entries, {"runtime", "resources"})
-            view = root / "sources" / "server"
-            view.mkdir(parents=True)
+            if _role == "server":
+                self.assertFalse(copy_all)
+                self.assertEqual(
+                    preserved_entries,
+                    {
+                        "runtime",
+                        "resources",
+                        workspace_module.SOURCE_INCLUDE_VIEW_METADATA,
+                    },
+                )
+            view = root / "sources" / _role
+            view.mkdir(parents=True, exist_ok=True)
             return view
 
         with (
@@ -4014,8 +4173,10 @@ class WorkspaceTests(unittest.TestCase):
         target = hardlinks / "target"
         target.write_text("payload\n", encoding="utf-8")
         os.link(target, hardlinks / "alias")
+        target.chmod(0o400)
+        hardlinks.chmod(0o500)
         with self.assertRaisesRegex(
-            WorkspaceError, "changed or is mounted"
+            WorkspaceError, "unsafe file"
         ):
             self.workspace._durably_sync_source_generation(hardlinks)
 
@@ -4023,11 +4184,13 @@ class WorkspaceTests(unittest.TestCase):
             special = self.root / "durability-special"
             special.mkdir()
             os.mkfifo(special / "fifo")
+            special.chmod(0o500)
             with self.assertRaisesRegex(WorkspaceError, "special entry"):
                 self.workspace._durably_sync_source_generation(special)
 
         unreadable = self.root / "durability-unreadable"
         unreadable.mkdir()
+        unreadable.chmod(0o500)
         with (
             mock.patch(
                 "atrinik_workspace.workspace.os.listdir",
@@ -4041,6 +4204,7 @@ class WorkspaceTests(unittest.TestCase):
 
         unsynced = self.root / "durability-unsynced"
         unsynced.mkdir()
+        unsynced.chmod(0o500)
         with (
             mock.patch(
                 "atrinik_workspace.workspace.os.fsync",
@@ -4268,6 +4432,79 @@ class WorkspaceTests(unittest.TestCase):
         container = self.workspace.paths.builds / "source-generations" / "resources"
         self.assertFalse(
             any(re.fullmatch(r"[0-9a-f]{64}", path.name) for path in container.iterdir())
+        )
+        replacements = [
+            path
+            for path in container.iterdir()
+            if "-staging-" in path.name and not path.name.endswith("-displaced")
+        ]
+        displaced = [
+            path for path in container.iterdir() if path.name.endswith("-displaced")
+        ]
+        self.assertEqual(len(replacements), 1)
+        self.assertEqual(len(displaced), 1)
+
+    def test_source_generation_rejects_entry_swap_during_publication(self) -> None:
+        real_rename = workspace_module.rename_no_replace_at
+        swapped = False
+        container = self.workspace.paths.builds / "source-generations" / "resources"
+
+        def swap_published_entry(
+            source_directory_fd: int,
+            source: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            nonlocal swapped
+            real_rename(
+                source_directory_fd,
+                source,
+                destination_directory_fd,
+                destination,
+            )
+            if re.fullmatch(r"[0-9a-f]{64}", destination):
+                generation = container / destination
+                source_root = generation / "source"
+                target = source_root / "runtime-paths.txt"
+                payload = target.read_bytes()
+                mode = stat.S_IMODE(target.stat().st_mode)
+                generation.chmod(0o700)
+                source_root.chmod(0o700)
+                target.unlink()
+                target.write_bytes(payload)
+                target.chmod(mode)
+                source_root.chmod(0o500)
+                generation.chmod(0o500)
+                swapped = True
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=swap_published_entry,
+            ),
+            self.assertRaisesRegex(
+                workspace_module.AtomicJsonCommitUncertain,
+                "changed after durable publication",
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("swapped source generation was yielded")
+
+        self.assertTrue(swapped)
+        self.assertEqual(
+            len(
+                [
+                    path
+                    for path in container.iterdir()
+                    if re.fullmatch(r"[0-9a-f]{64}", path.name)
+                ]
+            ),
+            1,
         )
 
     def test_source_generation_reports_container_fsync_uncertainty(self) -> None:
