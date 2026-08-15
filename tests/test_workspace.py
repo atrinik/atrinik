@@ -4262,6 +4262,7 @@ class WorkspaceTests(unittest.TestCase):
         real_sync = self.workspace._durably_sync_source_generation
         real_fsync = os.fsync
         real_rename = workspace_module.rename_no_replace_at
+        container = self.workspace.paths.builds / "source-generations" / "resources"
 
         def observe_sync(staging: Path) -> tuple[int, int, str]:
             nonlocal syncing
@@ -4273,11 +4274,20 @@ class WorkspaceTests(unittest.TestCase):
         def observe_fsync(descriptor: int) -> None:
             if syncing:
                 metadata = os.fstat(descriptor)
-                events.append(
-                    "directory-fsync"
-                    if stat.S_ISDIR(metadata.st_mode)
-                    else "file-fsync"
-                )
+                if container.is_dir() and (
+                    metadata.st_dev,
+                    metadata.st_ino,
+                ) == (
+                    container.stat().st_dev,
+                    container.stat().st_ino,
+                ):
+                    events.append("container-fsync")
+                else:
+                    events.append(
+                        "directory-fsync"
+                        if stat.S_ISDIR(metadata.st_mode)
+                        else "file-fsync"
+                    )
             real_fsync(descriptor)
 
         def observe_rename(
@@ -4323,9 +4333,9 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("file-fsync", events[:publication])
         self.assertIn("directory-fsync", events[:publication])
         after_publication = events[publication + 1 :]
-        self.assertEqual(after_publication[0], "directory-fsync")
-        self.assertIn("file-fsync", after_publication[1:])
-        self.assertIn("directory-fsync", after_publication[1:])
+        container_flush = after_publication.index("container-fsync")
+        self.assertIn("file-fsync", after_publication[:container_flush])
+        self.assertIn("directory-fsync", after_publication[:container_flush])
 
     def test_source_generation_durability_rejects_unsafe_entries_and_io(
         self,
@@ -4794,6 +4804,7 @@ class WorkspaceTests(unittest.TestCase):
         published = False
         real_fsync = os.fsync
         real_rename = workspace_module.rename_no_replace_at
+        container = self.workspace.paths.builds / "source-generations" / "resources"
 
         def observe_rename(
             source_directory_fd: int,
@@ -4812,7 +4823,14 @@ class WorkspaceTests(unittest.TestCase):
                 published = True
 
         def fail_container_fsync(descriptor: int) -> None:
-            if published:
+            opened = os.fstat(descriptor)
+            if published and container.is_dir() and (
+                opened.st_dev,
+                opened.st_ino,
+            ) == (
+                container.stat().st_dev,
+                container.stat().st_ino,
+            ):
                 raise OSError("injected container fsync uncertainty")
             real_fsync(descriptor)
 
