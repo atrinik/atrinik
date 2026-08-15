@@ -1713,8 +1713,9 @@ absence recovery, and journals are resumed only by the identical request until
 every original target is complete. Archive holds the wrapper's
 physical-reference registry, Git-admin, source, profile, topology,
 state/scenario, and canonical profile-build coordinates from final absence
-proof through archive installation, then repeats the proof immediately before
-the link.
+proof through archive installation, plus the exact cleanup journal's shared
+lease through retry/member removal; journal retirement requires its exclusive
+lease. It repeats the proof immediately before the link.
 Archive preview/apply never removes those resources.
 It instead bundles canonical ledger, release, lock, optional report, migration
 marker/snapshot/source, and embedded intent bytes into one canonical bounded

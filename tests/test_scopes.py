@@ -993,7 +993,18 @@ class ScopeLifecycleTests(unittest.TestCase):
         (worktree / "committed.txt").write_text("committed\n", encoding="utf-8")
         subprocess.run(["git", "add", "committed.txt"], cwd=worktree, check=True)
         subprocess.run(
-            ["git", "commit", "-m", "test: descendant"], cwd=worktree, check=True
+            [
+                "git",
+                "-c",
+                "user.name=Atrinik Tests",
+                "-c",
+                "user.email=tests@atrinik.org",
+                "commit",
+                "-m",
+                "test: descendant",
+            ],
+            cwd=worktree,
+            check=True,
         )
         descendant = subprocess.run(
             ["git", "rev-parse", "HEAD"],
@@ -1038,6 +1049,91 @@ class ScopeLifecycleTests(unittest.TestCase):
         )
         self.assertTrue(result["released"])
         self.assertFalse(Path(record["worktrees"][0]["path"]).exists())
+
+    def test_release_cas_deletes_branch_for_already_absent_worktree(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="branch-only-release")
+        row = record["worktrees"][0]
+        subprocess.run(
+            ["git", "worktree", "remove", row["path"]],
+            cwd=row["primary_path"],
+            check=True,
+        )
+
+        preview = self.workspace.scope_release("branch-only-release", apply=False)
+        item = next(row for row in preview["items"] if row["kind"] == "worktree")
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["worktree_removed_branch_pending"])
+        result = self.workspace.scope_release(
+            "branch-only-release",
+            apply=True,
+            plan_sha256=preview["plan_sha256"],
+        )
+
+        self.assertTrue(result["released"])
+        self.assertEqual(
+            command(
+                "git",
+                "for-each-ref",
+                "--format=%(objectname)",
+                f"refs/heads/{row['branch']}",
+                cwd=Path(row["primary_path"]),
+            ),
+            "",
+        )
+        journal = json.loads(Path(result["journal"]).read_text(encoding="utf-8"))
+        self.assertIn("worktree:client", journal["completed"])
+
+    def test_release_retries_absent_worktree_branch_cas_after_unlink(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="branch-only-retry")
+        row = record["worktrees"][0]
+        subprocess.run(
+            ["git", "worktree", "remove", row["path"]],
+            cwd=row["primary_path"],
+            check=True,
+        )
+        preview = self.workspace.scope_release("branch-only-retry", apply=False)
+        with mock.patch.dict(
+            os.environ,
+            {
+                scopes_module.SCOPE_FAILURE_BOUNDARIES_ENV:
+                "release:worktree-branch:client"
+            },
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "injected scope failure"):
+                self.workspace.scope_release(
+                    "branch-only-retry",
+                    apply=True,
+                    plan_sha256=preview["plan_sha256"],
+                )
+        release_path = (
+            self.workspace_directory
+            / "scopes"
+            / "branch-only-retry"
+            / "release-journal.json"
+        )
+        interrupted = json.loads(release_path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            interrupted["in_flight"],
+            {"action": "worktree:client", "phase": "removing"},
+        )
+        result = self.workspace.scope_release(
+            "branch-only-retry",
+            apply=True,
+            plan_sha256=preview["plan_sha256"],
+        )
+        self.assertTrue(result["released"])
+        self.assertEqual(
+            command(
+                "git",
+                "for-each-ref",
+                "--format=%(objectname)",
+                f"refs/heads/{row['branch']}",
+                cwd=Path(row["primary_path"]),
+            ),
+            "",
+        )
 
     def test_resumed_release_requires_and_preserves_exact_plan(self) -> None:
         self.make_checkout("client")

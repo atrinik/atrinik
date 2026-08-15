@@ -295,8 +295,15 @@ in-flight `prepared` action, then publishes `removing` only after exact locked
 revalidation and immediately before mutation. Only `removing` authorizes
 absence or partial-removal recovery. An identical retry resumes that journal
 through post-removal or pre-terminal interruption instead of replanning away an
-already removed target. Registry, Git-admin, source, profile, topology, and
+already removed target. Current/legacy maintenance discovery uses a durable,
+request-bound bounded-page cursor before any new transaction. One global
+registry lease and fixed cursor serialize requests, bounding paging state to
+one record; the cursor retains the canonical request and validates its digest,
+so recovery does not depend on the initiating process. Registry,
+Git-admin, source, profile, topology, and
 scope-build coordinates stay leased through a final absence recheck and archive installation.
+Archive also holds the exact cleanup receipt shared; explicit receipt retirement
+requires its exclusive lease and cannot cross installation or retry.
 It installs a bounded canonical bundle
 before unlinking the exact ledger, release, persistent lock, report, migration
 marker/snapshot/source, and embedded intent material. During a crash, the

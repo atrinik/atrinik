@@ -1757,7 +1757,7 @@ class ScopeLifecycle:
                                 "unexpected_references:" + ",".join(unexpected)
                             )
                         else:
-                            disposition = "absent"
+                            disposition = "eligible" if branch_head else "absent"
                             reasons.append(
                                 "worktree_removed_branch_pending"
                                 if branch_head
@@ -2147,10 +2147,6 @@ class ScopeLifecycle:
             )
             begin(action)
             if not path.exists() and not path.is_symlink():
-                if not resuming_removal:
-                    raise WorkspaceError(
-                        f"prepared scope worktree disappeared before removal: {path}"
-                    )
                 branch_head = git(
                     primary,
                     "for-each-ref",
@@ -2159,6 +2155,17 @@ class ScopeLifecycle:
                     capture=True,
                     trace=False,
                 )
+                if not resuming_removal:
+                    if not branch_head:
+                        raise WorkspaceError(
+                            f"prepared scope branch disappeared before removal: "
+                            f"{row['branch']}"
+                        )
+                    if branch_head != item["branch_head"]:
+                        raise WorkspaceError(
+                            f"scope branch changed during release: {row['branch']}"
+                        )
+                    mark_removing(action)
                 if branch_head:
                     if branch_head != item["branch_head"]:
                         raise WorkspaceError(
@@ -2171,6 +2178,9 @@ class ScopeLifecycle:
                         f"refs/heads/{row['branch']}",
                         item["branch_head"],
                         trace=False,
+                    )
+                    self._maybe_fail(
+                        f"release:worktree-branch:{row['checkout']}"
                     )
                 finish(action)
                 continue

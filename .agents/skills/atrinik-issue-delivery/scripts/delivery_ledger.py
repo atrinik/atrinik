@@ -1181,7 +1181,14 @@ def _archive_cleanup(value: Any, context: str) -> dict[str, Any]:
     return item
 
 
-def _prove_cleanup_journal(cleanup: Mapping[str, Any], workspace_root: str) -> None:
+def _cleanup_journal_lease_coordinate(path: Path) -> str:
+    digest = hashlib.sha256(str(path).encode("utf-8")).hexdigest()
+    return f"cleanup-journal:{digest}"
+
+
+def _prove_cleanup_journal(
+    cleanup: Mapping[str, Any], workspace_root: str
+) -> Path:
     """Bind caller-retained cleanup output to the wrapper's durable receipt."""
 
     raw = _inline_payload(
@@ -1372,6 +1379,7 @@ def _prove_cleanup_journal(cleanup: Mapping[str, Any], workspace_root: str) -> N
         or target_set != {(row["kind"], row["path"]) for row in planned_targets}
     ):
         raise LedgerError("archive cleanup journal differs from the apply report")
+    return journal_path
 
 
 def _archive_request(
@@ -9643,7 +9651,7 @@ def _archive_live_safety(
         raise LedgerError("archive lacks wrapper provenance for cleanup proof")
     workspace_root = wrapper_request["roots"]["workspace"]["path"]
     wrapper_root = wrapper_request["roots"]["wrapper"]["path"]
-    _prove_cleanup_journal(request["cleanup"], workspace_root)
+    cleanup_journal = _prove_cleanup_journal(request["cleanup"], workspace_root)
     saved = _enter_workspace_environment(workspace_root)
     workspace = None
     build_descriptors: list[int] = []
@@ -9653,7 +9661,13 @@ def _archive_live_safety(
         leases: list[Any] = [
             workspace._lease_request(
                 "registry", "physical-references", "shared", "delivery archive proof"
-            )
+            ),
+            workspace._lease_request(
+                "registry",
+                _cleanup_journal_lease_coordinate(cleanup_journal),
+                "shared",
+                "delivery archive cleanup journal proof",
+            ),
         ]
         for primitive, path in worktree_requests:
             wrapper_self = (
@@ -9914,6 +9928,25 @@ def _finish_archive_members(
         _hit(failpoint, f"archive:member:{name}")
 
 
+def _archive_snapshot(archive: ArchiveRecord) -> Snapshot:
+    identity = _release_ledger_identity(
+        archive.document["ledger"], "installed archive ledger"
+    )
+    members = [
+        _archive_member_bytes(member, f"installed archive member[{index}]")
+        for index, member in enumerate(archive.document["members"])
+    ]
+    ledger_members = [member for member in members if member[0] == identity[0]]
+    if len(ledger_members) != 1:
+        raise LedgerError("installed archive lost its canonical ledger member")
+    name, raw, _mode, device, inode = ledger_members[0]
+    document = _decode(raw, "installed archive ledger member")
+    validate(document)
+    if raw != canonical_bytes(document) or byte_digest(raw) != identity[3]:
+        raise LedgerError("installed archive ledger member is mismatched")
+    return Snapshot(name, document, raw, identity[3], device, inode)
+
+
 def archive_apply(
     root: Path | str,
     name: str,
@@ -9994,6 +10027,7 @@ def archive_apply(
                 ):
                     raise LedgerError("installed archive differs from its staged candidate")
                 archived = _archive_record(archive_name, archive_raw, archive_status)
+                _finish_archive_members(directory, archived, failpoint=failpoint)
         else:
             if archived.digest != plan_sha256:
                 raise LedgerError("archive plan digest is stale or unrelated")
@@ -10008,7 +10042,10 @@ def archive_apply(
             if len(matching_stages) > 1:
                 raise LedgerError("multiple archive stages exist")
             stage = matching_stages[0] if matching_stages else None
-        _finish_archive_members(directory, archived, failpoint=failpoint)
+            snapshot = _archive_snapshot(archived)
+            with _archive_live_safety(snapshot, request) as recheck:
+                recheck()
+                _finish_archive_members(directory, archived, failpoint=failpoint)
         if stage is not None and _exists(directory, stage):
             stage_raw, stage_status = _read_regular(
                 directory,

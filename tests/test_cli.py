@@ -292,6 +292,61 @@ class ParserTests(unittest.TestCase):
             events.mock_calls.index(mock.call.acknowledge(report)),
         )
 
+    def test_cleanup_apply_reports_skipped_result_without_acknowledging(self) -> None:
+        report = {
+            "items": [
+                {
+                    "disposition": "skipped",
+                    "kind": "worktree",
+                    "path": "/workspace/busy",
+                    "reasons": ["resource_busy"],
+                }
+            ],
+            "summary": {
+                "error_count": 0,
+                "skipped_count": 1,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace = workspace_type.return_value
+            workspace.cleanup.return_value = report
+            with mock.patch("builtins.print") as output:
+                result = main(["cleanup", "--apply", "--json"])
+
+        self.assertEqual(result, 1)
+        workspace.cleanup_acknowledge.assert_not_called()
+        self.assertIn(
+            mock.call(
+                "cleanup apply is incomplete; retry the identical request",
+                file=mock.ANY,
+            ),
+            output.mock_calls,
+        )
+
+    def test_cleanup_apply_acknowledges_terminal_inventory_skip(self) -> None:
+        report = {
+            "items": [
+                {
+                    "disposition": "skipped",
+                    "kind": "sound-cache",
+                    "path": "/workspace/retained",
+                    "reasons": ["retained_by_age"],
+                }
+            ],
+            "summary": {
+                "error_count": 0,
+                "skipped_count": 1,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace = workspace_type.return_value
+            workspace.cleanup.return_value = report
+            with mock.patch("builtins.print"):
+                result = main(["cleanup", "--apply", "--json"])
+
+        self.assertEqual(result, 0)
+        workspace.cleanup_acknowledge.assert_called_once_with(report)
+
     def test_cleanup_text_report_includes_item_age_reasons_and_totals(self) -> None:
         report = {
             "items": [

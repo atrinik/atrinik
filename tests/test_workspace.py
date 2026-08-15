@@ -3759,6 +3759,7 @@ class WorkspaceTests(unittest.TestCase):
                     if item["path"] == str(generation)
                 )
                 self.assertEqual(removed["disposition"], "removed", removed)
+                self.workspace.cleanup_acknowledge(applied)
                 recreated = resolve()
                 self.assertEqual(
                     (recreated / "README").read_text(encoding="utf-8"),
@@ -17430,6 +17431,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(malformed_applied_item["disposition"], "protected")
         self.assertTrue(state.is_dir())
+        self.workspace.cleanup_acknowledge(malformed_apply)
         saved_required_file.rename(required_file)
         required_directory = state / "keys"
         saved_required_directory = state / "keys.saved"
@@ -17456,6 +17458,7 @@ class WorkspaceTests(unittest.TestCase):
             missing_directory_applied_item["disposition"], "protected"
         )
         self.assertTrue(state.is_dir())
+        self.workspace.cleanup_acknowledge(missing_directory_apply)
         saved_required_directory.rename(required_directory)
         special = state / "unsafe-fifo"
         os.mkfifo(special)
@@ -17479,6 +17482,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(special_applied_item["disposition"], "protected")
         self.assertTrue(state.is_dir())
+        self.workspace.cleanup_acknowledge(special_apply)
         special.unlink()
         for metadata_path in (
             state / MANAGED_MARKER,

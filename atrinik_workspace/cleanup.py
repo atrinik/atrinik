@@ -6,6 +6,7 @@ from contextvars import copy_context
 from datetime import datetime, timezone
 import fcntl
 import hashlib
+import heapq
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -27,6 +28,7 @@ from .model import (
     durable_atomic_json,
     load_json,
     managed_remove,
+    unlink_validated_json,
     validate_name,
 )
 from .process_tree import bound_lease_locked, control_socket_path, lease_locked
@@ -79,6 +81,36 @@ def _canonical_json_sha256(value: Any) -> str:
     return hashlib.sha256(
         json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
     ).hexdigest()
+
+
+def _cleanup_journal_name_matches_coordinate(name: str, coordinate: str) -> bool:
+    if not name.endswith(".json"):
+        return False
+    parts = name.removesuffix(".json").rsplit("-", 2)
+    return (
+        len(parts) == 3
+        and re.fullmatch(r"[0-9]{8}T[0-9]{12}Z", parts[0]) is not None
+        and parts[1] == coordinate
+        and re.fullmatch(r"[0-9a-f]{12}", parts[2]) is not None
+    )
+
+
+def _legacy_cleanup_journal_name(name: str) -> bool:
+    if not name.endswith(".json"):
+        return False
+    parts = name.removesuffix(".json").rsplit("-", 1)
+    return (
+        len(parts) == 2
+        and re.fullmatch(r"[0-9]{8}T[0-9]{12}Z", parts[0]) is not None
+        and re.fullmatch(r"[0-9a-f]{12}", parts[1]) is not None
+    )
+
+
+def _cleanup_journal_lease_coordinate(path: Path) -> str:
+    digest = hashlib.sha256(str(path).encode("utf-8")).hexdigest()
+    return f"cleanup-journal:{digest}"
+
+
 WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS = frozenset(
     {1, 2, 3, WORKER_DEPENDENCY_SCHEMA_VERSION}
 )
@@ -1403,23 +1435,283 @@ class Cleanup:
             "older_than_days": older_than_days,
             "filters": sorted(selected_names or []),
         }
-        coordinate = hashlib.sha256(
-            json.dumps(request, sort_keys=True, separators=(",", ":")).encode("utf-8")
-        ).hexdigest()
-        with self.workspace._resource_locks(
-            [
+        coordinate = _canonical_json_sha256(request)
+        leases = [
+            self.workspace._lease_request(
+                "registry",
+                f"cleanup:{coordinate}",
+                "exclusive",
+                "resume workspace cleanup",
+            )
+        ]
+        if selected_scopes == ["cleanup-journals"]:
+            leases.append(
                 self.workspace._lease_request(
                     "registry",
-                    f"cleanup:{coordinate}",
+                    "cleanup-journal-recovery",
                     "exclusive",
-                    "resume workspace cleanup",
+                    "resume cleanup journal recovery discovery",
                 )
-            ],
+            )
+        with self.workspace._resource_locks(
+            leases,
             include_wrapper=False,
         ):
             return self._execute_apply(
                 selected_scopes, older_than_days, selected_names, request
             )
+
+    @staticmethod
+    def _bounded_cleanup_journal_paths(root: Path, limit: int) -> list[Path]:
+        paths: list[Path] = []
+        try:
+            with os.scandir(root) as entries:
+                for entry in entries:
+                    paths.append(root / entry.name)
+                    if len(paths) > limit:
+                        raise WorkspaceError(
+                            "cleanup journal inventory is oversized"
+                        )
+        except OSError as error:
+            raise WorkspaceError(f"cannot inspect cleanup journals: {error}") from error
+        return sorted(paths, key=lambda path: path.name)
+
+    @staticmethod
+    def _stream_cleanup_journal_paths(root: Path) -> Iterator[Path]:
+        try:
+            with os.scandir(root) as entries:
+                for entry in entries:
+                    yield root / entry.name
+        except OSError as error:
+            raise WorkspaceError(f"cannot inspect cleanup journals: {error}") from error
+
+    def _maintenance_recovery_page(
+        self, root: Path, request: dict[str, Any]
+    ) -> tuple[list[Path], bool, Path | None, dict[str, Any] | None]:
+        request_coordinate = _canonical_json_sha256(request)
+        cursor_path = self.paths.workspace / ".cleanup-journal-recovery.json"
+        cursor: dict[str, Any] | None = None
+        if cursor_path.exists() or cursor_path.is_symlink():
+            value = load_regular_json(
+                cursor_path, "cleanup journal recovery cursor"
+            )
+            persisted_request = (
+                value.get("request") if isinstance(value, dict) else None
+            )
+            if (
+                not isinstance(value, dict)
+                or set(value)
+                != {
+                    "schema_version",
+                    "request",
+                    "request_sha256",
+                    "after",
+                    "match",
+                }
+                or value.get("schema_version") != 2
+                or not isinstance(persisted_request, dict)
+                or set(persisted_request)
+                != {"scopes", "older_than_days", "filters"}
+                or persisted_request.get("scopes") != ["cleanup-journals"]
+                or not isinstance(persisted_request.get("older_than_days"), int)
+                or isinstance(persisted_request.get("older_than_days"), bool)
+                or persisted_request["older_than_days"] < 0
+                or not isinstance(persisted_request.get("filters"), list)
+                or any(
+                    not isinstance(name, str)
+                    or not name
+                    or name in {".", ".."}
+                    or Path(name).name != name
+                    or any(ord(character) < 32 for character in name)
+                    for name in persisted_request.get("filters", [])
+                )
+                or persisted_request.get("filters")
+                != sorted(set(persisted_request.get("filters", [])))
+                or value.get("request_sha256")
+                != _canonical_json_sha256(persisted_request)
+                or not isinstance(value.get("after"), str)
+                or not (
+                    _legacy_cleanup_journal_name(value.get("after", ""))
+                    or _cleanup_journal_name_matches_coordinate(
+                        value.get("after", ""), value.get("request_sha256", "")
+                    )
+                )
+                or (
+                    value.get("match") is not None
+                    and (
+                        not isinstance(value.get("match"), str)
+                        or not (
+                            _legacy_cleanup_journal_name(value["match"])
+                            or _cleanup_journal_name_matches_coordinate(
+                                value["match"], value.get("request_sha256", "")
+                            )
+                        )
+                    )
+                )
+            ):
+                raise WorkspaceError("cleanup journal recovery cursor is invalid")
+            if value.get("request_sha256") != request_coordinate:
+                raise WorkspaceError(
+                    "cleanup journal recovery cursor belongs to a different "
+                    "request; resume cleanup-journals apply with canonical "
+                    f"request {json.dumps(persisted_request, sort_keys=True)}"
+                )
+            if persisted_request != request:
+                raise WorkspaceError("cleanup journal recovery request changed")
+            cursor = value
+        after = cursor["after"] if cursor is not None else ""
+        candidate_names = heapq.nsmallest(
+            CLEANUP_JOURNAL_LIMIT + 1,
+            (
+                path.name
+                for path in self._stream_cleanup_journal_paths(root)
+                if path.name > after
+                and (
+                    _cleanup_journal_name_matches_coordinate(
+                        path.name, request_coordinate
+                    )
+                    or _legacy_cleanup_journal_name(path.name)
+                )
+            ),
+        )
+        has_more = len(candidate_names) > CLEANUP_JOURNAL_LIMIT
+        page = [root / name for name in candidate_names[:CLEANUP_JOURNAL_LIMIT]]
+        stored_match = (
+            root / cursor["match"]
+            if cursor is not None and cursor["match"] is not None
+            else None
+        )
+        paths = ([stored_match] if stored_match else []) + page
+        return list(dict.fromkeys(paths)), has_more, cursor_path, cursor
+
+    @staticmethod
+    def _remove_maintenance_recovery_cursor(
+        cursor_path: Path, cursor: dict[str, Any]
+    ) -> None:
+        def validate(value: Any) -> None:
+            if value != cursor:
+                raise WorkspaceError("cleanup journal recovery cursor changed")
+
+        unlink_validated_json(cursor_path, validate)
+
+    def _owned_tree_recovery_coordinate(
+        self, item: Mapping[str, Any]
+    ) -> dict[str, Any] | None:
+        kind = item.get("kind")
+        path = item.get("path")
+        if kind not in OWNED_TREE_CLEANUP_KINDS or not isinstance(path, str):
+            return None
+
+        def text(key: str) -> str | None:
+            value = item.get(key)
+            return value if isinstance(value, str) and value else None
+
+        lock: Path | None = None
+        coordinate: str | None = None
+        if kind == "profile-build":
+            profile, key = text("profile"), text("key")
+            if profile is not None and key is not None:
+                lock = self.paths.builds / "locks" / f"{profile}-{key}.lock"
+                coordinate = f"profile-build:{profile}:{key}"
+        elif kind == "topology":
+            name = text("name")
+            if name is not None:
+                lock = Path(path) / "operation.lock"
+                coordinate = f"topology:{name}"
+        elif kind in {"worker-dependencies", "worker-dependency-transaction"}:
+            key = text("key")
+            if key is not None:
+                lock = self.paths.builds / "locks" / f"worker-dependencies-{key}.lock"
+                coordinate = f"worker-dependencies:{key}"
+        elif kind in {"source-generation", "source-generation-transaction"}:
+            key = text("key")
+            if key is not None:
+                lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
+                coordinate = f"source-generation:{key}"
+        elif kind == "sound-cache":
+            checkout_path = text("checkout_path")
+            if checkout_path is not None:
+                lock = Path(path).parent / f".{Path(path).name}.build.lock"
+                coordinate = f"sound-cache:{checkout_path}"
+        elif kind in {"npm-cache", "compiler-cache"}:
+            coordinate = f"{kind}:{path}"
+        if coordinate is None:
+            return None
+        return {
+            "kind": kind,
+            "coordinate": coordinate,
+            "lock": str(lock) if lock is not None else None,
+        }
+
+    def _valid_cleanup_intent(
+        self, intent: Any, target: Mapping[str, Any] | None = None
+    ) -> bool:
+        if not isinstance(intent, dict):
+            return False
+        action = intent.get("action")
+        if (
+            not isinstance(action, dict)
+            or set(action) != {"kind", "path"}
+            or not isinstance(action.get("kind"), str)
+            or not isinstance(action.get("path"), str)
+            or intent.get("phase") not in {"prepared", "removing"}
+        ):
+            return False
+        kind = action["kind"]
+        if kind in OWNED_TREE_CLEANUP_KINDS:
+            expected = {
+                "action",
+                "identity",
+                "lock_coordinate",
+                "phase",
+                "target_sha256",
+            }
+            if kind == "sound-cache":
+                expected.add("producer_identity")
+            if set(intent) != expected or not self._identity_pair(
+                intent.get("identity")
+            ):
+                return False
+            if (
+                target is None
+                or target.get("kind") != action["kind"]
+                or target.get("path") != action["path"]
+                or intent.get("target_sha256") != _canonical_json_sha256(target)
+                or intent.get("lock_coordinate")
+                != self._owned_tree_recovery_coordinate(target)
+            ):
+                return False
+            if kind == "sound-cache":
+                producer_identity = intent.get("producer_identity")
+                return (
+                    isinstance(producer_identity, list)
+                    and len(producer_identity) == 4
+                    and all(
+                        isinstance(value, int)
+                        and not isinstance(value, bool)
+                        and value >= 0
+                        for value in producer_identity
+                    )
+                )
+            return True
+        if kind == "cleanup-journal":
+            return set(intent) == {"action", "identity", "phase"} and (
+                self._identity_pair(intent.get("identity"))
+            )
+        if kind == "temporary-state":
+            return set(intent) == {"action", "phase", "recovery"} and (
+                self._valid_temporary_state_recovery(action, intent.get("recovery"))
+            )
+        if kind == "worktree":
+            return set(intent) == {"action", "phase", "worktree_identity"} and (
+                _valid_linked_worktree_registration_identity(
+                    intent.get("worktree_identity")
+                )
+            )
+        return kind == "prunable-metadata" and set(intent) == {
+            "action",
+            "phase",
+        }
 
     def _resumable_journal(
         self, request: dict[str, Any]
@@ -1429,24 +1721,45 @@ class Cleanup:
             return None
         if root.is_symlink() or not root.is_dir():
             raise WorkspaceError(f"cleanup journal root is unsafe: {root}")
-        try:
-            paths = sorted(root.iterdir(), key=lambda path: path.name)
-        except OSError as error:
-            raise WorkspaceError(f"cannot inspect cleanup journals: {error}") from error
         journal_maintenance = request["scopes"] == ["cleanup-journals"]
-        if len(paths) > CLEANUP_JOURNAL_LIMIT and not journal_maintenance:
-            raise WorkspaceError("cleanup journal inventory is oversized")
-        matches: list[tuple[Path, dict[str, Any]]] = []
+        request_coordinate = _canonical_json_sha256(request)
+        paths: Iterable[Path]
+        has_more_legacy = False
+        cursor_path: Path | None = None
+        cursor: dict[str, Any] | None = None
+        if journal_maintenance:
+            paths, has_more_legacy, cursor_path, cursor = (
+                self._maintenance_recovery_page(root, request)
+            )
+        else:
+            paths = self._bounded_cleanup_journal_paths(
+                root,
+                CLEANUP_JOURNAL_LIMIT,
+            )
+        match: tuple[Path, dict[str, Any]] | None = None
+        cursor_match = (
+            root / cursor["match"]
+            if cursor is not None and cursor["match"] is not None
+            else None
+        )
         for path in paths:
             if path.suffix != ".json":
                 continue
             if path.is_symlink() or not path.is_file():
+                if path == cursor_match:
+                    raise WorkspaceError(
+                        "cleanup journal recovery match is unsafe"
+                    )
                 if journal_maintenance:
                     continue
                 raise WorkspaceError(f"cleanup journal is unsafe: {path}")
             try:
                 value = load_regular_json(path, f"cleanup journal {path.name}")
             except (OSError, WorkspaceError):
+                if path == cursor_match:
+                    raise WorkspaceError(
+                        "cleanup journal recovery match cannot be read"
+                    )
                 if journal_maintenance:
                     continue
                 raise
@@ -1456,6 +1769,10 @@ class Cleanup:
                 or value.get("status") not in {"in-progress", "complete-pending-output"}
                 or value.get("request") != request
             ):
+                if path == cursor_match:
+                    raise WorkspaceError(
+                        "cleanup journal recovery match changed"
+                    )
                 continue
             required = {
                 "schema_version",
@@ -1505,6 +1822,19 @@ class Cleanup:
             ]
             completed = value["completed"]
             in_flight = value["in_flight"]
+            in_flight_action = (
+                in_flight.get("action") if isinstance(in_flight, dict) else None
+            )
+            in_flight_targets = (
+                [
+                    item
+                    for item in report["items"]
+                    if item.get("kind") == in_flight_action.get("kind")
+                    and item.get("path") == in_flight_action.get("path")
+                ]
+                if isinstance(in_flight_action, dict)
+                else []
+            )
             valid_action = lambda action: (
                 isinstance(action, dict)
                 and set(action) == {"kind", "path"}
@@ -1523,51 +1853,11 @@ class Cleanup:
                 or (
                     in_flight is not None
                     and (
-                        not isinstance(in_flight, dict)
-                        or set(in_flight)
-                        not in (
-                            {"action", "phase"},
-                            {"action", "identity", "phase"},
-                            {"action", "phase", "recovery"},
-                            {
-                                "action",
-                                "identity",
-                                "phase",
-                                "producer_identity",
-                            },
-                            {"action", "phase", "worktree_identity"},
+                        len(in_flight_targets) != 1
+                        or not self._valid_cleanup_intent(
+                            in_flight, in_flight_targets[0]
                         )
-                        or not valid_action(in_flight.get("action"))
                         or in_flight["action"] not in targets
-                        or (
-                            in_flight.get("phase") not in {"prepared", "removing"}
-                        )
-                        or (
-                            "identity" in in_flight
-                            and (
-                                set(in_flight["identity"]) != {"device", "inode"}
-                                or any(
-                                    not isinstance(value, int)
-                                    or isinstance(value, bool)
-                                    or value < 0
-                                    for value in in_flight["identity"].values()
-                                )
-                            )
-                        )
-                        or (
-                            in_flight.get("action", {}).get("kind")
-                            == "temporary-state"
-                            and not self._valid_temporary_state_recovery(
-                                in_flight.get("action"),
-                                in_flight.get("recovery"),
-                            )
-                        )
-                        or (
-                            in_flight.get("action", {}).get("kind") == "worktree"
-                            and not _valid_linked_worktree_registration_identity(
-                                in_flight.get("worktree_identity")
-                            )
-                        )
                     )
                 )
                 or in_flight is not None
@@ -1588,12 +1878,32 @@ class Cleanup:
                     raise WorkspaceError(
                         f"cleanup journal terminal result is invalid: {path}"
                     )
-            matches.append((path, value))
-        if len(matches) > 1:
-            raise WorkspaceError("multiple cleanup journals require the same retry")
-        if matches:
-            return matches[0]
-        return None
+            if match is not None:
+                raise WorkspaceError(
+                    "multiple cleanup journals require the same retry"
+                )
+            match = (path, value)
+        if journal_maintenance and has_more_legacy:
+            if cursor_path is None:
+                raise WorkspaceError("cleanup journal recovery cursor is missing")
+            page = [path for path in paths if path != cursor_match]
+            if not page:
+                raise WorkspaceError("cleanup journal recovery page is empty")
+            next_cursor = {
+                "schema_version": 2,
+                "request": request,
+                "request_sha256": request_coordinate,
+                "after": max(path.name for path in page),
+                "match": match[0].name if match is not None else None,
+            }
+            durable_atomic_json(cursor_path, next_cursor)
+            raise WorkspaceError(
+                "cleanup journal recovery scan is incomplete; retry the "
+                "identical request"
+            )
+        if journal_maintenance and cursor_path is not None and cursor is not None:
+            self._remove_maintenance_recovery_cursor(cursor_path, cursor)
+        return match
 
     def _execute_apply(
         self,
@@ -1629,7 +1939,11 @@ class Cleanup:
             journal_path = (
                 self.paths.workspace
                 / "cleanup-journals"
-                / f"{self.now.strftime('%Y%m%dT%H%M%S%fZ')}-{secrets.token_hex(6)}.json"
+                / (
+                    f"{self.now.strftime('%Y%m%dT%H%M%S%fZ')}-"
+                    f"{_canonical_json_sha256(request)}-"
+                    f"{secrets.token_hex(6)}.json"
+                )
             )
             journal = {
                 "schema_version": CLEANUP_JOURNAL_SCHEMA_VERSION,
@@ -1688,6 +2002,7 @@ class Cleanup:
 
         for target in targets:
             action = {"kind": target["kind"], "path": target["path"]}
+            planned_target = json.loads(json.dumps(target))
             with ExitStack() as target_stack:
                 if target["kind"] in {"worktree", "prunable-metadata"}:
                     owner = target["owner"]
@@ -1783,6 +2098,31 @@ class Cleanup:
                             report["aborted"] = True
                             break
                         continue
+                elif target["kind"] == "cleanup-journal":
+                    try:
+                        target_stack.enter_context(
+                            self.workspace._resource_locks(
+                                [
+                                    self.workspace._lease_request(
+                                        "registry",
+                                        _cleanup_journal_lease_coordinate(
+                                            Path(target["path"])
+                                        ),
+                                        "exclusive",
+                                        f"cleanup journal {target['path']}",
+                                    )
+                                ],
+                                nonblocking=True,
+                            )
+                        )
+                    except LockBusyError as error:
+                        target["disposition"] = "skipped"
+                        target["reasons"] = ["resource_busy"]
+                        target["error"] = str(error)
+                        if is_in_flight(action):
+                            report["aborted"] = True
+                            break
+                        continue
                 identity = (target["kind"], target["path"])
                 if identity in completed:
                     target["disposition"] = "removed"
@@ -1806,7 +2146,7 @@ class Cleanup:
                         )
                         record_completed(target)
                         continue
-                    if "identity" in intent:
+                    if target["kind"] in OWNED_TREE_CLEANUP_KINDS:
                         if intent.get("phase") == "removing":
                             self._recover_owned_tree(target, intent)
                             record_completed(target)
@@ -1815,9 +2155,22 @@ class Cleanup:
                         intent.get("phase") == "removing"
                         and target["kind"] == "temporary-state"
                     ):
-                        self._recover_temporary_state(
-                            target, older_than_days, intent["recovery"]
-                        )
+                        try:
+                            self._recover_temporary_state(
+                                target, older_than_days, intent["recovery"]
+                            )
+                        except LockBusyError as error:
+                            target["disposition"] = "skipped"
+                            target["reasons"] = ["resource_busy"]
+                            target["error"] = str(error)
+                            report["aborted"] = True
+                            break
+                        except (OSError, RuntimeError, WorkspaceError) as error:
+                            target["disposition"] = "error"
+                            target["reasons"] = ["removal_failed"]
+                            target["error"] = str(error)
+                            report["aborted"] = True
+                            break
                         record_completed(target)
                         continue
                     elif intent.get("phase") == "removing":
@@ -1871,9 +2224,18 @@ class Cleanup:
                         "device": identity.st_dev,
                         "inode": identity.st_ino,
                     }
+                    intent["target_sha256"] = _canonical_json_sha256(
+                        planned_target
+                    )
+                    intent["lock_coordinate"] = (
+                        self._owned_tree_recovery_coordinate(planned_target)
+                    )
                     if target["kind"] == "sound-cache":
-                        intent["producer_identity"] = match.get(
-                            "_sound_producer_identity"
+                        producer_identity = match.get("_sound_producer_identity")
+                        intent["producer_identity"] = (
+                            list(producer_identity)
+                            if producer_identity is not None
+                            else None
                         )
                 elif target["kind"] == "cleanup-journal":
                     intent["identity"] = {
@@ -1895,6 +2257,8 @@ class Cleanup:
                             "linked worktree removal identity is missing"
                         )
                     intent["worktree_identity"] = worktree_identity
+                if not self._valid_cleanup_intent(intent, planned_target):
+                    raise WorkspaceError("cleanup removal intent is invalid")
                 journal["in_flight"] = intent
                 try:
                     durable_atomic_json(journal_path, journal)
@@ -2157,17 +2521,23 @@ class Cleanup:
             item = _base_item("cleanup-journal", "atrinik", "atrinik/atrinik", root)
             item["reasons"] = ["invalid_cleanup_journal_container"]
             return [item]
-        try:
-            paths = sorted(root.iterdir(), key=lambda path: path.name)
-        except OSError as error:
-            item = _base_item("cleanup-journal", "atrinik", "atrinik/atrinik", root)
-            item["reasons"] = ["cleanup_journal_inventory_error"]
-            item["error"] = str(error)
-            return [item]
+        if names is not None:
+            paths = sorted(
+                (
+                    root / name
+                    for name in names
+                    if (root / name).exists() or (root / name).is_symlink()
+                ),
+                key=lambda path: path.name,
+            )
+        else:
+            paths = self._bounded_cleanup_journal_paths(
+                root,
+                CLEANUP_JOURNAL_LIMIT,
+            )
         return [
             item
             for path in paths
-            if names is None or path.name in names
             for item in [self._cleanup_journal_item(path, older_than_days, names)]
         ]
 
@@ -6709,7 +7079,10 @@ class Cleanup:
                     os.close(container_fd)
                     container_fd = -1
                     self._remove_temporary_state(
-                        recovered, older_than_days, operation_locked=True
+                        recovered,
+                        older_than_days,
+                        operation_locked=True,
+                        recovery_evidence=evidence,
                     )
                     return
 
@@ -6787,11 +7160,17 @@ class Cleanup:
         removal_started: Callable[[], None] | None = None,
         *,
         operation_locked: bool = False,
+        recovery_evidence: dict[str, Any] | None = None,
     ) -> None:
         path = Path(item["path"])
         topology = item.get("topology")
         if not isinstance(topology, str):
             raise WorkspaceError("temporary state topology identity is missing")
+        if recovery_evidence is not None and not self._valid_temporary_state_recovery(
+            {"kind": "temporary-state", "path": str(path)},
+            recovery_evidence,
+        ):
+            raise WorkspaceError("temporary state recovery evidence is invalid")
         root = self.workspace._topology_directory(topology)
         if item.get("_orphan_rollback_lease"):
             lock = Path(f"{path}.lock")
@@ -6962,6 +7341,24 @@ class Cleanup:
                             "removed temporary state lease status changed before "
                             "cleanup"
                         )
+                    expected_lease_identity = policy.get("lease_identity")
+                    if recovery_evidence is not None:
+                        if (
+                            recovery_evidence.get("variant")
+                            not in {"state", "lease-only"}
+                            or expected_lease_identity
+                            != recovery_evidence.get("lease_identity")
+                        ):
+                            raise WorkspaceError(
+                                "temporary state recovery lease policy changed"
+                            )
+                        expected_lease_identity = recovery_evidence[
+                            "lease_identity"
+                        ]
+                    if not self._identity_pair(expected_lease_identity):
+                        raise WorkspaceError(
+                            "removed temporary state lease identity is invalid"
+                        )
                     lock = Path(f"{path}.lock")
                     if lock.exists() or lock.is_symlink():
                         with exclusive_lock(
@@ -6969,19 +7366,36 @@ class Cleanup:
                             f"temporary topology state {path}",
                             nonblocking=True,
                         ) as state_lease:
+                            lease_metadata = os.fstat(state_lease.fileno())
+                            if (
+                                not stat.S_ISREG(lease_metadata.st_mode)
+                                or lease_metadata.st_nlink != 1
+                                or recovery_evidence is not None
+                                and (
+                                    lease_metadata.st_dev,
+                                    lease_metadata.st_ino,
+                                )
+                                != (
+                                    expected_lease_identity["device"],
+                                    expected_lease_identity["inode"],
+                                )
+                            ):
+                                raise WorkspaceError(
+                                    "temporary state recovery lease identity changed"
+                                )
                             if removal_started is not None:
                                 removal_started()
                             self.workspace._unlink_temporary_state_lock(
                                 path,
                                 state_lease,
-                                policy["lease_identity"],
+                                expected_lease_identity,
                                 container_fd,
                             )
                     else:
                         if removal_started is not None:
                             removal_started()
                         if not self.workspace._finish_temporary_state_lock_tombstone(
-                            path, policy["lease_identity"], container_fd
+                            path, expected_lease_identity, container_fd
                         ):
                             raise WorkspaceError(
                                 f"removed temporary state lease is missing: {lock}"
@@ -7007,34 +7421,71 @@ class Cleanup:
                 if (
                     not stat.S_ISREG(lease_metadata.st_mode)
                     or lease_metadata.st_nlink != 1
+                    or recovery_evidence is not None
+                    and (
+                        lease_metadata.st_dev,
+                        lease_metadata.st_ino,
+                    )
+                    != (
+                        recovery_evidence["lease_identity"]["device"],
+                        recovery_evidence["lease_identity"]["inode"],
+                    )
                 ):
                     raise WorkspaceError(
                         f"temporary state lease identity is invalid: {path}.lock"
                     )
-                current = self._temporary_state_item(
-                    path,
-                    older_than_days,
-                    check_lock=False,
-                    held_lease_identity={
-                        "device": lease_metadata.st_dev,
-                        "inode": lease_metadata.st_ino,
-                    },
-                    physical_path=(
-                        Path(item["_physical_path"])
-                        if not path.exists()
-                        else None
-                    ),
-                )
-                if (
-                    current.get("_identity") != item.get("_identity")
-                    or current["disposition"] != "eligible"
-                ):
-                    raise WorkspaceError(
-                        f"temporary state changed before removal: {path}: "
-                        f"{current.get('error', current['reasons'])}"
+                if recovery_evidence is None:
+                    current = self._temporary_state_item(
+                        path,
+                        older_than_days,
+                        check_lock=False,
+                        held_lease_identity={
+                            "device": lease_metadata.st_dev,
+                            "inode": lease_metadata.st_ino,
+                        },
+                        physical_path=(
+                            Path(item["_physical_path"])
+                            if not path.exists()
+                            else None
+                        ),
                     )
+                    if (
+                        current.get("_identity") != item.get("_identity")
+                        or current["disposition"] != "eligible"
+                    ):
+                        raise WorkspaceError(
+                            f"temporary state changed before removal: {path}: "
+                            f"{current.get('error', current['reasons'])}"
+                        )
                 status = self.workspace.topology_status(topology)
                 policy = status["state_policy"]
+                if recovery_evidence is not None:
+                    filesystem = recovery_evidence["filesystem_identity"]
+                    if (
+                        recovery_evidence["variant"] != "state"
+                        or not isinstance(filesystem, dict)
+                        or not isinstance(policy, dict)
+                        or policy.get("mode") != "temporary"
+                        or policy.get("path") != str(path)
+                        or policy.get("owner")
+                        != {
+                            "kind": "topology-generation",
+                            "topology": topology,
+                            "generation": recovery_evidence["generation"],
+                        }
+                        or policy.get("identity")
+                        != {
+                            "device": filesystem["device"],
+                            "inode": filesystem["inode"],
+                        }
+                        or policy.get("lease_identity")
+                        != recovery_evidence["lease_identity"]
+                        or policy.get("lifecycle")
+                        not in {"disposable", "removal-pending", "removed"}
+                    ):
+                        raise WorkspaceError(
+                            "temporary state recovery status changed"
+                        )
                 pending = self.workspace._temporary_state_removal_path(policy)
                 removal_tombstone = _owned_tree_tombstone_path(
                     pending, policy["identity"]
@@ -7152,6 +7603,10 @@ class Cleanup:
     ) -> None:
         """Continue one identity-bound owned-tree removal after interruption."""
 
+        if item.get("kind") not in OWNED_TREE_CLEANUP_KINDS:
+            raise WorkspaceError("owned-tree recovery kind is invalid")
+        if not self._valid_cleanup_intent(intent, item):
+            raise WorkspaceError("owned-tree recovery target binding is invalid")
         path = Path(item["path"])
         identity = intent["identity"]
         with ExitStack() as locks:
@@ -7172,12 +7627,21 @@ class Cleanup:
                 locks.enter_context(exclusive_lock(lock, f"Worker dependencies {item['key']}", nonblocking=True))
             elif kind == "sound-cache":
                 producer_identity = intent.get("producer_identity")
-                if not isinstance(producer_identity, dict):
+                if (
+                    not isinstance(producer_identity, list)
+                    or len(producer_identity) != 4
+                    or any(
+                        not isinstance(value, int)
+                        or isinstance(value, bool)
+                        or value < 0
+                        for value in producer_identity
+                    )
+                ):
                     raise WorkspaceError("sound cache recovery identity is invalid")
                 checkout_path = Path(item["checkout_path"])
                 locks.enter_context(
                     _exclusive_sound_producer_lease(
-                        checkout_path, producer_identity
+                        checkout_path, tuple(producer_identity)
                     )
                 )
                 locks.enter_context(
@@ -7227,7 +7691,10 @@ class Cleanup:
     def _recheck_worktree_text_evidence(
         path: Path, expected: dict[str, Any], context: str
     ) -> None:
-        _value, observed = _text_evidence(path)
+        try:
+            _value, observed = _text_evidence(path)
+        except (OSError, UnicodeError, WorkspaceError) as error:
+            raise WorkspaceError(f"{context} changed identity") from error
         if observed != expected:
             raise WorkspaceError(f"{context} changed identity")
 

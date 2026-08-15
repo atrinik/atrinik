@@ -775,12 +775,19 @@ Topology history is a separate opt-in `topologies` scope and is deliberately
 excluded from both the default and `all`, so a broad cache/worktree cleanup
 cannot silently expand to runtime history.
 Delivered cleanup receipts use the separate `cleanup-journals` scope, also
-excluded from `all`. It inventories beyond the normal recovery scan bound, but
-only exact schema-v2, regular, owner-only receipts are eligible. Age is measured
+excluded from `all`. Broad inventory remains bounded; an exact-name selection
+and its current or legacy journal retry remain recoverable above that bound.
+Current and legacy recovery discovery advances one durable bounded page per
+identical apply retry.
+One globally leased cursor owns that discovery; other maintenance requests must
+finish the recorded request first and cannot accumulate parallel cursors. The
+cursor stores the exact canonical request and its digest so a later process can
+identify and resume the required invocation without reconstructing its filters.
+Only exact schema-v2, regular, owner-only receipts are eligible. Age is measured
 from durable delivery; pending, malformed, linked, or otherwise unsafe receipts
 remain protected. A receipt that records removals requires its exact filename
-as the positional selector, preserving delivery evidence unless the operator
-explicitly chooses it.
+as the positional selector. Retirement takes an exclusive receipt lease, so it
+cannot interleave with archive proof holding the matching shared lease.
 Positional checkout or logical component names narrow worktree and sound-cache
 inventory, exclude topology-owned temporary state, and still deduplicate
 aliases to one physical checkout. The special `atrinik` filter selects wrapper

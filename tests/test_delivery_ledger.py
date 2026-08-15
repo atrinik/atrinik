@@ -17,6 +17,7 @@ import threading
 import unittest
 from unittest import mock
 
+from atrinik_workspace.cleanup import _cleanup_journal_lease_coordinate
 from atrinik_workspace.model import Manifest
 from atrinik_workspace.workspace import _parse_worktree_porcelain
 
@@ -7950,6 +7951,31 @@ class DeliveryLedgerTests(unittest.TestCase):
                         plan_sha256=preview["plan_sha256"],
                         failpoint=recreate_branch,
                     )
+                archived = ledger.inventory(root).archives[0]
+                member_names = {
+                    member["name"] for member in archived.document["members"]
+                }
+                self.assertTrue(all((root / name).exists() for name in member_names))
+                with self.assertRaisesRegex(
+                    ledger.LedgerError, "scope branch reappeared"
+                ):
+                    ledger.archive_apply(
+                        root,
+                        snapshot.name,
+                        request,
+                        plan_sha256=preview["plan_sha256"],
+                    )
+                self.assertTrue(all((root / name).exists() for name in member_names))
+
+                installed = False
+                resumed = ledger.archive_apply(
+                    root,
+                    snapshot.name,
+                    request,
+                    plan_sha256=preview["plan_sha256"],
+                )
+                self.assertEqual(resumed.name, archived.name)
+                self.assertTrue(all(not (root / name).exists() for name in member_names))
 
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
@@ -9078,29 +9104,48 @@ class DeliveryLedgerTests(unittest.TestCase):
         ledger._prove_cleanup_journal(request["cleanup"], str(workspace_root))
         journal_path.write_bytes(ledger.canonical_bytes(journal))
         snapshot = mock.Mock(document=document)
-        with ledger._archive_live_safety(snapshot, request) as recheck:
-            path.mkdir(parents=True)
-            with self.assertRaisesRegex(ledger.LedgerError, "still exists"):
-                recheck()
-            path.rmdir()
-            common = Path(
-                git_run(
-                    Path(roots["primary"]["path"]),
-                    "rev-parse",
-                    "--path-format=absolute",
-                    "--git-common-dir",
-                ).stdout.strip()
-            )
-            registration = common / "worktrees" / "recreated-archive-registration"
-            registration.mkdir(parents=True)
-            (registration / "gitdir").write_text(
-                f"{path / '.git'}\n", encoding="utf-8"
-            )
-            try:
-                with self.assertRaisesRegex(ledger.LedgerError, "still registered"):
+        lease_workspace = module.Workspace(
+            Path(roots["wrapper"]["path"]), backfill_references=False
+        )
+        try:
+            with ledger._archive_live_safety(snapshot, request) as recheck:
+                with self.assertRaises(module.LockBusyError):
+                    with lease_workspace._resource_locks(
+                        [
+                            lease_workspace._lease_request(
+                                "registry",
+                                _cleanup_journal_lease_coordinate(journal_path),
+                                "exclusive",
+                                "simulated cleanup journal retirement",
+                            )
+                        ],
+                        nonblocking=True,
+                    ):
+                        self.fail("archive proof did not hold its journal lease")
+                path.mkdir(parents=True)
+                with self.assertRaisesRegex(ledger.LedgerError, "still exists"):
                     recheck()
-            finally:
-                shutil.rmtree(registration)
+                path.rmdir()
+                common = Path(
+                    git_run(
+                        Path(roots["primary"]["path"]),
+                        "rev-parse",
+                        "--path-format=absolute",
+                        "--git-common-dir",
+                    ).stdout.strip()
+                )
+                registration = common / "worktrees" / "recreated-archive-registration"
+                registration.mkdir(parents=True)
+                (registration / "gitdir").write_text(
+                    f"{path / '.git'}\n", encoding="utf-8"
+                )
+                try:
+                    with self.assertRaisesRegex(ledger.LedgerError, "still registered"):
+                        recheck()
+                finally:
+                    shutil.rmtree(registration)
+        finally:
+            lease_workspace.close()
 
         legacy = {
             key: value
