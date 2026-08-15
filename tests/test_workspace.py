@@ -11296,6 +11296,73 @@ class WorkspaceTests(unittest.TestCase):
             pass
         self.assertEqual(list(owners.iterdir()), retained)
 
+    def test_resource_owner_post_replace_close_failure_keeps_new_evidence(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "post replace review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        original_owner = locking_module._resource_owner
+        original_replace = locking_module.os.replace
+        original_close = locking_module.os.close
+        actual_releases: list[Callable[[], None]] = []
+        replaced = threading.Event()
+        failed_old_close = threading.Event()
+
+        @contextmanager
+        def uncertain_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def uncertain_bind(release: Callable[[], None]) -> None:
+                    actual_releases.append(release)
+                    bind_release(
+                        lambda: (_ for _ in ()).throw(
+                            OSError("injected main lease release failure")
+                        )
+                    )
+
+                yield admit, uncertain_bind
+
+        def observed_replace(*args: object, **kwargs: object) -> None:
+            original_replace(*args, **kwargs)
+            replaced.set()
+
+        def failing_close(descriptor: int) -> None:
+            if replaced.is_set() and not failed_old_close.is_set():
+                failed_old_close.set()
+                raise OSError("injected replaced owner close failure")
+            original_close(descriptor)
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", uncertain_owner),
+            mock.patch.object(locking_module.os, "replace", observed_replace),
+            mock.patch.object(locking_module.os, "close", failing_close),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "retained locked owner metadata is release uncertain.*"
+                "cannot close replaced owner metadata",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    pass
+
+        self.assertTrue(failed_old_close.is_set())
+        summary = locking_module._lease_owner_summary(lock)
+        self.assertIn("release uncertain exclusive", summary)
+        self.assertIn("post replace review owner", summary)
+        with self.assertRaises(LockBusyError):
+            with resource_locks(
+                self.workspace.paths.workspace, [request], nonblocking=True
+            ):
+                self.fail("uncertain main lease was reacquired")
+        actual_releases[0]()
+
     def test_resource_owner_uncertainty_write_failure_keeps_locked_evidence(
         self,
     ) -> None:
@@ -11312,6 +11379,7 @@ class WorkspaceTests(unittest.TestCase):
         owners = lock.with_name(f"{lock.name}.owners")
         original_owner = locking_module._resource_owner
         original_dump = locking_module.json.dump
+        original_unlink = locking_module.os.unlink
         actual_releases: list[Callable[[], None]] = []
 
         @contextmanager
@@ -11334,23 +11402,35 @@ class WorkspaceTests(unittest.TestCase):
                 raise OSError("injected uncertainty publication failure")
             original_dump(value, *args, **kwargs)
 
+        def fail_uncertain_unlink(
+            path: object, *args: object, **kwargs: object
+        ) -> None:
+            if str(path).endswith(".uncertain"):
+                raise OSError("injected uncertain cleanup failure")
+            original_unlink(path, *args, **kwargs)
+
         with (
             mock.patch.object(locking_module, "_resource_owner", uncertain_owner),
             mock.patch.object(locking_module.json, "dump", fail_uncertain_dump),
+            mock.patch.object(locking_module.os, "unlink", fail_uncertain_unlink),
         ):
             with self.assertRaisesRegex(
                 WorkspaceError,
                 "retained locked owner metadata is admitted.*"
-                "cannot publish release-uncertain",
+                "cannot publish release-uncertain.*"
+                "cannot remove partial release-uncertain",
             ):
                 with resource_locks(self.workspace.paths.workspace, [request]):
                     pass
 
         retained = list(owners.iterdir())
-        self.assertEqual(len(retained), 1)
-        self.assertIn('"phase": "admitted"', retained[0].read_text())
+        self.assertEqual(len(retained), 2)
+        admitted = [path for path in retained if not path.name.startswith(".")]
+        self.assertEqual(len(admitted), 1)
+        self.assertIn('"phase": "admitted"', admitted[0].read_text())
         summary = locking_module._lease_owner_summary(lock)
         self.assertIn("uncertain write review owner", summary)
+        self.assertEqual(list(owners.iterdir()), admitted)
         with self.assertRaises(LockBusyError):
             with resource_locks(
                 self.workspace.paths.workspace, [request], nonblocking=True

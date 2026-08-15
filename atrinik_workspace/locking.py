@@ -876,10 +876,16 @@ def _resource_owner(
                     src_dir_fd=owner_descriptor,
                     dst_dir_fd=owner_descriptor,
                 )
-                os.close(descriptor)
+                previous_descriptor = descriptor
                 descriptor = uncertain_descriptor
                 uncertain_descriptor = None
                 uncertain_published = True
+                try:
+                    os.close(previous_descriptor)
+                except OSError as error:
+                    teardown_errors.append(
+                        ("cannot close replaced owner metadata", error)
+                    )
             except (OSError, UnicodeError, TypeError, ValueError) as error:
                 teardown_errors.append(
                     ("cannot publish release-uncertain owner metadata", error)
@@ -894,8 +900,16 @@ def _resource_owner(
                         )
                     try:
                         os.unlink(uncertain_name, dir_fd=owner_descriptor)
-                    except OSError:
+                    except FileNotFoundError:
                         pass
+                    except OSError as error:
+                        teardown_errors.append(
+                            (
+                                "cannot remove partial release-uncertain "
+                                "owner metadata",
+                                error,
+                            )
+                        )
         if release_error is None:
             try:
                 os.close(descriptor)
