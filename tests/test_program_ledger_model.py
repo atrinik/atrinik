@@ -526,6 +526,7 @@ class ProgramLedgerModel:
                     or not planned["generation"] < armed["generation"] < generation
                     or planned["stream"] != armed["stream"]
                     or planned["result_stream"] != armed["result_stream"]
+                    or planned["node_ids"] != armed["node_ids"]
                     or planned["count"] != armed["count"]
                     or planned["query_sha256"] != armed["query_sha256"]
                     or armed["count"] != expected_count
@@ -905,8 +906,19 @@ class ProgramLedgerModel:
                 candidates.append(issue)
             else:
                 evidence.append(issue)
+        projection = [{
+            "node": issue["node"],
+            "creator": issue.get("creator"),
+            "title": issue.get("title"),
+            "body": issue.get("body"),
+            "marker": issue.get("marker"),
+            "child_marker": issue.get("child_marker"),
+            "backlink": issue.get("backlink"),
+            "parent": issue.get("parent"),
+        } for issue in issues]
+        content_digest = hashlib.sha256(self.canonical(projection)).hexdigest()
         self._observe(
-            "child", first_digest, self.result_stream(candidates), len(candidates),
+            "child", content_digest, self.result_stream(candidates), len(candidates),
             True, scan,
             [issue["node"] for issue in issues],
             [len(str(issue.get("body", "")).encode("utf-8")) for issue in issues],
@@ -991,6 +1003,13 @@ class ProgramLedgerModel:
         expected_count = (
             1 if slot == "comment" and self.record[slot]["node"] is not None else 0
         )
+        if slot == "create" and current["count"] != 0:
+            self.persist(lambda record: record[slot].update(
+                phase="none", node=None, prior=None, created_at=None,
+                plan_observation=None, arm_observation=None,
+                retry_observation=None,
+            ))
+            raise StopClosed("child search no longer proves absence")
         if slot == "link" and current["result_stream"] != self.result_stream([{
             "child_parent": None, "parent_subissues": current["node_ids"]
         }]):
@@ -1942,6 +1961,23 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 hashlib.sha256(ProgramLedgerModel.canonical(corrupt_arm)).hexdigest(),
                 corrupt_arm["authority"],
             )
+        vector = ProgramLedgerModel()
+        existing = {"node": "issue-node", "marker": "unrelated"}
+        vector.classify_child([existing])
+        vector.plan_create()
+        vector.classify_child([existing])
+        vector.arm("create")
+        corrupt_vector = copy.deepcopy(vector.record)
+        corrupt_vector["create"]["arm_observation"]["node_ids"] = ["other-node"]
+        corrupt_vector["observation"]["child"]["node_ids"] = ["other-node"]
+        with self.assertRaises(StopClosed):
+            ProgramLedgerModel.resume(
+                corrupt_vector, 41, corrupt_vector["self_inode"],
+                hashlib.sha256(
+                    ProgramLedgerModel.canonical(corrupt_vector)
+                ).hexdigest(),
+                corrupt_vector["authority"],
+            )
 
         patch = ProgramLedgerModel()
         patch.observe_comment()
@@ -2265,6 +2301,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         create.classify_child([], "clear", "clear")
         with self.assertRaises(StopClosed):
             create.arm("create")
+        create.plan_create()
         create.classify_child([], "clear", "clear")
         create.arm("create")
         with self.assertRaises(StopClosed):
@@ -2393,6 +2430,22 @@ class ProgramLedgerModelTests(unittest.TestCase):
         with self.assertRaises(StopClosed):
             changed.arm("create")
         self.assertEqual(changed.remote_calls["create"], 0)
+
+        for field, before, after in (
+            ("body", "aaaa", "bbbb"),
+            ("title", "aaaa", "bbbb"),
+            ("creator", "actor-a", "actor-b"),
+        ):
+            with self.subTest(field=field):
+                drifted = ProgramLedgerModel()
+                first = {"node": "existing-node", field: before}
+                second = {"node": "existing-node", field: after}
+                drifted.classify_child([first])
+                drifted.plan_create()
+                drifted.classify_child([second])
+                with self.assertRaises(StopClosed):
+                    drifted.arm("create")
+                self.assertEqual(drifted.remote_calls["create"], 0)
 
     def test_stale_generation_digest_and_lock_writers_stop(self) -> None:
         model = ProgramLedgerModel()
