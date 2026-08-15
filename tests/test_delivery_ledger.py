@@ -538,7 +538,7 @@ def worktree_list_bytes(
                 "GIT_CONFIG_GLOBAL": "/dev/null",
                 "GIT_CONFIG_SYSTEM": "/dev/null",
                 "LC_ALL": "C",
-                "PATH": str(Path(git_executable).resolve().parent),
+                "PATH": str(Path(git_executable).absolute().parent),
             },
         )
         return result.stdout
