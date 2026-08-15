@@ -756,17 +756,17 @@ class AgentGuidanceTests(unittest.TestCase):
             "After an exact leaf ledger records program authority",
             "create issue-mode draft PRs",
             "update only ledger-bound PRs",
-            "Keep proposed missing children and incidental issues read-only",
-            "do not create or link children",
-            "publish issue or master comments without a program-level ledger",
+            "missing child create/link through the ignored machine-readable program ledger",
+            "Keep incidental issues read-only",
+            "do not publish issue or master comments or create/link children without a program-level ledger",
         }:
             with self.subTest(interface_boundary=interface_boundary):
                 self.assertIn(interface_boundary, interface)
         for boundary in {
             "Do not infer merge authority",
             "Do not merge or close anything",
-            "Only when explicitly requested",
-            "Never create a nested/per-leaf goal",
+            "If and only if the user explicitly requested",
+            "Never create a nested or per-leaf goal",
             "A merge-ready leaf is progress, not goal completion",
             "Do not mark a draft ready until both its leaf review",
             "query GitHub rather than trusting the reported action",
@@ -844,14 +844,14 @@ class AgentGuidanceTests(unittest.TestCase):
             "Before claiming the master or a leaf",
             "hold its final check/readiness transition until step 5",
             "After both leaf and cumulative reviews converge",
-            "Do not create/update a program master comment",
+            "Publish the master summary only through the master ledger's bound comment",
             "suffix SHAs in the ignored report/final handoff",
         }:
             self.assertIn(boundary, normalized_body)
         claim_gate = normalized_body.index("first ready leaf sidecar")
         self.assertLess(claim_gate, normalized_body.index("Then claim idempotently"))
         leaf_review = normalized_body.index("leaf whole-diff convergence")
-        cumulative_review = normalized_body.index("Review the cumulative program state")
+        cumulative_review = normalized_body.index("review the cumulative program state")
         readiness = normalized_body.index(
             "run issue delivery's latest-head/check/readiness section completely"
         )
@@ -964,10 +964,10 @@ class AgentGuidanceTests(unittest.TestCase):
             self.assertIn(marker, checklist)
         self.assertIn("machine-readable program ledger", interface)
         self.assertIn(
-            "Without goal authority, keep summaries/children local",
+            "Without durable goal authority, keep summaries and proposed children local",
             body,
         )
-        self.assertIn("create no ledger, master comment, child, or link", body)
+        self.assertIn("create no master ledger, master comment, child, or link", body)
         self.assertIn("Publish the master summary only through", body)
 
     def test_removed_stale_routes_do_not_return(self) -> None:
