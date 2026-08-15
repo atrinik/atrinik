@@ -14,6 +14,50 @@ cannot prove alone.
   different title, PR, branch, or parent?
 - Are closed, transferred, superseded, and maintainer-attested items described
   accurately?
+- Does the machine ledger bind the exact repository/master nodes, durable goal
+  authority, authenticated actor, exact objective digest, and complete
+  ordered leaf graph rather than trusting linkage, marker text, or the report?
+- Is every composed leaf ledger regular, no-follow, coordinate-exact, current,
+  read-only, and limited to its declared position and owned artifacts?
+
+## Master publication recovery
+
+- Is the canonical ledger ignored, schema-valid, complete, and protected by an
+  exclusive stable non-replaced lock file plus generation/digest/inode CAS and
+  durable same-directory replacement?
+- Was complete bounded comment pagination performed before every decision and
+  after every call, with zero markers for a first post or exactly one recorded
+  actor-owned marker for a bound update?
+- Do wrong-author, malformed, duplicate, drifted, missing, partially paginated,
+  corrupt, stale-CAS, inode-substituted, and uncertain states stop before a
+  remote mutation?
+- Does `none -> planned -> in-flight -> bound` persist exact intended bytes,
+  intended/current SHA-256 digests, marker identity, mutation kind, and remote
+  node ID at the required boundaries?
+- After a first `POST` becomes `in-flight`, does no exact result stop without
+  reposting? For `PATCH`, does exact prior body permit only the identical retry,
+  exact intended body bind without retry, and every other body stop?
+- Do crash-point tests cover before/after every durable transition and remote
+  call, including an accepted-but-not-yet-visible result and resumption?
+- Do concurrency, stale-CAS, marker, full-pagination, ledger/report loss,
+  corrupt-state, duplicate, wrong-author, remote-drift, and leaf-composition
+  tests prove fail-closed behavior without live GitHub mutation?
+- Does the human report mirror only already-durable generations and make clear
+  that it cannot authorize or recover a write?
+- Is canonical JSON, objective/graph hashing, marker grammar, stable lock
+  identity, streaming limits, and ordered-graph same-node rekeying exact?
+- When no durable goal exists, do summaries remain local with no ledger or
+  master-comment mutation?
+- Is a proposed child recorded with exact repository/title/body/parent bytes,
+  two stable complete duplicate scans, and separate create/link state slots?
+- After create or link becomes `in-flight`, does an absent result stop without
+  reposting until one exact issue or native relationship can be bound?
+- Does create reconciliation use a unique child marker and durable pre-call
+  stream rather than client time, and does link binding prove the parent-child pair from
+  both `parent` and completely paginated `subIssues` without inventing an edge
+  node ID?
+- Is the proposed child's graph position/dependency set fixed before creation
+  and reproduced exactly during the same-node graph rekey?
 
 ## Order and gates
 
@@ -76,3 +120,5 @@ cannot prove alone.
   dependencies, and artifact requirements?
 - Is there zero known actionable work, and is the only remaining action an
   explicitly named human closure or release step?
+- Is the final close-ready master summary bound at the recorded comment node
+  with exact intended/current digests after complete final pagination?

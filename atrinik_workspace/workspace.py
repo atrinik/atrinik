@@ -2740,10 +2740,10 @@ class Workspace:
                 archive_file.close()
 
     @staticmethod
-    def _validate_source_generation_git_tree(
-        checkout: Path, source: Path, source_tree: str
-    ) -> None:
-        """Prove a materialized source has the recorded Git tree identity."""
+    def _source_generation_git_entries(
+        checkout: Path, source_tree: str
+    ) -> dict[bytes, tuple[bytes, bytes, bytes]]:
+        """Return the complete, replacement-free entry inventory for a Git tree."""
 
         try:
             result = subprocess.run(
@@ -2786,6 +2786,11 @@ class Workspace:
                 ) from error
             if (
                 not relative
+                or relative.startswith(b"/")
+                or any(
+                    part in {b"", b".", b".."}
+                    for part in relative.split(b"/")
+                )
                 or relative in expected
                 or kind not in {b"blob", b"tree", b"commit"}
                 or mode
@@ -2797,6 +2802,15 @@ class Workspace:
                     "recorded immutable Git source tree listing is invalid"
                 )
             expected[relative] = (mode, kind, object_id)
+        return expected
+
+    @classmethod
+    def _validate_source_generation_git_tree(
+        cls, checkout: Path, source: Path, source_tree: str
+    ) -> None:
+        """Prove a materialized source has the recorded Git tree identity."""
+
+        expected = cls._source_generation_git_entries(checkout, source_tree)
 
         algorithm = hashlib.sha1 if len(source_tree) == 40 else hashlib.sha256
         actual: dict[bytes, tuple[bytes, bytes, bytes]] = {}
