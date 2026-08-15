@@ -42,3 +42,10 @@ scenario-owned state and refuses running, locked, external, shared, symlinked,
 malformed, or unregistered targets. Handoffs include concrete profile,
 scenario, topology, state, credentials lookup, prerequisites, expected result,
 cleanup, and repeat-test commands.
+
+When an agent scope deliberately selects `scenario-NAME` as its registered
+named state, scope release never removes or resets it. Stop the exact topology,
+release the scope with a fresh preview digest, then reset the scenario only as
+a separate explicit scenario operation. Concurrent scopes may share neither a
+live scenario state nor its operation lease; distinct scenario states progress
+independently and credentials remain outside every scope record and journal.

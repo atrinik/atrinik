@@ -18,6 +18,7 @@ import platform
 from pathlib import Path, PurePosixPath
 import re
 import secrets
+import selectors
 import shlex
 import shutil
 import signal
@@ -1666,6 +1667,174 @@ def _worktree_records(
     return records
 
 
+_WORKTREE_PORCELAIN_KEYS = {
+    "worktree",
+    "HEAD",
+    "branch",
+    "bare",
+    "detached",
+    "locked",
+    "prunable",
+}
+_WORKTREE_PORCELAIN_FLAGS = {"bare", "detached", "locked", "prunable"}
+_WORKTREE_INVENTORY_LIMIT = 1024 * 1024
+_WORKTREE_INVENTORY_ERROR_LIMIT = 64 * 1024
+_WORKTREE_INVENTORY_ENTRIES = 4096
+_WORKTREE_INVENTORY_TIMEOUT = 30.0
+_WORKTREE_HEAD_RE = re.compile(r"[0-9a-f]{40}")
+
+
+def _run_wrapper_worktree_inventory(
+    repository: Path, pass_fds: tuple[int, ...]
+) -> bytes:
+    """Capture one Git worktree inventory with live byte and time bounds."""
+
+    try:
+        process = subprocess.Popen(
+            [
+                "git",
+                "-C",
+                str(repository),
+                "worktree",
+                "list",
+                "--porcelain",
+                "-z",
+            ],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            pass_fds=pass_fds,
+        )
+    except FileNotFoundError as error:
+        raise WorkspaceError("required command not found: git") from error
+    except OSError as error:
+        raise WorkspaceError(f"cannot list wrapper worktrees: {error}") from error
+    if process.stdout is None or process.stderr is None:  # pragma: no cover
+        process.kill()
+        process.wait()
+        raise WorkspaceError("cannot list wrapper worktrees: Git pipes are unavailable")
+    stdout_fd = process.stdout.fileno()
+    stderr_fd = process.stderr.fileno()
+    output = {stdout_fd: bytearray(), stderr_fd: bytearray()}
+    limits = {
+        stdout_fd: _WORKTREE_INVENTORY_LIMIT,
+        stderr_fd: _WORKTREE_INVENTORY_ERROR_LIMIT,
+    }
+    selector = selectors.DefaultSelector()
+    selector.register(process.stdout, selectors.EVENT_READ)
+    selector.register(process.stderr, selectors.EVENT_READ)
+    deadline = time.monotonic() + _WORKTREE_INVENTORY_TIMEOUT
+    try:
+        while selector.get_map():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise WorkspaceError("wrapper worktree inventory timed out")
+            events = selector.select(remaining)
+            if not events:
+                raise WorkspaceError("wrapper worktree inventory timed out")
+            for key, _ in events:
+                chunk = os.read(key.fd, 65536)
+                if not chunk:
+                    selector.unregister(key.fileobj)
+                    continue
+                output[key.fd].extend(chunk)
+                if len(output[key.fd]) > limits[key.fd]:
+                    raise WorkspaceError(
+                        "wrapper worktree inventory output is not bounded"
+                    )
+        remaining = max(0.001, deadline - time.monotonic())
+        returncode = process.wait(timeout=remaining)
+    except (WorkspaceError, subprocess.TimeoutExpired) as error:
+        process.kill()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            pass
+        if isinstance(error, WorkspaceError):
+            raise
+        raise WorkspaceError("wrapper worktree inventory timed out") from error
+    finally:
+        selector.close()
+        process.stdout.close()
+        process.stderr.close()
+    stderr = bytes(output[stderr_fd])
+    if returncode:
+        detail = stderr.decode("utf-8", errors="replace").strip()
+        suffix = f": {detail}" if detail else ""
+        raise WorkspaceError(f"cannot list wrapper worktrees{suffix}")
+    return bytes(output[stdout_fd])
+
+
+def _parse_worktree_porcelain(raw: bytes) -> list[dict[str, str]]:
+    """Parse one complete NUL-delimited Git worktree inventory."""
+
+    if len(raw) > _WORKTREE_INVENTORY_LIMIT:
+        raise WorkspaceError("wrapper worktree inventory output is not bounded")
+    if not raw.endswith(b"\0\0"):
+        raise WorkspaceError("wrapper worktree inventory is not NUL-delimited")
+    records: list[dict[str, str]] = []
+    current: dict[str, str] = {}
+    for index, token in enumerate(raw.split(b"\0")):
+        if not token:
+            if current:
+                if (
+                    not {"worktree", "HEAD"}.issubset(current)
+                    or ("branch" in current) == ("detached" in current)
+                    or "bare" in current
+                    or not _WORKTREE_HEAD_RE.fullmatch(current["HEAD"])
+                    or (
+                        "branch" in current
+                        and not current["branch"].startswith("refs/heads/")
+                    )
+                ):
+                    raise WorkspaceError(
+                        f"wrapper worktree inventory record {len(records)} is incomplete"
+                    )
+                records.append(current)
+                current = {}
+            continue
+        try:
+            line = token.decode("utf-8")
+        except UnicodeError as error:
+            raise WorkspaceError(
+                f"wrapper worktree inventory field {index} is not UTF-8"
+            ) from error
+        key, separator, value = line.partition(" ")
+        if (
+            key not in _WORKTREE_PORCELAIN_KEYS
+            or key in current
+            or (not separator and key not in _WORKTREE_PORCELAIN_FLAGS)
+            or (separator and key in {"bare", "detached"})
+            or any(
+                ord(character) < 32 or ord(character) == 127
+                for character in value
+            )
+        ):
+            raise WorkspaceError(
+                f"wrapper worktree inventory field {index} is malformed or ambiguous"
+            )
+        current[key] = value
+    if current or not records or len(records) > _WORKTREE_INVENTORY_ENTRIES:
+        raise WorkspaceError("wrapper worktree inventory is incomplete or oversized")
+    seen: set[str] = set()
+    for index, record in enumerate(records):
+        path = Path(record["worktree"])
+        if (
+            not path.is_absolute()
+            or record["worktree"] == "/"
+            or str(path) != record["worktree"]
+            or os.path.normpath(record["worktree"]) != record["worktree"]
+        ):
+            raise WorkspaceError(
+                f"wrapper worktree inventory record {index} has a non-canonical path"
+            )
+        folded = record["worktree"].casefold()
+        if folded in seen:
+            raise WorkspaceError("wrapper worktree inventory contains an ambiguous path")
+        seen.add(folded)
+    return records
+
+
 def open_regular_file(
     path: Path, flags: int, description: str, mode: int = 0o600
 ) -> int:
@@ -2544,6 +2713,7 @@ class Workspace:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     pass_fds=active_lock_fds(),
+                    timeout=30,
                 )
             except FileNotFoundError as error:
                 raise WorkspaceError("required command not found: git") from error
@@ -3284,84 +3454,90 @@ class Workspace:
             )
         generation = container / key
         lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
+
+        def reuse_generation() -> Path:
+            if generation.is_symlink() or not generation.is_dir():
+                raise WorkspaceError(
+                    f"immutable source generation is invalid: {generation}"
+                )
+            marker = generation / MANAGED_MARKER
+            record = self._source_generation_record(generation / "source")
+            expected_record = {
+                **identity,
+                "source_tree_sha256": _tree_digest(
+                    generation / "source",
+                    set(),
+                    bounded_symlinks=True,
+                    reject_hardlinks=True,
+                ),
+                "closure_tree_sha256": _source_closure_digest(
+                    generation, component.source_includes
+                ),
+            }
+            if (
+                not marker.is_file()
+                or marker.is_symlink()
+                or load_json(marker)
+                != {
+                    "schema_version": SCHEMA_VERSION,
+                    "purpose": f"source-generation:{key}",
+                }
+                or record != expected_record
+            ):
+                raise WorkspaceError(
+                    f"immutable source generation is corrupt: {generation}"
+                )
+            current_git_common = self._git_common_directory(checkout, trace=False)
+            current_checkout = checkout.stat()
+            current_source = source.stat()
+            current_git_common_identity = current_git_common.stat()
+            if (
+                (current_checkout.st_dev, current_checkout.st_ino)
+                != (state["device"], state["inode"])
+                or str(current_git_common) != state["git_common"]
+                or (
+                    current_git_common_identity.st_dev,
+                    current_git_common_identity.st_ino,
+                )
+                != (
+                    state["git_common_device"],
+                    state["git_common_inode"],
+                )
+                or state["sources"][component.source]
+                != {
+                    "path": str(source.resolve()),
+                    "device": current_source.st_dev,
+                    "inode": current_source.st_ino,
+                }
+                or not _is_clean(checkout, trace=False)
+                or git(
+                    checkout,
+                    "rev-parse",
+                    "HEAD",
+                    capture=True,
+                    trace=False,
+                )
+                != commit
+            ):
+                raise WorkspaceError(
+                    f"clean primary source changed before generation reuse: {checkout}"
+                )
+            self._validate_source_generation_git_closure(
+                checkout,
+                generation,
+                source_tree,
+                tree,
+                source_includes,
+            )
+            return generation / "source"
+
+        if generation.exists() or generation.is_symlink():
+            with shared_lock(lock, f"immutable source generation {component.name}"):
+                return reuse_generation()
+
         with exclusive_lock(lock, f"immutable source generation {component.name}"):
             if generation.exists() or generation.is_symlink():
-                if generation.is_symlink() or not generation.is_dir():
-                    raise WorkspaceError(
-                        f"immutable source generation is invalid: {generation}"
-                    )
-                marker = generation / MANAGED_MARKER
-                record = self._source_generation_record(generation / "source")
-                expected_record = {
-                    **identity,
-                    "source_tree_sha256": _tree_digest(
-                        generation / "source",
-                        set(),
-                        bounded_symlinks=True,
-                        reject_hardlinks=True,
-                    ),
-                    "closure_tree_sha256": _source_closure_digest(
-                        generation, component.source_includes
-                    ),
-                }
-                if (
-                    not marker.is_file()
-                    or marker.is_symlink()
-                    or load_json(marker)
-                    != {
-                        "schema_version": SCHEMA_VERSION,
-                        "purpose": f"source-generation:{key}",
-                    }
-                    or record != expected_record
-                ):
-                    raise WorkspaceError(
-                        f"immutable source generation is corrupt: {generation}"
-                    )
-                current_git_common = self._git_common_directory(
-                    checkout, trace=False
-                )
-                current_checkout = checkout.stat()
-                current_source = source.stat()
-                current_git_common_identity = current_git_common.stat()
-                if (
-                    (current_checkout.st_dev, current_checkout.st_ino)
-                    != (state["device"], state["inode"])
-                    or str(current_git_common) != state["git_common"]
-                    or (
-                        current_git_common_identity.st_dev,
-                        current_git_common_identity.st_ino,
-                    )
-                    != (
-                        state["git_common_device"],
-                        state["git_common_inode"],
-                    )
-                    or state["sources"][component.source]
-                    != {
-                        "path": str(source.resolve()),
-                        "device": current_source.st_dev,
-                        "inode": current_source.st_ino,
-                    }
-                    or not _is_clean(checkout, trace=False)
-                    or git(
-                        checkout,
-                        "rev-parse",
-                        "HEAD",
-                        capture=True,
-                        trace=False,
-                    )
-                    != commit
-                ):
-                    raise WorkspaceError(
-                        f"clean primary source changed before generation reuse: {checkout}"
-                    )
-                self._validate_source_generation_git_closure(
-                    checkout,
-                    generation,
-                    source_tree,
-                    tree,
-                    source_includes,
-                )
-                return generation / "source"
+                return reuse_generation()
 
             staging = Path(
                 tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
@@ -4960,6 +5136,25 @@ class Workspace:
                 for record in _worktree_records(repository, trace=False)
             )
         return result
+
+    def list_wrapper_worktrees(self) -> list[tuple[str, dict[str, str]]]:
+        """Return the complete wrapper common-Git-directory worktree inventory."""
+
+        request = self._lease_request(
+            "git-admin",
+            self._wrapper_git_admin_coordinate(),
+            "shared",
+            "list wrapper worktrees",
+        )
+        with self._resource_locks([request]):
+            return [
+                ("atrinik", record)
+                for record in _parse_worktree_porcelain(
+                    _run_wrapper_worktree_inventory(
+                        self.paths.repository, active_lock_fds()
+                    )
+                )
+            ]
 
     def create_profile(self, name: str, source: str = "default") -> Path:
         self.paths.ensure()
@@ -16234,18 +16429,55 @@ class Workspace:
     ) -> tuple[dict[str, Any], bool]:
         root = self._topology_directory(name)
         control = status["control"]
+        initial_observation = status.get("observation")
+        control_was_reachable = (
+            isinstance(initial_observation, dict)
+            and initial_observation.get("control") == "reachable"
+        )
         requested = self._topology_control_request(name, control, "stop")
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             current = self.topology_status(name)
             active = self._topology_process_tree_active(root, control)
-            if not active and not current["supervisor"]["running"] and not any(
-                service["running"] for service in current["services"].values()
+            state = current.get("state")
+            state_lease_active = False
+            if isinstance(state, str):
+                try:
+                    state_lease_active = lease_locked(Path(f"{state}.lock"))
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"cannot inspect topology state lease during down: {error}"
+                    ) from error
+            observation = current.get("observation")
+            coordinates_released = (
+                not isinstance(observation, dict)
+                or (
+                    observation.get("process_tree_lease") == "released"
+                    and not state_lease_active
+                )
+            )
+            shutdown = current.get("shutdown")
+            shutdown_observed = (
+                isinstance(shutdown, dict)
+                and shutdown.get("control_requested") is True
+                and isinstance(shutdown.get("clean"), bool)
+            )
+            if (
+                not active
+                and not current["supervisor"]["running"]
+                and not any(
+                    service["running"] for service in current["services"].values()
+                )
+                and coordinates_released
+                and (
+                    not isinstance(observation, dict)
+                    or (not requested and not control_was_reachable)
+                    or current.get("error") is not None
+                    or shutdown_observed
+                )
             ):
-                shutdown = current.get("shutdown")
                 confirmed_clean = bool(
-                    isinstance(shutdown, dict)
-                    and shutdown.get("control_requested") is True
+                    shutdown_observed
                     and shutdown.get("clean") is True
                     and current.get("error") is None
                 )

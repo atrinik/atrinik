@@ -217,12 +217,34 @@ cleanup references until release journals prove each worktree removed.
 Release computes a canonical SHA-256 plan over the completed scope generation
 and every observed topology, state, build, profile, worktree, and reference
 disposition. Apply requires that preview digest and recomputes it under the
-same exact leases. Dependency-ordered removal journals each completed action.
-Persistent named/default state and stopped topology history are retained, and
-live/unreachable topologies, retained runtime or temporary-state generations,
-busy resources, changed identities, dirty/detached Git state, replacement,
-unexpected references, and uncertain ownership fail closed. The completed
-scope and release journal remain durable evidence after release.
+same exact leases. Dependency-ordered removal journals completed actions and
+resumes exact pending profile-reference or branch cleanup after interruption.
+Persistent named/default state and stopped topology history are retained. Only
+current matching regular spec/status records with a control-requested clean
+shutdown and released generation/state/port leases waive that reference. Live,
+unreachable, stale, historical, mismatched, retained, busy, dirty/detached,
+replaced, unexpected, or uncertain inputs fail closed. The completed scope and
+release journal remain durable evidence after release.
+
+The complete concurrency acceptance matrix composes the focused contracts
+rather than duplicating them:
+
+| Contract row | Deterministic evidence |
+| --- | --- |
+| Exact same/different resource conflicts, queued-writer fairness, and disjoint progress | `test_exact_resource_matrix_scopes_conflicts_to_coordinates` and `test_incremental_harness_isolates_live_topology_conflicts` |
+| Two scope-owned worktrees from one physical checkout, two builds, two server readiness rendezvous, independent inspection/stop/release, and A live through B | `test_complete_dual_scope_server_lifecycle_is_independent` |
+| Same name/label/branch/profile races and complete winner ownership | `test_same_scope_race_has_one_winner_and_no_unowned_partial` and `test_same_explicit_label_and_branch_race_has_one_complete_winner` |
+| Every creation and release publication/destructive substep, rollback, preservation, and exact reference/branch resume | `test_failure_after_each_publication_boundary_is_journaled`, the uncertainty tests, and `test_every_release_publication_boundary_recovers_from_interruption` |
+| Temporary, named, default, retained, promoted, managed-external, and scenario state | `test_temporary_topology_state_clean_retain_and_promote_lifecycle`, `test_persistent_scope_state_is_deliberate_and_never_released`, and `test_scenario_lifecycle_owns_isolated_state_and_credentials` |
+| Explicit/automatic ports, same-port conflict, external bind, and supervisor loss | port-reservation tests plus `test_concurrent_server_topologies_overlap_through_readiness` and `test_supervisor_loss_before_server_bind_releases_reservation` |
+| Immutable runtime through source/build mutation and exact guardian ownership | `test_incremental_harness_isolates_live_topology_conflicts`, supervisor lease tests, and runtime-publication interruption tests |
+| Cleanup versus profile/topology/scope/runtime/state references | profile-publication, topology-cleanup, source-generation-cleanup, temporary-state, and scope-release race tests |
+| Current versus historical profile/topology/state/scenario/scope records | schema namespace, inert topology/scenario, detached-state, and scope-schema tests |
+| Bounded randomized concurrent per-agent progress with no partial records, cross-scope mutation, marker damage, secret exposure, starvation, or leaked leases | six seeded repetitions with step rendezvous, fixed retry budgets, and hard daemon-worker joins in `test_randomized_scope_lifecycle_stress_leaves_no_cross_scope_debris` |
+
+Coordination metrics are rendezvous arrivals, admitted/completed operations,
+published ownership transitions, and bounded conflict outcomes. Compiler wall
+clock and short sleeps are never acceptance thresholds.
 
 ## Cleanup inventory and retention
 
@@ -275,6 +297,20 @@ the profile or scenario. A later source at the same path remains protected
 across relocated roots. Exact lease contention propagates its coordinate,
 operation, owner metadata and recovery action; a record that changes between
 read and confirmation fails separately and leaves the backfill marker absent.
+The requester publishes and locks `waiting` metadata before main-lock admission,
+then transitions it to `admitted` through a per-coordinate transition gate under
+owner-directory serialization. It acquires the main lock before the short gate;
+blocked requests therefore cannot convoy compatible peers or prevent holder
+release. Summaries prioritize admitted holders before queued waiters, even at
+the bounded record cap, and rendezvous with every in-progress admission before
+returning a stable snapshot. The same serialization prevents a scan from
+reaping partial publication. A publication failure unlinks its exact token;
+simultaneous cleanup refusal is reported as fail-closed uncertainty naming the
+retained evidence. Teardown unconditionally releases the main lease even when
+owner-metadata finalization fails, retaining and reporting metadata uncertainty
+for later diagnostic reaping. If main-lease release itself cannot be confirmed,
+the owner record becomes durable `release-uncertain` recovery evidence and is
+not reaped as an ordinary stale owner.
 Because an inert scenario can retain a pre-migration checkout name, a common-Git
 physical-reference registry lease spans the complete one-time classification;
 worktree removal and cleanup take it exclusively, so they cannot reach an
@@ -344,7 +380,12 @@ only when Git registers them directly under `workspace/worktrees/atrinik/`;
 historical wrapper worktrees are recognized only as direct children of the
 top-level `build/worktrees/` namespace. Common-Git-directory and canonical
 repository identity, named/unlocked state, absence of in-progress Git
-operations, and ordinary tracked/untracked cleanliness are mandatory. Saved
+operations, and ordinary tracked/untracked cleanliness are mandatory. The
+`worktree list --wrapper-self --json` acquires the wrapper common-Git-directory
+lease and parses NUL-delimited porcelain into the same bounded row schema used
+by manifest worktree inventories. It rejects incomplete, duplicate, case-alias,
+noncanonical, non-UTF-8, and control-bearing records before emitting retained
+evidence; the ordinary component-list path is unchanged. Saved
 profile selectors of kind `worktree`, absolute `path`, or migration-only
 `migrated-worktree`; retained scenario coordinates; live topology coordinates;
 and every original/destination/composite migration path protect exact
@@ -401,7 +442,9 @@ Schema-1 generations remain recognizable to preview-first cleanup but cannot be
 reused as current build inputs. A mismatch fails closed and leaves recovery to
 the explicit `builds` cleanup boundary. Once path, marker, key, and closed
 metadata ownership are exact, cleanup classifies a content-digest mismatch as
-removable corruption. Builds hold a per-key shared lock; cleanup apply
+removable corruption. Builds authenticate an existing generation while holding
+its per-key shared lock; only an absent generation enters exclusive creation
+with a recheck. Cleanup apply
 revalidates ownership, closure content, identity, and age under its exclusive
 side before bounded removal. First-use container publication is
 checkout-serialized. Interrupted staging remains a recognized child of its

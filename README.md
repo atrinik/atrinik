@@ -672,6 +672,15 @@ created worktrees and profiles that remain clean, unchanged, and unreferenced;
 changed or uncertain inputs and the durable journal remain as explicit cleanup
 references for recovery.
 
+The returned commands form one complete lifecycle: build the scope profile,
+start only its reserved topology with its recorded state policy, inspect it,
+stop it, then preview and apply release. Two scopes may select distinct
+worktrees of one physical checkout and run that lifecycle concurrently. A live
+scope A does not prevent a disjoint scope B from stopping and releasing. Use
+readiness markers, lease ownership, and published status transitions when
+testing concurrency; timeouts bound failure but elapsed compiler or startup
+time is not correctness evidence.
+
 Scope release is explicit and hash-bound preview-first:
 
 ~~~sh
@@ -684,8 +693,16 @@ live or unreachable topology, retained generation, active lease, dirty,
 detached, replaced, ambiguously owned, or unexpectedly referenced worktree,
 changed profile, or uncertain build root. Named and default persistent state
 is always retained. Stopped topology history remains owned by the separate
-topology-cleanup lifecycle. The completed scope record and release journal are
-retained as recovery evidence.
+topology-cleanup lifecycle; its exact stopped scope-owned reference does not
+prevent release only when current regular spec/status records bind the same
+profile, generation, and resolved coordinates and prove a control-requested
+clean shutdown with released runtime, port, and state leases. Stale, historical,
+mismatched, or unrelated records fail closed. Release journals initial,
+destructive-substep, build, profile, worktree, and final completion boundaries.
+After interruption, run a fresh preview and resume with that new digest;
+completed removals and exact pending reference/branch cleanup are recovered.
+The completed scope record and release journal remain recovery evidence and
+available to bounded, secret-free shell completion.
 
 ## Checkout worktrees
 
@@ -712,8 +729,15 @@ List or remove managed worktrees:
 ~~~sh
 ./atrinik worktree list
 ./atrinik worktree list --json
+./atrinik worktree list --wrapper-self --json
 ./atrinik worktree remove content maps-pr
 ~~~
+
+The default list remains manifest-owned. `--wrapper-self` instead emits the
+complete parser-driven Git inventory for the wrapper repository, tagging both
+its primary and linked worktrees as physical checkout `atrinik`. It cannot be
+combined with component selectors; use its JSON bytes directly when a workflow
+needs retained wrapper-self inventory evidence.
 
 Removal refuses dirty worktrees. Each worktree is a full Git worktree of its
 physical repository, so a classic worktree contains all five classic source
@@ -1204,6 +1228,19 @@ owning operation and supported recovery action; an authored record that changes
 during confirmation fails with a distinct retry diagnostic. Profile names,
 topology names, scenarios, states, build roots, and cache keys remain
 workspace-local.
+Each lease request publishes its locked `waiting` owner record before main-lock
+admission, then transitions it to `admitted` through a per-coordinate transition
+gate under owner-directory serialization. The main lock is acquired before that
+short gate, so a blocked request cannot convoy compatible peers or prevent the
+current holder from releasing. Diagnostics list admitted holders before queued
+waiters, rendezvous with every in-progress admission before returning a stable
+snapshot, and cannot reap a partially published record. Failed publication
+removes its exact token; if the filesystem also refuses that cleanup, the
+operation fails closed and reports the retained token as cleanup uncertainty.
+Teardown always releases the main lease even when owner-metadata finalization
+fails, while reporting retained metadata uncertainty for later diagnostic
+reaping. If main-lease release itself cannot be confirmed, the owner record is
+durably marked `release-uncertain` and retained as explicit recovery evidence.
 Requests acquire that deterministic order. A writer queued for one coordinate
 precedes later readers of that coordinate, while unrelated resources continue:
 two builds on different worktrees of one repository overlap, and init/sync for
@@ -1220,7 +1257,9 @@ commit/tree/subpath-keyed read-only generations below
 `workspace/build/source-generations/`; reuse verifies ownership metadata and a
 complete tree digest plus the captured checkout, source, and common-Git
 filesystem identities. No generation links or hard-links back to mutable
-primary files. Every generated path is revalidated after the build takes its
+primary files. Existing generations are authenticated under a shared per-key
+lock; only an absent generation takes the exclusive creation lock and rechecks
+after admission. Every generated path is revalidated after the build takes its
 shared pin; only then are its primary source leases released. Dirty primaries
 and worktrees stay locked for as long as the build
 can read them. Cache and region-map coordinates come from the captured snapshot
