@@ -238,7 +238,7 @@ rather than duplicating them:
 | Immutable runtime through source/build mutation and exact guardian ownership | `test_incremental_harness_isolates_live_topology_conflicts`, supervisor lease tests, and runtime-publication interruption tests |
 | Cleanup versus profile/topology/scope/runtime/state references | profile-publication, topology-cleanup, source-generation-cleanup, temporary-state, and scope-release race tests |
 | Current versus historical profile/topology/state/scenario/scope records | schema namespace, inert topology/scenario, detached-state, and scope-schema tests |
-| Bounded randomized concurrent per-agent progress with no partial records, cross-scope mutation, marker damage, secret exposure, starvation, or leaked leases | six seeded repetitions with step rendezvous and bounded futures in `test_randomized_scope_lifecycle_stress_leaves_no_cross_scope_debris` |
+| Bounded randomized concurrent per-agent progress with no partial records, cross-scope mutation, marker damage, secret exposure, starvation, or leaked leases | six seeded repetitions with step rendezvous, fixed retry budgets, and hard daemon-worker joins in `test_randomized_scope_lifecycle_stress_leaves_no_cross_scope_debris` |
 
 Coordination metrics are rendezvous arrivals, admitted/completed operations,
 published ownership transitions, and bounded conflict outcomes. Compiler wall
@@ -291,6 +291,10 @@ the profile or scenario. A later source at the same path remains protected
 across relocated roots. Exact lease contention propagates its coordinate,
 operation, owner metadata and recovery action; a record that changes between
 read and confirmation fails separately and leaves the backfill marker absent.
+The requester publishes and locks that metadata before main-lock admission, so
+both an admitted holder and a queued waiter remain diagnosable. Owner-directory
+serialization prevents a diagnostic scan from reaping a partially published
+record, and publication failure unlinks its exact token before admission ends.
 Because an inert scenario can retain a pre-migration checkout name, a common-Git
 physical-reference registry lease spans the complete one-time classification;
 worktree removal and cleanup take it exclusively, so they cannot reach an

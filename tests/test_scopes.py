@@ -1467,7 +1467,7 @@ class ScopeLifecycleTests(unittest.TestCase):
                 provisioned = threading.Barrier(2)
                 operation_step = threading.Barrier(2)
                 operation_progress = [threading.Condition() for _ in range(4)]
-                operation_transitions = [0 for _ in range(4)]
+                operation_completions = [0 for _ in range(4)]
                 release_start = threading.Barrier(2)
                 release_progress = threading.Condition()
                 release_transitions = [0]
@@ -1507,9 +1507,7 @@ class ScopeLifecycleTests(unittest.TestCase):
                                     Path(record["worktrees"][0]["path"]),
                                 )
                             elif operation == "preview":
-                                while True:
-                                    with operation_progress[step]:
-                                        observed_before = operation_transitions[step]
+                                for _attempt in range(20):
                                     try:
                                         self.assertTrue(
                                             workspace.scope_release(
@@ -1523,20 +1521,19 @@ class ScopeLifecycleTests(unittest.TestCase):
                                         with coordination_lock:
                                             coordination["release_conflicts"] += 1
                                         with operation_progress[step]:
-                                            prior = operation_transitions[step]
-                                            operation_transitions[step] += 1
-                                            observed = operation_transitions[step]
-                                            operation_progress[step].notify_all()
-                                            if prior > observed_before:
-                                                continue
+                                            observed = operation_completions[step]
                                             if not operation_progress[step].wait_for(
-                                                lambda: operation_transitions[step]
+                                                lambda: operation_completions[step]
                                                 > observed,
                                                 timeout=10,
                                             ):
                                                 self.fail(
                                                     "scope preview made no bounded progress"
                                                 )
+                                else:
+                                    self.fail(
+                                        "scope preview exhausted bounded retries"
+                                    )
                             else:
                                 path = Path(record["worktrees"][0]["path"])
                                 other_path = Path(other["worktrees"][0]["path"])
@@ -1550,7 +1547,7 @@ class ScopeLifecycleTests(unittest.TestCase):
                             with coordination_lock:
                                 coordination["observations"] += 1
                             with operation_progress[step]:
-                                operation_transitions[step] += 1
+                                operation_completions[step] += 1
                                 operation_progress[step].notify_all()
 
                         release_start.wait(timeout=10)
@@ -1592,9 +1589,31 @@ class ScopeLifecycleTests(unittest.TestCase):
                     finally:
                         workspace.close()
 
-                with ThreadPoolExecutor(max_workers=2) as executor:
-                    futures = [executor.submit(lifecycle, name) for name in names]
-                    completed = [future.result(timeout=30) for future in futures]
+                completed: list[dict[str, object]] = []
+                failures: list[BaseException] = []
+
+                def run_lifecycle(name: str) -> None:
+                    try:
+                        completed.append(lifecycle(name))
+                    except BaseException as error:
+                        failures.append(error)
+
+                workers = [
+                    threading.Thread(
+                        target=run_lifecycle, args=(name,), daemon=True
+                    )
+                    for name in names
+                ]
+                for worker in workers:
+                    worker.start()
+                for worker in workers:
+                    worker.join(timeout=30)
+                self.assertFalse(
+                    any(worker.is_alive() for worker in workers),
+                    "scope lifecycle worker exceeded its hard join bound",
+                )
+                if failures:
+                    raise failures[0]
                 self.assertEqual(
                     len(
                         {

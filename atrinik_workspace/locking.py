@@ -667,20 +667,31 @@ def _resource_owner(
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
     publication_locked = False
+    descriptor: int | None = None
+    metadata_created = False
     try:
         fcntl.flock(owner_descriptor, fcntl.LOCK_EX)
         publication_locked = True
         descriptor = os.open(
             metadata_path.name, flags, 0o600, dir_fd=owner_descriptor
         )
+        metadata_created = True
         fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
         with os.fdopen(descriptor, "w+", encoding="utf-8", closefd=False) as stream:
             json.dump(value, stream, sort_keys=True)
             stream.write("\n")
             stream.flush()
     except OSError as error:
-        if "descriptor" in locals():
+        if descriptor is not None:
             os.close(descriptor)
+            descriptor = None
+        if metadata_created:
+            try:
+                os.unlink(metadata_path.name, dir_fd=owner_descriptor)
+            except FileNotFoundError:
+                pass
+            except OSError:
+                pass
         publication_locked = False
         os.close(owner_descriptor)
         os.close(parent_descriptor)
@@ -767,9 +778,15 @@ def resource_locks(
             description = (
                 f"resource {request.kind} coordinate {request.coordinate}"
             )
+            request_stack = ExitStack()
             try:
+                request_stack.enter_context(
+                    _resource_owner(
+                        path, request, directory_fd=directory_descriptor
+                    )
+                )
                 if request.mode == "exclusive":
-                    lease = stack.enter_context(
+                    lease = request_stack.enter_context(
                         exclusive_layout_lock(
                             path,
                             description,
@@ -779,7 +796,7 @@ def resource_locks(
                         )
                     )
                 else:
-                    lease = stack.enter_context(
+                    lease = request_stack.enter_context(
                         shared_layout_lock(
                             path,
                             description,
@@ -789,15 +806,15 @@ def resource_locks(
                         )
                     )
             except LockBusyError as error:
+                request_stack.close()
                 raise LockBusyError(
                     f"{request.kind} {request.coordinate} is already in use by "
                     f"{_lease_owner_summary(path)}; {request.recovery}"
                 ) from error
-            stack.enter_context(
-                _resource_owner(
-                    path, request, directory_fd=directory_descriptor
-                )
-            )
+            except BaseException:
+                request_stack.close()
+                raise
+            stack.enter_context(request_stack.pop_all())
             leases.append(lease)
         yield tuple(leases)
 
@@ -812,16 +829,24 @@ def resource_lifetime_reader(
     directory_fd = _ensure_resource_lock_directory(root, request.kind)
     path = resource_lock_path(root, request.kind, request.coordinate)
     try:
-        with shared_layout_lock(
-            path,
-            f"resource {request.kind} coordinate {request.coordinate}",
-            recovery_action=request.recovery,
-            directory_fd=directory_fd,
-            inherit=False,
-        ) as lease:
-            with _resource_owner(
-                path, request, directory_fd=directory_fd, inherit=False
-            ):
-                yield lease
+        with ExitStack() as stack:
+            stack.enter_context(
+                _resource_owner(
+                    path,
+                    request,
+                    directory_fd=directory_fd,
+                    inherit=False,
+                )
+            )
+            lease = stack.enter_context(
+                shared_layout_lock(
+                    path,
+                    f"resource {request.kind} coordinate {request.coordinate}",
+                    recovery_action=request.recovery,
+                    directory_fd=directory_fd,
+                    inherit=False,
+                )
+            )
+            yield lease
     finally:
         os.close(directory_fd)

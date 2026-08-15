@@ -10701,6 +10701,105 @@ class WorkspaceTests(unittest.TestCase):
         owners = lock.with_name(f"{lock.name}.owners")
         self.assertEqual(list(owners.iterdir()), [])
 
+    def test_resource_owner_publication_is_atomic_with_lock_acquisition(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "publish exact review owner",
+            "wait for review",
+        )
+        owner_published = threading.Event()
+        winner_active = threading.Event()
+        release_winner = threading.Event()
+        contender_done = threading.Event()
+        contender_error: list[BaseException] = []
+        original_owner = locking_module._resource_owner
+
+        @contextmanager
+        def observed_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs):
+                owner_published.set()
+                yield
+
+        def winner() -> None:
+            with resource_locks(self.workspace.paths.workspace, [request]):
+                winner_active.set()
+                if not release_winner.wait(timeout=5):
+                    raise AssertionError("winner release rendezvous timed out")
+
+        def contender() -> None:
+            try:
+                with resource_locks(
+                    self.workspace.paths.workspace, [request], nonblocking=True
+                ):
+                    raise AssertionError("contender unexpectedly acquired lease")
+            except BaseException as error:
+                contender_error.append(error)
+            finally:
+                contender_done.set()
+
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        with locking_module.exclusive_layout_lock(
+            lock, "deterministic owner publication blocker"
+        ):
+            with mock.patch.object(
+                locking_module, "_resource_owner", observed_owner
+            ):
+                winner_thread = threading.Thread(target=winner, daemon=True)
+                winner_thread.start()
+                self.assertTrue(owner_published.wait(timeout=5))
+                contender_thread = threading.Thread(target=contender, daemon=True)
+                contender_thread.start()
+                self.assertTrue(contender_done.wait(timeout=5))
+                self.assertEqual(len(contender_error), 1)
+                self.assertIsInstance(contender_error[0], WorkspaceError)
+                self.assertIn(
+                    "publish exact review owner", str(contender_error[0])
+                )
+                self.assertNotIn(
+                    "owner metadata unavailable", str(contender_error[0])
+                )
+        self.assertTrue(winner_active.wait(timeout=5))
+        release_winner.set()
+        winner_thread.join(timeout=5)
+        contender_thread.join(timeout=5)
+        self.assertFalse(winner_thread.is_alive())
+        self.assertFalse(contender_thread.is_alive())
+
+    def test_resource_owner_publication_failure_removes_partial_metadata(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "publish review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+
+        with mock.patch.object(
+            locking_module.json,
+            "dump",
+            side_effect=OSError("injected owner publication failure"),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot publish resource lease owner metadata"
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    self.fail("failed metadata publication unexpectedly acquired")
+
+        self.assertEqual(list(owners.iterdir()), [])
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
+        self.assertEqual(list(owners.iterdir()), [])
+
     def test_resource_owner_metadata_survives_inherited_child(self) -> None:
         request = LeaseRequest(
             "source",
