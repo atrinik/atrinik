@@ -34,6 +34,7 @@ from atrinik_workspace import locking as locking_module
 from atrinik_workspace.cleanup import Cleanup
 from atrinik_workspace.locking import (
     LeaseRequest,
+    LockBusyError,
     active_lock_fds,
     resource_lock_path,
     resource_locks,
@@ -11294,6 +11295,177 @@ class WorkspaceTests(unittest.TestCase):
         ):
             pass
         self.assertEqual(list(owners.iterdir()), retained)
+
+    def test_resource_owner_uncertainty_write_failure_keeps_locked_evidence(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "uncertain write review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        original_owner = locking_module._resource_owner
+        original_dump = locking_module.json.dump
+        actual_releases: list[Callable[[], None]] = []
+
+        @contextmanager
+        def uncertain_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def uncertain_bind(release: Callable[[], None]) -> None:
+                    actual_releases.append(release)
+                    bind_release(
+                        lambda: (_ for _ in ()).throw(
+                            OSError("injected main lease release failure")
+                        )
+                    )
+
+                yield admit, uncertain_bind
+
+        def fail_uncertain_dump(
+            value: object, *args: object, **kwargs: object
+        ) -> None:
+            if isinstance(value, dict) and value.get("phase") == "release-uncertain":
+                raise OSError("injected uncertainty publication failure")
+            original_dump(value, *args, **kwargs)
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", uncertain_owner),
+            mock.patch.object(locking_module.json, "dump", fail_uncertain_dump),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "retained locked owner metadata is admitted.*"
+                "cannot publish release-uncertain",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    pass
+
+        retained = list(owners.iterdir())
+        self.assertEqual(len(retained), 1)
+        self.assertIn('"phase": "admitted"', retained[0].read_text())
+        summary = locking_module._lease_owner_summary(lock)
+        self.assertIn("uncertain write review owner", summary)
+        with self.assertRaises(LockBusyError):
+            with resource_locks(
+                self.workspace.paths.workspace, [request], nonblocking=True
+            ):
+                self.fail("uncertain main lease was reacquired")
+        actual_releases[0]()
+
+    def test_resource_owner_directory_and_release_failure_keeps_evidence(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "uncertain directory review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        original_owner = locking_module._resource_owner
+        original_flock = locking_module.fcntl.flock
+        actual_releases: list[Callable[[], None]] = []
+        fail_teardown = threading.Event()
+        failed_directory_lock = threading.Event()
+
+        @contextmanager
+        def uncertain_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def uncertain_bind(release: Callable[[], None]) -> None:
+                    actual_releases.append(release)
+                    bind_release(
+                        lambda: (_ for _ in ()).throw(
+                            OSError("injected main lease release failure")
+                        )
+                    )
+
+                yield admit, uncertain_bind
+
+        def failing_flock(descriptor: object, operation: int) -> object:
+            raw_descriptor = (
+                descriptor if isinstance(descriptor, int) else descriptor.fileno()
+            )
+            if (
+                fail_teardown.is_set()
+                and not failed_directory_lock.is_set()
+                and operation == fcntl.LOCK_EX
+                and stat.S_ISDIR(os.fstat(raw_descriptor).st_mode)
+            ):
+                failed_directory_lock.set()
+                raise OSError("injected owner directory lock failure")
+            return original_flock(descriptor, operation)
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", uncertain_owner),
+            mock.patch.object(locking_module.fcntl, "flock", failing_flock),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "retained locked owner metadata is admitted.*"
+                "cannot lock owner directory",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    fail_teardown.set()
+
+        self.assertTrue(failed_directory_lock.is_set())
+        self.assertIn(
+            "uncertain directory review owner",
+            locking_module._lease_owner_summary(lock),
+        )
+        with self.assertRaises(LockBusyError):
+            with resource_locks(
+                self.workspace.paths.workspace, [request], nonblocking=True
+            ):
+                self.fail("uncertain main lease was reacquired")
+        actual_releases[0]()
+
+    def test_resource_owner_summary_bounds_reap_unlink_failures(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "stale review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        owners.mkdir(parents=True)
+        malformed = owners / "malformed.json"
+        malformed.write_text("[]\n", encoding="utf-8")
+        stale = owners / "stale.json"
+        stale.write_text(
+            json.dumps(
+                {
+                    "mode": "exclusive",
+                    "operation": "stale review owner",
+                    "owner": "stale-owner",
+                    "phase": "admitted",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        with mock.patch.object(
+            locking_module.os,
+            "unlink",
+            side_effect=OSError("injected diagnostic unlink failure"),
+        ):
+            self.assertEqual(
+                locking_module._lease_owner_summary(lock),
+                "owner metadata unavailable",
+            )
+        self.assertEqual(set(owners.iterdir()), {malformed, stale})
 
     def test_resource_owner_publication_reports_cleanup_uncertainty(
         self,

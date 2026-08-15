@@ -228,6 +228,14 @@ def _lease_owner_summary(
             os.close(parent_descriptor)
         return "owner metadata unavailable"
     descriptions: list[tuple[int, str, str]] = []
+
+    def reap(metadata_name: str) -> bool:
+        try:
+            os.unlink(metadata_name, dir_fd=owners_descriptor)
+        except OSError:
+            return False
+        return True
+
     for metadata_name in paths:
         descriptor: int | None = None
         reapable = False
@@ -261,17 +269,14 @@ def _lease_owner_summary(
                 value = json.load(stream)
         except (OSError, UnicodeError, json.JSONDecodeError):
             if reapable:
-                try:
-                    os.unlink(metadata_name, dir_fd=owners_descriptor)
-                except OSError:
-                    pass
+                reap(metadata_name)
             continue
         finally:
             if descriptor is not None:
                 os.close(descriptor)
         if not isinstance(value, dict):
             if reapable:
-                os.unlink(metadata_name, dir_fd=owners_descriptor)
+                reap(metadata_name)
             continue
         operation = value.get("operation")
         owner = value.get("owner")
@@ -282,7 +287,7 @@ def _lease_owner_summary(
             and phase in {"waiting", "admitted", "release-uncertain"}
         )
         if reapable and (not valid_owner or phase != "release-uncertain"):
-            os.unlink(metadata_name, dir_fd=owners_descriptor)
+            reap(metadata_name)
             continue
         if valid_owner:
             prefix = (
@@ -837,25 +842,65 @@ def _resource_owner(
                 release_main_lock()
             except BaseException as error:
                 release_error = error
+        uncertain_published = False
         if release_error is not None and owner_directory_locked:
+            uncertain_descriptor: int | None = None
+            uncertain_name = (
+                f".{metadata_path.name}.{secrets.token_hex(8)}.uncertain"
+            )
             try:
-                value["phase"] = "release-uncertain"
-                os.lseek(descriptor, 0, os.SEEK_SET)
-                os.ftruncate(descriptor, 0)
+                uncertain_value = {**value, "phase": "release-uncertain"}
+                uncertain_flags = (
+                    os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC
+                )
+                if hasattr(os, "O_NOFOLLOW"):
+                    uncertain_flags |= os.O_NOFOLLOW
+                uncertain_descriptor = os.open(
+                    uncertain_name,
+                    uncertain_flags,
+                    0o600,
+                    dir_fd=owner_descriptor,
+                )
+                fcntl.flock(
+                    uncertain_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
+                )
                 with os.fdopen(
-                    descriptor, "w+", encoding="utf-8", closefd=False
+                    uncertain_descriptor, "w+", encoding="utf-8", closefd=False
                 ) as stream:
-                    json.dump(value, stream, sort_keys=True)
+                    json.dump(uncertain_value, stream, sort_keys=True)
                     stream.write("\n")
                     stream.flush()
+                os.replace(
+                    uncertain_name,
+                    metadata_path.name,
+                    src_dir_fd=owner_descriptor,
+                    dst_dir_fd=owner_descriptor,
+                )
+                os.close(descriptor)
+                descriptor = uncertain_descriptor
+                uncertain_descriptor = None
+                uncertain_published = True
             except (OSError, UnicodeError, TypeError, ValueError) as error:
                 teardown_errors.append(
                     ("cannot publish release-uncertain owner metadata", error)
                 )
-        try:
-            os.close(descriptor)
-        except OSError as error:
-            teardown_errors.append(("cannot close owner metadata", error))
+            finally:
+                if uncertain_descriptor is not None:
+                    try:
+                        os.close(uncertain_descriptor)
+                    except OSError as error:
+                        teardown_errors.append(
+                            ("cannot close uncertain owner metadata", error)
+                        )
+                    try:
+                        os.unlink(uncertain_name, dir_fd=owner_descriptor)
+                    except OSError:
+                        pass
+        if release_error is None:
+            try:
+                os.close(descriptor)
+            except OSError as error:
+                teardown_errors.append(("cannot close owner metadata", error))
         cleanup_descriptor: int | None = None
         try:
             if owner_directory_locked and release_error is None:
@@ -889,8 +934,9 @@ def _resource_owner(
             suffix = f"; {detail}" if detail else ""
             raise WorkspaceError(
                 f"cannot confirm main resource lease release for "
-                f"{metadata_path}; retained owner metadata is "
-                f"release uncertain: {release_error}{suffix}"
+                f"{metadata_path}; retained locked owner metadata is "
+                f"{'release uncertain' if uncertain_published else 'admitted'}: "
+                f"{release_error}{suffix}"
             ) from release_error
         if teardown_errors:
             detail = "; ".join(
