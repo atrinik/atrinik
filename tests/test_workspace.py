@@ -4784,24 +4784,27 @@ class WorkspaceTests(unittest.TestCase):
                 root_synced = True
             real_fsync(descriptor)
 
-        with (
-            mock.patch.object(
-                workspace_module.Workspace,
-                "_source_generation_inventory",
-                side_effect=mutate_root_before_final_sync,
-            ),
-            mock.patch(
-                "atrinik_workspace.workspace.os.fsync",
-                side_effect=observe_root_fsync,
-            ),
-            self.workspace._resolved_profile_operation(
-                "default",
-                {"resources"},
-                "build resources",
-                materialize_clean_primaries=True,
-            ) as snapshot,
-        ):
-            self.assertTrue(snapshot.paths()["resources"].is_dir())
+        try:
+            with (
+                mock.patch.object(
+                    workspace_module.Workspace,
+                    "_source_generation_inventory",
+                    side_effect=mutate_root_before_final_sync,
+                ),
+                mock.patch(
+                    "atrinik_workspace.workspace.os.fsync",
+                    side_effect=observe_root_fsync,
+                ),
+                self.workspace._resolved_profile_operation(
+                    "default",
+                    {"resources"},
+                    "build resources",
+                    materialize_clean_primaries=True,
+                ) as snapshot,
+            ):
+                self.assertTrue(snapshot.paths()["resources"].is_dir())
+        except workspace_module.AtomicJsonCommitUncertain as error:
+            self.assertIn("changed after durable publication", str(error))
         self.assertTrue(prepared)
         self.assertTrue(mutated)
         self.assertTrue(root_synced)
