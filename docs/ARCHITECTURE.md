@@ -377,7 +377,12 @@ only when Git registers them directly under `workspace/worktrees/atrinik/`;
 historical wrapper worktrees are recognized only as direct children of the
 top-level `build/worktrees/` namespace. Common-Git-directory and canonical
 repository identity, named/unlocked state, absence of in-progress Git
-operations, and ordinary tracked/untracked cleanliness are mandatory. Saved
+operations, and ordinary tracked/untracked cleanliness are mandatory. The
+`worktree list --wrapper-self --json` acquires the wrapper common-Git-directory
+lease and parses NUL-delimited porcelain into the same bounded row schema used
+by manifest worktree inventories. It rejects incomplete, duplicate, case-alias,
+noncanonical, non-UTF-8, and control-bearing records before emitting retained
+evidence; the ordinary component-list path is unchanged. Saved
 profile selectors of kind `worktree`, absolute `path`, or migration-only
 `migrated-worktree`; retained scenario coordinates; live topology coordinates;
 and every original/destination/composite migration path protect exact

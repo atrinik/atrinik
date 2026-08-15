@@ -16,6 +16,7 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace.model import Manifest
+from atrinik_workspace.workspace import _parse_worktree_porcelain
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -506,19 +507,24 @@ def live_worktree_path(request: dict[str, object]) -> Path:
 
 def worktree_list_bytes(request: dict[str, object]) -> bytes:
     live_worktree_path(request)
-    output = git_run(
-        Path(request["roots"]["primary"]["path"]),
-        "worktree",
-        "list",
-        "--porcelain",
-    ).stdout
-    rows: list[dict[str, str]] = []
-    for record in output.strip().split("\n\n"):
-        parsed: dict[str, str] = {"component": request["physical_checkout"]}
-        for line in record.splitlines():
-            key, _, value = line.partition(" ")
-            parsed[key] = value
-        rows.append(parsed)
+    primary = Path(request["roots"]["primary"]["path"])
+    result = subprocess.run(
+        ["git", "-C", str(primary), "worktree", "list", "--porcelain", "-z"],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env={
+            **os.environ,
+            "LC_ALL": "C",
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": "/dev/null",
+            "GIT_CONFIG_SYSTEM": "/dev/null",
+        },
+    )
+    rows = [
+        {"component": request["physical_checkout"], **record}
+        for record in _parse_worktree_porcelain(result.stdout)
+    ]
     return (json.dumps(rows, sort_keys=True) + "\n").encode()
 
 

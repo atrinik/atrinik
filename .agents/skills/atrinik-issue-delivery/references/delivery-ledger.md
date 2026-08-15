@@ -716,7 +716,8 @@ DELIVERY_OBSERVED_AT=2026-08-14T18:05:00Z
 git -C "$DELIVERY_WRAPPER_ROOT" worktree add -b docs/issue-419 \
   "$DELIVERY_WRAPPER_ROOT/workspace/worktrees/atrinik/issue-419" \
   aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-"$DELIVERY_WRAPPER_ROOT/atrinik" worktree list --json > "$DELIVERY_WORKTREE_LIST"
+"$DELIVERY_WRAPPER_ROOT/atrinik" worktree list --wrapper-self --json \
+  > "$DELIVERY_WORKTREE_LIST"
 python3 scripts/delivery_ledger.py worktree-observe \
   "$DELIVERY_REVIEW_ROOT" "$DELIVERY_LEDGER" worktree \
   "$DELIVERY_WORKTREE_LIST" "$DELIVERY_OBSERVED_AT" \
@@ -732,7 +733,10 @@ python3 scripts/delivery_ledger.py worktree-bind-cas \
 
 Raw Git has no canonical wrapper create output, so omitting `--create-output`
 and binding null `create_output`/producer `result_sha256` is the sole normal
-exception. Observation and atomic bind-CAS remain mandatory; generic `cas` and
+exception. The wrapper-self list command parses the complete NUL-delimited Git
+inventory, includes both primary and linked wrapper worktrees under physical
+checkout `atrinik`, and retains its JSON bytes without reconstructing managed
+paths. Observation and atomic bind-CAS remain mandatory; generic `cas` and
 caller-authored safety or candidate documents cannot bind this worktree.
 
 ## Create a fresh PR ledger
