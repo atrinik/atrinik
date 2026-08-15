@@ -145,6 +145,7 @@ workspace/
     temporary-states/<generation>/   disposable or retained exact state
   state/server/<name>/               persistent mutable server data
   states.json                        named external-state registry
+  cleanup-journals/                  cleanup recovery/delivery receipts
 ~~~
 
 Selected sound repositories may also contain producer-owned

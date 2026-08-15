@@ -1494,6 +1494,88 @@ def _archive_request(
     return request
 
 
+def _scope_release_coordinate(item: Mapping[str, Any]) -> tuple[Any, ...]:
+    kind = item.get("kind")
+    if kind == "worktree":
+        return (kind, item.get("checkout"), item.get("path"))
+    return (kind, item.get("path"))
+
+
+def _validate_scope_release_plan_coverage(
+    record: Mapping[str, Any], plan: Mapping[str, Any], context: str
+) -> None:
+    """Bind a release plan to every immutable non-build scope coordinate."""
+
+    items = plan["items"]
+    actual: list[tuple[Any, ...]] = []
+    build_paths: set[str] = set()
+    build_parent = Path(record["profile"]["path"]).parent.parent / "build" / "profiles"
+    build_name = re.compile(
+        re.escape(record["profile"]["name"]) + r"-[0-9a-f]{64}"
+    )
+    for item in items:
+        if not isinstance(item, dict):
+            raise LedgerError(f"{context} scope release plan is unsafe")
+        kind = item.get("kind")
+        if kind == "build":
+            path = item.get("path")
+            root = Path(path) if isinstance(path, str) else None
+            if (
+                root is None
+                or root.parent != build_parent
+                or not build_name.fullmatch(root.name)
+                or path in build_paths
+            ):
+                raise LedgerError(f"{context} scope release plan coordinates are invalid")
+            build_paths.add(path)
+            continue
+        if kind not in {"profile", "worktree", "topology", "state"}:
+            raise LedgerError(f"{context} scope release plan coordinates are invalid")
+        actual.append(_scope_release_coordinate(item))
+    expected = [
+        ("topology", record["topology"]["path"]),
+        ("state", None),
+        ("profile", record["profile"]["path"]),
+        *[
+            ("worktree", row["checkout"], row["path"])
+            for row in record["worktrees"]
+        ],
+    ]
+    if len(actual) != len(set(actual)) or set(actual) != set(expected):
+        raise LedgerError(f"{context} scope release plan omits or adds scope coordinates")
+
+
+def _prove_fresh_scope_release(
+    workspace: Any,
+    record: Mapping[str, Any],
+    plan: Mapping[str, Any],
+    context: str,
+) -> None:
+    fresh = workspace._scope_release_live_plan(record["name"])
+    if (
+        not isinstance(fresh, dict)
+        or fresh.get("scope") != record["name"]
+        or fresh.get("generation") != record["generation"]
+        or not isinstance(fresh.get("items"), list)
+    ):
+        raise LedgerError(f"{context} fresh scope release observation is invalid")
+    _validate_scope_release_plan_coverage(record, fresh, context)
+    if any(item.get("kind") == "build" for item in fresh["items"]):
+        raise LedgerError(f"{context} released scope gained a profile build")
+    live_items = {
+        _scope_release_coordinate(item): item for item in fresh["items"]
+    }
+    for item in plan["items"]:
+        if item.get("kind") == "build":
+            continue
+        live_item = live_items[_scope_release_coordinate(item)]
+        if item.get("kind") in {"profile", "worktree"}:
+            if live_item.get("disposition") != "absent":
+                raise LedgerError(f"{context} released scope coordinate reappeared")
+        elif live_item != item:
+            raise LedgerError(f"{context} retained scope coordinate changed")
+
+
 def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
     """Verify the scope subsystem's durable completed release journal."""
 
@@ -1547,11 +1629,15 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
         or canonical_object_digest(plan) != journal["plan_sha256"]
     ):
         raise LedgerError(f"{context} scope release plan is invalid")
+    _validate_scope_release_plan_coverage(record, plan, context)
     expected_completed: list[str] = []
     expected_pending_builds: list[dict[str, Any]] = []
     completed_worktrees: list[str] = []
     for item in plan["items"]:
-        if not isinstance(item, dict) or item.get("disposition") == "protected":
+        if (
+            not isinstance(item, dict)
+            or item.get("disposition") not in {"eligible", "absent", "retained"}
+        ):
             raise LedgerError(f"{context} scope release plan is unsafe")
         if item.get("disposition") != "eligible":
             continue
@@ -1592,24 +1678,13 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
     try:
         module = _load_workspace_module(wrapper_root)
         workspace = module.Workspace(Path(wrapper_root), backfill_references=False)
-        live = workspace.scope_release(record["name"], apply=False)
-        live_items = {
-            (row.get("kind"), row.get("path")): row
-            for row in live.get("items", [])
-            if isinstance(row, dict)
-        }
+        _prove_fresh_scope_release(workspace, record, plan, context)
         for item in plan["items"]:
             if item.get("disposition") != "eligible":
                 continue
             path = item.get("path")
             if not isinstance(path, str) or Path(path).exists() or Path(path).is_symlink():
                 raise LedgerError(f"{context} released scope coordinate still exists: {path}")
-        for item in plan["items"]:
-            if item.get("disposition") in {"eligible", "absent"}:
-                continue
-            live_item = live_items.get((item.get("kind"), item.get("path")))
-            if live_item is None or live_item.get("disposition") != item.get("disposition"):
-                raise LedgerError(f"{context} retained scope coordinate changed")
     except LedgerError:
         raise
     except Exception as error:
@@ -9623,7 +9698,7 @@ def _archive_live_safety(
                         "registry", f"scope:{record['name']}", "shared", "delivery archive proof"
                     ),
                     workspace._lease_request(
-                        "profile", record["profile"]["name"], "shared", "delivery archive proof"
+                        "profile", record["profile"]["name"], "exclusive", "delivery archive proof"
                     ),
                     workspace._lease_request(
                         "topology", record["topology"]["name"], "shared", "delivery archive proof"
@@ -9685,12 +9760,24 @@ def _archive_live_safety(
                 for primitive, path in worktree_requests:
                     if Path(path).exists() or Path(path).is_symlink():
                         raise LedgerError(f"archive worktree still exists: {path}")
+                    if workspace._worktree_path_registered(
+                        Path(primitive["roots"]["primary"]["path"]), Path(path)
+                    ):
+                        raise LedgerError(
+                            f"archive worktree is still registered: {path}"
+                        )
                     if workspace._source_references(Path(path)):
                         raise LedgerError(f"archive worktree is still referenced: {path}")
                 for _slot_id, (_resource, record, journal_raw) in scopes.items():
                     if _read_bytes_input(record["cleanup"]["release_journal"]) != journal_raw:
                         raise LedgerError("archive scope release journal changed")
                     journal = _decode(journal_raw, "archive scope release journal")
+                    _prove_fresh_scope_release(
+                        workspace,
+                        record,
+                        journal["plan"],
+                        "archive scope release",
+                    )
                     for item in journal["plan"]["items"]:
                         if item.get("disposition") == "eligible":
                             path = item.get("path")
@@ -9698,6 +9785,19 @@ def _archive_live_safety(
                                 raise LedgerError(
                                     f"archive released scope coordinate still exists: {path}"
                                 )
+                    for row in record["worktrees"]:
+                        branch_head = module.git(
+                            Path(row["primary_path"]),
+                            "for-each-ref",
+                            "--format=%(objectname)",
+                            f"refs/heads/{row['branch']}",
+                            capture=True,
+                            trace=False,
+                        )
+                        if branch_head:
+                            raise LedgerError(
+                                f"archive released scope branch reappeared: {row['branch']}"
+                            )
                 for resource in document["resources"]:
                     current = resource["current"]
                     if current is None or resource["kind"] == "scope":
@@ -9880,6 +9980,7 @@ def archive_apply(
                     raise LedgerError(f"archive appeared: {archive_name}") from error
                 _fsync(directory, f"review root after installing {archive_name}")
                 _hit(failpoint, "archive:installed")
+                recheck()
                 archive_raw, archive_status = _read_regular(
                     directory,
                     archive_name,

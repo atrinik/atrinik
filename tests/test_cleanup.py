@@ -7,9 +7,11 @@ import fcntl
 import os
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 import tempfile
 import threading
+import time
 import unittest
 from unittest import mock
 
@@ -114,6 +116,61 @@ class CleanupTests(unittest.TestCase):
         self.environment.stop()
         self.temporary.cleanup()
 
+    def make_delivered_cleanup_journal(
+        self, name: str, *, targets: list[dict[str, str]]
+    ) -> Path:
+        path = self.workspace.paths.workspace / "cleanup-journals" / name
+        started = self.old
+        finished = started + timedelta(seconds=1)
+        delivered = finished + timedelta(seconds=1)
+        request = {"scopes": ["builds"], "older_than_days": 7, "filters": []}
+        report_items = [
+            {
+                **target,
+                "allocated_bytes": 0,
+                "disposition": "eligible",
+                "reasons": ["stale_profile_build"],
+            }
+            for target in targets
+        ]
+        report = {
+            "schema_version": 1,
+            "mode": "apply",
+            **request,
+            "inventory_errors": [],
+            "items": report_items,
+            "summary": Cleanup._summary(report_items),
+        }
+        result_items = [
+            {**item, "disposition": "removed", "reasons": ["removed"]}
+            for item in report_items
+        ]
+        result = {
+            **report,
+            "items": result_items,
+            "summary": Cleanup._summary(result_items),
+            "completed_actions": targets,
+            "journal": str(path),
+            "mutated": bool(targets),
+            "mutation_attempted": bool(targets),
+        }
+        journal = {
+            "schema_version": 2,
+            "started_at": started.isoformat().replace("+00:00", "Z"),
+            "status": "complete-delivered",
+            "request": request,
+            "report": report,
+            "targets": targets,
+            "completed": targets,
+            "in_flight": None,
+            "finished_at": finished.isoformat().replace("+00:00", "Z"),
+            "result": result,
+            "result_sha256": cleanup_module._canonical_json_sha256(result),
+            "delivered_at": delivered.isoformat().replace("+00:00", "Z"),
+        }
+        cleanup_module.durable_atomic_json(path, journal)
+        return path
+
     def make_wrapper_worktree(self, label: str = "review") -> Path:
         path = self.workspace.paths.worktrees / "atrinik" / label
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -130,6 +187,50 @@ class CleanupTests(unittest.TestCase):
         (path / "ignored").mkdir()
         (path / "ignored" / "output.o").write_bytes(b"x" * 4096)
         return path
+
+    def interrupt_wrapper_worktree_removal(
+        self, label: str
+    ) -> tuple[Path, Path, Path, dict[str, object]]:
+        worktree = self.make_wrapper_worktree(label)
+        admin = Path(
+            command(
+                "git",
+                "rev-parse",
+                "--path-format=absolute",
+                "--git-dir",
+                cwd=worktree,
+            )
+        )
+
+        def interrupt(
+            _cleanup: Cleanup,
+            _item: dict[str, object],
+            _older_than_days: int = 0,
+            *,
+            removal_started: object = None,
+            **_kwargs: object,
+        ) -> None:
+            self.assertIsNotNone(removal_started)
+            removal_started()
+            raise SystemExit("interrupted linked worktree removal")
+
+        with mock.patch.object(
+            Cleanup,
+            "_github_pulls",
+            side_effect=lambda _repository, head: self.merged_pull(head),
+        ), mock.patch.object(Cleanup, "_remove", new=interrupt):
+            with self.assertRaisesRegex(SystemExit, "interrupted linked"):
+                self.workspace.cleanup(["worktrees"], 7, [], True)
+        journal_path = next(
+            path
+            for path in (self.workspace.paths.workspace / "cleanup-journals").iterdir()
+            if json.loads(path.read_text(encoding="utf-8"))["status"] == "in-progress"
+        )
+        journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(journal["in_flight"]["phase"], "removing")
+        evidence = journal["in_flight"]["worktree_identity"]
+        self.assertEqual(evidence["admin"], str(admin))
+        return worktree, admin, journal_path, evidence
 
     def make_sound_cache(self) -> tuple[Path, Path]:
         sound = self.wrapper / "sound"
@@ -2894,6 +2995,103 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(journal["completed"], [])
         self.assertEqual(journal["in_flight"]["phase"], "prepared")
 
+    def test_apply_recovers_each_partial_linked_worktree_removal(self) -> None:
+        cases = ("path", "admin", "complete")
+        for index, boundary in enumerate(cases):
+            with self.subTest(boundary=boundary):
+                label = f"partial-{boundary}-{index}"
+                worktree, admin, journal_path, _evidence = (
+                    self.interrupt_wrapper_worktree_removal(label)
+                )
+                if boundary == "path":
+                    shutil.rmtree(worktree)
+                elif boundary == "admin":
+                    shutil.rmtree(admin)
+                else:
+                    command(
+                        "git",
+                        "worktree",
+                        "remove",
+                        "--force",
+                        str(worktree),
+                        cwd=self.wrapper,
+                    )
+
+                report = self.workspace.cleanup(["worktrees"], 7, [], True)
+
+                self.assertFalse(worktree.exists())
+                self.assertFalse(admin.exists())
+                self.assertNotIn(
+                    str(worktree),
+                    command(
+                        "git", "worktree", "list", "--porcelain", cwd=self.wrapper
+                    ),
+                )
+                journal = json.loads(journal_path.read_text(encoding="utf-8"))
+                self.assertEqual(journal["status"], "complete-pending-output")
+                self.assertEqual(journal["completed"], journal["targets"])
+                self.workspace.cleanup_acknowledge(report)
+
+    def test_linked_worktree_recovery_rejects_replacement(self) -> None:
+        worktree, _admin, _journal, _evidence = (
+            self.interrupt_wrapper_worktree_removal("replacement")
+        )
+        shutil.rmtree(worktree)
+        worktree.mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "changed identity"):
+            self.workspace.cleanup(["worktrees"], 7, [], True)
+
+    def test_linked_worktree_recovery_rejects_admin_replacement(self) -> None:
+        _worktree, admin, _journal, _evidence = (
+            self.interrupt_wrapper_worktree_removal("admin-replacement")
+        )
+        shutil.rmtree(admin)
+        admin.mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "changed identity"):
+            self.workspace.cleanup(["worktrees"], 7, [], True)
+
+    def test_linked_worktree_recovery_rejects_pointer_drift(self) -> None:
+        drifted, _admin, _journal, _evidence = (
+            self.interrupt_wrapper_worktree_removal("pointer-drift")
+        )
+        pointer = drifted / ".git"
+        pointer.write_text(pointer.read_text(encoding="utf-8") + " ", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "pointer changed identity"):
+            self.workspace.cleanup(["worktrees"], 7, [], True)
+
+    def test_linked_worktree_recovery_rejects_backlink_drift(self) -> None:
+        _worktree, admin, _journal, _evidence = (
+            self.interrupt_wrapper_worktree_removal("backlink-drift")
+        )
+        backlink = admin / "gitdir"
+        backlink.write_text(
+            backlink.read_text(encoding="utf-8") + " ", encoding="utf-8"
+        )
+        with self.assertRaisesRegex(WorkspaceError, "backlink changed identity"):
+            self.workspace.cleanup(["worktrees"], 7, [], True)
+
+    def test_linked_worktree_recovery_rejects_registration_recreation(self) -> None:
+        label = "registration-recreation"
+        worktree, admin, _journal, _evidence = (
+            self.interrupt_wrapper_worktree_removal(label)
+        )
+        real_registered = cleanup_module._worktree_path_registered
+
+        def recreate(repository: Path, path: Path) -> bool:
+            admin.mkdir(parents=True)
+            (admin / "gitdir").write_text(f"{path / '.git'}\n", encoding="utf-8")
+            return real_registered(repository, path)
+
+        with mock.patch(
+            "atrinik_workspace.cleanup._worktree_path_registered",
+            side_effect=recreate,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "remains registered"):
+                self.workspace.cleanup(["worktrees"], 7, [], True)
+
+        self.assertFalse(worktree.exists())
+        self.assertTrue(admin.exists())
+
     def test_apply_reports_revalidation_error_after_a_completed_mutation(self) -> None:
         first = self.make_build("first", "a" * 12)
         second = self.make_build("second", "b" * 12)
@@ -3896,6 +4094,85 @@ class CleanupTests(unittest.TestCase):
         finally:
             actual_workspace.close()
 
+    def test_cleanup_journals_remain_reclaimable_above_recovery_limit(self) -> None:
+        journal_root = self.workspace.paths.workspace / "cleanup-journals"
+        journal_root.mkdir(parents=True, exist_ok=True)
+        for index in range(cleanup_module.CLEANUP_JOURNAL_LIMIT):
+            descriptor = os.open(
+                journal_root / f"unsafe-{index:04d}.json",
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                0o600,
+            )
+            os.close(descriptor)
+        target = self.make_delivered_cleanup_journal(
+            "retire.json",
+            targets=[{"kind": "profile-build", "path": "/already-removed"}],
+        )
+        pending = self.make_delivered_cleanup_journal("pending.json", targets=[])
+        pending_value = json.loads(pending.read_text(encoding="utf-8"))
+        pending_value["status"] = "complete-pending-output"
+        pending_value.pop("delivered_at")
+        pending.write_text(json.dumps(pending_value), encoding="utf-8")
+
+        broad = self.workspace.cleanup(["cleanup-journals"], 7, [], False)
+        retained = next(item for item in broad["items"] if item["path"] == str(target))
+        self.assertEqual(retained["disposition"], "protected")
+        self.assertIn("explicit_selection_required", retained["reasons"])
+        unacknowledged = next(
+            item for item in broad["items"] if item["path"] == str(pending)
+        )
+        self.assertEqual(unacknowledged["disposition"], "protected")
+
+        preview = self.workspace.cleanup(
+            ["cleanup-journals"], 7, [target.name], False
+        )
+        self.assertEqual(preview["summary"]["candidate_count"], 1)
+        original_unlink = cleanup_module.os.unlink
+        interrupted = False
+
+        def interrupt_unlink(path: object, *args: object, **kwargs: object) -> None:
+            nonlocal interrupted
+            if (
+                not interrupted
+                and isinstance(path, str)
+                and path.startswith(".remove-")
+            ):
+                interrupted = True
+                raise SystemExit("interrupted journal unlink")
+            original_unlink(path, *args, **kwargs)
+
+        with mock.patch.object(cleanup_module.os, "unlink", side_effect=interrupt_unlink):
+            with self.assertRaisesRegex(SystemExit, "interrupted journal unlink"):
+                self.workspace.cleanup(
+                    ["cleanup-journals"], 7, [target.name], True
+                )
+
+        applied = self.workspace.cleanup(
+            ["cleanup-journals"], 7, [target.name], True
+        )
+        self.assertEqual(applied["summary"]["removed_count"], 1)
+        self.assertFalse(target.exists())
+        self.assertTrue(pending.exists())
+        self.assertTrue((journal_root / "unsafe-0000.json").exists())
+        self.workspace.cleanup_acknowledge(applied)
+
+        repeated = self.workspace.cleanup(
+            ["cleanup-journals"], 7, [target.name], False
+        )
+        self.assertEqual(repeated["summary"]["item_count"], 0)
+
+    def test_cleanup_journals_accept_an_actual_empty_delivered_receipt(self) -> None:
+        receipt = self.workspace.cleanup(["builds"], 7, [], True)
+        self.workspace.cleanup_acknowledge(receipt)
+        receipt_path = Path(receipt["journal"])
+
+        preview = self.workspace.cleanup(
+            ["cleanup-journals"], 0, [receipt_path.name], False
+        )
+
+        self.assertEqual(preview["summary"]["candidate_count"], 1)
+        self.assertEqual(preview["items"][0]["path"], str(receipt_path))
+
     def test_allocated_size_credit_deduplicates_shared_inodes(self) -> None:
         first = _base_item("worktree", "atrinik", "atrinik/atrinik", self.root / "a")
         second = _base_item("profile-build", "atrinik", "atrinik/atrinik", self.root / "b")
@@ -3948,6 +4225,280 @@ class CleanupTests(unittest.TestCase):
         self.assertTrue(sizes)
         self.assertLessEqual(maximum, 4)
         self.assertEqual(active, set())
+
+    def test_temporary_state_killpoint_persists_each_recovery_variant(self) -> None:
+        for index, variant in enumerate(
+            ("state", "lease-only", "orphan-lock", "orphan-tombstone"),
+            start=1,
+        ):
+            with self.subTest(variant=variant):
+                topology_name = f"cleanup-recovery-{index}"
+                topology = self.workspace._topology_directory(
+                    topology_name, create=True
+                )
+                container, container_fd = self.workspace._temporary_state_container(
+                    topology
+                )
+                container_metadata = os.fstat(container_fd)
+                container_identity = (
+                    container_metadata.st_dev,
+                    container_metadata.st_ino,
+                    cleanup_module._descriptor_mount_id(container_fd),
+                )
+                os.close(container_fd)
+                generation = f"{index:x}" * 64
+                state = container / generation
+                lock = Path(f"{state}.lock")
+                lock.touch(mode=0o600)
+                lock_metadata = lock.stat(follow_symlinks=False)
+                lease_identity = {
+                    "device": lock_metadata.st_dev,
+                    "inode": lock_metadata.st_ino,
+                }
+                filesystem_identity = None
+                physical_path: str | None = None
+                if variant == "state":
+                    state.mkdir()
+                    metadata = state.stat(follow_symlinks=False)
+                    filesystem_identity = (
+                        metadata.st_dev,
+                        metadata.st_ino,
+                        metadata.st_ctime_ns,
+                        stat.S_IFMT(metadata.st_mode),
+                    )
+                    physical_path = str(state)
+                elif variant.startswith("orphan-"):
+                    filesystem_identity = (
+                        lock_metadata.st_dev,
+                        lock_metadata.st_ino,
+                        lock_metadata.st_ctime_ns,
+                        stat.S_IFMT(lock_metadata.st_mode),
+                    )
+                    physical_path = str(lock)
+                    if variant == "orphan-tombstone":
+                        tombstone = lock.parent / (
+                            f".{lock.name}.remove-{lock_metadata.st_dev:x}-"
+                            f"{lock_metadata.st_ino:x}"
+                        )
+                        lock.rename(tombstone)
+                        physical_path = str(tombstone)
+                policy = {
+                    "mode": "temporary",
+                    "path": str(state),
+                    "owner": {
+                        "kind": "topology-generation",
+                        "topology": topology_name,
+                        "generation": generation,
+                    },
+                    "lifecycle": "removed" if variant == "lease-only" else "disposable",
+                    "lease_identity": lease_identity,
+                }
+                target = {
+                    "kind": "temporary-state",
+                    "owner": "atrinik",
+                    "repository": "atrinik/atrinik",
+                    "path": str(state),
+                    "topology": topology_name,
+                    "generation": generation,
+                    "state_policy": policy,
+                    "allocated_bytes": 0,
+                    "disposition": "eligible",
+                    "reasons": ["stale_temporary_state"],
+                }
+                match = {
+                    **target,
+                    "_identity": filesystem_identity,
+                    "_physical_path": physical_path,
+                    "_lease_only": variant == "lease-only",
+                    "_orphan_rollback_lease": (
+                        variant.removeprefix("orphan-")
+                        if variant.startswith("orphan-")
+                        else None
+                    ),
+                    "_temporary_state_container_identity": container_identity,
+                }
+                request = {
+                    "scopes": ["temporary-states"],
+                    "older_than_days": 0,
+                    "filters": [],
+                }
+                report = {
+                    "schema_version": 1,
+                    "mode": "apply",
+                    **request,
+                    "inventory_errors": [],
+                    "items": [target],
+                    "summary": Cleanup._summary([target]),
+                }
+                cleanup = Cleanup(self.workspace)
+
+                def interrupt(
+                    _item: dict[str, object],
+                    _older_than_days: int,
+                    *,
+                    expected_identity: object = None,
+                    removal_started: object = None,
+                ) -> None:
+                    self.assertIsNone(expected_identity)
+                    self.assertIsNotNone(removal_started)
+                    removal_started()
+                    raise SystemExit(f"kill {variant}")
+
+                with mock.patch.object(cleanup, "_plan", return_value=report), mock.patch.object(
+                    cleanup, "_revalidate_target", return_value=match
+                ), mock.patch.object(cleanup, "_remove", side_effect=interrupt):
+                    with self.assertRaisesRegex(SystemExit, f"kill {variant}"):
+                        cleanup._execute_apply(
+                            request["scopes"], 0, None, request
+                        )
+
+                resumable = [
+                    json.loads(path.read_text(encoding="utf-8"))
+                    for path in (
+                        self.workspace.paths.workspace / "cleanup-journals"
+                    ).glob("*.json")
+                    if json.loads(path.read_text(encoding="utf-8")).get("status")
+                    == "in-progress"
+                ]
+                self.assertEqual(len(resumable), 1)
+                persisted = resumable[0]
+                self.assertEqual(persisted["in_flight"]["phase"], "removing")
+                self.assertEqual(
+                    persisted["in_flight"]["recovery"]["variant"], variant
+                )
+                recovered: list[dict[str, object]] = []
+
+                def recover(
+                    _item: dict[str, object],
+                    _older_than_days: int,
+                    evidence: dict[str, object],
+                ) -> None:
+                    recovered.append(evidence)
+
+                with mock.patch.object(
+                    cleanup, "_recover_temporary_state", side_effect=recover
+                ):
+                    result = cleanup._execute_apply(
+                        request["scopes"], 0, None, request
+                    )
+                self.assertEqual(recovered, [persisted["in_flight"]["recovery"]])
+                self.assertEqual(result["summary"]["removed_count"], 1)
+                cleanup.acknowledge(result)
+
+    def test_temporary_state_retry_rejects_tampered_recovery_evidence(self) -> None:
+        topology = self.workspace._topology_directory(
+            "cleanup-recovery-tamper", create=True
+        )
+        container, container_fd = self.workspace._temporary_state_container(topology)
+        metadata = os.fstat(container_fd)
+        mount_id = cleanup_module._descriptor_mount_id(container_fd)
+        os.close(container_fd)
+        generation = "a" * 64
+        state = container / generation
+        action = {"kind": "temporary-state", "path": str(state)}
+        recovery = {
+            "variant": "lease-only",
+            "topology": topology.name,
+            "generation": generation,
+            "physical_path": None,
+            "filesystem_identity": None,
+            "container_identity": {
+                "device": metadata.st_dev,
+                "inode": metadata.st_ino,
+                "mount_id": mount_id,
+            },
+            "lease_identity": {"device": 1, "inode": 2},
+        }
+        cleanup = Cleanup(self.workspace)
+        self.assertTrue(cleanup._valid_temporary_state_recovery(action, recovery))
+        recovery["generation"] = "outside"
+        self.assertFalse(cleanup._valid_temporary_state_recovery(action, recovery))
+
+    def test_temporary_state_recovery_rejects_survivor_ctime_replacement(self) -> None:
+        for index, variant in enumerate(
+            ("state", "orphan-lock", "orphan-tombstone"), start=11
+        ):
+            with self.subTest(variant=variant):
+                topology = self.workspace._topology_directory(
+                    f"cleanup-recovery-aba-{index}", create=True
+                )
+                container, container_fd = self.workspace._temporary_state_container(
+                    topology
+                )
+                container_metadata = os.fstat(container_fd)
+                container_identity = (
+                    container_metadata.st_dev,
+                    container_metadata.st_ino,
+                    cleanup_module._descriptor_mount_id(container_fd),
+                )
+                os.close(container_fd)
+                generation = f"{index:x}" * 64
+                state = container / generation
+                lock = Path(f"{state}.lock")
+                lock.touch(mode=0o600)
+                lock_metadata = lock.stat(follow_symlinks=False)
+                physical = lock
+                identity = (
+                    lock_metadata.st_dev,
+                    lock_metadata.st_ino,
+                    lock_metadata.st_ctime_ns,
+                    stat.S_IFMT(lock_metadata.st_mode),
+                )
+                orphan = "lock"
+                if variant == "state":
+                    state.mkdir()
+                    state_metadata = state.stat(follow_symlinks=False)
+                    physical = state
+                    identity = (
+                        state_metadata.st_dev,
+                        state_metadata.st_ino,
+                        state_metadata.st_ctime_ns,
+                        stat.S_IFMT(state_metadata.st_mode),
+                    )
+                    orphan = None
+                elif variant == "orphan-tombstone":
+                    physical = lock.parent / (
+                        f".{lock.name}.remove-{lock_metadata.st_dev:x}-"
+                        f"{lock_metadata.st_ino:x}"
+                    )
+                    lock.rename(physical)
+                    physical_metadata = physical.stat(follow_symlinks=False)
+                    identity = (
+                        physical_metadata.st_dev,
+                        physical_metadata.st_ino,
+                        physical_metadata.st_ctime_ns,
+                        stat.S_IFMT(physical_metadata.st_mode),
+                    )
+                    orphan = "tombstone"
+                item = {
+                    "kind": "temporary-state",
+                    "path": str(state),
+                    "topology": topology.name,
+                    "generation": generation,
+                    "state_policy": {
+                        "lease_identity": {
+                            "device": lock_metadata.st_dev,
+                            "inode": lock_metadata.st_ino,
+                        }
+                    },
+                    "_identity": identity,
+                    "_physical_path": str(physical),
+                    "_lease_only": False,
+                    "_orphan_rollback_lease": orphan,
+                    "_temporary_state_container_identity": container_identity,
+                }
+                cleanup = Cleanup(self.workspace)
+                evidence = cleanup._temporary_state_recovery_evidence(item)
+                time.sleep(0.01)
+                os.chmod(physical, 0o700 if variant == "state" else 0o400)
+                os.utime(physical, ns=(1_000_000_000, 1_000_000_000))
+                os.chmod(physical, 0o755 if variant == "state" else 0o600)
+                self.assertNotEqual(
+                    physical.stat(follow_symlinks=False).st_ctime_ns,
+                    identity[2],
+                )
+                with self.assertRaisesRegex(WorkspaceError, "changed"):
+                    cleanup._recover_temporary_state(item, 0, evidence)
 
 
 if __name__ == "__main__":

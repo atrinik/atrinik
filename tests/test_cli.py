@@ -139,6 +139,13 @@ class ParserTests(unittest.TestCase):
         options = parser().parse_args(["cleanup", "--scope", "topologies"])
         self.assertEqual(options.scope, ["topologies"])
 
+    def test_cleanup_accepts_the_explicit_journal_scope_and_name(self) -> None:
+        options = parser().parse_args(
+            ["cleanup", "receipt.json", "--scope", "cleanup-journals"]
+        )
+        self.assertEqual(options.components, ["receipt.json"])
+        self.assertEqual(options.scope, ["cleanup-journals"])
+
     def test_human_bytes_uses_compact_iec_units_and_promotes_rounding(self) -> None:
         self.assertEqual(
             [_human_bytes(value) for value in (0, 1023, 1024, 1536)],

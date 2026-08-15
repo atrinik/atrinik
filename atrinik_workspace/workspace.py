@@ -2126,6 +2126,14 @@ class Workspace:
             name, apply=apply, plan_sha256=plan_sha256
         )
 
+    def _scope_release_live_plan(self, name: str) -> dict[str, Any]:
+        """Build a fresh scope release observation, bypassing retry replay."""
+
+        from .scopes import ScopeLifecycle
+
+        lifecycle = ScopeLifecycle(self)
+        return lifecycle._release_plan(lifecycle._load_record(name))
+
     def _scope_profile_owner(self, name: str) -> str | None:
         from .scopes import ScopeLifecycle
 
@@ -2399,6 +2407,14 @@ class Workspace:
 
     def _wrapper_git_admin_coordinate(self) -> str:
         return f"atrinik:{self._lease_namespace.parent}"
+
+    @staticmethod
+    def _worktree_path_registered(repository: Path, path: Path) -> bool:
+        """Check one path against Git porcelain and direct admin backlinks."""
+
+        from .cleanup import _worktree_path_registered
+
+        return _worktree_path_registered(repository, path)
 
     def _source_generation_record(self, source: Path) -> dict[str, Any] | None:
         generation = source.parent

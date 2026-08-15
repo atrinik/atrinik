@@ -244,14 +244,18 @@ def parser() -> argparse.ArgumentParser:
     mark(cleanup.add_argument(
         "components",
         nargs="*",
-        help="limit worktrees to repeated checkout/component identities",
+        help=(
+            "limit worktrees to checkout/component identities, or select exact "
+            "cleanup-journal names"
+        ),
     ), "component")
     cleanup.add_argument(
         "--scope",
         action="append",
         choices=[
             "worktrees", "builds", "temporary-states", "npm-cache",
-            "compiler-cache", "sound-cache", "topologies", "all",
+            "compiler-cache", "sound-cache", "topologies", "cleanup-journals",
+            "all",
         ],
         default=[],
     )

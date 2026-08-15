@@ -1133,7 +1133,11 @@ class ScopeLifecycle:
         requests = self._release_leases(record)
         try:
             with ExitStack() as locks:
-                for root in self._candidate_build_roots(record["profile"]["name"]):
+                build_roots = set(
+                    self._candidate_build_roots(record["profile"]["name"])
+                )
+                build_roots.update(self._release_journal_build_roots(record))
+                for root in sorted(build_roots):
                     locks.enter_context(
                         exclusive_lock(
                             self.paths.builds / "locks" / f"{root.name}.lock",
@@ -1165,6 +1169,12 @@ class ScopeLifecycle:
                             != candidate.get("plan_sha256")
                         ):
                             raise WorkspaceError("scope release journal plan is invalid")
+                        if not self._journal_build_roots(
+                            record, candidate
+                        ).issubset(build_roots):
+                            raise WorkspaceError(
+                                "scope release journal build coordinates changed; retry"
+                            )
                         journal = candidate
                         pristine = (
                             set(journal)
@@ -1219,6 +1229,59 @@ class ScopeLifecycle:
         if not parent.is_dir() or parent.is_symlink():
             return []
         return sorted(parent.glob(f"{profile_name}-*"))
+
+    def _release_build_root(self, record: dict[str, Any], value: Any) -> Path:
+        if not isinstance(value, str):
+            raise WorkspaceError("scope release journal build path is invalid")
+        root = Path(value)
+        if (
+            root.parent != self.paths.builds / "profiles"
+            or not re.fullmatch(
+                re.escape(record["profile"]["name"]) + r"-[0-9a-f]{64}",
+                root.name,
+            )
+        ):
+            raise WorkspaceError("scope release journal build path is invalid")
+        return root
+
+    def _journal_build_roots(
+        self, record: dict[str, Any], journal: dict[str, Any]
+    ) -> set[Path]:
+        plan = journal.get("plan")
+        if not isinstance(plan, dict) or not isinstance(plan.get("items"), list):
+            raise WorkspaceError("scope release journal plan is invalid")
+        roots: set[Path] = set()
+        for item in plan["items"]:
+            if not isinstance(item, dict):
+                raise WorkspaceError("scope release journal plan is invalid")
+            if item.get("kind") == "build" and item.get("disposition") == "eligible":
+                roots.add(self._release_build_root(record, item.get("path")))
+        pending = journal.get("pending_builds", [])
+        if not isinstance(pending, list):
+            raise WorkspaceError("scope release journal is invalid")
+        for item in pending:
+            if not isinstance(item, dict):
+                raise WorkspaceError("scope release journal is invalid")
+            roots.add(self._release_build_root(record, item.get("path")))
+        return roots
+
+    def _release_journal_build_roots(self, record: dict[str, Any]) -> set[Path]:
+        path = self._release_path(record["name"])
+        if not path.exists() and not path.is_symlink():
+            return set()
+        if path.is_symlink() or not path.is_file():
+            raise WorkspaceError("scope release journal is unsafe")
+        journal = load_regular_json(path, f"scope release {record['name']}")
+        if (
+            not isinstance(journal, dict)
+            or journal.get("schema_version") != SCOPE_RELEASE_SCHEMA_VERSION
+            or journal.get("scope") != record["name"]
+            or journal.get("generation") != record["generation"]
+            or not isinstance(journal.get("plan"), dict)
+            or _canonical_sha256(journal["plan"]) != journal.get("plan_sha256")
+        ):
+            raise WorkspaceError("scope release journal plan is invalid")
+        return self._journal_build_roots(record, journal)
 
     def _release_leases(self, record: dict[str, Any]) -> list[Any]:
         requests = [

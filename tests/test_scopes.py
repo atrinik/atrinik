@@ -1309,6 +1309,65 @@ class ScopeLifecycleTests(unittest.TestCase):
                     )
                 )
 
+    def test_release_reacquires_journal_build_lock_after_root_removal(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="build-lock-retry")
+        key = "9" * 64
+        build_root = (
+            self.workspace.paths.builds
+            / "profiles"
+            / f"{record['profile']['name']}-{key}"
+        )
+        build_root.mkdir(parents=True)
+        atomic_json(
+            build_root / BUILD_METADATA,
+            {"profile": record["profile"]["name"], "key": key},
+        )
+        atomic_json(
+            build_root / MANAGED_MARKER,
+            {
+                "schema_version": 1,
+                "purpose": f"profile:{record['profile']['name']}:{key}",
+            },
+        )
+        plan = self.workspace.scope_release("build-lock-retry", apply=False)
+        with mock.patch.dict(
+            os.environ,
+            {SCOPE_FAILURE_BOUNDARIES_ENV: f"release:build-tree:{build_root.name}"},
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "injected scope failure"):
+                self.workspace.scope_release(
+                    "build-lock-retry",
+                    apply=True,
+                    plan_sha256=plan["plan_sha256"],
+                )
+        self.assertFalse(build_root.exists())
+
+        lock_path = self.workspace.paths.builds / "locks" / f"{build_root.name}.lock"
+        with locking_module.exclusive_lock(lock_path, "concurrent build recreation"):
+            with mock.patch.object(
+                ScopeLifecycle, "_candidate_build_roots", return_value=[]
+            ):
+                with self.assertRaisesRegex(
+                    WorkspaceError, "refused active resource leases"
+                ):
+                    self.workspace.scope_release(
+                        "build-lock-retry",
+                        apply=True,
+                        plan_sha256=plan["plan_sha256"],
+                    )
+
+        journal = json.loads(
+            Path(record["cleanup"]["release_journal"]).read_text(encoding="utf-8")
+        )
+        self.assertEqual(journal["status"], "applying")
+        self.assertEqual(journal["completed"], [])
+        self.assertEqual(journal["in_flight"]["phase"], "removing")
+        result = self.workspace.scope_release(
+            "build-lock-retry", apply=True, plan_sha256=plan["plan_sha256"]
+        )
+        self.assertTrue(result["released"])
+
     def test_prepared_scope_build_absence_is_not_credited_as_removal(self) -> None:
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="prepared-build")

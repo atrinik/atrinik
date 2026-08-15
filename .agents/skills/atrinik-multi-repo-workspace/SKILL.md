@@ -63,14 +63,13 @@ Reclaim review data only through preview-first cleanup:
 ./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ```
 
-After review, repeat the scoped command with `--apply`. Defaults cover
-worktrees/builds; caches/history are opt-in; `all` excludes topologies. Reclaim
-only stopped, released, exact marker-owned records; uncertainty fails closed.
-Apply sound-cache before its worktree. Retry interrupted apply with identical
-arguments; its write-ahead journal resumes the original selection.
-
-Delivery sidecars are not cleanup targets. Follow issue delivery's separate
-terminal contract; its helper never removes workspace resources.
+Repeat with `--apply`. Defaults cover worktrees/builds; caches/history opt in and
+`all` excludes topologies. Remove only stopped, released, exactly owned records;
+uncertainty fails closed. Apply sound-cache before its worktree. Retry unchanged
+so the journal resumes. Retire delivered receipts via an explicit
+`cleanup-journals` preview; nonempty receipts need exact names on apply.
+Pending/unsafe receipts stay protected. Delivery sidecars are separate and
+never cleanup targets.
 
 ## Compose coherent sources
 

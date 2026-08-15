@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import base64
-from contextlib import nullcontext
+from contextlib import contextmanager, nullcontext
 import hashlib
 import importlib.util
 import json
@@ -7907,6 +7907,52 @@ class DeliveryLedgerTests(unittest.TestCase):
 
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")
+    def test_50b_archive_rechecks_live_safety_after_installation(
+        self, _git_proof: mock.Mock, _github_proof: mock.Mock
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            snapshot = ledger.create(root, releasable_pr_ledger())
+            release_input = release_request(snapshot)
+            release_plan = ledger.release_preview(root, snapshot.name, release_input)
+            released = ledger.release_apply(
+                root,
+                snapshot.name,
+                release_input,
+                plan_sha256=release_plan["plan_sha256"],
+            )
+            request = archive_request(snapshot, released)
+            installed = False
+
+            @contextmanager
+            def safety(*_args: object) -> object:
+                def recheck() -> None:
+                    if installed:
+                        raise ledger.LedgerError("released scope branch reappeared")
+
+                yield recheck
+
+            with mock.patch.object(ledger, "_archive_live_safety", side_effect=safety):
+                preview = ledger.archive_preview(root, snapshot.name, request)
+
+                def recreate_branch(boundary: str) -> None:
+                    nonlocal installed
+                    if boundary == "archive:installed":
+                        installed = True
+
+                with self.assertRaisesRegex(
+                    ledger.LedgerError, "scope branch reappeared"
+                ):
+                    ledger.archive_apply(
+                        root,
+                        snapshot.name,
+                        request,
+                        plan_sha256=preview["plan_sha256"],
+                        failpoint=recreate_branch,
+                    )
+
+    @mock.patch.object(ledger, "_prove_release_github")
+    @mock.patch.object(ledger, "_prove_release_git")
     @mock.patch.object(
         ledger,
         "_archive_live_safety",
@@ -8474,6 +8520,20 @@ class DeliveryLedgerTests(unittest.TestCase):
         record = {
             "name": "issue-419-scope",
             "generation": "1" * 32,
+            "profile": {
+                "name": "scope-issue-419-scope",
+                "path": "/workspace-data/profiles/scope-issue-419-scope.json",
+            },
+            "topology": {
+                "name": "issue-419-scope",
+                "path": "/workspace-data/topologies/issue-419-scope",
+            },
+            "worktrees": [
+                {
+                    "checkout": "atrinik",
+                    "path": "/workspace-data/worktrees/atrinik/issue-419",
+                }
+            ],
             "cleanup": {"release_journal": "/workspace-data/scopes/issue-419-scope/release-journal.json"},
         }
         scope_plan = {
@@ -8482,8 +8542,18 @@ class DeliveryLedgerTests(unittest.TestCase):
             "generation": record["generation"],
             "items": [
                 {
+                    "kind": "topology",
+                    "path": record["topology"]["path"],
+                    "disposition": "absent",
+                },
+                {
+                    "kind": "state",
+                    "path": None,
+                    "disposition": "absent",
+                },
+                {
                     "kind": "profile",
-                    "path": "/workspace-data/profiles/scope-issue-419-scope.json",
+                    "path": record["profile"]["path"],
                     "disposition": "eligible",
                 },
                 {
@@ -8507,7 +8577,9 @@ class DeliveryLedgerTests(unittest.TestCase):
             "updated_at": "2026-08-15T11:05:00Z",
         }
         fake_workspace = mock.Mock()
-        fake_workspace.scope_release.return_value = {
+        fake_workspace._scope_release_live_plan.return_value = {
+            "scope": record["name"],
+            "generation": record["generation"],
             "items": [
                 {**row, "disposition": "absent"}
                 for row in scope_plan["items"]
@@ -8523,6 +8595,19 @@ class DeliveryLedgerTests(unittest.TestCase):
             ledger, "_load_workspace_module", return_value=fake_module
         ):
             ledger._prove_scope_release(resource, "scope")
+            omitted = copy.deepcopy(journal)
+            omitted["plan"]["items"] = [
+                row
+                for row in omitted["plan"]["items"]
+                if row["kind"] != "worktree"
+            ]
+            omitted["plan_sha256"] = ledger.canonical_object_digest(omitted["plan"])
+            omitted["completed"] = ["profile"]
+            with mock.patch.object(
+                ledger, "_read_bytes_input", return_value=ledger.canonical_bytes(omitted)
+            ):
+                with self.assertRaisesRegex(ledger.LedgerError, "omits or adds"):
+                    ledger._prove_scope_release(resource, "scope")
             journal["status"] = "applying"
             with mock.patch.object(
                 ledger, "_read_bytes_input", return_value=ledger.canonical_bytes(journal)
@@ -8997,6 +9082,25 @@ class DeliveryLedgerTests(unittest.TestCase):
             path.mkdir(parents=True)
             with self.assertRaisesRegex(ledger.LedgerError, "still exists"):
                 recheck()
+            path.rmdir()
+            common = Path(
+                git_run(
+                    Path(roots["primary"]["path"]),
+                    "rev-parse",
+                    "--path-format=absolute",
+                    "--git-common-dir",
+                ).stdout.strip()
+            )
+            registration = common / "worktrees" / "recreated-archive-registration"
+            registration.mkdir(parents=True)
+            (registration / "gitdir").write_text(
+                f"{path / '.git'}\n", encoding="utf-8"
+            )
+            try:
+                with self.assertRaisesRegex(ledger.LedgerError, "still registered"):
+                    recheck()
+            finally:
+                shutil.rmtree(registration)
 
         legacy = {
             key: value
@@ -9059,6 +9163,86 @@ class DeliveryLedgerTests(unittest.TestCase):
         resources[0]["current"]["path"] = f"/other-root/{Path(build).name}"
         with self.assertRaisesRegex(ledger.LedgerError, "multiple roots"):
             ledger._archive_build_roots(scopes, resources)
+
+    def test_68c_archive_guard_rejects_recreated_scope_branch(self) -> None:
+        roots = live_roots(self.live_base / "recreated-scope-branch", "atrinik")
+        request = scope_request(start_sha=git_head(roots), roots=roots)
+        worktree = live_worktree_path(request)
+        record_raw = scope_show_bytes(request)
+        record = json.loads(record_raw)
+        primary = Path(request["roots"]["primary"]["path"])
+        git_run(primary, "worktree", "remove", str(worktree))
+        git_run(primary, "branch", "-D", request["branch"])
+        git_run(
+            primary,
+            "update-ref",
+            f"refs/heads/{request['branch']}",
+            request["start_sha"],
+        )
+        plan = {
+            "items": [
+                {
+                    "kind": "topology",
+                    "path": record["topology"]["path"],
+                    "disposition": "absent",
+                },
+                {"kind": "state", "path": None, "disposition": "absent"},
+                {
+                    "kind": "profile",
+                    "path": record["profile"]["path"],
+                    "disposition": "absent",
+                },
+                {
+                    "kind": "worktree",
+                    "checkout": record["worktrees"][0]["checkout"],
+                    "path": record["worktrees"][0]["path"],
+                    "disposition": "absent",
+                },
+            ]
+        }
+        journal_path = Path(record["cleanup"]["release_journal"])
+        journal_path.parent.mkdir(parents=True, exist_ok=True)
+        journal_path.write_bytes(ledger.canonical_bytes({"plan": plan}))
+        resource = scope_resource(request)
+        resource["current"] = {
+            "binding": inline_payload(record_raw),
+            "lifecycle": "active",
+        }
+        snapshot = mock.Mock(
+            document={
+                "artifacts": [
+                    {
+                        "kind": "worktree",
+                        "current": {"path": str(worktree)},
+                        "primitive_request": None,
+                        "producer_resource_slot": "scope",
+                    }
+                ],
+                "resources": [resource],
+            }
+        )
+        archive_request_value = {"cleanup": {"resources": []}}
+        workspace_module = ledger._load_workspace_module(
+            request["roots"]["wrapper"]["path"]
+        )
+        with mock.patch.object(ledger, "_prove_scope_release"), mock.patch.object(
+            ledger, "_retained_result", return_value=record_raw
+        ), mock.patch.object(
+            ledger, "_scope_show_record", return_value=(record, record["worktrees"][0])
+        ), mock.patch.object(
+            ledger, "_prove_cleanup_journal"
+        ), mock.patch.object(
+            ledger, "_prove_fresh_scope_release"
+        ), mock.patch.object(
+            ledger, "_load_workspace_module", return_value=workspace_module
+        ), mock.patch.object(
+            workspace_module.Workspace, "_source_references", return_value=[]
+        ):
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "scope branch reappeared"
+            ):
+                with ledger._archive_live_safety(snapshot, archive_request_value):
+                    self.fail("recreated branch passed the archive live guard")
 
     def test_69_scope_release_owns_its_worktree_cleanup_evidence(self) -> None:
         document = releasable_pr_ledger()
