@@ -963,7 +963,7 @@ class ProgramLedgerModel:
     ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
         if first_digest != second_digest:
             raise StopClosed("duplicate-search streams changed")
-        if any(
+        if not isinstance(issues, list) or any(
             not isinstance(issue, dict)
             or not isinstance(issue.get("node"), str) or not issue["node"]
             for issue in issues
@@ -2345,6 +2345,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
         for issue in ({}, {"node": ""}, {"node": None}, {"node": 123}):
             with self.subTest(issue=issue), self.assertRaises(StopClosed):
                 model.classify_child([issue])
+        for malformed in ({}, (), ""):
+            with self.subTest(malformed=malformed), self.assertRaises(StopClosed):
+                ProgramLedgerModel().classify_child(malformed)
         unrelated = [
             {"node": "unrelated-node", "marker": "unrelated"},
             {"node": "malformed-node", "marker": "malformed"},
