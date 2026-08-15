@@ -31,6 +31,7 @@ import tempfile
 import threading
 import time
 from typing import Any, Callable, Iterator, TextIO
+import zipfile
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
@@ -289,6 +290,10 @@ class ProfileResolutionSnapshot:
 REGION_MAP_METADATA = ".atrinik-region-maps.json"
 REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
+WINDOWS_PACKAGE_SCHEMA_VERSION = 1
+WINDOWS_PACKAGE_VERSION = "0.0.0"
+WINDOWS_PACKAGE_MAX_ENTRIES = 100_000
+WINDOWS_PACKAGE_MAX_BYTES = 8 * 1024 * 1024 * 1024
 
 
 class _InertScenarioError(WorkspaceError):
@@ -1129,6 +1134,59 @@ def _file_digest(path: Path, description: str) -> str:
     finally:
         if descriptor is not None:
             os.close(descriptor)
+
+
+def _tree_content_inventory(
+    root: Path, description: str
+) -> dict[str, tuple[int, str]]:
+    """Inventory exact regular-file paths and bytes while ignoring modes."""
+
+    entries: dict[str, tuple[int, str]] = {}
+    for directory, names, files in os.walk(root, followlinks=False):
+        names.sort()
+        files.sort()
+        current = Path(directory)
+        for name in names:
+            child = current / name
+            metadata = child.lstat()
+            if not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(
+                    f"{description} contains a linked or special directory: {child}"
+                )
+        for name in files:
+            child = current / name
+            metadata = child.lstat()
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+                raise WorkspaceError(
+                    f"{description} contains a linked or special file: {child}"
+                )
+            entries[child.relative_to(root).as_posix()] = (
+                metadata.st_size,
+                _file_digest(child, description),
+            )
+    return entries
+
+
+def _tree_content_digest(root: Path, description: str) -> str:
+    """Hash exact regular-file paths and bytes while ignoring package modes."""
+
+    inventory = _tree_content_inventory(root, description)
+    return _tree_content_inventory_digest(inventory)
+
+
+def _tree_content_inventory_digest(
+    inventory: dict[str, tuple[int, str]],
+) -> str:
+    """Hash a previously validated content inventory."""
+
+    digest = hashlib.sha256()
+    for path, identity in sorted(inventory.items()):
+        encoded = json.dumps((path, *identity), separators=(",", ":")).encode(
+            "ascii"
+        )
+        digest.update(len(encoded).to_bytes(8, "big"))
+        digest.update(encoded)
+    return digest.hexdigest()
 
 
 def _tree_digest(
@@ -12084,6 +12142,612 @@ class Workspace:
             raise WorkspaceError("a topology must contain at least one service")
         return [service for service in TOPOLOGY_SERVICES if service in requested]
 
+    @staticmethod
+    def _portable_windows_package_members(
+        archive: zipfile.ZipFile, executable: str
+    ) -> tuple[PurePosixPath, list[tuple[zipfile.ZipInfo, PurePosixPath]]]:
+        infos = archive.infolist()
+        if not infos or len(infos) > WINDOWS_PACKAGE_MAX_ENTRIES:
+            raise WorkspaceError("portable Windows package entry count is invalid")
+        if sum(info.file_size for info in infos) > WINDOWS_PACKAGE_MAX_BYTES:
+            raise WorkspaceError("portable Windows package is too large")
+        members: list[tuple[zipfile.ZipInfo, PurePosixPath]] = []
+        names: set[str] = set()
+        executables: list[PurePosixPath] = []
+        for info in infos:
+            if info.flag_bits & 0x1:
+                raise WorkspaceError("portable Windows package is encrypted")
+            if "\\" in info.filename:
+                raise WorkspaceError(
+                    f"portable Windows package path is invalid: {info.filename}"
+                )
+            path = PurePosixPath(info.filename.rstrip("/"))
+            if (
+                not path.parts
+                or path.is_absolute()
+                or any(part in {"", ".", ".."} for part in path.parts)
+                or any(":" in part for part in path.parts)
+            ):
+                raise WorkspaceError(
+                    f"portable Windows package path is unsafe: {info.filename}"
+                )
+            folded = path.as_posix().casefold()
+            if folded in names:
+                raise WorkspaceError(
+                    f"portable Windows package path is duplicated: {info.filename}"
+                )
+            names.add(folded)
+            unix_mode = info.external_attr >> 16
+            file_type = stat.S_IFMT(unix_mode)
+            if file_type not in {0, stat.S_IFREG, stat.S_IFDIR}:
+                raise WorkspaceError(
+                    f"portable Windows package contains a special entry: {info.filename}"
+                )
+            if info.is_dir() and file_type == stat.S_IFREG:
+                raise WorkspaceError(
+                    f"portable Windows package directory is invalid: {info.filename}"
+                )
+            if not info.is_dir() and path.name.casefold() == executable.casefold():
+                executables.append(path)
+            members.append((info, path))
+        if len(executables) != 1:
+            raise WorkspaceError(
+                f"portable Windows package must contain exactly one {executable}"
+            )
+        root = executables[0].parent
+        return root, members
+
+    @classmethod
+    def _extract_portable_windows_package(
+        cls, archive_path: Path, destination: Path, executable: str
+    ) -> None:
+        try:
+            with zipfile.ZipFile(archive_path) as archive:
+                root, members = cls._portable_windows_package_members(
+                    archive, executable
+                )
+                destination.mkdir()
+                for info, path in members:
+                    if path == root or root not in path.parents:
+                        continue
+                    relative = path.relative_to(root)
+                    output = destination.joinpath(*relative.parts)
+                    if info.is_dir():
+                        output.mkdir(parents=True, exist_ok=True)
+                        continue
+                    output.parent.mkdir(parents=True, exist_ok=True)
+                    descriptor = os.open(
+                        output,
+                        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                        0o600,
+                    )
+                    try:
+                        with archive.open(info) as source:
+                            with os.fdopen(descriptor, "wb", closefd=False) as target:
+                                shutil.copyfileobj(source, target)
+                        mode = info.external_attr >> 16
+                        permissions = stat.S_IMODE(mode) if mode else 0o644
+                        os.fchmod(descriptor, permissions or 0o644)
+                    finally:
+                        os.close(descriptor)
+        except (OSError, zipfile.BadZipFile) as error:
+            raise WorkspaceError(
+                f"cannot extract portable Windows package {archive_path}: {error}"
+            ) from error
+        executable_path = destination / executable
+        if not executable_path.is_file() or executable_path.is_symlink():
+            raise WorkspaceError(
+                f"portable Windows package executable is missing: {executable_path}"
+            )
+
+    @staticmethod
+    def _windows_package_output(
+        builds: Path, profile_name: str, state_name: str, output: Path | None
+    ) -> Path:
+        selected = output or (
+            builds
+            / "packages"
+            / f"atrinik-{profile_name}-{state_name}-windows.zip"
+        )
+        selected = Path(os.path.abspath(selected.expanduser()))
+        if selected.suffix.lower() != ".zip":
+            raise WorkspaceError("Windows profile package output must end in .zip")
+        selected.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            parent = selected.parent.resolve(strict=True)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot resolve Windows package output directory: {error}"
+            ) from error
+        selected = parent / selected.name
+        if selected.exists() or selected.is_symlink():
+            raise WorkspaceError(f"Windows profile package already exists: {selected}")
+        return selected
+
+    def _stage_windows_profile_sources(
+        self,
+        staging: Path,
+        build_root: Path,
+        selected: dict[str, Path],
+    ) -> None:
+        source_exclusions = frozenset({".git", "build", MANAGED_MARKER})
+        classic_root = selected["client"].parent
+        if any(
+            selected[role].parent != classic_root
+            for role in ("server", "protocol", "libatrinik")
+        ):
+            raise WorkspaceError(
+                "Windows package Classic sources do not share one monorepo root"
+            )
+        self._copy_runtime_tree(
+            classic_root / "cmake", staging / "cmake", source_exclusions
+        )
+        for document in ("LICENSE.md", "ATTRIBUTIONS.md"):
+            self._copy_runtime_regular_file(
+                classic_root / document, staging / document
+            )
+        for role in ("client", "server", "protocol", "libatrinik"):
+            exclusions = source_exclusions
+            if role == "client":
+                exclusions = frozenset({*exclusions, "sound"})
+            elif role == "server":
+                exclusions = frozenset({*exclusions, "resources", "runtime"})
+            self._copy_runtime_tree(
+                selected[role], staging / role, exclusions
+            )
+
+        # Materialized clean generations are sealed read-only. The package
+        # staging copies are private, so make them writable before adding the
+        # selected sound and collected server runtime overlays.
+        self._make_tree_owner_writable(staging)
+        metadata = load_json(build_root / BUILD_METADATA)
+        try:
+            sound = validate_sound_record(metadata.get("sound"))
+        except (AttributeError, WorkspaceError) as error:
+            raise WorkspaceError("profile build sound metadata is invalid") from error
+        self._copy_runtime_tree(
+            Path(sound["root"]), staging / "client" / "sound", source_exclusions
+        )
+        server = staging / "server"
+        (server / "runtime").mkdir()
+        self._copy_runtime_tree(
+            build_root / "runtime" / "content",
+            server / "runtime" / "content",
+        )
+        self._copy_runtime_tree(
+            build_root / "runtime" / "resources", server / "resources"
+        )
+        for private_input in (
+            staging / "client" / "data" / "discord-application-id",
+            server / "server-custom.cfg",
+        ):
+            if private_input.is_symlink() or (
+                private_input.exists() and not private_input.is_file()
+            ):
+                raise WorkspaceError(
+                    f"private Windows package input is invalid: {private_input}"
+                )
+            private_input.unlink(missing_ok=True)
+        self._make_tree_owner_writable(staging)
+        run(["git", "init", "--quiet"], cwd=staging)
+
+    def _snapshot_windows_profile_state(
+        self, state_fd: int, state: Path, destination: Path
+    ) -> str:
+        """Copy state through the descriptor that already holds its flock."""
+
+        self._copy_runtime_tree_from_descriptor(
+            state_fd, state, destination
+        )
+        return self._server_identity_fingerprint(destination)
+
+    def _windows_build_image(self) -> str:
+        config_path = self.paths.repository / ".devcontainer/windows-cross/devcontainer.json"
+        config = load_json(config_path)
+        image = config.get("image") if isinstance(config, dict) else None
+        if (
+            not isinstance(image, str)
+            or re.fullmatch(r"[^\s@]+@sha256:[0-9a-f]{64}", image) is None
+        ):
+            raise WorkspaceError(
+                f"pinned Windows build image is invalid: {config_path}"
+            )
+        return image
+
+    @staticmethod
+    def _local_windows_build_environment() -> dict[str, str] | None:
+        environment = os.environ.copy()
+        required = (
+            "MXE_TOOLCHAIN_FILE",
+            "MXE_RUNTIME_DIR",
+            "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR",
+            "ATRINIK_WINDOWS_PYTHON_LIBRARY",
+            "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR",
+        )
+        target = environment.get("MXE_TARGET", "x86_64-w64-mingw32.shared")
+        if shutil.which(f"{target}-cmake") is None or any(
+            not environment.get(name) or not Path(environment[name]).exists()
+            for name in required
+        ):
+            return None
+        environment["ATRINIK_PACKAGE_VERSION"] = WINDOWS_PACKAGE_VERSION
+        environment["ATRINIK_DISCORD_APPLICATION_ID_FILE"] = ""
+        return environment
+
+    def _build_windows_profile_archives(
+        self, staging: Path
+    ) -> tuple[Path, Path, dict[str, str]]:
+        packages = staging / "packages"
+        packages.mkdir()
+        local_environment = self._local_windows_build_environment()
+        if local_environment is not None:
+            local_environment["ATRINIK_PROFILE_SOUND_DIR"] = str(
+                staging / "client" / "sound"
+            )
+            local_environment["ATRINIK_PROFILE_CONTENT_DIR"] = str(
+                staging / "server" / "runtime" / "content"
+            )
+            local_environment["ATRINIK_PROFILE_RESOURCES_DIR"] = str(
+                staging / "server" / "resources"
+            )
+            for component in ("client", "server"):
+                run(
+                    [
+                        "bash",
+                        "tools/build-windows-package.sh",
+                        str(packages),
+                    ],
+                    cwd=staging / component,
+                    env=local_environment,
+                )
+            build = {"mode": "local", "image": ""}
+        else:
+            if shutil.which("docker") is None:
+                raise WorkspaceError(
+                    "Windows packaging requires either the windows-cross "
+                    "devcontainer toolchain or Docker"
+                )
+            image = self._windows_build_image()
+            script = staging / ".atrinik-build-windows.sh"
+            script.write_text(
+                "#!/usr/bin/env bash\n"
+                "set -euo pipefail\n"
+                "cd /workspace/client\n"
+                "bash tools/build-windows-package.sh /workspace/packages\n"
+                "cd /workspace/server\n"
+                "bash tools/build-windows-package.sh /workspace/packages\n",
+                encoding="utf-8",
+            )
+            script.chmod(0o700)
+            run(
+                [
+                    "docker",
+                    "run",
+                    "--rm",
+                    "--user",
+                    f"{os.getuid()}:{os.getgid()}",
+                    "--env",
+                    f"ATRINIK_PACKAGE_VERSION={WINDOWS_PACKAGE_VERSION}",
+                    "--env",
+                    "ATRINIK_DISCORD_APPLICATION_ID_FILE=",
+                    "--env",
+                    "ATRINIK_PROFILE_SOUND_DIR=/workspace/client/sound",
+                    "--env",
+                    "ATRINIK_PROFILE_CONTENT_DIR=/workspace/server/runtime/content",
+                    "--env",
+                    "ATRINIK_PROFILE_RESOURCES_DIR=/workspace/server/resources",
+                    "--volume",
+                    f"{staging}:/workspace",
+                    "--workdir",
+                    "/workspace",
+                    image,
+                    "bash",
+                    "/workspace/.atrinik-build-windows.sh",
+                ]
+            )
+            build = {"mode": "container", "image": image}
+
+        def one(pattern: str, label: str) -> Path:
+            matches = sorted(packages.glob(pattern))
+            if len(matches) != 1 or matches[0].is_symlink():
+                raise WorkspaceError(
+                    f"Windows {label} build produced {len(matches)} packages"
+                )
+            return matches[0]
+
+        client = one(
+            f"atrinik-classic-client-{WINDOWS_PACKAGE_VERSION}-windows-x86_64.zip",
+            "client",
+        )
+        server = one(
+            f"atrinik-classic-server-{WINDOWS_PACKAGE_VERSION}-windows-x86_64.zip",
+            "server",
+        )
+        return client, server, build
+
+    @staticmethod
+    def _write_windows_launch_files(
+        root: Path, profile_name: str, state_name: str, port: int, fingerprint: str
+    ) -> None:
+        launch = (
+            "@echo off\r\n"
+            "setlocal\r\n"
+            "cd /d \"%~dp0\"\r\n"
+            "start \"Atrinik Server\" /D \"%~dp0server\" cmd /k call "
+            f"server.bat --port_quic={port} --port_mapping=off --stun_server=off\r\n"
+            "timeout /t 2 /nobreak >nul\r\n"
+            "start \"Atrinik Client\" /D \"%~dp0client\" atrinik.exe "
+            f"--server=\"127.0.0.1 {port} {fingerprint}\" "
+            "--stun_server=off --nometa\r\n"
+        )
+        (root / "run.bat").write_bytes(launch.encode("ascii"))
+        readme = (
+            "Atrinik portable Windows review topology\r\n"
+            "==========================================\r\n\r\n"
+            f"Profile: {profile_name}\r\n"
+            f"Server state: {state_name}\r\n"
+            f"Local UDP port: {port}\r\n\r\n"
+            "Double-click run.bat. It starts the packaged server, waits briefly, "
+            "and starts the client pinned to that server identity. Close the "
+            "server console when finished.\r\n\r\n"
+            "SENSITIVE: server/data contains private player data, credentials, "
+            "and the server private identity. Do not publish or attach this ZIP "
+            "to a public issue or pull request.\r\n"
+        )
+        (root / "README.txt").write_bytes(readme.encode("utf-8"))
+
+    @staticmethod
+    def _archive_windows_profile(root: Path, output: Path) -> None:
+        entries: list[tuple[Path, str, os.stat_result]] = []
+        for directory, names, files in os.walk(root, followlinks=False):
+            names.sort()
+            files.sort()
+            current = Path(directory)
+            for name in (*names, *files):
+                path = current / name
+                metadata = path.lstat()
+                if stat.S_ISLNK(metadata.st_mode) or not (
+                    stat.S_ISDIR(metadata.st_mode) or stat.S_ISREG(metadata.st_mode)
+                ):
+                    raise WorkspaceError(
+                        f"Windows profile package contains a special entry: {path}"
+                    )
+                if stat.S_ISREG(metadata.st_mode) and metadata.st_nlink != 1:
+                    raise WorkspaceError(
+                        f"Windows profile package contains a hard-linked file: {path}"
+                    )
+                entries.append(
+                    (path, path.relative_to(root.parent).as_posix(), metadata)
+                )
+        descriptor, temporary_name = tempfile.mkstemp(
+            prefix=f".{output.name}.", suffix=".tmp", dir=output.parent
+        )
+        os.close(descriptor)
+        temporary = Path(temporary_name)
+        try:
+            with zipfile.ZipFile(
+                temporary, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6
+            ) as archive:
+                for path, relative, metadata in entries:
+                    name = relative + ("/" if stat.S_ISDIR(metadata.st_mode) else "")
+                    info = zipfile.ZipInfo(name, (1980, 1, 1, 0, 0, 0))
+                    info.compress_type = zipfile.ZIP_DEFLATED
+                    info.create_system = 3
+                    info.external_attr = metadata.st_mode << 16
+                    if stat.S_ISDIR(metadata.st_mode):
+                        archive.writestr(info, b"")
+                        continue
+                    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+                    try:
+                        opened = os.fstat(descriptor)
+                        if (
+                            (opened.st_dev, opened.st_ino)
+                            != (metadata.st_dev, metadata.st_ino)
+                            or opened.st_nlink != 1
+                        ):
+                            raise WorkspaceError(
+                                f"Windows profile package input changed: {path}"
+                            )
+                        with os.fdopen(descriptor, "rb", closefd=False) as source:
+                            with archive.open(info, "w") as target:
+                                shutil.copyfileobj(source, target)
+                        retained = os.fstat(descriptor)
+                        if Workspace._runtime_tree_identity(retained) != (
+                            Workspace._runtime_tree_identity(opened)
+                        ):
+                            raise WorkspaceError(
+                                f"Windows profile package input changed: {path}"
+                            )
+                    finally:
+                        os.close(descriptor)
+            temporary.chmod(0o600)
+            with temporary.open("rb") as stream:
+                os.fsync(stream.fileno())
+            rename_no_replace(temporary, output)
+        except BaseException:
+            temporary.unlink(missing_ok=True)
+            raise
+
+    def package_windows_profile(
+        self,
+        profile_name: str,
+        state_name: str,
+        output: Path | None = None,
+        *,
+        port: int = 1730,
+    ) -> dict[str, Any]:
+        self.paths.ensure()
+        self._validate_run_port(port)
+        validate_name(profile_name, "profile name")
+        validate_name(state_name, "state name")
+        self._require_classic_contracts(profile_name, {"client", "server"})
+        profile = self._load_profile(profile_name, require_file=False)
+        stack = self.manifest.stack(profile["stack"])
+        if stack.name != "classic":
+            raise WorkspaceError(
+                "portable Windows profile packages require the classic stack"
+            )
+        destination = self._windows_package_output(
+            self.paths.builds, profile_name, state_name, output
+        )
+        required = self._dependency_roles(profile, {"client", "server"})
+        targets = [role for role in ALL_BUILD_TARGETS if role in required]
+        with tempfile.TemporaryDirectory(
+            prefix=f"atrinik-{profile_name}-windows-"
+        ) as temporary_name:
+            staging = Path(temporary_name)
+            with self._resolved_profile_operation(
+                profile_name,
+                {"client", "server"},
+                f"package Windows profile {profile_name}",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                selected = snapshot.paths()
+                build_root = self._build_resolved(
+                    "windows-package", profile_name, False, targets, selected
+                )
+                resolved = self._topology_resolved_status(profile_name, selected)
+                providers = {
+                    role: stack.providers[role].name for role in sorted(required)
+                }
+                implementation = self._state_implementation(
+                    stack.name, providers, resolved
+                )
+                state_location = self._state_location(state_name)
+                with self._topology_state_lock(state_location) as state_lock:
+                    prepared = self.state_path(
+                        state_name,
+                        selected["server"],
+                        resolved_path=state_location,
+                        implementation=implementation,
+                        write_implementation=True,
+                        keep_descriptor=True,
+                    )
+                    assert isinstance(prepared, tuple)
+                    state, state_fd = prepared
+                    state_identity = {
+                        "device": os.fstat(state_fd).st_dev,
+                        "inode": os.fstat(state_fd).st_ino,
+                    }
+                    state_lock.bind(state_identity)
+                    try:
+                        fingerprint = self._snapshot_windows_profile_state(
+                            state_fd, state, staging / "state"
+                        )
+                    finally:
+                        os.close(state_fd)
+
+                with self._profile_build_lock(build_root, profile_name):
+                    (staging / "sources").mkdir()
+                    self._stage_windows_profile_sources(
+                        staging / "sources", build_root, selected
+                    )
+                    staged_server = staging / "sources" / "server"
+                    staged_runtime_paths = {
+                        "content_maps": staged_server
+                        / "runtime"
+                        / "content"
+                        / "maps",
+                        "content_lib": staged_server
+                        / "runtime"
+                        / "content"
+                        / "lib",
+                        "resources": staged_server / "resources",
+                    }
+                    expected_runtime_inventories = {
+                        name: _tree_content_inventory(
+                            path, f"staged profile runtime input {name}"
+                        )
+                        for name, path in staged_runtime_paths.items()
+                    }
+                    expected_runtime_digests = {
+                        name: _tree_content_inventory_digest(inventory)
+                        for name, inventory in expected_runtime_inventories.items()
+                    }
+                    build_metadata = load_json(build_root / BUILD_METADATA)
+
+            client_archive, server_archive, build = (
+                self._build_windows_profile_archives(staging / "sources")
+            )
+            package_root = staging / f"atrinik-{profile_name}-windows-review"
+            package_root.mkdir()
+            self._extract_portable_windows_package(
+                client_archive, package_root / "client", "atrinik.exe"
+            )
+            self._extract_portable_windows_package(
+                server_archive, package_root / "server", "atrinik-server.exe"
+            )
+            packaged_runtime_paths = {
+                "content_maps": package_root / "server" / "maps",
+                "content_lib": package_root / "server" / "lib",
+                "resources": package_root / "server" / "resources",
+            }
+            for name, path in packaged_runtime_paths.items():
+                actual_inventory = _tree_content_inventory(
+                    path, f"packaged profile runtime input {name}"
+                )
+                expected_inventory = expected_runtime_inventories[name]
+                if actual_inventory != expected_inventory:
+                    expected_paths = set(expected_inventory)
+                    actual_paths = set(actual_inventory)
+                    missing = sorted(expected_paths - actual_paths)
+                    extra = sorted(actual_paths - expected_paths)
+                    changed = sorted(
+                        candidate
+                        for candidate in expected_paths & actual_paths
+                        if expected_inventory[candidate]
+                        != actual_inventory[candidate]
+                    )
+                    raise WorkspaceError(
+                        "Windows server package changed the selected profile "
+                        f"runtime input {name}: missing={missing[:5]}, "
+                        f"extra={extra[:5]}, changed={changed[:5]}"
+                    )
+            (package_root / "server" / "data").parent.mkdir(exist_ok=True)
+            staging_state = staging / "state"
+            staging_state.replace(package_root / "server" / "data")
+            self._write_windows_launch_files(
+                package_root, profile_name, state_name, port, fingerprint
+            )
+            coordinates = build_metadata.get("coordinates", {})
+            public_coordinates = {
+                role: {
+                    key: value
+                    for key, value in coordinate.items()
+                    if key in {"component", "checkout", "repository", "branch", "source", "head"}
+                }
+                for role, coordinate in sorted(coordinates.items())
+                if isinstance(coordinate, dict)
+            }
+            atomic_json(
+                package_root / "manifest.json",
+                {
+                    "schema_version": WINDOWS_PACKAGE_SCHEMA_VERSION,
+                    "profile": profile_name,
+                    "state": state_name,
+                    "stack": stack.name,
+                    "port": port,
+                    "server_fingerprint": fingerprint,
+                    "contains_private_server_state": True,
+                    "build": build,
+                    "runtime_input_sha256": expected_runtime_digests,
+                    "components": public_coordinates,
+                },
+            )
+            self._archive_windows_profile(package_root, destination)
+
+        digest = _file_digest(destination, "Windows profile package")
+        return {
+            "schema_version": WINDOWS_PACKAGE_SCHEMA_VERSION,
+            "profile": profile_name,
+            "state": state_name,
+            "path": str(destination),
+            "sha256": digest,
+            "bytes": destination.stat().st_size,
+            "contains_private_server_state": True,
+            "build": build,
+        }
+
     def topology_summary(
         self,
         profile_name: str,
@@ -12700,6 +13364,77 @@ class Workspace:
             pinned_destination_parent_fd,
         )
         os.close(descriptor)
+
+    def _copy_runtime_tree_from_descriptor(
+        self,
+        source_fd: int,
+        source_display: Path,
+        destination: Path,
+        exclusions: frozenset[str] = frozenset(),
+    ) -> None:
+        source_before = os.fstat(source_fd)
+        if not stat.S_ISDIR(source_before.st_mode):
+            raise WorkspaceError(
+                f"runtime publication input is not a directory: {source_display}"
+            )
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+        destination_parent_before = destination.parent.stat(
+            follow_symlinks=False
+        )
+        destination_parent_fd: int | None = None
+        destination_fd: int | None = None
+        try:
+            destination_parent_fd = os.open(destination.parent, flags)
+            if self._runtime_tree_identity(os.fstat(destination_parent_fd)) != (
+                self._runtime_tree_identity(destination_parent_before)
+            ):
+                raise WorkspaceError(
+                    "runtime staging directory changed before descriptor copy: "
+                    f"{destination.parent}"
+                )
+            try:
+                os.mkdir(
+                    destination.name,
+                    stat.S_IMODE(source_before.st_mode) | 0o700,
+                    dir_fd=destination_parent_fd,
+                )
+                destination_fd = os.open(
+                    destination.name, flags, dir_fd=destination_parent_fd
+                )
+            except OSError as error:
+                raise WorkspaceError(
+                    "runtime staging destination changed during descriptor copy: "
+                    f"{destination}: {error}"
+                ) from error
+            self._copy_topology_runtime_directory(
+                source_fd,
+                source_display,
+                destination_fd,
+                destination,
+                exclusions,
+            )
+            if self._runtime_tree_identity(os.fstat(source_fd)) != (
+                self._runtime_tree_identity(source_before)
+            ):
+                raise WorkspaceError(
+                    f"runtime publication input changed during copy: {source_display}"
+                )
+            destination_parent_after = os.fstat(destination_parent_fd)
+            if (
+                destination_parent_after.st_dev
+                != destination_parent_before.st_dev
+                or destination_parent_after.st_ino
+                != destination_parent_before.st_ino
+            ):
+                raise WorkspaceError(
+                    "runtime staging directory changed during descriptor copy: "
+                    f"{destination.parent}"
+                )
+        finally:
+            if destination_fd is not None:
+                os.close(destination_fd)
+            if destination_parent_fd is not None:
+                os.close(destination_parent_fd)
 
     def _copy_runtime_regular_file(self, source: Path, destination: Path) -> None:
         flags = os.O_RDONLY | os.O_NOFOLLOW

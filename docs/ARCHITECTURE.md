@@ -745,6 +745,47 @@ worldmaker. Roles outside that target closure do not invalidate that cache. It
 is reusable only for clean input checkouts with an exact metadata
 match; dirty inputs deliberately regenerate.
 
+## Portable Windows profile packages
+
+`package windows` is a private review handoff, not a release publisher. It
+resolves and leases one exact Classic client/server dependency closure,
+materializes clean primary generations, and reuses the normal wrapper build to
+collect Classic-target content, resources, sound, and generated region maps.
+It then copies only those selected inputs into private temporary staging and
+runs the existing Classic client and server portable-package builders. The
+installed `windows-cross` toolchain is preferred; otherwise the command reads
+the digest-pinned image identity from the devcontainer composition and invokes
+that image through Docker. The two paths use the same package scripts and
+`0.0.0` non-release version, so this command cannot mint a release version or
+asset. Explicit, path-bounded package-script inputs preserve the profile's
+staged sound, content, and resources instead of resolving component release
+locks. Before publication, tree digests prove the packaged maps, content
+library, and resources still match those staged profile inputs.
+
+The selected persistent state is admitted through the ordinary path and
+physical-identity leases plus a nonblocking directory lock. A live topology,
+uncertain owner, incompatible implementation marker, link, special entry, or
+missing server certificate fails closed. The
+descriptor-pinned copy completes before releasing the state, so later server
+activity cannot alter the snapshot. State is acquired before the profile-build
+reader, preserving the global lease order.
+
+Generated client/server ZIPs are parsed without general-purpose extraction.
+Entry counts and expanded bytes are bounded; absolute, traversal, encrypted,
+duplicate-case, linked, special, and missing/duplicate executable layouts are
+rejected. Only the executable's runtime subtree is extracted, so unrelated
+CPack build metadata is ignored. Assembly emits only `client/`, `server/`, copied
+`server/data/`, a coordinate manifest, instructions, and a loopback launcher
+whose client argument pins the copied server fingerprint. Final archive input
+must be a regular single-link tree. ZIP metadata is normalized, output is
+streamed to a same-directory temporary file, mode 0600, and published with a
+no-replace rename. The returned SHA-256 covers the completed archive.
+
+Because the state contains player credentials and the QUIC private identity,
+the resulting archive is always classified as sensitive. It is intentionally
+outside release, CI artifact, cleanup, and public-upload contracts; operators
+choose its destination and remove it explicitly after the review.
+
 ## Runtime and state
 
 For the currently runnable classic profile, server launch preparation assembles

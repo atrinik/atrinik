@@ -481,6 +481,42 @@ class ParserTests(unittest.TestCase):
             use_ccache=False,
         )
 
+    def test_windows_package_dispatches_profile_state_port_and_output(self) -> None:
+        summary = {
+            "schema_version": 1,
+            "profile": "review",
+            "state": "scenario-review",
+            "path": "/tmp/review.zip",
+            "sha256": "a" * 64,
+            "bytes": 123,
+            "contains_private_server_state": True,
+            "build": {"mode": "container", "image": "example@sha256:" + "b" * 64},
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.package_windows_profile.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "package",
+                        "windows",
+                        "--profile",
+                        "review",
+                        "--state",
+                        "scenario-review",
+                        "--port",
+                        "1731",
+                        "--output",
+                        "/tmp/review.zip",
+                        "--json",
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.package_windows_profile.assert_called_once_with(
+            "review", "scenario-review", Path("/tmp/review.zip"), port=1731
+        )
+        self.assertEqual(json.loads(output.call_args.args[0]), summary)
+
     def test_classic_cohort_option_rejects_abbreviated_spelling(self) -> None:
         for command in ("init", "sync"):
             with self.subTest(command=command):
