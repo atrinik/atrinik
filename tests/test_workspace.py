@@ -2237,6 +2237,108 @@ class WorkspaceTests(unittest.TestCase):
                 record["source_includes"],
             )
 
+    def test_export_ignored_resource_manifest_is_restored_and_staged(self) -> None:
+        primary = self.workspace.paths.repositories / "resources"
+        (primary / ".gitattributes").write_text(
+            "/runtime-paths.txt export-ignore\n", encoding="utf-8"
+        )
+        command("git", "add", ".gitattributes", cwd=primary)
+        command(
+            "git",
+            "commit",
+            "-m",
+            "test: exclude runtime manifest from archives",
+            cwd=primary,
+        )
+
+        root = self.workspace.paths.builds / "profiles" / "test"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["resources"]
+            self.assertNotEqual(source, primary)
+            self.assertEqual(
+                (source / "runtime-paths.txt").read_text(encoding="utf-8"),
+                "paintings\n",
+            )
+            output = self.workspace._stage_resources(root, {"resources": source})
+            self.assertEqual(
+                (output / "paintings" / "scene.jpg").read_text(encoding="utf-8"),
+                "resource\n",
+            )
+
+    def test_archive_completion_restores_directories_and_executables(self) -> None:
+        primary = self.workspace.paths.repositories / "client"
+        omitted = primary / "omitted"
+        omitted.mkdir()
+        executable = omitted / "run"
+        executable.write_text("#!/bin/sh\n", encoding="utf-8")
+        executable.chmod(0o755)
+        (primary / ".gitattributes").write_text(
+            "/omitted export-ignore\n", encoding="utf-8"
+        )
+        command("git", "add", ".gitattributes", "omitted", cwd=primary)
+        command(
+            "git",
+            "commit",
+            "-m",
+            "test: exclude executable tree from archives",
+            cwd=primary,
+        )
+
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build client",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            restored = snapshot.paths()["client"] / "omitted" / "run"
+            self.assertEqual(restored.read_text(encoding="utf-8"), "#!/bin/sh\n")
+            self.assertEqual(stat.S_IMODE(restored.stat().st_mode), 0o555)
+
+    def test_source_generation_git_entries_reject_unsafe_output_and_git_failures(
+        self,
+    ) -> None:
+        object_id = b"a" * 40
+        invalid_outputs = (
+            b"invalid\0",
+            b"100644 blob " + object_id + b"\t/absolute\0",
+            b"100644 blob " + object_id + b"\tnested/../entry\0",
+        )
+        for output in invalid_outputs:
+            with self.subTest(output=output):
+                result = subprocess.CompletedProcess([], 0, stdout=output, stderr=b"")
+                with mock.patch(
+                    "atrinik_workspace.workspace.subprocess.run",
+                    return_value=result,
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, "listing is invalid"):
+                        self.workspace._source_generation_git_entries(
+                            self.root, "b" * 40
+                        )
+
+        failures: tuple[tuple[BaseException, str], ...] = (
+            (FileNotFoundError(), "required command not found"),
+            (
+                subprocess.CalledProcessError(1, ["git"], stderr=b"denied"),
+                "cannot inspect recorded.*denied",
+            ),
+        )
+        for failure, message in failures:
+            with self.subTest(failure=type(failure).__name__):
+                with mock.patch(
+                    "atrinik_workspace.workspace.subprocess.run",
+                    side_effect=failure,
+                ):
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        self.workspace._source_generation_git_entries(
+                            self.root, "b" * 40
+                        )
+
     def test_scoped_classic_sources_include_shared_cmake_inputs(self) -> None:
         production_manifest = Path(__file__).parents[1] / "components.json"
         self.workspace.manifest = Manifest.load(production_manifest)
