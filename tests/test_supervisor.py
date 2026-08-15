@@ -732,9 +732,9 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 )
             self.assertEqual(popen.call_args.kwargs["pass_fds"], (4, 7, 8))
             guardian.assert_called_once_with(4, 5, 3, 6, 7, 8, 9)
-            self.assertTrue(
-                {3, 4, 5, 6, 7, 8, 9, 99}
-                <= {call.args[0] for call in close.call_args_list}
+            self.assertEqual(
+                [call.args[0] for call in close.call_args_list[-8:]],
+                [4, 3, 5, 6, 7, 8, 9, 99],
             )
 
     def test_main_daemon_parent_returns_without_supervising(self) -> None:

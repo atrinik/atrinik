@@ -735,19 +735,12 @@ def supervise(
                     control_path.unlink()
             except FileNotFoundError:
                 pass
-        # On orderly shutdown stop being a lease holder before telling the
-        # guardian to perform its final exact-holder sweep. On a crash the
-        # kernel closes this descriptor before pipe EOF instead.
+        # On orderly shutdown leave the guardian as the sole lease holder
+        # before telling it to perform its final exact-holder sweep. On a
+        # crash the kernel closes these descriptors before pipe EOF instead.
         if process_tree_fd is not None:
             os.close(process_tree_fd)
             process_tree_fd = None
-        if guardian_write_fd is not None:
-            os.close(guardian_write_fd)
-        if guardian_pid is not None:
-            try:
-                os.waitpid(guardian_pid, 0)
-            except ChildProcessError:
-                pass
         if lock_fd is not None:
             os.close(lock_fd)
         if layout_lock_fd is not None:
@@ -764,6 +757,13 @@ def supervise(
             os.close(state_output_fd)
         if physical_state_lock_fd is not None:
             os.close(physical_state_lock_fd)
+        if guardian_write_fd is not None:
+            os.close(guardian_write_fd)
+        if guardian_pid is not None:
+            try:
+                os.waitpid(guardian_pid, 0)
+            except ChildProcessError:
+                pass
     return 0
 
 
