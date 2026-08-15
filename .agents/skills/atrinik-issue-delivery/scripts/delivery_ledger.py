@@ -1346,6 +1346,7 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
             "status",
             "completed",
             "in_flight",
+            "pending_builds",
             "updated_at",
         },
         f"{context}.release_journal",
@@ -1375,6 +1376,7 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
     ):
         raise LedgerError(f"{context} scope release plan is invalid")
     expected_completed: list[str] = []
+    expected_pending_builds: list[dict[str, Any]] = []
     completed_worktrees: list[str] = []
     for item in plan["items"]:
         if not isinstance(item, dict) or item.get("disposition") == "protected":
@@ -1383,11 +1385,24 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
             continue
         if item.get("kind") == "build" and isinstance(item.get("path"), str):
             expected_completed.append(f"build:{item['path']}")
+            expected_pending_builds.append(
+                {
+                    key: item.get(key)
+                    for key in (
+                        "path",
+                        "device",
+                        "inode",
+                        "metadata_sha256",
+                        "marker_sha256",
+                    )
+                }
+            )
         elif item.get("kind") == "profile":
             expected_completed.append("profile")
         elif item.get("kind") == "worktree" and isinstance(item.get("checkout"), str):
             completed_worktrees.append(f"worktree:{item['checkout']}")
     expected_completed.extend(reversed(completed_worktrees))
+    expected_pending_builds.sort(key=lambda row: row["path"])
     if (
         not isinstance(journal["completed"], list)
         or not all(isinstance(row, str) and row for row in journal["completed"])
@@ -1395,6 +1410,8 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
         or journal["completed"] != expected_completed
     ):
         raise LedgerError(f"{context} scope release journal actions are invalid")
+    if journal["pending_builds"] != expected_pending_builds:
+        raise LedgerError(f"{context} scope release build intents are invalid")
     request = resource["request"]
     wrapper_root = request["roots"]["wrapper"]["path"]
     workspace_root = request["roots"]["workspace"]["path"]

@@ -217,15 +217,37 @@ cleanup references until release journals prove each worktree removed.
 Release computes a canonical SHA-256 plan over the completed scope generation
 and every observed topology, state, build, profile, worktree, and reference
 disposition. Apply requires that preview digest and recomputes it under the
-same exact leases. Dependency-ordered removal journals each completed action.
+same exact leases. Dependency-ordered removal journals completed actions and
+resumes exact pending profile-reference or branch cleanup after interruption.
 It first persists one exact in-flight action; retries use that intent to accept
 only the expected absent post-state (including worktree-absent/branch-present)
 and finish the interrupted action.
-Persistent named/default state and stopped topology history are retained, and
-live/unreachable topologies, retained runtime or temporary-state generations,
-busy resources, changed identities, dirty/detached Git state, replacement,
-unexpected references, and uncertain ownership fail closed. The completed
-scope and release journal remain durable evidence after release.
+Persistent named/default state and stopped topology history are retained. Only
+current matching regular spec/status records with a control-requested clean
+shutdown and released generation/state/port leases waive that reference. Live,
+unreachable, stale, historical, mismatched, retained, busy, dirty/detached,
+replaced, unexpected, or uncertain inputs fail closed. The completed scope and
+release journal remain durable evidence after release.
+
+The complete concurrency acceptance matrix composes the focused contracts
+rather than duplicating them:
+
+| Contract row | Deterministic evidence |
+| --- | --- |
+| Exact same/different resource conflicts, queued-writer fairness, and disjoint progress | `test_exact_resource_matrix_scopes_conflicts_to_coordinates` and `test_incremental_harness_isolates_live_topology_conflicts` |
+| Two scope-owned worktrees from one physical checkout, two builds, two server readiness rendezvous, independent inspection/stop/release, and A live through B | `test_complete_dual_scope_server_lifecycle_is_independent` |
+| Same name/label/branch/profile races and complete winner ownership | `test_same_scope_race_has_one_winner_and_no_unowned_partial` and `test_same_explicit_label_and_branch_race_has_one_complete_winner` |
+| Every creation and release publication/destructive substep, rollback, preservation, and exact reference/branch resume | `test_failure_after_each_publication_boundary_is_journaled`, the uncertainty tests, and `test_every_release_publication_boundary_recovers_from_interruption` |
+| Temporary, named, default, retained, promoted, managed-external, and scenario state | `test_temporary_topology_state_clean_retain_and_promote_lifecycle`, `test_persistent_scope_state_is_deliberate_and_never_released`, and `test_scenario_lifecycle_owns_isolated_state_and_credentials` |
+| Explicit/automatic ports, same-port conflict, external bind, and supervisor loss | port-reservation tests plus `test_concurrent_server_topologies_overlap_through_readiness` and `test_supervisor_loss_before_server_bind_releases_reservation` |
+| Immutable runtime through source/build mutation and exact guardian ownership | `test_incremental_harness_isolates_live_topology_conflicts`, supervisor lease tests, and runtime-publication interruption tests |
+| Cleanup versus profile/topology/scope/runtime/state references | profile-publication, topology-cleanup, source-generation-cleanup, temporary-state, and scope-release race tests |
+| Current versus historical profile/topology/state/scenario/scope records | schema namespace, inert topology/scenario, detached-state, and scope-schema tests |
+| Bounded randomized concurrent per-agent progress with no partial records, cross-scope mutation, marker damage, secret exposure, starvation, or leaked leases | six seeded repetitions with step rendezvous, fixed retry budgets, and hard daemon-worker joins in `test_randomized_scope_lifecycle_stress_leaves_no_cross_scope_debris` |
+
+Coordination metrics are rendezvous arrivals, admitted/completed operations,
+published ownership transitions, and bounded conflict outcomes. Compiler wall
+clock and short sleeps are never acceptance thresholds.
 
 ## Cleanup inventory and retention
 
@@ -322,6 +344,20 @@ the profile or scenario. A later source at the same path remains protected
 across relocated roots. Exact lease contention propagates its coordinate,
 operation, owner metadata and recovery action; a record that changes between
 read and confirmation fails separately and leaves the backfill marker absent.
+The requester publishes and locks `waiting` metadata before main-lock admission,
+then transitions it to `admitted` through a per-coordinate transition gate under
+owner-directory serialization. It acquires the main lock before the short gate;
+blocked requests therefore cannot convoy compatible peers or prevent holder
+release. Summaries prioritize admitted holders before queued waiters, even at
+the bounded record cap, and rendezvous with every in-progress admission before
+returning a stable snapshot. The same serialization prevents a scan from
+reaping partial publication. A publication failure unlinks its exact token;
+simultaneous cleanup refusal is reported as fail-closed uncertainty naming the
+retained evidence. Teardown unconditionally releases the main lease even when
+owner-metadata finalization fails, retaining and reporting metadata uncertainty
+for later diagnostic reaping. If main-lease release itself cannot be confirmed,
+the owner record becomes durable `release-uncertain` recovery evidence and is
+not reaped as an ordinary stale owner.
 Because an inert scenario can retain a pre-migration checkout name, a common-Git
 physical-reference registry lease spans the complete one-time classification;
 worktree removal and cleanup take it exclusively, so they cannot reach an
@@ -450,15 +486,26 @@ extraction, whose entry creation and mode changes stay relative to pinned,
 no-follow generation directories. Mutation-based CMake tests operate on
 writable profile-local views rather than weakening the shared generation.
 Schema-1 generations remain recognizable to preview-first cleanup but cannot be
-reused as current build inputs. A mismatch fails closed and leaves recovery to
-the explicit `builds` cleanup boundary. Once path, marker, key, and closed
-metadata ownership are exact, cleanup classifies a content-digest mismatch as
-removable corruption. Builds hold a per-key shared lock; cleanup apply
+reused as current build inputs. New staging trees are complete and sealed before
+descriptor-relative flushing of every file and directory. A pinned whole-tree
+identity, content, and mount-boundary inventory must still match immediately
+before a no-replace rename exposes the canonical key, and the container is
+flushed before success. A mismatch under descriptor-verified exact marker
+ownership atomically moves the complete generation identity to a retained
+recovery transaction only after recursively excluding nested mounts, then
+rebuilds the canonical key through the ordinary staging and no-replace
+publication path. Uncertain ownership fails closed without moving data. Once
+path, marker, key, and closed metadata ownership are exact, cleanup classifies a
+content-digest mismatch as removable corruption. Builds hold a per-key shared
+lock while authenticating an existing generation; only an absent or
+conclusively corrupt generation enters exclusive creation with a recheck.
+Cleanup apply
 revalidates ownership, closure content, identity, and age under its exclusive
 side before bounded removal. First-use container publication is
-checkout-serialized. Interrupted staging remains a recognized child of its
-marker-owned container, is protected while its generation lock is busy, and
-becomes independently reclaimable after the normal grace period.
+checkout-serialized. Recovery and interrupted staging remain recognized
+children of the marker-owned container, are protected while their generation
+lock is busy, and become independently reclaimable through preview-first
+`builds` cleanup after the normal grace period.
 
 The npm and compiler caches have exact purpose markers and atomically refreshed
 `.atrinik-cache.json` timestamps. The compiler cache metadata also fixes its
@@ -796,6 +843,47 @@ commit coordinates for the server dependency closure consumed by the
 worldmaker. Roles outside that target closure do not invalidate that cache. It
 is reusable only for clean input checkouts with an exact metadata
 match; dirty inputs deliberately regenerate.
+
+## Portable Windows profile packages
+
+`package windows` is a private review handoff, not a release publisher. It
+resolves and leases one exact Classic client/server dependency closure,
+materializes clean primary generations, and reuses the normal wrapper build to
+collect Classic-target content, resources, sound, and generated region maps.
+It then copies only those selected inputs into private temporary staging and
+runs the existing Classic client and server portable-package builders. The
+installed `windows-cross` toolchain is preferred; otherwise the command reads
+the digest-pinned image identity from the devcontainer composition and invokes
+that image through Docker. The two paths use the same package scripts and
+`0.0.0` non-release version, so this command cannot mint a release version or
+asset. Explicit, path-bounded package-script inputs preserve the profile's
+staged sound, content, and resources instead of resolving component release
+locks. Before publication, tree digests prove the packaged maps, content
+library, and resources still match those staged profile inputs.
+
+The selected persistent state is admitted through the ordinary path and
+physical-identity leases plus a nonblocking directory lock. A live topology,
+uncertain owner, incompatible implementation marker, link, special entry, or
+missing server certificate fails closed. The
+descriptor-pinned copy completes before releasing the state, so later server
+activity cannot alter the snapshot. State is acquired before the profile-build
+reader, preserving the global lease order.
+
+Generated client/server ZIPs are parsed without general-purpose extraction.
+Entry counts and expanded bytes are bounded; absolute, traversal, encrypted,
+duplicate-case, linked, special, and missing/duplicate executable layouts are
+rejected. Only the executable's runtime subtree is extracted, so unrelated
+CPack build metadata is ignored. Assembly emits only `client/`, `server/`, copied
+`server/data/`, a coordinate manifest, instructions, and a loopback launcher
+whose client argument pins the copied server fingerprint. Final archive input
+must be a regular single-link tree. ZIP metadata is normalized, output is
+streamed to a same-directory temporary file, mode 0600, and published with a
+no-replace rename. The returned SHA-256 covers the completed archive.
+
+Because the state contains player credentials and the QUIC private identity,
+the resulting archive is always classified as sensitive. It is intentionally
+outside release, CI artifact, cleanup, and public-upload contracts; operators
+choose its destination and remove it explicitly after the review.
 
 ## Runtime and state
 

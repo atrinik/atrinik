@@ -8490,6 +8490,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             "status": "complete",
             "completed": ["profile", "worktree:atrinik"],
             "in_flight": None,
+            "pending_builds": [],
             "updated_at": "2026-08-15T11:05:00Z",
         }
         fake_workspace = mock.Mock()

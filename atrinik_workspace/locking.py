@@ -210,11 +210,8 @@ def _reap_staged_resource_owners(
         staging_descriptor = _open_or_create_directory_at(
             owners_descriptor, ".pending", owners / ".pending"
         )
-        fcntl.flock(
-            staging_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
-        )
-        metadata_names = sorted(os.listdir(staging_descriptor))
-        for metadata_name in metadata_names:
+        fcntl.flock(staging_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        for metadata_name in sorted(os.listdir(staging_descriptor)):
             descriptor: int | None = None
             try:
                 flags = os.O_RDWR | os.O_CLOEXEC
@@ -249,7 +246,9 @@ def _reap_staged_resource_owners(
             os.close(staging_descriptor)
 
 
-def _lease_owner_summary(path: Path) -> str:
+def _lease_owner_summary(
+    path: Path, *, wait_for_transition: bool = True
+) -> str:
     owners = path.with_name(f"{path.name}.owners")
     parent_descriptor: int | None = None
     owners_descriptor: int | None = None
@@ -265,6 +264,7 @@ def _lease_owner_summary(path: Path) -> str:
         owners_descriptor = os.open(
             owners.name, flags, dir_fd=parent_descriptor
         )
+        fcntl.flock(owners_descriptor, fcntl.LOCK_EX)
         _reap_staged_resource_owners(owners_descriptor, owners)
         paths = sorted(os.listdir(owners_descriptor))
     except (FileNotFoundError, NotADirectoryError, PermissionError, OSError, WorkspaceError):
@@ -273,11 +273,20 @@ def _lease_owner_summary(path: Path) -> str:
         if parent_descriptor is not None:
             os.close(parent_descriptor)
         return "owner metadata unavailable"
-    descriptions: list[str] = []
+    descriptions: list[tuple[int, str, str]] = []
+
+    def reap(metadata_name: str) -> bool:
+        try:
+            os.unlink(metadata_name, dir_fd=owners_descriptor)
+        except OSError:
+            return False
+        return True
+
     for metadata_name in paths:
-        if not metadata_name.endswith(".json"):
+        if metadata_name == ".pending":
             continue
         descriptor: int | None = None
+        reapable = False
         try:
             flags = os.O_RDWR | os.O_CLOEXEC
             if hasattr(os, "O_NOFOLLOW"):
@@ -296,45 +305,84 @@ def _lease_owner_summary(path: Path) -> str:
                 or (opened.st_dev, opened.st_ino)
                 != (visible.st_dev, visible.st_ino)
             ):
-                os.close(descriptor)
-                descriptor = None
                 continue
-            with os.fdopen(os.dup(descriptor), encoding="utf-8") as stream:
-                value = json.load(stream)
-        except (OSError, UnicodeError, json.JSONDecodeError):
-            if descriptor is not None:
-                os.close(descriptor)
-            continue
-        if not isinstance(value, dict):
-            os.close(descriptor)
-            continue
-        schema_version = value.get("schema_version")
-        if schema_version == RESOURCE_LEASE_SCHEMA_VERSION:
             try:
                 fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
                 pass
-            except OSError:
-                os.close(descriptor)
-                continue
             else:
-                os.close(descriptor)
+                reapable = True
+            with os.fdopen(descriptor, encoding="utf-8") as stream:
                 descriptor = None
-                try:
-                    os.unlink(metadata_name, dir_fd=owners_descriptor)
-                except OSError:
-                    continue
-                continue
+                value = json.load(stream)
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            if reapable:
+                reap(metadata_name)
+            continue
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+        if not isinstance(value, dict):
+            if reapable:
+                reap(metadata_name)
+            continue
         operation = value.get("operation")
         owner = value.get("owner")
         mode = value.get("mode")
-        if all(isinstance(item, str) and item for item in (operation, owner, mode)):
-            if len(descriptions) < 8:
-                descriptions.append(f"{mode} {operation} by {owner}")
-        os.close(descriptor)
+        phase = value.get("phase", "admitted")
+        valid_owner = (
+            all(isinstance(item, str) and item for item in (operation, owner, mode))
+            and phase in {"waiting", "admitted", "release-uncertain"}
+        )
+        current_schema = (
+            value.get("schema_version") == RESOURCE_LEASE_SCHEMA_VERSION
+        )
+        if (
+            current_schema
+            and reapable
+            and (not valid_owner or phase != "release-uncertain")
+        ):
+            reap(metadata_name)
+            continue
+        if valid_owner:
+            prefix = (
+                ""
+                if phase == "admitted"
+                else f"{phase.replace('-', ' ')} "
+            )
+            descriptions.append(
+                (
+                    -1 if phase == "release-uncertain" else (
+                        0 if phase == "admitted" else 1
+                    ),
+                    metadata_name,
+                    f"{prefix}{mode} {operation} by {owner}",
+                )
+            )
     os.close(owners_descriptor)
     os.close(parent_descriptor)
-    return "; ".join(descriptions) if descriptions else "owner metadata unavailable"
+    descriptions.sort()
+    if (
+        wait_for_transition
+        and any(item[0] == 1 for item in descriptions)
+    ):
+        transition = path.with_name(f"{path.name}.owner-transition.lock")
+        try:
+            with _advisory_lock(
+                transition,
+                "resource lease owner transition",
+                fcntl.LOCK_SH,
+            ):
+                return _lease_owner_summary(
+                    path, wait_for_transition=False
+                )
+        except WorkspaceError:
+            pass
+    return (
+        "; ".join(item[2] for item in descriptions[:8])
+        if descriptions
+        else "owner metadata unavailable"
+    )
 
 
 @contextmanager
@@ -662,7 +710,9 @@ def _resource_owner(
     *,
     directory_fd: int | None = None,
     inherit: bool = True,
-) -> Iterator[None]:
+) -> Iterator[
+    tuple[Callable[[], None], Callable[[Callable[[], None]], None]]
+]:
     owners = path.with_name(f"{path.name}.owners")
     parent_descriptor = (
         os.dup(directory_fd)
@@ -715,7 +765,6 @@ def _resource_owner(
         staging_descriptor = _open_or_create_directory_at(
             owner_descriptor, ".pending", owners / ".pending"
         )
-        fcntl.flock(staging_descriptor, fcntl.LOCK_EX)
     except (OSError, WorkspaceError) as error:
         if staging_descriptor is not None:
             os.close(staging_descriptor)
@@ -725,8 +774,6 @@ def _resource_owner(
             f"cannot open resource lease owner staging directory "
             f"{owners / '.pending'}: {error}"
         ) from error
-    publication_locked = True
-    published = False
     token = secrets.token_hex(16)
     metadata_path = owners / f"{token}.json"
     owner = f"{socket.gethostname()} uid={os.geteuid()} token={token}"
@@ -735,6 +782,7 @@ def _resource_owner(
         "kind": request.kind,
         "coordinate": request.coordinate,
         "mode": request.mode,
+        "phase": "waiting",
         "operation": request.operation,
         "owner": owner,
         "started_at": datetime.now(timezone.utc).isoformat(),
@@ -743,59 +791,230 @@ def _resource_owner(
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
+    publication_locked = False
+    staging_locked = False
+    descriptor: int | None = None
+    metadata_created = False
+    metadata_published = False
     try:
+        fcntl.flock(staging_descriptor, fcntl.LOCK_EX)
+        staging_locked = True
+        fcntl.flock(owner_descriptor, fcntl.LOCK_EX)
+        publication_locked = True
         descriptor = os.open(
             metadata_path.name, flags, 0o600, dir_fd=staging_descriptor
         )
-    except OSError:
-        os.close(staging_descriptor)
-        os.close(owner_descriptor)
-        os.close(parent_descriptor)
-        raise WorkspaceError(
-            f"cannot create resource lease owner metadata {metadata_path}"
-        ) from None
-    try:
+        metadata_created = True
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
         with os.fdopen(descriptor, "w+", encoding="utf-8", closefd=False) as stream:
             json.dump(value, stream, sort_keys=True)
             stream.write("\n")
             stream.flush()
-        try:
-            fcntl.flock(descriptor, fcntl.LOCK_EX)
-            os.link(
-                metadata_path.name,
-                metadata_path.name,
-                src_dir_fd=staging_descriptor,
-                dst_dir_fd=owner_descriptor,
-                follow_symlinks=False,
-            )
-            published = True
-            os.unlink(metadata_path.name, dir_fd=staging_descriptor)
-            fcntl.flock(staging_descriptor, fcntl.LOCK_UN)
-        except OSError as error:
-            raise WorkspaceError(
-                f"cannot publish resource lease owner metadata "
-                f"{metadata_path}: {error}"
-            ) from error
+        os.link(
+            metadata_path.name,
+            metadata_path.name,
+            src_dir_fd=staging_descriptor,
+            dst_dir_fd=owner_descriptor,
+            follow_symlinks=False,
+        )
+        metadata_published = True
+        os.unlink(metadata_path.name, dir_fd=staging_descriptor)
+        metadata_created = False
+    except OSError as error:
+        if descriptor is not None:
+            os.close(descriptor)
+            descriptor = None
+        cleanup_error: OSError | None = None
+        if metadata_published:
+            try:
+                os.unlink(metadata_path.name, dir_fd=owner_descriptor)
+            except FileNotFoundError:
+                pass
+            except OSError as unlink_error:
+                cleanup_error = unlink_error
+        if metadata_created:
+            try:
+                os.unlink(metadata_path.name, dir_fd=staging_descriptor)
+            except FileNotFoundError:
+                pass
+            except OSError as unlink_error:
+                cleanup_error = cleanup_error or unlink_error
         publication_locked = False
-        with os.fdopen(os.dup(descriptor), "a+") as owner_lease:
-            if inherit:
-                with inherit_lock_fds(owner_lease):
-                    yield
-            else:
-                yield
+        staging_locked = False
+        os.close(staging_descriptor)
+        os.close(owner_descriptor)
+        os.close(parent_descriptor)
+        cleanup_detail = (
+            f"; cannot remove partial owner metadata: {cleanup_error}"
+            if cleanup_error is not None
+            else ""
+        )
+        raise WorkspaceError(
+            f"cannot publish resource lease owner metadata {metadata_path}: "
+            f"{error}{cleanup_detail}"
+        ) from error
     finally:
         if publication_locked:
+            fcntl.flock(owner_descriptor, fcntl.LOCK_UN)
+        if staging_locked:
+            fcntl.flock(staging_descriptor, fcntl.LOCK_UN)
+    admitted = False
+    release_main_lock: Callable[[], None] | None = None
+    owner_lease = os.fdopen(os.dup(descriptor), "a+")
+    inherit_stack = ExitStack()
+
+    def admit() -> None:
+        nonlocal admitted
+        if admitted:
+            return
+        transition_error: OSError | None = None
+        cleanup_error: OSError | None = None
+        try:
+            fcntl.flock(owner_descriptor, fcntl.LOCK_EX)
+            value["phase"] = "admitted"
+            os.lseek(descriptor, 0, os.SEEK_SET)
+            os.ftruncate(descriptor, 0)
+            with os.fdopen(
+                descriptor, "w+", encoding="utf-8", closefd=False
+            ) as stream:
+                json.dump(value, stream, sort_keys=True)
+                stream.write("\n")
+                stream.flush()
+        except OSError as error:
+            transition_error = error
             try:
-                fcntl.flock(staging_descriptor, fcntl.LOCK_UN)
-            except OSError:
+                os.unlink(metadata_path.name, dir_fd=owner_descriptor)
+            except FileNotFoundError:
                 pass
-        os.close(descriptor)
+            except OSError as unlink_error:
+                cleanup_error = unlink_error
+        finally:
+            fcntl.flock(owner_descriptor, fcntl.LOCK_UN)
+        if transition_error is not None:
+            cleanup_detail = (
+                f"; cannot remove partial owner metadata: {cleanup_error}"
+                if cleanup_error is not None
+                else ""
+            )
+            raise WorkspaceError(
+                f"cannot admit resource lease owner metadata {metadata_path}: "
+                f"{transition_error}{cleanup_detail}"
+            ) from transition_error
+        if inherit:
+            inherit_stack.enter_context(inherit_lock_fds(owner_lease))
+        admitted = True
+
+    def bind_release(callback: Callable[[], None]) -> None:
+        nonlocal release_main_lock
+        if release_main_lock is not None:
+            raise WorkspaceError(
+                f"resource lease owner release is already bound: {metadata_path}"
+            )
+        release_main_lock = callback
+
+    try:
+        yield admit, bind_release
+    finally:
+        teardown_errors: list[tuple[str, BaseException]] = []
+        try:
+            inherit_stack.close()
+        except BaseException as error:
+            teardown_errors.append(("cannot close inherited owner lease", error))
+        try:
+            owner_lease.close()
+        except BaseException as error:
+            teardown_errors.append(("cannot close owner lease", error))
+        owner_directory_locked = False
+        try:
+            fcntl.flock(owner_descriptor, fcntl.LOCK_EX)
+            owner_directory_locked = True
+        except BaseException as error:
+            teardown_errors.append(("cannot lock owner directory", error))
+        release_error: BaseException | None = None
+        if release_main_lock is not None:
+            try:
+                release_main_lock()
+            except BaseException as error:
+                release_error = error
+        uncertain_published = False
+        if release_error is not None and owner_directory_locked:
+            uncertain_descriptor: int | None = None
+            uncertain_name = (
+                f".{metadata_path.name}.{secrets.token_hex(8)}.uncertain"
+            )
+            try:
+                uncertain_value = {**value, "phase": "release-uncertain"}
+                uncertain_flags = (
+                    os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC
+                )
+                if hasattr(os, "O_NOFOLLOW"):
+                    uncertain_flags |= os.O_NOFOLLOW
+                uncertain_descriptor = os.open(
+                    uncertain_name,
+                    uncertain_flags,
+                    0o600,
+                    dir_fd=owner_descriptor,
+                )
+                fcntl.flock(
+                    uncertain_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
+                )
+                with os.fdopen(
+                    uncertain_descriptor, "w+", encoding="utf-8", closefd=False
+                ) as stream:
+                    json.dump(uncertain_value, stream, sort_keys=True)
+                    stream.write("\n")
+                    stream.flush()
+                os.replace(
+                    uncertain_name,
+                    metadata_path.name,
+                    src_dir_fd=owner_descriptor,
+                    dst_dir_fd=owner_descriptor,
+                )
+                previous_descriptor = descriptor
+                descriptor = uncertain_descriptor
+                uncertain_descriptor = None
+                uncertain_published = True
+                try:
+                    os.close(previous_descriptor)
+                except OSError as error:
+                    teardown_errors.append(
+                        ("cannot close replaced owner metadata", error)
+                    )
+            except (OSError, UnicodeError, TypeError, ValueError) as error:
+                teardown_errors.append(
+                    ("cannot publish release-uncertain owner metadata", error)
+                )
+            finally:
+                if uncertain_descriptor is not None:
+                    try:
+                        os.close(uncertain_descriptor)
+                    except OSError as error:
+                        teardown_errors.append(
+                            ("cannot close uncertain owner metadata", error)
+                        )
+                    try:
+                        os.unlink(uncertain_name, dir_fd=owner_descriptor)
+                    except FileNotFoundError:
+                        pass
+                    except OSError as error:
+                        teardown_errors.append(
+                            (
+                                "cannot remove partial release-uncertain "
+                                "owner metadata",
+                                error,
+                            )
+                        )
+        if release_error is None:
+            try:
+                os.close(descriptor)
+            except OSError as error:
+                teardown_errors.append(("cannot close owner metadata", error))
         cleanup_descriptor: int | None = None
         try:
-            cleanup_flags = os.O_RDWR | os.O_CLOEXEC
-            if hasattr(os, "O_NOFOLLOW"):
-                cleanup_flags |= os.O_NOFOLLOW
-            if published:
+            if owner_directory_locked and release_error is None:
+                cleanup_flags = os.O_RDWR | os.O_CLOEXEC
+                if hasattr(os, "O_NOFOLLOW"):
+                    cleanup_flags |= os.O_NOFOLLOW
                 cleanup_descriptor = os.open(
                     metadata_path.name,
                     cleanup_flags,
@@ -805,20 +1024,45 @@ def _resource_owner(
                     cleanup_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
                 )
                 os.unlink(metadata_path.name, dir_fd=owner_descriptor)
-        except (FileNotFoundError, BlockingIOError, OSError):
+        except (FileNotFoundError, BlockingIOError):
             # An inherited descriptor deliberately keeps the owner record live;
             # a later diagnostic scan reaps it after the child exits.
             pass
+        except OSError as error:
+            teardown_errors.append(("cannot remove owner metadata", error))
         finally:
             if cleanup_descriptor is not None:
                 os.close(cleanup_descriptor)
             try:
                 os.unlink(metadata_path.name, dir_fd=staging_descriptor)
-            except OSError:
+            except FileNotFoundError:
                 pass
+            except OSError as error:
+                teardown_errors.append(
+                    ("cannot remove staged owner metadata", error)
+                )
             os.close(staging_descriptor)
             os.close(owner_descriptor)
             os.close(parent_descriptor)
+        if release_error is not None:
+            detail = "; ".join(
+                f"{label}: {error}" for label, error in teardown_errors
+            )
+            suffix = f"; {detail}" if detail else ""
+            raise WorkspaceError(
+                f"cannot confirm main resource lease release for "
+                f"{metadata_path}; retained locked owner metadata is "
+                f"{'release uncertain' if uncertain_published else 'admitted'}: "
+                f"{release_error}{suffix}"
+            ) from release_error
+        if teardown_errors:
+            detail = "; ".join(
+                f"{label}: {error}" for label, error in teardown_errors
+            )
+            raise WorkspaceError(
+                f"cannot finalize resource lease owner metadata "
+                f"{metadata_path}; main lease released; {detail}"
+            ) from teardown_errors[0][1]
 
 
 @contextmanager
@@ -864,37 +1108,63 @@ def resource_locks(
             description = (
                 f"resource {request.kind} coordinate {request.coordinate}"
             )
+            transition = path.with_name(
+                f"{path.name}.owner-transition.lock"
+            )
+            request_stack = ExitStack()
             try:
+                admit, bind_release = request_stack.enter_context(
+                    _resource_owner(
+                        path, request, directory_fd=directory_descriptor
+                    )
+                )
                 if request.mode == "exclusive":
-                    lease = stack.enter_context(
-                        exclusive_layout_lock(
-                            path,
-                            description,
-                            nonblocking,
-                            recovery_action=request.recovery,
-                            directory_fd=directory_descriptor,
-                        )
+                    layout_context = exclusive_layout_lock(
+                        path,
+                        description,
+                        nonblocking,
+                        recovery_action=request.recovery,
+                        directory_fd=directory_descriptor,
                     )
                 else:
-                    lease = stack.enter_context(
-                        shared_layout_lock(
-                            path,
-                            description,
-                            nonblocking,
-                            recovery_action=request.recovery,
-                            directory_fd=directory_descriptor,
-                        )
+                    layout_context = shared_layout_lock(
+                        path,
+                        description,
+                        nonblocking,
+                        recovery_action=request.recovery,
+                        directory_fd=directory_descriptor,
                     )
+                lease = layout_context.__enter__()
+                bind_release(
+                    lambda context=layout_context: context.__exit__(
+                        None, None, None
+                    )
+                )
+                with exclusive_lock(
+                    transition,
+                    "resource lease owner transition",
+                    directory_fd=directory_descriptor,
+                    inherit=False,
+                ):
+                    try:
+                        admit()
+                    except BaseException:
+                        request_stack.close()
+                        raise
             except LockBusyError as error:
+                request_stack.close()
+                # Do not retain earlier coordinates while producing the busy
+                # coordinate's stable owner summary. This preserves the
+                # all-or-none contract even when a publication is transitioning.
+                stack.close()
                 raise LockBusyError(
                     f"{request.kind} {request.coordinate} is already in use by "
                     f"{_lease_owner_summary(path)}; {request.recovery}"
                 ) from error
-            stack.enter_context(
-                _resource_owner(
-                    path, request, directory_fd=directory_descriptor
-                )
-            )
+            except BaseException:
+                request_stack.close()
+                raise
+            stack.enter_context(request_stack.pop_all())
             leases.append(lease)
         yield tuple(leases)
 
@@ -908,17 +1178,41 @@ def resource_lifetime_reader(
 
     directory_fd = _ensure_resource_lock_directory(root, request.kind)
     path = resource_lock_path(root, request.kind, request.coordinate)
+    transition = path.with_name(f"{path.name}.owner-transition.lock")
     try:
-        with shared_layout_lock(
-            path,
-            f"resource {request.kind} coordinate {request.coordinate}",
-            recovery_action=request.recovery,
-            directory_fd=directory_fd,
-            inherit=False,
-        ) as lease:
-            with _resource_owner(
-                path, request, directory_fd=directory_fd, inherit=False
+        with ExitStack() as stack:
+            admit, bind_release = stack.enter_context(
+                _resource_owner(
+                    path,
+                    request,
+                    directory_fd=directory_fd,
+                    inherit=False,
+                )
+            )
+            layout_context = shared_layout_lock(
+                path,
+                f"resource {request.kind} coordinate {request.coordinate}",
+                recovery_action=request.recovery,
+                directory_fd=directory_fd,
+                inherit=False,
+            )
+            lease = layout_context.__enter__()
+            bind_release(
+                lambda context=layout_context: context.__exit__(
+                    None, None, None
+                )
+            )
+            with exclusive_lock(
+                transition,
+                "resource lease owner transition",
+                directory_fd=directory_fd,
+                inherit=False,
             ):
-                yield lease
+                try:
+                    admit()
+                except BaseException:
+                    stack.close()
+                    raise
+            yield lease
     finally:
         os.close(directory_fd)

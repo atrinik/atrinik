@@ -7,22 +7,19 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
 
 ## Resolve scope and ownership
 
-Run from the `atrinik/atrinik` wrapper root.
+Run from the wrapper root.
 
-1. Read root `AGENTS.md` and task-relevant wrapper sources:
-   - ownership, cohorts, roles, and build contracts: `components.json`;
-   - operator behavior: the matching `README.md` section;
-   - layout, locking, trust, and lifecycle design: the matching
-     `docs/ARCHITECTURE.md` section;
-   - pre-split repositories: [repository migration](references/repository-migration.md).
-2. Resolve each component to its physical checkout and safe source root;
-   read that checkout's nearest `AGENTS.md` before editing.
-3. Keep implementation, tests, packages, and releases in the physical owner;
-   keep only orchestration, composition, manifest, and wrapper docs here.
+1. Read `AGENTS.md`, `components.json`, and relevant README/architecture. For
+   pre-split repositories, see
+   [repository migration](references/repository-migration.md).
+2. Resolve each physical checkout and source root; read its nearest
+   `AGENTS.md` before editing.
+3. Keep code, tests, packages, and releases with their physical owner; keep
+   orchestration and wrapper contracts here.
 
-Checkouts are independent ignored repositories. A `classic` worktree contains
-all five `classic-*` components. Both stacks share `content@main`; retained
-`content-1x` paths are historical. Keep composition in `.devcontainer/`.
+Checkouts are ignored repositories. A `classic` worktree holds all five
+`classic-*` components. Both stacks share `content@main`; `content-1x` is
+historical. Composition lives in `.devcontainer/`.
 
 ## Prepare safe worktrees
 
@@ -33,9 +30,8 @@ Inspect local state before mutation:
 ./atrinik status --json
 ```
 
-Initialize only absent repositories. Plain `init` selects the replacement
-cohort; exact `--with classic` adds the complete classic cohort. `sync` never
-clones.
+Initialize only absent repositories. `init` selects replacement; `--with
+classic` adds classic. `sync` never clones.
 
 ```sh
 ./atrinik init [COMPONENT...]
@@ -46,20 +42,19 @@ clones.
 ```
 
 Sync only clean primaries; never replace, move, or remove dirty sources.
-Classic selectors create the full repository under
-`workspace/worktrees/classic/LABEL`. Commit and push in its owning worktree.
-Prefer atomic scopes for concurrent agents; generated names are
-collision-resistant, exact retries idempotent, and JSON commands secret-free.
-Temporary state is the default; persistent state is deliberate. Primitives
-remain supported. Release only with the freshly previewed plan digest:
+Classic selectors create `workspace/worktrees/classic/LABEL`. Prefer atomic
+scopes: names resist collisions, retries are idempotent, and JSON is
+secret-free. Temporary state is the default.
+Release with the fresh preview digest:
 
 ```sh
 ./atrinik scope release REVIEW --dry-run --json
 ./atrinik scope release REVIEW --apply --plan PLAN_SHA256 --json
 ```
 
-Release never stops topologies or deletes persistent state; uncertainty retains
-recovery journals.
+Release never stops topologies or deletes persistent state. Exact clean-down
+permits it. Interrupted substeps resume after a fresh preview; uncertainty
+fails closed and journals remain.
 
 Reclaim review data only through preview-first cleanup:
 
@@ -70,10 +65,11 @@ Reclaim review data only through preview-first cleanup:
 ./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ```
 
-Repeat a scoped command with `--apply` after review. Defaults cover
-worktrees/builds; caches and topology history are opt-in, and topologies are
-excluded from `all`. Reclaim only stopped, released, exact marker-owned records;
-unsafe or uncertain targets fail closed. Apply sound-cache before its worktree.
+After review, repeat the scoped command with `--apply`. Defaults cover
+worktrees/builds; caches/history are opt-in; `all` excludes topologies. Reclaim
+only stopped, released, exact marker-owned records; uncertainty fails closed.
+Apply sound-cache before its worktree. README/architecture define proof and
+apply-time revalidation.
 
 Delivery sidecars are not cleanup targets. Follow issue delivery's separate
 terminal contract; its helper never removes workspace resources.
@@ -81,9 +77,8 @@ terminal contract; its helper never removes workspace resources.
 ## Compose coherent sources
 
 Use `default` for replacement sources and `classic` for the playable stack.
-Never mix providers or substitute classic C/CMake for a missing replacement
-adapter. Replacement repositories have standalone M1 foundations, but no
-wrapper replacement build/runtime closure yet.
+Never mix providers or substitute classic C/CMake for a missing adapter.
+Replacement repositories lack wrapper build/runtime closure.
 
 ```sh
 ./atrinik profile create REVIEW --from classic
@@ -93,31 +88,28 @@ wrapper replacement build/runtime closure yet.
 ./atrinik build COMPONENT --profile REVIEW --test
 ```
 
-Classic selection is checkout-wide; subdirectories are not worktrees. Clean
-target builds pin generated snapshots before releasing primaries; caches
-use snapshot identity. Live inputs retain leases; interrupted staging is
-cleanup-owned.
+Classic selection is checkout-wide; subdirectories are not worktrees. Builds
+pin snapshots and caches use their identity. Live inputs retain leases;
+cleanup owns staging.
 
 Lease order is registry, profile, Git-admin, source, topology/scenario, state,
-build, cache. Writers gate matching coordinates; physical leases span state
-roots and multi-source writers retry all-or-none. Only migration takes the
-barrier exclusively. Published runtimes retain sealed generation, process-tree,
-state, and port leases, not preparation leases. Fail closed without sharing.
-Incomplete coordinates are inert; wrapper owns paths, locks, state, PIDs, logs,
-content/resources and cleanup. Completion is bounded, local, read-only,
-secret-free and parser-driven before `Workspace`; stops at `--` or a `run`
-remainder.
+build, cache. Gate matching coordinates; multi-source writers retry
+all-or-none. Only migration takes the barrier exclusively. Published runtimes
+retain generation, process-tree, state, and port leases. Fail closed without
+sharing; incomplete coordinates are inert. Completion is bounded, local,
+read-only, secret-free, and parser-driven before `Workspace`.
 
-For classic server execution or diagnosis, load `atrinik-server-runtime`. For
-a ready account and character, also load `atrinik-test-scenario`; never
-handcraft saves or expose credentials. Keep every concurrent topology on a
-distinct name and state policy; prefer generation-owned temporary state for
-isolated automation.
+Verify concurrency with distinct worktrees, observable build/readiness
+rendezvous, and A live through B's release. Count transitions and conflicts;
+timeouts bound failure, not compiler speed.
+
+For classic execution load `atrinik-server-runtime`; for a ready character add
+`atrinik-test-scenario`. Never handcraft saves or expose credentials. Give
+concurrent topologies distinct names/state; prefer temporary state.
 
 ## Validate and hand off
 
-Use wrapper-native commands wherever supported; a runtime handoff uses concrete
-names and follows this lifecycle:
+Use wrapper commands and concrete names:
 
 ```sh
 ./atrinik profile show PROFILE
@@ -129,25 +121,22 @@ names and follows this lifecycle:
 ./atrinik down TOPOLOGY
 ```
 
-Record prerequisites, actions, expected results, and cleanup. If runtime is
-irrelevant, hand off applicable build/test/inspection commands. Do not
-substitute internal executables or generated paths for supported wrapper
-operations.
+Record prerequisites, actions, results, and cleanup. Hand off applicable
+build/test/inspection commands. Never replace wrapper operations with internal
+executables or generated paths.
 
 ## Coordinate publication and policy
 
-Use `atrinik-github-governance` for PRs or policy. PR titles use
+Use `atrinik-github-governance` for PRs or policy. Titles use
 `type(optional-scope)!: concise description`; bodies require renderable
 GitHub-Flavored Markdown and actual line breaks, never visible literal `\n`
-separators. Feed multi-section bodies by file or standard input; after
-create/edit, verify the remote GitHub render.
-Semantic-release owns publication. Dependency changes update the inventory and
-audit a complete profile. Follow `docs/PROVENANCE.md` for Classic reuse and
-fail uncertainty closed.
+separators. Feed multi-section bodies by file/stdin. After create/edit, verify remote
+render.
+Semantic-release owns publication. Dependency changes update inventory and
+audit a profile. Follow `docs/PROVENANCE.md`; fail uncertainty closed.
 
 ## Maintain guidance
 
-Load `atrinik-guidance-maintenance` when wrapper ownership, CLI, layout,
-profile/build/runtime, cleanup, release, or cross-repository contracts change.
-Update only affected canonical guidance, remove superseded instructions, and
-run that skill's inventory and validation workflow.
+Load `atrinik-guidance-maintenance` when wrapper or cross-repository contracts
+change. Update affected canonical guidance, remove superseded instructions,
+and run its inventory and validation workflow.

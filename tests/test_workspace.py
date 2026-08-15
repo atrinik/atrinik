@@ -24,7 +24,9 @@ import tarfile
 import tempfile
 import threading
 import time
+from typing import Callable
 import unittest
+import zipfile
 from dataclasses import replace
 from unittest import mock
 
@@ -34,6 +36,7 @@ from atrinik_workspace import locking as locking_module
 from atrinik_workspace.cleanup import Cleanup
 from atrinik_workspace.locking import (
     LeaseRequest,
+    LockBusyError,
     active_lock_fds,
     resource_lock_path,
     resource_locks,
@@ -434,22 +437,24 @@ def public_profile_reader_process(
             os.environ, {"ATRINIK_WORKSPACE_DIR": workspace_directory}
         ):
             workspace = Workspace(Path(wrapper))
-            profile_intent = locking_module.layout_writer_intent_path(
-                resource_lock_path(
-                    workspace._lease_root(
-                        LeaseRequest(
-                            "profile", "profile-a", "shared", "build", "wait"
-                        )
-                    ),
-                    "profile",
-                    "profile-a",
-                )
+            profile_lock = resource_lock_path(
+                workspace._lease_root(
+                    LeaseRequest(
+                        "profile", "profile-a", "shared", "build", "wait"
+                    )
+                ),
+                "profile",
+                "profile-a",
+            )
+            profile_intent = locking_module.layout_writer_intent_path(profile_lock)
+            profile_transition = profile_lock.with_name(
+                f"{profile_lock.name}.owner-transition.lock"
             )
             original_advisory_lock = locking_module._advisory_lock
 
             @contextmanager
             def observed_advisory_lock(*args: object, **kwargs: object):
-                if Path(args[0]) == profile_intent:
+                if Path(args[0]) in {profile_intent, profile_transition}:
                     admission_attempting.set()
                 with original_advisory_lock(*args, **kwargs) as lock:
                     yield lock
@@ -2128,7 +2133,7 @@ class WorkspaceTests(unittest.TestCase):
         for checkout in ("sound", "libatrinik", "protocol"):
             self.assertEqual(states[checkout]["head"], prior_heads[checkout])
 
-    def test_clean_primary_source_generation_reuses_and_rejects_corruption(self) -> None:
+    def test_clean_primary_source_generation_reuses_and_recovers_corruption(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
                 "default",
@@ -2148,14 +2153,185 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(metadata, record)
         first.parent.chmod(0o500)
 
-        with self.assertRaisesRegex(WorkspaceError, "source generation is corrupt"):
-            resolve()
+        recovered = resolve()
+        self.assertEqual(recovered, first)
+        self.assertNotEqual(
+            load_json(metadata)["source_tree_sha256"],
+            "0" * 64,
+        )
+        quarantined = [
+            path
+            for path in first.parent.parent.iterdir()
+            if path.name.startswith(f"{first.parent.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertEqual(
+            load_json(quarantined[0] / workspace_module.SOURCE_GENERATION_METADATA)[
+                "source_tree_sha256"
+            ],
+            "0" * 64,
+        )
+        preview = self.workspace.cleanup(["builds"], 7, [], False)
+        retained = next(
+            item for item in preview["items"] if item["path"] == str(quarantined[0])
+        )
+        self.assertEqual(retained["kind"], "source-generation-transaction")
+        self.assertEqual(retained["disposition"], "protected")
+        self.assertIn("younger_than_grace_period", retained["reasons"])
+        self.assertTrue(quarantined[0].exists())
 
         forged = self.root / "forged" / "source"
         forged.mkdir(parents=True)
         shutil.copy2(metadata, forged.parent / metadata.name)
         with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
             self.workspace._source_generation_record(forged)
+
+    def test_source_generation_recovery_preserves_uncertain_ownership(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        marker = generation / MANAGED_MARKER
+        generation.chmod(0o700)
+        marker.chmod(0o600)
+        atomic_json(
+            marker,
+            {"schema_version": 1, "purpose": "unverified-user-data"},
+        )
+        generation.chmod(0o500)
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "ownership is invalid"
+        ):
+            resolve()
+
+        self.assertTrue(generation.is_dir())
+        self.assertEqual(
+            load_json(marker),
+            {"schema_version": 1, "purpose": "unverified-user-data"},
+        )
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
+        )
+
+    def test_source_generation_recovery_preserves_inspection_uncertainty(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_validate_source_generation_git_closure",
+                side_effect=WorkspaceError("transient Git inspection failure"),
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "transient Git inspection failure"
+            ),
+        ):
+            resolve()
+
+        self.assertTrue(generation.is_dir())
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
+        )
+
+    def test_source_generation_recovery_preserves_metadata_io_uncertainty(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        real_load = workspace_module.load_regular_json
+
+        def fail_metadata(path: Path, description: str) -> object:
+            if path == metadata:
+                raise WorkspaceError("transient metadata I/O failure")
+            return real_load(path, description)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.load_regular_json",
+                side_effect=fail_metadata,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "metadata I/O failure"),
+        ):
+            resolve()
+
+        self.assertTrue(generation.is_dir())
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
+        )
+
+    def test_source_generation_recovery_preserves_failed_quarantine(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        generation.chmod(0o700)
+        metadata.chmod(0o600)
+        record = load_json(metadata)
+        record["source_tree_sha256"] = "0" * 64
+        atomic_json(metadata, record)
+        self.workspace._seal_runtime_generation(generation)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_quarantine_source_generation",
+                side_effect=WorkspaceError("injected quarantine refusal"),
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "corrupt and cannot be recovered safely"
+            ),
+        ):
+            resolve()
+
+        self.assertTrue(generation.is_dir())
 
     def test_source_generation_restores_export_ignored_git_entries(self) -> None:
         checkout = self.workspace.paths.repositories / "client"
@@ -2462,8 +2638,93 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(
             server_candidate["reasons"], ["corrupt_source_generation"]
         )
+        self.workspace._seal_runtime_generation(server_generation)
+        with self.workspace._resolved_profile_operation(
+            "classic",
+            {"server"},
+            "build server",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            recovered = snapshot.paths()["server"]
+        self.assertEqual(recovered.parent, server_generation)
+        self.assertEqual(
+            (server_generation / "LICENSE.md").read_text(encoding="utf-8"),
+            "test license\n",
+        )
+        quarantined = [
+            path
+            for path in server_generation.parent.iterdir()
+            if path.name.startswith(
+                f"{server_generation.name}-staging-recovery_"
+            )
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertEqual(
+            (quarantined[0] / "LICENSE.md").read_text(encoding="utf-8"),
+            "corrupt\n",
+        )
+        server_generation.chmod(0o700)
+        (server_generation / "LICENSE.md").unlink()
+        self.workspace._seal_runtime_generation(server_generation)
+        with self.workspace._resolved_profile_operation(
+            "classic",
+            {"server"},
+            "build server",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            recovered_missing_include = snapshot.paths()["server"]
+        self.assertEqual(recovered_missing_include.parent, server_generation)
+        self.assertEqual(
+            (server_generation / "LICENSE.md").read_text(encoding="utf-8"),
+            "test license\n",
+        )
+        quarantined = [
+            path
+            for path in server_generation.parent.iterdir()
+            if path.name.startswith(
+                f"{server_generation.name}-staging-recovery_"
+            )
+        ]
+        self.assertEqual(len(quarantined), 2)
+        nested_include = "cmake/AtrinikVersion.cmake"
+        nested_object = command(
+            "git",
+            "rev-parse",
+            f"HEAD:{nested_include}",
+            cwd=classic,
+        )
+        nested_parent = server_generation / "cmake"
+        nested_parent_identity = nested_parent.stat()
+        real_mount_id = workspace_module._descriptor_mount_id
 
-    def test_source_generation_reuse_rejects_coherent_missing_git_entry(self) -> None:
+        def nested_mount_id(descriptor: int) -> object:
+            opened = os.fstat(descriptor)
+            if (opened.st_dev, opened.st_ino) == (
+                nested_parent_identity.st_dev,
+                nested_parent_identity.st_ino,
+            ):
+                return ("injected", 3)
+            return real_mount_id(descriptor)
+
+        recovered_record = load_json(
+            server_generation / workspace_module.SOURCE_GENERATION_METADATA
+        )
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._descriptor_mount_id",
+                side_effect=nested_mount_id,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "mounted"),
+        ):
+            self.workspace._validate_source_generation_git_closure(
+                classic,
+                server_generation,
+                recovered_record["source_tree"],
+                recovered_record["tree"],
+                {nested_include: nested_object},
+            )
+
+    def test_source_generation_reuse_recovers_coherent_missing_git_entry(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
                 "default",
@@ -2495,10 +2756,616 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(metadata, record)
         self.workspace._seal_runtime_generation(generation)
 
-        with self.assertRaisesRegex(
-            WorkspaceError, "does not match its recorded Git tree"
+        recovered = resolve()
+        self.assertEqual(recovered, source)
+        self.assertEqual(
+            (recovered / "README").read_text(encoding="utf-8"),
+            "client\n",
+        )
+        quarantined = [
+            path
+            for path in generation.parent.iterdir()
+            if path.name.startswith(f"{generation.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertFalse((quarantined[0] / "source" / "README").exists())
+
+    def test_source_generation_reuse_recovers_writable_tree(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        target = source / "README"
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        target.chmod(0o600)
+        record = load_json(metadata)
+        record["source_tree_sha256"] = _tree_digest(
+            source,
+            set(),
+            bounded_symlinks=True,
+            reject_hardlinks=True,
+        )
+        record["closure_tree_sha256"] = workspace_module._source_closure_digest(
+            generation, record["source_includes"]
+        )
+        metadata.chmod(0o600)
+        atomic_json(metadata, record)
+        metadata.chmod(0o400)
+        generation.chmod(0o500)
+
+        recovered = resolve()
+        self.assertEqual(recovered, source)
+        self.assertFalse(recovered.stat().st_mode & 0o222)
+        self.assertFalse((recovered / "README").stat().st_mode & 0o222)
+        quarantined = [
+            path
+            for path in generation.parent.iterdir()
+            if path.name.startswith(f"{generation.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertTrue((quarantined[0] / "source").stat().st_mode & 0o222)
+        self.assertTrue(
+            (quarantined[0] / "source" / "README").stat().st_mode & 0o222
+        )
+
+    def test_source_generation_reuse_recovers_missing_metadata(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        (generation / workspace_module.SOURCE_GENERATION_METADATA).unlink()
+        generation.chmod(0o500)
+
+        recovered = resolve()
+        self.assertEqual(recovered, source)
+        self.assertTrue(
+            (generation / workspace_module.SOURCE_GENERATION_METADATA).is_file()
+        )
+        quarantined = [
+            path
+            for path in generation.parent.iterdir()
+            if path.name.startswith(f"{generation.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertFalse(
+            (
+                quarantined[0]
+                / workspace_module.SOURCE_GENERATION_METADATA
+            ).exists()
+        )
+
+    def test_source_generation_reuse_recovers_malformed_metadata(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        generation.chmod(0o700)
+        metadata.chmod(0o600)
+        metadata.write_text("{malformed\n", encoding="utf-8")
+        self.workspace._seal_runtime_generation(generation)
+
+        self.assertEqual(resolve(), source)
+        self.assertIsInstance(load_json(metadata), dict)
+
+    def test_source_generation_reuse_recovers_duplicate_metadata_keys(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        generation.chmod(0o700)
+        metadata.chmod(0o600)
+        metadata.write_text(
+            '{"schema_version": 1, "schema_version": 1}\n',
+            encoding="utf-8",
+        )
+        self.workspace._seal_runtime_generation(generation)
+
+        self.assertEqual(resolve(), source)
+        self.assertIsInstance(load_json(metadata), dict)
+
+    def test_source_generation_reuse_recovers_missing_source(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        remove_owned_tree(source)
+        self.workspace._seal_runtime_generation(generation)
+
+        recovered = resolve()
+        self.assertEqual(recovered, source)
+        self.assertTrue((recovered / "README").is_file())
+
+    def test_source_generation_quarantine_rejects_nested_mount(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        (generation / workspace_module.SOURCE_GENERATION_METADATA).unlink()
+        nested = generation / "nested-mount"
+        nested.mkdir()
+        nested_identity = nested.stat()
+        self.workspace._seal_runtime_generation(generation)
+        real_mount_id = workspace_module._descriptor_mount_id
+
+        def mount_id(descriptor: int) -> object:
+            opened = os.fstat(descriptor)
+            if (opened.st_dev, opened.st_ino) == (
+                nested_identity.st_dev,
+                nested_identity.st_ino,
+            ):
+                return ("injected", 2)
+            return real_mount_id(descriptor)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._descriptor_mount_id",
+                side_effect=mount_id,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "corrupt and cannot be recovered safely"
+            ),
         ):
             resolve()
+
+        self.assertTrue(generation.is_dir())
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
+        )
+
+    @unittest.skipUnless(
+        hasattr(os, "mkfifo") and hasattr(os, "O_PATH"),
+        "requires POSIX FIFO path descriptors",
+    )
+    def test_source_generation_quarantine_rejects_mounted_special_entry(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        (generation / workspace_module.SOURCE_GENERATION_METADATA).unlink()
+        self.workspace._seal_runtime_generation(generation)
+        generation.chmod(0o700)
+        special = generation / "mounted-fifo"
+        os.mkfifo(special)
+        special_identity = special.lstat()
+        generation.chmod(0o500)
+        real_mount_id = workspace_module._descriptor_mount_id
+
+        def mount_id(descriptor: int) -> object:
+            opened = os.fstat(descriptor)
+            if (opened.st_dev, opened.st_ino) == (
+                special_identity.st_dev,
+                special_identity.st_ino,
+            ):
+                return ("injected", 4)
+            return real_mount_id(descriptor)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace._descriptor_mount_id",
+                side_effect=mount_id,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "corrupt and cannot be recovered safely"
+            ),
+        ):
+            resolve()
+
+        self.assertTrue(generation.is_dir())
+        self.assertTrue(stat.S_ISFIFO(special.lstat().st_mode))
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
+        )
+
+    def test_source_generation_quarantine_rolls_back_child_swap(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        (generation / workspace_module.SOURCE_GENERATION_METADATA).unlink()
+        self.workspace._seal_runtime_generation(generation)
+        real_rename = workspace_module.rename_no_replace_at
+        swapped = False
+
+        def swap_after_quarantine(
+            source_directory_fd: int,
+            source_name: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            nonlocal swapped
+            real_rename(
+                source_directory_fd,
+                source_name,
+                destination_directory_fd,
+                destination,
+            )
+            if "-staging-recovery_" in destination:
+                quarantined = generation.parent / destination
+                quarantined_source = quarantined / "source"
+                target = quarantined_source / "README"
+                payload = target.read_bytes()
+                mode = stat.S_IMODE(target.stat().st_mode)
+                quarantined.chmod(0o700)
+                quarantined_source.chmod(0o700)
+                target.unlink()
+                target.write_bytes(payload)
+                target.chmod(mode)
+                quarantined_source.chmod(0o500)
+                quarantined.chmod(0o500)
+                swapped = True
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=swap_after_quarantine,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "corrupt and cannot be recovered safely"
+            ),
+        ):
+            resolve()
+
+        self.assertTrue(swapped)
+        self.assertTrue(generation.is_dir())
+        self.assertFalse(
+            any(
+                path.name.startswith(f"{generation.name}-staging-recovery_")
+                for path in generation.parent.iterdir()
+            )
+        )
+
+    def test_source_generation_recovery_serializes_concurrent_consumers(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["resources"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        (source / "runtime-paths.txt").unlink()
+        self.workspace._seal_runtime_generation(generation)
+        extracted = threading.Event()
+        release = threading.Event()
+        real_extract = self.workspace._extract_git_source_archive
+        calls = 0
+        guard = threading.Lock()
+
+        def pause_recovery(
+            archive: Path | int,
+            output: Path,
+            *,
+            existing_output: bool = False,
+        ) -> None:
+            nonlocal calls
+            with guard:
+                calls += 1
+                first = calls == 1
+            if first:
+                extracted.set()
+                self.assertTrue(release.wait(10))
+            real_extract(archive, output, existing_output=existing_output)
+
+        with mock.patch.object(
+            self.workspace,
+            "_extract_git_source_archive",
+            side_effect=pause_recovery,
+        ):
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                consumers = [executor.submit(resolve) for _unused in range(2)]
+                self.assertTrue(extracted.wait(10))
+                self.assertFalse(generation.exists())
+                self.assertFalse(any(consumer.done() for consumer in consumers))
+                staging = [
+                    path
+                    for path in generation.parent.iterdir()
+                    if path.name.startswith(f"{generation.name}-staging-")
+                    and not path.name.startswith(
+                        f"{generation.name}-staging-recovery_"
+                    )
+                ]
+                self.assertEqual(len(staging), 1)
+                self.assertFalse((staging[0] / MANAGED_MARKER).exists())
+                self.assertFalse(
+                    (
+                        staging[0]
+                        / workspace_module.SOURCE_GENERATION_METADATA
+                    ).exists()
+                )
+                quarantined = [
+                    path
+                    for path in generation.parent.iterdir()
+                    if path.name.startswith(
+                        f"{generation.name}-staging-recovery_"
+                    )
+                ]
+                self.assertEqual(len(quarantined), 1)
+                self.assertFalse(
+                    (quarantined[0] / "source" / "runtime-paths.txt").exists()
+                )
+                release.set()
+                recovered = [consumer.result(timeout=10) for consumer in consumers]
+
+        self.assertEqual(recovered, [source, source])
+        self.assertEqual(calls, 1)
+        self.assertTrue((source / "runtime-paths.txt").is_file())
+
+    def test_source_generation_rebuilds_when_removed_before_shared_admission(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["resources"]
+
+        source = resolve()
+        generation = source.parent
+        displaced = generation.with_name(f"{generation.name}-removed")
+        generation_lock = (
+            self.workspace.paths.builds
+            / "locks"
+            / f"source-generation-{generation.name}.lock"
+        )
+        real_shared_lock = workspace_module.shared_lock
+        removed = False
+
+        def remove_before_shared_admission(
+            lock: Path, operation: str
+        ) -> object:
+            nonlocal removed
+            if lock == generation_lock and not removed:
+                generation.rename(displaced)
+                removed = True
+            return real_shared_lock(lock, operation)
+
+        with mock.patch(
+            "atrinik_workspace.workspace.shared_lock",
+            side_effect=remove_before_shared_admission,
+        ):
+            rebuilt = resolve()
+
+        self.assertTrue(removed)
+        self.assertEqual(rebuilt.parent, generation)
+        self.assertTrue((rebuilt / "runtime-paths.txt").is_file())
+        self.assertTrue(displaced.is_dir())
+
+    def test_source_generation_admission_preserves_inspection_uncertainty(
+        self,
+    ) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["resources"]
+
+        source = resolve()
+        generation = source.parent
+        original_lstat = Path.lstat
+
+        def fail_generation_inspection(path: Path) -> os.stat_result:
+            if path == generation:
+                raise PermissionError("injected generation inspection failure")
+            return original_lstat(path)
+
+        with (
+            mock.patch.object(
+                Path, "lstat", autospec=True, side_effect=fail_generation_inspection
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_extract_git_source_archive",
+                wraps=self.workspace._extract_git_source_archive,
+            ) as extract,
+            self.assertRaisesRegex(
+                WorkspaceError, "cannot inspect immutable source generation"
+            ),
+        ):
+            resolve()
+
+        extract.assert_not_called()
+        self.assertTrue(generation.is_dir())
+        self.assertTrue((generation / "source" / "runtime-paths.txt").is_file())
+
+    def test_server_build_recovers_incomplete_resources_at_cmake_boundary(
+        self,
+    ) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["resources"]
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        (source / "runtime-paths.txt").unlink()
+        record = load_json(metadata)
+        record["source_tree_sha256"] = _tree_digest(
+            source,
+            set(),
+            bounded_symlinks=True,
+            reject_hardlinks=True,
+        )
+        metadata.chmod(0o600)
+        atomic_json(metadata, record)
+        self.workspace._seal_runtime_generation(generation)
+        configure_calls: list[tuple[Path, Path, list[str], bool]] = []
+
+        def collect_content(
+            root: Path,
+            _selected: dict[str, Path],
+            _profile_name: str,
+        ) -> Path:
+            output = root / "runtime" / "content"
+            (output / "lib").mkdir(parents=True)
+            (output / "maps").mkdir()
+            return output
+
+        def configure_server(
+            cmake_source: Path,
+            cmake_binary: Path,
+            arguments: list[str],
+            tests: bool,
+        ) -> None:
+            configure_calls.append(
+                (cmake_source, cmake_binary, arguments, tests)
+            )
+            self.assertTrue(
+                (cmake_source / "resources" / "paintings").is_dir()
+            )
+
+        def prepare_server_view(
+            root: Path,
+            _role: str,
+            _source: Path,
+            _exclusions: set[str],
+            _copied_directories: set[str] | None = None,
+            copy_all: bool = False,
+            preserved_entries: set[str] | None = None,
+        ) -> Path:
+            if _role == "server":
+                self.assertFalse(copy_all)
+                self.assertEqual(
+                    preserved_entries,
+                    {
+                        "runtime",
+                        "resources",
+                        workspace_module.SOURCE_INCLUDE_VIEW_METADATA,
+                    },
+                )
+            view = root / "sources" / _role
+            view.mkdir(parents=True, exist_ok=True)
+            return view
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_collect_content",
+                side_effect=collect_content,
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_cmake",
+                side_effect=configure_server,
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_profile_source_view",
+                side_effect=prepare_server_view,
+            ),
+            mock.patch.object(self.workspace, "_generate_region_maps"),
+        ):
+            build_root = self.workspace.build(
+                "server",
+                "default",
+                True,
+                use_ccache=False,
+            )
+
+        self.assertEqual(len(configure_calls), 1)
+        self.assertEqual(configure_calls[0][0], build_root / "sources" / "server")
+        self.assertEqual(configure_calls[0][1], build_root / "build" / "server")
+        self.assertIn("-DENABLE_PYTHON_PLUGIN=ON", configure_calls[0][2])
+        self.assertTrue(configure_calls[0][3])
+        self.assertTrue((source / "runtime-paths.txt").is_file())
+        quarantined = [
+            path
+            for path in generation.parent.iterdir()
+            if path.name.startswith(f"{generation.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertFalse(
+            (quarantined[0] / "source" / "runtime-paths.txt").exists()
+        )
 
     def test_source_generation_git_tree_ignores_replacement_objects(self) -> None:
         def resolve() -> Path:
@@ -3376,7 +4243,7 @@ class WorkspaceTests(unittest.TestCase):
                     states["client"],
                 )
 
-    def test_source_generation_rejects_external_hard_link(self) -> None:
+    def test_source_generation_recovers_external_hard_link(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
                 "default",
@@ -3387,6 +4254,7 @@ class WorkspaceTests(unittest.TestCase):
                 return snapshot.paths()["client"]
 
         source = resolve()
+        generation = source.parent
         target = source / "README"
         external = self.root / "external-hard-link"
         external.write_bytes(target.read_bytes())
@@ -3400,23 +4268,93 @@ class WorkspaceTests(unittest.TestCase):
         source.chmod(source_mode)
         source.parent.chmod(generation_mode)
 
-        with self.assertRaisesRegex(WorkspaceError, "hard-linked file"):
-            resolve()
+        recovered = resolve()
+        self.assertEqual(recovered, source)
+        self.assertEqual(
+            (recovered / "README").read_text(encoding="utf-8"),
+            "client\n",
+        )
+        self.assertEqual((recovered / "README").stat().st_nlink, 1)
+        quarantined = [
+            path
+            for path in generation.parent.iterdir()
+            if path.name.startswith(f"{generation.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertEqual(
+            (quarantined[0] / "source" / "README").stat().st_nlink,
+            2,
+        )
 
         report = self.workspace.cleanup(["builds"], 0, [], False)
         item = next(
             row
             for row in report["items"]
-            if row["kind"] == "source-generation"
+            if row["path"] == str(quarantined[0])
         )
+        self.assertEqual(item["kind"], "source-generation-transaction")
         self.assertEqual(item["disposition"], "eligible")
-        self.assertEqual(item["reasons"], ["corrupt_source_generation"])
+        self.assertEqual(
+            item["reasons"],
+            ["stale_source_generation_transaction"],
+        )
+        self.assertTrue(quarantined[0].exists())
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "requires POSIX FIFOs")
+    def test_source_generation_recovers_unsupported_special_entry(self) -> None:
+        def resolve() -> Path:
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                return snapshot.paths()["client"]
+
+        source = resolve()
+        generation = source.parent
+        generation.chmod(0o700)
+        source.chmod(0o700)
+        os.mkfifo(source / "unexpected-fifo")
+        source.chmod(0o500)
+        generation.chmod(0o500)
+
+        recovered = resolve()
+        self.assertEqual(recovered, source)
+        quarantined = [
+            path
+            for path in generation.parent.iterdir()
+            if path.name.startswith(f"{generation.name}-staging-recovery_")
+        ]
+        self.assertEqual(len(quarantined), 1)
+        self.assertTrue(
+            stat.S_ISFIFO(
+                (quarantined[0] / "source" / "unexpected-fifo").lstat().st_mode
+            )
+        )
 
     def test_source_generation_publication_failure_leaves_no_partial_generation(self) -> None:
+        real_rename = workspace_module.rename_no_replace_at
+
+        def fail_publication(
+            source_directory_fd: int,
+            source: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            if re.fullmatch(r"[0-9a-f]{64}", destination):
+                raise WorkspaceError("injected publication failure")
+            real_rename(
+                source_directory_fd,
+                source,
+                destination_directory_fd,
+                destination,
+            )
+
         with (
             mock.patch(
-                "atrinik_workspace.workspace.rename_no_replace",
-                side_effect=WorkspaceError("injected publication failure"),
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=fail_publication,
             ),
             self.assertRaisesRegex(WorkspaceError, "injected publication failure"),
         ):
@@ -3439,13 +4377,26 @@ class WorkspaceTests(unittest.TestCase):
         )
 
     def test_source_generation_is_sealed_before_atomic_publication(self) -> None:
-        def publish_then_interrupt(source: Path, destination: Path) -> None:
-            real_rename_no_replace(source, destination)
-            raise WorkspaceError("injected post-publication interruption")
+        real_rename = workspace_module.rename_no_replace_at
+
+        def publish_then_interrupt(
+            source_directory_fd: int,
+            source: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            real_rename(
+                source_directory_fd,
+                source,
+                destination_directory_fd,
+                destination,
+            )
+            if re.fullmatch(r"[0-9a-f]{64}", destination):
+                raise WorkspaceError("injected post-publication interruption")
 
         with (
             mock.patch(
-                "atrinik_workspace.workspace.rename_no_replace",
+                "atrinik_workspace.workspace.rename_no_replace_at",
                 side_effect=publish_then_interrupt,
             ),
             self.assertRaisesRegex(
@@ -3468,6 +4419,667 @@ class WorkspaceTests(unittest.TestCase):
         ) as snapshot:
             generation = snapshot.paths()["resources"].parent
             self.assertFalse(stat.S_IMODE(generation.stat().st_mode) & 0o222)
+
+    def test_source_generation_is_durable_before_atomic_publication(self) -> None:
+        observed = False
+
+        def interrupt_after_sync(staging: Path) -> None:
+            nonlocal observed
+            observed = True
+            container = staging.parent
+            key = staging.name.split("-staging-", 1)[0]
+            self.assertFalse((container / key).exists())
+            self.assertTrue((staging / "source" / "runtime-paths.txt").is_file())
+            self.assertTrue(
+                (staging / workspace_module.SOURCE_GENERATION_METADATA).is_file()
+            )
+            self.assertFalse(stat.S_IMODE(staging.stat().st_mode) & 0o222)
+            raise WorkspaceError("injected post-durability interruption")
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=interrupt_after_sync,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "post-durability interruption"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("interrupted source generation was yielded")
+
+        self.assertTrue(observed)
+        container = self.workspace.paths.builds / "source-generations" / "resources"
+        self.assertEqual(
+            [path.name for path in container.iterdir() if path.name != MANAGED_MARKER],
+            [],
+        )
+
+    def test_source_generation_fsyncs_tree_before_publication_and_container_after(
+        self,
+    ) -> None:
+        events: list[str] = []
+        syncing = False
+        real_sync = self.workspace._durably_sync_source_generation
+        real_fsync = os.fsync
+        real_rename = workspace_module.rename_no_replace_at
+        container = self.workspace.paths.builds / "source-generations" / "resources"
+
+        def observe_sync(staging: Path) -> tuple[int, int, str]:
+            nonlocal syncing
+            syncing = True
+            identity = real_sync(staging)
+            events.append("tree-synced")
+            return identity
+
+        def observe_fsync(descriptor: int) -> None:
+            if syncing:
+                metadata = os.fstat(descriptor)
+                if container.is_dir() and (
+                    metadata.st_dev,
+                    metadata.st_ino,
+                ) == (
+                    container.stat().st_dev,
+                    container.stat().st_ino,
+                ):
+                    events.append("container-fsync")
+                else:
+                    events.append(
+                        "directory-fsync"
+                        if stat.S_ISDIR(metadata.st_mode)
+                        else "file-fsync"
+                    )
+            real_fsync(descriptor)
+
+        def observe_rename(
+            source_directory_fd: int,
+            source: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            if re.fullmatch(r"[0-9a-f]{64}", destination):
+                events.append("published")
+            real_rename(
+                source_directory_fd,
+                source,
+                destination_directory_fd,
+                destination,
+            )
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=observe_sync,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=observe_fsync,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=observe_rename,
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot:
+                self.assertTrue(snapshot.paths()["resources"].is_dir())
+
+        publication = events.index("published")
+        self.assertEqual(events[publication - 1], "tree-synced")
+        self.assertIn("file-fsync", events[:publication])
+        self.assertIn("directory-fsync", events[:publication])
+        after_publication = events[publication + 1 :]
+        container_flush = after_publication.index("container-fsync")
+        self.assertIn("file-fsync", after_publication[:container_flush])
+        self.assertIn("directory-fsync", after_publication[:container_flush])
+
+    def test_source_generation_durability_rejects_unsafe_entries_and_io(
+        self,
+    ) -> None:
+        hardlinks = self.root / "durability-hardlinks"
+        hardlinks.mkdir()
+        target = hardlinks / "target"
+        target.write_text("payload\n", encoding="utf-8")
+        os.link(target, hardlinks / "alias")
+        target.chmod(0o400)
+        hardlinks.chmod(0o500)
+        with self.assertRaisesRegex(
+            WorkspaceError, "unsafe file"
+        ):
+            self.workspace._durably_sync_source_generation(hardlinks)
+
+        if hasattr(os, "mkfifo"):
+            special = self.root / "durability-special"
+            special.mkdir()
+            os.mkfifo(special / "fifo")
+            special.chmod(0o500)
+            with self.assertRaisesRegex(WorkspaceError, "special entry"):
+                self.workspace._durably_sync_source_generation(special)
+
+        unreadable = self.root / "durability-unreadable"
+        unreadable.mkdir()
+        unreadable.chmod(0o500)
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.listdir",
+                side_effect=OSError("injected inventory failure"),
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "cannot inventory source generation durability"
+            ),
+        ):
+            self.workspace._durably_sync_source_generation(unreadable)
+
+        unsynced = self.root / "durability-unsynced"
+        unsynced.mkdir()
+        unsynced.chmod(0o500)
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=OSError("injected directory fsync failure"),
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "cannot make source generation durable"
+            ),
+        ):
+            self.workspace._durably_sync_source_generation(unsynced)
+
+    def test_source_generation_rejects_change_after_durability_before_publication(
+        self,
+    ) -> None:
+        real_sync = self.workspace._durably_sync_source_generation
+
+        def mutate_after_sync(staging: Path) -> tuple[int, int, str]:
+            identity = real_sync(staging)
+            source = staging / "source"
+            target = source / "runtime-paths.txt"
+            source.chmod(0o700)
+            target.chmod(0o600)
+            target.write_text("changed after durability\n", encoding="utf-8")
+            return identity
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=mutate_after_sync,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "does not match its recorded Git tree"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("changed source generation was yielded")
+
+        container = self.workspace.paths.builds / "source-generations" / "resources"
+        self.assertEqual(
+            [path.name for path in container.iterdir() if path.name != MANAGED_MARKER],
+            [],
+        )
+
+    def test_source_generation_rejects_metadata_change_after_durability(self) -> None:
+        real_sync = self.workspace._durably_sync_source_generation
+
+        def mutate_after_sync(staging: Path) -> tuple[int, int, str]:
+            identity = real_sync(staging)
+            metadata = staging / workspace_module.SOURCE_GENERATION_METADATA
+            staging.chmod(0o700)
+            metadata.chmod(0o600)
+            metadata.write_text("{}\n", encoding="utf-8")
+            return identity
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=mutate_after_sync,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed after durability"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("changed source generation was yielded")
+
+    def test_source_generation_rejects_restored_change_after_durability(
+        self,
+    ) -> None:
+        real_sync = self.workspace._durably_sync_source_generation
+
+        def mutate_and_restore(staging: Path) -> tuple[int, int, str]:
+            identity = real_sync(staging)
+            target = staging / "source" / "runtime-paths.txt"
+            original = target.read_bytes()
+            mode = stat.S_IMODE(target.stat().st_mode)
+            target.chmod(0o600)
+            target.write_bytes(b"temporary unflushed change\n")
+            target.write_bytes(original)
+            target.chmod(mode)
+            return identity
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=mutate_and_restore,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "changed after durability"),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("restored but unflushed generation was yielded")
+
+    def test_source_generation_rejects_nested_mount_before_publication(
+        self,
+    ) -> None:
+        real_sync = self.workspace._durably_sync_source_generation
+        real_mount_id = workspace_module._descriptor_mount_id
+        durable = False
+        metadata_identity: tuple[int, int] | None = None
+
+        def observe_sync(staging: Path) -> tuple[int, int, str]:
+            nonlocal durable, metadata_identity
+            identity = real_sync(staging)
+            metadata = (staging / workspace_module.SOURCE_GENERATION_METADATA).stat()
+            metadata_identity = (metadata.st_dev, metadata.st_ino)
+            durable = True
+            return identity
+
+        def mount_id(descriptor: int) -> object:
+            opened = os.fstat(descriptor)
+            if durable and metadata_identity == (opened.st_dev, opened.st_ino):
+                return ("injected", 2)
+            return real_mount_id(descriptor)
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=observe_sync,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace._descriptor_mount_id",
+                side_effect=mount_id,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "mount"),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("mounted source generation was yielded")
+
+    def test_source_generation_rejects_root_replacement_before_publication(
+        self,
+    ) -> None:
+        real_sync = self.workspace._durably_sync_source_generation
+
+        def report_wrong_identity(staging: Path) -> tuple[int, int, str]:
+            device, inode, inventory = real_sync(staging)
+            return device, inode + 1, inventory
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_sync_source_generation",
+                side_effect=report_wrong_identity,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed before publication"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("replaced source generation was yielded")
+
+    def test_source_generation_rejects_entry_swap_after_final_inventory(
+        self,
+    ) -> None:
+        real_inventory = self.workspace._source_generation_inventory
+        swapped = False
+
+        def swap_after_inventory(
+            root_fd: int,
+            root: Path,
+            *,
+            sync: bool,
+            allow_unsafe: bool,
+        ) -> str:
+            nonlocal swapped
+            inventory = real_inventory(
+                root_fd,
+                root,
+                sync=sync,
+                allow_unsafe=allow_unsafe,
+            )
+            if not sync and not allow_unsafe and not swapped:
+                swapped = True
+                root.rename(root.with_name(f"{root.name}-displaced"))
+                root.mkdir()
+            return inventory
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_source_generation_inventory",
+                side_effect=swap_after_inventory,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed before publication"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("swapped source generation was yielded")
+
+        self.assertTrue(swapped)
+        container = self.workspace.paths.builds / "source-generations" / "resources"
+        self.assertFalse(
+            any(re.fullmatch(r"[0-9a-f]{64}", path.name) for path in container.iterdir())
+        )
+        replacements = [
+            path
+            for path in container.iterdir()
+            if "-staging-" in path.name and not path.name.endswith("-displaced")
+        ]
+        displaced = [
+            path for path in container.iterdir() if path.name.endswith("-displaced")
+        ]
+        self.assertEqual(len(replacements), 1)
+        self.assertEqual(len(displaced), 1)
+
+    def test_source_generation_rejects_entry_swap_during_publication(self) -> None:
+        real_rename = workspace_module.rename_no_replace_at
+        swapped = False
+        container = self.workspace.paths.builds / "source-generations" / "resources"
+
+        def swap_published_entry(
+            source_directory_fd: int,
+            source: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            nonlocal swapped
+            real_rename(
+                source_directory_fd,
+                source,
+                destination_directory_fd,
+                destination,
+            )
+            if re.fullmatch(r"[0-9a-f]{64}", destination):
+                generation = container / destination
+                source_root = generation / "source"
+                target = source_root / "runtime-paths.txt"
+                original = target.stat()
+                generation_mode = stat.S_IMODE(generation.stat().st_mode)
+                source_mode = stat.S_IMODE(source_root.stat().st_mode)
+                payload = target.read_bytes()
+                mode = stat.S_IMODE(target.stat().st_mode)
+                generation.chmod(0o700)
+                source_root.chmod(0o700)
+                target.unlink()
+                target.write_bytes(payload)
+                target.chmod(mode)
+                os.utime(
+                    target,
+                    ns=(original.st_atime_ns, original.st_mtime_ns),
+                )
+                source_root.chmod(source_mode)
+                generation.chmod(generation_mode)
+                swapped = True
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=swap_published_entry,
+            ),
+            self.assertRaisesRegex(
+                workspace_module.AtomicJsonCommitUncertain,
+                "changed after durable publication",
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("swapped source generation was yielded")
+
+        self.assertTrue(swapped)
+        self.assertEqual(
+            len(
+                [
+                    path
+                    for path in container.iterdir()
+                    if re.fullmatch(r"[0-9a-f]{64}", path.name)
+                ]
+            ),
+            1,
+        )
+        retry_syncs: list[Path] = []
+        real_sync = self.workspace._durably_sync_source_generation
+        real_fsync = os.fsync
+        container_status = container.stat()
+        container_synced = False
+
+        def observe_retry_sync(generation: Path) -> tuple[int, int, str]:
+            retry_syncs.append(generation)
+            return real_sync(generation)
+
+        def observe_retry_fsync(descriptor: int) -> None:
+            nonlocal container_synced
+            opened = os.fstat(descriptor)
+            if (opened.st_dev, opened.st_ino) == (
+                container_status.st_dev,
+                container_status.st_ino,
+            ):
+                container_synced = True
+            real_fsync(descriptor)
+
+        with (
+            mock.patch.object(
+                workspace_module.Workspace,
+                "_durably_sync_source_generation",
+                side_effect=observe_retry_sync,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=observe_retry_fsync,
+            ),
+            self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ) as snapshot,
+        ):
+            self.assertTrue(snapshot.paths()["resources"].is_dir())
+        self.assertTrue(retry_syncs)
+        self.assertTrue(container_synced)
+
+    def test_source_generation_syncs_restored_root_entry_at_publication(
+        self,
+    ) -> None:
+        real_inventory = self.workspace._source_generation_inventory
+        real_fsync = os.fsync
+        prepared = False
+        mutated = False
+        root_identity: tuple[int, int] | None = None
+        root_synced = False
+
+        def mutate_root_before_final_sync(
+            root_fd: int,
+            root: Path,
+            *,
+            sync: bool,
+            allow_unsafe: bool,
+        ) -> str:
+            nonlocal prepared, mutated, root_identity
+            is_generation = bool(re.fullmatch(r"[0-9a-f]{64}", root.name))
+            if sync and (not prepared or (is_generation and not mutated)):
+                original = os.fstat(root_fd)
+                os.fchmod(root_fd, 0o700)
+                descriptor = os.open(
+                    "transient-root-entry",
+                    os.O_WRONLY
+                    | os.O_CLOEXEC
+                    | os.O_CREAT
+                    | os.O_EXCL
+                    | os.O_NOFOLLOW,
+                    0o600,
+                    dir_fd=root_fd,
+                )
+                os.close(descriptor)
+                os.unlink("transient-root-entry", dir_fd=root_fd)
+                os.utime(
+                    root,
+                    ns=(original.st_atime_ns, original.st_mtime_ns),
+                )
+                os.fchmod(root_fd, stat.S_IMODE(original.st_mode))
+                if is_generation:
+                    root_identity = (original.st_dev, original.st_ino)
+                    mutated = True
+                else:
+                    prepared = True
+            return real_inventory(
+                root_fd,
+                root,
+                sync=sync,
+                allow_unsafe=allow_unsafe,
+            )
+
+        def observe_root_fsync(descriptor: int) -> None:
+            nonlocal root_synced
+            opened = os.fstat(descriptor)
+            if mutated and root_identity == (opened.st_dev, opened.st_ino):
+                root_synced = True
+            real_fsync(descriptor)
+
+        try:
+            with (
+                mock.patch.object(
+                    workspace_module.Workspace,
+                    "_source_generation_inventory",
+                    side_effect=mutate_root_before_final_sync,
+                ),
+                mock.patch(
+                    "atrinik_workspace.workspace.os.fsync",
+                    side_effect=observe_root_fsync,
+                ),
+                self.workspace._resolved_profile_operation(
+                    "default",
+                    {"resources"},
+                    "build resources",
+                    materialize_clean_primaries=True,
+                ) as snapshot,
+            ):
+                self.assertTrue(snapshot.paths()["resources"].is_dir())
+        except workspace_module.AtomicJsonCommitUncertain as error:
+            self.assertIn("changed after durable publication", str(error))
+        self.assertTrue(prepared)
+        self.assertTrue(mutated)
+        self.assertTrue(root_synced)
+
+    def test_source_generation_reports_container_fsync_uncertainty(self) -> None:
+        published = False
+        real_fsync = os.fsync
+        real_rename = workspace_module.rename_no_replace_at
+        container = self.workspace.paths.builds / "source-generations" / "resources"
+
+        def observe_rename(
+            source_directory_fd: int,
+            source: str,
+            destination_directory_fd: int,
+            destination: str,
+        ) -> None:
+            nonlocal published
+            real_rename(
+                source_directory_fd,
+                source,
+                destination_directory_fd,
+                destination,
+            )
+            if re.fullmatch(r"[0-9a-f]{64}", destination):
+                published = True
+
+        def fail_container_fsync(descriptor: int) -> None:
+            opened = os.fstat(descriptor)
+            if published and container.is_dir() and (
+                opened.st_dev,
+                opened.st_ino,
+            ) == (
+                container.stat().st_dev,
+                container.stat().st_ino,
+            ):
+                raise OSError("injected container fsync uncertainty")
+            real_fsync(descriptor)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.rename_no_replace_at",
+                side_effect=observe_rename,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=fail_container_fsync,
+            ),
+            self.assertRaisesRegex(
+                workspace_module.AtomicJsonCommitUncertain,
+                "container durability is uncertain",
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"resources"},
+                "build resources",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("uncertain source generation was yielded")
+
+        self.assertTrue(published)
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"resources"},
+            "build resources",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            self.assertTrue(snapshot.paths()["resources"].is_dir())
 
     def test_source_generation_rejects_checkout_change_during_staging(self) -> None:
         primary = self.workspace.paths.repositories / "client"
@@ -3533,6 +5145,281 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 self.fail("removed source generation was yielded")
         self.assertTrue(cleanup_ran)
+
+    def test_source_generation_handoff_rejects_newly_writable_tree(self) -> None:
+        real_validate = self.workspace._validate_source_generation_git_closure
+        mutated = False
+
+        def make_writable_before_handoff(
+            checkout: Path,
+            generation: Path,
+            source_tree: str,
+            root_tree: str,
+            source_includes: dict[str, str],
+        ) -> None:
+            nonlocal mutated
+            if re.fullmatch(r"[0-9a-f]{64}", generation.name) and not mutated:
+                source = generation / "source"
+                generation.chmod(0o700)
+                source.chmod(0o700)
+                (source / "README").chmod(0o600)
+                mutated = True
+            real_validate(
+                checkout,
+                generation,
+                source_tree,
+                root_tree,
+                source_includes,
+            )
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_validate_source_generation_git_closure",
+                side_effect=make_writable_before_handoff,
+            ),
+            self.assertRaisesRegex(WorkspaceError, "writable"),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("writable source generation was yielded")
+        self.assertTrue(mutated)
+
+    def test_source_generation_handoff_syncs_replaced_identical_entry(self) -> None:
+        real_shared_lock = shared_lock
+        real_fsync = os.fsync
+        mutated_identity: tuple[int, int] | None = None
+        mutated_entry_synced = False
+
+        def replace_before_handoff(path: Path, description: str):
+            nonlocal mutated_identity
+            if "source-generation-" in path.name and mutated_identity is None:
+                container = (
+                    self.workspace.paths.builds
+                    / "source-generations"
+                    / "client"
+                )
+                generation = next(
+                    child
+                    for child in container.iterdir()
+                    if re.fullmatch(r"[0-9a-f]{64}", child.name)
+                )
+                source = generation / "source"
+                target = source / "README"
+                original = target.stat()
+                generation_mode = stat.S_IMODE(generation.stat().st_mode)
+                source_mode = stat.S_IMODE(source.stat().st_mode)
+                payload = target.read_bytes()
+                mode = stat.S_IMODE(target.stat().st_mode)
+                generation.chmod(0o700)
+                source.chmod(0o700)
+                target.unlink()
+                target.write_bytes(payload)
+                target.chmod(mode)
+                os.utime(
+                    target,
+                    ns=(original.st_atime_ns, original.st_mtime_ns),
+                )
+                replaced = target.stat()
+                mutated_identity = (replaced.st_dev, replaced.st_ino)
+                source.chmod(source_mode)
+                generation.chmod(generation_mode)
+            return real_shared_lock(path, description)
+
+        def observe_fsync(descriptor: int) -> None:
+            nonlocal mutated_entry_synced
+            opened = os.fstat(descriptor)
+            if mutated_identity == (opened.st_dev, opened.st_ino):
+                mutated_entry_synced = True
+            real_fsync(descriptor)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.shared_lock",
+                side_effect=replace_before_handoff,
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=observe_fsync,
+            ),
+            self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ) as snapshot,
+        ):
+            self.assertTrue(snapshot.paths()["client"].is_dir())
+        self.assertIsNotNone(mutated_identity)
+        self.assertTrue(mutated_entry_synced)
+
+    def test_source_generation_handoff_rejects_swap_at_container_fsync(
+        self,
+    ) -> None:
+        real_fsync = os.fsync
+        container = self.workspace.paths.builds / "source-generations" / "client"
+        container_fsyncs = 0
+        swapped = False
+
+        def swap_before_handoff_container_fsync(descriptor: int) -> None:
+            nonlocal container_fsyncs, swapped
+            opened = os.fstat(descriptor)
+            if container.is_dir():
+                container_status = container.stat()
+                if (opened.st_dev, opened.st_ino) == (
+                    container_status.st_dev,
+                    container_status.st_ino,
+                ):
+                    container_fsyncs += 1
+                    if container_fsyncs == 2:
+                        generation = next(
+                            child
+                            for child in container.iterdir()
+                            if re.fullmatch(r"[0-9a-f]{64}", child.name)
+                        )
+                        source = generation / "source"
+                        target = source / "README"
+                        original = target.stat()
+                        generation_mode = stat.S_IMODE(generation.stat().st_mode)
+                        source_mode = stat.S_IMODE(source.stat().st_mode)
+                        payload = target.read_bytes()
+                        mode = stat.S_IMODE(original.st_mode)
+                        generation.chmod(0o700)
+                        source.chmod(0o700)
+                        target.unlink()
+                        target.write_bytes(payload)
+                        target.chmod(mode)
+                        os.utime(
+                            target,
+                            ns=(original.st_atime_ns, original.st_mtime_ns),
+                        )
+                        source.chmod(source_mode)
+                        generation.chmod(generation_mode)
+                        swapped = True
+            real_fsync(descriptor)
+
+        with (
+            mock.patch(
+                "atrinik_workspace.workspace.os.fsync",
+                side_effect=swap_before_handoff_container_fsync,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed during durable retry"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("unflushed replacement was yielded")
+        self.assertTrue(swapped)
+
+    def test_source_generation_handoff_binds_terminal_sync_to_validation(
+        self,
+    ) -> None:
+        real_resync = self.workspace._durably_resync_source_generation
+        mutated = False
+
+        def mutate_before_terminal_sync(
+            generation: Path,
+            *,
+            expected_inventory: str | None = None,
+        ) -> None:
+            nonlocal mutated
+            if re.fullmatch(r"[0-9a-f]{64}", generation.name) and not mutated:
+                source = generation / "source"
+                target = source / "README"
+                generation_mode = stat.S_IMODE(generation.stat().st_mode)
+                source_mode = stat.S_IMODE(source.stat().st_mode)
+                target_mode = stat.S_IMODE(target.stat().st_mode)
+                generation.chmod(0o700)
+                source.chmod(0o700)
+                target.chmod(0o600)
+                target.write_text("corrupt after validation\n", encoding="utf-8")
+                target.chmod(target_mode)
+                source.chmod(source_mode)
+                generation.chmod(generation_mode)
+                mutated = True
+            real_resync(
+                generation,
+                expected_inventory=expected_inventory,
+            )
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_durably_resync_source_generation",
+                side_effect=mutate_before_terminal_sync,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed before durable retry"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("post-validation corruption was yielded")
+        self.assertTrue(mutated)
+
+    def test_source_generation_handoff_binds_terminal_sync_to_visible_path(
+        self,
+    ) -> None:
+        real_inventory = workspace_module.Workspace._source_generation_inventory
+        canonical_syncs: dict[Path, int] = {}
+        swapped = False
+
+        def swap_visible_path_after_terminal_sync(
+            root_fd: int,
+            root: Path,
+            *,
+            sync: bool,
+            allow_unsafe: bool,
+        ) -> str:
+            nonlocal swapped
+            inventory = real_inventory(
+                root_fd,
+                root,
+                sync=sync,
+                allow_unsafe=allow_unsafe,
+            )
+            if sync and re.fullmatch(r"[0-9a-f]{64}", root.name):
+                canonical_syncs[root] = canonical_syncs.get(root, 0) + 1
+                if canonical_syncs[root] == 4 and not swapped:
+                    replacement = root.with_name(f"{root.name}-replacement")
+                    displaced = root.with_name(f"{root.name}-displaced")
+                    shutil.copytree(root, replacement, symlinks=True)
+                    root.rename(displaced)
+                    replacement.rename(root)
+                    swapped = True
+            return inventory
+
+        with (
+            mock.patch.object(
+                workspace_module.Workspace,
+                "_source_generation_inventory",
+                side_effect=swap_visible_path_after_terminal_sync,
+            ),
+            self.assertRaisesRegex(
+                WorkspaceError, "changed during durable retry"
+            ),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "default",
+                {"client"},
+                "build client",
+                materialize_clean_primaries=True,
+            ):
+                self.fail("replacement canonical path was yielded")
+        self.assertTrue(swapped)
 
     def test_source_generation_cleanup_before_record_collection_fails_closed(
         self,
@@ -11402,6 +13289,10 @@ class WorkspaceTests(unittest.TestCase):
         owners = lock.with_name(f"{lock.name}.owners")
         self.assertEqual(list(owners.glob("*.json")), [])
         self.assertEqual(list((owners / ".pending").iterdir()), [])
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
+        self.assertEqual(list(owners.glob("*.json")), [])
+        self.assertEqual(list((owners / ".pending").iterdir()), [])
 
     def test_resource_owner_scan_reaps_interrupted_staging(self) -> None:
         request = LeaseRequest(
@@ -11426,101 +13317,12 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertFalse(interrupted.exists())
 
-    def test_resource_owner_publication_is_atomic_with_diagnostic_scan(self) -> None:
+    def test_resource_owner_publication_is_hidden_until_complete(self) -> None:
         request = LeaseRequest(
             "source",
             "client:/worktrees/review",
             "shared",
-            "inspect review",
-            "wait for review",
-        )
-        lock = resource_lock_path(
-            self.workspace.paths.workspace, request.kind, request.coordinate
-        )
-        owners = lock.with_name(f"{lock.name}.owners")
-        publication_visible = threading.Event()
-        continue_publication = threading.Event()
-        lease_entered = threading.Event()
-        release_lease = threading.Event()
-        scan_attempted = threading.Event()
-        scan_completed = threading.Event()
-        results: queue.Queue[object] = queue.Queue()
-        real_dump = locking_module.json.dump
-        real_flock = locking_module.fcntl.flock
-
-        def pause_visible_publication(*args: object, **kwargs: object) -> None:
-            real_dump(*args, **kwargs)
-            publication_visible.set()
-            if not continue_publication.wait(5):
-                raise TimeoutError("owner publication was not released")
-
-        def publish_owner() -> None:
-            try:
-                with resource_locks(self.workspace.paths.workspace, [request]):
-                    lease_entered.set()
-                    if not release_lease.wait(5):
-                        raise TimeoutError("resource lease was not released")
-                results.put(None)
-            except BaseException as error:
-                results.put(error)
-
-        def scan_owner() -> None:
-            try:
-                results.put(locking_module._lease_owner_summary(lock))
-            except BaseException as error:
-                results.put(error)
-            finally:
-                scan_completed.set()
-
-        def observe_scan_flock(descriptor: object, operation: int) -> None:
-            if threading.current_thread().name == "owner-summary-scan":
-                scan_attempted.set()
-            real_flock(descriptor, operation)
-
-        with (
-            mock.patch.object(
-                locking_module.json, "dump", side_effect=pause_visible_publication
-            ),
-            mock.patch.object(
-                locking_module.fcntl, "flock", side_effect=observe_scan_flock
-            ),
-        ):
-            publisher = threading.Thread(target=publish_owner)
-            publisher.start()
-            self.assertTrue(publication_visible.wait(2))
-            self.assertEqual(list(owners.glob("*.json")), [])
-
-            scanner = threading.Thread(
-                target=scan_owner, name="owner-summary-scan"
-            )
-            scanner.start()
-            self.assertTrue(scan_attempted.wait(2))
-            self.assertTrue(scan_completed.wait(2))
-            summary = results.get_nowait()
-            self.assertEqual(summary, "owner metadata unavailable")
-
-            continue_publication.set()
-            self.assertTrue(lease_entered.wait(2))
-            summary = locking_module._lease_owner_summary(lock)
-            self.assertIn("shared inspect review by", summary)
-            self.assertEqual(len(list(owners.glob("*.json"))), 1)
-
-            release_lease.set()
-            publisher.join(2)
-            scanner.join(2)
-
-        self.assertFalse(publisher.is_alive())
-        self.assertFalse(scanner.is_alive())
-        self.assertIsNone(results.get_nowait())
-        self.assertEqual(list(owners.glob("*.json")), [])
-        self.assertEqual(list((owners / ".pending").iterdir()), [])
-
-    def test_new_resource_owner_is_atomic_for_legacy_diagnostic_scan(self) -> None:
-        request = LeaseRequest(
-            "source",
-            "client:/worktrees/review",
-            "shared",
-            "inspect review",
+            "publish complete review owner",
             "wait for review",
         )
         lock = resource_lock_path(
@@ -11529,73 +13331,49 @@ class WorkspaceTests(unittest.TestCase):
         owners = lock.with_name(f"{lock.name}.owners")
         publication_staged = threading.Event()
         continue_publication = threading.Event()
-        lease_entered = threading.Event()
+        lease_active = threading.Event()
         release_lease = threading.Event()
-        results: queue.Queue[object] = queue.Queue()
+        errors: queue.Queue[BaseException | None] = queue.Queue()
         real_dump = locking_module.json.dump
+        dump_count = 0
 
-        def pause_staged_publication(*args: object, **kwargs: object) -> None:
+        def pause_first_publication(*args: object, **kwargs: object) -> None:
+            nonlocal dump_count
             real_dump(*args, **kwargs)
-            publication_staged.set()
-            if not continue_publication.wait(5):
-                raise TimeoutError("owner publication was not released")
+            dump_count += 1
+            if dump_count == 1:
+                publication_staged.set()
+                if not continue_publication.wait(timeout=5):
+                    raise TimeoutError("owner publication rendezvous timed out")
 
-        def publish_owner() -> None:
+        def publish() -> None:
             try:
                 with resource_locks(self.workspace.paths.workspace, [request]):
-                    lease_entered.set()
-                    if not release_lease.wait(5):
-                        raise TimeoutError("resource lease was not released")
-                results.put(None)
+                    lease_active.set()
+                    if not release_lease.wait(timeout=5):
+                        raise TimeoutError("owner release rendezvous timed out")
+                errors.put(None)
             except BaseException as error:
-                results.put(error)
-
-        def legacy_scan() -> list[str]:
-            visible: list[str] = []
-            owner_descriptor = os.open(
-                owners, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC
-            )
-            try:
-                for metadata_name in sorted(os.listdir(owner_descriptor)):
-                    descriptor: int | None = None
-                    try:
-                        descriptor = os.open(
-                            metadata_name,
-                            os.O_RDWR | os.O_CLOEXEC,
-                            dir_fd=owner_descriptor,
-                        )
-                        fcntl.flock(
-                            descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
-                        )
-                        visible.append(metadata_name)
-                    except OSError:
-                        continue
-                    finally:
-                        if descriptor is not None:
-                            os.close(descriptor)
-            finally:
-                os.close(owner_descriptor)
-            return visible
+                errors.put(error)
 
         with mock.patch.object(
-            locking_module.json, "dump", side_effect=pause_staged_publication
+            locking_module.json, "dump", side_effect=pause_first_publication
         ):
-            publisher = threading.Thread(target=publish_owner)
+            publisher = threading.Thread(target=publish, daemon=True)
             publisher.start()
-            self.assertTrue(publication_staged.wait(2))
-            self.assertEqual(legacy_scan(), [])
+            self.assertTrue(publication_staged.wait(timeout=5))
             self.assertEqual(list(owners.glob("*.json")), [])
-
+            self.assertEqual(len(list((owners / ".pending").glob("*.json"))), 1)
             continue_publication.set()
-            self.assertTrue(lease_entered.wait(2))
+            self.assertTrue(lease_active.wait(timeout=5))
             self.assertEqual(len(list(owners.glob("*.json"))), 1)
-            self.assertEqual(legacy_scan(), [])
-            self.assertEqual(len(list(owners.glob("*.json"))), 1)
+            self.assertEqual(list((owners / ".pending").iterdir()), [])
             release_lease.set()
-            publisher.join(2)
+            publisher.join(timeout=5)
 
         self.assertFalse(publisher.is_alive())
-        self.assertIsNone(results.get_nowait())
+        self.assertIsNone(errors.get_nowait())
+        self.assertEqual(list(owners.glob("*.json")), [])
 
     def test_legacy_resource_owner_survives_new_diagnostic_scan(self) -> None:
         request = LeaseRequest(
@@ -11605,67 +13383,1145 @@ class WorkspaceTests(unittest.TestCase):
             "inspect legacy review",
             "wait for review",
         )
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
         lock = resource_lock_path(
             self.workspace.paths.workspace, request.kind, request.coordinate
         )
-        lock.parent.mkdir(parents=True, exist_ok=True)
         owners = lock.with_name(f"{lock.name}.owners")
-        owners.mkdir()
         metadata = owners / "legacy.json"
-        publication_visible = threading.Event()
-        continue_publication = threading.Event()
-        owner_locked = threading.Event()
-        release_owner = threading.Event()
-        results: queue.Queue[object] = queue.Queue()
-
-        def legacy_publish() -> None:
-            descriptor = os.open(
-                metadata, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600
+        metadata.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "mode": request.mode,
+                    "operation": request.operation,
+                    "owner": "legacy wrapper",
+                }
             )
-            try:
-                with os.fdopen(
-                    descriptor, "w+", encoding="utf-8", closefd=False
-                ) as stream:
-                    json.dump(
-                        {
-                            "schema_version": 1,
-                            "mode": request.mode,
-                            "operation": request.operation,
-                            "owner": "legacy wrapper",
-                        },
-                        stream,
-                    )
-                    stream.flush()
-                publication_visible.set()
-                if not continue_publication.wait(5):
-                    raise TimeoutError("legacy publication was not released")
-                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                owner_locked.set()
-                if not release_owner.wait(5):
-                    raise TimeoutError("legacy owner was not released")
-                results.put(None)
-            except BaseException as error:
-                results.put(error)
-            finally:
-                os.close(descriptor)
-                metadata.unlink(missing_ok=True)
-
-        publisher = threading.Thread(target=legacy_publish)
-        publisher.start()
-        self.assertTrue(publication_visible.wait(2))
+            + "\n",
+            encoding="utf-8",
+        )
 
         summary = locking_module._lease_owner_summary(lock)
         self.assertIn("shared inspect legacy review by legacy wrapper", summary)
         self.assertTrue(metadata.exists())
 
-        continue_publication.set()
-        self.assertTrue(owner_locked.wait(2))
-        self.assertTrue(metadata.exists())
-        release_owner.set()
-        publisher.join(2)
+    def test_resource_owner_publication_is_atomic_with_lock_acquisition(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "publish exact review owner",
+            "wait for review",
+        )
+        owner_published = threading.Event()
+        winner_active = threading.Event()
+        release_winner = threading.Event()
+        contender_done = threading.Event()
+        contender_error: list[BaseException] = []
+        original_owner = locking_module._resource_owner
 
-        self.assertFalse(publisher.is_alive())
-        self.assertIsNone(results.get_nowait())
+        @contextmanager
+        def observed_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as handle:
+                owner_published.set()
+                yield handle
+
+        def winner() -> None:
+            with resource_locks(self.workspace.paths.workspace, [request]):
+                winner_active.set()
+                if not release_winner.wait(timeout=30):
+                    raise AssertionError("winner release rendezvous timed out")
+
+        def contender() -> None:
+            try:
+                with resource_locks(
+                    self.workspace.paths.workspace, [request], nonblocking=True
+                ):
+                    raise AssertionError("contender unexpectedly acquired lease")
+            except BaseException as error:
+                contender_error.append(error)
+            finally:
+                contender_done.set()
+
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        with locking_module.exclusive_layout_lock(
+            lock, "deterministic owner publication blocker"
+        ):
+            with mock.patch.object(
+                locking_module, "_resource_owner", observed_owner
+            ):
+                winner_thread = threading.Thread(target=winner, daemon=True)
+                winner_thread.start()
+                self.assertTrue(owner_published.wait(timeout=5))
+                contender_thread = threading.Thread(target=contender, daemon=True)
+                contender_thread.start()
+        try:
+            self.assertTrue(winner_active.wait(timeout=10))
+            self.assertTrue(contender_done.wait(timeout=10))
+            self.assertEqual(len(contender_error), 1)
+            self.assertIsInstance(contender_error[0], WorkspaceError)
+            self.assertIn("publish exact review owner", str(contender_error[0]))
+            self.assertNotIn("waiting exclusive", str(contender_error[0]))
+            self.assertNotIn(
+                "owner metadata unavailable", str(contender_error[0])
+            )
+        finally:
+            release_winner.set()
+        winner_thread.join(timeout=5)
+        contender_thread.join(timeout=5)
+        self.assertFalse(winner_thread.is_alive())
+        self.assertFalse(contender_thread.is_alive())
+
+    def test_resource_owner_publication_failure_removes_partial_metadata(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "publish review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+
+        with mock.patch.object(
+            locking_module.json,
+            "dump",
+            side_effect=OSError("injected owner publication failure"),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot publish resource lease owner metadata"
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    self.fail("failed metadata publication unexpectedly acquired")
+
+        self.assertEqual(list(owners.glob("*.json")), [])
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
+        self.assertEqual(list(owners.glob("*.json")), [])
+
+    def test_resource_owner_admission_is_one_diagnostic_transition(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "admit exact review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        admission_started = threading.Event()
+        allow_admission = threading.Event()
+        owner_active = threading.Event()
+        release_owner = threading.Event()
+        summary_transition_attempted = threading.Event()
+        summary_done = threading.Event()
+        summaries: list[str] = []
+        original_owner = locking_module._resource_owner
+        original_flock = locking_module.fcntl.flock
+
+        @contextmanager
+        def paused_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def paused_admit() -> None:
+                    admission_started.set()
+                    if not allow_admission.wait(timeout=5):
+                        raise AssertionError("owner admission rendezvous timed out")
+                    admit()
+
+                yield paused_admit, bind_release
+
+        def owner() -> None:
+            with resource_locks(self.workspace.paths.workspace, [request]):
+                owner_active.set()
+                if not release_owner.wait(timeout=5):
+                    raise AssertionError("owner release rendezvous timed out")
+
+        def summarize() -> None:
+            summaries.append(locking_module._lease_owner_summary(lock))
+            summary_done.set()
+
+        def observed_flock(descriptor: object, operation: int) -> object:
+            if (
+                threading.current_thread().name == "admission-summary"
+                and operation == fcntl.LOCK_SH
+            ):
+                summary_transition_attempted.set()
+            return original_flock(descriptor, operation)
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", paused_owner),
+            mock.patch.object(
+                locking_module.fcntl, "flock", observed_flock
+            ),
+        ):
+            owner_thread = threading.Thread(target=owner, daemon=True)
+            owner_thread.start()
+            self.assertTrue(admission_started.wait(timeout=5))
+            summary_thread = threading.Thread(
+                target=summarize, name="admission-summary", daemon=True
+            )
+            summary_thread.start()
+            self.assertTrue(summary_transition_attempted.wait(timeout=5))
+            self.assertFalse(summary_done.is_set())
+            allow_admission.set()
+            self.assertTrue(owner_active.wait(timeout=5))
+            self.assertTrue(summary_done.wait(timeout=5))
+            self.assertIn("admit exact review owner", summaries[0])
+            self.assertNotIn("waiting exclusive", summaries[0])
+            release_owner.set()
+            owner_thread.join(timeout=5)
+            summary_thread.join(timeout=5)
+            self.assertFalse(owner_thread.is_alive())
+            self.assertFalse(summary_thread.is_alive())
+
+    def test_resource_owner_summary_waits_for_compatible_reader_admission(
+        self,
+    ) -> None:
+        first = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "shared",
+            "hold first review reader",
+            "wait for review",
+        )
+        second = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "shared",
+            "admit second review reader",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, first.kind, first.coordinate
+        )
+        admission_started = threading.Event()
+        allow_admission = threading.Event()
+        second_active = threading.Event()
+        release_second = threading.Event()
+        summary_transition_attempted = threading.Event()
+        summary_done = threading.Event()
+        summaries: list[str] = []
+        original_owner = locking_module._resource_owner
+        original_flock = locking_module.fcntl.flock
+
+        @contextmanager
+        def paused_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def paused_admit() -> None:
+                    admission_started.set()
+                    if not allow_admission.wait(timeout=5):
+                        raise AssertionError("reader admission rendezvous timed out")
+                    admit()
+
+                yield paused_admit, bind_release
+
+        def reader() -> None:
+            with resource_locks(self.workspace.paths.workspace, [second]):
+                second_active.set()
+                if not release_second.wait(timeout=5):
+                    raise AssertionError("reader release rendezvous timed out")
+
+        def summarize() -> None:
+            summaries.append(locking_module._lease_owner_summary(lock))
+            summary_done.set()
+
+        def observed_flock(descriptor: object, operation: int) -> object:
+            if (
+                threading.current_thread().name == "reader-summary"
+                and operation == fcntl.LOCK_SH
+            ):
+                summary_transition_attempted.set()
+            return original_flock(descriptor, operation)
+
+        with resource_locks(self.workspace.paths.workspace, [first]):
+            with (
+                mock.patch.object(locking_module, "_resource_owner", paused_owner),
+                mock.patch.object(locking_module.fcntl, "flock", observed_flock),
+            ):
+                reader_thread = threading.Thread(target=reader, daemon=True)
+                reader_thread.start()
+                self.assertTrue(admission_started.wait(timeout=5))
+                summary_thread = threading.Thread(
+                    target=summarize, name="reader-summary", daemon=True
+                )
+                summary_thread.start()
+                self.assertTrue(summary_transition_attempted.wait(timeout=5))
+                self.assertFalse(summary_done.is_set())
+                allow_admission.set()
+                self.assertTrue(second_active.wait(timeout=5))
+                self.assertTrue(summary_done.wait(timeout=5))
+                self.assertIn("hold first review reader", summaries[0])
+                self.assertIn("admit second review reader", summaries[0])
+                self.assertNotIn("waiting shared", summaries[0])
+                release_second.set()
+                reader_thread.join(timeout=5)
+                summary_thread.join(timeout=5)
+                self.assertFalse(reader_thread.is_alive())
+                self.assertFalse(summary_thread.is_alive())
+
+    def test_resource_owner_release_is_one_diagnostic_transition(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "release exact review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        owner_active = threading.Event()
+        finish_owner = threading.Event()
+        release_started = threading.Event()
+        allow_release = threading.Event()
+        summary_flock_attempted = threading.Event()
+        summary_done = threading.Event()
+        summaries: list[str] = []
+        original_owner = locking_module._resource_owner
+        original_flock = locking_module.fcntl.flock
+
+        @contextmanager
+        def paused_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def paused_bind(release: Callable[[], None]) -> None:
+                    def paused_release() -> None:
+                        release_started.set()
+                        if not allow_release.wait(timeout=5):
+                            raise AssertionError(
+                                "owner release transition timed out"
+                            )
+                        release()
+
+                    bind_release(paused_release)
+
+                yield admit, paused_bind
+
+        def owner() -> None:
+            with resource_locks(self.workspace.paths.workspace, [request]):
+                owner_active.set()
+                if not finish_owner.wait(timeout=5):
+                    raise AssertionError("owner completion rendezvous timed out")
+
+        def summarize() -> None:
+            summaries.append(locking_module._lease_owner_summary(lock))
+            summary_done.set()
+
+        def observed_flock(descriptor: object, operation: int) -> object:
+            if (
+                threading.current_thread().name == "release-summary"
+                and operation == fcntl.LOCK_EX
+            ):
+                summary_flock_attempted.set()
+            return original_flock(descriptor, operation)
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", paused_owner),
+            mock.patch.object(
+                locking_module.fcntl, "flock", observed_flock
+            ),
+        ):
+            owner_thread = threading.Thread(target=owner, daemon=True)
+            owner_thread.start()
+            self.assertTrue(owner_active.wait(timeout=5))
+            finish_owner.set()
+            self.assertTrue(release_started.wait(timeout=5))
+            summary_thread = threading.Thread(
+                target=summarize, name="release-summary", daemon=True
+            )
+            summary_thread.start()
+            self.assertTrue(summary_flock_attempted.wait(timeout=5))
+            self.assertFalse(summary_done.is_set())
+            allow_release.set()
+            self.assertTrue(summary_done.wait(timeout=5))
+            self.assertEqual(summaries, ["owner metadata unavailable"])
+            owner_thread.join(timeout=5)
+            summary_thread.join(timeout=5)
+            self.assertFalse(owner_thread.is_alive())
+            self.assertFalse(summary_thread.is_alive())
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
+        self.assertEqual(list(owners.glob("*.json")), [])
+
+    def test_resource_owner_release_lock_failure_still_releases_main_lease(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "release failing review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        fail_release = threading.Event()
+        failure_injected = threading.Event()
+        original_flock = locking_module.fcntl.flock
+
+        def failing_flock(descriptor: object, operation: int) -> object:
+            raw_descriptor = (
+                descriptor
+                if isinstance(descriptor, int)
+                else descriptor.fileno()
+            )
+            if (
+                fail_release.is_set()
+                and not failure_injected.is_set()
+                and operation == fcntl.LOCK_EX
+                and stat.S_ISDIR(os.fstat(raw_descriptor).st_mode)
+            ):
+                failure_injected.set()
+                raise OSError("injected owner directory release failure")
+            return original_flock(descriptor, operation)
+
+        with mock.patch.object(locking_module.fcntl, "flock", failing_flock):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "main lease released.*cannot lock owner directory",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    fail_release.set()
+
+        self.assertTrue(failure_injected.is_set())
+        self.assertEqual(len(list(owners.glob("*.json"))), 1)
+        with resource_locks(
+            self.workspace.paths.workspace, [request], nonblocking=True
+        ):
+            pass
+        self.assertEqual(
+            locking_module._lease_owner_summary(lock),
+            "owner metadata unavailable",
+        )
+        self.assertEqual(list(owners.glob("*.json")), [])
+
+    def test_resource_owner_release_unlink_failure_reports_uncertainty(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "retain failing review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        fail_release = threading.Event()
+        failure_injected = threading.Event()
+        original_unlink = locking_module.os.unlink
+
+        def failing_unlink(
+            path: object, *args: object, **kwargs: object
+        ) -> None:
+            if fail_release.is_set() and not failure_injected.is_set():
+                failure_injected.set()
+                raise OSError("injected owner metadata unlink failure")
+            original_unlink(path, *args, **kwargs)
+
+        with mock.patch.object(locking_module.os, "unlink", failing_unlink):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "main lease released.*cannot remove owner metadata",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    fail_release.set()
+
+        self.assertTrue(failure_injected.is_set())
+        retained = [
+            path for path in owners.iterdir() if path.name != ".pending"
+        ]
+        self.assertEqual(len(retained), 1)
+        self.assertIn("admitted", retained[0].read_text(encoding="utf-8"))
+        with resource_locks(
+            self.workspace.paths.workspace, [request], nonblocking=True
+        ):
+            pass
+        self.assertEqual(
+            locking_module._lease_owner_summary(lock),
+            "owner metadata unavailable",
+        )
+        self.assertEqual(list(owners.glob("*.json")), [])
+
+    def test_resource_owner_close_failure_does_not_retry_stale_descriptor(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "close failing review owner",
+            "wait for review",
+        )
+        original_fdopen = locking_module.os.fdopen
+        original_close = locking_module.os.close
+        owner_descriptor: list[int] = []
+        wrapped_owner = False
+
+        class CloseAfterClosing:
+            def __init__(self, stream: object) -> None:
+                self.stream = stream
+
+            def fileno(self) -> int:
+                return self.stream.fileno()
+
+            def close(self) -> None:
+                descriptor = self.stream.fileno()
+                owner_descriptor.append(descriptor)
+                self.stream.close()
+                raise OSError("injected owner lease close failure")
+
+        def failing_fdopen(
+            descriptor: int, mode: str = "r", *args: object, **kwargs: object
+        ) -> object:
+            nonlocal wrapped_owner
+            stream = original_fdopen(descriptor, mode, *args, **kwargs)
+            if mode == "a+" and not wrapped_owner:
+                wrapped_owner = True
+                return CloseAfterClosing(stream)
+            return stream
+
+        def observed_close(descriptor: int) -> None:
+            if owner_descriptor and descriptor == owner_descriptor[0]:
+                raise AssertionError("retried a possibly stale descriptor")
+            original_close(descriptor)
+
+        with (
+            mock.patch.object(locking_module.os, "fdopen", failing_fdopen),
+            mock.patch.object(locking_module.os, "close", observed_close),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "main lease released.*cannot close owner lease",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    pass
+
+        self.assertEqual(len(owner_descriptor), 1)
+        with resource_locks(
+            self.workspace.paths.workspace, [request], nonblocking=True
+        ):
+            pass
+
+    def test_resource_owner_double_teardown_failure_retains_evidence(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "uncertain review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        original_owner = locking_module._resource_owner
+        original_fdopen = locking_module.os.fdopen
+        actual_releases: list[Callable[[], None]] = []
+        wrapped_owner = False
+
+        class CloseAfterClosing:
+            def __init__(self, stream: object) -> None:
+                self.stream = stream
+
+            def fileno(self) -> int:
+                return self.stream.fileno()
+
+            def close(self) -> None:
+                self.stream.close()
+                raise OSError("injected owner lease close failure")
+
+        def failing_fdopen(
+            descriptor: int, mode: str = "r", *args: object, **kwargs: object
+        ) -> object:
+            nonlocal wrapped_owner
+            stream = original_fdopen(descriptor, mode, *args, **kwargs)
+            if mode == "a+" and not wrapped_owner:
+                wrapped_owner = True
+                return CloseAfterClosing(stream)
+            return stream
+
+        @contextmanager
+        def uncertain_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def uncertain_bind(release: Callable[[], None]) -> None:
+                    actual_releases.append(release)
+
+                    def fail_release() -> None:
+                        raise OSError("injected main lease release failure")
+
+                    bind_release(fail_release)
+
+                yield admit, uncertain_bind
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", uncertain_owner),
+            mock.patch.object(locking_module.os, "fdopen", failing_fdopen),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "release uncertain.*cannot close owner lease",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    pass
+
+        self.assertEqual(len(actual_releases), 1)
+        retained = list(owners.glob("*.json"))
+        self.assertEqual(len(retained), 1)
+        self.assertIn(
+            '"phase": "release-uncertain"',
+            retained[0].read_text(encoding="utf-8"),
+        )
+        summary = locking_module._lease_owner_summary(lock)
+        self.assertIn("release uncertain exclusive", summary)
+        self.assertIn("uncertain review owner", summary)
+        self.assertEqual(list(owners.glob("*.json")), retained)
+
+        actual_releases[0]()
+        with resource_locks(
+            self.workspace.paths.workspace, [request], nonblocking=True
+        ):
+            pass
+        self.assertEqual(list(owners.glob("*.json")), retained)
+
+    def test_resource_owner_post_replace_close_failure_keeps_new_evidence(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "post replace review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        original_owner = locking_module._resource_owner
+        original_replace = locking_module.os.replace
+        original_close = locking_module.os.close
+        actual_releases: list[Callable[[], None]] = []
+        replaced = threading.Event()
+        failed_old_close = threading.Event()
+
+        @contextmanager
+        def uncertain_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def uncertain_bind(release: Callable[[], None]) -> None:
+                    actual_releases.append(release)
+                    bind_release(
+                        lambda: (_ for _ in ()).throw(
+                            OSError("injected main lease release failure")
+                        )
+                    )
+
+                yield admit, uncertain_bind
+
+        def observed_replace(*args: object, **kwargs: object) -> None:
+            original_replace(*args, **kwargs)
+            replaced.set()
+
+        def failing_close(descriptor: int) -> None:
+            if replaced.is_set() and not failed_old_close.is_set():
+                failed_old_close.set()
+                raise OSError("injected replaced owner close failure")
+            original_close(descriptor)
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", uncertain_owner),
+            mock.patch.object(locking_module.os, "replace", observed_replace),
+            mock.patch.object(locking_module.os, "close", failing_close),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "retained locked owner metadata is release uncertain.*"
+                "cannot close replaced owner metadata",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    pass
+
+        self.assertTrue(failed_old_close.is_set())
+        summary = locking_module._lease_owner_summary(lock)
+        self.assertIn("release uncertain exclusive", summary)
+        self.assertIn("post replace review owner", summary)
+        with self.assertRaises(LockBusyError):
+            with resource_locks(
+                self.workspace.paths.workspace, [request], nonblocking=True
+            ):
+                self.fail("uncertain main lease was reacquired")
+        actual_releases[0]()
+
+    def test_resource_owner_uncertainty_write_failure_keeps_locked_evidence(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "uncertain write review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        original_owner = locking_module._resource_owner
+        original_dump = locking_module.json.dump
+        original_unlink = locking_module.os.unlink
+        actual_releases: list[Callable[[], None]] = []
+
+        @contextmanager
+        def uncertain_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def uncertain_bind(release: Callable[[], None]) -> None:
+                    actual_releases.append(release)
+                    bind_release(
+                        lambda: (_ for _ in ()).throw(
+                            OSError("injected main lease release failure")
+                        )
+                    )
+
+                yield admit, uncertain_bind
+
+        def fail_uncertain_dump(
+            value: object, *args: object, **kwargs: object
+        ) -> None:
+            if isinstance(value, dict) and value.get("phase") == "release-uncertain":
+                raise OSError("injected uncertainty publication failure")
+            original_dump(value, *args, **kwargs)
+
+        def fail_uncertain_unlink(
+            path: object, *args: object, **kwargs: object
+        ) -> None:
+            if str(path).endswith(".uncertain"):
+                raise OSError("injected uncertain cleanup failure")
+            original_unlink(path, *args, **kwargs)
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", uncertain_owner),
+            mock.patch.object(locking_module.json, "dump", fail_uncertain_dump),
+            mock.patch.object(locking_module.os, "unlink", fail_uncertain_unlink),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "retained locked owner metadata is admitted.*"
+                "cannot publish release-uncertain.*"
+                "cannot remove partial release-uncertain",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    pass
+
+        retained = [
+            path for path in owners.iterdir() if path.name != ".pending"
+        ]
+        self.assertEqual(len(retained), 2)
+        admitted = [path for path in retained if not path.name.startswith(".")]
+        self.assertEqual(len(admitted), 1)
+        self.assertIn('"phase": "admitted"', admitted[0].read_text())
+        summary = locking_module._lease_owner_summary(lock)
+        self.assertIn("uncertain write review owner", summary)
+        self.assertEqual(
+            [path for path in owners.iterdir() if path.name != ".pending"],
+            admitted,
+        )
+        with self.assertRaises(LockBusyError):
+            with resource_locks(
+                self.workspace.paths.workspace, [request], nonblocking=True
+            ):
+                self.fail("uncertain main lease was reacquired")
+        actual_releases[0]()
+
+    def test_resource_owner_directory_and_release_failure_keeps_evidence(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "uncertain directory review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        original_owner = locking_module._resource_owner
+        original_flock = locking_module.fcntl.flock
+        actual_releases: list[Callable[[], None]] = []
+        fail_teardown = threading.Event()
+        failed_directory_lock = threading.Event()
+
+        @contextmanager
+        def uncertain_owner(*args: object, **kwargs: object):
+            with original_owner(*args, **kwargs) as (admit, bind_release):
+                def uncertain_bind(release: Callable[[], None]) -> None:
+                    actual_releases.append(release)
+                    bind_release(
+                        lambda: (_ for _ in ()).throw(
+                            OSError("injected main lease release failure")
+                        )
+                    )
+
+                yield admit, uncertain_bind
+
+        def failing_flock(descriptor: object, operation: int) -> object:
+            raw_descriptor = (
+                descriptor if isinstance(descriptor, int) else descriptor.fileno()
+            )
+            if (
+                fail_teardown.is_set()
+                and not failed_directory_lock.is_set()
+                and operation == fcntl.LOCK_EX
+                and stat.S_ISDIR(os.fstat(raw_descriptor).st_mode)
+            ):
+                failed_directory_lock.set()
+                raise OSError("injected owner directory lock failure")
+            return original_flock(descriptor, operation)
+
+        with (
+            mock.patch.object(locking_module, "_resource_owner", uncertain_owner),
+            mock.patch.object(locking_module.fcntl, "flock", failing_flock),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError,
+                "retained locked owner metadata is admitted.*"
+                "cannot lock owner directory",
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    fail_teardown.set()
+
+        self.assertTrue(failed_directory_lock.is_set())
+        self.assertIn(
+            "uncertain directory review owner",
+            locking_module._lease_owner_summary(lock),
+        )
+        with self.assertRaises(LockBusyError):
+            with resource_locks(
+                self.workspace.paths.workspace, [request], nonblocking=True
+            ):
+                self.fail("uncertain main lease was reacquired")
+        actual_releases[0]()
+
+    def test_resource_owner_summary_bounds_reap_unlink_failures(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "stale review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        owners.mkdir(parents=True)
+        malformed = owners / "malformed.json"
+        malformed.write_text(
+            json.dumps(
+                {"schema_version": locking_module.RESOURCE_LEASE_SCHEMA_VERSION}
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        stale = owners / "stale.json"
+        stale.write_text(
+            json.dumps(
+                {
+                    "schema_version": locking_module.RESOURCE_LEASE_SCHEMA_VERSION,
+                    "mode": "exclusive",
+                    "operation": "stale review owner",
+                    "owner": "stale-owner",
+                    "phase": "admitted",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        with mock.patch.object(
+            locking_module.os,
+            "unlink",
+            side_effect=OSError("injected diagnostic unlink failure"),
+        ):
+            self.assertEqual(
+                locking_module._lease_owner_summary(lock),
+                "owner metadata unavailable",
+            )
+        self.assertEqual(set(owners.glob("*.json")), {malformed, stale})
+
+    def test_resource_owner_publication_reports_cleanup_uncertainty(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "publish review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+
+        with (
+            mock.patch.object(
+                locking_module.json,
+                "dump",
+                side_effect=OSError("injected owner publication failure"),
+            ),
+            mock.patch.object(
+                locking_module.os,
+                "unlink",
+                side_effect=OSError("injected token cleanup failure"),
+            ),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot remove partial owner metadata"
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    self.fail("uncertain metadata publication acquired lease")
+
+        staging = owners / ".pending"
+        self.assertEqual(list(owners.glob("*.json")), [])
+        self.assertEqual(len(list(staging.glob("*.json"))), 1)
+        self.assertEqual(
+            locking_module._lease_owner_summary(lock),
+            "owner metadata unavailable",
+        )
+        self.assertEqual(list(owners.glob("*.json")), [])
+        self.assertEqual(list(staging.iterdir()), [])
+
+    def test_resource_owner_admission_failure_releases_main_lock(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "admit review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        original_dump = locking_module.json.dump
+        calls = 0
+
+        def fail_admission(*args: object, **kwargs: object) -> None:
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                raise OSError("injected admission transition failure")
+            original_dump(*args, **kwargs)
+
+        with mock.patch.object(
+            locking_module.json, "dump", fail_admission
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot admit resource lease owner metadata"
+            ):
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    self.fail("failed admission transition acquired lease")
+
+        self.assertEqual(list(owners.glob("*.json")), [])
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
+
+    def test_resource_owner_admission_reports_cleanup_uncertainty(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "admit review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        owners = lock.with_name(f"{lock.name}.owners")
+        original_dump = locking_module.json.dump
+        calls = 0
+
+        def fail_admission(*args: object, **kwargs: object) -> None:
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                raise OSError("injected admission transition failure")
+            original_dump(*args, **kwargs)
+
+        original_unlink = locking_module.os.unlink
+
+        def fail_admission_cleanup(
+            path: object, *args: object, **kwargs: object
+        ) -> None:
+            if calls >= 2:
+                raise OSError("injected admission cleanup failure")
+            original_unlink(path, *args, **kwargs)
+
+        with (
+            mock.patch.object(locking_module.json, "dump", fail_admission),
+            mock.patch.object(
+                locking_module.os,
+                "unlink",
+                side_effect=fail_admission_cleanup,
+            ),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot remove (?:partial )?owner metadata"
+            ) as raised:
+                with resource_locks(self.workspace.paths.workspace, [request]):
+                    self.fail("uncertain admission transition acquired lease")
+        self.assertIn("main lease released", str(raised.exception))
+
+        self.assertEqual(len(list(owners.glob("*.json"))), 1)
+        self.assertEqual(
+            locking_module._lease_owner_summary(lock),
+            "owner metadata unavailable",
+        )
+        self.assertEqual(list(owners.glob("*.json")), [])
+        with resource_locks(self.workspace.paths.workspace, [request]):
+            pass
+
+    def test_resource_owner_summary_prioritizes_admitted_holder(self) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "summarize owners",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        lock.parent.mkdir(parents=True)
+        owners = lock.with_name(f"{lock.name}.owners")
+        owners.mkdir()
+        descriptors: list[int] = []
+        try:
+            records = [
+                (f"a{index:02d}.json", "waiting", f"waiter-{index}")
+                for index in range(9)
+            ] + [("z-admitted.json", "admitted", "admitted-holder")]
+            for name, phase, operation in records:
+                path = owners / name
+                path.write_text(
+                    json.dumps(
+                        {
+                            "mode": "exclusive",
+                            "operation": operation,
+                            "owner": f"owner-{operation}",
+                            "phase": phase,
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                descriptor = os.open(path, os.O_RDWR)
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                descriptors.append(descriptor)
+
+            summary = locking_module._lease_owner_summary(lock)
+            self.assertTrue(
+                summary.startswith("exclusive admitted-holder by"), summary
+            )
+            self.assertEqual(summary.count(";"), 7)
+            self.assertNotIn("waiter-7", summary)
+            self.assertNotIn("waiter-8", summary)
+        finally:
+            for descriptor in descriptors:
+                os.close(descriptor)
+            for path in owners.glob("*.json"):
+                path.unlink()
+
+    def test_resource_owner_diagnostic_waits_for_complete_publication(
+        self,
+    ) -> None:
+        request = LeaseRequest(
+            "source",
+            "client:/worktrees/review",
+            "exclusive",
+            "publish complete review owner",
+            "wait for review",
+        )
+        lock = resource_lock_path(
+            self.workspace.paths.workspace, request.kind, request.coordinate
+        )
+        json_written = threading.Event()
+        allow_publication = threading.Event()
+        owner_active = threading.Event()
+        release_owner = threading.Event()
+        summary_started = threading.Event()
+        summary_flock_attempted = threading.Event()
+        summary_done = threading.Event()
+        summaries: list[str] = []
+        original_dump = locking_module.json.dump
+        original_flock = locking_module.fcntl.flock
+
+        def paused_dump(*args: object, **kwargs: object) -> None:
+            original_dump(*args, **kwargs)
+            json_written.set()
+            if not allow_publication.wait(timeout=5):
+                raise AssertionError("owner JSON publication rendezvous timed out")
+
+        def owner() -> None:
+            with resource_locks(self.workspace.paths.workspace, [request]):
+                owner_active.set()
+                if not release_owner.wait(timeout=5):
+                    raise AssertionError("owner release rendezvous timed out")
+
+        def summarize() -> None:
+            summary_started.set()
+            summaries.append(locking_module._lease_owner_summary(lock))
+            summary_done.set()
+
+        def observed_flock(descriptor: object, operation: int) -> object:
+            if (
+                threading.current_thread().name == "owner-summary"
+                and operation == fcntl.LOCK_EX
+            ):
+                summary_flock_attempted.set()
+            return original_flock(descriptor, operation)
+
+        with (
+            mock.patch.object(locking_module.json, "dump", paused_dump),
+            mock.patch.object(
+                locking_module.fcntl, "flock", observed_flock
+            ),
+        ):
+            owner_thread = threading.Thread(target=owner, daemon=True)
+            owner_thread.start()
+            self.assertTrue(json_written.wait(timeout=5))
+            summary_thread = threading.Thread(
+                target=summarize, name="owner-summary", daemon=True
+            )
+            summary_thread.start()
+            self.assertTrue(summary_started.wait(timeout=5))
+            self.assertTrue(summary_flock_attempted.wait(timeout=5))
+            self.assertFalse(summary_done.is_set())
+            allow_publication.set()
+            self.assertTrue(owner_active.wait(timeout=5))
+            self.assertTrue(summary_done.wait(timeout=5))
+            self.assertEqual(len(summaries), 1)
+            self.assertIn("publish complete review owner", summaries[0])
+            self.assertNotIn("owner metadata unavailable", summaries[0])
+            release_owner.set()
+            owner_thread.join(timeout=5)
+            summary_thread.join(timeout=5)
+            self.assertFalse(owner_thread.is_alive())
+            self.assertFalse(summary_thread.is_alive())
+
 
     def test_resource_owner_metadata_survives_inherited_child(self) -> None:
         request = LeaseRequest(
@@ -14943,6 +17799,8 @@ class WorkspaceTests(unittest.TestCase):
             "control": control,
             "shutdown": {"control_requested": True, "clean": True},
             "error": None,
+            "state": "/managed/temporary-state",
+            "observation": {"process_tree_lease": "released"},
             "supervisor": {"running": False},
             "services": {"server": {"running": False}},
         }
@@ -14957,12 +17815,18 @@ class WorkspaceTests(unittest.TestCase):
             mock.patch.object(
                 self.workspace, "topology_status", return_value=stopped
             ),
+            mock.patch(
+                "atrinik_workspace.workspace.lease_locked",
+                side_effect=(True, False),
+            ) as inspect_state_lease,
+            mock.patch("atrinik_workspace.workspace.time.sleep"),
         ):
             observed, confirmed_clean = self.workspace._controlled_topology_down(
                 "clean-down-retry", {"control": control}, 1
             )
         self.assertIs(observed, stopped)
         self.assertTrue(confirmed_clean)
+        self.assertEqual(inspect_state_lease.call_count, 2)
 
     def test_topology_port_selection_rejects_unavailable_port(self) -> None:
         candidate = mock.MagicMock()
@@ -17434,6 +20298,277 @@ class WorkspaceTests(unittest.TestCase):
                 if time.monotonic() >= deadline:
                     self.fail("cleanup child did not release the layout lease")
                 time.sleep(0.05)
+
+    def test_portable_windows_package_extraction_is_rooted_at_executable(self) -> None:
+        archive = self.root / "client.zip"
+        executable = zipfile.ZipInfo("package/atrinik.exe")
+        executable.create_system = 3
+        executable.external_attr = (stat.S_IFREG | 0o755) << 16
+        with zipfile.ZipFile(archive, "w") as output:
+            output.writestr(executable, b"client")
+            output.writestr("package/data/settings.txt", b"settings")
+            output.writestr("lib/pkgconfig/build-only.pc", b"metadata")
+
+        destination = self.root / "portable-client"
+        self.workspace._extract_portable_windows_package(
+            archive, destination, "atrinik.exe"
+        )
+
+        self.assertEqual((destination / "atrinik.exe").read_bytes(), b"client")
+        self.assertEqual(
+            (destination / "data" / "settings.txt").read_bytes(), b"settings"
+        )
+        self.assertFalse((destination / "package").exists())
+        self.assertFalse((destination / "lib").exists())
+
+    def test_portable_windows_package_rejects_unsafe_or_linked_entries(self) -> None:
+        cases: list[tuple[str, zipfile.ZipInfo, str]] = []
+        traversal = zipfile.ZipInfo("../escape")
+        cases.append(("traversal", traversal, "unsafe"))
+        linked = zipfile.ZipInfo("package/link")
+        linked.create_system = 3
+        linked.external_attr = (stat.S_IFLNK | 0o777) << 16
+        cases.append(("link", linked, "special entry"))
+        duplicate = zipfile.ZipInfo("PACKAGE/ATRINIK.EXE")
+        cases.append(("case duplicate", duplicate, "duplicated"))
+        for label, invalid, message in cases:
+            with self.subTest(label=label):
+                archive = self.root / f"invalid-{label.replace(' ', '-')}.zip"
+                with zipfile.ZipFile(archive, "w") as output:
+                    output.writestr("package/atrinik.exe", b"client")
+                    output.writestr(invalid, b"invalid")
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    self.workspace._extract_portable_windows_package(
+                        archive, self.root / f"output-{label}", "atrinik.exe"
+                    )
+
+    def test_windows_profile_archive_is_deterministic_and_private(self) -> None:
+        root = self.root / "atrinik-review-windows"
+        (root / "server" / "data" / "players").mkdir(parents=True)
+        (root / "run.bat").write_bytes(b"run\r\n")
+        player = root / "server" / "data" / "players" / "player.dat"
+        player.write_bytes(b"private player")
+        first = self.root / "first.zip"
+        second = self.root / "second.zip"
+
+        self.workspace._archive_windows_profile(root, first)
+        self.workspace._archive_windows_profile(root, second)
+
+        self.assertEqual(first.read_bytes(), second.read_bytes())
+        self.assertEqual(stat.S_IMODE(first.stat().st_mode), 0o600)
+        with zipfile.ZipFile(first) as archive:
+            self.assertIn(
+                "atrinik-review-windows/server/data/players/player.dat",
+                archive.namelist(),
+            )
+            self.assertEqual(
+                archive.read(
+                    "atrinik-review-windows/server/data/players/player.dat"
+                ),
+                b"private player",
+            )
+
+    def test_windows_runtime_content_digest_ignores_modes_not_bytes(self) -> None:
+        first = self.root / "runtime-first"
+        second = self.root / "runtime-second"
+        (first / "maps").mkdir(parents=True)
+        (second / "maps").mkdir(parents=True)
+        (first / "maps" / "review-map").write_bytes(b"profile map")
+        (second / "maps" / "review-map").write_bytes(b"profile map")
+        (first / "maps").chmod(0o555)
+        (first / "maps" / "review-map").chmod(0o444)
+        (second / "maps").chmod(0o755)
+        (second / "maps" / "review-map").chmod(0o644)
+
+        expected = workspace_module._tree_content_digest(first, "first runtime")
+        self.assertEqual(
+            expected,
+            workspace_module._tree_content_digest(second, "second runtime"),
+        )
+        (second / "maps" / "review-map").write_bytes(b"release map")
+        self.assertNotEqual(
+            expected,
+            workspace_module._tree_content_digest(second, "second runtime"),
+        )
+
+    def test_windows_launch_files_pin_local_server_identity_and_warn(self) -> None:
+        root = self.root / "launch"
+        root.mkdir()
+        fingerprint = "a" * 64
+        self.workspace._write_windows_launch_files(
+            root, "review", "scenario-review", 1731, fingerprint
+        )
+
+        launch = (root / "run.bat").read_text(encoding="ascii")
+        readme = (root / "README.txt").read_text(encoding="utf-8")
+        self.assertIn("--port_quic=1731", launch)
+        self.assertIn(f"127.0.0.1 1731 {fingerprint}", launch)
+        self.assertIn("--stun_server=off --nometa", launch)
+        self.assertIn("SENSITIVE", readme)
+        self.assertIn("private player data", readme)
+
+    def test_windows_source_staging_overlays_read_only_generations(self) -> None:
+        selected: dict[str, Path] = {}
+        classic_root = self.root / "sealed-classic"
+        (classic_root / "cmake").mkdir(parents=True)
+        (classic_root / "cmake" / "AtrinikVersion.cmake").write_text(
+            "version", encoding="utf-8"
+        )
+        for document in ("LICENSE.md", "ATTRIBUTIONS.md"):
+            (classic_root / document).write_text(document, encoding="utf-8")
+        for role in ("client", "server", "protocol", "libatrinik"):
+            source = classic_root / role
+            source.mkdir()
+            (source / "source.txt").write_text(role, encoding="utf-8")
+            source.chmod(0o555)
+            selected[role] = source
+        (classic_root / "cmake").chmod(0o555)
+        classic_root.chmod(0o555)
+
+        sound = self.root / "sealed-sound"
+        sound.mkdir()
+        (sound / "review.ogg").write_bytes(b"sound")
+        sound.chmod(0o555)
+        build_root = self.root / "windows-build"
+        (build_root / "runtime" / "content" / "maps").mkdir(parents=True)
+        (build_root / "runtime" / "content" / "lib").mkdir()
+        (build_root / "runtime" / "resources").mkdir()
+        (build_root / "runtime" / "content" / "maps" / "map.txt").write_text(
+            "map", encoding="utf-8"
+        )
+        (build_root / "runtime" / "content" / "lib" / "script.py").write_text(
+            "script", encoding="utf-8"
+        )
+        (build_root / "runtime" / "resources" / "resource.txt").write_text(
+            "resource", encoding="utf-8"
+        )
+        atomic_json(
+            build_root / workspace_module.BUILD_METADATA,
+            {
+                "sound": {
+                    "mode": "source",
+                    "root": str(sound),
+                    "source_commit": "a" * 40,
+                    "source_tree": "b" * 40,
+                    "source_clean": True,
+                }
+            },
+        )
+        staging = self.root / "windows-sources"
+        staging.mkdir()
+
+        with mock.patch("atrinik_workspace.workspace.run") as execute:
+            self.workspace._stage_windows_profile_sources(
+                staging, build_root, selected
+            )
+
+        execute.assert_called_once_with(["git", "init", "--quiet"], cwd=staging)
+        self.assertEqual(
+            (staging / "cmake" / "AtrinikVersion.cmake").read_text(
+                encoding="utf-8"
+            ),
+            "version",
+        )
+        self.assertEqual(
+            (staging / "LICENSE.md").read_text(encoding="utf-8"),
+            "LICENSE.md",
+        )
+        self.assertEqual(
+            (staging / "client" / "sound" / "review.ogg").read_bytes(),
+            b"sound",
+        )
+        self.assertEqual(
+            (staging / "server" / "runtime" / "content" / "maps" / "map.txt")
+            .read_text(encoding="utf-8"),
+            "map",
+        )
+        self.assertEqual(
+            (staging / "server" / "resources" / "resource.txt")
+            .read_text(encoding="utf-8"),
+            "resource",
+        )
+
+    def test_windows_state_snapshot_reuses_existing_physical_lock(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        prepared = self.workspace.state_path(
+            "default", server, keep_descriptor=True
+        )
+        self.assertIsInstance(prepared, tuple)
+        state, state_fd = prepared
+        identity = os.fstat(state_fd)
+        (state / "accounts").mkdir()
+        (state / "accounts" / "review.player").write_text(
+            "player\n", encoding="utf-8"
+        )
+        (state / "quic-identity.pem").write_text(
+            "-----BEGIN PRIVATE KEY-----\nignored\n-----END PRIVATE KEY-----\n"
+            "-----BEGIN CERTIFICATE-----\nAQID\n-----END CERTIFICATE-----\n",
+            encoding="ascii",
+        )
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "already in use"):
+                self.workspace._lock_state_directory_mutation(
+                    state,
+                    {"device": identity.st_dev, "inode": identity.st_ino},
+                    "server state",
+                )
+            fingerprint = self.workspace._snapshot_windows_profile_state(
+                state_fd, state, self.root / "state-snapshot"
+            )
+        finally:
+            os.close(state_fd)
+
+        self.assertEqual(
+            fingerprint,
+            "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+        )
+        self.assertEqual(
+            (self.root / "state-snapshot" / "accounts" / "review.player")
+            .read_text(encoding="utf-8"),
+            "player\n",
+        )
+
+    def test_windows_cross_build_uses_pinned_container_and_exact_outputs(self) -> None:
+        staging = self.root / "windows-sources"
+        staging.mkdir()
+        image = "ghcr.io/atrinik/windows-build:1@sha256:" + "a" * 64
+
+        def synthetic_build(arguments: list[str], **_kwargs: object) -> str:
+            packages = staging / "packages"
+            for component in ("client", "server"):
+                (packages / (
+                    f"atrinik-classic-{component}-0.0.0-windows-x86_64.zip"
+                )).write_bytes(component.encode())
+            self.assertEqual(arguments[0:2], ["docker", "run"])
+            self.assertIn(image, arguments)
+            self.assertIn(
+                "ATRINIK_PROFILE_SOUND_DIR=/workspace/client/sound", arguments
+            )
+            self.assertIn(
+                "ATRINIK_PROFILE_CONTENT_DIR=/workspace/server/runtime/content",
+                arguments,
+            )
+            self.assertIn(
+                "ATRINIK_PROFILE_RESOURCES_DIR=/workspace/server/resources",
+                arguments,
+            )
+            return ""
+
+        with (
+            mock.patch.object(
+                self.workspace, "_local_windows_build_environment", return_value=None
+            ),
+            mock.patch.object(self.workspace, "_windows_build_image", return_value=image),
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/usr/bin/docker"),
+            mock.patch("atrinik_workspace.workspace.run", side_effect=synthetic_build),
+        ):
+            client, server, build = self.workspace._build_windows_profile_archives(
+                staging
+            )
+
+        self.assertEqual(client.name, "atrinik-classic-client-0.0.0-windows-x86_64.zip")
+        self.assertEqual(server.name, "atrinik-classic-server-0.0.0-windows-x86_64.zip")
+        self.assertEqual(build, {"mode": "container", "image": image})
 
 
 if __name__ == "__main__":

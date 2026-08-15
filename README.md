@@ -608,13 +608,11 @@ digest, and are reproduced beside the component's build source view. The
 Classic client and server both declare the repository-root `cmake/` modules,
 license, and attributions this way, so their supported scoped builds retain
 `client/` and `server/` as the paths printed by `atrinik path` while using one
-authoritative copy of each shared input.
-Generation export restores paths hidden by Git `export-ignore` attributes so
-the published bytes still match the recorded tree. Archive publication retains
-its temporary descriptor, and extraction creates entries and applies modes
-relative to pinned, no-follow generation directories. CMake dependencies that
-run mutation-based tests receive writable profile-local copies; the shared
-generation itself remains sealed.
+authoritative copy of each shared input. Archive publication retains its
+temporary descriptor, and extraction creates entries and applies modes relative
+to pinned, no-follow generation directories. CMake dependencies that run
+mutation-based tests receive writable profile-local copies; the shared generation
+itself remains sealed.
 Consequently a long-running build from a Classic feature worktree does not
 block `sync --with classic` from advancing unrelated or snapshotted clean
 primaries. Dirty sources and selected worktrees remain live inputs and retain
@@ -672,6 +670,15 @@ created worktrees and profiles that remain clean, unchanged, and unreferenced;
 changed or uncertain inputs and the durable journal remain as explicit cleanup
 references for recovery.
 
+The returned commands form one complete lifecycle: build the scope profile,
+start only its reserved topology with its recorded state policy, inspect it,
+stop it, then preview and apply release. Two scopes may select distinct
+worktrees of one physical checkout and run that lifecycle concurrently. A live
+scope A does not prevent a disjoint scope B from stopping and releasing. Use
+readiness markers, lease ownership, and published status transitions when
+testing concurrency; timeouts bound failure but elapsed compiler or startup
+time is not correctness evidence.
+
 Scope release is explicit and hash-bound preview-first:
 
 ~~~sh
@@ -684,10 +691,19 @@ live or unreachable topology, retained generation, active lease, dirty,
 detached, replaced, ambiguously owned, or unexpectedly referenced worktree,
 changed profile, or uncertain build root. Named and default persistent state
 is always retained. Stopped topology history remains owned by the separate
-topology-cleanup lifecycle. The completed scope record and release journal are
-retained as recovery evidence. Each destructive action is recorded as
-in-flight before mutation, so a retry can prove the exact absent post-state and
-finish after a crash between removal and the completed-action journal update.
+topology-cleanup lifecycle; its exact stopped scope-owned reference does not
+prevent release only when current regular spec/status records bind the same
+profile, generation, and resolved coordinates and prove a control-requested
+clean shutdown with released runtime, port, and state leases. Stale, historical,
+mismatched, or unrelated records fail closed. Release journals initial,
+destructive-substep, build, profile, worktree, and final completion boundaries.
+After interruption, run a fresh preview and resume with that new digest;
+completed removals and exact pending reference/branch cleanup are recovered.
+The completed scope record and release journal remain recovery evidence and
+available to bounded, secret-free shell completion.
+Each destructive action is recorded as in-flight before mutation, so a retry
+can prove the exact absent post-state and finish after a crash between removal
+and the completed-action journal update.
 
 ## Checkout worktrees
 
@@ -816,17 +832,19 @@ period. Cleanup authenticates their checkout/key path, ownership marker,
 and closed commit/tree/subpath metadata before considering removal. Build
 selection separately proves the complete tree digest and exact path,
 entry-type, executable-mode, symlink-target, and blob identity against the
-recorded Git source tree; a mismatch fails the build without deleting the
-generation. Once ownership is unambiguous, cleanup reports content-digest
-corruption as an explicitly eligible `corrupt_source_generation`. Inspect
-recovery with `./atrinik cleanup --scope builds
+recorded Git source tree. A mismatch under exact descriptor-verified marker
+ownership atomically retains the generation as a recovery transaction and
+rebuilds the canonical key; uncertain ownership fails the build without moving
+data. Cleanup reports an owned canonical content-digest mismatch as an eligible
+`corrupt_source_generation`, while recovery transactions remain independently
+previewable. Inspect retained data with `./atrinik cleanup --scope builds
 --older-than 0 --dry-run --json`; after reviewing the exact protected or
 eligible generation, use the same scoped command with `--apply`. An active
 build holds the generation's shared lock; apply takes its exclusive side and
 repeats ownership, content state, and age validation before bounded removal.
-Generation staging transactions within the marker-owned container are
+Recovery and staging transactions within the marker-owned container are
 separately inventoried, remain protected under an active generation lock, and
-are reclaimable after interruption and the normal grace period.
+are reclaimable only after the normal grace period.
 
 Worker dependency entries under `workspace/build/worker-dependencies/` use the
 same default `builds` scope and grace period. Cleanup requires the exact parent
@@ -1161,6 +1179,44 @@ the explicit preview-first cleanup scope:
 Cleanup never stops a topology and never removes a live, busy, linked,
 malformed, registered, retained, promoted, or otherwise uncertain state.
 
+### Package a Classic review profile for Windows
+
+Create one portable ZIP when the client must be reviewed as a native Windows
+process rather than through the devcontainer display. The package cross-builds
+the selected Classic client and server, includes the profile's collected maps,
+generated client maps, resources, and sound, and snapshots one persistent
+server state with its accounts and player data:
+
+~~~sh
+./atrinik down REVIEW_TOPOLOGY
+./atrinik package windows \
+  --profile REVIEW_PROFILE \
+  --state REVIEW_STATE \
+  --output build/packages/review-windows.zip \
+  --json
+~~~
+
+The state must be stopped and must have been started at least once so its QUIC
+identity exists. To transfer a temporary topology's state, stop it with
+`--retain-state` and promote it to a new persistent name first. Packaging
+refuses a live or otherwise busy state, an incompatible profile/state pairing,
+an existing output file, or a non-Classic profile.
+
+Run the command inside the `windows-cross` devcontainer to use its installed
+toolchain directly. From the ordinary devcontainer or WSL2, the wrapper uses
+Docker and the digest-pinned image in
+`.devcontainer/windows-cross/devcontainer.json`. After the command succeeds,
+copy the ZIP to Windows, extract it, and double-click `run.bat`. The launcher
+starts the local packaged server on UDP port 1730 and pins the client to that
+server's copied certificate fingerprint. Use `--port PORT` when 1730 is not
+available on the Windows host.
+
+The output file is mode 0600 on the packaging host and the command reports its
+SHA-256 digest. Treat it as sensitive: `server/data` contains private player
+data, credentials, and the server private identity. Do not upload the ZIP to a
+public pull request, issue, CI artifact, or release. The wrapper never
+overwrites an existing ZIP.
+
 For a complete Classic profile, `up`, scenarios, and individual builds resolve
 one manifest-derived build-root selection across the `client`, `server`,
 `content`, `protocol`, `libatrinik`, `sound`, `resources`, and
@@ -1213,6 +1269,19 @@ owning operation and supported recovery action; an authored record that changes
 during confirmation fails with a distinct retry diagnostic. Profile names,
 topology names, scenarios, states, build roots, and cache keys remain
 workspace-local.
+Each lease request publishes its locked `waiting` owner record before main-lock
+admission, then transitions it to `admitted` through a per-coordinate transition
+gate under owner-directory serialization. The main lock is acquired before that
+short gate, so a blocked request cannot convoy compatible peers or prevent the
+current holder from releasing. Diagnostics list admitted holders before queued
+waiters, rendezvous with every in-progress admission before returning a stable
+snapshot, and cannot reap a partially published record. Failed publication
+removes its exact token; if the filesystem also refuses that cleanup, the
+operation fails closed and reports the retained token as cleanup uncertainty.
+Teardown always releases the main lease even when owner-metadata finalization
+fails, while reporting retained metadata uncertainty for later diagnostic
+reaping. If main-lease release itself cannot be confirmed, the owner record is
+durably marked `release-uncertain` and retained as explicit recovery evidence.
 Requests acquire that deterministic order. A writer queued for one coordinate
 precedes later readers of that coordinate, while unrelated resources continue:
 two builds on different worktrees of one repository overlap, and init/sync for
@@ -1226,12 +1295,23 @@ A build holds its profile-name lease while deriving the requested target's
 transitive provider closure, then locks only those selected sources and
 revalidates them. Clean primary inputs are exported atomically into reusable,
 commit/tree/subpath-keyed read-only generations below
-`workspace/build/source-generations/`; reuse verifies ownership metadata and a
-complete tree digest plus the captured checkout, source, and common-Git
-filesystem identities. No generation links or hard-links back to mutable
-primary files. Every generated path is revalidated after the build takes its
-shared pin; only then are its primary source leases released. Dirty primaries
-and worktrees stay locked for as long as the build
+`workspace/build/source-generations/`. Publication flushes every sealed source
+file and directory, compares a descriptor-pinned whole-tree identity, content,
+and mount-boundary inventory immediately before the no-replace rename, then
+flushes the containing directory; reuse verifies ownership metadata and a
+complete tree digest plus the exact recorded Git tree and the captured checkout,
+source, and common-Git filesystem identities. An incomplete generation with
+exact marker ownership is atomically retained as a recovery transaction only
+after a pinned traversal excludes nested mounts, then rebuilt at its canonical
+key; uncertain ownership fails closed. Recovery
+transactions remain visible to preview-first `builds` cleanup and its normal
+grace period. No generation links or hard-links back to mutable primary files.
+Existing generations are authenticated under a shared per-key lock; only an
+absent or conclusively corrupt generation takes the exclusive creation lock and
+rechecks after admission.
+Every generated path is revalidated after the build takes its shared pin; only
+then are its primary source leases released. Dirty primaries and worktrees stay
+locked for as long as the build
 can read them. Cache and region-map coordinates come from the captured snapshot
 or generation metadata rather than rereading a released primary. The build
 persists original filesystem/Git observations and immutable generation paths
