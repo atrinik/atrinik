@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 import hashlib
 import json
@@ -1607,6 +1608,26 @@ def _cyclonedx_type(kind: str) -> str:
     return "library"
 
 
+def _version_probe(command: list[str]) -> dict[str, object]:
+    try:
+        result = subprocess.run(
+            command,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            timeout=10,
+        )
+    except FileNotFoundError:
+        return {"available": False, "version": None}
+    lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    available = result.returncode == 0
+    version = None
+    if available and lines:
+        version = next((line for line in lines if re.search(r"\d", line)), lines[0])
+    return {"available": available, "version": version}
+
+
 def version_report(inventory: Inventory | None = None) -> str:
     probes: dict[str, list[str]] = {
         "actionlint": ["actionlint", "--version"],
@@ -1635,25 +1656,12 @@ def version_report(inventory: Inventory | None = None) -> str:
         "shellcheck": ["shellcheck", "--version"],
     }
     versions: dict[str, dict[str, object]] = {}
-    for name, command in probes.items():
-        try:
-            result = subprocess.run(
-                command,
-                check=False,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                timeout=10,
-            )
-        except FileNotFoundError:
-            versions[name] = {"available": False, "version": None}
-            continue
-        lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
-        available = result.returncode == 0
-        version = None
-        if available and lines:
-            version = next((line for line in lines if re.search(r"\d", line)), lines[0])
-        versions[name] = {"available": available, "version": version}
+    max_workers = min(8, len(probes))
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for name, value in zip(
+            probes, executor.map(_version_probe, probes.values())
+        ):
+            versions[name] = value
     if inventory is not None:
         versions["declared-dependencies"] = {
             dependency.identifier: {

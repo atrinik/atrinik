@@ -5,6 +5,7 @@ import io
 import json
 from pathlib import Path
 from types import SimpleNamespace
+import subprocess
 import tempfile
 import unittest
 from unittest import mock
@@ -232,6 +233,381 @@ class CiShardingTests(unittest.TestCase):
         ):
             with self.assertRaisesRegex(ValueError, "duration count must be positive"):
                 ci_sharding.main()
+
+    def test_local_selection_is_sorted_and_rejects_unknown_or_duplicate_ids(self) -> None:
+        discovered = ["tests.beta", "tests.alpha", "tests.gamma"]
+        self.assertEqual(
+            ci_sharding.select_test_ids(discovered, ["tests.gamma", "tests.alpha"]),
+            ["tests.alpha", "tests.gamma"],
+        )
+        with self.assertRaisesRegex(ValueError, "unique"):
+            ci_sharding.select_test_ids(discovered, ["tests.alpha", "tests.alpha"])
+        with self.assertRaisesRegex(ValueError, "not discovered"):
+            ci_sharding.select_test_ids(discovered, ["tests.missing"])
+
+    def test_local_result_validation_requires_exact_once_and_successful_workers(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            selected = [["tests.alpha"], ["tests.beta"]]
+            for index, test_ids in enumerate(selected):
+                ci_sharding._write_json(
+                    root / f"shard-{index}-result.json",
+                    {
+                        "elapsed_seconds": 0.1,
+                        "failed": False,
+                        "schema_version": 1,
+                        "selected_ids": test_ids,
+                        "tests": {test_ids[0]: 0.1},
+                        "tests_run": 1,
+                    },
+                )
+            self.assertEqual(
+                ci_sharding._validate_local_results(
+                    root, selected, ["tests.alpha", "tests.beta"], [0, 0]
+                ),
+                [],
+            )
+            (root / "shard-1-result.json").unlink()
+            errors = ci_sharding._validate_local_results(
+                root, selected, ["tests.alpha", "tests.beta"], [0, 0]
+            )
+            self.assertIn("shard 1 did not retain a result", errors)
+
+    def test_local_parent_success_and_coverage_retain_complete_evidence(self) -> None:
+        class FakeProcess:
+            next_pid = 4000
+
+            def __init__(self, exit_code: int) -> None:
+                self.pid = FakeProcess.next_pid
+                FakeProcess.next_pid += 1
+                self.returncode: int | None = None
+                self.exit_code = exit_code
+
+            def wait(self, timeout: float | None = None) -> int:
+                del timeout
+                self.returncode = self.exit_code
+                return self.exit_code
+
+            def poll(self) -> int | None:
+                return self.returncode
+
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            weights_path = root / "weights.json"
+            weights_path.write_text(json.dumps(self.weights()), encoding="utf-8")
+            calls: list[list[str]] = []
+
+            def launch(command: list[str], **keywords: object) -> FakeProcess:
+                calls.append(command)
+                assignment = Path(command[command.index("--assignment") + 1])
+                result_path = Path(command[command.index("--result") + 1])
+                selected = json.loads(assignment.read_text(encoding="utf-8"))[
+                    "selected_ids"
+                ]
+                ci_sharding._write_json(
+                    result_path,
+                    {
+                        "elapsed_seconds": 0.25,
+                        "failed": False,
+                        "schema_version": 1,
+                        "selected_ids": selected,
+                        "tests": {test_id: 0.1 for test_id in selected},
+                        "tests_run": len(selected),
+                    },
+                )
+                environment = keywords["env"]
+                assert isinstance(environment, dict)
+                coverage_file = environment.get("COVERAGE_FILE")
+                if coverage_file is not None:
+                    coverage_path = Path(f"{coverage_file}.fake")
+                    coverage_path.parent.mkdir(parents=True, exist_ok=True)
+                    coverage_path.write_bytes(b"coverage")
+                return FakeProcess(0)
+
+            arguments = SimpleNamespace(
+                coverage=True,
+                durations=1,
+                jobs=2,
+                output=root / "runs",
+                tests=None,
+                weights=weights_path,
+            )
+            with (
+                mock.patch.object(
+                    ci_sharding,
+                    "discover_test_ids",
+                    return_value=["tests.alpha", "tests.beta"],
+                ),
+                mock.patch.object(ci_sharding.subprocess, "Popen", side_effect=launch),
+                mock.patch.object(
+                    ci_sharding.subprocess,
+                    "run",
+                    return_value=subprocess.CompletedProcess([], 0, stdout=""),
+                ),
+            ):
+                self.assertEqual(ci_sharding.run_local(arguments), 0)
+
+            self.assertEqual(len(calls), 2)
+            run_root = next(arguments.output.glob("run-*"))
+            state = json.loads((run_root / "run.json").read_text(encoding="utf-8"))
+            self.assertEqual(state["status"], "passed")
+            self.assertTrue(state["coverage"]["combined"])
+            self.assertEqual(state["timing"]["aggregate_test_seconds"], 0.2)
+            self.assertTrue((run_root / "coverage-report.txt").exists())
+
+    def test_local_parent_failure_interrupt_and_launch_error_retain_state(self) -> None:
+        class FakeProcess:
+            def __init__(self, *, interrupt: bool = False) -> None:
+                self.pid = 5000
+                self.returncode: int | None = None
+                self.interrupt = interrupt
+
+            def wait(self, timeout: float | None = None) -> int:
+                del timeout
+                if self.interrupt and self.returncode is None:
+                    self.returncode = 130
+                    raise KeyboardInterrupt
+                self.returncode = 1 if not self.interrupt else 130
+                return self.returncode
+
+            def poll(self) -> int | None:
+                return self.returncode
+
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            weights_path = root / "weights.json"
+            weights_path.write_text(json.dumps(self.weights()), encoding="utf-8")
+            common = dict(
+                durations=1,
+                jobs=1,
+                output=root / "runs",
+                tests=None,
+                weights=weights_path,
+            )
+
+            def launch_failure(*_args: object, **_keywords: object) -> FakeProcess:
+                raise OSError("simulated launch failure")
+
+            def worker_failure(command: list[str], **_keywords: object) -> FakeProcess:
+                assignment = Path(command[command.index("--assignment") + 1])
+                result_path = Path(command[command.index("--result") + 1])
+                selected = json.loads(assignment.read_text(encoding="utf-8"))[
+                    "selected_ids"
+                ]
+                ci_sharding._write_json(
+                    result_path,
+                    {
+                        "elapsed_seconds": 0.1,
+                        "failed": True,
+                        "schema_version": 1,
+                        "selected_ids": selected,
+                        "tests": {test_id: 0.1 for test_id in selected},
+                        "tests_run": len(selected),
+                    },
+                )
+                return FakeProcess()
+
+            def interrupted_worker(*_args: object, **_keywords: object) -> FakeProcess:
+                return FakeProcess(interrupt=True)
+
+            with mock.patch.object(
+                ci_sharding, "discover_test_ids", return_value=["tests.alpha"]
+            ):
+                for launcher, expected_status, expected_code in (
+                    (worker_failure, "failed", 1),
+                    (interrupted_worker, "interrupted", 130),
+                ):
+                    arguments = SimpleNamespace(coverage=False, **common)
+                    previous_runs = set(arguments.output.glob("run-*"))
+                    with (
+                        mock.patch.object(
+                            ci_sharding.subprocess, "Popen", side_effect=launcher
+                        ),
+                        mock.patch.object(
+                            ci_sharding, "_terminate_local_process"
+                        ),
+                    ):
+                        self.assertEqual(ci_sharding.run_local(arguments), expected_code)
+                    run_root = next(iter(set(arguments.output.glob("run-*")) - previous_runs))
+                    state = json.loads(
+                        (run_root / "run.json").read_text(encoding="utf-8")
+                    )
+                    self.assertEqual(state["status"], expected_status)
+                    self.assertEqual(state["exit_code"], expected_code)
+
+                arguments = SimpleNamespace(coverage=False, **common)
+                previous_runs = set(arguments.output.glob("run-*"))
+                with mock.patch.object(
+                    ci_sharding.subprocess, "Popen", side_effect=launch_failure
+                ):
+                    self.assertEqual(ci_sharding.run_local(arguments), 1)
+                run_root = next(iter(set(arguments.output.glob("run-*")) - previous_runs))
+                state = json.loads(
+                    (run_root / "run.json").read_text(encoding="utf-8")
+                )
+                self.assertEqual(state["status"], "failed")
+                self.assertIn("simulated launch failure", state["errors"][0])
+
+    def test_local_worker_validates_assignment_and_records_result(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            assignment = root / "assignment.json"
+            result = root / "result.json"
+            ci_sharding._write_json(
+                assignment,
+                {
+                    "schema_version": 1,
+                    "selected_ids": [
+                        "tests.test_ci_sharding.SampleShardTest.test_pass"
+                    ],
+                    "shard_count": 1,
+                    "shard_index": 0,
+                },
+            )
+            arguments = SimpleNamespace(
+                assignment=assignment, durations=1, result=result
+            )
+            self.assertEqual(ci_sharding.run_local_worker(arguments), 0)
+            self.assertEqual(
+                json.loads(result.read_text(encoding="utf-8"))["tests_run"], 1
+            )
+
+    def test_local_validation_and_evidence_reject_malformed_worker_data(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            selected = [["tests.alpha"]]
+            (root / "shard-0-result.json").write_text("not json", encoding="utf-8")
+            errors = ci_sharding._validate_local_results(
+                root, selected, ["tests.alpha"], [0]
+            )
+            self.assertTrue(any("unreadable" in error for error in errors))
+
+            ci_sharding._write_json(root / "shard-0-result.json", [])
+            errors = ci_sharding._validate_local_results(
+                root, selected, ["tests.alpha"], [0]
+            )
+            self.assertTrue(any("not an object" in error for error in errors))
+
+            ci_sharding._write_json(
+                root / "shard-0-result.json",
+                {
+                    "elapsed_seconds": float("nan"),
+                    "failed": True,
+                    "schema_version": 2,
+                    "selected_ids": ["tests.other"],
+                    "tests": {"tests.other": -1},
+                    "tests_run": 0,
+                },
+            )
+            errors = ci_sharding._validate_local_results(
+                root, selected, ["tests.alpha"], [1]
+            )
+            self.assertGreaterEqual(len(errors), 6)
+
+            coverage = root / "coverage"
+            coverage.mkdir()
+            (coverage / ".coverage.shard-0.fake").write_bytes(b"coverage")
+            (coverage / "unexpected").write_bytes(b"unexpected")
+            with self.assertRaisesRegex(ValueError, "unexpected data"):
+                ci_sharding._coverage_files(root, 1)
+            (coverage / "unexpected").unlink()
+            (coverage / ".coverage.shard-0.fake").unlink()
+            with self.assertRaisesRegex(ValueError, "missing for shard"):
+                ci_sharding._coverage_files(root, 1)
+
+            (root / "shard-0.log").write_text("log\n", encoding="utf-8")
+            ci_sharding._print_local_evidence(root, 1)
+            (root / "shard-0-result.json").write_text("not json", encoding="utf-8")
+            ci_sharding._print_local_evidence(root, 1)
+            ci_sharding._write_json(root / "shard-0-result.json", [])
+            ci_sharding._print_local_evidence(root, 1)
+            self.assertEqual(ci_sharding._local_timing_summary(root, 1)["shards"], [])
+            (root / "shard-0-result.json").write_text("not json", encoding="utf-8")
+            self.assertEqual(ci_sharding._local_timing_summary(root, 1)["shards"], [])
+
+    def test_local_worker_and_process_helpers_reject_invalid_states(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            assignment = root / "assignment.json"
+            result = root / "result.json"
+            arguments = SimpleNamespace(assignment=assignment, durations=1, result=result)
+            for value, message in (
+                ({"schema_version": 1}, "unsupported schema"),
+                (
+                    {
+                        "schema_version": 1,
+                        "selected_ids": ["tests.beta", "tests.alpha"],
+                        "shard_count": 1,
+                        "shard_index": 0,
+                    },
+                    "invalid",
+                ),
+            ):
+                with self.subTest(message=message):
+                    ci_sharding._write_json(assignment, value)
+                    with self.assertRaisesRegex(ValueError, message):
+                        ci_sharding.run_local_worker(arguments)
+
+        class FakeProcess:
+            def __init__(self) -> None:
+                self.pid = 123
+                self.terminated = False
+                self.killed = False
+
+            def poll(self) -> None:
+                return None
+
+            def terminate(self) -> None:
+                self.terminated = True
+
+            def kill(self) -> None:
+                self.killed = True
+
+        process = FakeProcess()
+        with mock.patch.object(ci_sharding.os, "name", "nt"):
+            ci_sharding._terminate_local_process(process)
+            ci_sharding._kill_local_process(process)
+        self.assertTrue(process.terminated)
+        self.assertTrue(process.killed)
+
+        process = FakeProcess()
+        with mock.patch.object(ci_sharding.os, "name", "posix"):
+            with mock.patch.object(ci_sharding.os, "killpg") as killpg:
+                ci_sharding._terminate_local_process(process)
+                ci_sharding._kill_local_process(process)
+                self.assertEqual(killpg.call_count, 2)
+        process = FakeProcess()
+        with mock.patch.object(ci_sharding.os, "name", "posix"):
+            with mock.patch.object(
+                ci_sharding.os, "killpg", side_effect=ProcessLookupError
+            ):
+                ci_sharding._terminate_local_process(process)
+                ci_sharding._kill_local_process(process)
+
+    def test_local_run_rejects_invalid_job_count(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            weights = root / "weights.json"
+            weights.write_text(json.dumps(self.weights()), encoding="utf-8")
+            arguments = SimpleNamespace(
+                coverage=False,
+                durations=1,
+                jobs=0,
+                output=root / "runs",
+                tests=None,
+                weights=weights,
+            )
+            with mock.patch.object(
+                ci_sharding, "discover_test_ids", return_value=["tests.alpha"]
+            ):
+                with self.assertRaisesRegex(ValueError, "between 1 and"):
+                    ci_sharding.run_local(arguments)
+
+    def test_default_local_jobs_is_bounded_by_three(self) -> None:
+        with mock.patch.object(ci_sharding.os, "cpu_count", return_value=32):
+            self.assertEqual(ci_sharding.default_local_jobs(), 3)
+        with mock.patch.object(ci_sharding.os, "cpu_count", return_value=None):
+            self.assertEqual(ci_sharding.default_local_jobs(), 1)
 
 
 if __name__ == "__main__":

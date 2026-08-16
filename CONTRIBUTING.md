@@ -127,6 +127,9 @@ branch coverage before publishing the stable `Integration validation` check.
 See [CI performance](docs/CI_PERFORMANCE.md) for the budget, evidence format,
 and comparable-run method.
 
+Use [local test execution](docs/LOCAL_TESTING.md) for targeted, serial, or
+process-isolated parallel runs before the complete validation recipe.
+
 When changing the repository-local skill, also run the skill validator
 available in the active Codex installation; its exact path is
 environment-specific.
