@@ -18,6 +18,7 @@ import tempfile
 from typing import Any, Callable, Iterable
 
 from .locking import LockBusyError, active_lock_fds, exclusive_layout_lock
+from .delivery import inventory_active_delivery_evidence
 from .model import (
     AtomicJsonCommitUncertain,
     JsonUnlinkCommitUncertain,
@@ -540,6 +541,26 @@ class RepositoryMigration:
 
     def _inspect(self) -> _Inspection:
         refusals: list[dict[str, str]] = []
+        try:
+            delivery = inventory_active_delivery_evidence(self.repository_root)
+        except WorkspaceError as error:
+            refusals.append(
+                self._refusal(
+                    "delivery_inventory_error",
+                    f"active delivery evidence could not be inspected: {error}",
+                    "preserve the review root and repair only the exact delivery evidence",
+                )
+            )
+        else:
+            if delivery.transition_blockers:
+                refusals.append(
+                    self._refusal(
+                        "active_delivery",
+                        "repository migration is blocked by active delivery evidence: "
+                        + ", ".join(delivery.transition_blockers),
+                        "complete the delivery lifecycle or use its explicit recovery protocol",
+                    )
+                )
         classic, classic_row, classic_refusals = self._inspect_classic()
         refusals.extend(classic_refusals)
         sources: list[_Source] = []
