@@ -836,11 +836,14 @@ When `build/reviews` exists, cleanup inventories it through the canonical
 delivery-ledger helper and protects the review root, every active ledger's
 report and lock, and each ledger-owned worktree. Missing reports or locks,
 unsupported helper output, and unrecognized inventory errors protect the
-complete cleanup plan; the wrapper never recreates missing evidence. The
-repository migration preview and apply paths use the same inventory and refuse
-while any active ledger exists. Recovery therefore requires the authenticated
-delivery authority and exact preserved bytes; a fresh ledger, timestamp,
-branch, worktree, or issue assignment cannot substitute for lost evidence.
+complete cleanup plan and surface the inventory error on the affected review
+root; the wrapper never recreates missing evidence. The repository migration
+preview and apply paths use the same inventory and refuse while any active
+ledger exists. Recovery therefore requires a separately authenticated
+`explicit-recovery` grant and exact preserved bytes. A fresh ledger, timestamp,
+branch, worktree, issue assignment, Project state, or push access cannot
+substitute for lost evidence; when a required canonical report or member is
+gone, the safe result is an explicit stop awaiting maintainer direction.
 
 Profile builds are eligible only as direct
 `workspace/build/profiles/<profile>-<key>` children with an exact regular
