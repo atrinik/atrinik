@@ -1302,6 +1302,13 @@ historical for reference discovery: its retained selectors are still fully
 validated, and any selector resolving to the candidate worktree remains a
 blocking reference. Extra components, malformed selectors, and other uncertain
 profile state fail closed.
+Delivery scope observation and binding accept either an exact physical checkout
+selector or one exact logical component selector. For Classic, `classic` is the
+physical checkout and `classic-*` are its logical components; while older
+operators are being migrated, use a positional `classic-*` selector and keep
+per-checkout `--label`, `--branch`, and `--start-point` overrides keyed by
+physical checkout `classic`. This preserves one checkout-wide worktree and
+avoids treating the physical checkout name as a logical component.
 Each lease request publishes its locked `waiting` owner record before main-lock
 admission, then transitions it to `admitted` through a per-coordinate transition
 gate under owner-directory serialization. The main lock is acquired before that
