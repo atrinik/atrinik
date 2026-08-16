@@ -163,6 +163,8 @@ TOPOLOGY_PROCESS_TREE_LEASE = "process-tree.lease"
 TOPOLOGY_PORT_RESERVATION_RECORD = "port-reservation.json"
 TOPOLOGY_STATUS_SCHEMA_VERSION = 3
 LEGACY_RUNTIME_TOPOLOGY_STATUS_SCHEMA_VERSION = 2
+TOPOLOGY_STATUS_PUBLICATION_RETRY_TIMEOUT = 1.0
+TOPOLOGY_STATUS_PUBLICATION_RETRY_INTERVAL = 0.01
 RUNTIME_GENERATION_SCHEMA_VERSION = 1
 RUNTIME_GENERATION_LEASE = "generation.lease"
 RUNTIME_GENERATION_MANIFEST = "manifest.json"
@@ -17108,14 +17110,21 @@ class Workspace:
             and not runtime_active
             and not runtime_release_published
         ):
-            latest = load_json(status_path)
-            if (
-                isinstance(latest, dict)
-                and latest != published_status
-                and latest.get("control") == status.get("control")
-                and latest.get("stopped_at") is not None
-            ):
-                return self.topology_status(name)
+            deadline = (
+                time.monotonic() + TOPOLOGY_STATUS_PUBLICATION_RETRY_TIMEOUT
+            )
+            while True:
+                latest = load_json(status_path)
+                if (
+                    isinstance(latest, dict)
+                    and latest != published_status
+                    and latest.get("control") == status.get("control")
+                    and latest.get("stopped_at") is not None
+                ):
+                    return self.topology_status(name)
+                if time.monotonic() >= deadline:
+                    break
+                time.sleep(TOPOLOGY_STATUS_PUBLICATION_RETRY_INTERVAL)
             raise WorkspaceError(
                 f"topology runtime generation lease is not retained: {name}"
             )
