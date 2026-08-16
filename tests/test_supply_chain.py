@@ -35,6 +35,7 @@ from atrinik_workspace.supply_chain import (
     _system_package_versions,
     _text,
     _tracked_files,
+    _version_probe,
     _validate_container_reference,
     _workflow_job_blocks,
     _workflow_runners,
@@ -1660,6 +1661,31 @@ jobs:
             probes = json.loads(version_report())
         self.assertTrue(all(probe["available"] for probe in probes.values()))
         self.assertTrue(all(probe["version"] is None for probe in probes.values()))
+
+    def test_version_probe_reports_success_and_missing_version_lines(self) -> None:
+        completed = subprocess.CompletedProcess(
+            args=["tool"],
+            returncode=0,
+            stdout="tool 1.2.3\nmetadata\n",
+        )
+        with mock.patch(
+            "atrinik_workspace.supply_chain.subprocess.run", return_value=completed
+        ):
+            self.assertEqual(
+                _version_probe(["tool"]),
+                {"available": True, "version": "tool 1.2.3"},
+            )
+
+        failed = subprocess.CompletedProcess(
+            args=["tool"], returncode=1, stdout="tool failed\n"
+        )
+        with mock.patch(
+            "atrinik_workspace.supply_chain.subprocess.run", return_value=failed
+        ):
+            self.assertEqual(
+                _version_probe(["tool"]),
+                {"available": False, "version": None},
+            )
 
     def test_repository_identity_accepts_https_and_ssh_only(self) -> None:
         for url in (

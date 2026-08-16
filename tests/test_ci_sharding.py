@@ -472,6 +472,137 @@ class CiShardingTests(unittest.TestCase):
                 json.loads(result.read_text(encoding="utf-8"))["tests_run"], 1
             )
 
+    def test_local_validation_and_evidence_reject_malformed_worker_data(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            selected = [["tests.alpha"]]
+            (root / "shard-0-result.json").write_text("not json", encoding="utf-8")
+            errors = ci_sharding._validate_local_results(
+                root, selected, ["tests.alpha"], [0]
+            )
+            self.assertTrue(any("unreadable" in error for error in errors))
+
+            ci_sharding._write_json(root / "shard-0-result.json", [])
+            errors = ci_sharding._validate_local_results(
+                root, selected, ["tests.alpha"], [0]
+            )
+            self.assertTrue(any("not an object" in error for error in errors))
+
+            ci_sharding._write_json(
+                root / "shard-0-result.json",
+                {
+                    "elapsed_seconds": float("nan"),
+                    "failed": True,
+                    "schema_version": 2,
+                    "selected_ids": ["tests.other"],
+                    "tests": {"tests.other": -1},
+                    "tests_run": 0,
+                },
+            )
+            errors = ci_sharding._validate_local_results(
+                root, selected, ["tests.alpha"], [1]
+            )
+            self.assertGreaterEqual(len(errors), 6)
+
+            coverage = root / "coverage"
+            coverage.mkdir()
+            (coverage / ".coverage.shard-0.fake").write_bytes(b"coverage")
+            (coverage / "unexpected").write_bytes(b"unexpected")
+            with self.assertRaisesRegex(ValueError, "unexpected data"):
+                ci_sharding._coverage_files(root, 1)
+            (coverage / "unexpected").unlink()
+            (coverage / ".coverage.shard-0.fake").unlink()
+            with self.assertRaisesRegex(ValueError, "missing for shard"):
+                ci_sharding._coverage_files(root, 1)
+
+            (root / "shard-0.log").write_text("log\n", encoding="utf-8")
+            ci_sharding._print_local_evidence(root, 1)
+            (root / "shard-0-result.json").write_text("not json", encoding="utf-8")
+            ci_sharding._print_local_evidence(root, 1)
+            ci_sharding._write_json(root / "shard-0-result.json", [])
+            ci_sharding._print_local_evidence(root, 1)
+            self.assertEqual(ci_sharding._local_timing_summary(root, 1)["shards"], [])
+            (root / "shard-0-result.json").write_text("not json", encoding="utf-8")
+            self.assertEqual(ci_sharding._local_timing_summary(root, 1)["shards"], [])
+
+    def test_local_worker_and_process_helpers_reject_invalid_states(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            assignment = root / "assignment.json"
+            result = root / "result.json"
+            arguments = SimpleNamespace(assignment=assignment, durations=1, result=result)
+            for value, message in (
+                ({"schema_version": 1}, "unsupported schema"),
+                (
+                    {
+                        "schema_version": 1,
+                        "selected_ids": ["tests.beta", "tests.alpha"],
+                        "shard_count": 1,
+                        "shard_index": 0,
+                    },
+                    "invalid",
+                ),
+            ):
+                with self.subTest(message=message):
+                    ci_sharding._write_json(assignment, value)
+                    with self.assertRaisesRegex(ValueError, message):
+                        ci_sharding.run_local_worker(arguments)
+
+        class FakeProcess:
+            def __init__(self) -> None:
+                self.pid = 123
+                self.terminated = False
+                self.killed = False
+
+            def poll(self) -> None:
+                return None
+
+            def terminate(self) -> None:
+                self.terminated = True
+
+            def kill(self) -> None:
+                self.killed = True
+
+        process = FakeProcess()
+        with mock.patch.object(ci_sharding.os, "name", "nt"):
+            ci_sharding._terminate_local_process(process)
+            ci_sharding._kill_local_process(process)
+        self.assertTrue(process.terminated)
+        self.assertTrue(process.killed)
+
+        process = FakeProcess()
+        with mock.patch.object(ci_sharding.os, "name", "posix"):
+            with mock.patch.object(ci_sharding.os, "killpg") as killpg:
+                ci_sharding._terminate_local_process(process)
+                ci_sharding._kill_local_process(process)
+                self.assertEqual(killpg.call_count, 2)
+        process = FakeProcess()
+        with mock.patch.object(ci_sharding.os, "name", "posix"):
+            with mock.patch.object(
+                ci_sharding.os, "killpg", side_effect=ProcessLookupError
+            ):
+                ci_sharding._terminate_local_process(process)
+                ci_sharding._kill_local_process(process)
+
+    def test_local_run_rejects_invalid_job_count(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            weights = root / "weights.json"
+            weights.write_text(json.dumps(self.weights()), encoding="utf-8")
+            arguments = SimpleNamespace(
+                coverage=False,
+                durations=1,
+                jobs=0,
+                output=root / "runs",
+                tests=None,
+                weights=weights,
+            )
+            with mock.patch.object(
+                ci_sharding, "discover_test_ids", return_value=["tests.alpha"]
+            ):
+                with self.assertRaisesRegex(ValueError, "between 1 and"):
+                    ci_sharding.run_local(arguments)
+
     def test_default_local_jobs_is_bounded_by_three(self) -> None:
         with mock.patch.object(ci_sharding.os, "cpu_count", return_value=32):
             self.assertEqual(ci_sharding.default_local_jobs(), 3)
