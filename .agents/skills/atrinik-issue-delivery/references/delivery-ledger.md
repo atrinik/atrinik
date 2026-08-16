@@ -489,7 +489,18 @@ closing/migration. Target set, branches, initial commits, merge-base anchor,
 artifact slots/immutable intent, producer slot, and bound state are immutable;
 legal live-observation CAS may refresh a bound artifact's safety.
 Base or head advancement extends prior lineage; merge-base changes only with
-such an advance. Rewrites and retargets fail. Generic `cas` cannot perform any
+such an advance. Generic `cas` resolves exactly one advancing target to its
+single bound primitive or scope-produced worktree, pins its precommitted roots,
+Git authority, wrapper safety leases, and path identity without following
+links, and keeps that guard through the atomic replacement. Every appended
+base/head SHA must be a full exact commit present in that repository and a Git
+descendant of the immediately preceding lineage member. The helper recomputes
+`git merge-base` from the candidate current base/head and requires the exact
+candidate merge-base SHA. It repeats the live worktree and Git proof immediately
+before rename with lazy fetching disabled. Missing objects, abbreviations,
+guesses, rewrites, dirty/active/foreign worktrees, mutable authority, multiple
+target advances in one CAS, and retargets fail without publication. Generic
+`cas` cannot perform any
 part of an initial deferred primitive or scope bind; only the purpose-specific
 atomic binder may create the exact branch/worktree/resource candidate and its
 tagged crash receipt.
@@ -1300,7 +1311,9 @@ The values above illustrate shell shape only; copy actual values from the same
 `inspect` output. Never combine values from different observations. CAS locks,
 re-inventories, checks generation/digest/device/inode again immediately before
 atomic replace, and fsyncs. Before rename, all four expected identity values
-are mandatory concurrency guards. It also creates a durable hard-link receipt
+are mandatory concurrency guards. Target-coordinate changes additionally hold
+the live worktree/Git proof described above across this boundary. It also
+creates a durable hard-link receipt
 whose name encodes ledger, old generation/digest/device/inode, and candidate
 digest before rename:
 
@@ -1329,9 +1342,11 @@ use `--kind artifacts` or `--kind resources` only when deliberately checking
 that subset.
 
 For target advancement, first CAS-cancel pending ready/body/comment intent.
-Then refetch, prove descendant lineages, recompute merge base, CAS the new
-coordinates, and restart affected review, validation, and checks. Never encode a
-force-push/rebase/retarget as lineage.
+Then refetch exact full SHAs, append the descendant lineages, recompute merge
+base, and CAS the new coordinates. The helper independently repeats all Git
+proof at the publication boundary; caller-side inspection is not authority.
+Advance only one target per CAS, then restart affected review, validation, and
+checks. Never encode a force-push/rebase/retarget as lineage.
 
 ## Bind a created PR
 
@@ -1530,8 +1545,9 @@ bound, clearing digest and payload. Never cancel in-flight.
 
 ## Correct one proven target-head typo
 
-Ordinary CAS never rewrites lineage. If its caller nevertheless persisted one
-full-length but nonexistent target-head SHA, stop all delivery writes and retain
+Current ordinary CAS cannot publish an unproven target SHA. If a helper version
+without live target proof previously persisted one full-length but nonexistent
+target-head SHA, stop all delivery writes and retain
 the exact immediate-predecessor canonical ledger bytes. Use
 `correct-target-head` only when the bad generation differs from that predecessor
 solely by one target head advancement mirrored in exactly one bound branch and
@@ -1730,8 +1746,8 @@ stop for code-level recovery; never improvise file repair.
 | `create` stage only, including a durable short prefix | Rerun exact `create` with byte-identical candidate. It completes the deterministic stage. |
 | `create` target plus two-link stage | Rerun exact `create`; it proves identical inode/bytes and removes only the stage link. |
 | `create` target only | `inspect`; exact create retry is idempotent. Different bytes stop. |
-| CAS stage before rename, including a durable short prefix | Rerun exact `cas` with identical replacement and original four-part expected tuple. |
-| CAS target already replaced with its two-link update receipt | Rerun exact CAS with identical replacement and four-part predecessor tuple; the receipt name preserves generation/digest/device/inode and its shared inode proves the installed candidate. The helper removes the receipt. |
+| CAS stage before rename, including a durable short prefix | Rerun exact `cas` with identical replacement and original four-part expected tuple. A target-coordinate candidate must still pass the complete live Git/worktree proof before publication. |
+| CAS target already replaced with its two-link update receipt | Rerun exact CAS with identical replacement and four-part predecessor tuple; the receipt name preserves generation/digest/device/inode and its shared inode proves the installed candidate passed the pre-rename proof. The helper removes the receipt without requiring the branch to remain frozen after publication. |
 | Atomic worktree/scope bind interrupted at either CAS boundary | Rerun the identical `worktree-bind-cas` or `scope-bind-cas` with the same retained inputs and original four-part predecessor tuple, never generic `cas`. The helper freshly reproves live state before replacement and before accepting an installed post-rename receipt; drift preserves evidence and stops. |
 | Migration operation-digest plan/snapshot/report/prepared/ledger/complete boundary | Rerun exact `migrate` with identical null-migration candidate, kind, direct source name, and original source identity/digest. A different candidate or source cannot reuse even a short planned-stage prefix. |
 | Complete migration | `inventory` and `inspect`; require source/snapshot/marker/ledger coherence and no pending stage. |

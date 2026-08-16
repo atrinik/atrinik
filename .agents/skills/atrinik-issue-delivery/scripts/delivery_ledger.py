@@ -9343,7 +9343,144 @@ def _comment_transition(before: Mapping[str, Any], after: Mapping[str, Any]) -> 
     raise LedgerError("invalid delivery comment transition")
 
 
-def cas(
+def _target_advancement(
+    old: Mapping[str, Any], new: Mapping[str, Any]
+) -> tuple[Mapping[str, Any], Mapping[str, Any]] | None:
+    """Return the one target whose persisted Git coordinates advance."""
+
+    old_targets = {
+        (row["repository"]["node_id"], row["head"]["branch"]): row
+        for row in old["targets"]
+    }
+    changed = []
+    for after in new["targets"]:
+        key = (after["repository"]["node_id"], after["head"]["branch"])
+        before = old_targets.get(key)
+        if before is not None and any(
+            before[field]["current_sha"] != after[field]["current_sha"]
+            for field in ("base", "head", "merge_base")
+        ):
+            changed.append((before, after))
+    if len(changed) > 1:
+        raise LedgerError(
+            "one CAS may advance target coordinates for only one repository"
+        )
+    return changed[0] if changed else None
+
+
+def _target_worktree_proof(
+    document: Mapping[str, Any], target: Mapping[str, Any]
+) -> tuple[dict[str, Any], str, frozenset[str], Mapping[str, Any] | None]:
+    """Resolve one bound target to its immutable live-worktree authority."""
+
+    coordinate = (target["repository"]["node_id"], target["head"]["branch"])
+    matches = [
+        slot
+        for slot in document["artifacts"]
+        if slot["kind"] == "worktree"
+        and slot["state"] != "planned"
+        and (
+            slot["immutable"]["repository"]["node_id"],
+            slot["immutable"]["branch"],
+        )
+        == coordinate
+    ]
+    if len(matches) != 1:
+        raise LedgerError(
+            "target advancement requires exactly one bound authoritative worktree"
+        )
+    worktree = matches[0]
+    current = worktree.get("current")
+    path = None if current is None else current.get("path")
+    if not isinstance(path, str):
+        raise LedgerError("target advancement worktree has no bound live path")
+    request = worktree.get("primitive_request")
+    allowed_references: frozenset[str] = frozenset()
+    scope_record = None
+    if request is not None:
+        live_request = copy.deepcopy(request)
+    else:
+        producer = worktree.get("producer_resource_slot")
+        resources = [
+            resource
+            for resource in document["resources"]
+            if resource["slot_id"] == producer and resource["kind"] == "scope"
+        ]
+        if len(resources) != 1 or resources[0].get("current") is None:
+            raise LedgerError(
+                "target advancement lacks retained primitive or scope authority"
+            )
+        scope = resources[0]
+        scope_request = scope["request"]
+        live_request = _scope_worktree_request(
+            scope_request, target["repository"]
+        )
+        scope_raw = _retained_result(
+            scope["current"]["binding"],
+            "target advancement scope binding",
+        )
+        scope_record, _ = _scope_show_record(
+            scope_raw,
+            scope_request,
+            target["repository"],
+            "target advancement scope binding",
+        )
+        allowed_references = _scope_owned_references(scope_request)
+    live_request["expected_head_sha"] = target["head"]["current_sha"]
+    return live_request, path, allowed_references, scope_record
+
+
+def _prove_target_advancement(
+    guard: _LiveWorktreeGuard,
+    before: Mapping[str, Any],
+    after: Mapping[str, Any],
+) -> None:
+    """Live-prove exact commits, append ancestry, and the recomputed merge base."""
+
+    guard.prove()
+    worktree = guard.descriptors["worktree"]
+    for field in ("base", "head"):
+        prior = before[field]["lineage"][-1]
+        appended = after[field]["lineage"][len(before[field]["lineage"]) :]
+        for commit in appended:
+            _git(
+                worktree,
+                ("cat-file", "-e", f"{commit}^{{commit}}"),
+                f"target {field} commit {commit}",
+            )
+            status, _ = _git(
+                worktree,
+                ("merge-base", "--is-ancestor", prior, commit),
+                f"target {field} ancestry {prior}..{commit}",
+                accepted={0, 1},
+            )
+            if status != 0:
+                raise LedgerError(
+                    f"target {field} commit {commit} does not descend from {prior}"
+                )
+            prior = commit
+    _, merge_base_raw = _git(
+        worktree,
+        (
+            "merge-base",
+            after["base"]["current_sha"],
+            after["head"]["current_sha"],
+        ),
+        "target advancement merge base",
+    )
+    observed_merge_base = _one_git_line(
+        merge_base_raw, "target advancement merge base"
+    )
+    if observed_merge_base != after["merge_base"]["current_sha"]:
+        raise LedgerError(
+            "target merge-base coordinate does not match live Git: "
+            f"expected {after['merge_base']['current_sha']}, "
+            f"observed {observed_merge_base}"
+        )
+    guard.prove()
+
+
+def _cas_install(
     root: Path | str,
     name: str,
     document: Mapping[str, Any],
@@ -9554,6 +9691,99 @@ def cas(
                 raise LedgerError("installed CAS lost its predecessor proof")
             _unlink_exact(directory, proof, proof_visible)
             return installed
+
+
+def cas(
+    root: Path | str,
+    name: str,
+    document: Mapping[str, Any],
+    *,
+    expected_generation: int,
+    expected_digest: str,
+    expected_device: int,
+    expected_inode: int,
+    failpoint: Failpoint = None,
+    _precommit: Callable[[], None] | None = None,
+    _binding_capability: _AtomicBindingCapability | None = None,
+) -> Snapshot:
+    """CAS a ledger, live-proving every newly persisted Git coordinate."""
+
+    name = _direct_name(name)
+    prepared = prepare(document)
+    current = inspect(root, name)
+    raw = canonical_bytes(prepared)
+    # A hard-linked post-rename receipt can exist only after this exact
+    # candidate already passed its live proof immediately before publication.
+    # Resume receipt cleanup without requiring the branch to remain frozen.
+    if (
+        current.raw == raw
+        and prepared["generation"] == expected_generation + 1
+        and prepared["previous_byte_digest"] == expected_digest
+    ):
+        return _cas_install(
+            root,
+            name,
+            prepared,
+            expected_generation=expected_generation,
+            expected_digest=expected_digest,
+            expected_device=expected_device,
+            expected_inode=expected_inode,
+            failpoint=failpoint,
+            _precommit=_precommit,
+            _binding_capability=_binding_capability,
+        )
+    advancement = _target_advancement(current.document, prepared)
+    if advancement is None:
+        return _cas_install(
+            root,
+            name,
+            prepared,
+            expected_generation=expected_generation,
+            expected_digest=expected_digest,
+            expected_device=expected_device,
+            expected_inode=expected_inode,
+            failpoint=failpoint,
+            _precommit=_precommit,
+            _binding_capability=_binding_capability,
+        )
+    # Reject malformed transitions before consulting any mutable external Git
+    # authority.  The locked installation repeats this check against the exact
+    # predecessor bytes immediately before staging.
+    _transition(
+        current.document,
+        prepared,
+        current.digest,
+        _binding_capability=_binding_capability,
+    )
+    before, after = advancement
+    request, path, references, scope_record = _target_worktree_proof(
+        current.document, after
+    )
+    with _pinned_live_worktree(
+        request,
+        path,
+        "target advancement",
+        allowed_references=references,
+        scope_record=scope_record,
+    ) as guard:
+        def prove_before_publish() -> None:
+            if _precommit is not None:
+                _precommit()
+            _prove_target_advancement(guard, before, after)
+
+        prove_before_publish()
+        return _cas_install(
+            root,
+            name,
+            prepared,
+            expected_generation=expected_generation,
+            expected_digest=expected_digest,
+            expected_device=expected_device,
+            expected_inode=expected_inode,
+            failpoint=failpoint,
+            _precommit=prove_before_publish,
+            _binding_capability=_binding_capability,
+        )
 
 
 def correct_target_head(
