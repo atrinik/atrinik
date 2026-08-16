@@ -236,16 +236,17 @@ never reset it.
 
 Let wrapper metadata choose generated paths/builds; never reconstruct, copy,
 edit, delete, or select internals. Never stop unrelated topologies, reset
-shared/default/external state, handcraft saves, reuse credentials, or disclose
-passwords. Create a unique `basic-player` scenario only when interactive
-verification needs it and no exact delivery scenario exists; add a tested
+shared/default/external state, handcraft saves, or reuse/publish credentials.
+A disposable scenario password may appear only in local auto-login
+argv/client/Codex logs. Create a unique `basic-player` scenario only when
+interactive verification needs it and no exact delivery scenario exists; add a tested
 server-owned preset only when ordinary play is impractical.
 
-For Classic, compose the runtime/scenario skills. Give concrete copy-pasteable
-profile, build, scenario, credentials-local-only, topology, bounded-log,
-action/result, repeat, shutdown, and cleanup commands, plus explicit state
-policy. Initial `down` applies only to that topology; reset only delivery-owned
-data. State display/login prerequisites.
+For Classic, compose the runtime/scenario skills. Give exact profile, build,
+scenario, automatic-login topology, bounded logs, action/result, repeat,
+shutdown, cleanup, and state-policy commands. Initial `down` applies only to
+that topology; reset only delivery-owned data. State display/login
+prerequisites.
 
 For replacement work, create or reuse a delivery profile selecting the final
 worktree and inspect current capabilities. While integrated adapters are
