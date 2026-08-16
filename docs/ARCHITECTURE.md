@@ -376,6 +376,17 @@ the profile or scenario. A later source at the same path remains protected
 across relocated roots. Exact lease contention propagates its coordinate,
 operation, owner metadata and recovery action; a record that changes between
 read and confirmation fails separately and leaves the backfill marker absent.
+Delivery live proof supplements those records with a 4096-entry/32-MiB,
+descriptor-relative
+read of saved profiles beneath a pinned no-follow profiles root retained through
+precommit. It rechecks the exact sorted entry namespace, every entry's no-follow
+identity, and every regular JSON profile's canonical bytes digest at the final
+boundary; selector discovery parses those retained bytes rather than reopening
+mutable names. It tolerates only a selector map that is a strict subset of the current
+stack, validating every retained selector normally and treating any
+candidate-resolving selector as an exact reference. Extra components, malformed
+selectors, and all other ambiguity fail closed, and the authored profile bytes
+remain untouched.
 The requester publishes and locks `waiting` metadata before main-lock admission,
 then transitions it to `admitted` through a per-coordinate transition gate under
 owner-directory serialization. It acquires the main lock before the short gate;

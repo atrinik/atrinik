@@ -126,6 +126,8 @@ from .sound import (
 
 
 PROFILE_SCHEMA_VERSION = 5
+PROFILE_INVENTORY_MAX_ENTRIES = 4096
+PROFILE_INVENTORY_MAX_BYTES = 32 * 1024 * 1024
 LEGACY_PROFILE_SCHEMA_VERSION = 4
 OLDEST_PROFILE_SCHEMA_VERSION = 3
 PROFILE_KEYS = {
@@ -2029,9 +2031,19 @@ class _SourceGenerationCorrupt(WorkspaceError):
 
 
 class Workspace:
-    def __init__(self, repository: Path, *, backfill_references: bool = True):
+    def __init__(
+        self,
+        repository: Path,
+        *,
+        backfill_references: bool = True,
+        manifest: Manifest | None = None,
+    ):
         self.paths = Paths.discover(repository)
-        self.manifest = Manifest.load(self.paths.repository / "components.json")
+        self.manifest = (
+            manifest
+            if manifest is not None
+            else Manifest.load(self.paths.repository / "components.json")
+        )
         self._wrapper_lease: Any = None
         self._build_state = threading.local()
         self._prefix_map_support: dict[
@@ -2067,7 +2079,11 @@ class Workspace:
             != (current_namespace.st_dev, current_namespace.st_ino)
         ):
             raise WorkspaceError("wrapper worktree identity changed while acquiring its lease")
-        self.manifest = Manifest.load(self.paths.repository / "components.json")
+        self.manifest = (
+            manifest
+            if manifest is not None
+            else Manifest.load(self.paths.repository / "components.json")
+        )
         self._physical_lease_namespace_identity = namespace_identity
         if backfill_references:
             self._backfill_physical_references()
@@ -5954,9 +5970,20 @@ class Workspace:
             for descriptor in reversed(descriptors):
                 os.close(descriptor)
 
-    def _source_references(self, source_root: Path) -> list[str]:
+    def _source_references(
+        self,
+        source_root: Path,
+        *,
+        profiles_directory_fd: int | None = None,
+        profiles_directory_absent: bool = False,
+        profiles_inventory: tuple[tuple[str, bytes], ...] | None = None,
+    ) -> list[str]:
         """Return exact persisted references while the caller holds source exclusive."""
 
+        if profiles_directory_fd is not None and profiles_directory_absent:
+            raise WorkspaceError("profile inventory authority is ambiguous")
+        if profiles_inventory is not None and profiles_directory_fd is None:
+            raise WorkspaceError("retained profile inventory has no directory authority")
         target = source_root.resolve()
         references: list[str] = self._scope_source_references(target)
         for record in self._physical_reference_records():
@@ -5978,16 +6005,78 @@ class Workspace:
                 Path(source).resolve(strict=False) for source in record["sources"]
             }:
                 references.append(f"{record['kind'][:-1]}:{record['reference']}")
-        if self.paths.profiles.exists():
-            for path in sorted(self.paths.profiles.glob("*.json")):
-                profile = self._load_profile_file(path.stem, require_file=True)
-                stack = self.manifest.stack(profile["stack"])
-                roots = {
-                    self._selector_root(profile, component).resolve(strict=False)
-                    for component in stack.components
-                }
-                if target in roots:
-                    references.append(f"profile:{profile['name']}")
+        retained_profiles: dict[str, bytes] | None = None
+        if profiles_inventory is not None:
+            if (
+                not isinstance(profiles_inventory, tuple)
+                or len(profiles_inventory) > PROFILE_INVENTORY_MAX_ENTRIES
+            ):
+                raise WorkspaceError("retained profile inventory is invalid")
+            retained_profiles = {}
+            total_bytes = 0
+            previous = None
+            for row in profiles_inventory:
+                if (
+                    not isinstance(row, tuple)
+                    or len(row) != 2
+                    or not isinstance(row[0], str)
+                    or not row[0].endswith(".json")
+                    or Path(row[0]).name != row[0]
+                    or not isinstance(row[1], bytes)
+                    or (previous is not None and row[0] <= previous)
+                ):
+                    raise WorkspaceError("retained profile inventory is invalid")
+                total_bytes += len(row[1])
+                if total_bytes > PROFILE_INVENTORY_MAX_BYTES:
+                    raise WorkspaceError("retained profile inventory is oversized")
+                retained_profiles[Path(row[0]).stem] = row[1]
+                previous = row[0]
+            profile_names = list(retained_profiles)
+        elif profiles_directory_fd is not None:
+            try:
+                entries: list[str] = []
+                with os.scandir(profiles_directory_fd) as iterator:
+                    for entry in iterator:
+                        if len(entries) == PROFILE_INVENTORY_MAX_ENTRIES:
+                            raise WorkspaceError(
+                                "profile reference inventory is oversized"
+                            )
+                        entries.append(entry.name)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"cannot enumerate profile references: {error}"
+                ) from error
+            profile_names = [
+                Path(name).stem for name in sorted(entries) if name.endswith(".json")
+            ]
+        elif profiles_directory_absent:
+            profile_names = []
+        elif self.paths.profiles.exists():
+            profile_names = [
+                path.stem for path in sorted(self.paths.profiles.glob("*.json"))
+            ]
+        else:
+            profile_names = []
+        for profile_name in profile_names:
+            profile = self._load_profile_file(
+                profile_name,
+                require_file=True,
+                allow_incomplete_components=True,
+                directory_fd=profiles_directory_fd,
+                retained_raw=(
+                    None
+                    if retained_profiles is None
+                    else retained_profiles[profile_name]
+                ),
+            )
+            stack = self.manifest.stack(profile["stack"])
+            roots = {
+                self._selector_root(profile, component).resolve(strict=False)
+                for component in stack.components
+                if component.name in profile["components"]
+            }
+            if target in roots:
+                references.append(f"profile:{profile['name']}")
         for container, record_name in (
             (self.paths.topologies, "topology"),
             (self.paths.scenarios, "scenario"),
@@ -7127,7 +7216,15 @@ class Workspace:
             return snapshot.profile()
         return self._load_profile_file(name, require_file)
 
-    def _load_profile_file(self, name: str, require_file: bool) -> dict[str, Any]:
+    def _load_profile_file(
+        self,
+        name: str,
+        require_file: bool,
+        *,
+        allow_incomplete_components: bool = False,
+        directory_fd: int | None = None,
+        retained_raw: bytes | None = None,
+    ) -> dict[str, Any]:
         validate_name(name, "profile name")
         if name in self.manifest.stacks and not require_file:
             stack = self.manifest.stack(name)
@@ -7142,10 +7239,26 @@ class Workspace:
                     for component in stack.components
                 },
             }
-        path = self.paths.profiles / f"{name}.json"
-        if path.is_symlink() or not path.is_file():
-            raise WorkspaceError(f"profile does not exist: {name}")
-        profile = load_regular_json(path, f"profile {name}")
+        if retained_raw is not None:
+            try:
+                profile = json.loads(
+                    retained_raw.decode("utf-8"),
+                    object_pairs_hook=_reject_duplicate_keys,
+                )
+            except (UnicodeError, ValueError, RecursionError) as error:
+                raise WorkspaceError(f"cannot read profile {name}: {error}") from error
+        elif directory_fd is None:
+            path = self.paths.profiles / f"{name}.json"
+            if path.is_symlink() or not path.is_file():
+                raise WorkspaceError(f"profile does not exist: {name}")
+            profile = load_regular_json(path, f"profile {name}")
+        else:
+            try:
+                profile = load_regular_json_at(
+                    directory_fd, f"{name}.json", f"profile {name}"
+                )
+            except OSError as error:
+                raise WorkspaceError(f"profile does not exist: {name}") from error
         if not isinstance(profile, dict):
             raise WorkspaceError(f"profile must be an object: {name}")
         schema_version = profile.get("schema_version")
@@ -7194,7 +7307,11 @@ class Workspace:
         stack = self.manifest.stack(stack_name)
         selectors = profile["components"]
         expected = {component.name for component in stack.components}
-        if not isinstance(selectors, dict) or set(selectors) != expected:
+        if (
+            not isinstance(selectors, dict)
+            or not set(selectors).issubset(expected)
+            or (not allow_incomplete_components and set(selectors) != expected)
+        ):
             raise WorkspaceError(f"profile component set does not match manifest: {name}")
         checkout_selectors: dict[str, dict[str, Any]] = {}
         for component_name, selector in selectors.items():

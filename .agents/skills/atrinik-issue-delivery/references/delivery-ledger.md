@@ -171,6 +171,24 @@ gitfile remains valid. A worktree `.git` gitfile is retained and rechecked
 through live proof, and its admin directory must be one direct registration in
 that exact common directory.
 
+Reference proof validates every selector retained by every saved profile. A
+profile whose selector map is a strict subset of its current manifest stack may
+be treated as historical for reference discovery because an absent selector
+cannot name the candidate. Every retained selector still passes the ordinary
+schema, kind, value, path, and same-checkout consistency checks. If one resolves
+to the candidate, it remains an exact profile reference and blocks unless the
+ledger authorizes that holder. Extra components, malformed selectors, invalid
+profile metadata, and every other uncertainty fail closed. Observation and
+binding never rewrite the historical profile.
+
+Delivery opens `profiles` as a direct no-follow child of the pinned workspace
+root, caps its inventory at 4096 entries and 32 MiB of JSON, and reads candidate JSON relative to
+that descriptor. It snapshots and rechecks the exact sorted entry names plus
+each entry's no-follow identity and, for regular JSON profiles, canonical bytes
+digest through CAS precommit. Reference discovery parses those exact retained
+bytes rather than reopening mutable names. The directory inode remains pinned throughout;
+an initially absent directory must remain absent.
+
 On both primary and worktree checkouts, Git route proof anchors exactly one raw
 local `remote.origin.url` with includes disabled. After stripping dangerous
 selector `GIT_*` variables but retaining default user/system credential and
@@ -1551,12 +1569,14 @@ target-head SHA, stop all delivery writes and retain
 the exact immediate-predecessor canonical ledger bytes. Use
 `correct-target-head` only when the bad generation differs from that predecessor
 solely by one target head advancement mirrored in exactly one bound branch,
-one bound primitive- or active-scope-produced worktree, and, when already
-bound, at most one exact PR artifact. The worktree must retain either its exact
-deferred primitive request or one exact `producer_resource_slot` naming the
-created scope. Supply the bad generation's fresh four-part CAS identity, the
-nonexistent SHA, the exact live SHA, the predecessor file, and a canonical
-explicit-recovery authority/intent file.
+one bound primitive- or active-scope-produced worktree, plus the exact bound
+delivery-created PR artifact when that
+PR already exists. The worktree must retain either its exact deferred primitive
+request or one exact `producer_resource_slot` naming a created, active scope.
+Supply the bad generation's fresh four-part CAS identity, the nonexistent SHA,
+the exact live SHA, the predecessor file, and a canonical explicit-recovery
+authority/intent file. An adopted, contributor-owned, foreign, or otherwise
+changed PR artifact is never eligible for correction.
 
 That file has exactly `grant` and `intent`. `grant` is a normal
 `explicit-recovery` authority whose actor and complete repository/issue/PR
@@ -1593,8 +1613,17 @@ cannot trigger a remote fetch, and the recorded merge base equals a fresh
 `git merge-base` result. It then
 appends the bad generation digest to history while rebuilding only the affected
 head lineage as predecessor lineage plus the actual SHA and mirroring that SHA
-into the bound branch/worktree identities and the optional exact bound PR
-identity. Every other semantic byte remains the bad generation's byte.
+into the bound branch/worktree identities and the optional exact
+delivery-created PR identity. Every other semantic byte remains the bad
+generation's byte.
+
+For a wrapper-self delivery whose pinned primary wrapper predates the profile
+inventory proof API, the live proof first proves the candidate worktree clean,
+then may load that API only from the candidate's exact expected committed Git
+tree. The full live guard repeats the clean proof after the workspace lease is
+established. This bootstrap is limited to the exact Atrinik wrapper-self
+repository/checkout/root relationship; a component worktree or an unpinned or
+dirty candidate fails closed instead of substituting candidate code.
 
 The operation permanently retains canonical predecessor bytes and a hard link to
 the exact installed erroneous ledger inode plus the full recovery grant/intent

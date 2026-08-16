@@ -82,7 +82,8 @@ A merge-ready leaf is progress, not goal completion.
    paired release lines, keep separate bases, commits, validation, and PRs;
    preserve the declared merge order and canonical issue-closing path. Do not
    mark a draft ready until both its leaf review and the cumulative program
-   review below converge.
+   review below converge. Apply issue delivery's stale-profile proof boundary
+   to every leaf.
 3. Reconcile every head onto its current required base before relying on
    validation. Before target drift, CAS-cancel leaf body/readiness/planned-comment
    intents; recover an in-flight leaf comment or stop, then refresh/replan. A
