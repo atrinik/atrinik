@@ -21,6 +21,7 @@ import hashlib
 import importlib
 import importlib.abc
 import importlib.util
+from inspect import Parameter, signature
 import json
 import os
 from pathlib import Path
@@ -1162,6 +1163,10 @@ def _pinned_live_worktree(
             if worktree_authority is not None:
                 worktree_authority.close()
             primary_authority.close()
+        # Candidate wrapper compatibility code must never execute before the
+        # candidate is independently proven to be the requested clean tree.
+        # The full guard repeats this proof after the workspace lease exists.
+        _prove_live_worktree_core(request, path, descriptors)
         allowed = frozenset(allowed_references)
         with _workspace_safety_lease(
             request,
@@ -1170,6 +1175,7 @@ def _pinned_live_worktree(
             context,
             wrapper_directory=descriptors["wrapper"],
             workspace_directory=descriptors["workspace"],
+            worktree_directory=descriptors["worktree"],
             scope_record=scope_record,
         ) as authority_recheck:
             guard = _LiveWorktreeGuard(
@@ -1233,6 +1239,7 @@ def _workspace_safety_lease(
     *,
     wrapper_directory: int,
     workspace_directory: int,
+    worktree_directory: int,
     scope_record: Mapping[str, Any] | None = None,
 ) -> Iterator[Callable[[], None]]:
     """Use wrapper leases/reference logic to prove inactive, owned reuse."""
@@ -1268,15 +1275,61 @@ def _workspace_safety_lease(
                 )
 
         module = _load_workspace_module(wrapper_root)
+        source_references = getattr(module.Workspace, "_source_references", None)
+        source_reference_parameters = (
+            signature(source_references).parameters
+            if source_references is not None
+            else {
+                "profiles_directory_fd": None,
+                "profiles_directory_absent": None,
+            }
+        )
+        supports_reference_authority = {
+            "profiles_directory_fd",
+            "profiles_directory_absent",
+        }.issubset(source_reference_parameters) or any(
+            parameter is not None and parameter.kind is Parameter.VAR_KEYWORD
+            for parameter in source_reference_parameters.values()
+        )
+        if not supports_reference_authority:
+            wrapper_self = (
+                request["component"] == "atrinik"
+                and request["physical_checkout"] == "atrinik"
+                and request["repository"]["owner"] == "atrinik"
+                and request["repository"]["name"] == "atrinik"
+                and request["roots"]["primary"] == request["roots"]["wrapper"]
+                and path != wrapper_root
+            )
+            if not wrapper_self:
+                raise LedgerError(
+                    f"{context} primary wrapper lacks profile inventory authority"
+                )
+            module = _load_workspace_module_from_git(
+                path,
+                worktree_directory,
+                request["expected_head_sha"],
+            )
         recheck_manifest()
         retained_manifest = module.Manifest.from_value(
             _decode(manifest_raw, f"{context} retained workspace manifest")
         )
-        workspace = module.Workspace(
-            Path(wrapper_root),
-            backfill_references=False,
-            manifest=retained_manifest,
+        workspace_parameters = signature(module.Workspace).parameters
+        supports_manifest = "manifest" in workspace_parameters or any(
+            parameter.kind is Parameter.VAR_KEYWORD
+            for parameter in workspace_parameters.values()
         )
+        if supports_manifest:
+            workspace = module.Workspace(
+                Path(wrapper_root),
+                backfill_references=False,
+                manifest=retained_manifest,
+            )
+        else:
+            workspace = module.Workspace(
+                Path(wrapper_root),
+                backfill_references=False,
+            )
+            workspace.manifest = retained_manifest
         recheck_manifest()
     except Exception as error:
         try:
@@ -1780,6 +1833,119 @@ def _prevalidate_workspace_package(package_root: Path) -> _WorkspacePackageSnaps
         os.close(root)
 
 
+def _git_workspace_package_snapshot(
+    package_root: Path,
+    worktree: int,
+    expected_head: str,
+) -> _WorkspacePackageSnapshot:
+    """Retain executable package bytes from one already-proven Git tree."""
+
+    root = _directory_fd(package_root)
+    try:
+        root_status = os.fstat(root)
+        _require_trusted_directory(root_status, "candidate wrapper authority package")
+        _, listed_raw = _git(
+            worktree,
+            (
+                "ls-tree",
+                "-r",
+                "-z",
+                expected_head,
+                "--",
+                "atrinik_workspace",
+            ),
+            "candidate wrapper authority Git inventory",
+        )
+        entries_raw = listed_raw.split(b"\0")
+        if entries_raw and entries_raw[-1] == b"":
+            entries_raw.pop()
+        if not entries_raw or len(entries_raw) > MAX_INVENTORY_ENTRIES:
+            raise LedgerError("candidate wrapper authority Git inventory is invalid")
+        sources: list[tuple[str, bytes]] = []
+        total_bytes = 0
+        fingerprint = hashlib.sha256()
+        for entry_raw in entries_raw:
+            metadata_raw, separator, raw_name = entry_raw.partition(b"\t")
+            metadata_parts = metadata_raw.split(b" ")
+            if (
+                separator != b"\t"
+                or len(metadata_parts) != 3
+                or metadata_parts[0] not in {b"100644", b"100755"}
+                or metadata_parts[1] != b"blob"
+            ):
+                raise LedgerError(
+                    "candidate wrapper authority Git entry is not a regular file"
+                )
+            try:
+                object_id = metadata_parts[2].decode("ascii")
+            except UnicodeError as error:
+                raise LedgerError(
+                    "candidate wrapper authority Git object is invalid"
+                ) from error
+            if COMMIT_RE.fullmatch(object_id) is None:
+                raise LedgerError(
+                    "candidate wrapper authority Git object is invalid"
+                )
+            try:
+                name = raw_name.decode("utf-8")
+            except UnicodeError as error:
+                raise LedgerError(
+                    "candidate wrapper authority Git path is not UTF-8"
+                ) from error
+            prefix = "atrinik_workspace/"
+            if not name.startswith(prefix):
+                raise LedgerError("candidate wrapper authority Git path escaped")
+            relative = name.removeprefix(prefix)
+            parts = relative.split("/")
+            if (
+                not relative
+                or any(not part or part in {".", ".."} for part in parts)
+                or _contains_control(relative)
+            ):
+                raise LedgerError("candidate wrapper authority Git path is unsafe")
+            _, raw = _git(
+                worktree,
+                ("cat-file", "blob", object_id),
+                f"candidate wrapper authority Git object {relative}",
+            )
+            object_header = f"blob {len(raw)}\0".encode("ascii")
+            if hashlib.sha1(object_header + raw).hexdigest() != object_id:
+                raise LedgerError(
+                    "candidate wrapper authority Git object digest differs"
+                )
+            total_bytes += len(raw)
+            if total_bytes > MAX_INVENTORY_BYTES:
+                raise LedgerError("candidate wrapper authority Git bytes are not bounded")
+            metadata = canonical_bytes(
+                {
+                    "mode": metadata_parts[0].decode("ascii"),
+                    "object_id": object_id,
+                    "path": relative,
+                    "size": len(raw),
+                }
+            )
+            fingerprint.update(len(metadata).to_bytes(8, "big"))
+            fingerprint.update(metadata)
+            fingerprint.update(len(raw).to_bytes(8, "big"))
+            fingerprint.update(raw)
+            if relative.endswith(".py"):
+                sources.append((relative, raw))
+        source_names = {name for name, _ in sources}
+        if not {"__init__.py", "workspace.py"}.issubset(source_names):
+            raise LedgerError("candidate wrapper authority Git tree lacks source modules")
+        _recheck_pinned_directory(
+            root, str(package_root), "candidate wrapper authority package"
+        )
+        return _WorkspacePackageSnapshot(
+            root_status.st_dev,
+            root_status.st_ino,
+            fingerprint.hexdigest(),
+            tuple(sources),
+        )
+    finally:
+        os.close(root)
+
+
 def _load_workspace_module(wrapper_root: str) -> Any:
     """Load pretrusted wrapper authority under an inode-specific package."""
 
@@ -1803,7 +1969,15 @@ def _load_workspace_module(wrapper_root: str) -> Any:
             _discard_snapshot_package(package_name)
             raise
     after = _prevalidate_workspace_package(package_root)
-    if after.fingerprint != snapshot.fingerprint:
+    if (
+        after.device,
+        after.inode,
+        after.fingerprint,
+    ) != (
+        snapshot.device,
+        snapshot.inode,
+        snapshot.fingerprint,
+    ):
         _discard_snapshot_package(package_name)
         raise LedgerError("wrapper authority package changed during import")
     for name, module in tuple(sys.modules.items()):
@@ -1824,6 +1998,48 @@ def _load_workspace_module(wrapper_root: str) -> Any:
             or stat.S_IMODE(metadata.st_mode) & 0o022
         ):
             raise LedgerError("wrapper authority module source is unsafe")
+    return existing
+
+
+def _load_workspace_module_from_git(
+    wrapper_root: str,
+    worktree: int,
+    expected_head: str,
+) -> Any:
+    """Load wrapper authority exclusively from one expected committed tree."""
+
+    package_root = Path(wrapper_root) / "atrinik_workspace"
+    snapshot = _git_workspace_package_snapshot(
+        package_root, worktree, expected_head
+    )
+    path_token = hashlib.sha256(wrapper_root.encode("utf-8")).hexdigest()[:16]
+    package_name = (
+        f"_atrinik_delivery_workspace_git_{snapshot.device:x}_{snapshot.inode:x}_"
+        f"{path_token}_{snapshot.fingerprint}"
+    )
+    workspace_name = f"{package_name}.workspace"
+    existing = sys.modules.get(workspace_name)
+    if existing is None:
+        finder = _SnapshotPackageFinder(package_name, package_root, snapshot)
+        sys.meta_path.insert(0, finder)
+        try:
+            importlib.import_module(package_name)
+            existing = importlib.import_module(workspace_name)
+        except BaseException:
+            _discard_snapshot_package(package_name)
+            raise
+    after = _git_workspace_package_snapshot(package_root, worktree, expected_head)
+    if (
+        after.device,
+        after.inode,
+        after.fingerprint,
+    ) != (
+        snapshot.device,
+        snapshot.inode,
+        snapshot.fingerprint,
+    ):
+        _discard_snapshot_package(package_name)
+        raise LedgerError("candidate wrapper authority Git tree changed during import")
     return existing
 
 
@@ -7187,9 +7403,31 @@ def _head_correction_document(
         if before == after:
             continue
         expected = expected_artifacts[slot_id]
-        if (
+        delivery_created_pr = False
+        if before["kind"] == "pull_request" and before["current"] is not None:
+            selected_prs = [
+                row
+                for row in predecessor["selected_prs"]
+                if row["repository"] == before["current"]["repository"]
+                and row["head_repository"] == before["current"]["repository"]
+                and row["number"] == before["current"]["number"]
+                and row["node_id"] == before["current"]["node_id"]
+                and row["head_branch"] == before["current"]["branch"]
+            ]
+            delivery_created_pr = (
+                len(selected_prs) == 1
+                and before["state"] == "created"
+                and before["immutable"]["number"] is None
+                and before["immutable"]["node_id"] is None
+                and selected_prs[0]["author_node_id"] == predecessor["actor"]["node_id"]
+                and selected_prs[0]["body"]["ownership"] == "delivery-created"
+            )
+        unsupported_kind = (
             before["kind"] not in {"branch", "worktree"}
-            or before["current"] is None
+            and not delivery_created_pr
+        )
+        if unsupported_kind or (
+            before["current"] is None
             or after["current"] is None
             or before["current"].get("head_sha") != before_target["head"]["current_sha"]
             or after["current"] != {**before["current"], "head_sha": bad_head}
@@ -7200,7 +7438,11 @@ def _head_correction_document(
             raise LedgerError("head correction source changed an unsupported artifact")
         expected["current"]["head_sha"] = bad_head
         changed_artifacts.append(after)
-    if sorted(slot["kind"] for slot in changed_artifacts) != ["branch", "worktree"]:
+    changed_kinds = sorted(slot["kind"] for slot in changed_artifacts)
+    if changed_kinds not in (
+        ["branch", "worktree"],
+        ["branch", "pull_request", "worktree"],
+    ):
         raise LedgerError("head correction requires mirrored bound branch/worktree heads")
     if erroneous != expected_erroneous:
         raise LedgerError("head correction source contains unrelated semantic changes")

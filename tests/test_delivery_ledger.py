@@ -6670,6 +6670,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             (admin / "config.worktree", b"[delivery]\n\tlate = true\n"),
         ):
             self.assertFalse(absent_path.exists())
+            final_registration_calls = 0
 
             def appear_late(
                 descriptor: int,
@@ -6680,15 +6681,19 @@ class DeliveryLedgerTests(unittest.TestCase):
                 authority_raw: bytes = raw,
                 **keywords: object,
             ) -> tuple[int, bytes]:
+                nonlocal final_registration_calls
                 response = authority_git(descriptor, arguments, context, **keywords)
-                if context == "Git worktree registration":
-                    authority_path.write_bytes(authority_raw)
+                if context == "final Git worktree registration":
+                    final_registration_calls += 1
+                    if final_registration_calls == 2:
+                        authority_path.write_bytes(authority_raw)
                 return response
 
             try:
                 with mock.patch.object(ledger, "_git", side_effect=appear_late):
                     with self.assertRaisesRegex(
-                        ledger.LedgerError, "appeared during live Git proof"
+                        ledger.LedgerError,
+                        "appeared during live Git proof",
                     ):
                         ledger.observe_primitive_worktree(
                             document,
@@ -6925,6 +6930,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             ("locked", False),
         ):
             marker_path = admin / late_marker
+            final_registration_calls = 0
 
             def create_marker_after_final_registration(
                 descriptor: int,
@@ -6935,14 +6941,17 @@ class DeliveryLedgerTests(unittest.TestCase):
                 directory: bool = is_directory,
                 **keywords: object,
             ) -> tuple[int, bytes]:
+                nonlocal final_registration_calls
                 response = authority_git(descriptor, arguments, context, **keywords)
                 if context == "final Git worktree registration":
-                    if directory:
-                        target.mkdir()
-                    else:
-                        target.write_text(
-                            request["expected_head_sha"] + "\n", encoding="ascii"
-                        )
+                    final_registration_calls += 1
+                    if final_registration_calls == 2:
+                        if directory:
+                            target.mkdir()
+                        else:
+                            target.write_text(
+                                request["expected_head_sha"] + "\n", encoding="ascii"
+                            )
                 return response
 
             try:
@@ -7056,6 +7065,7 @@ class DeliveryLedgerTests(unittest.TestCase):
 
         loose_ref = common / "refs" / "heads" / request["branch"]
         self.assertFalse(loose_ref.exists())
+        final_registration_calls = 0
 
         def create_loose_ref_late(
             descriptor: int,
@@ -7063,10 +7073,15 @@ class DeliveryLedgerTests(unittest.TestCase):
             context: str,
             **keywords: object,
         ) -> tuple[int, bytes]:
+            nonlocal final_registration_calls
             response = authority_git(descriptor, arguments, context, **keywords)
-            if context == "Git worktree registration":
-                loose_ref.parent.mkdir(parents=True, exist_ok=True)
-                loose_ref.write_text(request["expected_head_sha"] + "\n", encoding="ascii")
+            if context == "final Git worktree registration":
+                final_registration_calls += 1
+                if final_registration_calls == 2:
+                    loose_ref.parent.mkdir(parents=True, exist_ok=True)
+                    loose_ref.write_text(
+                        request["expected_head_sha"] + "\n", encoding="ascii"
+                    )
             return response
 
         try:
@@ -8219,6 +8234,199 @@ class DeliveryLedgerTests(unittest.TestCase):
         self.assertEqual(writer_errors, [])
         self.assertFalse(aba_marker.exists())
 
+    def test_45a_candidate_bootstrap_requires_clean_wrapper_self_authority(self) -> None:
+        original_module_loader = ledger._load_workspace_module
+
+        def legacy_primary_module(wrapper_root: str):
+            module = original_module_loader(wrapper_root)
+
+            class LegacyWorkspace(module.Workspace):
+                def __init__(
+                    self,
+                    repository: Path,
+                    *,
+                    backfill_references: bool = True,
+                ) -> None:
+                    super().__init__(
+                        repository,
+                        backfill_references=backfill_references,
+                    )
+
+                def _source_references(self, source_root: Path) -> list[str]:
+                    return super()._source_references(source_root)
+
+            return type(
+                "LegacyPrimaryWorkspaceModule",
+                (),
+                {"Manifest": module.Manifest, "Workspace": LegacyWorkspace},
+            )
+
+        roots = live_roots(self.live_base / "dirty-bootstrap", "atrinik")
+        document = deferred_primitive_pr(
+            roots,
+            number=493,
+            node="P_dirty_bootstrap",
+            branch="Feature/DirtyBootstrap",
+            label="dirty-bootstrap",
+        )
+        request = next(
+            slot for slot in document["artifacts"] if slot["kind"] == "worktree"
+        )["primitive_request"]
+        live = live_worktree_path(request)
+        listing = worktree_list_bytes(request, use_wrapper_command=False)
+        marker = self.live_base / "dirty-bootstrap-executed"
+        candidate_init = live / "atrinik_workspace" / "__init__.py"
+        candidate_init.write_text(
+            candidate_init.read_text(encoding="utf-8")
+            + "\nfrom pathlib import Path as _DirtyBootstrapMarker\n"
+            + f"_DirtyBootstrapMarker({str(marker)!r}).write_text('executed')\n",
+            encoding="utf-8",
+        )
+        with mock.patch.object(
+            ledger, "_load_workspace_module", side_effect=legacy_primary_module
+        ) as primary_loader:
+            with self.assertRaisesRegex(ledger.LedgerError, "worktree is dirty"):
+                ledger.observe_primitive_worktree(
+                    document,
+                    "worktree",
+                    listing,
+                    "2026-08-16T10:00:00Z",
+                )
+        primary_loader.assert_not_called()
+        self.assertFalse(marker.exists())
+
+        replacement_roots = live_roots(
+            self.live_base / "bootstrap-root-replacement", "atrinik"
+        )
+        replacement_document = deferred_primitive_pr(
+            replacement_roots,
+            number=495,
+            node="P_bootstrap_root_replacement",
+            branch="Feature/BootstrapRootReplacement",
+            label="bootstrap-root-replacement",
+        )
+        replacement_request = next(
+            slot
+            for slot in replacement_document["artifacts"]
+            if slot["kind"] == "worktree"
+        )["primitive_request"]
+        replacement_live = live_worktree_path(replacement_request)
+        (replacement_live / "atrinik_workspace" / "bootstrap_identity_probe.py").write_text(
+            "PROBE = True\n", encoding="utf-8"
+        )
+        git_run(replacement_live, "add", "atrinik_workspace/bootstrap_identity_probe.py")
+        git_run(replacement_live, "commit", "-m", "test bootstrap identity")
+        replacement_head = git_run(
+            replacement_live, "rev-parse", "HEAD"
+        ).stdout.strip()
+        package = replacement_live / "atrinik_workspace"
+        hidden_package = replacement_live / "atrinik_workspace-retained"
+        replaced = False
+        snapshot_calls = 0
+        original_git_snapshot = ledger._git_workspace_package_snapshot
+
+        def replace_package_during_load(*args: object, **kwargs: object):
+            nonlocal replaced, snapshot_calls
+            snapshot_calls += 1
+            if snapshot_calls == 2:
+                package.rename(hidden_package)
+                package.mkdir()
+                replaced = True
+            return original_git_snapshot(*args, **kwargs)
+
+        replacement_descriptor = os.open(
+            replacement_live, os.O_RDONLY | os.O_DIRECTORY
+        )
+        try:
+            with mock.patch.object(
+                ledger,
+                "_git_workspace_package_snapshot",
+                side_effect=replace_package_during_load,
+            ):
+                with self.assertRaisesRegex(
+                    ledger.LedgerError, "Git tree changed during import"
+                ):
+                    ledger._load_workspace_module_from_git(
+                        str(replacement_live),
+                        replacement_descriptor,
+                        replacement_head,
+                    )
+            self.assertTrue(replaced)
+        finally:
+            os.close(replacement_descriptor)
+            if package.is_dir():
+                package.rmdir()
+            if hidden_package.exists():
+                hidden_package.rename(package)
+
+        symlink_roots = live_roots(
+            self.live_base / "bootstrap-git-symlink", "atrinik"
+        )
+        symlink_wrapper = Path(symlink_roots["wrapper"]["path"])
+        (symlink_wrapper / "atrinik_workspace" / "unsafe.py").symlink_to(
+            "workspace.py"
+        )
+        git_run(symlink_wrapper, "add", "atrinik_workspace/unsafe.py")
+        git_run(symlink_wrapper, "commit", "-m", "test package symlink")
+        symlink_head = git_run(symlink_wrapper, "rev-parse", "HEAD").stdout.strip()
+        symlink_descriptor = os.open(
+            symlink_wrapper, os.O_RDONLY | os.O_DIRECTORY
+        )
+        try:
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "Git entry is not a regular file"
+            ):
+                ledger._git_workspace_package_snapshot(
+                    symlink_wrapper / "atrinik_workspace",
+                    symlink_descriptor,
+                    symlink_head,
+                )
+        finally:
+            os.close(symlink_descriptor)
+
+        component_roots = live_roots(
+            self.live_base / "component-bootstrap", "content"
+        )
+        component_document = deferred_primitive_pr(
+            component_roots,
+            number=494,
+            node="P_component_bootstrap",
+            branch="Feature/ComponentBootstrap",
+            label="component-bootstrap",
+        )
+        retarget_repository(
+            component_document, repository("content", "R_content")
+        )
+        component_request = next(
+            slot
+            for slot in component_document["artifacts"]
+            if slot["kind"] == "worktree"
+        )["primitive_request"]
+        component_request["component"] = "content"
+        component_request["physical_checkout"] = "content"
+        component_listing = worktree_list_bytes(
+            component_request, use_wrapper_command=False
+        )
+        with (
+            mock.patch.object(
+                ledger,
+                "_load_workspace_module",
+                side_effect=legacy_primary_module,
+            ),
+            mock.patch.object(ledger, "_load_workspace_module_from_git") as candidate,
+        ):
+            with self.assertRaisesRegex(
+                ledger.LedgerError,
+                "primary wrapper lacks profile inventory authority",
+            ):
+                ledger.observe_primitive_worktree(
+                    component_document,
+                    "worktree",
+                    component_listing,
+                    "2026-08-16T10:01:00Z",
+                )
+        candidate.assert_not_called()
+
     def test_46_legacy_paths_reserve_deferred_primitive_and_scope_worktrees(self) -> None:
         primitive = issue_ledger()
         primitive_path = "/workspace/worktrees/atrinik/issue-419"
@@ -8797,7 +9005,11 @@ class DeliveryLedgerTests(unittest.TestCase):
         bad_head = "f0f8d7493278dc691710056c79d0d63f1d802488"
 
         def incident(
-            root: Path, label: str, *, bad_kind: str = "missing"
+            root: Path,
+            label: str,
+            *,
+            bad_kind: str = "missing",
+            mirror_pull_request: bool = False,
         ) -> tuple[object, object, str, str, Path]:
             roots = live_roots(self.live_base / label, "atrinik")
             base = git_head(roots)
@@ -8837,6 +9049,13 @@ class DeliveryLedgerTests(unittest.TestCase):
                 **cas_arguments(first),
             )
             predecessor = ledger.inspect(root, first.name)
+            if mirror_pull_request:
+                predecessor = ledger.cas(
+                    root,
+                    predecessor.name,
+                    bind_issue_created_pr(predecessor),
+                    **cas_arguments(predecessor),
+                )
             (live / "correction.txt").write_text("actual\n", encoding="utf-8")
             git_run(live, "add", "correction.txt")
             git_run(live, "commit", "-m", "actual correction head")
@@ -8854,8 +9073,11 @@ class DeliveryLedgerTests(unittest.TestCase):
             target_head = erroneous_document["targets"][0]["head"]
             target_head["current_sha"] = incident_bad_head
             target_head["lineage"].append(incident_bad_head)
+            mirrored_kinds = {"branch", "worktree"}
+            if mirror_pull_request:
+                mirrored_kinds.add("pull_request")
             for slot in erroneous_document["artifacts"]:
-                if slot["kind"] in {"branch", "worktree"}:
+                if slot["kind"] in mirrored_kinds:
                     slot["current"]["head_sha"] = incident_bad_head
             erroneous = ledger.cas(
                 root,
@@ -8945,6 +9167,145 @@ class DeliveryLedgerTests(unittest.TestCase):
                     ).digest,
                     corrected.digest,
                 )
+
+        with (
+            self.subTest(delivery_created_pull_request=True),
+            tempfile.TemporaryDirectory() as temporary,
+        ):
+            root = Path(temporary)
+            predecessor, erroneous, actual, incident_bad, _ = incident(
+                root,
+                "correction-delivery-created-pr",
+                mirror_pull_request=True,
+            )
+            worktree_slot = next(
+                slot
+                for slot in erroneous.document["artifacts"]
+                if slot["kind"] == "worktree"
+            )
+            original_module_loader = ledger._load_workspace_module
+
+            def load_with_legacy_primary_api(wrapper_root: str):
+                module = original_module_loader(wrapper_root)
+
+                class LegacyWorkspace(module.Workspace):
+                    def __init__(
+                        self,
+                        repository: Path,
+                        *,
+                        backfill_references: bool = True,
+                    ) -> None:
+                        super().__init__(
+                            repository,
+                            backfill_references=backfill_references,
+                        )
+
+                    def _source_references(self, source_root: Path) -> list[str]:
+                        return super()._source_references(source_root)
+
+                return type(
+                    "LegacyPrimaryWorkspaceModule",
+                    (),
+                    {
+                        "Manifest": module.Manifest,
+                        "Workspace": LegacyWorkspace,
+                    },
+                )
+
+            with mock.patch.object(
+                ledger,
+                "_load_workspace_module",
+                side_effect=load_with_legacy_primary_api,
+            ):
+                corrected = ledger.correct_target_head(
+                    root,
+                    erroneous.name,
+                    predecessor.raw,
+                    head_correction_recovery(
+                        predecessor, erroneous, actual, incident_bad
+                    ),
+                    **cas_arguments(erroneous),
+                    bad_head=incident_bad,
+                    actual_head=actual,
+                )
+            self.assertEqual(
+                {
+                    slot["kind"]: slot["current"]["head_sha"]
+                    for slot in corrected.document["artifacts"]
+                    if slot["kind"] in {"branch", "pull_request", "worktree"}
+                },
+                {
+                    "branch": actual,
+                    "pull_request": actual,
+                    "worktree": actual,
+                },
+            )
+
+            def pull_request_slot(document: dict[str, object]) -> dict[str, object]:
+                return next(
+                    slot
+                    for slot in document["artifacts"]
+                    if slot["kind"] == "pull_request"
+                )
+
+            def reject_adopted(
+                before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                for document in (before, after):
+                    slot = pull_request_slot(document)
+                    slot["state"] = "adopted"
+                    slot["immutable"]["number"] = slot["current"]["number"]
+                    slot["immutable"]["node_id"] = slot["current"]["node_id"]
+
+            def reject_contributor_body(
+                before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                for document in (before, after):
+                    document["selected_prs"][0]["body"]["ownership"] = (
+                        "contributor-owned"
+                    )
+
+            def reject_foreign_head_repository(
+                before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                for document in (before, after):
+                    document["selected_prs"][0]["head_repository"] = repository(
+                        "fork", "R_fork"
+                    )
+
+            def reject_actor_mismatch(
+                before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                for document in (before, after):
+                    document["selected_prs"][0]["author_node_id"] = "U_other"
+
+            def reject_additional_current_change(
+                _before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                pull_request_slot(after)["current"]["body_digest"] = "9" * 64
+
+            rejection_cases = (
+                ("adopted", reject_adopted),
+                ("contributor-owned", reject_contributor_body),
+                ("foreign-head", reject_foreign_head_repository),
+                ("actor-mismatch", reject_actor_mismatch),
+                ("additional-current-change", reject_additional_current_change),
+            )
+            for label, mutation in rejection_cases:
+                with self.subTest(pull_request_rejection=label):
+                    rejected_predecessor = copy.deepcopy(predecessor.document)
+                    rejected_erroneous = copy.deepcopy(erroneous.document)
+                    mutation(rejected_predecessor, rejected_erroneous)
+                    before = directory_snapshot(root)
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger._head_correction_document(
+                            rejected_predecessor,
+                            rejected_erroneous,
+                            ledger.canonical_object_digest(rejected_erroneous),
+                            bad_head=incident_bad,
+                            actual_head=actual,
+                        )
+                    self.assertEqual(directory_snapshot(root), before)
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
