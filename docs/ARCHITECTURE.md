@@ -509,15 +509,18 @@ inventory and projects every active ledger's review root, JSON sidecar,
 canonical report, persistent lock, and current worktree into its reference
 graph. A missing report or lock, unsupported helper result, malformed ledger,
 or any other inventory uncertainty makes the complete cleanup plan fail closed;
-the wrapper does not recreate or timestamp missing bytes. Unmanaged build
+the wrapper does not recreate or timestamp missing bytes, and the affected
+review root reports `delivery_inventory_error` for diagnosis. Unmanaged build
 discovery therefore cannot reclaim `build/reviews`, and a prunable Git
 worktree registration remains protected by the ledger's exact path reference.
 Repository migration uses the same barrier and refuses both preview and apply
 while active ledgers exist, so workspace-layout changes cannot move or lose
-their evidence. Recovery is authenticated and exact: only the delivery
-authority may continue a preserved ledger or explicitly recover a historical
-generation, and no reconstructed branch, worktree, timestamp, or issue state
-can stand in for missing authority.
+their evidence. Recovery is authenticated and exact: only a separately
+issued `explicit-recovery` authority may continue a preserved ledger or use a
+provenance-preserving migration. If the canonical report or another required
+member is gone, the delivery remains stopped; no reconstructed branch,
+worktree, timestamp, issue state, Project state, or push authority can stand
+in for missing evidence.
 
 Worktree status is inspected with `--ignore-submodules=none`. A populated
 submodule protects the worktree even when its visible files are clean because
