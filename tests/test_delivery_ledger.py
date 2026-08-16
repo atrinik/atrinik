@@ -10333,12 +10333,21 @@ class DeliveryLedgerTests(unittest.TestCase):
             ) -> None:
                 pull_request_slot(after)["current"]["body_digest"] = "9" * 64
 
+            def reject_multiple_pr_mirrors(
+                before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                for document in (before, after):
+                    duplicate = copy.deepcopy(pull_request_slot(document))
+                    duplicate["slot_id"] = "pull-request-secondary"
+                    document["artifacts"].append(duplicate)
+
             rejection_cases = (
                 ("adopted", reject_adopted),
                 ("contributor-owned", reject_contributor_body),
                 ("foreign-head", reject_foreign_head_repository),
                 ("actor-mismatch", reject_actor_mismatch),
                 ("additional-current-change", reject_additional_current_change),
+                ("multiple-pr-mirrors", reject_multiple_pr_mirrors),
             )
             for label, mutation in rejection_cases:
                 with self.subTest(pull_request_rejection=label):
