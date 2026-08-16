@@ -59,6 +59,77 @@ class CiShardingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "unique nonempty prefixes"):
                 ci_sharding.load_weights(path)
 
+    def test_weight_validation_rejects_every_schema_boundary(self) -> None:
+        cases: list[tuple[str, object, str]] = [
+            ("schema", [], "unsupported schema"),
+            ("schema_version", 2, "unsupported schema version"),
+            ("default_seconds", 0, "default timing weight must be positive"),
+            ("prefix_seconds", {}, "prefix timing weights must be an array"),
+            (
+                "prefix_seconds",
+                [{"prefix": "tests."}],
+                "prefix timing weight has an unsupported schema",
+            ),
+            (
+                "prefix_seconds",
+                [{"prefix": "tests.", "seconds": 0}],
+                "prefix timing weights must be positive",
+            ),
+            ("tests", [], "per-test timing weights must be a bounded object"),
+            ("tests", {"": 1.0}, "per-test timing IDs must be nonempty strings"),
+            ("tests", {"tests.bad": 0}, "per-test timing weights must be positive"),
+            ("baseline", [], "timing baseline metadata must be an object"),
+        ]
+        with tempfile.TemporaryDirectory() as temporary_name:
+            path = Path(temporary_name) / "weights.json"
+            for field, value, message in cases:
+                with self.subTest(field=field, value=value):
+                    document: object = self.weights()
+                    if field == "schema":
+                        document = value
+                    else:
+                        assert isinstance(document, dict)
+                        document[field] = value
+                    path.write_text(json.dumps(document), encoding="utf-8")
+                    with self.assertRaisesRegex(ValueError, message):
+                        ci_sharding.load_weights(path)
+
+            path.write_bytes(b" " * (ci_sharding.MAX_JSON_BYTES + 1))
+            with self.assertRaisesRegex(ValueError, "exceed 1 MiB"):
+                ci_sharding.load_weights(path)
+
+    def test_shard_coordinate_validation_rejects_invalid_ranges(self) -> None:
+        for shard_count in (0, 65):
+            with self.subTest(shard_count=shard_count):
+                with self.assertRaisesRegex(ValueError, "between 1 and 64"):
+                    ci_sharding.assign_tests([], self.weights(), shard_count)
+
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            weights_path = root / "weights.json"
+            weights_path.write_text(json.dumps(self.weights()), encoding="utf-8")
+            run_arguments = SimpleNamespace(
+                durations=1,
+                manifest=root / "manifest.json",
+                shard_count=1,
+                shard_index=1,
+                timings=root / "timings.json",
+                weights=weights_path,
+            )
+            with mock.patch.object(ci_sharding, "discover_test_ids", return_value=["test"]):
+                with self.assertRaisesRegex(ValueError, "outside the configured"):
+                    ci_sharding.run_shard(run_arguments)
+
+            verify_arguments = SimpleNamespace(
+                manifests=root,
+                output=root / "verified.json",
+                shard_count=1,
+                weights=weights_path,
+            )
+            with mock.patch.object(ci_sharding, "discover_test_ids", return_value=["test"]):
+                with self.assertRaisesRegex(ValueError, "expected 1 shard manifests"):
+                    ci_sharding.verify_shards(verify_arguments)
+
     def test_verify_requires_every_discovered_test_exactly_once(self) -> None:
         test_ids = ["tests.example.one", "tests.example.two", "tests.example.three"]
         weights = self.weights()
