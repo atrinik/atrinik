@@ -29,9 +29,10 @@ paths, locks, and teardown.
 Seven post-change local setup/teardown samples were 0.078, 0.078, 0.078,
 0.078, 0.080, 0.081, and 0.134 seconds (0.078s median), compared with the
 0.431s pre-change median recorded for the issue: an 81.8% median reduction.
-A post-change serial run discovered 1,184 tests and passed in 400.620s. That
-run refreshes the retained slow-test weights; the pre-change metadata remains
-in the timing file so the source and limitations of the baseline stay explicit.
+A post-change serial run discovered 1,184 tests and passed in 400.620s. The
+first complete hosted run refreshed exact weights for tests taking at least one
+second; its head and run URL are retained with the weights. The pre-change
+metadata remains in the timing file so the baseline stays explicit.
 
 ## Required workflow
 
