@@ -2486,7 +2486,9 @@ class Cleanup:
                     reference_errors,
                 )
             )
-            items.extend(self._unmanaged_builds(registered, references))
+            items.extend(
+                self._unmanaged_builds(registered, references, reference_errors)
+            )
         if "temporary-states" in scopes and names is None:
             items.extend(self._temporary_states(older_than_days))
         if "npm-cache" in scopes:
@@ -5652,7 +5654,10 @@ class Cleanup:
             return False, str(error), None
 
     def _unmanaged_builds(
-        self, registered: set[Path], references: dict[str, Any]
+        self,
+        registered: set[Path],
+        references: dict[str, Any],
+        reference_errors: set[str],
     ) -> list[dict[str, Any]]:
         items: list[dict[str, Any]] = []
         roots: list[tuple[Path, list[Path]]] = []
@@ -5710,6 +5715,10 @@ class Cleanup:
             if delivery_references:
                 item["references"]["delivery"] = sorted(delivery_references)
                 item["reasons"].append("delivery_reference")
+            if "delivery_inventory_error" in reference_errors and _path_relation(
+                path, self._wrapper_primary / "build" / "reviews"
+            ):
+                item["reasons"].append("delivery_inventory_error")
             if error:
                 item["reasons"].append("filesystem_traversal_error")
                 item["error"] = error

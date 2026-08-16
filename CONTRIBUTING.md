@@ -151,8 +151,11 @@ validation.
 Cleanup or repository-layout changes must also cover active issue-delivery
 evidence: an active ledger protects its review root, report, lock, and
 worktree; missing or unsupported evidence fails closed; and repository
-migration refuses active ledgers without mutating them. Recovery tests must
-prove that the wrapper does not synthesize missing ledger bytes or authority.
+migration refuses active ledgers without mutating them. Diagnostics must
+surface delivery-inventory failure on the affected review root. Recovery tests
+must prove that the wrapper does not synthesize missing ledger bytes or
+authority, and that only a separately authenticated explicit-recovery grant
+can select a provenance-preserving migration.
 
 For development-scope changes, also cover distinct scopes sharing one physical
 checkout, same-name/label/branch races, every publication boundary, exact JSON

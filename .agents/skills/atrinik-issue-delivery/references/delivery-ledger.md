@@ -50,8 +50,8 @@ each publication, and returns the exact review-root path/device/inode. It is not
 an arbitrary directory creator. All later root arguments name the returned
 review root.
 
-The helper accepts at most 1,048,576 bytes per JSON, body, section, comment, or
-migration-source input. It inventories at most 4,096 directory entries and
+The helper accepts at most 1,073,741,824 bytes (1 GiB) per JSON, body, section,
+comment, or migration-source input. It inventories at most 4,096 directory entries and
 32 MiB of relevant delivery files. File inputs must be stable regular no-follow
 files addressed through a no-follow parent path. Only `prepare` accepts `-` as
 bounded stdin; every other input operand must name such a file. Ledger/report/
@@ -1779,6 +1779,25 @@ stage. A completed legacy source and its immutable snapshot remain frozen. A
 completed pre-schema human report may later change; its frozen snapshot,
 complete marker, and ledger history retain the migration anchor. Loss or change
 of a required member stops.
+
+### Lost active evidence is an explicit stop
+
+If the inventory shows a missing canonical ledger, report, lock, migration
+member, marker, snapshot, or registered worktree, do not use a new `create`, a
+reconstructed report, or a branch/reflection of live GitHub state to take
+ownership. Preserve all remaining files, Git refs, and prunable registrations;
+the inventory error is the durable diagnostic and no issue, Project, branch,
+worktree, or PR mutation is permitted.
+
+The only recovery path is a separately authenticated `explicit-recovery`
+authority issued by the maintainer. The authority must bind the exact
+repository/issue or PR, branch/head, worktree, surviving source/report bytes,
+and recovery objective. With a surviving exact canonical report, rerun the
+matching provenance-preserving migration with its exact source digest and
+current coordinate candidate. If any required report or evidence is gone, the
+delivery cannot be re-created: stop and obtain a new maintainer decision. A
+durable goal, assignment, timestamp, authorship, reflog, link, or push access
+can corroborate continuity but cannot grant authority or replace bytes.
 
 ## Recover interrupted transactions
 
