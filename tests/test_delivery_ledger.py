@@ -6765,8 +6765,28 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(ledger.inventory(root).pending, ())
 
             primary = Path(request["roots"]["primary"]["path"])
-            git_run(primary, "worktree", "remove", "--force", str(live))
-            git_run(primary, "worktree", "add", str(live), request["branch"])
+            retained_live = os.open(
+                live,
+                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY,
+            )
+            try:
+                retained_status = os.fstat(retained_live)
+                retained_scope = json.loads(scope_show)["worktrees"][0]
+                self.assertEqual(
+                    (retained_status.st_dev, retained_status.st_ino),
+                    (
+                        retained_scope["path_device"],
+                        retained_scope["path_inode"],
+                    ),
+                )
+                git_run(primary, "worktree", "remove", "--force", str(live))
+                git_run(primary, "worktree", "add", str(live), request["branch"])
+                self.assertNotEqual(
+                    (live.stat().st_dev, live.stat().st_ino),
+                    (retained_status.st_dev, retained_status.st_ino),
+                )
+            finally:
+                os.close(retained_live)
             (live / "recreated.txt").write_text("recreated\n", encoding="utf-8")
             git_run(live, "add", "recreated.txt")
             git_run(live, "commit", "-m", "advance recreated scope target")
