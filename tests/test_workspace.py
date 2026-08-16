@@ -15573,6 +15573,81 @@ class WorkspaceTests(unittest.TestCase):
             with self.assertRaises(OSError):
                 os.fstat(descriptor)
 
+    def test_topology_status_waits_for_runtime_release_publication(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "runtime-release-publication-rendezvous"
+        rendezvous.mkdir()
+        build_root = self.workspace.paths.builds / "runtime-release-server"
+        self.make_rendezvous_server_build(
+            build_root, rendezvous, "runtime-release.bound", peers=1
+        )
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=build_root
+        ):
+            self.workspace.topology_up(
+                "runtime-release-publication", "default", None, ["server"], 0
+            )
+
+        status_path = (
+            self.workspace.paths.topologies
+            / "runtime-release-publication"
+            / "status.json"
+        )
+        published = load_json(status_path)
+        published["ready"] = False
+        published["stopped_at"] = "2026-08-16T00:00:00+00:00"
+        published["shutdown"] = {
+            "control_requested": True,
+            "clean": True,
+        }
+        for service in published["services"].values():
+            service["status"] = "exited"
+            service["exit_code"] = 0
+
+        reads = 0
+        real_load_json = workspace_module.load_json
+
+        def delayed_status_publication(path: Path) -> object:
+            nonlocal reads
+            if path == status_path:
+                reads += 1
+                if reads <= 2:
+                    return real_load_json(path)
+                return copy.deepcopy(published)
+            return real_load_json(path)
+
+        try:
+            with (
+                mock.patch.object(
+                    workspace_module,
+                    "load_json",
+                    side_effect=delayed_status_publication,
+                ),
+                mock.patch.object(
+                    self.workspace, "_topology_control_request", return_value=False
+                ),
+                mock.patch.object(
+                    self.workspace, "_topology_process_tree_active", return_value=True
+                ),
+                mock.patch.object(
+                    workspace_module, "bound_lease_locked", return_value=False
+                ),
+            ):
+                observed = self.workspace.topology_status(
+                    "runtime-release-publication"
+                )
+            self.assertGreaterEqual(reads, 3)
+            self.assertFalse(observed["ready"])
+            self.assertEqual(
+                observed["shutdown"],
+                {"control_requested": True, "clean": True},
+            )
+        finally:
+            self.workspace.topology_down("runtime-release-publication", timeout=5)
+
     def test_server_runtime_paths_are_isolated_by_state(self) -> None:
         source = self.workspace.paths.repositories / "server"
         (source / "tools").mkdir()
