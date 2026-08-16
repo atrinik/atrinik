@@ -15645,6 +15645,26 @@ class WorkspaceTests(unittest.TestCase):
                 observed["shutdown"],
                 {"control_requested": True, "clean": True},
             )
+            with (
+                mock.patch.object(
+                    workspace_module, "load_json", side_effect=real_load_json
+                ),
+                mock.patch.object(
+                    self.workspace, "_topology_control_request", return_value=False
+                ),
+                mock.patch.object(
+                    self.workspace, "_topology_process_tree_active", return_value=True
+                ),
+                mock.patch.object(
+                    workspace_module, "bound_lease_locked", return_value=False
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError,
+                    "topology runtime generation lease is not retained: "
+                    "runtime-release-publication",
+                ),
+            ):
+                self.workspace.topology_status("runtime-release-publication")
         finally:
             self.workspace.topology_down("runtime-release-publication", timeout=5)
 
