@@ -11662,6 +11662,13 @@ class Workspace:
     def _open_scenario_password(path: Path) -> int:
         descriptor = open_regular_file(path, os.O_RDONLY, "scenario password")
         metadata = os.fstat(descriptor)
+        try:
+            visible = path.stat(follow_symlinks=False)
+        except OSError as error:
+            os.close(descriptor)
+            raise WorkspaceError(
+                f"scenario password identity is unsafe: {path}"
+            ) from error
         mode = stat.S_IMODE(metadata.st_mode)
         wrong_owner = hasattr(os, "geteuid") and metadata.st_uid != os.geteuid()
         if wrong_owner or mode != 0o600:
@@ -11669,9 +11676,14 @@ class Workspace:
             raise WorkspaceError(
                 f"scenario password must be owned by this user and mode 0600: {path}"
             )
-        if not 0 < metadata.st_size <= SCENARIO_PASSWORD_MAX_SIZE:
+        if (
+            metadata.st_nlink != 1
+            or (metadata.st_dev, metadata.st_ino)
+            != (visible.st_dev, visible.st_ino)
+            or not 0 < metadata.st_size <= SCENARIO_PASSWORD_MAX_SIZE
+        ):
             os.close(descriptor)
-            raise WorkspaceError(f"scenario password file is invalid: {path}")
+            raise WorkspaceError(f"scenario password identity is unsafe: {path}")
         return descriptor
 
     @classmethod
@@ -12033,6 +12045,64 @@ class Workspace:
                 self._scenario_directory(name) / "password"
             ),
         }
+
+    @staticmethod
+    def _validate_scenario_connect_field(label: str, value: object) -> str:
+        if (
+            not isinstance(value, str)
+            or not value
+            or len(value) > SCENARIO_PASSWORD_MAX_SIZE
+            or not value.isascii()
+            or ":" in value
+            or any(
+                ord(character) < 32 or ord(character) == 127
+                for character in value
+            )
+        ):
+            raise WorkspaceError(
+                f"scenario {label} is unsafe for the colon-delimited client login"
+            )
+        return value
+
+    def _scenario_client_launch(
+        self,
+        profile_name: str,
+        state_name: str,
+        state_policy: dict[str, Any],
+    ) -> tuple[dict[str, str], int]:
+        scenario_name = state_name.removeprefix("scenario-")
+        owner = state_policy.get("owner")
+        if (
+            not state_name.startswith("scenario-")
+            or state_policy.get("mode") != "named"
+            or state_policy.get("name") != state_name
+            or state_policy.get("lifecycle") != "scenario-owned"
+            or owner != {"kind": "scenario", "name": scenario_name}
+        ):
+            raise WorkspaceError(
+                "scenario client login requires exact scenario-owned state metadata"
+            )
+        metadata = self._load_scenario(scenario_name)
+        if (
+            metadata.get("profile") != profile_name
+            or metadata.get("state") != state_name
+        ):
+            raise WorkspaceError(
+                "scenario client login does not match the selected profile and state"
+            )
+        launch = {
+            "name": scenario_name,
+            "account": self._validate_scenario_connect_field(
+                "account", metadata.get("account")
+            ),
+            "character": self._validate_scenario_connect_field(
+                "character", metadata.get("character")
+            ),
+        }
+        password_fd = self._open_scenario_password(
+            self._scenario_directory(scenario_name) / "password"
+        )
+        return launch, password_fd
 
     def scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
@@ -17384,13 +17454,23 @@ class Workspace:
             set(selected_services),
             f"prepare topology {name}",
         ):
-            with self._resource_locks(
-                [
-                    self._lease_request(
-                        "topology", name, "exclusive", f"prepare topology {name}"
-                    )
-                ],
+            requests = [
+                self._lease_request(
+                    "topology", name, "exclusive", f"prepare topology {name}"
+                )
+            ]
+            if normalized_state is not None and normalized_state.startswith(
+                "scenario-"
             ):
+                requests.append(
+                    self._lease_request(
+                        "scenario",
+                        normalized_state.removeprefix("scenario-"),
+                        "shared",
+                        f"prepare topology {name}",
+                    )
+                )
+            with self._resource_locks(requests):
                 return self._topology_up(
                     name,
                     profile_name,
@@ -17876,6 +17956,8 @@ class Workspace:
                     else None
                 )
                 service_specs: dict[str, dict[str, Any]] = {}
+                scenario_client: dict[str, str] | None = None
+                scenario_password_fd: int | None = None
                 if "server" in selected_services:
                     server_runtime = generation_root / "server"
                     executable = server_runtime / "atrinik-server"
@@ -17922,6 +18004,17 @@ class Workspace:
                             "ATRINIK_CONFIG_DIR": str(client_config.resolve())
                         },
                     }
+                    if (
+                        state_name is not None
+                        and state_name.startswith("scenario-")
+                    ):
+                        assert state_policy is not None
+                        scenario_client, scenario_password_fd = (
+                            self._scenario_client_launch(
+                                profile_name, state_name, state_policy
+                            )
+                        )
+                        stack.callback(os.close, scenario_password_fd)
                 if state is not None and state_directory_fd is not None:
                     pinned = os.fstat(state_directory_fd)
                     try:
@@ -17966,6 +18059,8 @@ class Workspace:
                     "runtime": runtime_record,
                     "services": service_specs,
                 }
+                if scenario_client is not None:
+                    spec["scenario_client"] = scenario_client
                 if port_reservation is not None:
                     spec["port_reservation"] = port_reservation
                 if sound_status is not None:
@@ -18025,6 +18120,11 @@ class Workspace:
                             ["--state-output-fd", str(state_output_fd)]
                         )
                         inherited_locks.append(state_output_fd)
+                    if scenario_password_fd is not None:
+                        command.extend(
+                            ["--scenario-password-fd", str(scenario_password_fd)]
+                        )
+                        inherited_locks.append(scenario_password_fd)
                     command.extend(
                         ["--runtime-lock-fd", str(runtime_lock_fd)]
                     )

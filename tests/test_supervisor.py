@@ -26,6 +26,145 @@ from atrinik_workspace.process_tree import control_socket_path
 
 
 class ServerReadinessCaptureTests(unittest.TestCase):
+    def test_scenario_client_uses_full_validated_connect_tuple(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            password_path = root / "password"
+            password_path.write_text("safe_password", encoding="utf-8")
+            password_fd = os.open(password_path, os.O_RDONLY)
+            spec = {
+                "schema_version": 3,
+                "name": "scenario-review",
+                "profile": "classic",
+                "dependencies": ["client", "server"],
+                "state": str(root / "state"),
+                "state_policy": {
+                    "mode": "named",
+                    "name": "scenario-issue-478",
+                    "owner": {"kind": "scenario", "name": "issue-478"},
+                    "lifecycle": "scenario-owned",
+                },
+                "build_root": "/tmp/build",
+                "resolved": {},
+                "endpoint": {
+                    "host": "127.0.0.1",
+                    "port": 13327,
+                    "fingerprint": None,
+                },
+                "runtime": {"generation": "a" * 64},
+                "services": {
+                    "server": {
+                        "command": ["server"],
+                        "cwd": str(root),
+                        "log": str(root / "server.log"),
+                    },
+                    "client": {
+                        "command": ["client"],
+                        "cwd": str(root),
+                        "log": str(root / "client.log"),
+                    },
+                },
+                "scenario_client": {
+                    "name": "issue-478",
+                    "account": "scenario478",
+                    "character": "Scenario 478",
+                },
+            }
+            spec_path = root / "spec.json"
+            spec_path.write_text(json.dumps(spec), encoding="utf-8")
+            process = mock.MagicMock(pid=1234)
+            process.poll.return_value = 0
+            capture = mock.Mock(
+                event=mock.Mock(wait=mock.Mock(return_value=True)),
+                fingerprint="a" * 64,
+            )
+            try:
+                with (
+                    mock.patch.object(
+                        supervisor_module,
+                        "process_start_time",
+                        side_effect=["1", "2", "3"],
+                    ),
+                    mock.patch.object(
+                        supervisor_module, "_validate_port_reservation"
+                    ),
+                    mock.patch.object(
+                        supervisor_module, "_require_server_port_available"
+                    ),
+                    mock.patch.object(
+                        supervisor_module,
+                        "_start_guardian",
+                        return_value=(4321, 99),
+                    ) as guardian,
+                    mock.patch.object(
+                        supervisor_module, "_open_control", return_value=None
+                    ),
+                    mock.patch.object(
+                        supervisor_module, "_serve_control", return_value=True
+                    ),
+                    mock.patch.object(
+                        supervisor_module, "_peek_exit_code", return_value=None
+                    ),
+                    mock.patch.object(
+                        supervisor_module,
+                        "ServerReadinessCapture",
+                        return_value=capture,
+                    ),
+                    mock.patch.object(
+                        supervisor_module.subprocess,
+                        "Popen",
+                        return_value=process,
+                    ) as popen,
+                    mock.patch.object(supervisor_module.threading, "Thread"),
+                    mock.patch.object(
+                        supervisor_module, "terminate", return_value=True
+                    ),
+                    mock.patch.object(supervisor_module.os, "close"),
+                    mock.patch.object(
+                        supervisor_module.os,
+                        "waitpid",
+                        side_effect=ChildProcessError,
+                    ),
+                ):
+                    self.assertEqual(
+                        supervise(
+                            spec_path,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                            password_fd,
+                        ),
+                        0,
+                    )
+                client_command = popen.call_args_list[1].args[0]
+                self.assertIn(
+                    "--connect=127.0.0.1:scenario478:safe_password:Scenario 478",
+                    client_command,
+                )
+                self.assertNotIn(password_fd, popen.call_args_list[1].kwargs["pass_fds"])
+                guardian.assert_called_once_with(
+                    None, None, None, None, close_fds=(password_fd,)
+                )
+            finally:
+                os.close(password_fd)
+
+    def test_scenario_client_rejects_malformed_password(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            password_path = Path(directory) / "password"
+            password_path.write_text("unsafe:password", encoding="utf-8")
+            descriptor = os.open(password_path, os.O_RDONLY)
+            try:
+                with self.assertRaisesRegex(RuntimeError, "scenario password is unsafe"):
+                    supervisor_module._read_scenario_password(descriptor)
+            finally:
+                os.close(descriptor)
+
     def test_control_messages_are_bounded_and_may_arrive_in_chunks(self) -> None:
         connection = mock.Mock()
         connection.recv.side_effect = [b'{"action": "sta', b'tus"}\n']
@@ -554,7 +693,7 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 self.assertEqual(supervisor_module.main(), 1)
 
         supervise_call.assert_called_once_with(
-                spec_path, None, None, None, None, None, 9, None, None, None
+            spec_path, None, None, None, None, None, 9, None, None, None, None
         )
         status.assert_called_once_with(
             spec_path.parent / "startup-error.json",

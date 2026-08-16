@@ -1120,7 +1120,7 @@ without asking every reviewer to register another account and character.
 ~~~sh
 ./atrinik scenario create issue-42 --profile maps-review --preset basic-player
 ./atrinik scenario show issue-42 --json
-./atrinik scenario credentials issue-42
+./atrinik up --name issue-42 --profile maps-review --state scenario-issue-42
 ~~~
 
 `basic-player` provisions a normal `human_male` first-login character through
@@ -1129,13 +1129,20 @@ configured starting map, standard skills, and initial items. The wrapper builds
 the selected server, creates the dedicated `scenario-issue-42` state, stores a
 generated password in a mode-0600 ignored file, and prints exact
 `topology show`/`up`/`ps`/`logs`/`down` commands. `show` and `list` never reveal
-the password; request it explicitly with `credentials` immediately before
-login. `scenario list` keeps the global inventory usable when a retained
-scenario can no longer resolve its profile or fails current validation. JSON
+the password. A supervised server/client topology that selects the scenario
+state validates its ownership and metadata, then launches the client with the
+complete login automatically. `scenario credentials` remains available for
+bounded local diagnosis. `scenario list` keeps the global inventory usable when
+a retained scenario can no longer resolve its profile or fails current validation. JSON
 output represents that entry with its `name`, `path`, `inert: true`, and a
 stable `inert_reason`; bounded human output labels the same entry `inert`.
 Control characters in inert names and paths are escaped. Exact `show`,
 credential, and reset operations continue to fail closed.
+
+The generated scenario password is disposable and local. Automatic login may
+expose it in the local client process arguments, client output, or Codex
+execution logs; this is the only intended exception. Never copy it to commits,
+GitHub, public logs, durable handoffs, or final reports, and never reuse it.
 
 Scenarios live below ignored `workspace/scenarios/`. Their metadata records the
 profile plus every resolved provisioning dependency's checkout, source root,

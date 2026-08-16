@@ -1154,7 +1154,15 @@ initializes state from the selected server's `install_data`, and invokes that
 server in offline provisioning mode. The server uses its normal validation,
 Argon2id password, atomic account-save, and exclusive player-reservation paths;
 the empty player record causes first login to follow normal character creation.
-No scenario secret is stored in metadata or passed as a process argument.
+No scenario secret is stored in metadata. A supervised topology selecting the
+scenario-owned state opens the validated password file without following
+links, passes its descriptor only to the supervisor, and records only
+non-secret scenario identity in the topology spec. Once the matching server is
+ready, the supervisor reads and closes the descriptor and constructs the full
+local client login argument. The client and server never inherit the password
+descriptor. Missing, malformed, renamed, or ownership-mismatched scenario
+metadata and credentials fail closed; non-scenario launches retain host-only
+connection behavior.
 The metadata records physical checkout, logical source, path, commit, and dirty
 status for the selected server, content, resources, protocol, and library
 inputs so an audit does not imply that a scenario provisioned from local edits
@@ -1174,9 +1182,12 @@ the exact profile, topology, and state selected for a change; use `build
 --test` for automated validation; use `topology show`, `up`, `ps`, and `logs`
 for runtime inspection; describe the feature-specific actions and expected
 results; and finish with `down`. When a ready player is useful, the handoff
-adds `scenario credentials` without copying its password. This keeps manual
-review on the same resolved source topology, isolated client configuration,
-supervised processes, logs, and state locks as automated workspace validation.
+uses automatic scenario login without copying its password. The disposable
+password may be visible in local client argv/output or Codex execution logs,
+but never belongs in commits, GitHub, public logs, or durable handoffs. This
+keeps manual review on the same resolved source topology, isolated client
+configuration, supervised processes, logs, and state locks as automated
+workspace validation.
 
 The two-terminal foreground launch path uses the same named state and explicit
 UDP port for both commands. Its client reads only the certificate block from

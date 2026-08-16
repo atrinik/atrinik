@@ -16427,6 +16427,7 @@ class WorkspaceTests(unittest.TestCase):
             "        continue\n"
             "    assert not target.endswith('/ports.lock'), target\n"
             "    assert '/port-reservations/' not in target, target\n"
+            "    assert not target.endswith('/password'), target\n"
             "assetspath = next(\n"
             "    value.split('=', 1)[1]\n"
             "    for value in sys.argv[1:]\n"
@@ -16477,6 +16478,12 @@ class WorkspaceTests(unittest.TestCase):
         client.write_text(
             "#!/usr/bin/env python3\n"
             "import os, sys, time\n"
+            "for descriptor in os.listdir('/proc/self/fd'):\n"
+            "    try:\n"
+            "        target = os.readlink('/proc/self/fd/' + descriptor)\n"
+            "    except OSError:\n"
+            "        continue\n"
+            "    assert not target.endswith('/password'), target\n"
             "print(repr(sys.argv[1:]), flush=True)\n"
             "print('config=' + os.environ['ATRINIK_CONFIG_DIR'], flush=True)\n"
             "print('launch=' + os.environ['ATRINIK_LAUNCH_LABEL'], flush=True)\n"
@@ -16794,6 +16801,70 @@ class WorkspaceTests(unittest.TestCase):
                 service["running"] for service in remaining["services"].values()
             ):
                 self.workspace.topology_down("server-review", timeout=5)
+
+        with mock.patch.object(
+            self.workspace,
+            "_scenario_provision_state",
+            return_value=self.scenario_resolved_fixture(),
+        ):
+            scenario = self.workspace.scenario_create(
+                "auto-login", "default", "basic-player"
+            )
+        scenario_password = self.workspace.scenario_credentials("auto-login")[
+            "password"
+        ]
+        try:
+            with (
+                mock.patch.object(
+                    self.workspace, "_build_resolved", return_value=build_root
+                ),
+                mock.patch.object(
+                    self.workspace, "_select_topology_port", return_value=17303
+                ),
+                mock.patch.object(self.workspace, "_require_client_display"),
+            ):
+                scenario_status = self.workspace.topology_up(
+                    "scenario-auto-login",
+                    "default",
+                    scenario["state"],
+                    None,
+                    17303,
+                )
+            self.assertTrue(scenario_status["ready"])
+            scenario_root = (
+                self.workspace.paths.topologies / "scenario-auto-login"
+            )
+            scenario_client_log = scenario_root / "client.log"
+            deadline = time.monotonic() + 5
+            expected_connect = (
+                "--connect=127.0.0.1:"
+                f"{scenario['account']}:{scenario_password}:"
+                f"{scenario['character']}"
+            )
+            while time.monotonic() < deadline and (
+                not scenario_client_log.is_file()
+                or expected_connect not in scenario_client_log.read_text()
+            ):
+                time.sleep(0.05)
+            self.assertIn(expected_connect, scenario_client_log.read_text())
+            self.assertNotIn(
+                scenario_password,
+                (scenario_root / "spec.json").read_text(encoding="utf-8"),
+            )
+            self.assertNotIn(
+                scenario_password,
+                (scenario_root / "status.json").read_text(encoding="utf-8"),
+            )
+            self.assertNotIn(
+                scenario_password,
+                (scenario_root / "supervisor.log").read_text(encoding="utf-8"),
+            )
+        finally:
+            remaining = self.workspace.topology_status("scenario-auto-login")
+            if remaining["supervisor"]["running"] or any(
+                service["running"] for service in remaining["services"].values()
+            ):
+                self.workspace.topology_down("scenario-auto-login", timeout=5)
 
         with (
             mock.patch.object(
@@ -19646,6 +19717,15 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(credentials["account"], created["account"])
             self.assertEqual(credentials["character"], created["character"])
             self.assertTrue(credentials["password"])
+            password_link = scenario_root / "password-link"
+            os.link(scenario_root / "password", password_link)
+            try:
+                with self.assertRaisesRegex(
+                    WorkspaceError, "scenario password identity is unsafe"
+                ):
+                    self.workspace.scenario_credentials("issue-42")
+            finally:
+                password_link.unlink()
             scenario_summary = self.workspace.topology_summary(
                 "default", "scenario-issue-42", ["server"]
             )
@@ -19657,6 +19737,61 @@ class WorkspaceTests(unittest.TestCase):
                 scenario_summary["state_policy"]["lifecycle"],
                 "scenario-owned",
             )
+            launch, password_fd = self.workspace._scenario_client_launch(
+                "default",
+                "scenario-issue-42",
+                scenario_summary["state_policy"],
+            )
+            try:
+                self.assertEqual(
+                    launch,
+                    {
+                        "name": "issue-42",
+                        "account": created["account"],
+                        "character": created["character"],
+                    },
+                )
+                self.assertEqual(
+                    os.read(password_fd, workspace_module.SCENARIO_PASSWORD_MAX_SIZE),
+                    credentials["password"].encode(),
+                )
+            finally:
+                os.close(password_fd)
+
+            scenario_record = load_json(scenario_root / "scenario.json")
+            invalid_record = {**scenario_record, "account": "unsafe:account"}
+            atomic_json(scenario_root / "scenario.json", invalid_record)
+            try:
+                with self.assertRaisesRegex(
+                    WorkspaceError, "scenario account is unsafe"
+                ):
+                    self.workspace._scenario_client_launch(
+                        "default",
+                        "scenario-issue-42",
+                        scenario_summary["state_policy"],
+                    )
+            finally:
+                atomic_json(scenario_root / "scenario.json", scenario_record)
+
+            with self.assertRaisesRegex(
+                WorkspaceError, "exact scenario-owned state metadata"
+            ):
+                self.workspace._scenario_client_launch(
+                    "default",
+                    "scenario-issue-42",
+                    {
+                        **scenario_summary["state_policy"],
+                        "owner": {"kind": "workspace"},
+                    },
+                )
+            with self.assertRaisesRegex(
+                WorkspaceError, "does not match the selected profile and state"
+            ):
+                self.workspace._scenario_client_launch(
+                    "classic",
+                    "scenario-issue-42",
+                    scenario_summary["state_policy"],
+                )
 
             (state / "accounts").mkdir()
             reset = self.workspace.scenario_reset("issue-42")

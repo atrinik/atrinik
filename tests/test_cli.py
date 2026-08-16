@@ -1449,7 +1449,7 @@ class ParserTests(unittest.TestCase):
             "review", "content", "path", "relative"
         )
 
-    def test_scenario_create_prints_complete_manual_handoff(self) -> None:
+    def test_scenario_create_prints_automatic_login_handoff(self) -> None:
         summary = {
             "name": "issue-42",
             "profile": "issue-42",
@@ -1479,7 +1479,11 @@ class ParserTests(unittest.TestCase):
         rendered = "\n".join(str(call.args[0]) for call in output.call_args_list)
         self.assertIn("./atrinik profile show issue-42", rendered)
         self.assertIn("./atrinik build server --profile issue-42 --test", rendered)
-        self.assertIn("./atrinik scenario credentials issue-42", rendered)
+        self.assertNotIn("./atrinik scenario credentials issue-42", rendered)
+        self.assertIn(
+            "the supervised client logs in with the scenario automatically",
+            rendered,
+        )
         self.assertIn(
             "./atrinik up --name issue-42 --profile issue-42 "
             "--state scenario-issue-42",
