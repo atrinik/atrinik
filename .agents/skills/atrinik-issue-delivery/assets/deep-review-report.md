@@ -119,7 +119,7 @@ accessibility/localization, docs and manual verification>`
 ## Manual verification handoff
 
 - Applicability: `<Classic / replacement / runtime irrelevant and why>`
-- Prerequisites: `<display, tools, profile, credentials-local-only>`
+- Prerequisites: `<display, tools, profile, automatic scenario login>`
 - Exact commands: `<copy-pasteable lifecycle/test commands>`
 - Feature actions: `<precise reproduction steps>`
 - Expected results: `<observable outcomes>`

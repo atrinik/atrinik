@@ -22,7 +22,6 @@ it is not generic temporary topology state and must still be selected with
 ```sh
 ./atrinik scenario create NAME --profile PROFILE --preset basic-player
 ./atrinik scenario show NAME --json
-./atrinik scenario credentials NAME
 ./atrinik topology show PROFILE --state scenario-NAME --json
 ./atrinik up --name NAME --profile PROFILE --state scenario-NAME
 ./atrinik ps NAME --json
@@ -32,15 +31,15 @@ it is not generic temporary topology state and must still be selected with
 ./atrinik scenario reset NAME
 ```
 
-`show`/`list` never reveal the password. Retrieve it only immediately before
-login and never copy it into commits, review text, issues, logs, arguments, or
-final responses. Confirm display forwarding when using the client. State the
-exact login/actions/expected result between `up` and `down`.
+`show`/`list` hide passwords. Scenario-state `up` validates ownership and
+automatically logs in the client. Its disposable secret may appear only in
+local argv/client/Codex logs; never reuse it or copy it to GitHub, commits,
+public logs, or durable handoffs. State actions/results between `up` and `down`.
 
 Reset only after stopping the topology. It is destructive solely to the
 scenario-owned state and refuses running, locked, external, shared, symlinked,
 malformed, or unregistered targets. Handoffs include concrete profile,
-scenario, topology, state, credentials lookup, prerequisites, expected result,
+scenario, topology, state, automatic login, prerequisites, expected result,
 cleanup, and repeat-test commands.
 
 When an agent scope deliberately selects `scenario-NAME` as its registered

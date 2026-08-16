@@ -50,9 +50,9 @@
   manifest source directories.
 - Prefer `scope create` for agents; use JSON handoff and
   preview/apply release. Primitives remain.
-- Use wrapper commands and paths; never reconstruct managed paths. Give
-  concurrent topologies distinct names, states, ports, and client config;
-  prefer temporary state.
+- Use wrapper commands and paths; never reconstruct managed paths. Isolate
+  topology names/states/ports/client config; prefer temporary state and keep
+  scenario secrets local.
 - Keep completion bounded, local, parser-driven, secret-free, and ahead of
   `Workspace` construction.
 - Lease in order; gate same-coordinate readers; share the migration barrier.

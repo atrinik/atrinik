@@ -29,6 +29,7 @@ FINGERPRINT_PATTERN = re.compile(
     rb"QUIC certificate SHA-256:\s*([0-9a-fA-F]{64})"
 )
 SERVER_READY_PATTERN = re.compile(rb"Server ready\. Waiting for connections\.\.\.")
+SCENARIO_CONNECT_FIELD_MAX_SIZE = 128
 
 
 def process_start_time(pid: int) -> str | None:
@@ -397,6 +398,7 @@ def _guardian(
 def _start_guardian(
     process_tree_fd: int | None,
     *retained_fds: int | None,
+    close_fds: tuple[int | None, ...] = (),
 ) -> tuple[int | None, int | None]:
     if process_tree_fd is None:
         return None, None
@@ -408,6 +410,9 @@ def _start_guardian(
 
     os.close(write_fd)
     try:
+        for descriptor in close_fds:
+            if descriptor is not None:
+                os.close(descriptor)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         _guardian(read_fd, process_tree_fd, retained_fds)
@@ -447,6 +452,73 @@ def _open_control(spec: dict[str, Any], topology_root: Path) -> socket.socket | 
         endpoint.close()
         raise
     return endpoint
+
+
+def _validate_scenario_connect_field(label: str, value: object) -> str:
+    if (
+        not isinstance(value, str)
+        or not value
+        or len(value) > SCENARIO_CONNECT_FIELD_MAX_SIZE
+        or not value.isascii()
+        or ":" in value
+        or any(
+            ord(character) < 32 or ord(character) == 127
+            for character in value
+        )
+    ):
+        raise RuntimeError(
+            f"scenario {label} is unsafe for the colon-delimited client login"
+        )
+    return value
+
+
+def _scenario_client_metadata(
+    spec: dict[str, Any], password_fd: int | None
+) -> dict[str, str] | None:
+    value = spec.get("scenario_client")
+    if value is None:
+        if password_fd is not None:
+            raise RuntimeError("scenario password descriptor has no scenario metadata")
+        return None
+    policy = spec.get("state_policy")
+    if (
+        password_fd is None
+        or not isinstance(value, dict)
+        or set(value) != {"name", "account", "character"}
+        or not isinstance(policy, dict)
+        or policy.get("mode") != "named"
+        or policy.get("name") != f"scenario-{value.get('name')}"
+        or policy.get("lifecycle") != "scenario-owned"
+        or policy.get("owner") != {"kind": "scenario", "name": value.get("name")}
+        or "server" not in spec.get("services", {})
+        or "client" not in spec.get("services", {})
+    ):
+        raise RuntimeError(
+            "scenario client login metadata is incomplete or mismatched"
+        )
+    return {
+        "name": _validate_scenario_connect_field("name", value.get("name")),
+        "account": _validate_scenario_connect_field(
+            "account", value.get("account")
+        ),
+        "character": _validate_scenario_connect_field(
+            "character", value.get("character")
+        ),
+    }
+
+
+def _read_scenario_password(descriptor: int) -> str:
+    try:
+        raw = os.read(descriptor, SCENARIO_CONNECT_FIELD_MAX_SIZE + 1)
+        if len(raw) <= SCENARIO_CONNECT_FIELD_MAX_SIZE:
+            raw += os.read(descriptor, 1)
+    except OSError as error:
+        raise RuntimeError("cannot read scenario password descriptor") from error
+    try:
+        password = raw.decode("utf-8")
+    except UnicodeError as error:
+        raise RuntimeError("scenario password is not UTF-8") from error
+    return _validate_scenario_connect_field("password", password)
 
 
 def _receive_control(connection: socket.socket) -> Any:
@@ -517,6 +589,7 @@ def supervise(
     state_directory_fd: int | None = None,
     state_output_fd: int | None = None,
     physical_state_lock_fd: int | None = None,
+    scenario_password_fd: int | None = None,
 ) -> int:
     with spec_path.open(encoding="utf-8") as stream:
         spec = json.load(stream)
@@ -544,6 +617,7 @@ def supervise(
     if supervisor_start_time is None:
         raise RuntimeError("cannot identify topology supervisor process")
     status = _initial_status(spec, supervisor_start_time)
+    scenario_client = _scenario_client_metadata(spec, scenario_password_fd)
     _validate_port_reservation(spec, port_reservation_fd, spec_path.parent)
     processes: dict[str, subprocess.Popen[bytes]] = {}
     logs: list[RotatingLog] = []
@@ -632,9 +706,13 @@ def supervise(
             retained_fds = (*retained_fds, state_output_fd)
         if physical_state_lock_fd is not None:
             retained_fds = (*retained_fds, physical_state_lock_fd)
+        guardian_arguments = (
+            {"close_fds": (scenario_password_fd,)}
+            if scenario_password_fd is not None
+            else {}
+        )
         guardian_pid, guardian_write_fd = _start_guardian(
-            process_tree_fd,
-            *retained_fds,
+            process_tree_fd, *retained_fds, **guardian_arguments
         )
         control_socket = _open_control(spec, spec_path.parent)
         if "server" in spec["services"]:
@@ -666,10 +744,24 @@ def supervise(
             client_arguments: list[str] = []
             endpoint = status["endpoint"]
             if endpoint is not None:
+                connect = endpoint["host"]
+                if scenario_client is not None:
+                    assert scenario_password_fd is not None
+                    password = _read_scenario_password(scenario_password_fd)
+                    os.close(scenario_password_fd)
+                    scenario_password_fd = None
+                    connect = ":".join(
+                        (
+                            endpoint["host"],
+                            scenario_client["account"],
+                            password,
+                            scenario_client["character"],
+                        )
+                    )
                 client_arguments = [
                     f"--server={endpoint['host']} {endpoint['port']} "
                     f"{endpoint['fingerprint']}",
-                    f"--connect={endpoint['host']}",
+                    f"--connect={connect}",
                     "--stun_server=off",
                     "--nometa",
                 ]
@@ -754,6 +846,8 @@ def supervise(
             os.close(state_output_fd)
         if physical_state_lock_fd is not None:
             os.close(physical_state_lock_fd)
+        if scenario_password_fd is not None:
+            os.close(scenario_password_fd)
         if process_tree_fd is not None:
             os.close(process_tree_fd)
             process_tree_fd = None
@@ -779,6 +873,7 @@ def main() -> int:
     parser.add_argument("--state-directory-fd", type=int)
     parser.add_argument("--state-output-fd", type=int)
     parser.add_argument("--physical-state-lock-fd", type=int)
+    parser.add_argument("--scenario-password-fd", type=int)
     parser.add_argument("--daemonize", action="store_true")
     options = parser.parse_args()
     if options.daemonize and os.fork() != 0:
@@ -798,6 +893,7 @@ def main() -> int:
             options.state_directory_fd,
             options.state_output_fd,
             options.physical_state_lock_fd,
+            options.scenario_password_fd,
         )
     except BaseException as error:
         message = f"{type(error).__name__}: {error}"
@@ -844,6 +940,11 @@ def main() -> int:
         if options.physical_state_lock_fd is not None:
             try:
                 os.close(options.physical_state_lock_fd)
+            except OSError:
+                pass
+        if options.scenario_password_fd is not None:
+            try:
+                os.close(options.scenario_password_fd)
             except OSError:
                 pass
         if options.process_tree_fd is not None:
