@@ -10814,11 +10814,46 @@ class DeliveryLedgerTests(unittest.TestCase):
                     slot["current"]["head_sha"] = actual_head
             return predecessor, candidate, actual_head, base_head, live
 
+        def stale_coordinate_recovery(
+            root: Path, predecessor: object, actual_head: str, base_head: str
+        ) -> tuple[object, bytes]:
+            erroneous_document = next_generation(predecessor)
+            target = erroneous_document["targets"][0]
+            target["head"]["current_sha"] = bad_head
+            target["head"]["lineage"].append(bad_head)
+            for slot in erroneous_document["artifacts"]:
+                if slot["kind"] in {"branch", "worktree"}:
+                    slot["current"]["head_sha"] = bad_head
+            erroneous = historical_target_cas(
+                root, predecessor, erroneous_document
+            )
+            recovery = head_correction_recovery(
+                predecessor,
+                erroneous,
+                actual_head,
+                bad_head,
+                actual_merge_base=base_head,
+            )
+            return erroneous, recovery
+
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             predecessor, candidate, actual_head, base_head, _ = setup(
                 root, "target-refresh"
             )
+            stale_candidate = copy.deepcopy(candidate)
+            stale_candidate["targets"][0]["merge_base"]["current_sha"] = (
+                predecessor.document["targets"][0]["merge_base"]["current_sha"]
+            )
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(ledger.LedgerError, "merge base differs"):
+                ledger.target_refresh_cas(
+                    root,
+                    predecessor.name,
+                    stale_candidate,
+                    **cas_arguments(predecessor),
+                )
+            self.assertEqual(directory_snapshot(root), before)
             before = directory_snapshot(root)
             with self.assertRaisesRegex(
                 ledger.LedgerError, "live target-refresh-cas authority"
@@ -10952,25 +10987,59 @@ class DeliveryLedgerTests(unittest.TestCase):
                 )
             self.assertEqual(directory_snapshot(root), before)
 
+        for index, failpoint in enumerate(
+            (
+                "correct-target-head:predecessor-snapshot",
+                "correct-target-head:erroneous-snapshot",
+                "correct-target-head:staged",
+                "correct-target-head:receipt",
+                "correct-target-head:renamed",
+                "correct-target-head:installed",
+            )
+        ):
+            with self.subTest(stale_coordinate_recovery_failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                predecessor, _candidate, actual_head, base_head, _live = setup(
+                    root, f"coordinate-recovery-fail-{index}"
+                )
+                erroneous, recovery = stale_coordinate_recovery(
+                    root, predecessor, actual_head, base_head
+                )
+                with self.assertRaises(ledger.InjectedCrash):
+                    ledger.correct_target_head(
+                        root,
+                        erroneous.name,
+                        predecessor.raw,
+                        recovery,
+                        failpoint=failpoint,
+                        **cas_arguments(erroneous),
+                        bad_head=bad_head,
+                        actual_head=actual_head,
+                        actual_merge_base=base_head,
+                    )
+                corrected = ledger.correct_target_head(
+                    root,
+                    erroneous.name,
+                    predecessor.raw,
+                    recovery,
+                    **cas_arguments(erroneous),
+                    bad_head=bad_head,
+                    actual_head=actual_head,
+                    actual_merge_base=base_head,
+                )
+                self.assertEqual(
+                    corrected.document["targets"][0]["merge_base"]["current_sha"],
+                    base_head,
+                )
+                self.assertEqual(ledger.inventory(root).pending, ())
+
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             predecessor, _candidate, actual_head, base_head, live = setup(
                 root, "coordinate-recovery"
             )
-            erroneous_document = next_generation(predecessor)
-            target = erroneous_document["targets"][0]
-            target["head"]["current_sha"] = bad_head
-            target["head"]["lineage"].append(bad_head)
-            for slot in erroneous_document["artifacts"]:
-                if slot["kind"] in {"branch", "worktree"}:
-                    slot["current"]["head_sha"] = bad_head
-            erroneous = historical_target_cas(root, predecessor, erroneous_document)
-            recovery = head_correction_recovery(
-                predecessor,
-                erroneous,
-                actual_head,
-                bad_head,
-                actual_merge_base=base_head,
+            erroneous, recovery = stale_coordinate_recovery(
+                root, predecessor, actual_head, base_head
             )
             wrong_recovery = head_correction_recovery(
                 predecessor,
