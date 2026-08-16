@@ -19713,6 +19713,19 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(
                 stat.S_IMODE((scenario_root / "password").stat().st_mode), 0o600
             )
+            self.assertEqual(
+                self.workspace._validate_scenario_connect_field("account", "safe"),
+                "safe",
+            )
+            with (
+                mock.patch.object(
+                    workspace_module.Path, "stat", side_effect=OSError("replaced")
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "scenario password identity is unsafe"
+                ),
+            ):
+                self.workspace._open_scenario_password(scenario_root / "password")
             credentials = self.workspace.scenario_credentials("issue-42")
             self.assertEqual(credentials["account"], created["account"])
             self.assertEqual(credentials["character"], created["character"])

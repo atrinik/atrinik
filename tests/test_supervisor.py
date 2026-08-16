@@ -165,6 +165,58 @@ class ServerReadinessCaptureTests(unittest.TestCase):
             finally:
                 os.close(descriptor)
 
+    def test_scenario_client_rejects_incomplete_metadata_and_bad_descriptor(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "has no scenario metadata"):
+            supervisor_module._scenario_client_metadata({}, 10)
+        with self.assertRaisesRegex(RuntimeError, "incomplete or mismatched"):
+            supervisor_module._scenario_client_metadata(
+                {
+                    "scenario_client": {
+                        "name": "issue-478",
+                        "account": "scenario478",
+                        "character": "Scenario 478",
+                    },
+                    "services": {"server": {}, "client": {}},
+                },
+                10,
+            )
+
+        with (
+            mock.patch.object(supervisor_module.os, "read", side_effect=OSError),
+            self.assertRaisesRegex(RuntimeError, "cannot read scenario password"),
+        ):
+            supervisor_module._read_scenario_password(10)
+
+        with tempfile.TemporaryDirectory() as directory:
+            password_path = Path(directory) / "password"
+            password_path.write_bytes(b"\xff")
+            descriptor = os.open(password_path, os.O_RDONLY)
+            try:
+                with self.assertRaisesRegex(RuntimeError, "password is not UTF-8"):
+                    supervisor_module._read_scenario_password(descriptor)
+            finally:
+                os.close(descriptor)
+
+    def test_guardian_child_closes_scenario_descriptor(self) -> None:
+        with (
+            mock.patch.object(supervisor_module.os, "pipe2", return_value=(10, 11)),
+            mock.patch.object(supervisor_module.os, "fork", return_value=0),
+            mock.patch.object(supervisor_module.os, "close") as close,
+            mock.patch.object(supervisor_module, "_guardian"),
+            mock.patch.object(
+                supervisor_module.os, "_exit", side_effect=RuntimeError("exit")
+            ),
+            self.assertRaisesRegex(RuntimeError, "exit"),
+        ):
+            supervisor_module._start_guardian(
+                20, 21, close_fds=(None, 22)
+            )
+
+        self.assertEqual(
+            [call.args[0] for call in close.call_args_list],
+            [11, 22],
+        )
+
     def test_control_messages_are_bounded_and_may_arrive_in_chunks(self) -> None:
         connection = mock.Mock()
         connection.recv.side_effect = [b'{"action": "sta', b'tus"}\n']
