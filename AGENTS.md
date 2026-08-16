@@ -99,7 +99,7 @@ Install test tooling once, then run the complete wrapper validation:
 
 ```sh
 python3 -m pip install --requirement requirements-dev.txt
-python3 -m coverage run -m unittest discover -v
+python3 -m coverage run -m unittest discover -v --durations 50
 python3 -m coverage report --show-missing
 python3 -m compileall -q atrinik atrinik_workspace tests
 python3 -m atrinik_workspace.guidance_inventory --check

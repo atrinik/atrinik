@@ -6,15 +6,22 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: integration-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
-  id-token: write
 
 jobs:
-  integration:
-    name: Integration validation
+  test-shards:
+    name: Test shard ${{ matrix.shard }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -26,14 +33,81 @@ jobs:
           python-version: "3.13"
       - name: Install coverage tooling
         run: python3 -m pip install --requirement requirements-dev.txt
-      - name: Validate workspace coordinator
+      - name: Run measured test shard
+        env:
+          COVERAGE_FILE: build/ci/shard-${{ matrix.shard }}/.coverage.shard-${{ matrix.shard }}
         run: |
-          python3 -m coverage run -m unittest discover -v
+          python3 -m coverage run --parallel-mode -m atrinik_workspace.ci_sharding run \
+            --shard-count 3 \
+            --shard-index "${{ matrix.shard }}" \
+            --weights ci/test-timing-weights.json \
+            --manifest "build/ci/shard-${{ matrix.shard }}/shard-${{ matrix.shard }}-manifest.json" \
+            --timings "build/ci/shard-${{ matrix.shard }}/shard-${{ matrix.shard }}-timings.json" \
+            --durations 50
+      - name: Retain shard coverage and timings
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: integration-shard-${{ matrix.shard }}
+          path: build/ci/shard-${{ matrix.shard }}
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
+  integration:
+    name: Integration validation
+    if: always()
+    needs: test-shards
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+          python-version: "3.13"
+      - name: Install coverage tooling
+        run: python3 -m pip install --requirement requirements-dev.txt
+      - name: Download shard evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: integration-shard-*
+          path: build/ci/shards
+          merge-multiple: true
+      - name: Require passing test shards
+        env:
+          SHARD_RESULT: ${{ needs.test-shards.result }}
+        run: test "$SHARD_RESULT" = success
+      - name: Verify complete test discovery
+        run: |
+          python3 -m atrinik_workspace.ci_sharding verify \
+            --shard-count 3 \
+            --weights ci/test-timing-weights.json \
+            --manifests build/ci/shards \
+            --output build/ci/discovery-manifest.json
+      - name: Combine and report branch coverage
+        run: |
+          python3 -m coverage combine build/ci/shards
           python3 -m coverage report --show-missing
           python3 -m coverage xml
-          python3 -m compileall -q atrinik atrinik_workspace tests
-          ./atrinik manifest validate
-          ./atrinik supply-chain validate
+      - name: Compile Python sources
+        run: python3 -m compileall -q atrinik atrinik_workspace tests
+      - name: Validate guidance inventory
+        run: python3 -m atrinik_workspace.guidance_inventory --check
+      - name: Validate MCP contract
+        run: python3 -m atrinik_workspace.mcp_contract validate
+      - name: Validate component manifest
+        run: ./atrinik manifest validate
+      - name: Validate provenance registry
+        run: ./atrinik provenance validate
+      - name: Validate supply chain
+        run: ./atrinik supply-chain validate
       - name: Upload coverage report
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
         with:
