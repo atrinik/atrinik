@@ -407,11 +407,15 @@ def scope_show_bytes(
     return (json.dumps(record, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
-def live_roots(base: Path, checkout: str) -> dict[str, object]:
-    wrapper = base / "wrapper"
-    workspace = base / "alternate-workspace-data"
+_LIVE_TEMPLATE_ROOT: Path | None = None
+_LIVE_TEMPLATES: dict[tuple[str, str | None], Path] = {}
+
+
+def _create_live_template(
+    root: Path, checkout: str, seed: str | None = None
+) -> Path:
+    wrapper = root / "wrapper"
     wrapper.mkdir(parents=True, exist_ok=True)
-    workspace.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "components.json", wrapper / "components.json")
     shutil.copy2(ROOT / "atrinik", wrapper / "atrinik")
     shutil.copytree(ROOT / "atrinik_workspace", wrapper / "atrinik_workspace")
@@ -437,6 +441,37 @@ def live_roots(base: Path, checkout: str) -> dict[str, object]:
             "origin",
             f"https://github.com/atrinik/{checkout}.git",
         )
+    if seed == "correction":
+        correction_root = wrapper if checkout == "atrinik" else wrapper / checkout
+        git_run(correction_root, "branch", "correction-seed")
+        git_run(correction_root, "switch", "correction-seed")
+        (correction_root / "correction.txt").write_text(
+            "actual\n", encoding="utf-8"
+        )
+        git_run(correction_root, "add", "correction.txt")
+        git_run(correction_root, "commit", "-m", "actual correction head")
+        git_run(correction_root, "switch", "main")
+    return wrapper
+
+
+def live_roots(
+    base: Path, checkout: str, *, seed: str | None = None
+) -> dict[str, object]:
+    wrapper = base / "wrapper"
+    workspace = base / "alternate-workspace-data"
+    if _LIVE_TEMPLATE_ROOT is None:
+        _create_live_template(base, checkout, seed)
+    else:
+        template_key = (checkout, seed)
+        template = _LIVE_TEMPLATES.get(template_key)
+        if template is None:
+            template_root = _LIVE_TEMPLATE_ROOT / checkout / (seed or "base")
+            template = _create_live_template(template_root, checkout, seed)
+            _LIVE_TEMPLATES[template_key] = template
+        base.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(template, wrapper)
+    workspace.mkdir(parents=True, exist_ok=True)
+    primary = wrapper if checkout == "atrinik" else wrapper / checkout
     return {
         name: {
             "path": str(path),
@@ -449,6 +484,117 @@ def live_roots(base: Path, checkout: str) -> dict[str, object]:
             ("primary", primary),
         )
     }
+
+
+def target_refresh_setup(
+    live_base: Path,
+    root: Path,
+    label: str,
+    *,
+    stale_predecessor: bool = True,
+) -> tuple[object, dict[str, object], str, str, Path]:
+    roots = live_roots(live_base / label, "atrinik")
+    primary = Path(roots["primary"]["path"])
+    recorded_merge_base = git_head(roots)
+    branch = f"fix/{label}"
+    worktree_path = str(
+        Path(roots["workspace"]["path"]) / "worktrees" / "atrinik" / label
+    )
+    document = issue_ledger(
+        number=460,
+        issue_node=f"I_{label.replace('-', '_')}",
+        branch=branch,
+        worktree=worktree_path,
+    )
+    replace_sha(document, SHA_A, recorded_merge_base)
+    worktree = next(
+        slot for slot in document["artifacts"] if slot["kind"] == "worktree"
+    )
+    worktree["primitive_request"]["roots"] = copy.deepcopy(roots)
+    first = ledger.create(root, document)
+    worktree_list = worktree_list_bytes(worktree["primitive_request"])
+    safety = safety_observation_bytes(
+        worktree["primitive_request"],
+        worktree_list,
+        producer_kind="primitive",
+        producer_digest=None,
+    )
+    ledger.bind_worktree_cas(
+        root,
+        first.name,
+        "worktree",
+        worktree_list,
+        safety,
+        **cas_arguments(first),
+    )
+    live = live_worktree_path(worktree["primitive_request"])
+    bound = ledger.inspect(root, first.name)
+    (primary / "base.txt").write_text("base\n", encoding="utf-8")
+    git_run(primary, "add", "base.txt")
+    git_run(primary, "commit", "-m", "advance base")
+    base_head = git_head(roots)
+    base_candidate = next_generation(bound)
+    base = base_candidate["targets"][0]["base"]
+    base["current_sha"] = base_head
+    base["lineage"].append(base_head)
+    base_refreshed = ledger.target_refresh_cas(
+        root, bound.name, base_candidate, **cas_arguments(bound)
+    )
+    git_run(live, "merge", "--ff-only", base_head)
+    predecessor = base_refreshed
+    if stale_predecessor:
+        (live / "predecessor.txt").write_text("predecessor\n", encoding="utf-8")
+        git_run(live, "add", "predecessor.txt")
+        git_run(live, "commit", "-m", "predecessor target head")
+        predecessor_head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+        stale_candidate = next_generation(base_refreshed)
+        stale_target = stale_candidate["targets"][0]["head"]
+        stale_target["current_sha"] = predecessor_head
+        stale_target["lineage"].append(predecessor_head)
+        for slot in stale_candidate["artifacts"]:
+            if slot["kind"] in {"branch", "worktree"}:
+                slot["current"]["head_sha"] = predecessor_head
+        predecessor = historical_target_cas(
+            root, base_refreshed, stale_candidate
+        )
+    (live / "actual.txt").write_text("actual\n", encoding="utf-8")
+    git_run(live, "add", "actual.txt")
+    git_run(live, "commit", "-m", "actual target head")
+    actual_head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+    candidate = next_generation(predecessor)
+    target = candidate["targets"][0]
+    target["head"]["current_sha"] = actual_head
+    target["head"]["lineage"].append(actual_head)
+    target["merge_base"]["current_sha"] = base_head
+    for slot in candidate["artifacts"]:
+        if slot["kind"] in {"branch", "worktree"}:
+            slot["current"]["head_sha"] = actual_head
+    return predecessor, candidate, actual_head, base_head, live
+
+
+def stale_coordinate_recovery(
+    root: Path,
+    predecessor: object,
+    actual_head: str,
+    base_head: str,
+    bad_head: str,
+) -> tuple[object, bytes]:
+    erroneous_document = next_generation(predecessor)
+    target = erroneous_document["targets"][0]
+    target["head"]["current_sha"] = bad_head
+    target["head"]["lineage"].append(bad_head)
+    for slot in erroneous_document["artifacts"]:
+        if slot["kind"] in {"branch", "worktree"}:
+            slot["current"]["head_sha"] = bad_head
+    erroneous = historical_target_cas(root, predecessor, erroneous_document)
+    recovery = head_correction_recovery(
+        predecessor,
+        erroneous,
+        actual_head,
+        bad_head,
+        actual_merge_base=base_head,
+    )
+    return erroneous, recovery
 
 
 def linked_wrapper_roots(base: Path) -> dict[str, object]:
@@ -1657,6 +1803,13 @@ def directory_snapshot(root: Path) -> tuple[tuple[object, ...], ...]:
 
 
 class DeliveryLedgerTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        global _LIVE_TEMPLATE_ROOT
+        cls.live_seed_temporary = tempfile.TemporaryDirectory()
+        _LIVE_TEMPLATE_ROOT = Path(cls.live_seed_temporary.name)
+
     def setUp(self) -> None:
         self.live_temporary = tempfile.TemporaryDirectory()
         self.live_base = Path(self.live_temporary.name)
@@ -1671,8 +1824,28 @@ class DeliveryLedgerTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
+        global _LIVE_TEMPLATE_ROOT
+        _LIVE_TEMPLATES.clear()
+        _LIVE_TEMPLATE_ROOT = None
+        cls.live_seed_temporary.cleanup()
         if (SCRIPT.parent / "__pycache__").exists():
             raise AssertionError("dynamic helper import created skill-package debris")
+        super().tearDownClass()
+
+    def test_live_git_seed_copies_keep_scenario_state_independent(self) -> None:
+        first = live_roots(self.live_base / "seed-independent-a", "atrinik")
+        second = live_roots(self.live_base / "seed-independent-b", "atrinik")
+        first_wrapper = Path(first["wrapper"]["path"])
+        second_wrapper = Path(second["wrapper"]["path"])
+        self.assertNotEqual(first_wrapper.stat().st_ino, second_wrapper.stat().st_ino)
+        self.assertEqual(git_head(first), git_head(second))
+
+        (first_wrapper / "scenario-only.txt").write_text("first\n", encoding="utf-8")
+        git_run(first_wrapper, "add", "scenario-only.txt")
+        git_run(first_wrapper, "commit", "-m", "scenario-only state")
+        self.assertFalse((second_wrapper / "scenario-only.txt").exists())
+        self.assertNotEqual(git_head(first), git_head(second))
+        self.assertEqual(git_run(second_wrapper, "status", "--porcelain").stdout, "")
 
     def test_01_strict_schema_and_duplicate_keys_fail_closed(self) -> None:
         valid = issue_ledger()
@@ -9880,8 +10053,16 @@ class DeliveryLedgerTests(unittest.TestCase):
             producer: str = "primitive",
         ) -> tuple[object, object, str, str, Path]:
             checkout = "client" if producer == "scope" else "atrinik"
-            roots = live_roots(self.live_base / label, checkout)
-            base = git_head(roots)
+            roots = live_roots(
+                self.live_base / label, checkout, seed="correction"
+            )
+            base = git_run(
+                Path(roots["primary"]["path"]),
+                "rev-list",
+                "--max-parents=0",
+                "--reverse",
+                "HEAD",
+            ).stdout.splitlines()[0]
             branch = f"fix/{label}"
             worktree_path = str(
                 Path(roots["workspace"]["path"])
@@ -9955,6 +10136,12 @@ class DeliveryLedgerTests(unittest.TestCase):
                     **cas_arguments(first),
                 )
             predecessor = ledger.inspect(root, first.name)
+            actual = git_run(
+                Path(roots["primary"]["path"]),
+                "rev-parse",
+                "refs/heads/correction-seed",
+            ).stdout.strip()
+            git_run(live, "merge", "--ff-only", actual)
             if mirror_pull_request:
                 predecessor = ledger.cas(
                     root,
@@ -9962,10 +10149,6 @@ class DeliveryLedgerTests(unittest.TestCase):
                     bind_issue_created_pr(predecessor),
                     **cas_arguments(predecessor),
                 )
-            (live / "correction.txt").write_text("actual\n", encoding="utf-8")
-            git_run(live, "add", "correction.txt")
-            git_run(live, "commit", "-m", "actual correction head")
-            actual = git_run(live, "rev-parse", "HEAD").stdout.strip()
             incident_bad_head = bad_head
             if bad_kind == "blob":
                 incident_bad_head = git_run(
@@ -10742,118 +10925,10 @@ class DeliveryLedgerTests(unittest.TestCase):
     ) -> None:
         bad_head = "f0f8d7493278dc691710056c79d0d63f1d802488"
 
-        def setup(
-            root: Path, label: str, *, stale_predecessor: bool = True
-        ) -> tuple[object, dict[str, object], str, str, Path]:
-            roots = live_roots(self.live_base / label, "atrinik")
-            primary = Path(roots["primary"]["path"])
-            recorded_merge_base = git_head(roots)
-            branch = f"fix/{label}"
-            worktree_path = str(
-                Path(roots["workspace"]["path"])
-                / "worktrees"
-                / "atrinik"
-                / label
-            )
-            document = issue_ledger(
-                number=460,
-                issue_node=f"I_{label.replace('-', '_')}",
-                branch=branch,
-                worktree=worktree_path,
-            )
-            replace_sha(document, SHA_A, recorded_merge_base)
-            worktree = next(
-                slot for slot in document["artifacts"] if slot["kind"] == "worktree"
-            )
-            worktree["primitive_request"]["roots"] = copy.deepcopy(roots)
-            first = ledger.create(root, document)
-            worktree_list = worktree_list_bytes(worktree["primitive_request"])
-            safety = safety_observation_bytes(
-                worktree["primitive_request"],
-                worktree_list,
-                producer_kind="primitive",
-                producer_digest=None,
-            )
-            ledger.bind_worktree_cas(
-                root,
-                first.name,
-                "worktree",
-                worktree_list,
-                safety,
-                **cas_arguments(first),
-            )
-            live = live_worktree_path(worktree["primitive_request"])
-            bound = ledger.inspect(root, first.name)
-            (primary / "base.txt").write_text("base\n", encoding="utf-8")
-            git_run(primary, "add", "base.txt")
-            git_run(primary, "commit", "-m", "advance base")
-            base_head = git_head(roots)
-            base_candidate = next_generation(bound)
-            base = base_candidate["targets"][0]["base"]
-            base["current_sha"] = base_head
-            base["lineage"].append(base_head)
-            base_refreshed = ledger.target_refresh_cas(
-                root, bound.name, base_candidate, **cas_arguments(bound)
-            )
-            git_run(live, "merge", "--ff-only", base_head)
-            predecessor = base_refreshed
-            if stale_predecessor:
-                (live / "predecessor.txt").write_text(
-                    "predecessor\n", encoding="utf-8"
-                )
-                git_run(live, "add", "predecessor.txt")
-                git_run(live, "commit", "-m", "predecessor target head")
-                predecessor_head = git_run(live, "rev-parse", "HEAD").stdout.strip()
-                stale_candidate = next_generation(base_refreshed)
-                stale_target = stale_candidate["targets"][0]["head"]
-                stale_target["current_sha"] = predecessor_head
-                stale_target["lineage"].append(predecessor_head)
-                for slot in stale_candidate["artifacts"]:
-                    if slot["kind"] in {"branch", "worktree"}:
-                        slot["current"]["head_sha"] = predecessor_head
-                predecessor = historical_target_cas(
-                    root, base_refreshed, stale_candidate
-                )
-            (live / "actual.txt").write_text("actual\n", encoding="utf-8")
-            git_run(live, "add", "actual.txt")
-            git_run(live, "commit", "-m", "actual target head")
-            actual_head = git_run(live, "rev-parse", "HEAD").stdout.strip()
-            candidate = next_generation(predecessor)
-            target = candidate["targets"][0]
-            target["head"]["current_sha"] = actual_head
-            target["head"]["lineage"].append(actual_head)
-            target["merge_base"]["current_sha"] = base_head
-            for slot in candidate["artifacts"]:
-                if slot["kind"] in {"branch", "worktree"}:
-                    slot["current"]["head_sha"] = actual_head
-            return predecessor, candidate, actual_head, base_head, live
-
-        def stale_coordinate_recovery(
-            root: Path, predecessor: object, actual_head: str, base_head: str
-        ) -> tuple[object, bytes]:
-            erroneous_document = next_generation(predecessor)
-            target = erroneous_document["targets"][0]
-            target["head"]["current_sha"] = bad_head
-            target["head"]["lineage"].append(bad_head)
-            for slot in erroneous_document["artifacts"]:
-                if slot["kind"] in {"branch", "worktree"}:
-                    slot["current"]["head_sha"] = bad_head
-            erroneous = historical_target_cas(
-                root, predecessor, erroneous_document
-            )
-            recovery = head_correction_recovery(
-                predecessor,
-                erroneous,
-                actual_head,
-                bad_head,
-                actual_merge_base=base_head,
-            )
-            return erroneous, recovery
-
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            predecessor, candidate, actual_head, base_head, _ = setup(
-                root, "target-refresh"
+            predecessor, candidate, actual_head, base_head, _ = target_refresh_setup(
+                self.live_base, root, "target-refresh"
             )
             stale_candidate = copy.deepcopy(candidate)
             stale_candidate["targets"][0]["merge_base"]["current_sha"] = (
@@ -10913,8 +10988,8 @@ class DeliveryLedgerTests(unittest.TestCase):
         ):
             with self.subTest(target_refresh_failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
-                predecessor, candidate, actual_head, _base_head, _ = setup(
-                    root, f"target-refresh-fail-{index}"
+                predecessor, candidate, actual_head, _base_head, _ = target_refresh_setup(
+                    self.live_base, root, f"target-refresh-fail-{index}"
                 )
                 with self.assertRaises(ledger.InjectedCrash):
                     ledger.target_refresh_cas(
@@ -10939,8 +11014,8 @@ class DeliveryLedgerTests(unittest.TestCase):
         for proofed in (False, True):
             with self.subTest(legacy_target_refresh_proofed=proofed), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
-                predecessor, candidate, actual_head, _base_head, _ = setup(
-                    root, f"target-refresh-legacy-{int(proofed)}"
+                predecessor, candidate, actual_head, _base_head, _ = target_refresh_setup(
+                    self.live_base, root, f"target-refresh-legacy-{int(proofed)}"
                 )
                 raw = ledger.canonical_bytes(candidate)
                 digest = ledger.byte_digest(raw)
@@ -10971,8 +11046,8 @@ class DeliveryLedgerTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            predecessor, candidate, _actual_head, _base_head, _ = setup(
-                root, "target-refresh-legacy-installed"
+            predecessor, candidate, _actual_head, _base_head, _ = target_refresh_setup(
+                self.live_base, root, "target-refresh-legacy-installed"
             )
             raw = ledger.canonical_bytes(candidate)
             digest = ledger.byte_digest(raw)
@@ -11001,59 +11076,13 @@ class DeliveryLedgerTests(unittest.TestCase):
                 )
             self.assertEqual(directory_snapshot(root), before)
 
-        for index, failpoint in enumerate(
-            (
-                "correct-target-head:predecessor-snapshot",
-                "correct-target-head:erroneous-snapshot",
-                "correct-target-head:staged",
-                "correct-target-head:receipt",
-                "correct-target-head:renamed",
-                "correct-target-head:installed",
-            )
-        ):
-            with self.subTest(stale_coordinate_recovery_failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
-                root = Path(temporary)
-                predecessor, _candidate, actual_head, base_head, _live = setup(
-                    root, f"coordinate-recovery-fail-{index}"
-                )
-                erroneous, recovery = stale_coordinate_recovery(
-                    root, predecessor, actual_head, base_head
-                )
-                with self.assertRaises(ledger.InjectedCrash):
-                    ledger.correct_target_head(
-                        root,
-                        erroneous.name,
-                        predecessor.raw,
-                        recovery,
-                        failpoint=failpoint,
-                        **cas_arguments(erroneous),
-                        bad_head=bad_head,
-                        actual_head=actual_head,
-                        actual_merge_base=base_head,
-                    )
-                corrected = ledger.correct_target_head(
-                    root,
-                    erroneous.name,
-                    predecessor.raw,
-                    recovery,
-                    **cas_arguments(erroneous),
-                    bad_head=bad_head,
-                    actual_head=actual_head,
-                    actual_merge_base=base_head,
-                )
-                self.assertEqual(
-                    corrected.document["targets"][0]["merge_base"]["current_sha"],
-                    base_head,
-                )
-                self.assertEqual(ledger.inventory(root).pending, ())
-
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            predecessor, _candidate, actual_head, base_head, live = setup(
-                root, "coordinate-recovery"
+            predecessor, _candidate, actual_head, base_head, live = target_refresh_setup(
+                self.live_base, root, "coordinate-recovery"
             )
             erroneous, recovery = stale_coordinate_recovery(
-                root, predecessor, actual_head, base_head
+                root, predecessor, actual_head, base_head, bad_head
             )
             wrong_recovery = head_correction_recovery(
                 predecessor,
@@ -11133,8 +11162,8 @@ class DeliveryLedgerTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            predecessor, _candidate, actual_head, base_head, _ = setup(
-                root, "coordinate-recovery-valid", stale_predecessor=False
+            predecessor, _candidate, actual_head, base_head, _ = target_refresh_setup(
+                self.live_base, root, "coordinate-recovery-valid", stale_predecessor=False
             )
             erroneous_document = next_generation(predecessor)
             target = erroneous_document["targets"][0]["head"]
@@ -11164,6 +11193,54 @@ class DeliveryLedgerTests(unittest.TestCase):
                 corrected.document["targets"][0]["merge_base"]["current_sha"],
                 base_head,
             )
+
+    def test_48c_target_head_correction_failpoints_are_resumable(self) -> None:
+        bad_head = "f0f8d7493278dc691710056c79d0d63f1d802488"
+        for index, failpoint in enumerate(
+            (
+                "correct-target-head:predecessor-snapshot",
+                "correct-target-head:erroneous-snapshot",
+                "correct-target-head:staged",
+                "correct-target-head:receipt",
+                "correct-target-head:renamed",
+                "correct-target-head:installed",
+            )
+        ):
+            with self.subTest(stale_coordinate_recovery_failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                predecessor, _candidate, actual_head, base_head, _live = target_refresh_setup(
+                    self.live_base, root, f"coordinate-recovery-fail-{index}"
+                )
+                erroneous, recovery = stale_coordinate_recovery(
+                    root, predecessor, actual_head, base_head, bad_head
+                )
+                with self.assertRaises(ledger.InjectedCrash):
+                    ledger.correct_target_head(
+                        root,
+                        erroneous.name,
+                        predecessor.raw,
+                        recovery,
+                        failpoint=failpoint,
+                        **cas_arguments(erroneous),
+                        bad_head=bad_head,
+                        actual_head=actual_head,
+                        actual_merge_base=base_head,
+                    )
+                corrected = ledger.correct_target_head(
+                    root,
+                    erroneous.name,
+                    predecessor.raw,
+                    recovery,
+                    **cas_arguments(erroneous),
+                    bad_head=bad_head,
+                    actual_head=actual_head,
+                    actual_merge_base=base_head,
+                )
+                self.assertEqual(
+                    corrected.document["targets"][0]["merge_base"]["current_sha"],
+                    base_head,
+                )
+                self.assertEqual(ledger.inventory(root).pending, ())
 
     @mock.patch.object(ledger, "_prove_release_github")
     @mock.patch.object(ledger, "_prove_release_git")

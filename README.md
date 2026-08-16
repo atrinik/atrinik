@@ -1796,6 +1796,10 @@ discovery, and combines branch coverage behind one stable `Integration
 validation` check. Its latency budget and evidence method are documented in
 [`docs/CI_PERFORMANCE.md`](docs/CI_PERFORMANCE.md).
 
+For supported process-isolated local execution, see
+[`docs/LOCAL_TESTING.md`](docs/LOCAL_TESTING.md). It covers targeted tests,
+serial fallback, fast parallel runs, and parallel branch coverage.
+
 Use `./atrinik build COMPONENT --profile classic --test` for current native
 component integration. Replacement repositories run their standalone
 aggregate validations today; wrapper builds still fail with a clear
