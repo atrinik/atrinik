@@ -1551,11 +1551,13 @@ target-head SHA, stop all delivery writes and retain
 the exact immediate-predecessor canonical ledger bytes. Use
 `correct-target-head` only when the bad generation differs from that predecessor
 solely by one target head advancement mirrored in exactly one bound branch and
-one bound primitive worktree, plus the exact bound delivery-created PR artifact
-when that PR already exists. Supply the bad generation's fresh four-part CAS
-identity, the nonexistent SHA, the exact live SHA, the predecessor file, and a
-canonical explicit-recovery authority/intent file. An adopted, contributor-owned,
-foreign, or otherwise changed PR artifact is never eligible for correction.
+one bound worktree, plus the exact bound delivery-created PR artifact when that
+PR already exists. The worktree must retain either its exact deferred primitive
+request or one exact `producer_resource_slot` naming a created, active scope.
+Supply the bad generation's fresh four-part CAS identity, the nonexistent SHA,
+the exact live SHA, the predecessor file, and a canonical explicit-recovery
+authority/intent file. An adopted, contributor-owned, foreign, or otherwise
+changed PR artifact is never eligible for correction.
 
 That file has exactly `grant` and `intent`. `grant` is a normal
 `explicit-recovery` authority whose actor and complete repository/issue/PR
@@ -1571,9 +1573,21 @@ The helper rejects noncanonical bytes, a generic invocation or
 goal, any superset or changed actor/scope, and any objective/intent mismatch
 before writing.
 
+For a primitive worktree, the helper derives the managed path from the retained
+request and requires its repository and branch to equal the changed target. For
+a scope-produced worktree, it resolves the sole named scope resource and
+requires `created` state with an `active` lifecycle. It decodes the retained
+scope binding, revalidates the exact request/result and helper-owned observation,
+and requires the scope repository, branch, managed path, device/inode, common
+Git directory, profile, topology, state policy, commands, cleanup coordinates,
+generation, and owned references to remain exact. Missing, released, ambiguous,
+stale, or mismatched scope evidence fails before publication.
+
 The helper derives the correcting generation itself. It live-pins the recorded
-repository, branch, worktree path, roots, and Git authority; proves the actual
-commit exists, the predecessor is its ancestor, the bad commit does not exist,
+repository, branch, worktree path, roots, and Git authority. Scope recovery also
+pins the retained scope/profile/topology leases and reproves the live scope file
+and observation before each write boundary. The helper proves the actual commit
+exists, the predecessor is its ancestor, and the bad commit does not exist,
 by accepting only the exact `<full-oid> missing` response from a bounded
 `git cat-file --batch-check` with `GIT_NO_LAZY_FETCH=1`, so promisor objects
 cannot trigger a remote fetch, and the recorded merge base equals a fresh
