@@ -4361,18 +4361,27 @@ def _manifest_checkout(
         for item in components
         if isinstance(item, dict) and item.get("name") == request["component"]
     ]
-    if len(checkout_matches) != 1 or len(component_matches) != 1:
+    if len(checkout_matches) != 1:
         raise LedgerError(f"{context} request is not one exact manifest component/checkout")
     checkout = checkout_matches[0]
-    component = component_matches[0]
     expected_repository = (
         f"{request['repository']['owner']}/{request['repository']['name']}"
     )
     if (
-        component.get("checkout") != request["physical_checkout"]
-        or checkout.get("repository") != expected_repository
+        checkout.get("repository") != expected_repository
         or checkout.get("path") != request["physical_checkout"]
     ):
+        raise LedgerError(f"{context} manifest component/checkout/repository differs")
+    # A physical checkout may be the scope selector itself. Classic is one
+    # checkout containing several logical components, so it has no logical
+    # component named "classic". Logical selectors retain the stricter
+    # component-to-checkout relationship below.
+    if request["component"] == request["physical_checkout"]:
+        return checkout
+    if len(component_matches) != 1:
+        raise LedgerError(f"{context} request is not one exact manifest component/checkout")
+    component = component_matches[0]
+    if component.get("checkout") != request["physical_checkout"]:
         raise LedgerError(f"{context} manifest component/checkout/repository differs")
     return checkout
 

@@ -259,19 +259,48 @@ def scope_show_bytes(
         )
     )
     manifest = Manifest.from_value(wrapper_manifest)
-    stack = manifest.stack("default")
+    stack_name = request["profile"]
+    stack = manifest.stack(stack_name)
+    selected_checkout = request["component"] == request["physical_checkout"]
+    logical_components = (
+        sorted(
+            component.name
+            for component in stack.components
+            if component.checkout_name == request["physical_checkout"]
+        )
+        if selected_checkout
+        else [request["component"]]
+    )
     profile_components = {
         component: {
-            "kind": "worktree" if component == request["component"] else "primary",
-            "value": request["label"] if component == request["component"] else "",
+            "kind": (
+                "worktree"
+                if (
+                    selected_checkout
+                    and manifest.by_name[component].checkout_name
+                    == request["physical_checkout"]
+                )
+                or component == request["component"]
+                else "primary"
+            ),
+            "value": (
+                request["label"]
+                if (
+                    selected_checkout
+                    and manifest.by_name[component].checkout_name
+                    == request["physical_checkout"]
+                )
+                or component == request["component"]
+                else ""
+            ),
         }
-        for component in wrapper_manifest["stacks"]["default"]["components"]
+        for component in wrapper_manifest["stacks"][stack_name]["components"]
     }
     profile_raw = json_bytes(
         {
             "schema_version": 5,
             "name": profile_name,
-            "stack": "default",
+            "stack": stack_name,
             "sound_mode": "source",
             "sound_release": None,
             "components": profile_components,
@@ -282,7 +311,7 @@ def scope_show_bytes(
     row = {
         "checkout": checkout,
         "repository": repository_name,
-        "logical_components": [request["component"]],
+        "logical_components": logical_components,
         "label": label,
         "branch": request["branch"],
         "start_point": request["start_sha"],
@@ -307,7 +336,7 @@ def scope_show_bytes(
     request_document = {
         "name": scope_name,
         "base_profile": request["profile"],
-        "stack": "default",
+        "stack": stack_name,
         "requested_components": [request["component"]],
         "profile": {"name": profile_name, "path": profile_path},
         "topology": topology,
@@ -338,7 +367,7 @@ def scope_show_bytes(
         "request_sha256": ledger.canonical_object_digest(request_document),
         "created_at": "2026-08-14T18:00:00Z",
         "base_profile": request["profile"],
-        "stack": "default",
+        "stack": stack_name,
         "requested_components": [request["component"]],
         "worktrees": [row],
         "profile": profile,
@@ -8331,6 +8360,185 @@ class DeliveryLedgerTests(unittest.TestCase):
                 json.loads(bind.stdout)["snapshot"]["document"]["generation"], 2
             )
 
+    def test_43b_classic_checkout_selector_roundtrip_and_rejections(self) -> None:
+        classic_repository = repository("classic", "R_classic")
+        roots = live_roots(self.live_base / "classic-cli-scope", "classic")
+        request = scope_request(
+            name="issue-466-classic-scope",
+            component="classic",
+            profile="classic",
+            checkout="classic",
+            label="classic-scope",
+            branch="docs/classic-scope",
+            start_sha=git_head(roots),
+            roots=roots,
+        )
+        live_worktree_path(request)
+        document = issue_ledger(
+            number=466,
+            issue_node="I_classic_scope",
+            branch=request["branch"],
+        )
+        document["resources"] = [scope_resource(request)]
+        worktree = next(
+            slot for slot in document["artifacts"] if slot["kind"] == "worktree"
+        )
+        worktree["immutable"]["path"] = None
+        worktree["primitive_request"] = None
+        worktree["producer_resource_slot"] = "scope"
+        retarget_repository(document, classic_repository)
+        replace_sha(document, SHA_A, request["start_sha"])
+        scope_show = scope_show_bytes(request, repository_name="atrinik/classic")
+        scope_record = json.loads(scope_show)
+        self.assertEqual(
+            scope_record["worktrees"][0]["logical_components"],
+            [
+                "classic-client",
+                "classic-editor",
+                "classic-libatrinik",
+                "classic-protocol",
+                "classic-server",
+            ],
+        )
+        install_scope_references(request, scope_show)
+        worktree_list = worktree_list_bytes(request)
+        observation = ledger.observe_scope_worktree(
+            document,
+            "scope",
+            scope_show,
+            worktree_list,
+            "2026-08-14T18:05:02Z",
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            review_root = Path(temporary)
+            initial = ledger.create(review_root, document)
+            bound = ledger.bind_scope_cas(
+                review_root,
+                initial.name,
+                "scope",
+                scope_show,
+                worktree_list,
+                json_bytes(observation),
+                **cas_arguments(initial),
+            )
+            self.assertEqual(bound["snapshot"]["document"]["generation"], 2)
+
+        wrapper = Path(roots["wrapper"]["path"])
+        wrapper_descriptor = os.open(wrapper, os.O_RDONLY | os.O_DIRECTORY)
+        manifest_request = {**request, "repository": classic_repository}
+        try:
+            with self.subTest(selector="physical-checkout"):
+                checkout = ledger._manifest_checkout(
+                    wrapper_descriptor, manifest_request, "classic"
+                )
+                self.assertEqual(
+                    {checkout[key] for key in ("name", "path", "repository")},
+                    {"classic", "atrinik/classic"},
+                )
+            with self.subTest(selector="cross-checkout"):
+                mismatched = copy.deepcopy(manifest_request)
+                mismatched["component"] = "classic-client"
+                mismatched["physical_checkout"] = "client"
+                with self.assertRaisesRegex(ledger.LedgerError, "differs"):
+                    ledger._manifest_checkout(wrapper_descriptor, mismatched, "classic")
+            with self.subTest(selector="cross-repository"):
+                mismatched = copy.deepcopy(manifest_request)
+                mismatched["repository"] = repository("client", "R_client")
+                with self.assertRaisesRegex(ledger.LedgerError, "differs"):
+                    ledger._manifest_checkout(wrapper_descriptor, mismatched, "classic")
+        finally:
+            os.close(wrapper_descriptor)
+
+    def test_43c_disjoint_classic_scope_binds_concurrently(self) -> None:
+        classic_repository = repository("classic", "R_classic")
+        roots = live_roots(self.live_base / "classic-concurrent-scopes", "classic")
+        start_sha = git_head(roots)
+        cases: list[tuple[dict[str, object], dict[str, object], bytes, bytes, bytes]] = []
+        for number, suffix in ((466, "one"), (467, "two")):
+            request = scope_request(
+                name=f"issue-{number}-classic-scope",
+                component="classic",
+                profile="classic",
+                checkout="classic",
+                label=f"classic-scope-{suffix}",
+                branch=f"docs/classic-scope-{suffix}",
+                start_sha=start_sha,
+                roots=roots,
+            )
+            live_worktree_path(request)
+            document = issue_ledger(
+                number=number,
+                issue_node=f"I_classic_scope_{suffix}",
+                branch=request["branch"],
+            )
+            document["resources"] = [scope_resource(request)]
+            worktree = next(
+                slot for slot in document["artifacts"] if slot["kind"] == "worktree"
+            )
+            worktree["immutable"]["path"] = None
+            worktree["primitive_request"] = None
+            worktree["producer_resource_slot"] = "scope"
+            retarget_repository(document, classic_repository)
+            replace_sha(document, SHA_A, start_sha)
+            scope_show = scope_show_bytes(request, repository_name="atrinik/classic")
+            install_scope_references(request, scope_show)
+            worktree_list = worktree_list_bytes(request)
+            observation = ledger.observe_scope_worktree(
+                document,
+                "scope",
+                scope_show,
+                worktree_list,
+                "2026-08-14T18:05:03Z",
+            )
+            cases.append((document, request, scope_show, worktree_list, json_bytes(observation)))
+
+        with tempfile.TemporaryDirectory() as temporary:
+            review_root = Path(temporary)
+            snapshots = [ledger.create(review_root, case[0]) for case in cases]
+            barrier = threading.Barrier(2)
+            outcomes: list[object] = []
+
+            def bind(index: int) -> None:
+                document, _request, scope_show, worktree_list, safety = cases[index]
+
+                def synchronize(point: str) -> None:
+                    if point == "scope-bind:classified":
+                        barrier.wait(timeout=10)
+
+                try:
+                    outcomes.append(
+                        ledger.bind_scope_cas(
+                            review_root,
+                            snapshots[index].name,
+                            "scope",
+                            scope_show,
+                            worktree_list,
+                            safety,
+                            failpoint=synchronize,
+                            **cas_arguments(snapshots[index]),
+                        )
+                    )
+                except BaseException as error:  # pragma: no cover - asserted below
+                    outcomes.append(error)
+
+            workers = [threading.Thread(target=bind, args=(index,)) for index in range(2)]
+            for worker in workers:
+                worker.start()
+            for worker in workers:
+                worker.join(timeout=15)
+                self.assertFalse(worker.is_alive())
+            self.assertEqual(len(outcomes), 2)
+            self.assertTrue(
+                all(not isinstance(result, BaseException) for result in outcomes)
+            )
+            self.assertEqual(
+                [
+                    ledger.inspect(review_root, snapshot.name).document["generation"]
+                    for snapshot in snapshots
+                ],
+                [2, 2],
+            )
+
     def test_44_linked_wrapper_common_git_directory_is_live_proven(self) -> None:
         base = self.live_base / "linked-wrapper-proof"
         roots = linked_wrapper_roots(base)
@@ -10606,11 +10814,46 @@ class DeliveryLedgerTests(unittest.TestCase):
                     slot["current"]["head_sha"] = actual_head
             return predecessor, candidate, actual_head, base_head, live
 
+        def stale_coordinate_recovery(
+            root: Path, predecessor: object, actual_head: str, base_head: str
+        ) -> tuple[object, bytes]:
+            erroneous_document = next_generation(predecessor)
+            target = erroneous_document["targets"][0]
+            target["head"]["current_sha"] = bad_head
+            target["head"]["lineage"].append(bad_head)
+            for slot in erroneous_document["artifacts"]:
+                if slot["kind"] in {"branch", "worktree"}:
+                    slot["current"]["head_sha"] = bad_head
+            erroneous = historical_target_cas(
+                root, predecessor, erroneous_document
+            )
+            recovery = head_correction_recovery(
+                predecessor,
+                erroneous,
+                actual_head,
+                bad_head,
+                actual_merge_base=base_head,
+            )
+            return erroneous, recovery
+
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             predecessor, candidate, actual_head, base_head, _ = setup(
                 root, "target-refresh"
             )
+            stale_candidate = copy.deepcopy(candidate)
+            stale_candidate["targets"][0]["merge_base"]["current_sha"] = (
+                predecessor.document["targets"][0]["merge_base"]["current_sha"]
+            )
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(ledger.LedgerError, "merge base differs"):
+                ledger.target_refresh_cas(
+                    root,
+                    predecessor.name,
+                    stale_candidate,
+                    **cas_arguments(predecessor),
+                )
+            self.assertEqual(directory_snapshot(root), before)
             before = directory_snapshot(root)
             with self.assertRaisesRegex(
                 ledger.LedgerError, "live target-refresh-cas authority"
@@ -10744,25 +10987,59 @@ class DeliveryLedgerTests(unittest.TestCase):
                 )
             self.assertEqual(directory_snapshot(root), before)
 
+        for index, failpoint in enumerate(
+            (
+                "correct-target-head:predecessor-snapshot",
+                "correct-target-head:erroneous-snapshot",
+                "correct-target-head:staged",
+                "correct-target-head:receipt",
+                "correct-target-head:renamed",
+                "correct-target-head:installed",
+            )
+        ):
+            with self.subTest(stale_coordinate_recovery_failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                predecessor, _candidate, actual_head, base_head, _live = setup(
+                    root, f"coordinate-recovery-fail-{index}"
+                )
+                erroneous, recovery = stale_coordinate_recovery(
+                    root, predecessor, actual_head, base_head
+                )
+                with self.assertRaises(ledger.InjectedCrash):
+                    ledger.correct_target_head(
+                        root,
+                        erroneous.name,
+                        predecessor.raw,
+                        recovery,
+                        failpoint=failpoint,
+                        **cas_arguments(erroneous),
+                        bad_head=bad_head,
+                        actual_head=actual_head,
+                        actual_merge_base=base_head,
+                    )
+                corrected = ledger.correct_target_head(
+                    root,
+                    erroneous.name,
+                    predecessor.raw,
+                    recovery,
+                    **cas_arguments(erroneous),
+                    bad_head=bad_head,
+                    actual_head=actual_head,
+                    actual_merge_base=base_head,
+                )
+                self.assertEqual(
+                    corrected.document["targets"][0]["merge_base"]["current_sha"],
+                    base_head,
+                )
+                self.assertEqual(ledger.inventory(root).pending, ())
+
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             predecessor, _candidate, actual_head, base_head, live = setup(
                 root, "coordinate-recovery"
             )
-            erroneous_document = next_generation(predecessor)
-            target = erroneous_document["targets"][0]
-            target["head"]["current_sha"] = bad_head
-            target["head"]["lineage"].append(bad_head)
-            for slot in erroneous_document["artifacts"]:
-                if slot["kind"] in {"branch", "worktree"}:
-                    slot["current"]["head_sha"] = bad_head
-            erroneous = historical_target_cas(root, predecessor, erroneous_document)
-            recovery = head_correction_recovery(
-                predecessor,
-                erroneous,
-                actual_head,
-                bad_head,
-                actual_merge_base=base_head,
+            erroneous, recovery = stale_coordinate_recovery(
+                root, predecessor, actual_head, base_head
             )
             wrong_recovery = head_correction_recovery(
                 predecessor,
