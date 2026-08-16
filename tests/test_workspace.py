@@ -255,6 +255,8 @@ def timed_public_build_process(
     mode: str,
     ready: object,
     start: object,
+    entered: object,
+    release: object,
     results: object,
 ) -> None:
     try:
@@ -265,6 +267,12 @@ def timed_public_build_process(
             ready.put(profile)
             if not start.wait(5):
                 raise TimeoutError("timed build test did not start")
+
+            def pause_metadata(*_arguments: object) -> None:
+                entered.put(profile)
+                if not release.wait(5):
+                    raise TimeoutError("timed build test was not released")
+
             with (
                 mock.patch.object(
                     workspace, "_expand_build_target", return_value=["client"]
@@ -294,7 +302,7 @@ def timed_public_build_process(
                 mock.patch.object(
                     workspace,
                     "_refresh_build_metadata",
-                    side_effect=lambda *_: time.sleep(0.4),
+                    side_effect=pause_metadata,
                 ),
                 mock.patch.object(
                     workspace, "_uses_integrated_classic_build", return_value=False
@@ -15156,13 +15164,16 @@ class WorkspaceTests(unittest.TestCase):
             observed[roots[1].name], (False, True, {str(roots[1])})
         )
 
-    def test_shared_layout_lock_improves_independent_elapsed_time(self) -> None:
+    def test_shared_layout_lock_allows_independent_builds_to_overlap(self) -> None:
         context = multiprocessing.get_context("spawn")
 
-        def measure(mode: str) -> float:
+        def observe(mode: str) -> None:
             ready = context.Queue()
             start = context.Event()
+            entered = context.Queue()
+            release = context.Event()
             results = context.Queue()
+            profiles = {f"timed-{mode}-0", f"timed-{mode}-1"}
             processes = [
                 context.Process(
                     target=timed_public_build_process,
@@ -15173,6 +15184,8 @@ class WorkspaceTests(unittest.TestCase):
                         mode,
                         ready,
                         start,
+                        entered,
+                        release,
                         results,
                     ),
                 )
@@ -15180,27 +15193,34 @@ class WorkspaceTests(unittest.TestCase):
             ]
             for index in range(2):
                 self.workspace.create_profile(f"timed-{mode}-{index}")
+            observed: list[str] = []
             try:
                 for process in processes:
                     process.start()
                 self.assertEqual(
                     {ready.get(timeout=5), ready.get(timeout=5)},
-                    {f"timed-{mode}-0", f"timed-{mode}-1"},
+                    profiles,
                 )
-                began = time.monotonic()
                 start.set()
+                observed.append(entered.get(timeout=5))
+                if mode == "exclusive":
+                    with self.assertRaises(queue.Empty):
+                        entered.get(timeout=0.2)
+                else:
+                    observed.append(entered.get(timeout=5))
             finally:
+                release.set()
                 join_or_stop_processes(processes, 5)
-            elapsed = time.monotonic() - began
+            if mode == "exclusive":
+                observed.append(entered.get(timeout=2))
             self.assertEqual([process.exitcode for process in processes], [0, 0])
             self.assertEqual(
                 [results.get(timeout=2), results.get(timeout=2)], [None, None]
             )
-            return elapsed
+            self.assertEqual(set(observed), profiles)
 
-        exclusive_elapsed = measure("exclusive")
-        shared_elapsed = measure("shared")
-        self.assertLess(shared_elapsed, exclusive_elapsed * 0.8)
+        observe("exclusive")
+        observe("shared")
 
     def test_same_build_root_serializes_across_processes(self) -> None:
         context = multiprocessing.get_context("spawn")
