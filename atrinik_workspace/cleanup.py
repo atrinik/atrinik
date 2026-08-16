@@ -19,6 +19,7 @@ from typing import Any, Callable, Iterable, Iterator
 
 from .locking import LockBusyError, active_lock_fds
 from .content_migration import CONTENT_MIGRATION_PENDING, CONTENT_MIGRATION_RECORD
+from .delivery import inventory_active_delivery_evidence
 from .migration import MIGRATION_PENDING, MIGRATION_RECORD, OPERATION_PATHS
 from .model import (
     MANAGED_MARKER,
@@ -1387,6 +1388,7 @@ def _base_item(kind: str, owner: str, repository: str, path: Path) -> dict[str, 
             "topologies": [],
             "migration": [],
             "retention": [],
+            "delivery": [],
         },
     }
 
@@ -2433,6 +2435,7 @@ class Cleanup:
                 "live_builds": {},
                 "migration": {},
                 "retention": {},
+                "delivery": {},
             }
             reference_errors: set[str] = set()
         else:
@@ -2467,7 +2470,7 @@ class Cleanup:
                     reference_errors,
                 )
             )
-            items.extend(self._unmanaged_builds(registered))
+            items.extend(self._unmanaged_builds(registered, references))
         if "temporary-states" in scopes and names is None:
             items.extend(self._temporary_states(older_than_days))
         if "npm-cache" in scopes:
@@ -3302,6 +3305,7 @@ class Cleanup:
             "live_builds": {},
             "migration": {},
             "retention": {},
+            "delivery": {},
         }
         errors: set[str] = set()
         collectors = (
@@ -3311,6 +3315,7 @@ class Cleanup:
             (self._topology_references, "topology_inventory_error"),
             (self._migration_references, "migration_inventory_error"),
             (self._retention_references, "retention_inventory_error"),
+            (self._delivery_references, "delivery_inventory_error"),
         )
         for collector, reason in collectors:
             try:
@@ -3813,6 +3818,12 @@ class Cleanup:
         except (OSError, WorkspaceError):
             errors.add("retention_inventory_error")
 
+    def _delivery_references(self, references: dict[str, Any], errors: set[str]) -> None:
+        evidence = inventory_active_delivery_evidence(self.paths.repository)
+        for path, ledgers in evidence.references.items():
+            for ledger in ledgers:
+                self._add_reference(references["delivery"], path, ledger)
+
     def _worktrees(
         self,
         names: set[str] | None,
@@ -3938,6 +3949,7 @@ class Cleanup:
             "scenarios": "scenario_reference",
             "topologies": "topology_reference",
             "migration": "migration_reference",
+            "delivery": "delivery_reference",
         }
         for category, reference_reason in reference_reasons.items():
             values = references[category].get(normalized, [])
@@ -5623,7 +5635,9 @@ class Cleanup:
         except OSError as error:
             return False, str(error), None
 
-    def _unmanaged_builds(self, registered: set[Path]) -> list[dict[str, Any]]:
+    def _unmanaged_builds(
+        self, registered: set[Path], references: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         items: list[dict[str, Any]] = []
         roots: list[tuple[Path, list[Path]]] = []
         top = self._wrapper_primary / "build"
@@ -5673,6 +5687,13 @@ class Cleanup:
                 max(0, int((self.now - observed).total_seconds())) if observed else None
             )
             item["reasons"] = ["unmanaged_build"]
+            delivery_references: set[str] = set()
+            for protected, values in references["delivery"].items():
+                if _path_relation(path, protected):
+                    delivery_references.update(values)
+            if delivery_references:
+                item["references"]["delivery"] = sorted(delivery_references)
+                item["reasons"].append("delivery_reference")
             if error:
                 item["reasons"].append("filesystem_traversal_error")
                 item["error"] = error

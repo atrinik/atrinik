@@ -145,6 +145,12 @@ inheritance, reference-publication/removal races, and fail-closed diagnostics.
 Run the cleanup dry-run required by `AGENTS.md`; never use cleanup apply as
 validation.
 
+Cleanup or repository-layout changes must also cover active issue-delivery
+evidence: an active ledger protects its review root, report, lock, and
+worktree; missing or unsupported evidence fails closed; and repository
+migration refuses active ledgers without mutating them. Recovery tests must
+prove that the wrapper does not synthesize missing ledger bytes or authority.
+
 For development-scope changes, also cover distinct scopes sharing one physical
 checkout, same-name/label/branch races, every publication boundary, exact JSON
 handoff commands, state-policy opt-in, live-scope isolation, and hash-bound

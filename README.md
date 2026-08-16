@@ -831,6 +831,17 @@ worktree dirty, but its paths and allocated bytes are reported because
 `git worktree remove` will reclaim it. Apply uses only ordinary non-force
 worktree removal and preserves local and remote branch refs and Git objects.
 
+Active issue-delivery evidence is a separate protected ownership boundary.
+When `build/reviews` exists, cleanup inventories it through the canonical
+delivery-ledger helper and protects the review root, every active ledger's
+report and lock, and each ledger-owned worktree. Missing reports or locks,
+unsupported helper output, and unrecognized inventory errors protect the
+complete cleanup plan; the wrapper never recreates missing evidence. The
+repository migration preview and apply paths use the same inventory and refuse
+while any active ledger exists. Recovery therefore requires the authenticated
+delivery authority and exact preserved bytes; a fresh ledger, timestamp,
+branch, worktree, or issue assignment cannot substitute for lost evidence.
+
 Profile builds are eligible only as direct
 `workspace/build/profiles/<profile>-<key>` children with an exact regular
 ownership marker. Each build use atomically refreshes strict metadata with its
