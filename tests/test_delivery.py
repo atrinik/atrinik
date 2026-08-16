@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+import subprocess
 from types import SimpleNamespace
 import tempfile
 import unittest
@@ -126,6 +127,132 @@ class DeliveryEvidenceTests(unittest.TestCase):
         ):
             with self.assertRaisesRegex(WorkspaceError, "old schema"):
                 inventory_active_delivery_evidence(self.root)
+
+    def test_absent_and_invalid_review_roots_fail_closed(self) -> None:
+        absent = self.root / "absent"
+        evidence = inventory_active_delivery_evidence(absent)
+        self.assertEqual(evidence.references, {})
+
+        invalid = self.root / "invalid"
+        invalid.mkdir()
+        (invalid / "build").mkdir()
+        (invalid / "build" / "reviews").write_text("not a directory", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "regular directory"):
+            inventory_active_delivery_evidence(invalid)
+
+    def test_helper_missing_timeout_and_output_limit_fail_closed(self) -> None:
+        self.helper.unlink()
+        with self.assertRaisesRegex(WorkspaceError, "delivery-ledger helper is missing"):
+            inventory_active_delivery_evidence(self.root)
+
+        self.helper.write_text("trusted helper\n", encoding="utf-8")
+        with mock.patch(
+            "atrinik_workspace.delivery.subprocess.run",
+            side_effect=subprocess.TimeoutExpired("inventory", 30),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "inventory failed"):
+                inventory_active_delivery_evidence(self.root)
+
+        completed = SimpleNamespace(returncode=0, stdout="12", stderr="")
+        with mock.patch(
+            "atrinik_workspace.delivery._INVENTORY_LIMIT", 1
+        ), mock.patch(
+            "atrinik_workspace.delivery.subprocess.run", return_value=completed
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "output limit"):
+                inventory_active_delivery_evidence(self.root)
+
+    def test_helper_json_and_inventory_shapes_fail_closed(self) -> None:
+        outputs = (
+            ("not json", "valid JSON"),
+            (json.dumps({"schema_version": 2}), "unsupported"),
+            (json.dumps({"schema_version": 1}), "ledgers are invalid"),
+            (json.dumps({"schema_version": 1, "ledgers": ["bad"]}), r"ledgers\[0\] is invalid"),
+            (
+                json.dumps({"schema_version": 1, "ledgers": [{"name": "bad", "document": {}}]}),
+                r"ledgers\[0\] is invalid",
+            ),
+            (
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "ledgers": [{"name": self.name, "document": {"artifacts": {}}}],
+                    }
+                ),
+                "artifacts is invalid",
+            ),
+        )
+        for output, message in outputs:
+            with self.subTest(message=message), mock.patch(
+                "atrinik_workspace.delivery.subprocess.run",
+                return_value=SimpleNamespace(returncode=0, stdout=output, stderr=""),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    inventory_active_delivery_evidence(self.root)
+
+    def test_inventory_rejects_invalid_worktree_paths_and_preserves_old_evidence(self) -> None:
+        output = {
+            "schema_version": 1,
+            "ledgers": [
+                {
+                    "name": self.name,
+                    "document": {
+                        "artifacts": [
+                            {"kind": "worktree", "current": "invalid"},
+                        ]
+                    },
+                }
+            ],
+            "pending": [{"target": self.name}],
+            "legacy_reports": [{"name": self.name}],
+            "releases": [],
+            "archives": [{"ledger_name": self.name}],
+            "reclaims": [{"name": self.name}],
+            "historical_ledgers": [{"name": self.name}],
+        }
+        with mock.patch(
+            "atrinik_workspace.delivery.subprocess.run",
+            return_value=SimpleNamespace(returncode=0, stdout=json.dumps(output), stderr=""),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "current is invalid"):
+                inventory_active_delivery_evidence(self.root)
+
+        output["ledgers"][0]["document"]["artifacts"] = [
+            {"kind": "worktree", "current": {"path": "relative"}}
+        ]
+        with mock.patch(
+            "atrinik_workspace.delivery.subprocess.run",
+            return_value=SimpleNamespace(returncode=0, stdout=json.dumps(output), stderr=""),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "current.path is not an absolute path"):
+                inventory_active_delivery_evidence(self.root)
+
+    def test_inventory_preserves_pending_legacy_and_terminal_evidence(self) -> None:
+        output = json.loads(self.inventory_output(self.root))
+        output.update(
+            {
+                "pending": [{"target": self.name}],
+                "legacy_reports": [{"name": self.name}],
+                "releases": [{"target": self.name}],
+                "archives": [{"ledger_name": self.name}],
+                "reclaims": [{"name": self.name}],
+                "historical_ledgers": [{"name": self.name}],
+            }
+        )
+        with mock.patch(
+            "atrinik_workspace.delivery.subprocess.run",
+            return_value=SimpleNamespace(returncode=0, stdout=json.dumps(output), stderr=""),
+        ):
+            evidence = inventory_active_delivery_evidence(self.root)
+
+        labels = evidence.references[self.review_root.resolve()]
+        self.assertIn(f"pending:{self.name}", labels)
+        self.assertIn(f"legacy:{self.name}", labels)
+        self.assertIn(f"release:{self.name}", labels)
+        self.assertIn(f"archive:{self.name}", labels)
+        self.assertIn(f"reclaim:{self.name}", labels)
+        self.assertIn(f"historical:{self.name}", labels)
+        self.assertIn(f"pending:{self.name}", evidence.transition_blockers)
 
     def test_unmanaged_review_root_is_protected(self) -> None:
         paths = SimpleNamespace(
