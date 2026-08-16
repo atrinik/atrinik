@@ -244,14 +244,18 @@ def parser() -> argparse.ArgumentParser:
     mark(cleanup.add_argument(
         "components",
         nargs="*",
-        help="limit worktrees to repeated checkout/component identities",
+        help=(
+            "limit worktrees to checkout/component identities, or select exact "
+            "cleanup-journal names"
+        ),
     ), "component")
     cleanup.add_argument(
         "--scope",
         action="append",
         choices=[
             "worktrees", "builds", "temporary-states", "npm-cache",
-            "compiler-cache", "sound-cache", "topologies", "all",
+            "compiler-cache", "sound-cache", "topologies", "cleanup-journals",
+            "all",
         ],
         default=[],
     )
@@ -951,7 +955,29 @@ def main(arguments: list[str] | None = None) -> int:
                     f"removed_bytes={_human_bytes(summary['removed_bytes'])} "
                     f"errors={summary['error_count']}"
                 )
-            if report["summary"]["error_count"] or report.get("aborted"):
+            retry_required = bool(
+                options.apply
+                and any(
+                    item.get("disposition") == "skipped"
+                    and "resource_busy" in item.get("reasons", [])
+                    for item in report.get("items", [])
+                    if isinstance(item, dict)
+                )
+            )
+            failed = bool(
+                report["summary"]["error_count"]
+                or report.get("aborted")
+                or retry_required
+            )
+            if options.apply and not failed:
+                sys.stdout.flush()
+                workspace.cleanup_acknowledge(report)
+            if retry_required:
+                print(
+                    "cleanup apply is incomplete; retry the identical request",
+                    file=sys.stderr,
+                )
+            if failed:
                 return 1
         elif options.command == "profile":
             if options.profile_command == "create":

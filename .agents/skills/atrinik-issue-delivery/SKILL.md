@@ -1,6 +1,6 @@
 ---
 name: atrinik-issue-delivery
-description: Deliver an open Atrinik issue or existing PR through isolated work, review/fix cycles, checks, and merge-ready handoff. Use only as explicitly invoked `$atrinik-issue-delivery`; never trigger implicitly.
+description: Deliver an Atrinik issue/PR to merge-ready handoff or manage its explicitly authorized post-merge ledger lifecycle. Explicit `$atrinik-issue-delivery` invocation only.
 ---
 
 # Deliver an Atrinik issue or pull request
@@ -98,8 +98,9 @@ owner `AGENTS.md`; do not duplicate procedures.
   needs a durable authenticated goal predating/continuously owning every exact
   artifact, or new explicit recovery authority naming them. Other evidence only
   corroborates. Preserve required source/snapshot/marker members; any loss or
-  mismatch stops. Only proven descendant base/head and recomputed merge-base
-  refreshes may advance immutable anchors.
+  mismatch stops. Generic CAS never changes target coordinates; use the live
+  target-refresh CAS for a proven descendant base/head and recomputed merge-base
+  refresh.
 
 ### Claim only explicitly authorized issues
 
@@ -282,6 +283,7 @@ verification/repeat/shutdown/cleanup commands, and blockers or `none`. Include
 issue URLs, claim state, and the canonical closing path only when issues
 actually exist; do not fabricate placeholders.
 
-Keep selected issues open, keep every PR unmerged, and preserve worktrees and
-reports while the PRs are open. Cleanup requires a separate post-merge request
-beginning with `./atrinik cleanup --dry-run --json`.
+Keep issues open, PRs unmerged, and evidence preserved. A separate post-merge
+request must follow the ledger reference's terminal lifecycle; delivery grants
+no cleanup authority and helper lifecycle commands never remove resources.
+It must never trigger implicitly.

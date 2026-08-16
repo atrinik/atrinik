@@ -139,6 +139,13 @@ class ParserTests(unittest.TestCase):
         options = parser().parse_args(["cleanup", "--scope", "topologies"])
         self.assertEqual(options.scope, ["topologies"])
 
+    def test_cleanup_accepts_the_explicit_journal_scope_and_name(self) -> None:
+        options = parser().parse_args(
+            ["cleanup", "receipt.json", "--scope", "cleanup-journals"]
+        )
+        self.assertEqual(options.components, ["receipt.json"])
+        self.assertEqual(options.scope, ["cleanup-journals"])
+
     def test_human_bytes_uses_compact_iec_units_and_promotes_rounding(self) -> None:
         self.assertEqual(
             [_human_bytes(value) for value in (0, 1023, 1024, 1536)],
@@ -261,6 +268,84 @@ class ParserTests(unittest.TestCase):
         workspace_type.return_value.cleanup.assert_called_once_with(
             ["worktrees", "builds"], 0, ["classic-client"], True
         )
+        workspace_type.return_value.cleanup_acknowledge.assert_not_called()
+
+    def test_cleanup_apply_flushes_output_before_acknowledging_receipt(self) -> None:
+        report = {
+            "items": [],
+            "summary": {"error_count": 0},
+        }
+        events = mock.Mock()
+        output = mock.Mock()
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace = workspace_type.return_value
+            workspace.cleanup.return_value = report
+            events.attach_mock(output.flush, "flush")
+            events.attach_mock(workspace.cleanup_acknowledge, "acknowledge")
+            with mock.patch("sys.stdout", output):
+                result = main(["cleanup", "--apply", "--json"])
+
+        self.assertEqual(result, 0)
+        workspace.cleanup_acknowledge.assert_called_once_with(report)
+        self.assertLess(
+            events.mock_calls.index(mock.call.flush()),
+            events.mock_calls.index(mock.call.acknowledge(report)),
+        )
+
+    def test_cleanup_apply_reports_skipped_result_without_acknowledging(self) -> None:
+        report = {
+            "items": [
+                {
+                    "disposition": "skipped",
+                    "kind": "worktree",
+                    "path": "/workspace/busy",
+                    "reasons": ["resource_busy"],
+                }
+            ],
+            "summary": {
+                "error_count": 0,
+                "skipped_count": 1,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace = workspace_type.return_value
+            workspace.cleanup.return_value = report
+            with mock.patch("builtins.print") as output:
+                result = main(["cleanup", "--apply", "--json"])
+
+        self.assertEqual(result, 1)
+        workspace.cleanup_acknowledge.assert_not_called()
+        self.assertIn(
+            mock.call(
+                "cleanup apply is incomplete; retry the identical request",
+                file=mock.ANY,
+            ),
+            output.mock_calls,
+        )
+
+    def test_cleanup_apply_acknowledges_terminal_inventory_skip(self) -> None:
+        report = {
+            "items": [
+                {
+                    "disposition": "skipped",
+                    "kind": "sound-cache",
+                    "path": "/workspace/retained",
+                    "reasons": ["retained_by_age"],
+                }
+            ],
+            "summary": {
+                "error_count": 0,
+                "skipped_count": 1,
+            },
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace = workspace_type.return_value
+            workspace.cleanup.return_value = report
+            with mock.patch("builtins.print"):
+                result = main(["cleanup", "--apply", "--json"])
+
+        self.assertEqual(result, 0)
+        workspace.cleanup_acknowledge.assert_called_once_with(report)
 
     def test_cleanup_text_report_includes_item_age_reasons_and_totals(self) -> None:
         report = {

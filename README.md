@@ -701,6 +701,9 @@ After interruption, run a fresh preview and resume with that new digest;
 completed removals and exact pending reference/branch cleanup are recovered.
 The completed scope record and release journal remain recovery evidence and
 available to bounded, secret-free shell completion.
+Each destructive action is recorded as in-flight before mutation, so a retry
+can prove the exact absent post-state and finish after a crash between removal
+and the completed-action journal update.
 
 ## Checkout worktrees
 
@@ -759,6 +762,8 @@ marker-owned Worker dependency entries, without changing the filesystem:
 ./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ./atrinik cleanup --scope topologies --older-than 7 --apply
 ./atrinik cleanup --scope temporary-states --older-than 7 --dry-run --json
+./atrinik cleanup --scope cleanup-journals --older-than 30 --dry-run --json
+./atrinik cleanup --scope cleanup-journals RECEIPT.json --older-than 30 --apply
 ./atrinik cleanup --scope all --older-than 7 --apply
 ~~~
 
@@ -769,6 +774,20 @@ opt-in `temporary-states`, `npm-cache`, `compiler-cache`, and `sound-cache`;
 Topology history is a separate opt-in `topologies` scope and is deliberately
 excluded from both the default and `all`, so a broad cache/worktree cleanup
 cannot silently expand to runtime history.
+Delivered cleanup receipts use the separate `cleanup-journals` scope, also
+excluded from `all`. Broad inventory remains bounded; an exact-name selection
+and its current or legacy journal retry remain recoverable above that bound.
+Current and legacy recovery discovery advances one durable bounded page per
+identical apply retry.
+One globally leased cursor owns that discovery; other maintenance requests must
+finish the recorded request first and cannot accumulate parallel cursors. The
+cursor stores the exact canonical request and its digest so a later process can
+identify and resume the required invocation without reconstructing its filters.
+Only exact schema-v2, regular, owner-only receipts are eligible. Age is measured
+from durable delivery; pending, malformed, linked, or otherwise unsafe receipts
+remain protected. A receipt that records removals requires its exact filename
+as the positional selector. Retirement takes an exclusive receipt lease, so it
+cannot interleave with archive proof holding the matching shared lease.
 Positional checkout or logical component names narrow worktree and sound-cache
 inventory, exclude topology-owned temporary state, and still deduplicate
 aliases to one physical checkout. The special `atrinik` filter selects wrapper
@@ -909,9 +928,18 @@ candidate without rescanning unrelated report-only payloads. Any new uncertainty
 fails closed. Busy targets are skipped so they do not convoy unrelated cleanup.
 Eligible topology records come first, then profile builds and explicit
 sound-cache entries, exact Git worktrees, other explicit caches, and safely
-shared prunable Git metadata. `workspace/cleanup-journals/` records the ordered
-targets and is atomically refreshed after every completed action; interruption
-therefore preserves exact progress without claiming rollback.
+shared prunable Git metadata. `workspace/cleanup-journals/` records the exact
+request, original report, ordered targets, and one write-ahead in-flight action.
+Each action is first `prepared`; only a second durable `removing` checkpoint
+written after exact locked revalidation authorizes absence or partial-removal
+recovery. The same cleanup request resumes that journal after interruption, recognizes a
+completed in-flight removal, and reaches one `complete-pending-output` receipt
+without changing the original target selection. That receipt binds the exact
+terminal report and replays it for an identical retry. The CLI flushes the
+report before acknowledging it as `complete-delivered`; direct API callers
+must call `cleanup_acknowledge(report)` after consuming it. Only a delivered
+receipt permits a new run with the same selector. Busy or transiently failing
+targets leave the journal resumable while disjoint targets may still complete.
 
 ## Composing coherent component sources
 
@@ -1606,6 +1634,60 @@ eligible topology records and logs. Cleanup never removes profiles, scenarios,
 registered or scenario state, migration evidence, commits, or branches. Only the explicit
 `temporary-states` scope can reclaim an abandoned, unregistered, disposable
 generation state after exact revalidation.
+
+Delivery-ledger sidecars are not ordinary cleanup targets. A merge-ready PR
+keeps its active coordinates and recovery evidence. After the PR is externally
+merged and selected issues reach their expected states, a separately authorized
+operator prepares exact post-merge evidence and runs:
+
+Target base/head movement is likewise helper-owned: generic ledger CAS rejects
+it. The target-refresh CAS pins the recorded primitive/scope worktree, proves
+descendant commits and the exact live merge base, and rechecks immediately
+before replacement. An explicit recovery can correct one historical nonexistent
+head plus its bound stale merge base while retaining both source generations.
+
+~~~sh
+python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+  release-preview build/reviews LEDGER_NAME release.json
+python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+  release-apply build/reviews LEDGER_NAME release.json --plan PLAN_SHA256
+~~~
+
+Release uses a pinned `gh` against `github.com`, re-observes the exact terminal
+PR/issue state and actor, and requires authority issued strictly after merge.
+It holds wrapper leases while verifying the recorded clean worktree and either
+Git ancestry or exact squash-change equivalence again after staging, then
+durably marks the ledger inert; it removes nothing. Next run the relevant
+`./atrinik cleanup --dry-run --json`, review it, and independently run the same
+scoped command with `--apply`. Retain the exact raw preview/apply JSON in the
+archive evidence; the helper validates both reports and
+requires identical command coordinates, derives their canonical target
+selection, verifies the wrapper's schema-2 journal request, original report,
+completion, and timestamp order, and holds the exact wrapper coordinates through a
+final absence recheck and archive installation.
+An active scope can transition only when its live generation-matched scope
+release journal is complete. That journal is the removal evidence for its
+scope-produced worktree, which is not fabricated as a generic cleanup action.
+
+After cleanup, a new explicit authority issued strictly after cleanup apply may bundle the canonical
+ledger, release marker, lock, report, migration evidence, and retained intent:
+
+~~~sh
+python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+  archive-preview build/reviews LEDGER_NAME archive.json
+python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+  archive-apply build/reviews LEDGER_NAME archive.json --plan PLAN_SHA256
+~~~
+
+The one bounded archive remains audit evidence without reserving active
+coordinates. Once its recorded retention period has elapsed, use the
+helper-clocked
+`reclaim-preview` and pass the complete returned preview plus its digest to
+`reclaim-apply`. Reclaim retains one fixed terminal completion checkpoint after
+its quarantined exact-inode removal; the next successful reclaim replaces that
+checkpoint, bounding review-root growth. These helper commands never delete worktrees, profiles,
+topologies, state, branches, or runtime resources. See the issue-delivery
+ledger reference for the strict evidence schemas and crash-recovery rules.
 
 ## Server state policies
 
