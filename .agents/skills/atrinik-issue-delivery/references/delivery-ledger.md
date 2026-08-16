@@ -1312,7 +1312,9 @@ The values above illustrate shell shape only; copy actual values from the same
 `inspect` output. Never combine values from different observations. CAS locks,
 re-inventories, checks generation/digest/device/inode again immediately before
 atomic replace, and fsyncs. Before rename, all four expected identity values
-are mandatory concurrency guards. It also creates a durable hard-link receipt
+are mandatory concurrency guards. Target-coordinate changes additionally hold
+the live worktree/Git proof described above across this boundary. It also
+creates a durable hard-link receipt
 whose name encodes ledger, old generation/digest/device/inode, and candidate
 digest before rename:
 
@@ -1543,15 +1545,18 @@ bound, clearing digest and payload. Never cancel in-flight.
 
 ## Correct one proven target-head typo
 
-Ordinary CAS never rewrites lineage. If its caller nevertheless persisted one
-full-length but nonexistent target-head SHA, stop all delivery writes and retain
+Current ordinary CAS cannot publish an unproven target SHA. If a helper version
+without live target proof previously persisted one full-length but nonexistent
+target-head SHA, stop all delivery writes and retain
 the exact immediate-predecessor canonical ledger bytes. Use
 `correct-target-head` only when the bad generation differs from that predecessor
 solely by one target head advancement mirrored in exactly one bound branch,
-one bound primitive worktree, and, when already bound, at most one exact PR
-artifact. Supply the bad generation's fresh four-part CAS
-identity, the nonexistent SHA, the exact live SHA, the predecessor file, and a
-canonical explicit-recovery authority/intent file.
+one bound primitive- or active-scope-produced worktree, and, when already
+bound, at most one exact PR artifact. The worktree must retain either its exact
+deferred primitive request or one exact `producer_resource_slot` naming the
+created scope. Supply the bad generation's fresh four-part CAS identity, the
+nonexistent SHA, the exact live SHA, the predecessor file, and a canonical
+explicit-recovery authority/intent file.
 
 That file has exactly `grant` and `intent`. `grant` is a normal
 `explicit-recovery` authority whose actor and complete repository/issue/PR
@@ -1567,9 +1572,21 @@ The helper rejects noncanonical bytes, a generic invocation or
 goal, any superset or changed actor/scope, and any objective/intent mismatch
 before writing.
 
+For a primitive worktree, the helper derives the managed path from the retained
+request and requires its repository and branch to equal the changed target. For
+a scope-produced worktree, it resolves the sole named scope resource and
+requires `created` state with an `active` lifecycle. It decodes the retained
+scope binding, revalidates the exact request/result and helper-owned observation,
+and requires the scope repository, branch, managed path, device/inode, common
+Git directory, profile, topology, state policy, commands, cleanup coordinates,
+generation, and owned references to remain exact. Missing, released, ambiguous,
+stale, or mismatched scope evidence fails before publication.
+
 The helper derives the correcting generation itself. It live-pins the recorded
-repository, branch, worktree path, roots, and Git authority; proves the actual
-commit exists, the predecessor is its ancestor, the bad commit does not exist,
+repository, branch, worktree path, roots, and Git authority. Scope recovery also
+pins the retained scope/profile/topology leases and reproves the live scope file
+and observation before each write boundary. The helper proves the actual commit
+exists, the predecessor is its ancestor, and the bad commit does not exist,
 by accepting only the exact `<full-oid> missing` response from a bounded
 `git cat-file --batch-check` with `GIT_NO_LAZY_FETCH=1`, so promisor objects
 cannot trigger a remote fetch, and the recorded merge base equals a fresh
@@ -1746,8 +1763,8 @@ stop for code-level recovery; never improvise file repair.
 | `create` stage only, including a durable short prefix | Rerun exact `create` with byte-identical candidate. It completes the deterministic stage. |
 | `create` target plus two-link stage | Rerun exact `create`; it proves identical inode/bytes and removes only the stage link. |
 | `create` target only | `inspect`; exact create retry is idempotent. Different bytes stop. |
-| CAS stage before rename, including a durable short prefix | Rerun exact `cas` with identical replacement and original four-part expected tuple. |
-| CAS target already replaced with its two-link update receipt | Rerun exact CAS with identical replacement and four-part predecessor tuple; the receipt name preserves generation/digest/device/inode and its shared inode proves the installed candidate. The helper removes the receipt. |
+| CAS stage before rename, including a durable short prefix | Rerun exact `cas` with the identical coordinate-neutral replacement and original four-part expected tuple. For a tagged target-coordinate stage, rerun exact `target-refresh-cas`; it must still pass the complete live Git/worktree proof before publication. |
+| CAS target already replaced with its two-link update receipt | Rerun the same command that created the exact replacement: `cas` for a coordinate-neutral receipt or `target-refresh-cas` for a tagged target-coordinate receipt. Use the identical replacement and four-part predecessor tuple; the receipt name preserves generation/digest/device/inode and its shared inode proves the installed candidate passed the pre-rename proof. The helper removes the receipt without requiring the branch to remain frozen after publication. |
 | Atomic worktree/scope bind interrupted at either CAS boundary | Rerun the identical `worktree-bind-cas` or `scope-bind-cas` with the same retained inputs and original four-part predecessor tuple, never generic `cas`. The helper freshly reproves live state before replacement and before accepting an installed post-rename receipt; drift preserves evidence and stops. |
 | Migration operation-digest plan/snapshot/report/prepared/ledger/complete boundary | Rerun exact `migrate` with identical null-migration candidate, kind, direct source name, and original source identity/digest. A different candidate or source cannot reuse even a short planned-stage prefix. |
 | Complete migration | `inventory` and `inspect`; require source/snapshot/marker/ledger coherence and no pending stage. |

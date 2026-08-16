@@ -5483,6 +5483,7 @@ def _scope_binding_observation(
     *,
     live: bool,
     guard: _LiveWorktreeGuard | None = None,
+    live_request: Mapping[str, Any] | None = None,
 ) -> None:
     item = _exact(value, {"worktree_list", "safety_observation"}, context)
     worktree_request = _scope_worktree_request(request, repository)
@@ -5497,13 +5498,22 @@ def _scope_binding_observation(
         "scope",
         scope_digest,
         f"{context}.safety_observation",
-        live=live,
+        live=live and live_request is None,
         expected_tree=row["tree"],
         expected_common_git_dir=row["common_git_dir"],
         guard=guard,
         allowed_references=_scope_owned_references(request),
         scope_record=scope_record,
     )
+    if live_request is not None:
+        if not live or guard is None:
+            raise LedgerError(f"{context} correction live proof is incomplete")
+        if guard.request != live_request or guard.path != path:
+            raise LedgerError(f"{context} correction worktree guard differs")
+        proof = guard.prove()
+        _verify_live_observation(observation, proof, context)
+        if proof["common_git_dir"] != row["common_git_dir"]:
+            raise LedgerError(f"{context} common Git directory differs from scope result")
     if (observation["path_device"], observation["path_inode"]) != (
         row["path_device"],
         row["path_inode"],
@@ -9038,7 +9048,7 @@ def _head_correction_document(
         raise LedgerError("head correction source contains unrelated semantic changes")
     worktree_slot = next(slot for slot in changed_artifacts if slot["kind"] == "worktree")
     worktree = worktree_slot["current"]["path"]
-    request, allowed, scope_record = _target_refresh_worktree_provenance(
+    request, allowed, scope_record, scope_proof = _target_refresh_worktree_provenance(
         erroneous, worktree_slot
     )
     if worktree != _expected_worktree_path(request):
@@ -9084,6 +9094,7 @@ def _head_correction_document(
         "request": live_request,
         "allowed_references": allowed,
         "scope_record": scope_record,
+        "scope_proof": scope_proof,
     }
 
 
@@ -12467,42 +12478,76 @@ def _comment_transition(before: Mapping[str, Any], after: Mapping[str, Any]) -> 
 
 def _target_refresh_worktree_provenance(
     document: Mapping[str, Any], slot: Mapping[str, Any]
-) -> tuple[dict[str, Any], frozenset[str], Mapping[str, Any] | None]:
+) -> tuple[
+    dict[str, Any],
+    frozenset[str],
+    Mapping[str, Any] | None,
+    Mapping[str, Any] | None,
+]:
     """Resolve exact primitive/scope provenance for one bound target worktree."""
 
     request = slot.get("primitive_request")
     scope_record = None
+    scope_proof = None
     allowed: frozenset[str] = frozenset()
-    if request is None and slot.get("producer_resource_slot") is not None:
+    if request is None:
         scopes = [
             resource
             for resource in document["resources"]
             if resource["slot_id"] == slot["producer_resource_slot"]
-            and resource["kind"] == "scope"
-            and resource["current"] is not None
-            and resource["current"]["lifecycle"] == "active"
         ]
-        if len(scopes) == 1:
-            scope = scopes[0]
-            retained = _retained_result(
-                scope["current"]["binding"], "target refresh scope binding"
-            )
-            scope_record, _ = _scope_show_record(
-                retained,
-                scope["request"],
-                scope["immutable"]["repository"],
-                "target refresh scope binding",
-            )
-            request = _scope_worktree_request(
-                scope["request"], scope["immutable"]["repository"]
-            )
-            allowed = _scope_owned_references(scope["request"])
+        if len(scopes) != 1 or scopes[0]["kind"] != "scope":
+            raise LedgerError("target refresh lacks one exact scope producer")
+        scope = scopes[0]
+        current = scope["current"]
+        if (
+            scope["state"] != "created"
+            or current is None
+            or current["lifecycle"] != "active"
+        ):
+            raise LedgerError("target refresh scope producer is not active")
+        if scope["immutable"]["repository"] != slot["immutable"]["repository"]:
+            raise LedgerError("target refresh scope repository differs from its target")
+        retained = _retained_result(
+            current["binding"], "target refresh scope binding"
+        )
+        scope_record, scope_row = _scope_show_record(
+            retained,
+            scope["request"],
+            scope["immutable"]["repository"],
+            "target refresh scope binding",
+        )
+        _scope_binding_observation(
+            current["observation"],
+            scope["request"],
+            scope["immutable"]["repository"],
+            scope_row,
+            byte_digest(retained),
+            scope_record,
+            "target refresh scope observation",
+            live=False,
+        )
+        request = _scope_worktree_request(
+            scope["request"], scope["immutable"]["repository"]
+        )
+        if slot["current"]["path"] != scope_row["path"]:
+            raise LedgerError("target refresh scope worktree differs from its target")
+        allowed = _scope_owned_references(scope["request"])
+        scope_proof = {
+            "request": scope["request"],
+            "repository": scope["immutable"]["repository"],
+            "row": scope_row,
+            "binding_digest": byte_digest(retained),
+            "record": scope_record,
+            "observation": current["observation"],
+        }
     if request is None:
         raise LedgerError("target refresh worktree lacks live wrapper provenance")
     return (
         _decode(canonical_bytes(request), "target refresh worktree request"),
         allowed,
         scope_record,
+        scope_proof,
     )
 
 
@@ -12516,7 +12561,7 @@ def _target_refresh_live_safety(
     after = change["after"]
     slot_id = change["worktree_slot"]["slot_id"]
     slot = next(row for row in document["artifacts"] if row["slot_id"] == slot_id)
-    request, allowed, scope_record = _target_refresh_worktree_provenance(
+    request, allowed, scope_record, scope_proof = _target_refresh_worktree_provenance(
         document, slot
     )
     request["expected_head_sha"] = after["head"]["current_sha"]
@@ -12530,6 +12575,19 @@ def _target_refresh_live_safety(
     ) as guard:
         def prove() -> None:
             guard.prove()
+            if scope_proof is not None:
+                _scope_binding_observation(
+                    scope_proof["observation"],
+                    scope_proof["request"],
+                    scope_proof["repository"],
+                    scope_proof["row"],
+                    scope_proof["binding_digest"],
+                    scope_proof["record"],
+                    "target refresh scope observation",
+                    live=True,
+                    guard=guard,
+                    live_request=request,
+                )
             worktree = guard.descriptors["worktree"]
             for field in ("base", "head"):
                 current = after[field]["current_sha"]
@@ -12993,6 +13051,7 @@ def correct_target_head(
     live_request = live_provenance["request"]
     allowed_references = live_provenance["allowed_references"]
     scope_record = live_provenance["scope_record"]
+    scope_proof = live_provenance["scope_proof"]
     corrected_raw = canonical_bytes(corrected)
     corrected_digest = byte_digest(corrected_raw)
     source_identity = {
@@ -13020,7 +13079,7 @@ def correct_target_head(
 
     live_context = (
         nullcontext(None)
-        if actual_merge_base is not None and snapshot.digest == corrected_digest
+        if snapshot.digest == corrected_digest
         else _pinned_live_worktree(
             live_request,
             metadata["worktree"],
@@ -13034,6 +13093,19 @@ def correct_target_head(
             if guard is None:
                 raise LedgerError("completed coordinate correction has no live guard")
             guard.prove()
+            if scope_proof is not None:
+                _scope_binding_observation(
+                    scope_proof["observation"],
+                    scope_proof["request"],
+                    scope_proof["repository"],
+                    scope_proof["row"],
+                    scope_proof["binding_digest"],
+                    scope_proof["record"],
+                    "target-head correction scope observation",
+                    live=True,
+                    guard=guard,
+                    live_request=live_request,
+                )
             worktree = guard.descriptors["worktree"]
             _git(
                 worktree,
@@ -13142,8 +13214,6 @@ def correct_target_head(
                         "sha256"
                     ] != predecessor_digest or receipt["recovery"] != recovery:
                         raise LedgerError("completed head correction has different authority")
-                    if actual_merge_base is None:
-                        prove_live()
                     _fsync(directory, f"review root while resuming correction of {name}")
                     return current
                 if (

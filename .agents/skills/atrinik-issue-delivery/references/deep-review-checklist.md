@@ -92,7 +92,9 @@ applicability; do not turn irrelevant categories into invented findings.
   source/report/snapshot/ledger/marker loss. Markdown is non-authoritative; no
   workflow may hand-roll state I/O.
 - For a helper-owned target-head typo correction, prove the exact predecessor
-  and hard-linked bad-generation inode, canonical explicit-recovery grant whose
+  and hard-linked bad-generation inode; the exact primitive request or active
+  scope binding, observation, owned references, and live scope/profile/topology
+  identity; canonical explicit-recovery grant whose
   objective binds the full source tuple/correction intent and exact ledger
   actor/repository/issue scope, exact no-lazy-fetch batch-check `missing` result
   for the full bad OID, live repository/branch/path, predecessor ancestry, recomputed merge
