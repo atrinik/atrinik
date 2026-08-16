@@ -50,8 +50,8 @@ each publication, and returns the exact review-root path/device/inode. It is not
 an arbitrary directory creator. All later root arguments name the returned
 review root.
 
-The helper accepts at most 1,048,576 bytes per JSON, body, section, comment, or
-migration-source input. It inventories at most 4,096 directory entries and
+The helper accepts at most 1,073,741,824 bytes (1 GiB) per JSON, body, section,
+comment, or migration-source input. It inventories at most 4,096 directory entries and
 32 MiB of relevant delivery files. File inputs must be stable regular no-follow
 files addressed through a no-follow parent path. Only `prepare` accepts `-` as
 bounded stdin; every other input operand must name such a file. Ledger/report/
