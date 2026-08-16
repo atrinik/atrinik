@@ -233,6 +233,46 @@ class CiShardingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "duration count must be positive"):
                 ci_sharding.main()
 
+    def test_local_selection_is_sorted_and_rejects_unknown_or_duplicate_ids(self) -> None:
+        discovered = ["tests.beta", "tests.alpha", "tests.gamma"]
+        self.assertEqual(
+            ci_sharding.select_test_ids(discovered, ["tests.gamma", "tests.alpha"]),
+            ["tests.alpha", "tests.gamma"],
+        )
+        with self.assertRaisesRegex(ValueError, "unique"):
+            ci_sharding.select_test_ids(discovered, ["tests.alpha", "tests.alpha"])
+        with self.assertRaisesRegex(ValueError, "not discovered"):
+            ci_sharding.select_test_ids(discovered, ["tests.missing"])
+
+    def test_local_result_validation_requires_exact_once_and_successful_workers(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            selected = [["tests.alpha"], ["tests.beta"]]
+            for index, test_ids in enumerate(selected):
+                ci_sharding._write_json(
+                    root / f"shard-{index}-result.json",
+                    {
+                        "elapsed_seconds": 0.1,
+                        "failed": False,
+                        "schema_version": 1,
+                        "selected_ids": test_ids,
+                        "tests": {test_ids[0]: 0.1},
+                        "tests_run": 1,
+                    },
+                )
+            self.assertEqual(
+                ci_sharding._validate_local_results(root, selected, [0, 0]), []
+            )
+            (root / "shard-1-result.json").unlink()
+            errors = ci_sharding._validate_local_results(root, selected, [0, 0])
+            self.assertIn("shard 1 did not retain a result", errors)
+
+    def test_default_local_jobs_is_bounded_by_three(self) -> None:
+        with mock.patch.object(ci_sharding.os, "cpu_count", return_value=32):
+            self.assertEqual(ci_sharding.default_local_jobs(), 3)
+        with mock.patch.object(ci_sharding.os, "cpu_count", return_value=None):
+            self.assertEqual(ci_sharding.default_local_jobs(), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

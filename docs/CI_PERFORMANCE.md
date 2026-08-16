@@ -48,6 +48,21 @@ It then combines branch coverage once, runs compile, guidance, MCP, manifest,
 provenance, and supply-chain validation as visible steps, and performs the sole
 Codecov upload. Pull-request-scoped concurrency cancels superseded heads.
 
+## Local parallel execution
+
+Developers can use the same runner locally with
+[`docs/LOCAL_TESTING.md`](LOCAL_TESTING.md). The command discovers once in the
+parent process, assigns deterministic process-isolated workers from the
+retained timing weights, aggregates each worker's logs and timings, and rejects
+missing, duplicate, or stale coverage evidence. `--jobs 1` is the supported
+serial fallback; `--jobs 3 --coverage` is the documented local parallel
+coverage recipe. Every run is retained under the ignored `build/local-tests/`
+tree with an explicit terminal status.
+
+The issue-470 audit removed no tests. Existing real Git, topology, concurrency,
+and crash-recovery proofs remain authoritative; the decision and future-removal
+requirements are recorded in [`TEST_COVERAGE_DECISIONS.md`](TEST_COVERAGE_DECISIONS.md).
+
 ## Hosted evidence
 
 Record each comparable run's URL, aggregate elapsed time, longest shard,
