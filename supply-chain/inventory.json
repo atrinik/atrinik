@@ -2635,13 +2635,13 @@
         "classic-server"
       ],
       "required": true,
-      "version": "v5.0.0",
+      "version": "v6.0.0",
       "version_source": "Classic server dependencies.lock.json content runtime input",
       "license": "LicenseRef-Atrinik-Asset-Per-File",
-      "source_url": "https://github.com/atrinik/content/releases/tag/v5.0.0",
-      "locator": "pkg:github/atrinik/content@v5.0.0",
-      "commit": "b0ccf98ed5e65d3d1a66f6dfce44c19122b26eef",
-      "checksum": "sha256:ac15a58d6ac07e9cbef64076dded0024a9a0c8b03d07748c1f0224d5901f4178",
+      "source_url": "https://github.com/atrinik/content/releases/tag/v6.0.0",
+      "locator": "pkg:github/atrinik/content@v6.0.0",
+      "commit": "7a4904172eee99fdd65482450fac219061676e5e",
+      "checksum": "sha256:dad5ef25be949e5874baba854b1ff008881e03ea42eefab0a14c6be38558b23d",
       "acquisition": "Classic release packaging obtains the archive from the exact durable dependency-bundle digest and rechecks it before safe extraction",
       "update_cadence_days": 30,
       "update_mechanism": "Daily fail-closed GitHub App proposal plus reviewed Classic compatibility update",
@@ -2653,7 +2653,7 @@
         {
           "repository": "classic-server",
           "path": "dependencies.lock.json",
-          "contains": "atrinik-content-5.0.0-classic-runtime.tar.gz"
+          "contains": "atrinik-content-6.0.0-classic-runtime.tar.gz"
         }
       ]
     },
