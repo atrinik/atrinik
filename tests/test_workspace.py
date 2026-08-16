@@ -15899,7 +15899,16 @@ class WorkspaceTests(unittest.TestCase):
                         os.close(pidfd)
                     deadline = time.monotonic() + 15
                     while time.monotonic() < deadline:
-                        crashed = observer.topology_status(names[0])
+                        try:
+                            crashed = observer.topology_status(names[0])
+                        except WorkspaceError as error:
+                            if str(error) != (
+                                "topology runtime generation lease is not retained: "
+                                f"{names[0]}"
+                            ):
+                                raise
+                            time.sleep(0.05)
+                            continue
                         if (
                             not crashed["supervisor"]["running"]
                             and crashed["observation"]["port_reservation"]["lease"]
@@ -15907,6 +15916,8 @@ class WorkspaceTests(unittest.TestCase):
                         ):
                             break
                         time.sleep(0.05)
+                    else:
+                        self.fail("crashed topology did not release its port")
                     self.assertFalse(crashed["supervisor"]["running"])
                     self.assertEqual(
                         crashed["observation"]["port_reservation"]["lease"],
