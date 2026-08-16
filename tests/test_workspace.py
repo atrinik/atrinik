@@ -17245,10 +17245,21 @@ class WorkspaceTests(unittest.TestCase):
             os.close(pidfd)
         deadline = time.monotonic() + 15
         while time.monotonic() < deadline:
-            crashed = self.workspace.topology_status("temporary-crash")
+            try:
+                crashed = self.workspace.topology_status("temporary-crash")
+            except WorkspaceError as error:
+                if str(error) != (
+                    "topology runtime generation lease is not retained: "
+                    "temporary-crash"
+                ):
+                    raise
+                time.sleep(0.05)
+                continue
             if crashed["observation"]["process_tree_lease"] == "released":
                 break
             time.sleep(0.05)
+        else:
+            self.fail("temporary topology process tree was not released")
         self.assertEqual(crashed["state_policy"]["lifecycle"], "disposable")
         self.assertTrue(state.is_dir())
         recovered = self.workspace.topology_down("temporary-crash", timeout=5)
