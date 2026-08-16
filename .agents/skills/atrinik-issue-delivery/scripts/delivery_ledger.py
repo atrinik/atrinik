@@ -3796,6 +3796,7 @@ def _scope_binding_observation(
     *,
     live: bool,
     guard: _LiveWorktreeGuard | None = None,
+    live_request: Mapping[str, Any] | None = None,
 ) -> None:
     item = _exact(value, {"worktree_list", "safety_observation"}, context)
     worktree_request = _scope_worktree_request(request, repository)
@@ -3810,13 +3811,22 @@ def _scope_binding_observation(
         "scope",
         scope_digest,
         f"{context}.safety_observation",
-        live=live,
+        live=live and live_request is None,
         expected_tree=row["tree"],
         expected_common_git_dir=row["common_git_dir"],
         guard=guard,
         allowed_references=_scope_owned_references(request),
         scope_record=scope_record,
     )
+    if live_request is not None:
+        if not live or guard is None:
+            raise LedgerError(f"{context} correction live proof is incomplete")
+        if guard.request != live_request or guard.path != path:
+            raise LedgerError(f"{context} correction worktree guard differs")
+        proof = guard.prove()
+        _verify_live_observation(observation, proof, context)
+        if proof["common_git_dir"] != row["common_git_dir"]:
+            raise LedgerError(f"{context} common Git directory differs from scope result")
     if (observation["path_device"], observation["path_inode"]) != (
         row["path_device"],
         row["path_inode"],
@@ -7017,7 +7027,12 @@ def _head_correction_document(
     *,
     bad_head: str,
     actual_head: str,
-) -> tuple[dict[str, Any], dict[str, Any], Mapping[str, Any]]:
+) -> tuple[
+    dict[str, Any],
+    dict[str, Any],
+    Mapping[str, Any],
+    Mapping[str, Any] | None,
+]:
     """Build the sole permitted correction of one mistyped target advancement."""
 
     predecessor_raw = canonical_bytes(predecessor)
@@ -7103,10 +7118,70 @@ def _head_correction_document(
     worktree_slot = next(slot for slot in changed_artifacts if slot["kind"] == "worktree")
     worktree = worktree_slot["current"]["path"]
     request = worktree_slot.get("primitive_request")
-    if request is None or worktree != _expected_worktree_path(request):
-        raise LedgerError("head correction lacks one exact primitive worktree request")
-    if request["repository"] != before_target["repository"] or request["branch"] != key[1]:
-        raise LedgerError("head correction worktree request differs from its target")
+    scope_proof = None
+    if request is not None:
+        if worktree != _expected_worktree_path(request):
+            raise LedgerError("head correction lacks one exact primitive worktree request")
+        if (
+            request["repository"] != before_target["repository"]
+            or request["branch"] != key[1]
+        ):
+            raise LedgerError("head correction worktree request differs from its target")
+    else:
+        producer_slot = worktree_slot.get("producer_resource_slot")
+        scopes = [
+            resource
+            for resource in erroneous["resources"]
+            if resource["slot_id"] == producer_slot
+        ]
+        if len(scopes) != 1 or scopes[0]["kind"] != "scope":
+            raise LedgerError("head correction lacks one exact scope producer")
+        scope = scopes[0]
+        current = scope["current"]
+        if (
+            scope["state"] != "created"
+            or current is None
+            or current["lifecycle"] != "active"
+        ):
+            raise LedgerError("head correction scope producer is not active")
+        scope_repository = scope["immutable"]["repository"]
+        if scope_repository != before_target["repository"]:
+            raise LedgerError("head correction scope repository differs from its target")
+        binding_raw = _retained_result(
+            current["binding"], "head correction scope binding"
+        )
+        scope_record, scope_row = _scope_show_record(
+            binding_raw,
+            scope["request"],
+            scope_repository,
+            "head correction scope binding",
+        )
+        binding_digest = byte_digest(binding_raw)
+        _scope_binding_observation(
+            current["observation"],
+            scope["request"],
+            scope_repository,
+            scope_row,
+            binding_digest,
+            scope_record,
+            "head correction scope observation",
+            live=False,
+        )
+        request = _scope_worktree_request(scope["request"], scope_repository)
+        if (
+            worktree != scope_row["path"]
+            or worktree != _expected_worktree_path(request)
+            or request["branch"] != key[1]
+        ):
+            raise LedgerError("head correction scope worktree differs from its target")
+        scope_proof = {
+            "request": scope["request"],
+            "repository": scope_repository,
+            "row": scope_row,
+            "binding_digest": binding_digest,
+            "record": scope_record,
+            "observation": current["observation"],
+        }
     corrected = copy.deepcopy(erroneous)
     corrected["generation"] += 1
     corrected["previous_byte_digest"] = erroneous_digest
@@ -7136,7 +7211,7 @@ def _head_correction_document(
     }
     live_request = copy.deepcopy(request)
     live_request["expected_head_sha"] = actual_head
-    return corrected, metadata, live_request
+    return corrected, metadata, live_request, scope_proof
 
 
 def _inventory_locked(directory: int) -> Inventory:
@@ -7492,7 +7567,7 @@ def _inventory_locked(directory: int) -> Inventory:
                     }
                 ):
                     raise LedgerError(f"head-correction source identity changed: {target}")
-                _, metadata, _ = _head_correction_document(
+                _, metadata, _, _ = _head_correction_document(
                     predecessor,
                     erroneous,
                     source_digest,
@@ -7521,7 +7596,7 @@ def _inventory_locked(directory: int) -> Inventory:
         erroneous = validate(_decode(erroneous_raw, erroneous_name))
         if erroneous_raw != canonical_bytes(erroneous) or byte_digest(erroneous_raw) != source_digest:
             raise LedgerError(f"head-correction erroneous snapshot mismatch: {target}")
-        corrected, metadata, _ = _head_correction_document(
+        corrected, metadata, _, _ = _head_correction_document(
             predecessor,
             erroneous,
             source_digest,
@@ -9494,7 +9569,7 @@ def correct_target_head(
     erroneous = validate(_decode(erroneous_raw, "head-correction erroneous bytes"))
     if byte_digest(erroneous_raw) != expected_digest:
         raise LedgerError("head-correction erroneous snapshot differs from expected digest")
-    corrected, metadata, live_request = _head_correction_document(
+    corrected, metadata, live_request, scope_proof = _head_correction_document(
         predecessor,
         erroneous,
         expected_digest,
@@ -9526,10 +9601,31 @@ def correct_target_head(
     )
 
     with _pinned_live_worktree(
-        live_request, metadata["worktree"], "target-head correction"
+        live_request,
+        metadata["worktree"],
+        "target-head correction",
+        allowed_references=(
+            ()
+            if scope_proof is None
+            else _scope_owned_references(scope_proof["request"])
+        ),
+        scope_record=None if scope_proof is None else scope_proof["record"],
     ) as guard:
         def prove_live() -> None:
             guard.prove()
+            if scope_proof is not None:
+                _scope_binding_observation(
+                    scope_proof["observation"],
+                    scope_proof["request"],
+                    scope_proof["repository"],
+                    scope_proof["row"],
+                    scope_proof["binding_digest"],
+                    scope_proof["record"],
+                    "target-head correction scope observation",
+                    live=True,
+                    guard=guard,
+                    live_request=live_request,
+                )
             worktree = guard.descriptors["worktree"]
             _git(
                 worktree,
