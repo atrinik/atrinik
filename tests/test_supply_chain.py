@@ -255,10 +255,10 @@ class InventoryTests(unittest.TestCase):
             "source/atrinik-content-runtime"
         ]
         self.assertEqual(content_runtime.scope, ("classic-server",))
-        self.assertEqual(content_runtime.version, "v5.0.0")
+        self.assertEqual(content_runtime.version, "v6.0.0")
         self.assertEqual(
             content_runtime.checksum,
-            "sha256:ac15a58d6ac07e9cbef64076dded0024a9a0c8b03d07748c1f0224d5901f4178",
+            "sha256:dad5ef25be949e5874baba854b1ff008881e03ea42eefab0a14c6be38558b23d",
         )
 
         playtester_content_runtime = inventory.dependencies_by_id[
