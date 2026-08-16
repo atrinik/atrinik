@@ -1781,12 +1781,17 @@ separately. See
 
 ~~~sh
 python3 -m pip install --requirement requirements-dev.txt
-python3 -m coverage run -m unittest discover -v
+python3 -m coverage run -m unittest discover -v --durations 50
 python3 -m coverage report --show-missing
 python3 -m compileall -q atrinik atrinik_workspace tests
 ./atrinik manifest validate
 ./atrinik cleanup --scope all --older-than 7 --dry-run --json
 ~~~
+
+The required workflow runs deterministic measured shards, verifies exact-once
+discovery, and combines branch coverage behind one stable `Integration
+validation` check. Its latency budget and evidence method are documented in
+[`docs/CI_PERFORMANCE.md`](docs/CI_PERFORMANCE.md).
 
 Use `./atrinik build COMPONENT --profile classic --test` for current native
 component integration. Replacement repositories run their standalone

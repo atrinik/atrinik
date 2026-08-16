@@ -255,6 +255,8 @@ def timed_public_build_process(
     mode: str,
     ready: object,
     start: object,
+    entered: object,
+    release: object,
     results: object,
 ) -> None:
     try:
@@ -265,6 +267,12 @@ def timed_public_build_process(
             ready.put(profile)
             if not start.wait(5):
                 raise TimeoutError("timed build test did not start")
+
+            def pause_metadata(*_arguments: object) -> None:
+                entered.put(profile)
+                if not release.wait(5):
+                    raise TimeoutError("timed build test was not released")
+
             with (
                 mock.patch.object(
                     workspace, "_expand_build_target", return_value=["client"]
@@ -294,7 +302,7 @@ def timed_public_build_process(
                 mock.patch.object(
                     workspace,
                     "_refresh_build_metadata",
-                    side_effect=lambda *_: time.sleep(0.4),
+                    side_effect=pause_metadata,
                 ),
                 mock.patch.object(
                     workspace, "_uses_integrated_classic_build", return_value=False
@@ -898,42 +906,138 @@ def command(*arguments: str, cwd: Path) -> str:
     return result.stdout.strip()
 
 
+def create_workspace_fixture(root: Path) -> None:
+    wrapper = root / "wrapper"
+    wrapper.mkdir()
+    manifest = {
+        "schema_version": 1,
+        "components": [
+            {
+                "name": name,
+                "repository": f"atrinik/{name}",
+                "branch": "main",
+                "build": build,
+            }
+            for name, build in COMPONENTS
+        ],
+    }
+    (wrapper / "components.json").write_text(
+        json.dumps(manifest), encoding="utf-8"
+    )
+    workspace_directory = root / "workspace"
+    with mock.patch.dict(
+        os.environ, {"ATRINIK_WORKSPACE_DIR": str(workspace_directory)}
+    ):
+        workspace = Workspace(wrapper)
+        workspace.paths.ensure()
+        for name, _ in COMPONENTS:
+            origin = root / "origins" / f"{name}.git"
+            origin.parent.mkdir(exist_ok=True)
+            command("git", "init", "--bare", str(origin), cwd=root)
+            seed = root / "seeds" / name
+            seed.mkdir(parents=True)
+            command("git", "init", "-b", "main", cwd=seed)
+            command("git", "config", "user.name", "Tests", cwd=seed)
+            command("git", "config", "user.email", "tests@example.invalid", cwd=seed)
+            (seed / "README").write_text(f"{name}\n", encoding="utf-8")
+            if name == "resources":
+                (seed / "runtime-paths.txt").write_text(
+                    "paintings\n", encoding="utf-8"
+                )
+                (seed / "paintings").mkdir()
+                (seed / "paintings" / "scene.jpg").write_text(
+                    "resource\n", encoding="utf-8"
+                )
+            if name == "server":
+                (seed / "install_data" / "keys").mkdir(parents=True)
+                (seed / "install_data" / "unique-items").mkdir()
+                (seed / "install_data" / "keys" / "test.pub").write_text(
+                    "key\n", encoding="utf-8"
+                )
+                (seed / "install_data" / "unique-items" / ".keep").write_text(
+                    "\n", encoding="utf-8"
+                )
+                (seed / "install_data" / "bans").write_text("", encoding="utf-8")
+                (seed / "install_data" / "motd").write_text(
+                    "Welcome\n", encoding="utf-8"
+                )
+            command("git", "add", ".", cwd=seed)
+            command("git", "commit", "-m", "feat: seed", cwd=seed)
+            command("git", "remote", "add", "origin", str(origin), cwd=seed)
+            command("git", "push", "-u", "origin", "main", cwd=seed)
+            command("git", "symbolic-ref", "HEAD", "refs/heads/main", cwd=origin)
+            checkout = workspace.paths.repositories / name
+            checkout.parent.mkdir(parents=True, exist_ok=True)
+            command("git", "clone", str(origin), str(checkout), cwd=root)
+            command(
+                "git",
+                "remote",
+                "add",
+                "upstream",
+                f"https://github.com/atrinik/{name}.git",
+                cwd=checkout,
+            )
+            command("git", "config", "user.name", "Tests", cwd=checkout)
+            command("git", "config", "user.email", "tests@example.invalid", cwd=checkout)
+            # Relative test-owned remotes remain valid after the immutable fixture
+            # is copied into a per-test root without another Git subprocess.
+            command(
+                "git", "remote", "set-url", "origin", f"../../origins/{name}.git", cwd=seed
+            )
+            command(
+                "git",
+                "remote",
+                "set-url",
+                "origin",
+                f"../../origins/{name}.git",
+                cwd=checkout,
+            )
+
+
+def copy_workspace_fixture(template: Path, destination: Path) -> None:
+    shutil.copytree(template, destination, dirs_exist_ok=True, symlinks=True)
+
+
 class WorkspaceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.fixture_temporary = tempfile.TemporaryDirectory()
+        cls.fixture_template = Path(cls.fixture_temporary.name)
+        create_workspace_fixture(cls.fixture_template)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.fixture_temporary.cleanup()
+        super().tearDownClass()
+
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
+        copy_workspace_fixture(self.fixture_template, self.root)
         self.wrapper = self.root / "wrapper"
-        self.wrapper.mkdir()
-        manifest = {
-            "schema_version": 1,
-            "components": [
-                {
-                    "name": name,
-                    "repository": f"atrinik/{name}",
-                    "branch": "main",
-                    "build": build,
-                }
-                for name, build in COMPONENTS
-            ],
-        }
-        (self.wrapper / "components.json").write_text(
-            json.dumps(manifest), encoding="utf-8"
-        )
         self.workspace_directory = self.root / "workspace"
         self.environment = mock.patch.dict(
             os.environ, {"ATRINIK_WORKSPACE_DIR": str(self.workspace_directory)}
         )
         self.environment.start()
         self.workspace = Workspace(self.wrapper)
-        self.workspace.paths.ensure()
-        self.seeds: dict[str, Path] = {}
-        self.origins: dict[str, Path] = {}
-        for name, _ in COMPONENTS:
-            self.make_component(name)
+        self.seeds = {name: self.root / "seeds" / name for name, _ in COMPONENTS}
+        self.origins = {
+            name: self.root / "origins" / f"{name}.git" for name, _ in COMPONENTS
+        }
         self.remote_matcher = mock.patch(
             "atrinik_workspace.workspace._remote_matches",
             side_effect=lambda url, repository: real_remote_matches(url, repository)
-            or url == str(self.origins[repository.split("/", 1)[1]]),
+            or (
+                not url.startswith(("http://", "https://", "ssh://", "git@"))
+                and (
+                    self.workspace.paths.repositories
+                    / repository.split("/", 1)[1]
+                    / url
+                ).resolve()
+                == self.origins[repository.split("/", 1)[1]].resolve()
+            ),
         )
         self.remote_matcher.start()
 
@@ -944,54 +1048,6 @@ class WorkspaceTests(unittest.TestCase):
         self.remote_matcher.stop()
         self.environment.stop()
         self.temporary.cleanup()
-
-    def make_component(self, name: str) -> None:
-        origin = self.root / "origins" / f"{name}.git"
-        origin.parent.mkdir(exist_ok=True)
-        command("git", "init", "--bare", str(origin), cwd=self.root)
-        seed = self.root / "seeds" / name
-        seed.mkdir(parents=True)
-        command("git", "init", "-b", "main", cwd=seed)
-        command("git", "config", "user.name", "Tests", cwd=seed)
-        command("git", "config", "user.email", "tests@example.invalid", cwd=seed)
-        (seed / "README").write_text(f"{name}\n", encoding="utf-8")
-        if name == "resources":
-            (seed / "runtime-paths.txt").write_text("paintings\n", encoding="utf-8")
-            (seed / "paintings").mkdir()
-            (seed / "paintings" / "scene.jpg").write_text(
-                "resource\n", encoding="utf-8"
-            )
-        if name == "server":
-            (seed / "install_data" / "keys").mkdir(parents=True)
-            (seed / "install_data" / "unique-items").mkdir()
-            (seed / "install_data" / "keys" / "test.pub").write_text(
-                "key\n", encoding="utf-8"
-            )
-            (seed / "install_data" / "unique-items" / ".keep").write_text(
-                "\n", encoding="utf-8"
-            )
-            (seed / "install_data" / "bans").write_text("", encoding="utf-8")
-            (seed / "install_data" / "motd").write_text("Welcome\n", encoding="utf-8")
-        command("git", "add", ".", cwd=seed)
-        command("git", "commit", "-m", "feat: seed", cwd=seed)
-        command("git", "remote", "add", "origin", str(origin), cwd=seed)
-        command("git", "push", "-u", "origin", "main", cwd=seed)
-        command("git", "symbolic-ref", "HEAD", "refs/heads/main", cwd=origin)
-        checkout = self.workspace.paths.repositories / name
-        checkout.parent.mkdir(parents=True, exist_ok=True)
-        command("git", "clone", str(origin), str(checkout), cwd=self.root)
-        command(
-            "git",
-            "remote",
-            "add",
-            "upstream",
-            f"https://github.com/atrinik/{name}.git",
-            cwd=checkout,
-        )
-        command("git", "config", "user.name", "Tests", cwd=checkout)
-        command("git", "config", "user.email", "tests@example.invalid", cwd=checkout)
-        self.seeds[name] = seed
-        self.origins[name] = origin
 
     def scenario_resolved_fixture(self) -> dict[str, dict[str, object]]:
         resolved: dict[str, dict[str, object]] = {}
@@ -1162,6 +1218,72 @@ class WorkspaceTests(unittest.TestCase):
         command("git", "commit", "-m", "fix: advance", cwd=seed)
         command("git", "push", cwd=seed)
         return command("git", "rev-parse", "HEAD", cwd=seed)
+
+    def test_fixture_copies_have_independent_mutable_git_state(self) -> None:
+        with tempfile.TemporaryDirectory() as first_name, tempfile.TemporaryDirectory() as second_name:
+            first = Path(first_name)
+            second = Path(second_name)
+            with mock.patch(f"{__name__}.command") as copied_git:
+                copy_workspace_fixture(self.fixture_template, first)
+                copy_workspace_fixture(self.fixture_template, second)
+            copied_git.assert_not_called()
+
+            first_checkout = first / "wrapper" / "client"
+            second_checkout = second / "wrapper" / "client"
+            first_seed = first / "seeds" / "client"
+            first_origin = first / "origins" / "client.git"
+            second_origin = second / "origins" / "client.git"
+            second_head = command(
+                "git", "rev-parse", "refs/heads/main", cwd=second_origin
+            )
+
+            (first_checkout / "README").write_text(
+                "first checkout\n", encoding="utf-8"
+            )
+            command("git", "add", "README", cwd=first_checkout)
+            command("git", "config", "fixture.owner", "first", cwd=first_checkout)
+            self.assertEqual(
+                command("git", "status", "--porcelain", cwd=second_checkout), ""
+            )
+            self.assertEqual(
+                subprocess.run(
+                    ["git", "config", "--get", "fixture.owner"],
+                    cwd=second_checkout,
+                    check=False,
+                    capture_output=True,
+                ).returncode,
+                1,
+            )
+
+            (first_seed / "isolated").write_text("first seed\n", encoding="utf-8")
+            command("git", "add", "isolated", cwd=first_seed)
+            command("git", "commit", "-m", "test: advance isolated seed", cwd=first_seed)
+            command("git", "push", "origin", "main", cwd=first_seed)
+            self.assertNotEqual(
+                command("git", "rev-parse", "refs/heads/main", cwd=first_origin),
+                second_head,
+            )
+            self.assertEqual(
+                command("git", "rev-parse", "refs/heads/main", cwd=second_origin),
+                second_head,
+            )
+
+            first_mode = stat.S_IMODE((first_checkout / "README").stat().st_mode)
+            second_mode = stat.S_IMODE((second_checkout / "README").stat().st_mode)
+            (first_checkout / "README").chmod(0o600)
+            self.assertNotEqual(
+                stat.S_IMODE((first_checkout / "README").stat().st_mode),
+                second_mode,
+            )
+            self.assertEqual(
+                stat.S_IMODE((second_checkout / "README").stat().st_mode),
+                second_mode,
+            )
+            self.assertEqual(first_mode, second_mode)
+            self.assertNotEqual(
+                (first_checkout / ".git" / "index").stat().st_ino,
+                (second_checkout / ".git" / "index").stat().st_ino,
+            )
 
     def test_initialize_accepts_existing_real_repositories(self) -> None:
         self.workspace.initialize(None, jobs=3)
@@ -15042,13 +15164,16 @@ class WorkspaceTests(unittest.TestCase):
             observed[roots[1].name], (False, True, {str(roots[1])})
         )
 
-    def test_shared_layout_lock_improves_independent_elapsed_time(self) -> None:
+    def test_shared_layout_lock_allows_independent_builds_to_overlap(self) -> None:
         context = multiprocessing.get_context("spawn")
 
-        def measure(mode: str) -> float:
+        def observe(mode: str) -> None:
             ready = context.Queue()
             start = context.Event()
+            entered = context.Queue()
+            release = context.Event()
             results = context.Queue()
+            profiles = {f"timed-{mode}-0", f"timed-{mode}-1"}
             processes = [
                 context.Process(
                     target=timed_public_build_process,
@@ -15059,6 +15184,8 @@ class WorkspaceTests(unittest.TestCase):
                         mode,
                         ready,
                         start,
+                        entered,
+                        release,
                         results,
                     ),
                 )
@@ -15066,27 +15193,34 @@ class WorkspaceTests(unittest.TestCase):
             ]
             for index in range(2):
                 self.workspace.create_profile(f"timed-{mode}-{index}")
+            observed: list[str] = []
             try:
                 for process in processes:
                     process.start()
                 self.assertEqual(
                     {ready.get(timeout=5), ready.get(timeout=5)},
-                    {f"timed-{mode}-0", f"timed-{mode}-1"},
+                    profiles,
                 )
-                began = time.monotonic()
                 start.set()
+                observed.append(entered.get(timeout=5))
+                if mode == "exclusive":
+                    with self.assertRaises(queue.Empty):
+                        entered.get(timeout=0.2)
+                else:
+                    observed.append(entered.get(timeout=5))
             finally:
+                release.set()
                 join_or_stop_processes(processes, 5)
-            elapsed = time.monotonic() - began
+            if mode == "exclusive":
+                observed.append(entered.get(timeout=2))
             self.assertEqual([process.exitcode for process in processes], [0, 0])
             self.assertEqual(
                 [results.get(timeout=2), results.get(timeout=2)], [None, None]
             )
-            return elapsed
+            self.assertEqual(set(observed), profiles)
 
-        exclusive_elapsed = measure("exclusive")
-        shared_elapsed = measure("shared")
-        self.assertLess(shared_elapsed, exclusive_elapsed * 0.8)
+        observe("exclusive")
+        observe("shared")
 
     def test_same_build_root_serializes_across_processes(self) -> None:
         context = multiprocessing.get_context("spawn")
@@ -16507,14 +16641,25 @@ class WorkspaceTests(unittest.TestCase):
             finally:
                 os.close(pidfd)
             deadline = time.monotonic() + 15
-            while time.monotonic() < deadline and (
-                self.workspace.topology_status("server-review")["observation"][
-                    "process_tree_lease"
-                ]
-                == "retained"
-            ):
+            while time.monotonic() < deadline:
+                try:
+                    orphaned = self.workspace.topology_status("server-review")
+                except WorkspaceError as error:
+                    if str(error) != (
+                        "topology runtime generation lease is not retained: "
+                        "server-review"
+                    ):
+                        raise
+                    time.sleep(0.05)
+                    continue
+                if (
+                    orphaned["observation"]["process_tree_lease"]
+                    == "released"
+                ):
+                    break
                 time.sleep(0.05)
-            orphaned = self.workspace.topology_status("server-review")
+            else:
+                self.fail("crashed topology process tree was not released")
             self.assertFalse(orphaned["supervisor"]["running"])
             self.assertFalse(orphaned["ready"])
             self.assertFalse(orphaned["services"]["server"]["running"])

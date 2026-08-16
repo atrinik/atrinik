@@ -770,6 +770,7 @@
       "kind": "github-action",
       "owner": "github-settings",
       "scope": [
+        "atrinik",
         "classic",
         "client",
         "devcontainer",
@@ -791,6 +792,11 @@
       "disposition": "retain",
       "packages": [],
       "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/integration.yml",
+          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+        },
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
@@ -1054,6 +1060,11 @@
       "disposition": "retain",
       "packages": [],
       "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/integration.yml",
+          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+        },
         {
           "repository": "atrinik",
           "path": ".github/workflows/supply-chain.yml",
@@ -2201,7 +2212,7 @@
         {
           "repository": "metaserver-worker",
           "path": "package.json",
-          "contains": "\"wrangler\": \"^4.118.0\""
+          "contains": "\"wrangler\": \"4.119.0\""
         }
       ]
     },
@@ -4590,7 +4601,7 @@
         "website"
       ],
       "required": true,
-      "version": ">=20; wrapper release 22; Classic release 24; playtester and replacement releases 24.18.1",
+      "version": "wrapper release 22; Classic release 24; Worker, playtester, and replacement releases 24.18.1",
       "version_source": "Worker/website package engines and exact release workflow lines",
       "license": "MIT",
       "source_url": "https://nodejs.org/",
@@ -4651,7 +4662,7 @@
         {
           "repository": "metaserver-worker",
           "path": "package.json",
-          "contains": "\"node\": \">=20\""
+          "contains": "\"node\": \"24.18.1\""
         },
         {
           "repository": "playtester",
