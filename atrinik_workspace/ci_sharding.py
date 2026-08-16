@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import signal
@@ -368,6 +369,14 @@ def run_local_worker(arguments: argparse.Namespace) -> int:
         or not isinstance(selected_ids, list)
         or any(not isinstance(test_id, str) for test_id in selected_ids)
         or selected_ids != sorted(selected_ids)
+        or selected_ids != sorted(set(selected_ids))
+        or not isinstance(assignment["shard_count"], int)
+        or isinstance(assignment["shard_count"], bool)
+        or assignment["shard_count"] < 1
+        or not isinstance(assignment["shard_index"], int)
+        or isinstance(assignment["shard_index"], bool)
+        or assignment["shard_index"] < 0
+        or assignment["shard_index"] >= assignment["shard_count"]
     ):
         raise ValueError("local shard assignment is invalid")
     result, exit_code = _run_selected_tests(selected_ids, durations=arguments.durations)
@@ -400,10 +409,13 @@ def _kill_local_process(process: subprocess.Popen[bytes]) -> None:
 
 
 def _validate_local_results(
-    run_root: Path, assignments: list[list[str]], exit_codes: list[int]
+    run_root: Path,
+    assignments: list[list[str]],
+    expected_ids: list[str],
+    exit_codes: list[int],
 ) -> list[str]:
     errors: list[str] = []
-    seen: list[str] = []
+    seen: dict[str, int] = {}
     for index, selected_ids in enumerate(assignments):
         result_path = run_root / f"shard-{index}-result.json"
         if not result_path.is_file():
@@ -424,14 +436,42 @@ def _validate_local_results(
         tests = result.get("tests")
         if not isinstance(tests, dict) or sorted(tests) != selected_ids:
             errors.append(f"shard {index} did not report every selected test")
+        elif any(
+            not isinstance(seconds, (int, float))
+            or isinstance(seconds, bool)
+            or not math.isfinite(seconds)
+            or seconds < 0
+            for seconds in tests.values()
+        ):
+            errors.append(f"shard {index} reported invalid test durations")
+        elapsed = result.get("elapsed_seconds")
+        if (
+            not isinstance(elapsed, (int, float))
+            or isinstance(elapsed, bool)
+            or not math.isfinite(elapsed)
+            or elapsed < 0
+        ):
+            errors.append(f"shard {index} reported invalid elapsed time")
         if result.get("tests_run") != len(selected_ids):
             errors.append(f"shard {index} test count does not match its assignment")
         if result.get("failed") is not False or exit_codes[index] != 0:
             errors.append(f"shard {index} failed")
-        seen.extend(selected_ids)
-    duplicates = sorted(test_id for test_id in set(seen) if seen.count(test_id) != 1)
-    if duplicates:
-        errors.append(f"local test assignments contain duplicates: {duplicates[:10]}")
+        returned_ids = result.get("selected_ids")
+        if isinstance(returned_ids, list) and all(
+            isinstance(test_id, str) for test_id in returned_ids
+        ):
+            for test_id in returned_ids:
+                seen[test_id] = seen.get(test_id, 0) + 1
+    expected = set(expected_ids)
+    duplicates = sorted(test_id for test_id, count in seen.items() if count != 1)
+    missing = sorted(expected - seen.keys())
+    unexpected = sorted(seen.keys() - expected)
+    if duplicates or missing or unexpected:
+        errors.append(
+            "local test results do not cover the requested suite exactly once: "
+            f"duplicates={duplicates[:10]}, missing={missing[:10]}, "
+            f"unexpected={unexpected[:10]}"
+        )
     return errors
 
 
@@ -439,7 +479,7 @@ def _coverage_files(run_root: Path, shard_count: int) -> list[str]:
     coverage_root = run_root / "coverage"
     paths = sorted(path for path in coverage_root.iterdir() if path.is_file())
     allowed = {
-        f".coverage-shard-{index}."
+        f".coverage.shard-{index}."
         for index in range(shard_count)
     }
     unexpected = [
@@ -452,7 +492,7 @@ def _coverage_files(run_root: Path, shard_count: int) -> list[str]:
     missing = [
         str(index)
         for index in range(shard_count)
-        if not any(path.name.startswith(f".coverage-shard-{index}.") for path in paths)
+        if not any(path.name.startswith(f".coverage.shard-{index}.") for path in paths)
     ]
     if missing:
         raise ValueError(f"coverage data is missing for shard(s): {', '.join(missing)}")
@@ -468,10 +508,68 @@ def _print_local_evidence(run_root: Path, shard_count: int) -> None:
         result_path = run_root / f"shard-{index}-result.json"
         if not result_path.is_file():
             continue
-        result = json.loads(result_path.read_text(encoding="utf-8"))
+        try:
+            result = json.loads(result_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            print(f"shard {index}: result is unreadable: {error}")
+            continue
+        if not isinstance(result, dict):
+            print(f"shard {index}: result is not an object")
+            continue
         tests = result.get("tests", {})
+        elapsed = result.get("elapsed_seconds", 0.0)
+        if isinstance(tests, dict) and isinstance(elapsed, (int, float)):
+            print(
+                f"shard {index}: {len(tests)} tests, {elapsed:.3f}s"
+            )
+
+
+def _local_timing_summary(run_root: Path, shard_count: int) -> dict[str, object]:
+    aggregate_test_seconds = 0.0
+    longest_shard_seconds = 0.0
+    shard_timings: list[dict[str, object]] = []
+    for index in range(shard_count):
+        result_path = run_root / f"shard-{index}-result.json"
+        if not result_path.is_file():
+            continue
+        try:
+            result = json.loads(result_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(result, dict):
+            continue
+        tests = result.get("tests", {})
+        elapsed = result.get("elapsed_seconds", 0.0)
         if isinstance(tests, dict):
-            print(f"shard {index}: {len(tests)} tests, {result.get('elapsed_seconds', 0):.3f}s")
+            aggregate_test_seconds += sum(
+                seconds
+                for seconds in tests.values()
+                if (
+                    isinstance(seconds, (int, float))
+                    and not isinstance(seconds, bool)
+                    and math.isfinite(seconds)
+                    and seconds >= 0
+                )
+            )
+        if (
+            isinstance(elapsed, (int, float))
+            and not isinstance(elapsed, bool)
+            and math.isfinite(elapsed)
+            and elapsed >= 0
+        ):
+            longest_shard_seconds = max(longest_shard_seconds, elapsed)
+        shard_timings.append(
+            {
+                "elapsed_seconds": elapsed,
+                "index": index,
+                "test_count": len(tests) if isinstance(tests, dict) else 0,
+            }
+        )
+    return {
+        "aggregate_test_seconds": aggregate_test_seconds,
+        "longest_shard_seconds": longest_shard_seconds,
+        "shards": shard_timings,
+    }
 
 
 def run_local(arguments: argparse.Namespace) -> int:
@@ -513,8 +611,8 @@ def run_local(arguments: argparse.Namespace) -> int:
                 "assignments_sha256": _canonical_digest(
                     {str(shard): shard_ids for shard, shard_ids in enumerate(assignments)}
                 ),
-                "discovered_count": len(selected_ids),
-                "discovered_sha256": _canonical_digest(selected_ids),
+                "discovered_count": len(discovered_ids),
+                "discovered_sha256": _canonical_digest(discovered_ids),
                 "schema_version": SCHEMA_VERSION,
                 "selected_ids": selected,
                 "shard_count": shard_count,
@@ -576,7 +674,7 @@ def run_local(arguments: argparse.Namespace) -> int:
             environment.pop("COVERAGE_FILE", None)
             if arguments.coverage:
                 environment["COVERAGE_FILE"] = str(
-                    coverage_root / f".coverage-shard-{index}"
+                    coverage_root / f".coverage.shard-{index}"
                 )
             process = subprocess.Popen(
                 command,
@@ -626,7 +724,8 @@ def run_local(arguments: argparse.Namespace) -> int:
         for handle in log_handles:
             handle.close()
 
-    errors = _validate_local_results(run_root, assignments, exit_codes)
+    errors = _validate_local_results(run_root, assignments, selected_ids, exit_codes)
+    state["timing"] = _local_timing_summary(run_root, shard_count)
     if arguments.coverage and not errors:
         try:
             coverage_files = _coverage_files(run_root, shard_count)
@@ -674,6 +773,16 @@ def run_local(arguments: argparse.Namespace) -> int:
             }
         except (OSError, subprocess.CalledProcessError, ValueError) as error:
             errors.append(f"coverage aggregation failed: {error}")
+        except KeyboardInterrupt:
+            state["status"] = "interrupted"
+            state["completed_at"] = _local_timestamp()
+            state["exit_code"] = 130
+            _write_json(run_root / "run.json", state)
+            print(
+                f"local tests interrupted; evidence retained in {run_root}",
+                file=sys.stderr,
+            )
+            return 130
     _print_local_evidence(run_root, shard_count)
     state["completed_at"] = _local_timestamp()
     state["errors"] = errors

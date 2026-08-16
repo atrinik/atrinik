@@ -4219,9 +4219,10 @@ class CleanupTests(unittest.TestCase):
             actual_workspace.close()
 
     def test_cleanup_journals_remain_reclaimable_above_recovery_limit(self) -> None:
+        journal_limit = 8
         journal_root = self.workspace.paths.workspace / "cleanup-journals"
         journal_root.mkdir(parents=True, exist_ok=True)
-        for index in range(cleanup_module.CLEANUP_JOURNAL_LIMIT):
+        for index in range(journal_limit):
             self.make_delivered_cleanup_journal(
                 f"20000101T000000{index:06d}Z-{index:012x}.json",
                 targets=[],
@@ -4239,10 +4240,12 @@ class CleanupTests(unittest.TestCase):
         with self.assertRaisesRegex(
             WorkspaceError, "cleanup journal inventory is oversized"
         ):
-            self.workspace.cleanup(["cleanup-journals"], 7, [], False)
+            self.workspace.cleanup(
+                ["cleanup-journals"], 7, [], False, _journal_limit=journal_limit
+            )
 
         preview = self.workspace.cleanup(
-            ["cleanup-journals"], 7, [target.name], False
+            ["cleanup-journals"], 7, [target.name], False, _journal_limit=journal_limit
         )
         self.assertEqual(preview["summary"]["candidate_count"], 1)
         with self.workspace._resource_locks(
@@ -4257,7 +4260,7 @@ class CleanupTests(unittest.TestCase):
             include_wrapper=False,
         ):
             blocked = self.workspace.cleanup(
-                ["cleanup-journals"], 7, [target.name], True
+                ["cleanup-journals"], 7, [target.name], True, _journal_limit=journal_limit
             )
         blocked_item = next(
             item for item in blocked["items"] if item["path"] == str(target)
@@ -4284,11 +4287,11 @@ class CleanupTests(unittest.TestCase):
                 WorkspaceError, "recovery scan is incomplete"
             ):
                 self.workspace.cleanup(
-                    ["cleanup-journals"], 7, [target.name], True
+                    ["cleanup-journals"], 7, [target.name], True, _journal_limit=journal_limit
                 )
             with self.assertRaisesRegex(SystemExit, "interrupted journal unlink"):
                 self.workspace.cleanup(
-                    ["cleanup-journals"], 7, [target.name], True
+                    ["cleanup-journals"], 7, [target.name], True, _journal_limit=journal_limit
                 )
 
         maintenance_journal = next(
@@ -4311,16 +4314,16 @@ class CleanupTests(unittest.TestCase):
                 WorkspaceError, "recovery scan is incomplete"
             ):
                 self.workspace.cleanup(
-                    ["cleanup-journals"], 7, [target.name], True
+                    ["cleanup-journals"], 7, [target.name], True, _journal_limit=journal_limit
                 )
             self.assertEqual(
-                load_journal.call_count, cleanup_module.CLEANUP_JOURNAL_LIMIT
+                load_journal.call_count, journal_limit
             )
             applied = self.workspace.cleanup(
-                ["cleanup-journals"], 7, [target.name], True
+                ["cleanup-journals"], 7, [target.name], True, _journal_limit=journal_limit
             )
         self.assertEqual(
-            load_journal.call_count, cleanup_module.CLEANUP_JOURNAL_LIMIT + 2
+            load_journal.call_count, journal_limit + 2
         )
         self.assertEqual(applied["summary"]["removed_count"], 1)
         self.assertFalse(target.exists())
@@ -4331,7 +4334,7 @@ class CleanupTests(unittest.TestCase):
         self.workspace.cleanup_acknowledge(applied)
 
         repeated = self.workspace.cleanup(
-            ["cleanup-journals"], 7, [target.name], False
+            ["cleanup-journals"], 7, [target.name], False, _journal_limit=journal_limit
         )
         self.assertEqual(repeated["summary"]["item_count"], 0)
 

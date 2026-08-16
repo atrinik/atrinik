@@ -59,4 +59,3 @@ python3 -m atrinik_workspace.mcp_contract validate
 
 The hosted workflow remains authoritative for the required `Integration
 validation` check and uses the same `ci/test-timing-weights.json` assignment.
-

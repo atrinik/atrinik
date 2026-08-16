@@ -5018,17 +5018,23 @@ class Workspace:
         older_than_days: int,
         names: list[str],
         apply: bool,
+        *,
+        _journal_limit: int | None = None,
     ) -> dict[str, Any]:
         # Import lazily so the planner can reuse the workspace lock and metadata
         # helpers without creating a module import cycle.
         from .cleanup import Cleanup
 
         if not apply:
-            return Cleanup(self).execute(scopes, older_than_days, names, False)
+            return Cleanup(self, journal_limit=_journal_limit).execute(
+                scopes, older_than_days, names, False
+            )
         with shared_maintenance_lock(
             self._lease_namespace / "repository-layout.lock"
         ):
-            return Cleanup(self).execute(scopes, older_than_days, names, True)
+            return Cleanup(self, journal_limit=_journal_limit).execute(
+                scopes, older_than_days, names, True
+            )
 
     def cleanup_acknowledge(self, report: dict[str, Any]) -> None:
         """Acknowledge delivery of an exact cleanup apply result."""

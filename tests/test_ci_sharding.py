@@ -261,10 +261,15 @@ class CiShardingTests(unittest.TestCase):
                     },
                 )
             self.assertEqual(
-                ci_sharding._validate_local_results(root, selected, [0, 0]), []
+                ci_sharding._validate_local_results(
+                    root, selected, ["tests.alpha", "tests.beta"], [0, 0]
+                ),
+                [],
             )
             (root / "shard-1-result.json").unlink()
-            errors = ci_sharding._validate_local_results(root, selected, [0, 0])
+            errors = ci_sharding._validate_local_results(
+                root, selected, ["tests.alpha", "tests.beta"], [0, 0]
+            )
             self.assertIn("shard 1 did not retain a result", errors)
 
     def test_default_local_jobs_is_bounded_by_three(self) -> None:

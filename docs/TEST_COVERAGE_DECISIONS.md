@@ -10,4 +10,3 @@ execution, preserves the existing CI shard contract, and keeps all current
 fixtures and real topology/Git/concurrency proofs in place. Any future removal
 must record the replaced contract, focused mutation or equivalent evidence, and
 the retained test IDs in this decision log.
-
