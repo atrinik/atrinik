@@ -1498,7 +1498,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             with self.subTest(failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 initial = ledger.create(root, issue_ledger())
-                update = replacement(initial)
+                update = next_generation(initial)
                 arguments = {
                     "expected_generation": initial.document["generation"],
                     "expected_digest": initial.digest,
@@ -1521,9 +1521,9 @@ class DeliveryLedgerTests(unittest.TestCase):
                         )
                 current = ledger.cas(root, initial.name, update, **arguments)
                 self.assertEqual(current.document["generation"], 2)
-                self.assertEqual(current.document["targets"][0]["head"]["current_sha"], SHA_B)
+                self.assertEqual(current.document["targets"][0]["head"]["current_sha"], SHA_A)
                 with self.assertRaisesRegex(ledger.LedgerError, "stale CAS"):
-                    other = replacement(current, head=SHA_C)
+                    other = next_generation(current)
                     ledger.cas(
                         root,
                         current.name,
@@ -1768,31 +1768,20 @@ class DeliveryLedgerTests(unittest.TestCase):
             root = Path(temporary)
             initial = ledger.create(root, issue_ledger())
             descendant = replacement(initial)
-            advanced = ledger.cas(
-                root,
-                initial.name,
-                descendant,
-                expected_generation=1,
-                expected_digest=initial.digest,
-                expected_device=initial.device,
-                expected_inode=initial.inode,
-            )
-            rewritten = copy.deepcopy(advanced.document)
-            rewritten["generation"] = 3
-            rewritten["previous_byte_digest"] = advanced.digest
-            rewritten["history"].append(advanced.digest)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "bound authoritative worktree"
+            ):
+                ledger.cas(root, initial.name, descendant, **cas_arguments(initial))
+            rewritten = copy.deepcopy(descendant)
             rewritten["targets"][0]["head"].update(
-                current_sha=SHA_C, lineage=[SHA_A, SHA_C]
+                current_sha=SHA_C, lineage=[SHA_C]
             )
-            with self.assertRaisesRegex(ledger.LedgerError, "rewritten"):
+            with self.assertRaisesRegex(ledger.LedgerError, "must connect"):
                 ledger.cas(
                     root,
-                    advanced.name,
+                    initial.name,
                     rewritten,
-                    expected_generation=2,
-                    expected_digest=advanced.digest,
-                    expected_device=advanced.device,
-                    expected_inode=advanced.inode,
+                    **cas_arguments(initial),
                 )
             process = subprocess.run(
                 [sys.executable, "-B", str(SCRIPT), "inventory", str(root)],
@@ -2040,13 +2029,16 @@ class DeliveryLedgerTests(unittest.TestCase):
                 current_sha=SHA_C, lineage=[SHA_A, SHA_C]
             )
             advanced["targets"][0]["merge_base"]["current_sha"] = SHA_B
-            current = ledger.cas(root, initial.name, advanced, **cas_arguments(initial))
-            rewritten = next_generation(current)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "bound authoritative worktree"
+            ):
+                ledger.cas(root, initial.name, advanced, **cas_arguments(initial))
+            rewritten = next_generation(initial)
             rewritten["targets"][0]["base"].update(
-                current_sha="d" * 40, lineage=[SHA_A, "d" * 40]
+                current_sha="d" * 40, lineage=["d" * 40]
             )
-            with self.assertRaisesRegex(ledger.LedgerError, "base lineage was rewritten"):
-                ledger.cas(root, current.name, rewritten, **cas_arguments(current))
+            with self.assertRaisesRegex(ledger.LedgerError, "must connect"):
+                ledger.cas(root, initial.name, rewritten, **cas_arguments(initial))
 
         invalid_head = pr_ledger(
             423,
@@ -2189,9 +2181,11 @@ class DeliveryLedgerTests(unittest.TestCase):
                 ).name,
                 migrated.name,
             )
-            second = ledger.cas(root, migrated.name, replacement(migrated), **cas_arguments(migrated))
+            second = ledger.cas(
+                root, migrated.name, next_generation(migrated), **cas_arguments(migrated)
+            )
             self.assertEqual(len(ledger.inventory(root).ledgers), 1)
-            third_document = replacement(second, head=SHA_C)
+            third_document = next_generation(second)
             third = ledger.cas(root, second.name, third_document, **cas_arguments(second))
             self.assertEqual(third.document["history"][0], migrated.digest)
 
@@ -2751,8 +2745,19 @@ class DeliveryLedgerTests(unittest.TestCase):
     def test_18_cross_process_cas_race_has_one_winner_and_no_debris(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initial = ledger.create(root, issue_ledger())
-            replacements = [replacement(initial, head=SHA_B), replacement(initial, head=SHA_C)]
+            initial = ledger.create(
+                root,
+                pr_ledger(
+                    453,
+                    pr_node="P_cas_race",
+                    branch="fix/cas-race",
+                    worktree="/workspace/worktrees/cas-race",
+                ),
+            )
+            unchanged = next_generation(initial)
+            ready_intent = next_generation(initial)
+            ready_intent["selected_prs"][0]["draft_intent"] = "ready"
+            replacements = [unchanged, ready_intent]
             processes: list[subprocess.Popen[str]] = []
             for index, candidate in enumerate(replacements):
                 input_path = root / f"cas-{index}.json"
@@ -3152,12 +3157,16 @@ class DeliveryLedgerTests(unittest.TestCase):
             for slot in refreshed_document["artifacts"]:
                 if slot["state"] != "planned":
                     slot["current"]["head_sha"] = SHA_B
-            refreshed = ledger.cas(
-                root,
-                cancelled_snapshot.name,
-                refreshed_document,
-                **cas_arguments(cancelled_snapshot),
-            )
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "bound authoritative worktree"
+            ):
+                ledger.cas(
+                    root,
+                    cancelled_snapshot.name,
+                    refreshed_document,
+                    **cas_arguments(cancelled_snapshot),
+                )
+            refreshed = cancelled_snapshot
             replan = next_generation(refreshed)
             replan["selected_prs"][0]["body"] = plan["body"]
             replanned = ledger.cas(
@@ -3580,7 +3589,18 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(created.raw, raw)
             self.assertEqual(ledger.inventory(root).pending, ())
 
-            update = replacement(created, head=SHA_B)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = pr_ledger(
+                453,
+                pr_node="P_stage_resume",
+                branch="fix/stage-resume",
+                worktree="/workspace/worktrees/stage-resume",
+            )
+            created = ledger.create(root, document)
+            self.assertEqual(ledger.inventory(root).pending, ())
+
+            update = next_generation(created)
             update_raw = ledger.canonical_bytes(update)
             update_stage = root / (
                 f".{created.name}.update-g2-from-{created.digest}-"
@@ -3588,7 +3608,8 @@ class DeliveryLedgerTests(unittest.TestCase):
             )
             update_stage.write_bytes(update_raw[:1])
             os.chmod(update_stage, 0o600)
-            other = replacement(created, head=SHA_C)
+            other = next_generation(created)
+            other["selected_prs"][0]["draft_intent"] = "ready"
             before = directory_snapshot(root)
             with self.assertRaisesRegex(ledger.LedgerError, "pending"):
                 ledger.cas(root, created.name, other, **cas_arguments(created))
@@ -6447,6 +6468,41 @@ class DeliveryLedgerTests(unittest.TestCase):
         finally:
             hidden_profile.rename(profile_path)
 
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            initial = ledger.create(root, document)
+            ledger.bind_scope_cas(
+                root,
+                initial.name,
+                "scope",
+                scope_show,
+                worktree_list,
+                safety,
+                **cas_arguments(initial),
+            )
+            bound = ledger.inspect(root, initial.name)
+            live = live_worktree_path(request)
+            (live / "scope-advance.txt").write_text(
+                "scope advance\n", encoding="utf-8"
+            )
+            git_run(live, "add", "scope-advance.txt")
+            git_run(live, "commit", "-m", "advance scope target")
+            head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+            candidate = next_generation(bound)
+            target_head = candidate["targets"][0]["head"]
+            target_head["current_sha"] = head
+            target_head["lineage"].append(head)
+            for slot in candidate["artifacts"]:
+                if slot["kind"] in {"branch", "worktree"}:
+                    slot["current"]["head_sha"] = head
+            advanced = ledger.cas(
+                root, bound.name, candidate, **cas_arguments(bound)
+            )
+            self.assertEqual(
+                advanced.document["targets"][0]["head"]["current_sha"], head
+            )
+            self.assertEqual(ledger.inventory(root).pending, ())
+
     def test_38_cli_fifo_and_unsafe_adopted_pr_are_zero_write(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -8447,7 +8503,185 @@ class DeliveryLedgerTests(unittest.TestCase):
                 "atrinik-atrinik-issue-329.md.ledger.json",
             )
 
-    def test_48_exact_target_head_correction_is_audited_and_resumable(self) -> None:
+    def test_48_target_advancement_is_live_proven_and_crash_safe(self) -> None:
+        roots = live_roots(self.live_base / "target-advancement", "atrinik")
+        initial_head = git_head(roots)
+        branch = "fix/target-advancement"
+        label = "target-advancement"
+        worktree_path = str(
+            Path(roots["workspace"]["path"]) / "worktrees" / "atrinik" / label
+        )
+        document = issue_ledger(
+            number=453,
+            issue_node="I_target_advancement",
+            branch=branch,
+            worktree=worktree_path,
+        )
+        replace_sha(document, SHA_A, initial_head)
+        worktree = next(
+            slot for slot in document["artifacts"] if slot["kind"] == "worktree"
+        )
+        worktree["primitive_request"]["roots"] = copy.deepcopy(roots)
+        live = live_worktree_path(worktree["primitive_request"])
+
+        def advance_head(snapshot: object, head: str) -> dict[str, object]:
+            candidate = next_generation(snapshot)
+            target_head = candidate["targets"][0]["head"]
+            target_head["current_sha"] = head
+            target_head["lineage"].append(head)
+            for slot in candidate["artifacts"]:
+                if slot["kind"] in {"branch", "worktree"}:
+                    slot["current"]["head_sha"] = head
+            return candidate
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            created = ledger.create(root, document)
+            worktree_list = worktree_list_bytes(worktree["primitive_request"])
+            safety = safety_observation_bytes(
+                worktree["primitive_request"],
+                worktree_list,
+                producer_kind="primitive",
+                producer_digest=None,
+            )
+            ledger.bind_worktree_cas(
+                root,
+                created.name,
+                "worktree",
+                worktree_list,
+                safety,
+                **cas_arguments(created),
+            )
+            current = ledger.inspect(root, created.name)
+
+            (live / "first.txt").write_text("first\n", encoding="utf-8")
+            git_run(live, "add", "first.txt")
+            git_run(live, "commit", "-m", "first target advancement")
+            first_head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+            first_candidate = advance_head(current, first_head)
+            current = ledger.cas(
+                root, current.name, first_candidate, **cas_arguments(current)
+            )
+            self.assertEqual(
+                current.document["targets"][0]["head"]["current_sha"], first_head
+            )
+            self.assertEqual(ledger.inventory(root).pending, ())
+
+            primary = Path(roots["primary"]["path"])
+            (primary / "base.txt").write_text("base\n", encoding="utf-8")
+            git_run(primary, "add", "base.txt")
+            git_run(primary, "commit", "-m", "advance target base")
+            base_head = git_run(primary, "rev-parse", "HEAD").stdout.strip()
+            base_candidate = next_generation(current)
+            target_base = base_candidate["targets"][0]["base"]
+            target_base["current_sha"] = base_head
+            target_base["lineage"].append(base_head)
+            current = ledger.cas(
+                root, current.name, base_candidate, **cas_arguments(current)
+            )
+            self.assertEqual(
+                current.document["targets"][0]["base"]["current_sha"], base_head
+            )
+
+            latest_head = first_head
+            for index, failpoint in enumerate(("cas:staged", "cas:proofed")):
+                filename = f"proof-{index}.txt"
+                (live / filename).write_text(f"proof {index}\n", encoding="utf-8")
+                git_run(live, "add", filename)
+                git_run(live, "commit", "-m", f"target proof {failpoint}")
+                latest_head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+                candidate = advance_head(current, latest_head)
+                with self.assertRaises(ledger.InjectedCrash):
+                    ledger.cas(
+                        root,
+                        current.name,
+                        candidate,
+                        failpoint=failpoint,
+                        **cas_arguments(current),
+                    )
+                current = ledger.cas(
+                    root, current.name, candidate, **cas_arguments(current)
+                )
+                self.assertEqual(ledger.inventory(root).pending, ())
+
+            missing_base = next_generation(current)
+            missing_base["targets"][0]["base"]["current_sha"] = "f" * 40
+            missing_base["targets"][0]["base"]["lineage"].append("f" * 40)
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(ledger.LedgerError, "target base commit"):
+                ledger.cas(root, current.name, missing_base, **cas_arguments(current))
+            self.assertEqual(directory_snapshot(root), before)
+
+            abbreviated = advance_head(current, latest_head[:12])
+            with self.assertRaisesRegex(ledger.LedgerError, "current_sha is invalid"):
+                ledger.prepare(abbreviated)
+
+            git_run(live, "reset", "--hard", initial_head)
+            (live / "sibling.txt").write_text("sibling\n", encoding="utf-8")
+            git_run(live, "add", "sibling.txt")
+            git_run(live, "commit", "-m", "non-descendant target")
+            sibling_head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+            sibling_candidate = advance_head(current, sibling_head)
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(ledger.LedgerError, "does not descend"):
+                ledger.cas(
+                    root, current.name, sibling_candidate, **cas_arguments(current)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+
+            git_run(live, "reset", "--hard", latest_head)
+            (live / "second.txt").write_text("second\n", encoding="utf-8")
+            git_run(live, "add", "second.txt")
+            git_run(live, "commit", "-m", "second target advancement")
+            second_head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+            wrong_merge_base = advance_head(current, second_head)
+            wrong_merge_base["targets"][0]["merge_base"]["current_sha"] = second_head
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(ledger.LedgerError, "merge-base coordinate"):
+                ledger.cas(
+                    root, current.name, wrong_merge_base, **cas_arguments(current)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+
+            second_candidate = advance_head(current, second_head)
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.cas(
+                    root,
+                    current.name,
+                    second_candidate,
+                    failpoint="cas:renamed",
+                    **cas_arguments(current),
+                )
+            installed = ledger.inspect(root, current.name)
+            self.assertEqual(
+                installed.document["targets"][0]["head"]["current_sha"], second_head
+            )
+            (live / "third.txt").write_text("third\n", encoding="utf-8")
+            git_run(live, "add", "third.txt")
+            git_run(live, "commit", "-m", "post-crash target advancement")
+            third_head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+            resumed = ledger.cas(
+                root, current.name, second_candidate, **cas_arguments(current)
+            )
+            self.assertEqual(resumed.digest, installed.digest)
+            self.assertEqual(ledger.inventory(root).pending, ())
+            third_candidate = advance_head(resumed, third_head)
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.cas(
+                    root,
+                    resumed.name,
+                    third_candidate,
+                    failpoint="cas:installed",
+                    **cas_arguments(resumed),
+                )
+            final = ledger.cas(
+                root, resumed.name, third_candidate, **cas_arguments(resumed)
+            )
+            self.assertEqual(
+                final.document["targets"][0]["head"]["current_sha"], third_head
+            )
+
+    def test_49_exact_target_head_correction_is_audited_and_resumable(self) -> None:
         bad_head = "f0f8d7493278dc691710056c79d0d63f1d802488"
 
         def incident(
@@ -8553,7 +8787,10 @@ class DeliveryLedgerTests(unittest.TestCase):
             for slot in erroneous_document["artifacts"]:
                 if slot["kind"] in {"branch", "worktree"}:
                     slot["current"]["head_sha"] = incident_bad_head
-            erroneous = ledger.cas(
+            # Model exact bytes published by the pre-fix generic CAS.  The
+            # public CAS must now reject this nonexistent coordinate; recovery
+            # still needs a faithful historical incident fixture.
+            erroneous = ledger._cas_install(
                 root,
                 predecessor.name,
                 erroneous_document,
