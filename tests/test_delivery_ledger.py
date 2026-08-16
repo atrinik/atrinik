@@ -5932,6 +5932,11 @@ class DeliveryLedgerTests(unittest.TestCase):
         with self.assertRaises(ledger.LedgerError):
             ledger._comment_transition(update, uncleared)
 
+    def test_global_input_bound_accepts_payloads_over_one_mib(self) -> None:
+        self.assertEqual(ledger.MAX_BYTES, 1024**3)
+        value = "x" * (1024**2 + 1)
+        self.assertEqual(ledger._decode_value(json.dumps(value).encode(), "large"), value)
+
     def test_35_initial_pr_payload_is_durable_immutable_and_cli_visible(self) -> None:
         document = issue_ledger()
         slot = next(
