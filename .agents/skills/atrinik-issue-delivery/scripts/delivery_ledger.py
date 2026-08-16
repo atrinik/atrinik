@@ -13,7 +13,7 @@ import argparse
 import base64
 import binascii
 import copy
-from contextlib import ExitStack, contextmanager
+from contextlib import ExitStack, contextmanager, nullcontext
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import fcntl
@@ -92,13 +92,13 @@ _CREATE_STAGE_RE = re.compile(
 _MIGRATE_STAGE_RE = re.compile(r"^\.(?P<target>.+\.md\.ledger\.json)\.migrate\.tmp$")
 _UPDATE_STAGE_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update"
-    r"(?P<operation>-bind-(?:worktree|scope)-[a-z0-9][a-z0-9._-]{0,127})?"
+    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope)-[a-z0-9][a-z0-9._-]{0,127})?"
     r"-g(?P<generation>[0-9]+)-"
     r"from-(?P<digest>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_RECEIPT_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update-proof"
-    r"(?P<operation>-bind-(?:worktree|scope)-[a-z0-9][a-z0-9._-]{0,127})?"
+    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope)-[a-z0-9][a-z0-9._-]{0,127})?"
     r"-g"
     r"(?P<generation>[0-9]+)-from-(?P<digest>[0-9a-f]{64})-"
     r"d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-"
@@ -250,6 +250,7 @@ class Snapshot:
 
 
 _ATOMIC_BIND_TOKEN = object()
+_TARGET_REFRESH_TOKEN = object()
 
 
 @dataclass(frozen=True)
@@ -259,6 +260,20 @@ class _AtomicBindingCapability:
     token: object
     kind: str
     slot_id: str
+    name: str
+    before_raw: bytes | None
+    after_raw: bytes
+    expected_generation: int
+    expected_digest: str
+    expected_device: int
+    expected_inode: int
+
+
+@dataclass(frozen=True)
+class _TargetRefreshCapability:
+    """In-process authority for one live-proved target-coordinate refresh."""
+
+    token: object
     name: str
     before_raw: bytes | None
     after_raw: bytes
@@ -1787,6 +1802,133 @@ def _archive_member_bytes(value: Any, context: str) -> tuple[str, bytes, int, in
     return name, raw, mode, device, inode
 
 
+def _validate_archived_head_correction(
+    snapshot: Snapshot,
+    members: Sequence[tuple[str, bytes, int, int, int]],
+    context: str,
+) -> frozenset[str]:
+    """Validate one complete correction evidence set embedded in an archive."""
+
+    patterns = (
+        ("predecessor", _HEAD_CORRECTION_PREDECESSOR_RE),
+        ("erroneous", _HEAD_CORRECTION_ERRONEOUS_RE),
+        ("stage", _HEAD_CORRECTION_STAGE_RE),
+        ("receipt", _HEAD_CORRECTION_RECEIPT_RE),
+    )
+    evidence: dict[str, tuple[str, str, bytes, int, int, int]] = {}
+    for name, raw, mode, device, inode in members:
+        matched = next(
+            (
+                (kind, match)
+                for kind, pattern in patterns
+                if (match := pattern.fullmatch(name)) is not None
+                and match.group("target") == snapshot.name
+            ),
+            None,
+        )
+        if matched is None:
+            continue
+        kind, match = matched
+        if kind in evidence:
+            raise LedgerError(f"{context} has duplicate correction {kind} evidence")
+        evidence[kind] = (name, match.group("source"), raw, mode, device, inode)
+    if not evidence:
+        return frozenset()
+    if set(evidence) != {"predecessor", "erroneous", "receipt"}:
+        raise LedgerError(f"{context} has incomplete correction evidence")
+    predecessor_name, source, predecessor_raw, _mode, predecessor_device, predecessor_inode = evidence[
+        "predecessor"
+    ]
+    erroneous_name, erroneous_source, erroneous_raw, _mode, erroneous_device, erroneous_inode = evidence[
+        "erroneous"
+    ]
+    receipt_name, receipt_source, receipt_raw, _mode, _device, _inode = evidence[
+        "receipt"
+    ]
+    if len({source, erroneous_source, receipt_source}) != 1:
+        raise LedgerError(f"{context} correction source digests differ")
+    predecessor = validate(_decode(predecessor_raw, predecessor_name))
+    erroneous = validate(_decode(erroneous_raw, erroneous_name))
+    receipt = _head_correction_receipt(_decode(receipt_raw, receipt_name), receipt_name)
+    if (
+        predecessor_raw != canonical_bytes(predecessor)
+        or erroneous_raw != canonical_bytes(erroneous)
+        or receipt_raw != canonical_bytes(receipt)
+        or byte_digest(erroneous_raw) != source
+        or receipt["source"]
+        != {
+            "generation": erroneous["generation"],
+            "sha256": source,
+            "device": erroneous_device,
+            "inode": erroneous_inode,
+        }
+        or receipt["predecessor_snapshot"]
+        != {
+            "name": predecessor_name,
+            "sha256": byte_digest(predecessor_raw),
+            "device": predecessor_device,
+            "inode": predecessor_inode,
+        }
+        or receipt["erroneous_snapshot"]
+        != {
+            "name": erroneous_name,
+            "sha256": source,
+            "device": erroneous_device,
+            "inode": erroneous_inode,
+        }
+    ):
+        raise LedgerError(f"{context} correction member identity differs")
+    corrected, metadata, _ = _head_correction_document(
+        predecessor,
+        erroneous,
+        source,
+        bad_head=receipt["bad_head"],
+        actual_head=receipt["actual_head"],
+        actual_merge_base=receipt.get("actual_merge_base"),
+    )
+    corrected_raw = canonical_bytes(corrected)
+    corrected_digest = byte_digest(corrected_raw)
+    expected_intent = _head_correction_intent(
+        erroneous,
+        snapshot.name,
+        receipt["source"],
+        byte_digest(predecessor_raw),
+        metadata,
+        bad_head=receipt["bad_head"],
+        actual_head=receipt["actual_head"],
+        actual_merge_base=receipt.get("actual_merge_base"),
+    )
+    _require_head_correction_recovery(
+        receipt["recovery"], erroneous, expected_intent, context
+    )
+    generation = corrected["generation"]
+    current = snapshot.document
+    if not (
+        (current["generation"] == generation and snapshot.raw == corrected_raw)
+        or (
+            current["generation"] > generation
+            and len(current["history"]) >= generation
+            and current["history"][generation - 1] == corrected_digest
+        )
+    ) or receipt["correction"] != {
+        "generation": generation,
+        "sha256": corrected_digest,
+    }:
+        raise LedgerError(f"{context} correction is absent from ledger history")
+    if (
+        receipt["repository"] != metadata["repository"]
+        or receipt["branch"] != metadata["branch"]
+        or receipt["worktree"] != metadata["worktree"]
+        or receipt["predecessor_head"] != metadata["predecessor_head"]
+        or receipt["base_head"] != metadata["base_head"]
+        or receipt["merge_base"] != metadata["merge_base"]
+        or receipt.get("actual_merge_base") != metadata.get("actual_merge_base")
+        or receipt["authority_sha256"] != metadata["authority_sha256"]
+    ):
+        raise LedgerError(f"{context} correction receipt semantics differ")
+    return frozenset(row[0] for row in evidence.values())
+
+
 def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
     item = _exact(
         value,
@@ -1856,6 +1998,32 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
         ledger_identity[4],
         ledger_identity[5],
     )
+    correction_members = _validate_archived_head_correction(
+        archived_snapshot, members, context
+    )
+    allowed_members = {
+        ledger_identity[0],
+        _release_name(ledger_identity[0]),
+        f".{ledger_identity[0]}.lock",
+        ledger_identity[0].removesuffix(".ledger.json"),
+        *correction_members,
+    }
+    migration = ledger_document["migration"]
+    if migration is not None:
+        allowed_members.update(
+            {
+                migration["source"]["name"],
+                migration["snapshot"]["name"],
+                migration["canonical_report"],
+                migration["marker_name"],
+            }
+        )
+    unexpected_members = set(names) - allowed_members
+    if unexpected_members:
+        raise LedgerError(
+            f"{context} has unrelated archive members: "
+            + ", ".join(sorted(unexpected_members, key=str.casefold))
+        )
     release_request = {
         key: release_document[key]
         for key in (
@@ -4634,24 +4802,34 @@ def _head_correction_recovery(value: Any, context: str) -> dict[str, Any]:
     _authority(grant, f"{context}.grant")
     if grant["kind"] != "explicit-recovery":
         raise LedgerError(f"{context}.grant must be explicit-recovery authority")
-    intent = _exact(
-        item["intent"],
-        {
-            "transaction",
-            "target",
-            "installed",
-            "predecessor_sha256",
-            "repository",
-            "branch",
-            "worktree",
-            "bad_head",
-            "actual_head",
-            "ledger_scope",
-        },
-        f"{context}.intent",
-    )
-    if intent["transaction"] != "delivery-ledger-correct-target-head-intent-v1":
+    raw_intent = item["intent"]
+    if not isinstance(raw_intent, dict):
+        raise LedgerError(f"{context}.intent must be an object")
+    transaction = raw_intent.get("transaction")
+    intent_fields = {
+        "transaction",
+        "target",
+        "installed",
+        "predecessor_sha256",
+        "repository",
+        "branch",
+        "worktree",
+        "bad_head",
+        "actual_head",
+        "ledger_scope",
+    }
+    if transaction == "delivery-ledger-correct-target-coordinates-intent-v1":
+        intent_fields.update(
+            {
+                "predecessor_head",
+                "base_head",
+                "recorded_merge_base",
+                "actual_merge_base",
+            }
+        )
+    elif transaction != "delivery-ledger-correct-target-head-intent-v1":
         raise LedgerError(f"{context}.intent transaction is invalid")
+    intent = _exact(raw_intent, intent_fields, f"{context}.intent")
     _direct_name(intent["target"], f"{context}.intent.target")
     installed = _exact(
         intent["installed"],
@@ -4668,6 +4846,20 @@ def _head_correction_recovery(value: Any, context: str) -> dict[str, Any]:
     _absolute_path(intent["worktree"], f"{context}.intent.worktree")
     _string(intent["bad_head"], f"{context}.intent.bad_head", COMMIT_RE)
     _string(intent["actual_head"], f"{context}.intent.actual_head", COMMIT_RE)
+    if transaction == "delivery-ledger-correct-target-coordinates-intent-v1":
+        for field in (
+            "predecessor_head",
+            "base_head",
+            "recorded_merge_base",
+            "actual_merge_base",
+        ):
+            _string(intent[field], f"{context}.intent.{field}", COMMIT_RE)
+        if intent["recorded_merge_base"] == intent["actual_merge_base"]:
+            raise LedgerError(
+                f"{context}.intent does not describe a stale merge base"
+            )
+        if grant["reference"] != "recovery:issue-460-stale-merge-base-target-head":
+            raise LedgerError(f"{context}.grant reference is invalid")
     scope = _exact(
         intent["ledger_scope"],
         {
@@ -4716,9 +4908,10 @@ def _head_correction_recovery(value: Any, context: str) -> dict[str, Any]:
 
 
 def _head_correction_receipt(value: Any, context: str) -> dict[str, Any]:
-    item = _exact(
-        value,
-        {
+    if not isinstance(value, dict):
+        raise LedgerError(f"{context} must be an object")
+    transaction = value.get("transaction")
+    fields = {
             "transaction",
             "target",
             "source",
@@ -4736,11 +4929,12 @@ def _head_correction_receipt(value: Any, context: str) -> dict[str, Any]:
             "authority_sha256",
             "recovery",
             "staging",
-        },
-        context,
-    )
-    if item["transaction"] != "delivery-ledger-correct-target-head-v1":
+        }
+    if transaction == "delivery-ledger-correct-target-coordinates-v1":
+        fields.add("actual_merge_base")
+    elif transaction != "delivery-ledger-correct-target-head-v1":
         raise LedgerError(f"{context} transaction is invalid")
+    item = _exact(value, fields, context)
     target = _direct_name(item["target"], f"{context}.target")
     source = _exact(
         item["source"],
@@ -4764,6 +4958,10 @@ def _head_correction_receipt(value: Any, context: str) -> dict[str, Any]:
     _absolute_path(item["worktree"], f"{context}.worktree")
     for key in ("predecessor_head", "base_head", "merge_base", "actual_head", "bad_head"):
         _string(item[key], f"{context}.{key}", COMMIT_RE)
+    if transaction == "delivery-ledger-correct-target-coordinates-v1":
+        _string(item["actual_merge_base"], f"{context}.actual_merge_base", COMMIT_RE)
+        if item["actual_merge_base"] == item["merge_base"]:
+            raise LedgerError(f"{context} does not record a stale merge base")
     _string(item["authority_sha256"], f"{context}.authority_sha256", SHA256_RE)
     recovery = _head_correction_recovery(item["recovery"], f"{context}.recovery")
     if len({item["predecessor_head"], item["actual_head"], item["bad_head"]}) != 3:
@@ -4781,6 +4979,18 @@ def _head_correction_receipt(value: Any, context: str) -> dict[str, Any]:
         or recovery["intent"]["worktree"] != item["worktree"]
         or recovery["intent"]["bad_head"] != item["bad_head"]
         or recovery["intent"]["actual_head"] != item["actual_head"]
+        or (
+            transaction == "delivery-ledger-correct-target-coordinates-v1"
+            and (
+                recovery["intent"].get("predecessor_head")
+                != item["predecessor_head"]
+                or recovery["intent"].get("base_head") != item["base_head"]
+                or recovery["intent"].get("recorded_merge_base")
+                != item["merge_base"]
+                or recovery["intent"].get("actual_merge_base")
+                != item["actual_merge_base"]
+            )
+        )
         or item["staging"] != f"{expected_prefix}.tmp"
     ):
         raise LedgerError(f"{context} artifact names are invalid")
@@ -8684,9 +8894,14 @@ def _head_correction_intent(
     *,
     bad_head: str,
     actual_head: str,
+    actual_merge_base: str | None = None,
 ) -> dict[str, Any]:
-    return {
-        "transaction": "delivery-ledger-correct-target-head-intent-v1",
+    intent = {
+        "transaction": (
+            "delivery-ledger-correct-target-coordinates-intent-v1"
+            if actual_merge_base is not None
+            else "delivery-ledger-correct-target-head-intent-v1"
+        ),
         "target": name,
         "installed": dict(source),
         "predecessor_sha256": predecessor_digest,
@@ -8697,6 +8912,14 @@ def _head_correction_intent(
         "actual_head": actual_head,
         "ledger_scope": _head_correction_ledger_scope(document),
     }
+    if actual_merge_base is not None:
+        intent.update(
+            predecessor_head=metadata["predecessor_head"],
+            base_head=metadata["base_head"],
+            recorded_merge_base=metadata["merge_base"],
+            actual_merge_base=actual_merge_base,
+        )
+    return intent
 
 
 def _require_head_correction_recovery(
@@ -8722,6 +8945,7 @@ def _head_correction_document(
     *,
     bad_head: str,
     actual_head: str,
+    actual_merge_base: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], Mapping[str, Any]]:
     """Build the sole permitted correction of one mistyped target advancement."""
 
@@ -8814,9 +9038,11 @@ def _head_correction_document(
         raise LedgerError("head correction source contains unrelated semantic changes")
     worktree_slot = next(slot for slot in changed_artifacts if slot["kind"] == "worktree")
     worktree = worktree_slot["current"]["path"]
-    request = worktree_slot.get("primitive_request")
-    if request is None or worktree != _expected_worktree_path(request):
-        raise LedgerError("head correction lacks one exact primitive worktree request")
+    request, allowed, scope_record = _target_refresh_worktree_provenance(
+        erroneous, worktree_slot
+    )
+    if worktree != _expected_worktree_path(request):
+        raise LedgerError("head correction lacks one exact bound worktree request")
     if request["repository"] != before_target["repository"] or request["branch"] != key[1]:
         raise LedgerError("head correction worktree request differs from its target")
     corrected = copy.deepcopy(erroneous)
@@ -8833,6 +9059,10 @@ def _head_correction_document(
         *before_target["head"]["lineage"],
         actual_head,
     ]
+    if actual_merge_base is not None:
+        if actual_merge_base == before_target["merge_base"]["current_sha"]:
+            raise LedgerError("coordinate correction merge base is not stale")
+        corrected_target["merge_base"]["current_sha"] = actual_merge_base
     for slot in corrected["artifacts"]:
         if slot["slot_id"] in {value["slot_id"] for value in changed_artifacts}:
             slot["current"]["head_sha"] = actual_head
@@ -8846,9 +9076,15 @@ def _head_correction_document(
         "merge_base": before_target["merge_base"]["current_sha"],
         "authority_sha256": canonical_object_digest(erroneous["authority"]),
     }
+    if actual_merge_base is not None:
+        metadata["actual_merge_base"] = actual_merge_base
     live_request = copy.deepcopy(request)
     live_request["expected_head_sha"] = actual_head
-    return corrected, metadata, live_request
+    return corrected, metadata, {
+        "request": live_request,
+        "allowed_references": allowed,
+        "scope_record": scope_record,
+    }
 
 
 def _inventory_locked(directory: int) -> Inventory:
@@ -9281,7 +9517,31 @@ def _inventory_locked(directory: int) -> Inventory:
             raise LedgerError(f"orphaned migration destination stage: {operation.staging}")
     completed_head_corrections: set[str] = set()
     committed_by_name = {item.name: item for item in committed}
+    archived_head_corrections = {
+        archive.ledger_name: {
+            member["name"]
+            for member in archive.document["members"]
+            if any(
+                (match := pattern.fullmatch(member["name"])) is not None
+                and match.group("target") == archive.ledger_name
+                for pattern in (
+                    _HEAD_CORRECTION_PREDECESSOR_RE,
+                    _HEAD_CORRECTION_ERRONEOUS_RE,
+                    _HEAD_CORRECTION_RECEIPT_RE,
+                )
+            )
+        }
+        for archive in archives
+    }
     for target, entries in head_corrections.items():
+        archived_names = archived_head_corrections.get(target, set())
+        entries = {
+            kind: entry
+            for kind, entry in entries.items()
+            if entry[0] not in archived_names
+        }
+        if not entries:
+            continue
         current = committed_by_name.get(target)
         if current is None or "predecessor" not in entries:
             raise LedgerError(f"head-correction target/predecessor is missing: {target}")
@@ -9336,6 +9596,7 @@ def _inventory_locked(directory: int) -> Inventory:
                     source_digest,
                     bad_head=receipt["bad_head"],
                     actual_head=receipt["actual_head"],
+                    actual_merge_base=receipt.get("actual_merge_base"),
                 )
                 expected_intent = _head_correction_intent(
                     erroneous,
@@ -9345,6 +9606,7 @@ def _inventory_locked(directory: int) -> Inventory:
                     metadata,
                     bad_head=receipt["bad_head"],
                     actual_head=receipt["actual_head"],
+                    actual_merge_base=receipt.get("actual_merge_base"),
                 )
                 _require_head_correction_recovery(
                     receipt["recovery"],
@@ -9365,6 +9627,7 @@ def _inventory_locked(directory: int) -> Inventory:
             source_digest,
             bad_head=receipt["bad_head"],
             actual_head=receipt["actual_head"],
+            actual_merge_base=receipt.get("actual_merge_base"),
         )
         corrected_raw = canonical_bytes(corrected)
         corrected_digest = byte_digest(corrected_raw)
@@ -9376,6 +9639,7 @@ def _inventory_locked(directory: int) -> Inventory:
             metadata,
             bad_head=receipt["bad_head"],
             actual_head=receipt["actual_head"],
+            actual_merge_base=receipt.get("actual_merge_base"),
         )
         _require_head_correction_recovery(
             receipt["recovery"],
@@ -9405,6 +9669,8 @@ def _inventory_locked(directory: int) -> Inventory:
             or receipt["predecessor_head"] != metadata["predecessor_head"]
             or receipt["base_head"] != metadata["base_head"]
             or receipt["merge_base"] != metadata["merge_base"]
+            or receipt.get("actual_merge_base")
+            != metadata.get("actual_merge_base")
             or receipt["authority_sha256"] != metadata["authority_sha256"]
             or receipt["predecessor_snapshot"] != {
                 "name": predecessor_name,
@@ -9817,7 +10083,10 @@ def _inventory_locked(directory: int) -> Inventory:
             and markers[item.target]["state"] == "complete"
         )
         and not (
-            item.target in completed_head_corrections
+            (
+                item.target in completed_head_corrections
+                or item.staging in archived_head_corrections.get(item.target, set())
+            )
             and item.kind in {
                 "correct-target-head-predecessor",
                 "correct-target-head-erroneous",
@@ -10626,7 +10895,7 @@ def release_apply(
         return matches[0]
 
 
-def _archive_member_names(snapshot: Snapshot) -> list[str]:
+def _archive_member_names(directory: int, snapshot: Snapshot) -> list[str]:
     names = {
         snapshot.name,
         _release_name(snapshot.name),
@@ -10643,6 +10912,18 @@ def _archive_member_names(snapshot: Snapshot) -> list[str]:
                 migration["marker_name"],
             }
         )
+    with os.scandir(directory) as entries:
+        for entry in entries:
+            if any(
+                (match := pattern.fullmatch(entry.name)) is not None
+                and match.group("target") == snapshot.name
+                for pattern in (
+                    _HEAD_CORRECTION_PREDECESSOR_RE,
+                    _HEAD_CORRECTION_ERRONEOUS_RE,
+                    _HEAD_CORRECTION_RECEIPT_RE,
+                )
+            ):
+                names.add(entry.name)
     return sorted(names, key=str.casefold)
 
 
@@ -10656,7 +10937,7 @@ def _archive_plan_locked(
     # proof and retains the wrapper coordinate leases through installation.
     prepared = _archive_request(snapshot, release, request, live_scope_proof=False)
     members: list[dict[str, Any]] = []
-    for name in _archive_member_names(snapshot):
+    for name in _archive_member_names(directory, snapshot):
         try:
             raw, status = _read_regular(directory, name)
         except LedgerError:
@@ -11062,6 +11343,21 @@ def _archive_snapshot(archive: ArchiveRecord) -> Snapshot:
     return Snapshot(name, document, raw, identity[3], device, inode)
 
 
+def _require_archive_members_absent(directory: int, archive: ArchiveRecord) -> None:
+    remaining: list[str] = []
+    for index, member in enumerate(archive.document["members"]):
+        name, _raw, _mode, _device, _inode = _archive_member_bytes(
+            member, f"reclaim archive member[{index}]"
+        )
+        if _exists(directory, name):
+            remaining.append(name)
+    if remaining:
+        raise LedgerError(
+            "archive member cleanup is incomplete; retry archive apply before reclaim: "
+            + ", ".join(sorted(remaining, key=str.casefold))
+        )
+
+
 def archive_apply(
     root: Path | str,
     name: str,
@@ -11232,6 +11528,7 @@ def reclaim_preview(root: Path | str, name: str) -> dict[str, Any]:
             archive.document["retain_until"], "archive retain_until"
         ):
             raise LedgerError("archive retention period has not elapsed")
+        _require_archive_members_absent(directory, archive)
         plan = canonical_object_digest(
             {
                 "operation": "reclaim",
@@ -11401,6 +11698,7 @@ def reclaim_apply(
             archive.document["retain_until"], "archive retain_until"
         ):
             raise LedgerError("archive retention period has not elapsed")
+        _require_archive_members_absent(directory, archive)
         if not receipts:
             _ensure_stage(directory, receipt_name, preview_raw)
         _hit(failpoint, "reclaim:prepared")
@@ -11515,12 +11813,108 @@ def create(
             return _snapshot(directory, target)
 
 
+def _target_refresh_change(
+    old: Mapping[str, Any], new: Mapping[str, Any], old_digest: str
+) -> dict[str, Any]:
+    """Validate and describe one target-only coordinate refresh."""
+
+    old_targets = {
+        (row["repository"]["node_id"], row["head"]["branch"]): row
+        for row in old["targets"]
+    }
+    new_targets = {
+        (row["repository"]["node_id"], row["head"]["branch"]): row
+        for row in new["targets"]
+    }
+    if set(old_targets) != set(new_targets):
+        raise LedgerError("target refresh target set changed")
+    changed = [
+        (key, old_targets[key], new_targets[key])
+        for key in old_targets
+        if old_targets[key] != new_targets[key]
+    ]
+    if len(changed) != 1:
+        raise LedgerError("target refresh requires exactly one changed target")
+    key, before, after = changed[0]
+    if before["repository"] != after["repository"]:
+        raise LedgerError("target refresh repository changed")
+    tip_changed = False
+    for field in ("base", "head"):
+        if (
+            before[field]["branch"] != after[field]["branch"]
+            or before[field]["initial_sha"] != after[field]["initial_sha"]
+        ):
+            raise LedgerError(f"target refresh {field} anchor changed")
+        if before[field]["current_sha"] == after[field]["current_sha"]:
+            if before[field]["lineage"] != after[field]["lineage"]:
+                raise LedgerError(f"target refresh {field} unchanged tip rewrote lineage")
+        else:
+            tip_changed = True
+            if after[field]["lineage"] != [
+                *before[field]["lineage"],
+                after[field]["current_sha"],
+            ]:
+                raise LedgerError(
+                    f"target refresh {field} must append exactly its observed tip"
+                )
+    if not tip_changed:
+        raise LedgerError("target refresh cannot change only the merge base")
+    if before["merge_base"]["initial_sha"] != after["merge_base"]["initial_sha"]:
+        raise LedgerError("target refresh merge-base anchor changed")
+
+    expected = copy.deepcopy(old)
+    expected["generation"] = new["generation"]
+    expected["previous_byte_digest"] = old_digest
+    expected["history"] = [*old["history"], old_digest]
+    expected_targets = {
+        (row["repository"]["node_id"], row["head"]["branch"]): row
+        for row in expected["targets"]
+    }
+    expected_targets[key].clear()
+    expected_targets[key].update(copy.deepcopy(after))
+
+    expected_artifacts = {row["slot_id"]: row for row in expected["artifacts"]}
+    matching_worktrees: list[Mapping[str, Any]] = []
+    matching_kinds: list[str] = []
+    for slot in old["artifacts"]:
+        current = slot["current"]
+        if (
+            current is None
+            or current["repository"]["node_id"] != key[0]
+            or current["branch"] != key[1]
+            or slot["kind"] not in {"branch", "pull_request", "worktree"}
+        ):
+            continue
+        if current["head_sha"] != before["head"]["current_sha"]:
+            raise LedgerError("target refresh predecessor artifact head is not mirrored")
+        matching_kinds.append(slot["kind"])
+        if slot["kind"] == "worktree":
+            matching_worktrees.append(slot)
+        if before["head"]["current_sha"] != after["head"]["current_sha"]:
+            expected_artifacts[slot["slot_id"]]["current"]["head_sha"] = after[
+                "head"
+            ]["current_sha"]
+    if len(matching_worktrees) != 1 or matching_kinds.count("branch") != 1:
+        raise LedgerError("target refresh lacks one bound branch and worktree")
+    if matching_kinds.count("pull_request") > 1:
+        raise LedgerError("target refresh has multiple bound PR mirrors")
+    if expected != new:
+        raise LedgerError("target refresh changed unrelated ledger state")
+    return {
+        "key": key,
+        "before": before,
+        "after": after,
+        "worktree_slot": matching_worktrees[0],
+    }
+
+
 def _transition(
     old: Mapping[str, Any],
     new: Mapping[str, Any],
     old_digest: str,
     *,
     _binding_capability: _AtomicBindingCapability | None = None,
+    _target_refresh_capability: _TargetRefreshCapability | None = None,
 ) -> None:
     immutable = {
         "schema_version",
@@ -11584,6 +11978,17 @@ def _transition(
             before["merge_base"]["current_sha"]
             != after["merge_base"]["current_sha"]
         )
+    if target_drift:
+        if (
+            _target_refresh_capability is None
+            or _target_refresh_capability.token is not _TARGET_REFRESH_TOKEN
+        ):
+            raise LedgerError(
+                "target coordinate drift requires live target-refresh-cas authority"
+            )
+        _target_refresh_change(old, new, old_digest)
+    elif _target_refresh_capability is not None:
+        raise LedgerError("target-refresh-cas candidate has no target coordinate drift")
     old_artifacts = {row["slot_id"]: row for row in old["artifacts"]}
     new_artifacts = {row["slot_id"]: row for row in new["artifacts"]}
     if set(old_artifacts) != set(new_artifacts):
@@ -12060,6 +12465,208 @@ def _comment_transition(before: Mapping[str, Any], after: Mapping[str, Any]) -> 
     raise LedgerError("invalid delivery comment transition")
 
 
+def _target_refresh_worktree_provenance(
+    document: Mapping[str, Any], slot: Mapping[str, Any]
+) -> tuple[dict[str, Any], frozenset[str], Mapping[str, Any] | None]:
+    """Resolve exact primitive/scope provenance for one bound target worktree."""
+
+    request = slot.get("primitive_request")
+    scope_record = None
+    allowed: frozenset[str] = frozenset()
+    if request is None and slot.get("producer_resource_slot") is not None:
+        scopes = [
+            resource
+            for resource in document["resources"]
+            if resource["slot_id"] == slot["producer_resource_slot"]
+            and resource["kind"] == "scope"
+            and resource["current"] is not None
+            and resource["current"]["lifecycle"] == "active"
+        ]
+        if len(scopes) == 1:
+            scope = scopes[0]
+            retained = _retained_result(
+                scope["current"]["binding"], "target refresh scope binding"
+            )
+            scope_record, _ = _scope_show_record(
+                retained,
+                scope["request"],
+                scope["immutable"]["repository"],
+                "target refresh scope binding",
+            )
+            request = _scope_worktree_request(
+                scope["request"], scope["immutable"]["repository"]
+            )
+            allowed = _scope_owned_references(scope["request"])
+    if request is None:
+        raise LedgerError("target refresh worktree lacks live wrapper provenance")
+    return (
+        _decode(canonical_bytes(request), "target refresh worktree request"),
+        allowed,
+        scope_record,
+    )
+
+
+@contextmanager
+def _target_refresh_live_safety(
+    document: Mapping[str, Any], change: Mapping[str, Any]
+) -> Iterator[Callable[[], None]]:
+    """Pin and prove one exact target coordinate refresh through CAS install."""
+
+    before = change["before"]
+    after = change["after"]
+    slot_id = change["worktree_slot"]["slot_id"]
+    slot = next(row for row in document["artifacts"] if row["slot_id"] == slot_id)
+    request, allowed, scope_record = _target_refresh_worktree_provenance(
+        document, slot
+    )
+    request["expected_head_sha"] = after["head"]["current_sha"]
+    path = slot["current"]["path"]
+    with _pinned_live_worktree(
+        request,
+        path,
+        "target refresh",
+        allowed_references=allowed,
+        scope_record=scope_record,
+    ) as guard:
+        def prove() -> None:
+            guard.prove()
+            worktree = guard.descriptors["worktree"]
+            for field in ("base", "head"):
+                current = after[field]["current_sha"]
+                _, ref_raw = _git(
+                    worktree,
+                    (
+                        "rev-parse",
+                        "--verify",
+                        f"refs/heads/{after[field]['branch']}^{{commit}}",
+                    ),
+                    f"target refresh {field} branch",
+                )
+                if _one_git_line(ref_raw, f"target refresh {field} branch") != current:
+                    raise LedgerError(
+                        f"target refresh {field} differs from its exact branch ref"
+                    )
+                previous = before[field]["current_sha"]
+                if previous != current:
+                    status, _ = _git(
+                        worktree,
+                        ("merge-base", "--is-ancestor", previous, current),
+                        f"target refresh {field} ancestry",
+                        accepted={0, 1},
+                    )
+                    if status != 0:
+                        raise LedgerError(
+                            f"target refresh {field} is not a descendant"
+                        )
+            _, merge_base_raw = _git(
+                worktree,
+                (
+                    "merge-base",
+                    after["base"]["current_sha"],
+                    after["head"]["current_sha"],
+                ),
+                "target refresh merge base",
+            )
+            if _one_git_line(merge_base_raw, "target refresh merge base") != after[
+                "merge_base"
+            ]["current_sha"]:
+                raise LedgerError("target refresh merge base differs from live Git")
+            guard.prove()
+
+        prove()
+        yield prove
+
+
+def target_refresh_cas(
+    root: Path | str,
+    name: str,
+    document: Mapping[str, Any],
+    *,
+    expected_generation: int,
+    expected_digest: str,
+    expected_device: int,
+    expected_inode: int,
+    failpoint: Failpoint = None,
+) -> Snapshot:
+    """Live-prove and atomically install one target-only coordinate refresh."""
+
+    name = _direct_name(name)
+    prepared = prepare(document)
+    raw = canonical_bytes(prepared)
+    current = inspect(root, name)
+    expected = (
+        expected_generation,
+        expected_digest,
+        expected_device,
+        expected_inode,
+    )
+    candidate_digest = byte_digest(raw)
+    legacy_names = {
+        f".{name}.update-g{prepared['generation']}-from-{expected_digest}-"
+        f"to-{candidate_digest}.tmp",
+        f".{name}.update-proof-g{expected_generation}-from-{expected_digest}-"
+        f"d{expected_device}-i{expected_inode}-to-{candidate_digest}.tmp",
+    }
+    legacy_pending = any(
+        item.target == name and item.staging in legacy_names
+        for item in inventory(root).pending
+    )
+    if current.raw == raw and prepared["generation"] == expected_generation + 1:
+        if legacy_pending:
+            raise LedgerError(
+                "installed legacy target update lacks exact predecessor evidence; "
+                "explicit recovery is required"
+            )
+        capability = _TargetRefreshCapability(
+            _TARGET_REFRESH_TOKEN,
+            name,
+            None,
+            raw,
+            *expected,
+        )
+        return cas(
+            root,
+            name,
+            prepared,
+            expected_generation=expected_generation,
+            expected_digest=expected_digest,
+            expected_device=expected_device,
+            expected_inode=expected_inode,
+            failpoint=failpoint,
+            _target_refresh_capability=capability,
+            _target_refresh_legacy=legacy_pending,
+        )
+    if (
+        current.document["generation"],
+        current.digest,
+        current.device,
+        current.inode,
+    ) != expected:
+        raise LedgerError("stale target-refresh generation, digest, or inode")
+    change = _target_refresh_change(current.document, prepared, current.digest)
+    capability = _TargetRefreshCapability(
+        _TARGET_REFRESH_TOKEN,
+        name,
+        current.raw,
+        raw,
+        *expected,
+    )
+    with _target_refresh_live_safety(prepared, change) as recheck:
+        return cas(
+            root,
+            name,
+            prepared,
+            expected_generation=expected_generation,
+            expected_digest=expected_digest,
+            expected_device=expected_device,
+            expected_inode=expected_inode,
+            failpoint=failpoint,
+            _precommit=recheck,
+            _target_refresh_capability=capability,
+            _target_refresh_legacy=legacy_pending,
+        )
+
+
 def cas(
     root: Path | str,
     name: str,
@@ -12072,6 +12679,8 @@ def cas(
     failpoint: Failpoint = None,
     _precommit: Callable[[], None] | None = None,
     _binding_capability: _AtomicBindingCapability | None = None,
+    _target_refresh_capability: _TargetRefreshCapability | None = None,
+    _target_refresh_legacy: bool = False,
 ) -> Snapshot:
     name = _direct_name(name)
     prepared = prepare(document)
@@ -12107,6 +12716,33 @@ def cas(
         ):
             raise LedgerError("invalid internal atomic-binding capability")
         operation = f"-bind-{capability.kind}-{capability.slot_id}"
+    if _target_refresh_capability is not None:
+        capability = _target_refresh_capability
+        if (
+            _binding_capability is not None
+            or not isinstance(capability, _TargetRefreshCapability)
+            or capability.token is not _TARGET_REFRESH_TOKEN
+            or capability.name != name
+            or capability.after_raw != raw
+            or (
+                capability.expected_generation,
+                capability.expected_digest,
+                capability.expected_device,
+                capability.expected_inode,
+            )
+            != (
+                expected_generation,
+                expected_digest,
+                expected_device,
+                expected_inode,
+            )
+        ):
+            raise LedgerError("invalid internal target-refresh capability")
+        if not isinstance(_target_refresh_legacy, bool):
+            raise LedgerError("invalid internal target-refresh recovery mode")
+        operation = "" if _target_refresh_legacy else "-refresh-target"
+    elif _target_refresh_legacy:
+        raise LedgerError("target-refresh recovery mode lacks its capability")
     stage = (
         f".{name}.update{operation}-g{prepared['generation']}-from-{expected_digest}-"
         f"to-{byte_digest(raw)}.tmp"
@@ -12181,11 +12817,19 @@ def cas(
                     )
                 if _binding_capability.before_raw != current.raw:
                     raise LedgerError("atomic-binding predecessor bytes changed")
+            if _target_refresh_capability is not None:
+                if _target_refresh_capability.before_raw is None:
+                    raise LedgerError(
+                        "target-refresh recovery candidate is not already installed"
+                    )
+                if _target_refresh_capability.before_raw != current.raw:
+                    raise LedgerError("target-refresh predecessor bytes changed")
             _transition(
                 current.document,
                 prepared,
                 current.digest,
                 _binding_capability=_binding_capability,
+                _target_refresh_capability=_target_refresh_capability,
             )
             stage_status = _ensure_stage(
                 directory,
@@ -12289,6 +12933,7 @@ def correct_target_head(
     expected_inode: int,
     bad_head: str,
     actual_head: str,
+    actual_merge_base: str | None = None,
     failpoint: Failpoint = None,
 ) -> Snapshot:
     """Correct one exact nonexistent target-head typo without erasing its audit trail."""
@@ -12300,6 +12945,8 @@ def correct_target_head(
     _integer(expected_inode, "expected_inode")
     _string(bad_head, "bad_head", COMMIT_RE)
     _string(actual_head, "actual_head", COMMIT_RE)
+    if actual_merge_base is not None:
+        _string(actual_merge_base, "actual_merge_base", COMMIT_RE)
     predecessor = validate(_decode(predecessor_raw, "head-correction predecessor"))
     if predecessor_raw != canonical_bytes(predecessor) or canonical_name(predecessor) != name:
         raise LedgerError("head-correction predecessor bytes are not exact canonical input")
@@ -12310,6 +12957,10 @@ def correct_target_head(
     )
     if recovery_raw != canonical_bytes(recovery):
         raise LedgerError("head-correction recovery authority is not canonical")
+    if actual_merge_base is not None and recovery["grant"]["reference"] != (
+        "recovery:issue-460-stale-merge-base-target-head"
+    ):
+        raise LedgerError("coordinate correction requires the issue-460 recovery grant")
     prefix = f".{name}.correct-target-head-{expected_digest}"
     predecessor_name = f"{prefix}.predecessor.snapshot"
     erroneous_name = f"{prefix}.erroneous.snapshot"
@@ -12331,13 +12982,17 @@ def correct_target_head(
     erroneous = validate(_decode(erroneous_raw, "head-correction erroneous bytes"))
     if byte_digest(erroneous_raw) != expected_digest:
         raise LedgerError("head-correction erroneous snapshot differs from expected digest")
-    corrected, metadata, live_request = _head_correction_document(
+    corrected, metadata, live_provenance = _head_correction_document(
         predecessor,
         erroneous,
         expected_digest,
         bad_head=bad_head,
         actual_head=actual_head,
+        actual_merge_base=actual_merge_base,
     )
+    live_request = live_provenance["request"]
+    allowed_references = live_provenance["allowed_references"]
+    scope_record = live_provenance["scope_record"]
     corrected_raw = canonical_bytes(corrected)
     corrected_digest = byte_digest(corrected_raw)
     source_identity = {
@@ -12354,6 +13009,7 @@ def correct_target_head(
         metadata,
         bad_head=bad_head,
         actual_head=actual_head,
+        actual_merge_base=actual_merge_base,
     )
     _require_head_correction_recovery(
         recovery,
@@ -12362,10 +13018,21 @@ def correct_target_head(
         "head-correction recovery authority",
     )
 
-    with _pinned_live_worktree(
-        live_request, metadata["worktree"], "target-head correction"
-    ) as guard:
+    live_context = (
+        nullcontext(None)
+        if actual_merge_base is not None and snapshot.digest == corrected_digest
+        else _pinned_live_worktree(
+            live_request,
+            metadata["worktree"],
+            "target-head correction",
+            allowed_references=allowed_references,
+            scope_record=scope_record,
+        )
+    )
+    with live_context as guard:
         def prove_live() -> None:
+            if guard is None:
+                raise LedgerError("completed coordinate correction has no live guard")
             guard.prove()
             worktree = guard.descriptors["worktree"]
             _git(
@@ -12394,16 +13061,61 @@ def correct_target_head(
             )
             if ancestor_status != 0:
                 raise LedgerError("correction predecessor is not an ancestor of actual head")
+            if actual_merge_base is not None:
+                _, predecessor_merge_base_raw = _git(
+                    worktree,
+                    (
+                        "merge-base",
+                        metadata["base_head"],
+                        metadata["predecessor_head"],
+                    ),
+                    "correction predecessor merge base",
+                )
+                predecessor_merge_base = _one_git_line(
+                    predecessor_merge_base_raw,
+                    "correction predecessor merge base",
+                )
+                if predecessor_merge_base not in {
+                    metadata["merge_base"],
+                    actual_merge_base,
+                }:
+                    raise LedgerError(
+                        "correction predecessor merge base matches neither authorized coordinate"
+                    )
+                stale_status, _ = _git(
+                    worktree,
+                    (
+                        "merge-base",
+                        "--is-ancestor",
+                        metadata["merge_base"],
+                        actual_merge_base,
+                    ),
+                    "correction stale merge-base ancestry",
+                    accepted={0, 1},
+                )
+                if stale_status != 0:
+                    raise LedgerError(
+                        "recorded correction merge base is not an ancestor of the live merge base"
+                    )
             _, merge_base_raw = _git(
                 worktree,
                 ("merge-base", metadata["base_head"], actual_head),
                 "correction merge base",
             )
-            if _one_git_line(merge_base_raw, "correction merge base") != metadata["merge_base"]:
+            expected_merge_base = (
+                actual_merge_base
+                if actual_merge_base is not None
+                else metadata["merge_base"]
+            )
+            if (
+                _one_git_line(merge_base_raw, "correction merge base")
+                != expected_merge_base
+            ):
                 raise LedgerError("corrected target merge base does not match live Git")
             guard.prove()
 
-        prove_live()
+        if guard is not None:
+            prove_live()
         with _locked_root(Path(root)) as directory:
             _require_names_fit(
                 directory,
@@ -12430,7 +13142,8 @@ def correct_target_head(
                         "sha256"
                     ] != predecessor_digest or receipt["recovery"] != recovery:
                         raise LedgerError("completed head correction has different authority")
-                    prove_live()
+                    if actual_merge_base is None:
+                        prove_live()
                     _fsync(directory, f"review root while resuming correction of {name}")
                     return current
                 if (
@@ -12459,7 +13172,11 @@ def correct_target_head(
                 )
                 _hit(failpoint, "correct-target-head:staged")
                 receipt = {
-                    "transaction": "delivery-ledger-correct-target-head-v1",
+                    "transaction": (
+                        "delivery-ledger-correct-target-coordinates-v1"
+                        if actual_merge_base is not None
+                        else "delivery-ledger-correct-target-head-v1"
+                    ),
                     "target": name,
                     "source": source_identity,
                     "predecessor_snapshot": {
@@ -13240,6 +13957,17 @@ def parser() -> argparse.ArgumentParser:
     cas_parser.add_argument("--expected-digest", required=True)
     cas_parser.add_argument("--expected-device", required=True, type=int)
     cas_parser.add_argument("--expected-inode", required=True, type=int)
+    refresh_parser = commands.add_parser(
+        "target-refresh-cas",
+        help="live-prove one target-only coordinate refresh and apply it by CAS",
+    )
+    refresh_parser.add_argument("root", help="initialized review root")
+    refresh_parser.add_argument("name", help="direct canonical ledger filename")
+    refresh_parser.add_argument("input", help="bounded no-follow replacement JSON file")
+    refresh_parser.add_argument("--expected-generation", required=True, type=int)
+    refresh_parser.add_argument("--expected-digest", required=True)
+    refresh_parser.add_argument("--expected-device", required=True, type=int)
+    refresh_parser.add_argument("--expected-inode", required=True, type=int)
     correction_parser = commands.add_parser(
         "correct-target-head",
         help="live-prove and supersede one exact nonexistent target-head typo",
@@ -13256,6 +13984,10 @@ def parser() -> argparse.ArgumentParser:
     correction_parser.add_argument("--expected-inode", required=True, type=int)
     correction_parser.add_argument("--bad-head", required=True)
     correction_parser.add_argument("--actual-head", required=True)
+    correction_parser.add_argument(
+        "--actual-merge-base",
+        help="explicit live merge base for an exact stale-coordinate recovery",
+    )
     migration_parser = commands.add_parser(
         "migrate", help="recover one exact legacy or pre-schema report"
     )
@@ -13469,6 +14201,18 @@ def main(argv: Sequence[str] | None = None) -> int:
                     expected_inode=arguments.expected_inode,
                 ).json()
             )
+        elif arguments.command == "target-refresh-cas":
+            _print(
+                target_refresh_cas(
+                    arguments.root,
+                    arguments.name,
+                    _read_input(arguments.input),
+                    expected_generation=arguments.expected_generation,
+                    expected_digest=arguments.expected_digest,
+                    expected_device=arguments.expected_device,
+                    expected_inode=arguments.expected_inode,
+                ).json()
+            )
         elif arguments.command == "correct-target-head":
             _print(
                 correct_target_head(
@@ -13482,6 +14226,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     expected_inode=arguments.expected_inode,
                     bad_head=arguments.bad_head,
                     actual_head=arguments.actual_head,
+                    actual_merge_base=arguments.actual_merge_base,
                 ).json()
             )
         elif arguments.command == "migrate":

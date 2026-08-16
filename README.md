@@ -1632,6 +1632,12 @@ keeps its active coordinates and recovery evidence. After the PR is externally
 merged and selected issues reach their expected states, a separately authorized
 operator prepares exact post-merge evidence and runs:
 
+Target base/head movement is likewise helper-owned: generic ledger CAS rejects
+it. The target-refresh CAS pins the recorded primitive/scope worktree, proves
+descendant commits and the exact live merge base, and rechecks immediately
+before replacement. An explicit recovery can correct one historical nonexistent
+head plus its bound stale merge base while retaining both source generations.
+
 ~~~sh
 python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
   release-preview build/reviews LEDGER_NAME release.json

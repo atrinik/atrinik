@@ -98,8 +98,9 @@ owner `AGENTS.md`; do not duplicate procedures.
   needs a durable authenticated goal predating/continuously owning every exact
   artifact, or new explicit recovery authority naming them. Other evidence only
   corroborates. Preserve required source/snapshot/marker members; any loss or
-  mismatch stops. Only proven descendant base/head and recomputed merge-base
-  refreshes may advance immutable anchors.
+  mismatch stops. Generic CAS never changes target coordinates; use the live
+  target-refresh CAS for a proven descendant base/head and recomputed merge-base
+  refresh.
 
 ### Claim only explicitly authorized issues
 

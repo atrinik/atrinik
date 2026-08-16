@@ -80,11 +80,16 @@ python3 scripts/delivery_ledger.py cas REVIEW_ROOT LEDGER_NAME INPUT \
   --expected-digest SHA256 \
   --expected-device DEVICE \
   --expected-inode INODE
+python3 scripts/delivery_ledger.py target-refresh-cas \
+  REVIEW_ROOT LEDGER_NAME INPUT \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-device DEVICE --expected-inode INODE
 python3 scripts/delivery_ledger.py correct-target-head \
   REVIEW_ROOT LEDGER_NAME EXACT_PREDECESSOR_JSON RECOVERY_AUTHORITY_JSON \
   --expected-generation GENERATION --expected-digest SHA256 \
   --expected-device DEVICE --expected-inode INODE \
-  --bad-head NONEXISTENT_SHA --actual-head LIVE_SHA
+  --bad-head NONEXISTENT_SHA --actual-head LIVE_SHA \
+  [--actual-merge-base LIVE_SHA]
 python3 scripts/delivery_ledger.py migrate REVIEW_ROOT SOURCE_NAME INPUT \
   --kind legacy \
   --expected-source-digest SHA256
@@ -489,10 +494,17 @@ closing/migration. Target set, branches, initial commits, merge-base anchor,
 artifact slots/immutable intent, producer slot, and bound state are immutable;
 legal live-observation CAS may refresh a bound artifact's safety.
 Base or head advancement extends prior lineage; merge-base changes only with
-such an advance. Rewrites and retargets fail. Generic `cas` cannot perform any
-part of an initial deferred primitive or scope bind; only the purpose-specific
-atomic binder may create the exact branch/worktree/resource candidate and its
-tagged crash receipt.
+such an advance. Rewrites and retargets fail. Generic `cas` rejects every target
+coordinate change. `target-refresh-cas` admits exactly one target-only change,
+pins its bound primitive/scope worktree, proves the new base/head commits and
+descendant lineages, recomputes the exact merge base, and repeats that proof
+immediately before replacement. Generic `cas` cannot perform any part of an
+initial deferred primitive or scope bind either; only the purpose-specific atomic
+binder may create the exact branch/worktree/resource candidate and its tagged
+crash receipt. `target-refresh-cas` may adopt only the exact untagged stage/proof
+names left by a pre-upgrade generic target CAS; it still performs live proof
+before an uninstalled replacement. An already-installed legacy candidate lacks
+predecessor evidence and requires explicit recovery.
 
 Before target drift, cancel every `draft_intent`, delivery body
 `update-planned` intent, and comment `planned` intent in a completed separate
@@ -1329,9 +1341,10 @@ use `--kind artifacts` or `--kind resources` only when deliberately checking
 that subset.
 
 For target advancement, first CAS-cancel pending ready/body/comment intent.
-Then refetch, prove descendant lineages, recompute merge base, CAS the new
-coordinates, and restart affected review, validation, and checks. Never encode a
-force-push/rebase/retarget as lineage.
+Then refetch, prepare the exact target-only candidate, use `target-refresh-cas`
+to prove descendant lineages and recompute its merge base, and restart affected
+review, validation, and checks. Never encode a force-push/rebase/retarget as
+lineage or pass target coordinates to generic `cas`.
 
 ## Bind a created PR
 
@@ -1582,6 +1595,19 @@ non-ancestor, wrong-repository/branch/path, stale tuple, merge-base drift, or
 unrelated semantic differences stop before replacement. A completed retry
 fsyncs the review root before returning, including recovery after a crash
 immediately following the rename.
+
+If the same bad generation also inherited a stale predecessor merge base, use
+the exact v2 intent transaction
+`delivery-ledger-correct-target-coordinates-intent-v1` and pass
+`--actual-merge-base`; its authority reference is exactly
+`recovery:issue-460-stale-merge-base-target-head`. The intent additionally binds predecessor/base heads and
+both recorded and live merge bases. The helper requires the recorded value to
+be stale, proves the predecessor and actual head produce the authorized live
+merge base, and changes only that merge-base current value alongside the same
+one-head correction. Its receipt transaction is
+`delivery-ledger-correct-target-coordinates-v1`; v1 evidence remains valid.
+Once exact corrected bytes and receipt are durable, an identical retry does not
+freeze later legitimate branch movement.
 
 ## Migrate prior evidence
 
@@ -1843,7 +1869,8 @@ lease through retry/member removal; journal retirement requires its exclusive
 lease. It repeats the proof immediately before the link.
 Archive preview/apply never removes those resources.
 It instead bundles canonical ledger, release, lock, optional report, migration
-marker/snapshot/source, and embedded intent bytes into one canonical bounded
+marker/snapshot/source, every validated completed head/coordinate-correction
+snapshot and receipt, and embedded intent bytes into one canonical bounded
 archive before exact member unlinking. The installed archive makes interrupted
 member removal resumable and remains inert audit evidence.
 

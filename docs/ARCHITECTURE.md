@@ -274,6 +274,16 @@ mutable active resources still block. Inventory excludes
 coordinates only after that marker is durable; a candidate stage remains
 active and blocking.
 
+Generic ledger CAS cannot author target coordinates. A target-only refresh is a
+separate live transaction that pins its bound primitive/scope worktree, proves
+base/head commits and descendant lineages, computes the exact merge base, and
+repeats the proof before replacement. The versioned explicit-recovery path can
+supersede one exact historical nonexistent-head generation whose predecessor
+also recorded a stale merge base; permanent predecessor/erroneous snapshots and
+an objective-bound receipt preserve both old coordinate values.
+Terminal archive validates, bundles, and crash-resumably removes that complete
+correction evidence set with the ledger rather than leaving orphan sidecars.
+
 The release marker grants no removal authority. Wrapper cleanup remains a
 separate preview/apply operation and never receives implicit invocation from
 delivery. A later archive request retains the exact cleanup preview/apply JSON;
