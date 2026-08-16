@@ -16621,14 +16621,25 @@ class WorkspaceTests(unittest.TestCase):
             finally:
                 os.close(pidfd)
             deadline = time.monotonic() + 15
-            while time.monotonic() < deadline and (
-                self.workspace.topology_status("server-review")["observation"][
-                    "process_tree_lease"
-                ]
-                == "retained"
-            ):
+            while time.monotonic() < deadline:
+                try:
+                    orphaned = self.workspace.topology_status("server-review")
+                except WorkspaceError as error:
+                    if str(error) != (
+                        "topology runtime generation lease is not retained: "
+                        "server-review"
+                    ):
+                        raise
+                    time.sleep(0.05)
+                    continue
+                if (
+                    orphaned["observation"]["process_tree_lease"]
+                    == "released"
+                ):
+                    break
                 time.sleep(0.05)
-            orphaned = self.workspace.topology_status("server-review")
+            else:
+                self.fail("crashed topology process tree was not released")
             self.assertFalse(orphaned["supervisor"]["running"])
             self.assertFalse(orphaned["ready"])
             self.assertFalse(orphaned["services"]["server"]["running"])
