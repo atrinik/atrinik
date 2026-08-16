@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from contextlib import redirect_stdout
+import io
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,6 +10,11 @@ import unittest
 from unittest import mock
 
 from atrinik_workspace import ci_sharding
+
+
+class SampleShardTest(unittest.TestCase):
+    def test_pass(self) -> None:
+        pass
 
 
 class CiShardingTests(unittest.TestCase):
@@ -101,6 +108,59 @@ class CiShardingTests(unittest.TestCase):
             with mock.patch.object(ci_sharding, "discover_test_ids", return_value=test_ids):
                 with self.assertRaisesRegex(ValueError, "invalid shard index"):
                     ci_sharding.verify_shards(arguments)
+
+    def test_run_shard_retains_assignment_timings_and_slowest_output(self) -> None:
+        test_id = f"{__name__}.SampleShardTest.test_pass"
+        with tempfile.TemporaryDirectory() as temporary_name:
+            root = Path(temporary_name)
+            weights_path = root / "weights.json"
+            weights_path.write_text(json.dumps(self.weights()), encoding="utf-8")
+            arguments = SimpleNamespace(
+                durations=1,
+                manifest=root / "shard-0-manifest.json",
+                shard_count=1,
+                shard_index=0,
+                timings=root / "shard-0-timings.json",
+                weights=weights_path,
+            )
+            output = io.StringIO()
+            with (
+                mock.patch.object(
+                    ci_sharding, "discover_test_ids", return_value=[test_id]
+                ),
+                redirect_stdout(output),
+            ):
+                self.assertEqual(ci_sharding.run_shard(arguments), 0)
+
+            manifest = json.loads(arguments.manifest.read_text())
+            timings = json.loads(arguments.timings.read_text())
+            self.assertEqual(manifest["selected_ids"], [test_id])
+            self.assertEqual(set(timings["tests"]), {test_id})
+            self.assertIn("Slowest 1 tests in shard 0", output.getvalue())
+
+    def test_main_rejects_nonpositive_duration_count(self) -> None:
+        with mock.patch.object(
+            ci_sharding.sys,
+            "argv",
+            [
+                "ci_sharding",
+                "run",
+                "--shard-count",
+                "1",
+                "--shard-index",
+                "0",
+                "--weights",
+                "weights.json",
+                "--manifest",
+                "manifest.json",
+                "--timings",
+                "timings.json",
+                "--durations",
+                "0",
+            ],
+        ):
+            with self.assertRaisesRegex(ValueError, "duration count must be positive"):
+                ci_sharding.main()
 
 
 if __name__ == "__main__":
