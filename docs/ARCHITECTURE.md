@@ -502,6 +502,23 @@ graft metadata can rewrite the ancestry proof. Missing, mismatched,
 unavailable, or ambiguous evidence protects the target. Apply reruns this API
 and local Git proof immediately before removal.
 
+Active issue-delivery evidence is a wrapper-level ownership boundary in
+addition to the helper's terminal lifecycle. When the canonical
+`build/reviews` root exists, cleanup invokes the trusted bounded helper
+inventory and projects every active ledger's review root, JSON sidecar,
+canonical report, persistent lock, and current worktree into its reference
+graph. A missing report or lock, unsupported helper result, malformed ledger,
+or any other inventory uncertainty makes the complete cleanup plan fail closed;
+the wrapper does not recreate or timestamp missing bytes. Unmanaged build
+discovery therefore cannot reclaim `build/reviews`, and a prunable Git
+worktree registration remains protected by the ledger's exact path reference.
+Repository migration uses the same barrier and refuses both preview and apply
+while active ledgers exist, so workspace-layout changes cannot move or lose
+their evidence. Recovery is authenticated and exact: only the delivery
+authority may continue a preserved ledger or explicitly recover a historical
+generation, and no reconstructed branch, worktree, timestamp, or issue state
+can stand in for missing authority.
+
 Worktree status is inspected with `--ignore-submodules=none`. A populated
 submodule protects the worktree even when its visible files are clean because
 per-worktree Git directories can retain private refs, reflogs, and objects. A
