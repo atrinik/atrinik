@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from contextlib import ExitStack, contextmanager
+from contextlib import ExitStack, contextmanager, nullcontext
 from contextvars import copy_context
 from datetime import datetime, timezone
 import fcntl
 import hashlib
+import heapq
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -14,7 +15,7 @@ import secrets
 import stat
 import subprocess
 import sys
-from typing import Any, Iterable, Iterator
+from typing import Any, Callable, Iterable, Iterator
 
 from .locking import LockBusyError, active_lock_fds
 from .content_migration import CONTENT_MIGRATION_PENDING, CONTENT_MIGRATION_RECORD
@@ -27,6 +28,8 @@ from .model import (
     durable_atomic_json,
     load_json,
     managed_remove,
+    unlink_validated_json,
+    validate_name,
 )
 from .process_tree import bound_lease_locked, control_socket_path, lease_locked
 from .supervisor import process_matches
@@ -51,11 +54,63 @@ from .workspace import (
     _remote_matches,
     exclusive_lock,
     load_regular_json,
+    rename_no_replace_at,
     remove_owned_tree,
 )
 
 
 CLEANUP_SCHEMA_VERSION = 1
+CLEANUP_JOURNAL_SCHEMA_VERSION = 2
+CLEANUP_JOURNAL_LIMIT = 4096
+OWNED_TREE_CLEANUP_KINDS = frozenset(
+    {
+        "profile-build",
+        "topology",
+        "worker-dependencies",
+        "source-generation",
+        "source-generation-transaction",
+        "worker-dependency-transaction",
+        "npm-cache",
+        "compiler-cache",
+        "sound-cache",
+    }
+)
+
+
+def _canonical_json_sha256(value: Any) -> str:
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+
+def _cleanup_journal_name_matches_coordinate(name: str, coordinate: str) -> bool:
+    if not name.endswith(".json"):
+        return False
+    parts = name.removesuffix(".json").rsplit("-", 2)
+    return (
+        len(parts) == 3
+        and re.fullmatch(r"[0-9]{8}T[0-9]{12}Z", parts[0]) is not None
+        and parts[1] == coordinate
+        and re.fullmatch(r"[0-9a-f]{12}", parts[2]) is not None
+    )
+
+
+def _legacy_cleanup_journal_name(name: str) -> bool:
+    if not name.endswith(".json"):
+        return False
+    parts = name.removesuffix(".json").rsplit("-", 1)
+    return (
+        len(parts) == 2
+        and re.fullmatch(r"[0-9]{8}T[0-9]{12}Z", parts[0]) is not None
+        and re.fullmatch(r"[0-9a-f]{12}", parts[1]) is not None
+    )
+
+
+def _cleanup_journal_lease_coordinate(path: Path) -> str:
+    digest = hashlib.sha256(str(path).encode("utf-8")).hexdigest()
+    return f"cleanup-journal:{digest}"
+
+
 WORKER_DEPENDENCY_CLEANUP_SCHEMA_VERSIONS = frozenset(
     {1, 2, 3, WORKER_DEPENDENCY_SCHEMA_VERSION}
 )
@@ -67,7 +122,7 @@ ALL_SCOPES = (
     "compiler-cache",
     "sound-cache",
 )
-SUPPORTED_SCOPES = (*ALL_SCOPES, "topologies")
+SUPPORTED_SCOPES = (*ALL_SCOPES, "topologies", "cleanup-journals")
 BUILD_RETENTION_RECORD = "retention.json"
 LEGACY_BUILD_METADATA_SCHEMA_VERSION = 1
 PRE_SOURCE_GENERATION_BUILD_METADATA_SCHEMA_VERSION = 2
@@ -205,6 +260,183 @@ def _regular_text_identity(path: Path) -> tuple[str, tuple[int, int, int, int]]:
         )
     finally:
         os.close(descriptor)
+
+
+def _text_evidence(path: Path) -> tuple[str, dict[str, Any]]:
+    value, identity = _regular_text_identity(path)
+    metadata = path.lstat()
+    if metadata.st_uid != os.geteuid():
+        raise WorkspaceError(f"Git worktree metadata has a foreign owner: {path}")
+    return value, {
+        "device": identity[0],
+        "inode": identity[1],
+        "ctime_ns": identity[2],
+        "size": identity[3],
+        "sha256": hashlib.sha256(value.encode("utf-8")).hexdigest(),
+    }
+
+
+def _linked_worktree_registration_identity(
+    worktree: Path, common: Path
+) -> dict[str, Any]:
+    """Bind one linked worktree to its exact direct Git registration."""
+
+    common = common.resolve()
+    reported_common, git_directory = _git_directories(worktree)
+    if reported_common != common or git_directory == common:
+        raise WorkspaceError(
+            "worktree is not linked to the expected Git common directory"
+        )
+    worktree_metadata = worktree.lstat()
+    if (
+        not stat.S_ISDIR(worktree_metadata.st_mode)
+        or stat.S_ISLNK(worktree_metadata.st_mode)
+        or worktree_metadata.st_uid != os.geteuid()
+    ):
+        raise WorkspaceError("linked worktree path is not a trusted directory")
+    registration_root = common / "worktrees"
+    registration_root_metadata = registration_root.lstat()
+    if (
+        not stat.S_ISDIR(registration_root_metadata.st_mode)
+        or stat.S_ISLNK(registration_root_metadata.st_mode)
+        or registration_root_metadata.st_uid != os.geteuid()
+        or stat.S_IMODE(registration_root_metadata.st_mode) & 0o022
+        or git_directory.parent != registration_root.resolve()
+        or git_directory.name in {"", ".", ".."}
+    ):
+        raise WorkspaceError("linked worktree Git admin is not a direct registration")
+    admin_metadata = git_directory.lstat()
+    if (
+        not stat.S_ISDIR(admin_metadata.st_mode)
+        or stat.S_ISLNK(admin_metadata.st_mode)
+        or admin_metadata.st_uid != os.geteuid()
+    ):
+        raise WorkspaceError("linked worktree Git admin is not a trusted directory")
+    pointer_value, pointer = _text_evidence(worktree / ".git")
+    prefix = "gitdir: "
+    if not pointer_value.startswith(prefix) or not pointer_value.endswith("\n"):
+        raise WorkspaceError("linked worktree pointer is invalid")
+    pointer_target = Path(pointer_value.removeprefix(prefix).strip())
+    if not pointer_target.is_absolute():
+        pointer_target = worktree / pointer_target
+    if pointer_target.resolve() != git_directory:
+        raise WorkspaceError("linked worktree pointer differs from its Git admin")
+    backlink_value, backlink = _text_evidence(git_directory / "gitdir")
+    backlink_target = Path(backlink_value.strip())
+    if not backlink_target.is_absolute():
+        backlink_target = git_directory / backlink_target
+    expected_pointer = (worktree / ".git").resolve()
+    if backlink_target.resolve() != expected_pointer:
+        raise WorkspaceError("linked worktree Git backlink differs from its path")
+    return {
+        "schema_version": 1,
+        "worktree": str(worktree.resolve()),
+        "worktree_identity": {
+            "device": worktree_metadata.st_dev,
+            "inode": worktree_metadata.st_ino,
+        },
+        "pointer": pointer,
+        "common": str(common),
+        "admin": str(git_directory),
+        "admin_identity": {
+            "device": admin_metadata.st_dev,
+            "inode": admin_metadata.st_ino,
+        },
+        "backlink": backlink,
+    }
+
+
+def _valid_linked_worktree_registration_identity(value: Any) -> bool:
+    if not isinstance(value, dict) or set(value) != {
+        "schema_version",
+        "worktree",
+        "worktree_identity",
+        "pointer",
+        "common",
+        "admin",
+        "admin_identity",
+        "backlink",
+    }:
+        return False
+    if value.get("schema_version") != 1:
+        return False
+    for key in ("worktree", "common", "admin"):
+        path = value.get(key)
+        if not isinstance(path, str) or not Path(path).is_absolute():
+            return False
+    identity_keys = {
+        "worktree_identity": {"device", "inode"},
+        "admin_identity": {"device", "inode"},
+        "pointer": {"device", "inode", "ctime_ns", "size", "sha256"},
+        "backlink": {"device", "inode", "ctime_ns", "size", "sha256"},
+    }
+    for key, expected in identity_keys.items():
+        identity = value.get(key)
+        if not isinstance(identity, dict) or set(identity) != expected:
+            return False
+        for field in expected - {"sha256"}:
+            number = identity[field]
+            if not isinstance(number, int) or isinstance(number, bool) or number < 0:
+                return False
+        if "sha256" in expected and (
+            not isinstance(identity["sha256"], str)
+            or not re.fullmatch(r"[0-9a-f]{64}", identity["sha256"])
+        ):
+            return False
+    worktree = Path(value["worktree"])
+    common = Path(value["common"])
+    admin = Path(value["admin"])
+    return (
+        admin.parent == common / "worktrees"
+        and admin.name not in {"", ".", ".."}
+        and worktree.name not in {"", ".", ".."}
+    )
+
+
+def _worktree_path_registered(repository: Path, worktree: Path) -> bool:
+    """Check porcelain and direct admin backlinks for one exact worktree path."""
+
+    expected = worktree.resolve(strict=False)
+    for record in _worktree_records(repository):
+        raw = record.get("worktree")
+        if raw is not None and Path(raw).resolve(strict=False) == expected:
+            return True
+    common = _git_common_directory(repository)
+    root = common / "worktrees"
+    if not root.exists() and not root.is_symlink():
+        return False
+    if root.is_symlink() or not root.is_dir():
+        raise WorkspaceError("Git worktree registration root is unsafe")
+    root_metadata = root.lstat()
+    if (
+        root_metadata.st_uid != os.geteuid()
+        or stat.S_IMODE(root_metadata.st_mode) & 0o022
+    ):
+        raise WorkspaceError("Git worktree registration root is untrusted")
+    registrations = sorted(root.iterdir(), key=lambda path: path.name)
+    if len(registrations) > CLEANUP_JOURNAL_LIMIT:
+        raise WorkspaceError("Git worktree registration inventory is oversized")
+    for registration in registrations:
+        if registration.is_symlink() or not registration.is_dir():
+            raise WorkspaceError("Git worktree registration is unsafe")
+        registration_metadata = registration.lstat()
+        if (
+            registration_metadata.st_uid != os.geteuid()
+            or stat.S_IMODE(registration_metadata.st_mode) & 0o022
+        ):
+            raise WorkspaceError("Git worktree registration is untrusted")
+        try:
+            backlink_value, _identity = _text_evidence(registration / "gitdir")
+        except FileNotFoundError as error:
+            raise WorkspaceError(
+                "Git worktree registration lacks a backlink"
+            ) from error
+        backlink = Path(backlink_value.strip())
+        if not backlink.is_absolute():
+            backlink = registration / backlink
+        if backlink.resolve(strict=False) == (expected / ".git").resolve(strict=False):
+            return True
+    return False
 
 
 def _sound_worktree_identity(worktree: Path, common: Path) -> tuple[Any, ...]:
@@ -1185,7 +1417,11 @@ class Cleanup:
         apply: bool,
     ) -> dict[str, Any]:
         selected_scopes = self._normalize_scopes(scopes)
-        selected_names = self._normalize_names(names)
+        if "cleanup-journals" in selected_scopes and selected_scopes != [
+            "cleanup-journals"
+        ]:
+            raise WorkspaceError("cleanup-journals must be selected by itself")
+        selected_names = self._normalize_names(names, selected_scopes)
         if older_than_days < 0:
             raise WorkspaceError("--older-than must be zero or greater")
         if not apply:
@@ -1194,7 +1430,502 @@ class Cleanup:
             raise WorkspaceError(
                 f"workspace ownership marker is invalid: {self.paths.marker}"
             )
-        report = self._plan(selected_scopes, older_than_days, selected_names, "apply")
+        request = {
+            "scopes": selected_scopes,
+            "older_than_days": older_than_days,
+            "filters": sorted(selected_names or []),
+        }
+        coordinate = _canonical_json_sha256(request)
+        leases = [
+            self.workspace._lease_request(
+                "registry",
+                f"cleanup:{coordinate}",
+                "exclusive",
+                "resume workspace cleanup",
+            )
+        ]
+        if selected_scopes == ["cleanup-journals"]:
+            leases.append(
+                self.workspace._lease_request(
+                    "registry",
+                    "cleanup-journal-recovery",
+                    "exclusive",
+                    "resume cleanup journal recovery discovery",
+                )
+            )
+        with self.workspace._resource_locks(
+            leases,
+            include_wrapper=False,
+        ):
+            return self._execute_apply(
+                selected_scopes, older_than_days, selected_names, request
+            )
+
+    @staticmethod
+    def _bounded_cleanup_journal_paths(root: Path, limit: int) -> list[Path]:
+        paths: list[Path] = []
+        try:
+            with os.scandir(root) as entries:
+                for entry in entries:
+                    paths.append(root / entry.name)
+                    if len(paths) > limit:
+                        raise WorkspaceError(
+                            "cleanup journal inventory is oversized"
+                        )
+        except OSError as error:
+            raise WorkspaceError(f"cannot inspect cleanup journals: {error}") from error
+        return sorted(paths, key=lambda path: path.name)
+
+    @staticmethod
+    def _stream_cleanup_journal_paths(root: Path) -> Iterator[Path]:
+        try:
+            with os.scandir(root) as entries:
+                for entry in entries:
+                    yield root / entry.name
+        except OSError as error:
+            raise WorkspaceError(f"cannot inspect cleanup journals: {error}") from error
+
+    def _maintenance_recovery_page(
+        self, root: Path, request: dict[str, Any]
+    ) -> tuple[list[Path], bool, Path | None, dict[str, Any] | None]:
+        request_coordinate = _canonical_json_sha256(request)
+        cursor_path = self.paths.workspace / ".cleanup-journal-recovery.json"
+        cursor: dict[str, Any] | None = None
+        if cursor_path.exists() or cursor_path.is_symlink():
+            value = load_regular_json(
+                cursor_path, "cleanup journal recovery cursor"
+            )
+            persisted_request = (
+                value.get("request") if isinstance(value, dict) else None
+            )
+            if (
+                not isinstance(value, dict)
+                or set(value)
+                != {
+                    "schema_version",
+                    "request",
+                    "request_sha256",
+                    "after",
+                    "match",
+                }
+                or value.get("schema_version") != 2
+                or not isinstance(persisted_request, dict)
+                or set(persisted_request)
+                != {"scopes", "older_than_days", "filters"}
+                or persisted_request.get("scopes") != ["cleanup-journals"]
+                or not isinstance(persisted_request.get("older_than_days"), int)
+                or isinstance(persisted_request.get("older_than_days"), bool)
+                or persisted_request["older_than_days"] < 0
+                or not isinstance(persisted_request.get("filters"), list)
+                or any(
+                    not isinstance(name, str)
+                    or not name
+                    or name in {".", ".."}
+                    or Path(name).name != name
+                    or any(ord(character) < 32 for character in name)
+                    for name in persisted_request.get("filters", [])
+                )
+                or persisted_request.get("filters")
+                != sorted(set(persisted_request.get("filters", [])))
+                or value.get("request_sha256")
+                != _canonical_json_sha256(persisted_request)
+                or not isinstance(value.get("after"), str)
+                or not (
+                    _legacy_cleanup_journal_name(value.get("after", ""))
+                    or _cleanup_journal_name_matches_coordinate(
+                        value.get("after", ""), value.get("request_sha256", "")
+                    )
+                )
+                or (
+                    value.get("match") is not None
+                    and (
+                        not isinstance(value.get("match"), str)
+                        or not (
+                            _legacy_cleanup_journal_name(value["match"])
+                            or _cleanup_journal_name_matches_coordinate(
+                                value["match"], value.get("request_sha256", "")
+                            )
+                        )
+                    )
+                )
+            ):
+                raise WorkspaceError("cleanup journal recovery cursor is invalid")
+            if value.get("request_sha256") != request_coordinate:
+                raise WorkspaceError(
+                    "cleanup journal recovery cursor belongs to a different "
+                    "request; resume cleanup-journals apply with canonical "
+                    f"request {json.dumps(persisted_request, sort_keys=True)}"
+                )
+            if persisted_request != request:
+                raise WorkspaceError("cleanup journal recovery request changed")
+            cursor = value
+        after = cursor["after"] if cursor is not None else ""
+        candidate_names = heapq.nsmallest(
+            CLEANUP_JOURNAL_LIMIT + 1,
+            (
+                path.name
+                for path in self._stream_cleanup_journal_paths(root)
+                if path.name > after
+                and (
+                    _cleanup_journal_name_matches_coordinate(
+                        path.name, request_coordinate
+                    )
+                    or _legacy_cleanup_journal_name(path.name)
+                )
+            ),
+        )
+        has_more = len(candidate_names) > CLEANUP_JOURNAL_LIMIT
+        page = [root / name for name in candidate_names[:CLEANUP_JOURNAL_LIMIT]]
+        stored_match = (
+            root / cursor["match"]
+            if cursor is not None and cursor["match"] is not None
+            else None
+        )
+        paths = ([stored_match] if stored_match else []) + page
+        return list(dict.fromkeys(paths)), has_more, cursor_path, cursor
+
+    @staticmethod
+    def _remove_maintenance_recovery_cursor(
+        cursor_path: Path, cursor: dict[str, Any]
+    ) -> None:
+        def validate(value: Any) -> None:
+            if value != cursor:
+                raise WorkspaceError("cleanup journal recovery cursor changed")
+
+        unlink_validated_json(cursor_path, validate)
+
+    def _owned_tree_recovery_coordinate(
+        self, item: Mapping[str, Any]
+    ) -> dict[str, Any] | None:
+        kind = item.get("kind")
+        path = item.get("path")
+        if kind not in OWNED_TREE_CLEANUP_KINDS or not isinstance(path, str):
+            return None
+
+        def text(key: str) -> str | None:
+            value = item.get(key)
+            return value if isinstance(value, str) and value else None
+
+        lock: Path | None = None
+        coordinate: str | None = None
+        if kind == "profile-build":
+            profile, key = text("profile"), text("key")
+            if profile is not None and key is not None:
+                lock = self.paths.builds / "locks" / f"{profile}-{key}.lock"
+                coordinate = f"profile-build:{profile}:{key}"
+        elif kind == "topology":
+            name = text("name")
+            if name is not None:
+                lock = Path(path) / "operation.lock"
+                coordinate = f"topology:{name}"
+        elif kind in {"worker-dependencies", "worker-dependency-transaction"}:
+            key = text("key")
+            if key is not None:
+                lock = self.paths.builds / "locks" / f"worker-dependencies-{key}.lock"
+                coordinate = f"worker-dependencies:{key}"
+        elif kind in {"source-generation", "source-generation-transaction"}:
+            key = text("key")
+            if key is not None:
+                lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
+                coordinate = f"source-generation:{key}"
+        elif kind == "sound-cache":
+            checkout_path = text("checkout_path")
+            if checkout_path is not None:
+                lock = Path(path).parent / f".{Path(path).name}.build.lock"
+                coordinate = f"sound-cache:{checkout_path}"
+        elif kind in {"npm-cache", "compiler-cache"}:
+            coordinate = f"{kind}:{path}"
+        if coordinate is None:
+            return None
+        return {
+            "kind": kind,
+            "coordinate": coordinate,
+            "lock": str(lock) if lock is not None else None,
+        }
+
+    def _valid_cleanup_intent(
+        self, intent: Any, target: Mapping[str, Any] | None = None
+    ) -> bool:
+        if not isinstance(intent, dict):
+            return False
+        action = intent.get("action")
+        if (
+            not isinstance(action, dict)
+            or set(action) != {"kind", "path"}
+            or not isinstance(action.get("kind"), str)
+            or not isinstance(action.get("path"), str)
+            or intent.get("phase") not in {"prepared", "removing"}
+        ):
+            return False
+        kind = action["kind"]
+        if kind in OWNED_TREE_CLEANUP_KINDS:
+            expected = {
+                "action",
+                "identity",
+                "lock_coordinate",
+                "phase",
+                "target_sha256",
+            }
+            if kind == "sound-cache":
+                expected.add("producer_identity")
+            if set(intent) != expected or not self._identity_pair(
+                intent.get("identity")
+            ):
+                return False
+            if (
+                target is None
+                or target.get("kind") != action["kind"]
+                or target.get("path") != action["path"]
+                or intent.get("target_sha256") != _canonical_json_sha256(target)
+                or intent.get("lock_coordinate")
+                != self._owned_tree_recovery_coordinate(target)
+            ):
+                return False
+            if kind == "sound-cache":
+                producer_identity = intent.get("producer_identity")
+                return (
+                    isinstance(producer_identity, list)
+                    and len(producer_identity) == 4
+                    and all(
+                        isinstance(value, int)
+                        and not isinstance(value, bool)
+                        and value >= 0
+                        for value in producer_identity
+                    )
+                )
+            return True
+        if kind == "cleanup-journal":
+            return set(intent) == {"action", "identity", "phase"} and (
+                self._identity_pair(intent.get("identity"))
+            )
+        if kind == "temporary-state":
+            return set(intent) == {"action", "phase", "recovery"} and (
+                self._valid_temporary_state_recovery(action, intent.get("recovery"))
+            )
+        if kind == "worktree":
+            return set(intent) == {"action", "phase", "worktree_identity"} and (
+                _valid_linked_worktree_registration_identity(
+                    intent.get("worktree_identity")
+                )
+            )
+        return kind == "prunable-metadata" and set(intent) == {
+            "action",
+            "phase",
+        }
+
+    def _resumable_journal(
+        self, request: dict[str, Any]
+    ) -> tuple[Path, dict[str, Any]] | None:
+        root = self.paths.workspace / "cleanup-journals"
+        if not root.exists() and not root.is_symlink():
+            return None
+        if root.is_symlink() or not root.is_dir():
+            raise WorkspaceError(f"cleanup journal root is unsafe: {root}")
+        journal_maintenance = request["scopes"] == ["cleanup-journals"]
+        request_coordinate = _canonical_json_sha256(request)
+        paths: Iterable[Path]
+        has_more_legacy = False
+        cursor_path: Path | None = None
+        cursor: dict[str, Any] | None = None
+        if journal_maintenance:
+            paths, has_more_legacy, cursor_path, cursor = (
+                self._maintenance_recovery_page(root, request)
+            )
+        else:
+            paths = self._bounded_cleanup_journal_paths(
+                root,
+                CLEANUP_JOURNAL_LIMIT,
+            )
+        match: tuple[Path, dict[str, Any]] | None = None
+        cursor_match = (
+            root / cursor["match"]
+            if cursor is not None and cursor["match"] is not None
+            else None
+        )
+        for path in paths:
+            if path.suffix != ".json":
+                continue
+            if path.is_symlink() or not path.is_file():
+                if path == cursor_match:
+                    raise WorkspaceError(
+                        "cleanup journal recovery match is unsafe"
+                    )
+                if journal_maintenance:
+                    continue
+                raise WorkspaceError(f"cleanup journal is unsafe: {path}")
+            try:
+                value = load_regular_json(path, f"cleanup journal {path.name}")
+            except (OSError, WorkspaceError):
+                if path == cursor_match:
+                    raise WorkspaceError(
+                        "cleanup journal recovery match cannot be read"
+                    )
+                if journal_maintenance:
+                    continue
+                raise
+            if (
+                not isinstance(value, dict)
+                or value.get("schema_version") != CLEANUP_JOURNAL_SCHEMA_VERSION
+                or value.get("status") not in {"in-progress", "complete-pending-output"}
+                or value.get("request") != request
+            ):
+                if path == cursor_match:
+                    raise WorkspaceError(
+                        "cleanup journal recovery match changed"
+                    )
+                continue
+            required = {
+                "schema_version",
+                "started_at",
+                "status",
+                "request",
+                "report",
+                "targets",
+                "completed",
+                "in_flight",
+            }
+            if value["status"] == "complete-pending-output":
+                required.update({"finished_at", "result", "result_sha256"})
+            if set(value) != required:
+                raise WorkspaceError(f"cleanup journal is invalid: {path}")
+            report = value["report"]
+            if (
+                not isinstance(report, dict)
+                or report.get("schema_version") != CLEANUP_SCHEMA_VERSION
+                or report.get("mode") != "apply"
+                or report.get("scopes") != request["scopes"]
+                or report.get("older_than_days") != request["older_than_days"]
+                or report.get("filters") != request["filters"]
+                or not isinstance(report.get("items"), list)
+            ):
+                raise WorkspaceError(f"cleanup journal report is invalid: {path}")
+            if any(
+                not isinstance(item, dict)
+                or not isinstance(item.get("kind"), str)
+                or not isinstance(item.get("path"), str)
+                or not isinstance(item.get("disposition"), str)
+                for item in report["items"]
+            ):
+                raise WorkspaceError(f"cleanup journal report items are invalid: {path}")
+            targets = value["targets"]
+            expected = [
+                {"kind": item.get("kind"), "path": item.get("path")}
+                for item in sorted(
+                    (
+                        item
+                        for item in report["items"]
+                        if isinstance(item, dict)
+                        and item.get("disposition") == "eligible"
+                    ),
+                    key=self._apply_order,
+                )
+            ]
+            completed = value["completed"]
+            in_flight = value["in_flight"]
+            in_flight_action = (
+                in_flight.get("action") if isinstance(in_flight, dict) else None
+            )
+            in_flight_targets = (
+                [
+                    item
+                    for item in report["items"]
+                    if item.get("kind") == in_flight_action.get("kind")
+                    and item.get("path") == in_flight_action.get("path")
+                ]
+                if isinstance(in_flight_action, dict)
+                else []
+            )
+            valid_action = lambda action: (
+                isinstance(action, dict)
+                and set(action) == {"kind", "path"}
+                and isinstance(action["kind"], str)
+                and isinstance(action["path"], str)
+            )
+            if (
+                not isinstance(targets, list)
+                or targets != expected
+                or any(not valid_action(action) for action in targets)
+                or not isinstance(completed, list)
+                or any(not valid_action(action) for action in completed)
+                or any(action not in targets for action in completed)
+                or len({(row["kind"], row["path"]) for row in completed})
+                != len(completed)
+                or (
+                    in_flight is not None
+                    and (
+                        len(in_flight_targets) != 1
+                        or not self._valid_cleanup_intent(
+                            in_flight, in_flight_targets[0]
+                        )
+                        or in_flight["action"] not in targets
+                    )
+                )
+                or in_flight is not None
+                and in_flight.get("action") in completed
+            ):
+                raise WorkspaceError(f"cleanup journal progress is invalid: {path}")
+            if value["status"] == "complete-pending-output":
+                result = value["result"]
+                if (
+                    in_flight is not None
+                    or completed != targets
+                    or not isinstance(value["finished_at"], str)
+                    or not isinstance(result, dict)
+                    or result.get("journal") != str(path)
+                    or result.get("completed_actions") != completed
+                    or value["result_sha256"] != _canonical_json_sha256(result)
+                ):
+                    raise WorkspaceError(
+                        f"cleanup journal terminal result is invalid: {path}"
+                    )
+            if match is not None:
+                raise WorkspaceError(
+                    "multiple cleanup journals require the same retry"
+                )
+            match = (path, value)
+        if journal_maintenance and has_more_legacy:
+            if cursor_path is None:
+                raise WorkspaceError("cleanup journal recovery cursor is missing")
+            page = [path for path in paths if path != cursor_match]
+            if not page:
+                raise WorkspaceError("cleanup journal recovery page is empty")
+            next_cursor = {
+                "schema_version": 2,
+                "request": request,
+                "request_sha256": request_coordinate,
+                "after": max(path.name for path in page),
+                "match": match[0].name if match is not None else None,
+            }
+            durable_atomic_json(cursor_path, next_cursor)
+            raise WorkspaceError(
+                "cleanup journal recovery scan is incomplete; retry the "
+                "identical request"
+            )
+        if journal_maintenance and cursor_path is not None and cursor is not None:
+            self._remove_maintenance_recovery_cursor(cursor_path, cursor)
+        return match
+
+    def _execute_apply(
+        self,
+        selected_scopes: list[str],
+        older_than_days: int,
+        selected_names: set[str] | None,
+        request: dict[str, Any],
+    ) -> dict[str, Any]:
+        resumed = self._resumable_journal(request)
+        if resumed is not None and resumed[1]["status"] == "complete-pending-output":
+            result = resumed[1]["result"]
+            if (
+                not isinstance(result, dict)
+                or _canonical_json_sha256(result) != resumed[1]["result_sha256"]
+            ):
+                raise WorkspaceError("cleanup terminal result is invalid")
+            return json.loads(json.dumps(result))
+        if resumed is None:
+            report = self._plan(selected_scopes, older_than_days, selected_names, "apply")
+        else:
+            journal_path, journal = resumed
+            report = json.loads(json.dumps(journal["report"]))
         if report["summary"]["error_count"]:
             report["aborted"] = True
             return report
@@ -1203,26 +1934,75 @@ class Cleanup:
         ]
         targets.sort(key=self._apply_order)
         mutated = False
-        completed: set[tuple[str, str]] = set()
-        report["completed_actions"] = []
-        journal_path = (
-            self.paths.workspace
-            / "cleanup-journals"
-            / f"{self.now.strftime('%Y%m%dT%H%M%S%fZ')}-{secrets.token_hex(6)}.json"
-        )
-        journal: dict[str, Any] = {
-            "schema_version": 1,
-            "started_at": self.now.isoformat(),
-            "status": "in-progress",
-            "targets": [
-                {"kind": target["kind"], "path": target["path"]}
-                for target in targets
-            ],
-            "completed": [],
+        if resumed is None:
+            completed_actions: list[dict[str, str]] = []
+            journal_path = (
+                self.paths.workspace
+                / "cleanup-journals"
+                / (
+                    f"{self.now.strftime('%Y%m%dT%H%M%S%fZ')}-"
+                    f"{_canonical_json_sha256(request)}-"
+                    f"{secrets.token_hex(6)}.json"
+                )
+            )
+            journal = {
+                "schema_version": CLEANUP_JOURNAL_SCHEMA_VERSION,
+                "started_at": self.now.isoformat().replace("+00:00", "Z"),
+                "status": "in-progress",
+                "request": request,
+                "report": json.loads(json.dumps(report)),
+                "targets": [
+                    {"kind": target["kind"], "path": target["path"]}
+                    for target in targets
+                ],
+                "completed": [],
+                "in_flight": None,
+            }
+            durable_atomic_json(journal_path, journal)
+        else:
+            completed_actions = list(journal["completed"])
+        completed = {
+            (action["kind"], action["path"]) for action in completed_actions
         }
-        durable_atomic_json(journal_path, journal)
+        mutated = bool(completed)
+        report["completed_actions"] = completed_actions
         report["journal"] = str(journal_path)
+        report["mutation_attempted"] = bool(completed or journal["in_flight"])
+
+        def record_completed(target: dict[str, Any]) -> None:
+            nonlocal mutated
+            related = [target]
+            if target["kind"] == "prunable-metadata":
+                related = [
+                    candidate
+                    for candidate in targets
+                    if candidate["kind"] == "prunable-metadata"
+                    and candidate["owner"] == target["owner"]
+                ]
+            for candidate in related:
+                action = {
+                    "kind": candidate["kind"],
+                    "path": candidate["path"],
+                }
+                identity = (action["kind"], action["path"])
+                if identity not in completed:
+                    completed.add(identity)
+                    completed_actions.append(action)
+                candidate["disposition"] = "removed"
+                candidate["reasons"] = ["removed"]
+            journal["completed"] = list(completed_actions)
+            journal["in_flight"] = None
+            report["completed_actions"] = list(completed_actions)
+            durable_atomic_json(journal_path, journal)
+            mutated = True
+
+        def is_in_flight(action: dict[str, str]) -> bool:
+            intent = journal["in_flight"]
+            return isinstance(intent, dict) and intent.get("action") == action
+
         for target in targets:
+            action = {"kind": target["kind"], "path": target["path"]}
+            planned_target = json.loads(json.dumps(target))
             with ExitStack() as target_stack:
                 if target["kind"] in {"worktree", "prunable-metadata"}:
                     owner = target["owner"]
@@ -1291,6 +2071,9 @@ class Cleanup:
                         target["disposition"] = "skipped"
                         target["reasons"] = ["resource_busy"]
                         target["error"] = str(error)
+                        if is_in_flight(action):
+                            report["aborted"] = True
+                            break
                         continue
                 elif target["kind"] == "topology":
                     try:
@@ -1311,10 +2094,90 @@ class Cleanup:
                         target["disposition"] = "skipped"
                         target["reasons"] = ["resource_busy"]
                         target["error"] = str(error)
+                        if is_in_flight(action):
+                            report["aborted"] = True
+                            break
+                        continue
+                elif target["kind"] == "cleanup-journal":
+                    try:
+                        target_stack.enter_context(
+                            self.workspace._resource_locks(
+                                [
+                                    self.workspace._lease_request(
+                                        "registry",
+                                        _cleanup_journal_lease_coordinate(
+                                            Path(target["path"])
+                                        ),
+                                        "exclusive",
+                                        f"cleanup journal {target['path']}",
+                                    )
+                                ],
+                                nonblocking=True,
+                            )
+                        )
+                    except LockBusyError as error:
+                        target["disposition"] = "skipped"
+                        target["reasons"] = ["resource_busy"]
+                        target["error"] = str(error)
+                        if is_in_flight(action):
+                            report["aborted"] = True
+                            break
                         continue
                 identity = (target["kind"], target["path"])
                 if identity in completed:
+                    target["disposition"] = "removed"
+                    target["reasons"] = ["removed"]
                     continue
+                intent = journal["in_flight"]
+                if intent is not None and intent["action"] == action:
+                    if (
+                        target["kind"] == "worktree"
+                        and intent.get("phase") == "removing"
+                    ):
+                        self._recover_worktree(target, intent)
+                        record_completed(target)
+                        continue
+                    if (
+                        target["kind"] == "cleanup-journal"
+                        and intent.get("phase") == "removing"
+                    ):
+                        self._remove_cleanup_journal(
+                            target, intent["identity"], removal_started=None
+                        )
+                        record_completed(target)
+                        continue
+                    if target["kind"] in OWNED_TREE_CLEANUP_KINDS:
+                        if intent.get("phase") == "removing":
+                            self._recover_owned_tree(target, intent)
+                            record_completed(target)
+                            continue
+                    elif (
+                        intent.get("phase") == "removing"
+                        and target["kind"] == "temporary-state"
+                    ):
+                        try:
+                            self._recover_temporary_state(
+                                target, older_than_days, intent["recovery"]
+                            )
+                        except LockBusyError as error:
+                            target["disposition"] = "skipped"
+                            target["reasons"] = ["resource_busy"]
+                            target["error"] = str(error)
+                            report["aborted"] = True
+                            break
+                        except (OSError, RuntimeError, WorkspaceError) as error:
+                            target["disposition"] = "error"
+                            target["reasons"] = ["removal_failed"]
+                            target["error"] = str(error)
+                            report["aborted"] = True
+                            break
+                        record_completed(target)
+                        continue
+                    elif intent.get("phase") == "removing":
+                        path = Path(target["path"])
+                        if not path.exists() and not path.is_symlink():
+                            record_completed(target)
+                            continue
                 try:
                     match = self._revalidate_target(
                         target,
@@ -1350,29 +2213,88 @@ class Cleanup:
                         target[key] = value
                 target.update(credited)
                 report["mutation_attempted"] = True
+                intent = {"action": action, "phase": "prepared"}
+                if target["kind"] in OWNED_TREE_CLEANUP_KINDS:
+                    identity = Path(target["path"]).stat(follow_symlinks=False)
+                    if not stat.S_ISDIR(identity.st_mode):
+                        raise WorkspaceError(
+                            f"cleanup target is not a directory: {target['path']}"
+                        )
+                    intent["identity"] = {
+                        "device": identity.st_dev,
+                        "inode": identity.st_ino,
+                    }
+                    intent["target_sha256"] = _canonical_json_sha256(
+                        planned_target
+                    )
+                    intent["lock_coordinate"] = (
+                        self._owned_tree_recovery_coordinate(planned_target)
+                    )
+                    if target["kind"] == "sound-cache":
+                        producer_identity = match.get("_sound_producer_identity")
+                        intent["producer_identity"] = (
+                            list(producer_identity)
+                            if producer_identity is not None
+                            else None
+                        )
+                elif target["kind"] == "cleanup-journal":
+                    intent["identity"] = {
+                        "device": match["device"],
+                        "inode": match["inode"],
+                    }
+                elif target["kind"] == "temporary-state":
+                    intent["recovery"] = self._temporary_state_recovery_evidence(
+                        match
+                    )
+                elif target["kind"] == "worktree":
+                    worktree_identity = match.get(
+                        "_worktree_registration_identity"
+                    )
+                    if not _valid_linked_worktree_registration_identity(
+                        worktree_identity
+                    ):
+                        raise WorkspaceError(
+                            "linked worktree removal identity is missing"
+                        )
+                    intent["worktree_identity"] = worktree_identity
+                if not self._valid_cleanup_intent(intent, planned_target):
+                    raise WorkspaceError("cleanup removal intent is invalid")
+                journal["in_flight"] = intent
                 try:
-                    self._remove(match, older_than_days)
+                    durable_atomic_json(journal_path, journal)
+                except (OSError, RuntimeError, WorkspaceError) as error:
+                    report["aborted"] = True
+                    report["journal_error"] = (
+                        "cleanup could not durably record its next action before "
+                        f"removal: {error}"
+                    )
+                    break
+                try:
+                    def removal_started() -> None:
+                        intent["phase"] = "removing"
+                        journal["in_flight"] = intent
+                        durable_atomic_json(journal_path, journal)
+
+                    self._remove(
+                        match,
+                        older_than_days,
+                        expected_identity=intent.get("identity"),
+                        removal_started=removal_started,
+                    )
                 except LockBusyError as error:
                     target["disposition"] = "skipped"
                     target["reasons"] = ["resource_busy"]
                     target["error"] = str(error)
-                    continue
+                    report["aborted"] = True
+                    break
                 except (OSError, RuntimeError, WorkspaceError) as error:
                     target["disposition"] = "error"
                     target["reasons"] = ["removal_failed"]
                     target["error"] = str(error)
                     report["aborted"] = True
                     break
-                target["disposition"] = "removed"
-                target["reasons"] = ["removed"]
-                mutated = True
-                completed.add(identity)
-                report["completed_actions"].append(
-                    {"kind": target["kind"], "path": target["path"]}
-                )
-                journal["completed"] = list(report["completed_actions"])
                 try:
-                    durable_atomic_json(journal_path, journal)
+                    record_completed(target)
                 except (OSError, RuntimeError, WorkspaceError) as error:
                     report["aborted"] = True
                     report["journal_error"] = (
@@ -1380,20 +2302,17 @@ class Cleanup:
                         f"refresh its progress journal: {error}"
                     )
                     break
-                if target["kind"] == "prunable-metadata":
-                    for related in targets:
-                        if (
-                            related["kind"] == "prunable-metadata"
-                            and related["owner"] == target["owner"]
-                        ):
-                            related["disposition"] = "removed"
-                            related["reasons"] = ["removed"]
-                            completed.add((related["kind"], related["path"]))
         report["mutated"] = mutated
         report.setdefault("mutation_attempted", False)
         report["summary"] = self._summary(report["items"])
-        journal["status"] = "aborted" if report.get("aborted") else "complete"
-        journal["finished_at"] = datetime.now(timezone.utc).isoformat()
+        target_identities = {(row["kind"], row["path"]) for row in journal["targets"]}
+        if completed == target_identities:
+            journal["status"] = "complete-pending-output"
+            journal["finished_at"] = datetime.now(timezone.utc).isoformat().replace(
+                "+00:00", "Z"
+            )
+            journal["result"] = json.loads(json.dumps(report))
+            journal["result_sha256"] = _canonical_json_sha256(journal["result"])
         try:
             durable_atomic_json(journal_path, journal)
         except (OSError, RuntimeError, WorkspaceError) as error:
@@ -1405,6 +2324,54 @@ class Cleanup:
             )
         return report
 
+    def acknowledge(self, report: dict[str, Any]) -> None:
+        """Acknowledge that one exact terminal cleanup result was consumed."""
+
+        journal_value = report.get("journal") if isinstance(report, dict) else None
+        if not isinstance(journal_value, str):
+            raise WorkspaceError("cleanup acknowledgement lacks a journal")
+        journal_path = Path(journal_value)
+        root = self.paths.workspace / "cleanup-journals"
+        if journal_path.parent != root or journal_path.name in {"", ".", ".."}:
+            raise WorkspaceError("cleanup acknowledgement journal is outside the workspace")
+        request = {
+            "scopes": report.get("scopes"),
+            "older_than_days": report.get("older_than_days"),
+            "filters": report.get("filters"),
+        }
+        coordinate = hashlib.sha256(
+            json.dumps(request, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        with self.workspace._resource_locks(
+            [
+                self.workspace._lease_request(
+                    "registry",
+                    f"cleanup:{coordinate}",
+                    "exclusive",
+                    "acknowledge workspace cleanup",
+                )
+            ],
+            include_wrapper=False,
+        ):
+            journal = load_regular_json(journal_path, "cleanup acknowledgement journal")
+            if (
+                not isinstance(journal, dict)
+                or journal.get("schema_version") != CLEANUP_JOURNAL_SCHEMA_VERSION
+                or journal.get("request") != request
+                or journal.get("status")
+                not in {"complete-pending-output", "complete-delivered"}
+                or journal.get("result") != report
+                or journal.get("result_sha256") != _canonical_json_sha256(report)
+            ):
+                raise WorkspaceError("cleanup acknowledgement does not match its terminal result")
+            if journal["status"] == "complete-delivered":
+                return
+            journal["status"] = "complete-delivered"
+            journal["delivered_at"] = (
+                datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+            )
+            durable_atomic_json(journal_path, journal)
+
     @staticmethod
     def _normalize_scopes(scopes: list[str]) -> list[str]:
         requested = scopes or list(DEFAULT_SCOPES)
@@ -1412,9 +2379,22 @@ class Cleanup:
             requested = [*requested, *ALL_SCOPES]
         return [scope for scope in SUPPORTED_SCOPES if scope in set(requested)]
 
-    def _normalize_names(self, names: list[str]) -> set[str] | None:
+    def _normalize_names(
+        self, names: list[str], scopes: list[str] | None = None
+    ) -> set[str] | None:
         if not names:
             return None
+        if scopes == ["cleanup-journals"]:
+            selected = set(names)
+            if any(
+                not name
+                or name in {".", ".."}
+                or Path(name).name != name
+                or any(ord(character) < 32 for character in name)
+                for name in selected
+            ):
+                raise WorkspaceError("cleanup journal filters must be direct names")
+            return selected
         selected: set[str] = set()
         unknown: list[str] = []
         for name in names:
@@ -1443,6 +2423,7 @@ class Cleanup:
         runtime_only = bool(scopes) and set(scopes) <= {
             "topologies",
             "temporary-states",
+            "cleanup-journals",
         }
         if runtime_only:
             references = {
@@ -1505,6 +2486,8 @@ class Cleanup:
             )
         if "topologies" in scopes:
             items.extend(self._topologies(older_than_days))
+        if "cleanup-journals" in scopes:
+            items.extend(self._cleanup_journals(older_than_days, names))
         items.sort(key=lambda item: (item["kind"], item["owner"], item["path"]))
         self._credit_sizes(items)
         for item in items:
@@ -1528,6 +2511,227 @@ class Cleanup:
         self._repository_cache = {}
         self._github_cache = {}
 
+    def _cleanup_journals(
+        self, older_than_days: int, names: set[str] | None
+    ) -> list[dict[str, Any]]:
+        root = self.paths.workspace / "cleanup-journals"
+        if not root.exists() and not root.is_symlink():
+            return []
+        if root.is_symlink() or not root.is_dir():
+            item = _base_item("cleanup-journal", "atrinik", "atrinik/atrinik", root)
+            item["reasons"] = ["invalid_cleanup_journal_container"]
+            return [item]
+        if names is not None:
+            paths = sorted(
+                (
+                    root / name
+                    for name in names
+                    if (root / name).exists() or (root / name).is_symlink()
+                ),
+                key=lambda path: path.name,
+            )
+        else:
+            paths = self._bounded_cleanup_journal_paths(
+                root,
+                CLEANUP_JOURNAL_LIMIT,
+            )
+        return [
+            item
+            for path in paths
+            for item in [self._cleanup_journal_item(path, older_than_days, names)]
+        ]
+
+    def _cleanup_journal_item(
+        self,
+        path: Path,
+        older_than_days: int,
+        names: set[str] | None,
+    ) -> dict[str, Any]:
+        item = _base_item("cleanup-journal", "atrinik", "atrinik/atrinik", path)
+        item["name"] = path.name
+        reasons: list[str] = []
+        value: Any = None
+        metadata: os.stat_result | None = None
+        try:
+            metadata = path.lstat()
+            item["device"] = metadata.st_dev
+            item["inode"] = metadata.st_ino
+            item["_inodes"] = {
+                (metadata.st_dev, metadata.st_ino): metadata.st_blocks * 512
+            }
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or stat.S_ISLNK(metadata.st_mode)
+                or metadata.st_nlink != 1
+                or metadata.st_uid != os.geteuid()
+                or stat.S_IMODE(metadata.st_mode) != 0o600
+            ):
+                reasons.append("unsafe_cleanup_journal")
+            else:
+                value = load_regular_json(path, f"cleanup journal {path.name}")
+        except (OSError, WorkspaceError) as error:
+            reasons.append("invalid_cleanup_journal")
+            item["error"] = str(error)
+        required = {
+            "schema_version",
+            "started_at",
+            "status",
+            "request",
+            "report",
+            "targets",
+            "completed",
+            "in_flight",
+            "finished_at",
+            "result",
+            "result_sha256",
+            "delivered_at",
+        }
+        if not reasons:
+            request = value.get("request") if isinstance(value, dict) else None
+            report = value.get("report") if isinstance(value, dict) else None
+            result = value.get("result") if isinstance(value, dict) else None
+            targets = value.get("targets") if isinstance(value, dict) else None
+            completed = value.get("completed") if isinstance(value, dict) else None
+            valid_action = lambda action: (
+                isinstance(action, dict)
+                and set(action) == {"kind", "path"}
+                and isinstance(action["kind"], str)
+                and isinstance(action["path"], str)
+            )
+            try:
+                started = _parse_time(value.get("started_at"), "cleanup journal start")
+                finished = _parse_time(value.get("finished_at"), "cleanup journal finish")
+                delivered = _parse_time(
+                    value.get("delivered_at"), "cleanup journal delivery"
+                )
+            except WorkspaceError as error:
+                reasons.append("invalid_cleanup_journal")
+                item["error"] = str(error)
+            else:
+                item["age_seconds"] = max(
+                    0, int((self.now - delivered).total_seconds())
+                )
+                item["age_basis"] = "delivered-at"
+                report_items = report.get("items") if isinstance(report, dict) else None
+                report_items_valid = isinstance(report_items, list) and all(
+                    isinstance(row, dict)
+                    and isinstance(row.get("kind"), str)
+                    and isinstance(row.get("path"), str)
+                    and isinstance(row.get("disposition"), str)
+                    and isinstance(row.get("allocated_bytes"), int)
+                    for row in report_items
+                )
+                expected_targets = (
+                    [
+                        {"kind": row["kind"], "path": row["path"]}
+                        for row in sorted(
+                            (
+                                row
+                                for row in report_items
+                                if row.get("disposition") == "eligible"
+                            ),
+                            key=self._apply_order,
+                        )
+                    ]
+                    if report_items_valid
+                    else None
+                )
+                result_items = result.get("items") if isinstance(result, dict) else None
+                target_identities = (
+                    {(action["kind"], action["path"]) for action in targets}
+                    if isinstance(targets, list)
+                    and all(valid_action(action) for action in targets)
+                    else set()
+                )
+                result_items_match = (
+                    report_items_valid
+                    and isinstance(result_items, list)
+                    and len(result_items) == len(report_items)
+                    and all(
+                        isinstance(result_row, dict)
+                        and (result_row.get("kind"), result_row.get("path"))
+                        == (report_row["kind"], report_row["path"])
+                        and (
+                            (
+                                result_row.get("disposition") == "removed"
+                                and result_row.get("reasons") == ["removed"]
+                            )
+                            if (report_row["kind"], report_row["path"])
+                            in target_identities
+                            else result_row == report_row
+                        )
+                        for report_row, result_row in zip(
+                            report_items, result_items, strict=True
+                        )
+                    )
+                )
+                if (
+                    not isinstance(value, dict)
+                    or set(value) != required
+                    or value.get("schema_version") != CLEANUP_JOURNAL_SCHEMA_VERSION
+                    or value.get("status") != "complete-delivered"
+                    or value.get("in_flight") is not None
+                    or not isinstance(request, dict)
+                    or set(request) != {"scopes", "older_than_days", "filters"}
+                    or not isinstance(report, dict)
+                    or set(report)
+                    != {
+                        "schema_version",
+                        "mode",
+                        "scopes",
+                        "older_than_days",
+                        "filters",
+                        "inventory_errors",
+                        "items",
+                        "summary",
+                    }
+                    or report.get("schema_version") != CLEANUP_SCHEMA_VERSION
+                    or report.get("mode") != "apply"
+                    or any(report.get(key) != request[key] for key in request)
+                    or report.get("inventory_errors") != []
+                    or expected_targets is None
+                    or len(
+                        {(row["kind"], row["path"]) for row in report_items}
+                    )
+                    != len(report_items)
+                    or report.get("summary") != self._summary(report_items)
+                    or not isinstance(targets, list)
+                    or targets != expected_targets
+                    or any(not valid_action(action) for action in targets)
+                    or completed != targets
+                    or not isinstance(result, dict)
+                    or set(result)
+                    != set(report)
+                    | {
+                        "completed_actions",
+                        "journal",
+                        "mutated",
+                        "mutation_attempted",
+                    }
+                    or any(result.get(key) != request[key] for key in request)
+                    or result.get("schema_version") != CLEANUP_SCHEMA_VERSION
+                    or result.get("mode") != "apply"
+                    or result.get("inventory_errors") != []
+                    or not result_items_match
+                    or result.get("summary") != self._summary(result_items)
+                    or result.get("journal") != str(path)
+                    or result.get("completed_actions") != completed
+                    or result.get("mutated") != bool(targets)
+                    or result.get("mutation_attempted") != bool(targets)
+                    or value.get("result_sha256") != _canonical_json_sha256(result)
+                    or not started < finished < delivered
+                ):
+                    reasons.append("invalid_cleanup_journal")
+                elif delivered > self.now:
+                    reasons.append("future_timestamp")
+                elif (self.now - delivered).total_seconds() < older_than_days * 86400:
+                    reasons.append("retained_by_age")
+                elif targets and (names is None or path.name not in names):
+                    reasons.append("explicit_selection_required")
+        item["reasons"] = reasons or ["delivered_cleanup_journal"]
+        item["disposition"] = "eligible" if not reasons else "protected"
+        return item
+
     @staticmethod
     def _strip_internal(item: dict[str, Any]) -> None:
         item.pop("_inodes", None)
@@ -1536,6 +2740,7 @@ class Cleanup:
         item.pop("_older_than_days", None)
         item.pop("_identity", None)
         item.pop("_worktree_identity", None)
+        item.pop("_worktree_registration_identity", None)
         item.pop("_git_common", None)
         item.pop("_sound_worktree_identity", None)
         item.pop("_sound_producer_identity", None)
@@ -1556,6 +2761,15 @@ class Cleanup:
         self._reset_inventory()
         path = Path(target["path"])
         kind = target["kind"]
+        if kind == "cleanup-journal":
+            item = self._cleanup_journal_item(path, older_than_days, names)
+            if (
+                item.get("device") != target.get("device")
+                or item.get("inode") != target.get("inode")
+            ):
+                item["disposition"] = "protected"
+                item["reasons"] = ["cleanup_journal_identity_changed"]
+            return item
         if kind == "topology":
             item = self._topology_item(
                 path,
@@ -1668,6 +2882,9 @@ class Cleanup:
         if item is not None:
             filesystem_identity = item.get("_identity")
             worktree_identity = item.get("_worktree_identity")
+            worktree_registration_identity = item.get(
+                "_worktree_registration_identity"
+            )
             git_common = item.get("_git_common")
             sound_worktree_identity = item.get("_sound_worktree_identity")
             sound_producer_identity = item.get("_sound_producer_identity")
@@ -1687,6 +2904,10 @@ class Cleanup:
             if kind == "worktree" and target["owner"] == "sound":
                 item["_sound_worktree_identity"] = sound_worktree_identity
                 item["_sound_producer_identity"] = sound_producer_identity
+            if kind == "worktree":
+                item["_worktree_registration_identity"] = (
+                    worktree_registration_identity
+                )
         return item
 
     def _topologies(self, older_than_days: int) -> list[dict[str, Any]]:
@@ -2773,6 +3994,10 @@ class Cleanup:
                 item["reasons"].append("unexpected_git_common_directory")
             if worktree_git == common and normalized != primary.resolve():
                 item["reasons"].append("unexpected_primary_identity")
+            if worktree_git != common:
+                item["_worktree_registration_identity"] = (
+                    _linked_worktree_registration_identity(path, common)
+                )
             if self._populated_submodules(path, worktree_git):
                 item["reasons"].append("populated_submodules")
             if self._operation_in_progress(path):
@@ -5554,21 +6779,410 @@ class Cleanup:
             item["reasons"] = ["stale_abandoned_temporary_state"]
         return item
 
+    @staticmethod
+    def _identity_pair(value: Any) -> bool:
+        return (
+            isinstance(value, dict)
+            and set(value) == {"device", "inode"}
+            and all(
+                isinstance(item, int)
+                and not isinstance(item, bool)
+                and item >= 0
+                for item in value.values()
+            )
+        )
+
+    def _valid_temporary_state_recovery(
+        self, action: Any, evidence: Any
+    ) -> bool:
+        if (
+            not isinstance(action, dict)
+            or action.get("kind") != "temporary-state"
+            or not isinstance(evidence, dict)
+            or set(evidence)
+            != {
+                "variant",
+                "topology",
+                "generation",
+                "physical_path",
+                "filesystem_identity",
+                "container_identity",
+                "lease_identity",
+            }
+            or evidence.get("variant")
+            not in {"state", "lease-only", "orphan-lock", "orphan-tombstone"}
+            or not isinstance(evidence.get("topology"), str)
+            or not isinstance(evidence.get("generation"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", evidence["generation"])
+            or not self._identity_pair(evidence.get("lease_identity"))
+        ):
+            return False
+        try:
+            validate_name(evidence["topology"], "temporary state topology")
+        except WorkspaceError:
+            return False
+        state = (
+            self.paths.topologies
+            / evidence["topology"]
+            / "temporary-states"
+            / evidence["generation"]
+        )
+        if action.get("path") != str(state):
+            return False
+        container = evidence.get("container_identity")
+        mount_id = container.get("mount_id") if isinstance(container, dict) else None
+        if (
+            not isinstance(container, dict)
+            or set(container) != {"device", "inode", "mount_id"}
+            or not all(
+                isinstance(container.get(key), int)
+                and not isinstance(container.get(key), bool)
+                and container[key] >= 0
+                for key in ("device", "inode")
+            )
+            or not (
+                isinstance(mount_id, int)
+                and not isinstance(mount_id, bool)
+                and mount_id >= 0
+                or isinstance(mount_id, list)
+                and len(mount_id) == 2
+                and all(
+                    isinstance(item, int)
+                    and not isinstance(item, bool)
+                    and item >= 0
+                    for item in mount_id
+                )
+            )
+        ):
+            return False
+        identity = evidence.get("filesystem_identity")
+        variant = evidence["variant"]
+        if variant == "lease-only":
+            return identity is None and evidence.get("physical_path") is None
+        if (
+            not isinstance(identity, dict)
+            or set(identity) != {"device", "inode", "ctime_ns", "file_type"}
+            or not all(
+                isinstance(identity.get(key), int)
+                and not isinstance(identity.get(key), bool)
+                and identity[key] >= 0
+                for key in identity
+            )
+            or not isinstance(evidence.get("physical_path"), str)
+        ):
+            return False
+        physical = Path(evidence["physical_path"])
+        if variant == "state":
+            pair = {key: identity[key] for key in ("device", "inode")}
+            pending = state.parent / f".{state.name}.removal-pending"
+            allowed = {
+                state,
+                pending,
+                _owned_tree_tombstone_path(state, pair),
+                _owned_tree_tombstone_path(pending, pair),
+            }
+            return physical in allowed and identity["file_type"] == stat.S_IFDIR
+        lock = Path(f"{state}.lock")
+        tombstone = lock.parent / (
+            f".{lock.name}.remove-{evidence['lease_identity']['device']:x}-"
+            f"{evidence['lease_identity']['inode']:x}"
+        )
+        return (
+            identity["file_type"] == stat.S_IFREG
+            and physical == (lock if variant == "orphan-lock" else tombstone)
+            and {key: identity[key] for key in ("device", "inode")}
+            == evidence["lease_identity"]
+        )
+
+    def _temporary_state_recovery_evidence(
+        self, item: dict[str, Any]
+    ) -> dict[str, Any]:
+        state_policy = item.get("state_policy")
+        variant = (
+            f"orphan-{item['_orphan_rollback_lease']}"
+            if item.get("_orphan_rollback_lease")
+            else "lease-only"
+            if item.get("_lease_only")
+            else "state"
+        )
+        raw_identity = item.get("_identity")
+        filesystem_identity = (
+            None
+            if raw_identity is None
+            else {
+                "device": raw_identity[0],
+                "inode": raw_identity[1],
+                "ctime_ns": raw_identity[2],
+                "file_type": raw_identity[3],
+            }
+        )
+        raw_container = item.get("_temporary_state_container_identity")
+        if not isinstance(raw_container, tuple) or len(raw_container) != 3:
+            raise WorkspaceError("temporary state container identity is missing")
+        lease_identity = (
+            {"device": raw_identity[0], "inode": raw_identity[1]}
+            if variant.startswith("orphan-") and raw_identity is not None
+            else state_policy.get("lease_identity")
+            if isinstance(state_policy, dict)
+            else None
+        )
+        evidence = {
+            "variant": variant,
+            "topology": item.get("topology"),
+            "generation": item.get("generation"),
+            "physical_path": item.get("_physical_path"),
+            "filesystem_identity": filesystem_identity,
+            "container_identity": {
+                "device": raw_container[0],
+                "inode": raw_container[1],
+                "mount_id": (
+                    list(raw_container[2])
+                    if isinstance(raw_container[2], tuple)
+                    else raw_container[2]
+                ),
+            },
+            "lease_identity": lease_identity,
+        }
+        action = {"kind": "temporary-state", "path": item["path"]}
+        if not self._valid_temporary_state_recovery(action, evidence):
+            raise WorkspaceError("temporary state recovery evidence is invalid")
+        return evidence
+
+    @staticmethod
+    def _temporary_state_container_tuple(evidence: dict[str, Any]) -> tuple[Any, ...]:
+        container = evidence["container_identity"]
+        mount_id = container["mount_id"]
+        return (
+            container["device"],
+            container["inode"],
+            tuple(mount_id) if isinstance(mount_id, list) else mount_id,
+        )
+
+    def _recover_temporary_state(
+        self,
+        item: dict[str, Any],
+        older_than_days: int,
+        evidence: dict[str, Any],
+    ) -> None:
+        action = {"kind": "temporary-state", "path": item["path"]}
+        if not self._valid_temporary_state_recovery(action, evidence):
+            raise WorkspaceError("temporary state recovery evidence is invalid")
+        path = Path(item["path"])
+        topology = evidence["topology"]
+        root = self.workspace._topology_directory(topology)
+        lock = Path(f"{path}.lock")
+        lease_identity = evidence["lease_identity"]
+        lock_tombstone = lock.parent / (
+            f".{lock.name}.remove-{lease_identity['device']:x}-"
+            f"{lease_identity['inode']:x}"
+        )
+        filesystem = evidence["filesystem_identity"]
+        pending = path.parent / f".{path.name}.removal-pending"
+        state_candidates = [path, pending]
+        if filesystem is not None and evidence["variant"] == "state":
+            pair = {key: filesystem[key] for key in ("device", "inode")}
+            state_candidates.extend(
+                _owned_tree_tombstone_path(candidate, pair)
+                for candidate in tuple(state_candidates)
+            )
+
+        with exclusive_lock(
+            root / "operation.lock",
+            f"topology {topology} operation recovery",
+            nonblocking=True,
+        ):
+            container_fd, container_identity = self._open_temporary_state_container(root)
+            try:
+                if container_identity != self._temporary_state_container_tuple(evidence):
+                    raise WorkspaceError(
+                        "temporary state container changed during cleanup recovery"
+                    )
+                present_states = [
+                    candidate
+                    for candidate in state_candidates
+                    if candidate.exists() or candidate.is_symlink()
+                ]
+                if len(present_states) > 1:
+                    raise WorkspaceError("temporary state recovery paths conflict")
+                if present_states:
+                    metadata = present_states[0].stat(follow_symlinks=False)
+                    if (
+                        filesystem is None
+                        or not stat.S_ISDIR(metadata.st_mode)
+                        or (metadata.st_dev, metadata.st_ino)
+                        != (filesystem["device"], filesystem["inode"])
+                        or stat.S_IFMT(metadata.st_mode) != filesystem["file_type"]
+                        or (
+                            present_states[0] == path
+                            and metadata.st_ctime_ns != filesystem["ctime_ns"]
+                        )
+                    ):
+                        raise WorkspaceError(
+                            "temporary state identity changed during cleanup recovery"
+                        )
+                lock_present = lock.exists() or lock.is_symlink()
+                tombstone_present = (
+                    lock_tombstone.exists() or lock_tombstone.is_symlink()
+                )
+                if lock_present and tombstone_present:
+                    raise WorkspaceError("temporary state lease recovery is ambiguous")
+                if lock_present:
+                    metadata = lock.stat(follow_symlinks=False)
+                    if (
+                        not stat.S_ISREG(metadata.st_mode)
+                        or metadata.st_nlink != 1
+                        or (metadata.st_dev, metadata.st_ino)
+                        != (lease_identity["device"], lease_identity["inode"])
+                    ):
+                        raise WorkspaceError(
+                            "temporary state lease changed during cleanup recovery"
+                        )
+                    if evidence["variant"] == "orphan-tombstone":
+                        raise WorkspaceError(
+                            "orphan temporary state lease tombstone was replaced"
+                        )
+                    if evidence["variant"] == "orphan-lock" and (
+                        filesystem is None
+                        or metadata.st_ctime_ns != filesystem["ctime_ns"]
+                        or stat.S_IFMT(metadata.st_mode) != filesystem["file_type"]
+                    ):
+                        raise WorkspaceError(
+                            "orphan temporary state lease changed during cleanup recovery"
+                        )
+                    if evidence["variant"] == "lease-only" and present_states:
+                        raise WorkspaceError(
+                            "removed temporary state reappeared during cleanup recovery"
+                        )
+                    recovered = dict(item)
+                    recovered["_temporary_state_container_identity"] = container_identity
+                    recovered["_identity"] = (
+                        None
+                        if filesystem is None
+                        else (
+                            filesystem["device"],
+                            filesystem["inode"],
+                            filesystem["ctime_ns"],
+                            filesystem["file_type"],
+                        )
+                    )
+                    recovered["_physical_path"] = (
+                        str(present_states[0]) if present_states else None
+                    )
+                    recovered["_lease_only"] = (
+                        evidence["variant"] == "lease-only" or not present_states
+                    )
+                    recovered["_orphan_rollback_lease"] = (
+                        evidence["variant"].removeprefix("orphan-")
+                        if evidence["variant"].startswith("orphan-")
+                        else None
+                    )
+                    os.close(container_fd)
+                    container_fd = -1
+                    self._remove_temporary_state(
+                        recovered,
+                        older_than_days,
+                        operation_locked=True,
+                        recovery_evidence=evidence,
+                    )
+                    return
+
+                status: dict[str, Any] | None
+                try:
+                    status = self.workspace.topology_status(topology)
+                except WorkspaceError:
+                    status = None
+                policy = status.get("state_policy") if isinstance(status, dict) else None
+                if evidence["variant"] == "state" and (
+                    not isinstance(policy, dict)
+                    or policy.get("mode") != "temporary"
+                    or policy.get("path") != str(path)
+                    or policy.get("owner", {}).get("generation")
+                    != evidence["generation"]
+                    or policy.get("identity")
+                    != {key: filesystem[key] for key in ("device", "inode")}
+                    or policy.get("lease_identity") != lease_identity
+                    or policy.get("lifecycle") != "removed"
+                ):
+                    raise WorkspaceError(
+                        "temporary state terminal recovery evidence is invalid"
+                    )
+                if evidence["variant"] == "lease-only" and (
+                    not isinstance(policy, dict)
+                    or policy.get("mode") != "temporary"
+                    or policy.get("path") != str(path)
+                    or policy.get("lease_identity") != lease_identity
+                    or policy.get("lifecycle") != "removed"
+                ):
+                    raise WorkspaceError(
+                        "temporary state lease recovery status changed"
+                    )
+                if evidence["variant"].startswith("orphan-"):
+                    control = status.get("control") if isinstance(status, dict) else None
+                    if (
+                        isinstance(control, dict)
+                        and control.get("generation") == evidence["generation"]
+                    ):
+                        raise WorkspaceError(
+                            "orphan temporary state generation became current"
+                        )
+                if present_states:
+                    raise WorkspaceError(
+                        "temporary state lease disappeared before state removal"
+                    )
+                if tombstone_present and evidence["variant"] == "orphan-tombstone":
+                    metadata = lock_tombstone.stat(follow_symlinks=False)
+                    if (
+                        filesystem is None
+                        or not stat.S_ISREG(metadata.st_mode)
+                        or metadata.st_nlink != 1
+                        or metadata.st_ctime_ns != filesystem["ctime_ns"]
+                        or stat.S_IFMT(metadata.st_mode) != filesystem["file_type"]
+                        or (metadata.st_dev, metadata.st_ino)
+                        != (filesystem["device"], filesystem["inode"])
+                    ):
+                        raise WorkspaceError(
+                            "orphan temporary state lease tombstone changed during recovery"
+                        )
+                if tombstone_present and not self.workspace._finish_temporary_state_lock_tombstone(
+                    path, lease_identity, container_fd
+                ):
+                    raise WorkspaceError(
+                        "temporary state lease tombstone disappeared during recovery"
+                    )
+            finally:
+                if container_fd >= 0:
+                    os.close(container_fd)
+
     def _remove_temporary_state(
-        self, item: dict[str, Any], older_than_days: int
+        self,
+        item: dict[str, Any],
+        older_than_days: int,
+        removal_started: Callable[[], None] | None = None,
+        *,
+        operation_locked: bool = False,
+        recovery_evidence: dict[str, Any] | None = None,
     ) -> None:
         path = Path(item["path"])
         topology = item.get("topology")
         if not isinstance(topology, str):
             raise WorkspaceError("temporary state topology identity is missing")
+        if recovery_evidence is not None and not self._valid_temporary_state_recovery(
+            {"kind": "temporary-state", "path": str(path)},
+            recovery_evidence,
+        ):
+            raise WorkspaceError("temporary state recovery evidence is invalid")
         root = self.workspace._topology_directory(topology)
         if item.get("_orphan_rollback_lease"):
             lock = Path(f"{path}.lock")
             generation = path.name
-            with exclusive_lock(
-                root / "operation.lock",
-                f"topology {topology} operation",
-                nonblocking=True,
+            with (
+                nullcontext()
+                if operation_locked
+                else exclusive_lock(
+                    root / "operation.lock",
+                    f"topology {topology} operation",
+                    nonblocking=True,
+                )
             ):
                 container_fd, container_identity = (
                     self._open_temporary_state_container(root)
@@ -5643,6 +7257,8 @@ class Cleanup:
                             raise WorkspaceError(
                                 "orphan temporary state lease tombstone changed"
                             )
+                        if removal_started is not None:
+                            removal_started()
                         if not self.workspace._finish_temporary_state_lock_tombstone(
                             path,
                             {
@@ -5681,6 +7297,8 @@ class Cleanup:
                             raise WorkspaceError(
                                 "orphan temporary state lease identity changed"
                             )
+                        if removal_started is not None:
+                            removal_started()
                         self.workspace._unlink_temporary_state_lock(
                             path,
                             state_lease,
@@ -5691,10 +7309,14 @@ class Cleanup:
                     os.close(container_fd)
             return
         if item.get("_lease_only"):
-            with exclusive_lock(
-                root / "operation.lock",
-                f"topology {topology} operation",
-                nonblocking=True,
+            with (
+                nullcontext()
+                if operation_locked
+                else exclusive_lock(
+                    root / "operation.lock",
+                    f"topology {topology} operation",
+                    nonblocking=True,
+                )
             ):
                 container_fd, container_identity = (
                     self._open_temporary_state_container(root)
@@ -5719,6 +7341,24 @@ class Cleanup:
                             "removed temporary state lease status changed before "
                             "cleanup"
                         )
+                    expected_lease_identity = policy.get("lease_identity")
+                    if recovery_evidence is not None:
+                        if (
+                            recovery_evidence.get("variant")
+                            not in {"state", "lease-only"}
+                            or expected_lease_identity
+                            != recovery_evidence.get("lease_identity")
+                        ):
+                            raise WorkspaceError(
+                                "temporary state recovery lease policy changed"
+                            )
+                        expected_lease_identity = recovery_evidence[
+                            "lease_identity"
+                        ]
+                    if not self._identity_pair(expected_lease_identity):
+                        raise WorkspaceError(
+                            "removed temporary state lease identity is invalid"
+                        )
                     lock = Path(f"{path}.lock")
                     if lock.exists() or lock.is_symlink():
                         with exclusive_lock(
@@ -5726,25 +7366,51 @@ class Cleanup:
                             f"temporary topology state {path}",
                             nonblocking=True,
                         ) as state_lease:
+                            lease_metadata = os.fstat(state_lease.fileno())
+                            if (
+                                not stat.S_ISREG(lease_metadata.st_mode)
+                                or lease_metadata.st_nlink != 1
+                                or recovery_evidence is not None
+                                and (
+                                    lease_metadata.st_dev,
+                                    lease_metadata.st_ino,
+                                )
+                                != (
+                                    expected_lease_identity["device"],
+                                    expected_lease_identity["inode"],
+                                )
+                            ):
+                                raise WorkspaceError(
+                                    "temporary state recovery lease identity changed"
+                                )
+                            if removal_started is not None:
+                                removal_started()
                             self.workspace._unlink_temporary_state_lock(
                                 path,
                                 state_lease,
-                                policy["lease_identity"],
+                                expected_lease_identity,
                                 container_fd,
                             )
-                    elif not self.workspace._finish_temporary_state_lock_tombstone(
-                        path, policy["lease_identity"], container_fd
-                    ):
-                        raise WorkspaceError(
-                            f"removed temporary state lease is missing: {lock}"
-                        )
+                    else:
+                        if removal_started is not None:
+                            removal_started()
+                        if not self.workspace._finish_temporary_state_lock_tombstone(
+                            path, expected_lease_identity, container_fd
+                        ):
+                            raise WorkspaceError(
+                                f"removed temporary state lease is missing: {lock}"
+                            )
                 finally:
                     os.close(container_fd)
             return
-        with exclusive_lock(
-            root / "operation.lock",
-            f"topology {topology} operation",
-            nonblocking=True,
+        with (
+            nullcontext()
+            if operation_locked
+            else exclusive_lock(
+                root / "operation.lock",
+                f"topology {topology} operation",
+                nonblocking=True,
+            )
         ):
             with exclusive_lock(
                 Path(f"{path}.lock"),
@@ -5755,34 +7421,71 @@ class Cleanup:
                 if (
                     not stat.S_ISREG(lease_metadata.st_mode)
                     or lease_metadata.st_nlink != 1
+                    or recovery_evidence is not None
+                    and (
+                        lease_metadata.st_dev,
+                        lease_metadata.st_ino,
+                    )
+                    != (
+                        recovery_evidence["lease_identity"]["device"],
+                        recovery_evidence["lease_identity"]["inode"],
+                    )
                 ):
                     raise WorkspaceError(
                         f"temporary state lease identity is invalid: {path}.lock"
                     )
-                current = self._temporary_state_item(
-                    path,
-                    older_than_days,
-                    check_lock=False,
-                    held_lease_identity={
-                        "device": lease_metadata.st_dev,
-                        "inode": lease_metadata.st_ino,
-                    },
-                    physical_path=(
-                        Path(item["_physical_path"])
-                        if not path.exists()
-                        else None
-                    ),
-                )
-                if (
-                    current.get("_identity") != item.get("_identity")
-                    or current["disposition"] != "eligible"
-                ):
-                    raise WorkspaceError(
-                        f"temporary state changed before removal: {path}: "
-                        f"{current.get('error', current['reasons'])}"
+                if recovery_evidence is None:
+                    current = self._temporary_state_item(
+                        path,
+                        older_than_days,
+                        check_lock=False,
+                        held_lease_identity={
+                            "device": lease_metadata.st_dev,
+                            "inode": lease_metadata.st_ino,
+                        },
+                        physical_path=(
+                            Path(item["_physical_path"])
+                            if not path.exists()
+                            else None
+                        ),
                     )
+                    if (
+                        current.get("_identity") != item.get("_identity")
+                        or current["disposition"] != "eligible"
+                    ):
+                        raise WorkspaceError(
+                            f"temporary state changed before removal: {path}: "
+                            f"{current.get('error', current['reasons'])}"
+                        )
                 status = self.workspace.topology_status(topology)
                 policy = status["state_policy"]
+                if recovery_evidence is not None:
+                    filesystem = recovery_evidence["filesystem_identity"]
+                    if (
+                        recovery_evidence["variant"] != "state"
+                        or not isinstance(filesystem, dict)
+                        or not isinstance(policy, dict)
+                        or policy.get("mode") != "temporary"
+                        or policy.get("path") != str(path)
+                        or policy.get("owner")
+                        != {
+                            "kind": "topology-generation",
+                            "topology": topology,
+                            "generation": recovery_evidence["generation"],
+                        }
+                        or policy.get("identity")
+                        != {
+                            "device": filesystem["device"],
+                            "inode": filesystem["inode"],
+                        }
+                        or policy.get("lease_identity")
+                        != recovery_evidence["lease_identity"]
+                        or policy.get("lifecycle")
+                        not in {"disposable", "removal-pending", "removed"}
+                    ):
+                        raise WorkspaceError(
+                            "temporary state recovery status changed"
+                        )
                 pending = self.workspace._temporary_state_removal_path(policy)
                 removal_tombstone = _owned_tree_tombstone_path(
                     pending, policy["identity"]
@@ -5814,6 +7517,8 @@ class Cleanup:
                         raise WorkspaceError(
                             "temporary state container changed before removal"
                         )
+                    if removal_started is not None:
+                        removal_started()
                     self.workspace._commit_temporary_state_removal(
                         topology,
                         status,
@@ -5889,11 +7594,200 @@ class Cleanup:
             "sound-cache": 0,
             "temporary-state": 0,
             "prunable-metadata": 3,
+            "cleanup-journal": 4,
         }
         return order.get(item["kind"], 99), item["path"]
 
-    def _remove(self, item: dict[str, Any], older_than_days: int = 0) -> None:
+    def _recover_owned_tree(
+        self, item: dict[str, Any], intent: dict[str, Any]
+    ) -> None:
+        """Continue one identity-bound owned-tree removal after interruption."""
+
+        if item.get("kind") not in OWNED_TREE_CLEANUP_KINDS:
+            raise WorkspaceError("owned-tree recovery kind is invalid")
+        if not self._valid_cleanup_intent(intent, item):
+            raise WorkspaceError("owned-tree recovery target binding is invalid")
         path = Path(item["path"])
+        identity = intent["identity"]
+        with ExitStack() as locks:
+            kind = item["kind"]
+            if kind == "profile-build":
+                lock = self.paths.builds / "locks" / f"{item['profile']}-{item['key']}.lock"
+                locks.enter_context(exclusive_lock(lock, f"profile build {item['profile']}", nonblocking=True))
+            elif kind == "topology" and (path.exists() or path.is_symlink()):
+                locks.enter_context(exclusive_lock(path / "operation.lock", f"topology {item['name']} operation", nonblocking=True))
+            elif kind == "worker-dependencies":
+                lock = self.paths.builds / "locks" / f"worker-dependencies-{item['key']}.lock"
+                locks.enter_context(exclusive_lock(lock, f"Worker dependencies {item['key']}", nonblocking=True))
+            elif kind in {"source-generation", "source-generation-transaction"}:
+                lock = self.paths.builds / "locks" / f"source-generation-{item['key']}.lock"
+                locks.enter_context(exclusive_lock(lock, f"immutable source generation {item['key']}", nonblocking=True))
+            elif kind == "worker-dependency-transaction":
+                lock = self.paths.builds / "locks" / f"worker-dependencies-{item['key']}.lock"
+                locks.enter_context(exclusive_lock(lock, f"Worker dependencies {item['key']}", nonblocking=True))
+            elif kind == "sound-cache":
+                producer_identity = intent.get("producer_identity")
+                if (
+                    not isinstance(producer_identity, list)
+                    or len(producer_identity) != 4
+                    or any(
+                        not isinstance(value, int)
+                        or isinstance(value, bool)
+                        or value < 0
+                        for value in producer_identity
+                    )
+                ):
+                    raise WorkspaceError("sound cache recovery identity is invalid")
+                checkout_path = Path(item["checkout_path"])
+                locks.enter_context(
+                    _exclusive_sound_producer_lease(
+                        checkout_path, tuple(producer_identity)
+                    )
+                )
+                locks.enter_context(
+                    exclusive_lock(
+                        path.parent / f".{path.name}.build.lock",
+                        f"sound cache {path.name}",
+                        nonblocking=True,
+                    )
+                )
+            tombstone = _owned_tree_tombstone_path(path, identity)
+            if (
+                path.exists()
+                or path.is_symlink()
+                or tombstone.exists()
+                or tombstone.is_symlink()
+            ):
+                remove_owned_tree(path, expected_identity=identity)
+
+    @staticmethod
+    def _worktree_tree_location(
+        path: Path, identity: dict[str, int]
+    ) -> tuple[str, Path] | None:
+        """Locate an exact removal root at its live name or durable tombstone."""
+
+        tombstone = _owned_tree_tombstone_path(path, identity)
+        found: list[tuple[str, Path]] = []
+        for label, candidate in (("live", path), ("tombstone", tombstone)):
+            if not candidate.exists() and not candidate.is_symlink():
+                continue
+            metadata = candidate.lstat()
+            if (
+                not stat.S_ISDIR(metadata.st_mode)
+                or stat.S_ISLNK(metadata.st_mode)
+                or metadata.st_uid != os.geteuid()
+                or (metadata.st_dev, metadata.st_ino)
+                != (identity["device"], identity["inode"])
+            ):
+                raise WorkspaceError(
+                    f"linked worktree recovery root changed identity: {candidate}"
+                )
+            found.append((label, candidate))
+        if len(found) > 1:
+            raise WorkspaceError("linked worktree recovery has duplicate roots")
+        return found[0] if found else None
+
+    @staticmethod
+    def _recheck_worktree_text_evidence(
+        path: Path, expected: dict[str, Any], context: str
+    ) -> None:
+        try:
+            _value, observed = _text_evidence(path)
+        except (OSError, UnicodeError, WorkspaceError) as error:
+            raise WorkspaceError(f"{context} changed identity") from error
+        if observed != expected:
+            raise WorkspaceError(f"{context} changed identity")
+
+    def _recover_worktree(
+        self, item: dict[str, Any], intent: dict[str, Any]
+    ) -> None:
+        """Finish an exact linked-worktree removal after any Git crash boundary."""
+
+        evidence = intent.get("worktree_identity")
+        if not _valid_linked_worktree_registration_identity(evidence):
+            raise WorkspaceError("linked worktree recovery identity is invalid")
+        path = Path(item["path"])
+        if path != Path(evidence["worktree"]):
+            raise WorkspaceError("linked worktree recovery path changed")
+        owner = item["owner"]
+        checkout = self.manifest.by_checkout.get(owner)
+        primary = (
+            self.paths.repository
+            if owner == "atrinik"
+            else self.paths.repositories / checkout.path
+            if checkout is not None
+            else None
+        )
+        if primary is None:
+            raise WorkspaceError("linked worktree recovery owner is unknown")
+        if _git_common_directory(primary) != Path(evidence["common"]):
+            raise WorkspaceError("linked worktree common Git directory changed")
+        admin = Path(evidence["admin"])
+        worktree_location = self._worktree_tree_location(
+            path, evidence["worktree_identity"]
+        )
+        admin_location = self._worktree_tree_location(
+            admin, evidence["admin_identity"]
+        )
+        if worktree_location is not None and worktree_location[0] == "live":
+            self._recheck_worktree_text_evidence(
+                path / ".git", evidence["pointer"], "linked worktree pointer"
+            )
+        if admin_location is not None and admin_location[0] == "live":
+            self._recheck_worktree_text_evidence(
+                admin / "gitdir", evidence["backlink"], "linked worktree backlink"
+            )
+        if (
+            worktree_location is not None
+            and worktree_location[0] == "live"
+            and admin_location is not None
+            and admin_location[0] == "live"
+        ):
+            if (
+                _linked_worktree_registration_identity(
+                    path, Path(evidence["common"])
+                )
+                != evidence
+            ):
+                raise WorkspaceError(
+                    "linked worktree registration changed before retry"
+                )
+            _command(primary, "worktree", "remove", "--", str(path))
+        else:
+            if worktree_location is not None:
+                remove_owned_tree(
+                    path, expected_identity=evidence["worktree_identity"]
+                )
+            if admin_location is not None:
+                remove_owned_tree(
+                    admin,
+                    expected_identity=evidence["admin_identity"],
+                    reject_links=True,
+                )
+        if (
+            self._worktree_tree_location(path, evidence["worktree_identity"])
+            is not None
+        ):
+            raise WorkspaceError("linked worktree path remains after recovery")
+        if self._worktree_tree_location(admin, evidence["admin_identity"]) is not None:
+            raise WorkspaceError("linked worktree Git admin remains after recovery")
+        if _worktree_path_registered(primary, path):
+            raise WorkspaceError("linked worktree remains registered after recovery")
+
+    def _remove(
+        self,
+        item: dict[str, Any],
+        older_than_days: int = 0,
+        *,
+        expected_identity: dict[str, int] | None = None,
+        removal_started: Callable[[], None] | None = None,
+    ) -> None:
+        path = Path(item["path"])
+
+        def begin_owned_removal() -> None:
+            if removal_started is not None:
+                removal_started()
+
         if item["kind"] == "profile-build":
             lock = self.paths.builds / "locks" / f"{item['profile']}-{item['key']}.lock"
             with exclusive_lock(
@@ -5901,11 +7795,16 @@ class Cleanup:
                 f"profile build {item['profile']}",
                 nonblocking=True,
             ):
-                managed_remove(
-                    path,
-                    self.paths.builds,
-                    f"profile:{item['profile']}:{item['key']}",
-                )
+                if expected_identity is None:
+                    begin_owned_removal()
+                    managed_remove(
+                        path,
+                        self.paths.builds,
+                        f"profile:{item['profile']}:{item['key']}",
+                    )
+                else:
+                    begin_owned_removal()
+                    remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "topology":
             with exclusive_lock(
                 path / "operation.lock",
@@ -5929,7 +7828,8 @@ class Cleanup:
                     raise WorkspaceError(
                         f"topology ownership changed before removal: {item['name']}"
                     )
-                remove_owned_tree(path)
+                begin_owned_removal()
+                remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "worker-dependencies":
             lock = (
                 self.paths.builds
@@ -5979,7 +7879,8 @@ class Cleanup:
                     raise WorkspaceError(
                         "Worker dependency cache ownership changed before removal"
                     )
-                remove_owned_tree(path)
+                begin_owned_removal()
+                remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "source-generation":
             key = item["key"]
             lock = self.paths.builds / "locks" / f"source-generation-{key}.lock"
@@ -6020,9 +7921,10 @@ class Cleanup:
                     raise WorkspaceError(
                         "source generation changed before removal"
                     )
+                begin_owned_removal()
                 remove_owned_tree(
                     path,
-                    expected_identity=current["_identity"],
+                    expected_identity=expected_identity or current["_identity"],
                 )
         elif item["kind"] == "source-generation-transaction":
             key = item["key"]
@@ -6073,7 +7975,8 @@ class Cleanup:
                         "source generation transaction changed before removal: "
                         f"{path}"
                     )
-                remove_owned_tree(path)
+                begin_owned_removal()
+                remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "worker-dependency-transaction":
             key = item["key"]
             lock = (
@@ -6120,10 +8023,26 @@ class Cleanup:
                     raise WorkspaceError(
                         f"Worker dependency transaction changed before removal: {path}"
                     )
-                remove_owned_tree(path)
+                begin_owned_removal()
+                remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "worktree":
             primary = self._repositories[item["owner"]]
+            registration_identity = item.get("_worktree_registration_identity")
+            if not _valid_linked_worktree_registration_identity(
+                registration_identity
+            ):
+                raise WorkspaceError("linked worktree removal identity is missing")
             if item["owner"] != "sound":
+                if (
+                    _linked_worktree_registration_identity(
+                        path, Path(registration_identity["common"])
+                    )
+                    != registration_identity
+                ):
+                    raise WorkspaceError(
+                        "linked worktree registration changed before removal"
+                    )
+                begin_owned_removal()
                 _command(primary, "worktree", "remove", "--", str(path))
             else:
                 common = _git_common_directory(primary)
@@ -6175,7 +8094,14 @@ class Cleanup:
                                 raise WorkspaceError(
                                     "sound cache lock changed before worktree removal"
                                 )
+                    begin_owned_removal()
                     _command(primary, "worktree", "remove", "--", str(path))
+            if path.exists() or path.is_symlink() or _worktree_path_registered(
+                primary, path
+            ):
+                raise WorkspaceError(
+                    "linked worktree removal left a live Git registration"
+                )
         elif item["kind"] in {"npm-cache", "compiler-cache"}:
             purpose = item["kind"]
             if item.get("legacy_known_cache"):
@@ -6186,7 +8112,12 @@ class Cleanup:
                     marker,
                     {"schema_version": SCHEMA_VERSION, "purpose": purpose},
                 )
-            managed_remove(path, self.paths.builds, purpose)
+            if expected_identity is None:
+                begin_owned_removal()
+                managed_remove(path, self.paths.builds, purpose)
+            else:
+                begin_owned_removal()
+                remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "sound-cache":
             checkout_path = Path(item["checkout_path"])
             git_common = item.get("_git_common")
@@ -6216,11 +8147,77 @@ class Cleanup:
                         or current.get("_identity") != item.get("_identity")
                     ):
                         raise WorkspaceError("sound cache changed before removal")
-                    remove_owned_tree(path)
+                    begin_owned_removal()
+                    remove_owned_tree(path, expected_identity=expected_identity)
         elif item["kind"] == "temporary-state":
-            self._remove_temporary_state(item, older_than_days)
+            self._remove_temporary_state(
+                item, older_than_days, removal_started=removal_started
+            )
         elif item["kind"] == "prunable-metadata":
             primary = self._repositories[item["owner"]]
+            begin_owned_removal()
             _command(primary, "worktree", "prune", "--expire", "now")
+        elif item["kind"] == "cleanup-journal":
+            if expected_identity is None:
+                raise WorkspaceError("cleanup journal removal identity is missing")
+            self._remove_cleanup_journal(
+                item,
+                expected_identity,
+                removal_started=removal_started,
+            )
         else:
             raise WorkspaceError(f"unsupported cleanup target: {item['kind']}")
+
+    def _remove_cleanup_journal(
+        self,
+        item: dict[str, Any],
+        identity: dict[str, int],
+        *,
+        removal_started: Callable[[], None] | None,
+    ) -> None:
+        path = Path(item["path"])
+        root = self.paths.workspace / "cleanup-journals"
+        if path.parent != root or path.name in {"", ".", ".."}:
+            raise WorkspaceError("cleanup journal path is invalid")
+        tombstone = _owned_tree_tombstone_path(path, identity)
+        descriptor = _open_directory_nofollow(
+            root,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
+        try:
+            visible_name: str | None = None
+            for name in (path.name, tombstone.name):
+                try:
+                    metadata = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+                except FileNotFoundError:
+                    continue
+                if (
+                    not stat.S_ISREG(metadata.st_mode)
+                    or metadata.st_nlink != 1
+                    or metadata.st_uid != os.geteuid()
+                    or stat.S_IMODE(metadata.st_mode) != 0o600
+                    or metadata.st_dev != identity.get("device")
+                    or metadata.st_ino != identity.get("inode")
+                ):
+                    raise WorkspaceError(
+                        "cleanup journal identity changed before removal"
+                    )
+                if visible_name is not None:
+                    raise WorkspaceError("cleanup journal removal state is ambiguous")
+                visible_name = name
+            if visible_name is None:
+                return
+            if removal_started is not None:
+                removal_started()
+            if visible_name == path.name:
+                rename_no_replace_at(
+                    descriptor,
+                    path.name,
+                    descriptor,
+                    tombstone.name,
+                )
+                visible_name = tombstone.name
+            os.unlink(visible_name, dir_fd=descriptor)
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)

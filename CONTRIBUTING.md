@@ -146,6 +146,18 @@ release refusal for dirty, detached, referenced, replaced, busy, retained, or
 ambiguous inputs. Scope release tests may apply only to temporary test-owned
 workspaces; repository validation remains preview-only.
 
+For delivery-ledger lifecycle changes, cover post-merge authority and exact
+authenticated live PR/issue matching, post-stage clean-worktree ancestry,
+exact squash integration, hostile GitHub CLI environment refusal, live wrapper
+lease/reference/resource rechecks, intent/resource refusal,
+release-before-inert ordering, cleanup preview/apply selection binding,
+scope-release journal/plan/action/absence proof, quarantined archive member
+identity, helper-clocked retention reclaim and terminal receipts, stale plans, and same-
+coordinate crash/retry/concurrency at every publication boundary. Tests may
+apply archive/reclaim only inside temporary test-owned review roots. Delivery
+must never invoke wrapper cleanup, and repository validation remains
+preview-only.
+
 For CMake/cache changes, also repeat an unchanged build, exercise
 `--force-reconfigure` and `--no-ccache`, inspect `ccache --show-stats` when the
 command is installed, and preview shared-cache retention with

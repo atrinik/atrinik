@@ -5,18 +5,15 @@ description: Deliver ordered Atrinik master issues through child work, merge gat
 
 # Deliver an Atrinik program
 
-Use this skill for a master issue whose acceptance depends on an ordered set of
-child issues, release-line pairs, or follow-up audits. Treat the program as one
-durable objective across multiple leaf deliveries and external merge gates.
+Treat an ordered master issue as one durable objective across its leaf
+deliveries and external merge gates.
 
-After an exact leaf ledger records program authority, invocation permits master
-claim/Project updates, ordinary pushes, issue-mode drafts, its exact PR updates,
-pending-slot binding, and gated readiness. It forbids force-push, merge, closure,
-bypass, destructive reset, cleanup, self-approval, unledgered child creation/
-linking, generic issue publication, and unrelated changes. Incidental issues and
-unrelated PRs stay read-only.
-Do not infer merge authority from requests to finish, complete, or fully deliver
-a program.
+After an exact leaf ledger records authority, invocation permits claims/Project
+updates, ordinary pushes, issue-mode drafts, exact PR updates, binding, and
+gated readiness. It forbids force-push, merge/closure, bypass, destructive
+reset, cleanup, self-approval, unledgered child/link creation, generic issue
+publication, and unrelated changes. Incidental coordinates stay read-only.
+Do not infer merge authority from "finish".
 
 ## Load the delivery contracts
 
@@ -60,7 +57,7 @@ master comment, child, or link.
    acceptance, validation, and next gate. Reuse issues. Reuse artifacts only
    when the exact leaf's schema-v1 ledger records created/adopted state after
    helper-complete migration, or bind its unique pre-recorded pending match
-   before mutation. Other PRs block or stay read-only until separately
+   through pending-slot binding before mutation. Other PRs block or stay read-only until separately
    authorized. If a live search proves a child owner is missing, record the exact
    proposed child/link as a read-only handoff pending a program-level ledger.
 5. Before claiming the master or a leaf, create or complete migration of the
@@ -157,3 +154,6 @@ close the issue. The final handoff names any remaining closure or release action
 and the preserved report path. Mark the durable goal complete only when the
 master is genuinely ready to close, not merely because the current stage is
 ready or waiting at a merge gate.
+
+Program completion grants no cleanup authority. Use issue delivery's terminal
+contract per merged leaf; never archive a master-referenced ledger.

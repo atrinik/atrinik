@@ -145,6 +145,7 @@ workspace/
     temporary-states/<generation>/   disposable or retained exact state
   state/server/<name>/               persistent mutable server data
   states.json                        named external-state registry
+  cleanup-journals/                  cleanup recovery/delivery receipts
 ~~~
 
 Selected sound repositories may also contain producer-owned
@@ -219,6 +220,9 @@ and every observed topology, state, build, profile, worktree, and reference
 disposition. Apply requires that preview digest and recomputes it under the
 same exact leases. Dependency-ordered removal journals completed actions and
 resumes exact pending profile-reference or branch cleanup after interruption.
+It first persists one exact in-flight action; retries use that intent to accept
+only the expected absent post-state (including worktree-absent/branch-present)
+and finish the interrupted action.
 Persistent named/default state and stopped topology history are retained. Only
 current matching regular spec/status records with a control-requested clean
 shutdown and released generation/state/port leases waive that reference. Live,
@@ -254,6 +258,81 @@ of initialization, synchronization, build, or startup. Default and explicit
 exact candidate leases and freshly revalidates that target immediately before
 removal. Busy or newly ambiguous candidates are preserved; completed removals
 are journaled before the ordered sequence continues.
+
+Issue/PR delivery ledgers use a separate three-stage terminal state machine.
+An active schema-1 ledger owns its issue, PR, repository/head, worktree, and
+resource coordinates even after a ready handoff. Only a new explicit
+post-merge authority issued strictly after every merge can produce a hash-bound
+release plan. Preview and apply use pinned `gh` against `github.com`; apply holds
+wrapper/Git authority, requires the worktree clean, quiescent, inactive, and
+unreferenced, and verifies either recorded-head ancestry or exact
+squash-change equivalence with the observed merge result, matches every
+selected PR and expected issue state, rejects remote intent or active resource
+mutation state, repeats proof after staging, then installs and fsyncs a complete release marker. A completed
+active scope may remain solely for the following wrapper release; running and
+mutable active resources still block. Inventory excludes
+coordinates only after that marker is durable; a candidate stage remains
+active and blocking.
+
+Generic ledger CAS cannot author target coordinates. A target-only refresh is a
+separate live transaction that pins its bound primitive/scope worktree, proves
+base/head commits and descendant lineages, computes the exact merge base, and
+repeats the proof before replacement. The versioned explicit-recovery path can
+supersede one exact historical nonexistent-head generation whose predecessor
+also recorded a stale merge base; permanent predecessor/erroneous snapshots and
+an objective-bound receipt preserve both old coordinate values.
+Terminal archive validates, bundles, and crash-resumably removes that complete
+correction evidence set with the ledger rather than leaving orphan sidecars.
+
+The release marker grants no removal authority. Wrapper cleanup remains a
+separate preview/apply operation and never receives implicit invocation from
+delivery. A later archive request retains the exact cleanup preview/apply JSON;
+the helper validates both reports and derives one identical eligible/removed
+target selection, safe removed worktrees, and terminal resources. Archive
+accepts an active-to-released scope transition only with its live exact
+completed scope-release journal, canonical release plan, exact completed action
+set, and live coordinate absence. The scope journal owns its produced-worktree
+removal; generic cleanup evidence covers only the remaining ledger targets and
+cannot synthesize that action. Archive rejects cleanup targets outside the ledger.
+The wrapper's canonical terminal schema-2 cleanup journal must bind the same
+preview/apply command coordinates and exactly produce the retained apply report
+and its digest after a strictly ordered preview, apply, and observation.
+`complete-pending-output` is replayable until its exact report is consumed and
+acknowledged as `complete-delivered`; the CLI flushes stdout before that narrow
+acknowledgement, while direct API callers acknowledge explicitly. Cleanup
+persists the exact request and original selection plus an
+in-flight `prepared` action, then publishes `removing` only after exact locked
+revalidation and immediately before mutation. Only `removing` authorizes
+absence or partial-removal recovery. An identical retry resumes that journal
+through post-removal or pre-terminal interruption instead of replanning away an
+already removed target. Current/legacy maintenance discovery uses a durable,
+request-bound bounded-page cursor before any new transaction. One global
+registry lease and fixed cursor serialize requests, bounding paging state to
+one record; the cursor retains the canonical request and validates its digest,
+so recovery does not depend on the initiating process. Registry,
+Git-admin, source, profile, topology, and
+scope-build coordinates stay leased through a final absence recheck and archive installation.
+Archive also holds the exact cleanup receipt shared; explicit receipt retirement
+requires its exclusive lease and cannot cross installation or retry.
+It installs a bounded canonical bundle
+before unlinking the exact ledger, release, persistent lock, report, migration
+marker/snapshot/source, and embedded intent material. During a crash, the
+installed bundle is the recovery authority; replacement, link, byte, mode,
+device, or inode drift fails closed. The archive itself is inert audit history
+and cannot reserve active coordinates.
+
+Every archive has an explicit UTC retention horizon. Reclaim preview uses the
+helper clock and binds its name, byte digest, device, inode, and observation
+instant after that horizon; apply rechecks time and removes only that exact
+archive. Exact inode removal first enters a crash-recoverable quarantine, and a
+hard-crash recovery restores the helper-owned transaction traversal mode before
+reopening and identity-checking it. A fixed completion checkpoint makes an
+exact retry converge after unlink until the next reclaim replaces it, without
+accumulating one receipt per delivery.
+Neither archive nor reclaim traverses or mutates
+worktrees, Git branches/objects, profiles, topology/state, or runtime resources.
+This reduces each completed delivery to one bounded record and permits explicit
+eventual reclamation before the review-root entry/byte limits are exhausted.
 
 Ordinary operations use fair exact-coordinate leases. Workspace-local
 coordinates live below `workspace/leases/`; physical Git-administration,
@@ -297,9 +376,13 @@ the profile or scenario. A later source at the same path remains protected
 across relocated roots. Exact lease contention propagates its coordinate,
 operation, owner metadata and recovery action; a record that changes between
 read and confirmation fails separately and leaves the backfill marker absent.
-Delivery live proof supplements those records with a bounded, descriptor-relative
+Delivery live proof supplements those records with a 4096-entry/32-MiB,
+descriptor-relative
 read of saved profiles beneath a pinned no-follow profiles root retained through
-precommit. It tolerates only a selector map that is a strict subset of the current
+precommit. It rechecks the exact sorted entry namespace, every entry's no-follow
+identity, and every regular JSON profile's canonical bytes digest at the final
+boundary; selector discovery parses those retained bytes rather than reopening
+mutable names. It tolerates only a selector map that is a strict subset of the current
 stack, validating every retained selector normally and treating any
 candidate-resolving selector as an exact reference. Extra components, malformed
 selectors, and all other ambiguity fail closed, and the authored profile bytes

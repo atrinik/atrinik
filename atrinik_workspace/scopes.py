@@ -1133,7 +1133,11 @@ class ScopeLifecycle:
         requests = self._release_leases(record)
         try:
             with ExitStack() as locks:
-                for root in self._candidate_build_roots(record["profile"]["name"]):
+                build_roots = set(
+                    self._candidate_build_roots(record["profile"]["name"])
+                )
+                build_roots.update(self._release_journal_build_roots(record))
+                for root in sorted(build_roots):
                     locks.enter_context(
                         exclusive_lock(
                             self.paths.builds / "locks" / f"{root.name}.lock",
@@ -1143,11 +1147,68 @@ class ScopeLifecycle:
                     )
                 with self.workspace._resource_locks(requests, nonblocking=True):
                     plan = self._release_plan(record)
+                    release_path = self._release_path(record["name"])
+                    journal: dict[str, Any] | None = None
+                    if release_path.exists() or release_path.is_symlink():
+                        if release_path.is_symlink() or not release_path.is_file():
+                            raise WorkspaceError("scope release journal is unsafe")
+                        candidate = load_regular_json(
+                            release_path, f"scope release {record['name']}"
+                        )
+                        if (
+                            not isinstance(candidate, dict)
+                            or not isinstance(candidate.get("plan"), dict)
+                            or set(candidate["plan"])
+                            != {"schema_version", "scope", "generation", "items"}
+                            or candidate["plan"].get("schema_version")
+                            != SCOPE_RELEASE_SCHEMA_VERSION
+                            or candidate["plan"].get("scope") != record["name"]
+                            or candidate["plan"].get("generation") != record["generation"]
+                            or not isinstance(candidate["plan"].get("items"), list)
+                            or _canonical_sha256(candidate["plan"])
+                            != candidate.get("plan_sha256")
+                        ):
+                            raise WorkspaceError("scope release journal plan is invalid")
+                        if not self._journal_build_roots(
+                            record, candidate
+                        ).issubset(build_roots):
+                            raise WorkspaceError(
+                                "scope release journal build coordinates changed; retry"
+                            )
+                        journal = candidate
+                        pristine = (
+                            set(journal)
+                            == {
+                                "schema_version",
+                                "scope",
+                                "generation",
+                                "plan_sha256",
+                                "plan",
+                                "status",
+                                "completed",
+                                "in_flight",
+                                "pending_builds",
+                                "updated_at",
+                            }
+                            and journal.get("status") == "applying"
+                            and journal.get("completed") == []
+                            and journal.get("in_flight") is None
+                        )
+                        if not pristine:
+                            plan = {
+                                **journal["plan"],
+                                "mode": "dry-run",
+                                "plan_sha256": journal["plan_sha256"],
+                                "can_apply": True,
+                            }
                     if not apply:
                         return plan
                     if plan_sha256 is None or not _HEX64.fullmatch(plan_sha256):
                         raise WorkspaceError("scope release apply requires the exact --plan SHA256 from dry-run")
-                    if plan_sha256 != plan["plan_sha256"]:
+                    if journal is not None and not pristine:
+                        if journal["plan_sha256"] != plan_sha256:
+                            raise WorkspaceError("scope release journal plan is invalid")
+                    elif plan_sha256 != plan["plan_sha256"]:
                         raise WorkspaceError("scope release coordinates changed since preview; preview again")
                     blockers = [item for item in plan["items"] if item["disposition"] == "protected"]
                     if blockers:
@@ -1168,6 +1229,59 @@ class ScopeLifecycle:
         if not parent.is_dir() or parent.is_symlink():
             return []
         return sorted(parent.glob(f"{profile_name}-*"))
+
+    def _release_build_root(self, record: dict[str, Any], value: Any) -> Path:
+        if not isinstance(value, str):
+            raise WorkspaceError("scope release journal build path is invalid")
+        root = Path(value)
+        if (
+            root.parent != self.paths.builds / "profiles"
+            or not re.fullmatch(
+                re.escape(record["profile"]["name"]) + r"-[0-9a-f]{64}",
+                root.name,
+            )
+        ):
+            raise WorkspaceError("scope release journal build path is invalid")
+        return root
+
+    def _journal_build_roots(
+        self, record: dict[str, Any], journal: dict[str, Any]
+    ) -> set[Path]:
+        plan = journal.get("plan")
+        if not isinstance(plan, dict) or not isinstance(plan.get("items"), list):
+            raise WorkspaceError("scope release journal plan is invalid")
+        roots: set[Path] = set()
+        for item in plan["items"]:
+            if not isinstance(item, dict):
+                raise WorkspaceError("scope release journal plan is invalid")
+            if item.get("kind") == "build" and item.get("disposition") == "eligible":
+                roots.add(self._release_build_root(record, item.get("path")))
+        pending = journal.get("pending_builds", [])
+        if not isinstance(pending, list):
+            raise WorkspaceError("scope release journal is invalid")
+        for item in pending:
+            if not isinstance(item, dict):
+                raise WorkspaceError("scope release journal is invalid")
+            roots.add(self._release_build_root(record, item.get("path")))
+        return roots
+
+    def _release_journal_build_roots(self, record: dict[str, Any]) -> set[Path]:
+        path = self._release_path(record["name"])
+        if not path.exists() and not path.is_symlink():
+            return set()
+        if path.is_symlink() or not path.is_file():
+            raise WorkspaceError("scope release journal is unsafe")
+        journal = load_regular_json(path, f"scope release {record['name']}")
+        if (
+            not isinstance(journal, dict)
+            or journal.get("schema_version") != SCOPE_RELEASE_SCHEMA_VERSION
+            or journal.get("scope") != record["name"]
+            or journal.get("generation") != record["generation"]
+            or not isinstance(journal.get("plan"), dict)
+            or _canonical_sha256(journal["plan"]) != journal.get("plan_sha256")
+        ):
+            raise WorkspaceError("scope release journal plan is invalid")
+        return self._journal_build_roots(record, journal)
 
     def _release_leases(self, record: dict[str, Any]) -> list[Any]:
         requests = [
@@ -1584,8 +1698,18 @@ class ScopeLifecycle:
                             reasons.append("replaced_path")
                         if self.workspace._git_common_directory(path, trace=False) != Path(row["common_git_dir"]):
                             reasons.append("changed_common_git_identity")
-                        if git(path, "rev-parse", "HEAD", capture=True, trace=False) != row["commit"]:
-                            reasons.append("changed_head")
+                        branch_head = git(
+                            path, "rev-parse", "HEAD", capture=True, trace=False
+                        )
+                        git(
+                            path,
+                            "merge-base",
+                            "--is-ancestor",
+                            row["commit"],
+                            branch_head,
+                            capture=True,
+                            trace=False,
+                        )
                         branch = git(path, "branch", "--show-current", capture=True, trace=False)
                         if branch != row["branch"]:
                             reasons.append("detached_or_changed_branch")
@@ -1633,7 +1757,7 @@ class ScopeLifecycle:
                                 "unexpected_references:" + ",".join(unexpected)
                             )
                         else:
-                            disposition = "absent"
+                            disposition = "eligible" if branch_head else "absent"
                             reasons.append(
                                 "worktree_removed_branch_pending"
                                 if branch_head
@@ -1667,8 +1791,33 @@ class ScopeLifecycle:
         }
 
     def _apply_release(self, record: dict[str, Any], plan: dict[str, Any]) -> dict[str, Any]:
-        from .workspace import BUILD_METADATA, git, remove_owned_tree
+        from .workspace import (
+            BUILD_METADATA,
+            _owned_tree_tombstone_path,
+            git,
+            remove_owned_tree,
+        )
 
+        expected_actions = [
+            f"build:{item['path']}"
+            for item in plan["items"]
+            if item["kind"] == "build" and item["disposition"] == "eligible"
+        ]
+        if any(
+            item["kind"] == "profile" and item["disposition"] == "eligible"
+            for item in plan["items"]
+        ):
+            expected_actions.append("profile")
+        expected_actions.extend(
+            reversed(
+                [
+                    f"worktree:{item['checkout']}"
+                    for item in plan["items"]
+                    if item["kind"] == "worktree"
+                    and item["disposition"] == "eligible"
+                ]
+            )
+        )
         topology_item = next(
             item for item in plan["items"] if item["kind"] == "topology"
         )
@@ -1692,13 +1841,18 @@ class ScopeLifecycle:
                     raise WorkspaceError(
                         "scope topology evidence changed during release"
                     )
-
         completed: list[str] = []
         release_path = self._release_path(record["name"])
         if release_path.exists() or release_path.is_symlink():
             if release_path.is_symlink() or not release_path.is_file():
                 raise WorkspaceError("scope release journal is unsafe")
             previous = load_regular_json(release_path, f"scope release {record['name']}")
+            pristine = (
+                isinstance(previous, dict)
+                and previous.get("status") == "applying"
+                and previous.get("completed") == []
+                and previous.get("in_flight") is None
+            )
             if (
                 not isinstance(previous, dict)
                 or previous.get("schema_version") != SCOPE_RELEASE_SCHEMA_VERSION
@@ -1706,6 +1860,46 @@ class ScopeLifecycle:
                 or previous.get("generation") != record["generation"]
                 or not isinstance(previous.get("completed"), list)
                 or not all(isinstance(item, str) for item in previous["completed"])
+                or previous.get("in_flight") is not None
+                and not (
+                    isinstance(previous.get("in_flight"), str)
+                    or isinstance(previous.get("in_flight"), dict)
+                    and set(previous["in_flight"]) == {"action", "phase"}
+                    and isinstance(previous["in_flight"]["action"], str)
+                    and previous["in_flight"]["phase"]
+                    in {"prepared", "removing"}
+                )
+                or not isinstance(previous.get("plan"), dict)
+                or set(previous["plan"])
+                != {"schema_version", "scope", "generation", "items"}
+                or _canonical_sha256(previous["plan"])
+                != previous.get("plan_sha256")
+                or not pristine
+                and previous.get("plan") != {
+                    key: plan[key]
+                    for key in ("schema_version", "scope", "generation", "items")
+                }
+                or not pristine
+                and previous.get("plan_sha256") != plan["plan_sha256"]
+                or previous.get("status") not in {"applying", "complete"}
+                or previous["completed"]
+                != expected_actions[: len(previous["completed"])]
+                or (
+                    previous.get("in_flight", {}).get("action")
+                    if isinstance(previous.get("in_flight"), dict)
+                    else previous.get("in_flight")
+                )
+                not in (
+                    None,
+                    expected_actions[len(previous["completed"])]
+                    if len(previous["completed"]) < len(expected_actions)
+                    else None,
+                )
+                or previous.get("status") == "complete"
+                and (
+                    previous["completed"] != expected_actions
+                    or previous.get("in_flight") is not None
+                )
                 or "pending_builds" in previous
                 and (
                     not isinstance(previous["pending_builds"], list)
@@ -1743,9 +1937,16 @@ class ScopeLifecycle:
                 )
             ):
                 raise WorkspaceError("scope release journal is invalid")
-            completed = list(dict.fromkeys(previous["completed"]))
+            if pristine:
+                previous = {}
+                completed = []
+                in_flight = None
+            else:
+                completed = list(dict.fromkeys(previous["completed"]))
+                in_flight = previous.get("in_flight")
         else:
             previous = {}
+            in_flight = None
         pending_by_path = {
             item["path"]: item
             for item in previous.get("pending_builds", [])
@@ -1772,27 +1973,80 @@ class ScopeLifecycle:
             "scope": record["name"],
             "generation": record["generation"],
             "plan_sha256": plan["plan_sha256"],
+            "plan": {
+                key: plan[key]
+                for key in ("schema_version", "scope", "generation", "items")
+            },
             "status": "applying",
             "completed": completed,
+            "in_flight": in_flight,
             "pending_builds": pending_builds,
             "updated_at": _now(),
         }
         durable_atomic_json(self._release_path(record["name"]), journal)
         self._maybe_fail("release:journal")
         revalidate_topology_evidence()
-        for intent in pending_builds:
-            action = f"build:{intent['path']}"
-            if action in journal["completed"]:
-                continue
-            root = Path(intent["path"])
-            if not root.exists() and not root.is_symlink():
-                journal["completed"].append(action)
+
+        def in_flight_action() -> str | None:
+            current = journal["in_flight"]
+            return current.get("action") if isinstance(current, dict) else current
+
+        def in_flight_phase() -> str | None:
+            current = journal["in_flight"]
+            return current.get("phase") if isinstance(current, dict) else None
+
+        def begin(action: str) -> None:
+            current = journal["in_flight"]
+            if current is not None and in_flight_action() != action:
+                raise WorkspaceError(
+                    f"scope release journal has unfinished action: {current}"
+                )
+            if current is None:
+                journal["in_flight"] = {"action": action, "phase": "prepared"}
                 journal["updated_at"] = _now()
                 durable_atomic_json(self._release_path(record["name"]), journal)
+
+        def mark_removing(action: str) -> None:
+            if in_flight_action() != action:
+                raise WorkspaceError(f"scope release action was not prepared: {action}")
+            journal["in_flight"] = {"action": action, "phase": "removing"}
+            journal["updated_at"] = _now()
+            durable_atomic_json(self._release_path(record["name"]), journal)
+
+        def finish(action: str) -> None:
+            if in_flight_action() != action:
+                raise WorkspaceError(f"scope release action was not prepared: {action}")
+            journal["completed"].append(action)
+            journal["in_flight"] = None
+            journal["updated_at"] = _now()
+            durable_atomic_json(self._release_path(record["name"]), journal)
         for item in plan["items"]:
             if item["kind"] != "build" or item["disposition"] != "eligible":
                 continue
             root = Path(item["path"])
+            action = f"build:{item['path']}"
+            if action in journal["completed"]:
+                if root.exists() or root.is_symlink():
+                    raise WorkspaceError(f"completed scope build reappeared: {root}")
+                continue
+            resuming_removal = (
+                in_flight_action() == action and in_flight_phase() == "removing"
+            )
+            begin(action)
+            if resuming_removal:
+                recovery_identity = {
+                    "device": item["device"],
+                    "inode": item["inode"],
+                }
+                tombstone = _owned_tree_tombstone_path(root, recovery_identity)
+                if root.exists() or root.is_symlink() or tombstone.exists() or tombstone.is_symlink():
+                    remove_owned_tree(root, expected_identity=recovery_identity)
+                finish(action)
+                continue
+            if not root.exists() and not root.is_symlink():
+                raise WorkspaceError(
+                    f"prepared scope build disappeared before removal: {root}"
+                )
             metadata_path = root / BUILD_METADATA
             marker_path = root / MANAGED_MARKER
             if (
@@ -1806,46 +2060,57 @@ class ScopeLifecycle:
                 raise WorkspaceError(
                     f"scope build ownership changed during release: {root}"
                 )
+            mark_removing(action)
             remove_owned_tree(
                 root,
                 expected_identity={"device": item["device"], "inode": item["inode"]},
             )
             self._maybe_fail(f"release:build-tree:{root.name}")
-            action = f"build:{item['path']}"
-            if action not in journal["completed"]:
-                journal["completed"].append(action)
-            journal["updated_at"] = _now()
-            durable_atomic_json(self._release_path(record["name"]), journal)
+            finish(action)
             self._maybe_fail(f"release:build:{root.name}")
 
         profile_path = Path(record["profile"]["path"])
-        profile_item = next(
-            item for item in plan["items"] if item["kind"] == "profile"
-        )
         revalidate_topology_evidence()
-        if profile_item["disposition"] == "eligible":
-            if (
-                profile_path.is_symlink()
-                or not profile_path.is_file()
-                or _file_sha256(profile_path) != record["profile"]["sha256"]
-                or (
-                    profile_path.stat(follow_symlinks=False).st_dev,
-                    profile_path.stat(follow_symlinks=False).st_ino,
+        if any(item["kind"] == "profile" and item["disposition"] == "eligible" for item in plan["items"]):
+            if "profile" in journal["completed"]:
+                if profile_path.exists() or profile_path.is_symlink():
+                    raise WorkspaceError("completed scope profile reappeared")
+            else:
+                resuming_removal = (
+                    in_flight_action() == "profile"
+                    and in_flight_phase() == "removing"
                 )
-                != (
-                    record["profile"]["path_device"],
-                    record["profile"]["path_inode"],
-                )
-            ):
-                raise WorkspaceError("scope profile changed during release")
-            profile_path.unlink()
-            self._maybe_fail("release:profile-file")
-        if profile_item["disposition"] in {"eligible", "absent"}:
-            self.workspace._remove_physical_reference(profile_path)
-            if "profile" not in journal["completed"]:
-                journal["completed"].append("profile")
-            journal["updated_at"] = _now()
-            durable_atomic_json(self._release_path(record["name"]), journal)
+                begin("profile")
+                if not profile_path.exists() and not profile_path.is_symlink():
+                    if not resuming_removal:
+                        raise WorkspaceError(
+                            "prepared scope profile disappeared before removal"
+                        )
+                    # The unlink and physical-reference update are separate
+                    # durable mutations. Repeating the reference removal is
+                    # the exact recovery for a crash between them.
+                    self.workspace._remove_physical_reference(profile_path)
+                    finish("profile")
+                elif (
+                    profile_path.is_symlink()
+                    or not profile_path.is_file()
+                    or _file_sha256(profile_path) != record["profile"]["sha256"]
+                    or (
+                        profile_path.stat(follow_symlinks=False).st_dev,
+                        profile_path.stat(follow_symlinks=False).st_ino,
+                    )
+                    != (
+                        record["profile"]["path_device"],
+                        record["profile"]["path_inode"],
+                    )
+                ):
+                    raise WorkspaceError("scope profile changed during release")
+                else:
+                    mark_removing("profile")
+                    profile_path.unlink()
+                    self._maybe_fail("release:profile-file")
+                    self.workspace._remove_physical_reference(profile_path)
+                    finish("profile")
             self._maybe_fail("release:profile")
 
         by_checkout = {
@@ -1855,39 +2120,98 @@ class ScopeLifecycle:
         }
         for row in reversed(record["worktrees"]):
             item = by_checkout[row["checkout"]]
-            if item["disposition"] not in {"eligible", "absent"}:
+            if item["disposition"] != "eligible":
                 continue
             path = Path(row["path"])
+            action = f"worktree:{row['checkout']}"
             primary = Path(row["primary_path"])
             revalidate_topology_evidence()
-            if item["disposition"] == "eligible":
-                if path.is_symlink() or not path.is_dir():
-                    raise WorkspaceError(f"scope worktree changed during release: {path}")
-                identity = path.stat(follow_symlinks=False)
-                if (
-                    (identity.st_dev, identity.st_ino)
-                    != (row["path_device"], row["path_inode"])
-                    or self.workspace._git_common_directory(path, trace=False)
-                    != Path(row["common_git_dir"])
-                    or git(path, "rev-parse", "HEAD", capture=True, trace=False)
-                    != row["commit"]
-                    or git(path, "branch", "--show-current", capture=True, trace=False)
-                    != row["branch"]
-                ):
-                    raise WorkspaceError(f"scope worktree changed during release: {path}")
-                from .workspace import _is_clean
+            if action in journal["completed"]:
+                if path.exists() or path.is_symlink():
+                    raise WorkspaceError(f"completed scope worktree reappeared: {path}")
+                branch_head = git(
+                    primary,
+                    "for-each-ref",
+                    "--format=%(objectname)",
+                    f"refs/heads/{row['branch']}",
+                    capture=True,
+                    trace=False,
+                )
+                if branch_head:
+                    raise WorkspaceError(
+                        f"completed scope branch reappeared: {row['branch']}"
+                    )
+                continue
+            resuming_removal = (
+                in_flight_action() == action and in_flight_phase() == "removing"
+            )
+            begin(action)
+            if not path.exists() and not path.is_symlink():
+                branch_head = git(
+                    primary,
+                    "for-each-ref",
+                    "--format=%(objectname)",
+                    f"refs/heads/{row['branch']}",
+                    capture=True,
+                    trace=False,
+                )
+                if not resuming_removal:
+                    if not branch_head:
+                        raise WorkspaceError(
+                            f"prepared scope branch disappeared before removal: "
+                            f"{row['branch']}"
+                        )
+                    if branch_head != item["branch_head"]:
+                        raise WorkspaceError(
+                            f"scope branch changed during release: {row['branch']}"
+                        )
+                    mark_removing(action)
+                if branch_head:
+                    if branch_head != item["branch_head"]:
+                        raise WorkspaceError(
+                            f"scope branch changed during release: {row['branch']}"
+                        )
+                    git(
+                        primary,
+                        "update-ref",
+                        "-d",
+                        f"refs/heads/{row['branch']}",
+                        item["branch_head"],
+                        trace=False,
+                    )
+                    self._maybe_fail(
+                        f"release:worktree-branch:{row['checkout']}"
+                    )
+                finish(action)
+                continue
+            if path.is_symlink() or not path.is_dir():
+                raise WorkspaceError(f"scope worktree changed during release: {path}")
+            identity = path.stat(follow_symlinks=False)
+            if (
+                (identity.st_dev, identity.st_ino)
+                != (row["path_device"], row["path_inode"])
+                or self.workspace._git_common_directory(path, trace=False)
+                != Path(row["common_git_dir"])
+                or git(path, "rev-parse", "HEAD", capture=True, trace=False)
+                != item["branch_head"]
+                or git(path, "branch", "--show-current", capture=True, trace=False)
+                != row["branch"]
+            ):
+                raise WorkspaceError(f"scope worktree changed during release: {path}")
+            from .workspace import _is_clean
 
-                if not _is_clean(path):
-                    raise WorkspaceError(f"scope worktree became dirty during release: {path}")
-                if [
-                    reference
-                    for reference in self.workspace._source_references(path)
-                    if reference != f"scope:{record['name']}"
-                    and reference != f"topology:{record['topology']['name']}"
-                ]:
-                    raise WorkspaceError(f"scope worktree became referenced during release: {path}")
-                git(primary, "worktree", "remove", str(path), trace=False)
-                self._maybe_fail(f"release:worktree-path:{row['checkout']}")
+            if not _is_clean(path):
+                raise WorkspaceError(f"scope worktree became dirty during release: {path}")
+            if [
+                reference
+                for reference in self.workspace._source_references(path)
+                if reference != f"scope:{record['name']}"
+                and reference != f"topology:{record['topology']['name']}"
+            ]:
+                raise WorkspaceError(f"scope worktree became referenced during release: {path}")
+            mark_removing(action)
+            git(primary, "worktree", "remove", str(path), trace=False)
+            self._maybe_fail(f"release:worktree-path:{row['checkout']}")
             branch_head = git(
                 primary,
                 "for-each-ref",
@@ -1897,17 +2221,24 @@ class ScopeLifecycle:
                 trace=False,
             )
             if branch_head:
-                if branch_head != row["commit"]:
+                if branch_head != item["branch_head"]:
                     raise WorkspaceError(
                         f"scope branch changed during release: {row['branch']}"
                     )
-                git(primary, "branch", "-d", row["branch"], trace=False)
-            action = f"worktree:{row['checkout']}"
-            if action not in journal["completed"]:
-                journal["completed"].append(action)
-            journal["updated_at"] = _now()
-            durable_atomic_json(self._release_path(record["name"]), journal)
+                git(
+                    primary,
+                    "update-ref",
+                    "-d",
+                    f"refs/heads/{row['branch']}",
+                    item["branch_head"],
+                    trace=False,
+                )
+            finish(action)
             self._maybe_fail(f"release:worktree:{row['checkout']}")
+        if journal["in_flight"] is not None:
+            raise WorkspaceError(
+                f"scope release journal has unfinished action: {journal['in_flight']}"
+            )
         missing_build_evidence = [
             f"build:{intent['path']}"
             for intent in pending_builds

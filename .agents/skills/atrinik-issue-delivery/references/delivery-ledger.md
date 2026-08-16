@@ -19,6 +19,7 @@ the ownership and recovery boundary.
 - [Correct one proven target-head typo](#correct-one-proven-target-head-typo)
 - [Migrate prior evidence](#migrate-prior-evidence)
 - [Recover interrupted transactions](#recover-interrupted-transactions)
+- [Release, archive, and reclaim after merge](#release-archive-and-reclaim-after-merge)
 - [Observe strict prohibitions](#observe-strict-prohibitions)
 
 ## Establish the trust boundary
@@ -79,11 +80,16 @@ python3 scripts/delivery_ledger.py cas REVIEW_ROOT LEDGER_NAME INPUT \
   --expected-digest SHA256 \
   --expected-device DEVICE \
   --expected-inode INODE
+python3 scripts/delivery_ledger.py target-refresh-cas \
+  REVIEW_ROOT LEDGER_NAME INPUT \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-device DEVICE --expected-inode INODE
 python3 scripts/delivery_ledger.py correct-target-head \
   REVIEW_ROOT LEDGER_NAME EXACT_PREDECESSOR_JSON RECOVERY_AUTHORITY_JSON \
   --expected-generation GENERATION --expected-digest SHA256 \
   --expected-device DEVICE --expected-inode INODE \
-  --bad-head NONEXISTENT_SHA --actual-head LIVE_SHA
+  --bad-head NONEXISTENT_SHA --actual-head LIVE_SHA \
+  [--actual-merge-base LIVE_SHA]
 python3 scripts/delivery_ledger.py migrate REVIEW_ROOT SOURCE_NAME INPUT \
   --kind legacy \
   --expected-source-digest SHA256
@@ -121,6 +127,12 @@ python3 scripts/delivery_ledger.py body-plan REVIEW_ROOT LEDGER_NAME PR_NODE_ID 
 python3 scripts/delivery_ledger.py body-recovery REVIEW_ROOT LEDGER_NAME PR_NODE_ID LIVE_SHA256 LIVE_UPDATED_AT
 python3 scripts/delivery_ledger.py body-recovery REVIEW_ROOT LEDGER_NAME PR_NODE_ID absent absent
 python3 scripts/delivery_ledger.py comment-check REVIEW_ROOT LEDGER_NAME PR_NODE_ID INPUT
+python3 scripts/delivery_ledger.py release-preview REVIEW_ROOT LEDGER_NAME INPUT
+python3 scripts/delivery_ledger.py release-apply REVIEW_ROOT LEDGER_NAME INPUT --plan SHA256
+python3 scripts/delivery_ledger.py archive-preview REVIEW_ROOT LEDGER_NAME INPUT
+python3 scripts/delivery_ledger.py archive-apply REVIEW_ROOT LEDGER_NAME INPUT --plan SHA256
+python3 scripts/delivery_ledger.py reclaim-preview REVIEW_ROOT ARCHIVE_NAME
+python3 scripts/delivery_ledger.py reclaim-apply REVIEW_ROOT PREVIEW --plan SHA256
 ```
 
 `prepare` validates and returns a normalized document. Stored bytes are stricter:
@@ -170,9 +182,12 @@ profile metadata, and every other uncertainty fail closed. Observation and
 binding never rewrite the historical profile.
 
 Delivery opens `profiles` as a direct no-follow child of the pinned workspace
-root, caps its inventory at 4096 entries, and reads candidate JSON relative to
-that descriptor. It retains and rechecks the same directory inode through CAS
-precommit; an initially absent directory must remain absent.
+root, caps its inventory at 4096 entries and 32 MiB of JSON, and reads candidate JSON relative to
+that descriptor. It snapshots and rechecks the exact sorted entry names plus
+each entry's no-follow identity and, for regular JSON profiles, canonical bytes
+digest through CAS precommit. Reference discovery parses those exact retained
+bytes rather than reopening mutable names. The directory inode remains pinned throughout;
+an initially absent directory must remain absent.
 
 On both primary and worktree checkouts, Git route proof anchors exactly one raw
 local `remote.origin.url` with includes disabled. After stripping dangerous
@@ -184,6 +199,14 @@ routes stop. Diagnostics never expose the URL or credentials.
 Immediately reprove that route and push only with explicit
 `git push origin HEAD_BRANCH` in the same scrubbed selector environment. Never
 use an implicit remote or disable credential helpers.
+
+Release/archive/reclaim are a separate post-merge lifecycle. Their previews are
+read-only and each apply accepts only the exact preview digest. A release marker
+is the sole event that makes coordinates inert. Inventory reports active
+records in `ledgers`, installed terminal markers in `releases`, and bundled
+history in `archives`. `historical_ledgers` retains decoded inert snapshots for
+audit and global node/coordinate identity consistency; staged or interrupted
+work remains in `pending`.
 
 ## Apply the schema grammar
 
@@ -489,21 +512,17 @@ closing/migration. Target set, branches, initial commits, merge-base anchor,
 artifact slots/immutable intent, producer slot, and bound state are immutable;
 legal live-observation CAS may refresh a bound artifact's safety.
 Base or head advancement extends prior lineage; merge-base changes only with
-such an advance. Generic `cas` resolves exactly one advancing target to its
-single bound primitive or scope-produced worktree, pins its precommitted roots,
-Git authority, wrapper safety leases, and path identity without following
-links, and keeps that guard through the atomic replacement. Every appended
-base/head SHA must be a full exact commit present in that repository and a Git
-descendant of the immediately preceding lineage member. The helper recomputes
-`git merge-base` from the candidate current base/head and requires the exact
-candidate merge-base SHA. It repeats the live worktree and Git proof immediately
-before rename with lazy fetching disabled. Missing objects, abbreviations,
-guesses, rewrites, dirty/active/foreign worktrees, mutable authority, multiple
-target advances in one CAS, and retargets fail without publication. Generic
-`cas` cannot perform any
-part of an initial deferred primitive or scope bind; only the purpose-specific
-atomic binder may create the exact branch/worktree/resource candidate and its
-tagged crash receipt.
+such an advance. Rewrites and retargets fail. Generic `cas` rejects every target
+coordinate change. `target-refresh-cas` admits exactly one target-only change,
+pins its bound primitive/scope worktree, proves the new base/head commits and
+descendant lineages, recomputes the exact merge base, and repeats that proof
+immediately before replacement. Generic `cas` cannot perform any part of an
+initial deferred primitive or scope bind either; only the purpose-specific atomic
+binder may create the exact branch/worktree/resource candidate and its tagged
+crash receipt. `target-refresh-cas` may adopt only the exact untagged stage/proof
+names left by a pre-upgrade generic target CAS; it still performs live proof
+before an uninstalled replacement. An already-installed legacy candidate lacks
+predecessor evidence and requires explicit recovery.
 
 Before target drift, cancel every `draft_intent`, delivery body
 `update-planned` intent, and comment `planned` intent in a completed separate
@@ -1342,11 +1361,10 @@ use `--kind artifacts` or `--kind resources` only when deliberately checking
 that subset.
 
 For target advancement, first CAS-cancel pending ready/body/comment intent.
-Then refetch exact full SHAs, append the descendant lineages, recompute merge
-base, and CAS the new coordinates. The helper independently repeats all Git
-proof at the publication boundary; caller-side inspection is not authority.
-Advance only one target per CAS, then restart affected review, validation, and
-checks. Never encode a force-push/rebase/retarget as lineage.
+Then refetch, prepare the exact target-only candidate, use `target-refresh-cas`
+to prove descendant lineages and recompute its merge base, and restart affected
+review, validation, and checks. Never encode a force-push/rebase/retarget as
+lineage or pass target coordinates to generic `cas`.
 
 ## Bind a created PR
 
@@ -1550,8 +1568,9 @@ without live target proof previously persisted one full-length but nonexistent
 target-head SHA, stop all delivery writes and retain
 the exact immediate-predecessor canonical ledger bytes. Use
 `correct-target-head` only when the bad generation differs from that predecessor
-solely by one target head advancement mirrored in exactly one bound branch and
-one bound worktree, plus the exact bound delivery-created PR artifact when that
+solely by one target head advancement mirrored in exactly one bound branch,
+one bound primitive- or active-scope-produced worktree, plus the exact bound
+delivery-created PR artifact when that
 PR already exists. The worktree must retain either its exact deferred primitive
 request or one exact `producer_resource_slot` naming a created, active scope.
 Supply the bad generation's fresh four-part CAS identity, the nonexistent SHA,
@@ -1622,6 +1641,19 @@ non-ancestor, wrong-repository/branch/path, stale tuple, merge-base drift, or
 unrelated semantic differences stop before replacement. A completed retry
 fsyncs the review root before returning, including recovery after a crash
 immediately following the rename.
+
+If the same bad generation also inherited a stale predecessor merge base, use
+the exact v2 intent transaction
+`delivery-ledger-correct-target-coordinates-intent-v1` and pass
+`--actual-merge-base`; its authority reference is exactly
+`recovery:issue-460-stale-merge-base-target-head`. The intent additionally binds predecessor/base heads and
+both recorded and live merge bases. The helper requires the recorded value to
+be stale, proves the predecessor and actual head produce the authorized live
+merge base, and changes only that merge-base current value alongside the same
+one-head correction. Its receipt transaction is
+`delivery-ledger-correct-target-coordinates-v1`; v1 evidence remains valid.
+Once exact corrected bytes and receipt are durable, an identical retry does not
+freeze later legitimate branch movement.
 
 ## Migrate prior evidence
 
@@ -1760,8 +1792,8 @@ stop for code-level recovery; never improvise file repair.
 | `create` stage only, including a durable short prefix | Rerun exact `create` with byte-identical candidate. It completes the deterministic stage. |
 | `create` target plus two-link stage | Rerun exact `create`; it proves identical inode/bytes and removes only the stage link. |
 | `create` target only | `inspect`; exact create retry is idempotent. Different bytes stop. |
-| CAS stage before rename, including a durable short prefix | Rerun exact `cas` with identical replacement and original four-part expected tuple. A target-coordinate candidate must still pass the complete live Git/worktree proof before publication. |
-| CAS target already replaced with its two-link update receipt | Rerun exact CAS with identical replacement and four-part predecessor tuple; the receipt name preserves generation/digest/device/inode and its shared inode proves the installed candidate passed the pre-rename proof. The helper removes the receipt without requiring the branch to remain frozen after publication. |
+| CAS stage before rename, including a durable short prefix | Rerun exact `cas` with the identical coordinate-neutral replacement and original four-part expected tuple. For a tagged target-coordinate stage, rerun exact `target-refresh-cas`; it must still pass the complete live Git/worktree proof before publication. |
+| CAS target already replaced with its two-link update receipt | Rerun the same command that created the exact replacement: `cas` for a coordinate-neutral receipt or `target-refresh-cas` for a tagged target-coordinate receipt. Use the identical replacement and four-part predecessor tuple; the receipt name preserves generation/digest/device/inode and its shared inode proves the installed candidate passed the pre-rename proof. The helper removes the receipt without requiring the branch to remain frozen after publication. |
 | Atomic worktree/scope bind interrupted at either CAS boundary | Rerun the identical `worktree-bind-cas` or `scope-bind-cas` with the same retained inputs and original four-part predecessor tuple, never generic `cas`. The helper freshly reproves live state before replacement and before accepting an installed post-rename receipt; drift preserves evidence and stops. |
 | Migration operation-digest plan/snapshot/report/prepared/ledger/complete boundary | Rerun exact `migrate` with identical null-migration candidate, kind, direct source name, and original source identity/digest. A different candidate or source cannot reuse even a short planned-stage prefix. |
 | Complete migration | `inventory` and `inspect`; require source/snapshot/marker/ledger coherence and no pending stage. |
@@ -1774,15 +1806,139 @@ stop for code-level recovery; never improvise file repair.
 | Bound-comment update `in-flight` | Fully paginate; bind intended result, or update the exact known node if it still has recorded old bytes. |
 | Ready intent with draft still true | Refetch; mark ready only at the exit gate, or CAS-cancel before target drift. |
 
-Every operation inventories under an exclusive no-follow root lock. Mutations
-also use a persistent per-ledger lock and re-inventory inside it. Recognized
-staging participates in collision detection; an unrelated pending operation
-blocks a mutation even when its target differs.
+Every operation inventories under an exclusive no-follow root lock. Mutations also use a persistent per-ledger lock for active ledgers and re-inventory inside
+it. Terminal lifecycle transactions remain under the root lock while archiving
+that persistent lock itself. Recognized staging participates in collision
+detection; a pending operation for the same target blocks an unrelated
+lifecycle candidate.
+
+## Release, archive, and reclaim after merge
+
+PR-ready handoff, a merged PR, and an issue closing do not grant ledger cleanup
+authority. Begin only from a new explicit post-merge request. Keep the issue
+delivery itself stopped before merge and issue closure.
+
+Prepare release evidence with exactly `authority`, `observed_at`,
+`pull_requests`, `issues`, `mutation_state`, and `cleanup`. The authority kind
+is `explicit-post-merge`; its actor is the delivery actor, its single allowed
+ledger ID is exact, and its PR/issue allowlists equal the selected coordinates.
+Its objective digest is the canonical object digest of:
+
+```json
+{"ledger_id":"LEDGER_ID","ledger_sha256":"CURRENT_LEDGER_SHA256","operation":"release"}
+```
+
+It must postdate the active authority and every selected PR's merge instant. Each PR row has exact `repository`,
+`number`, `node_id`, `state: "merged"`, equal recorded/observed head SHAs,
+`merge_commit_sha`, `merged_at`, and
+either `ancestry: {"method":"git-merge-base-is-ancestor","result":"ancestor"}`
+or `{"method":"git-squash-change-equivalent","result":"equivalent"}`. The
+latter requires a single-parent squash commit whose parent-to-merge change is
+byte-for-byte the merge-base-to-recorded-head Git change.
+The helper pins `/usr/bin/gh`, forces `github.com`, scrubs host/config/path
+overrides, and re-observes every exact PR and issue through authenticated `gh`,
+requires the authenticated actor to equal the ledger actor, pins the exact
+clean recorded worktree and Git authority, and runs the ancestry check itself.
+Apply holds wrapper coordinate leases, repeats local proof after staging, and
+performs the remote sweep last before installation. Each selected explicit/program
+issue appears once with `closed` when in closing scope and `open` otherwise.
+Both mutation-state fields are `idle`; PR body/comment/readiness intents are
+terminal, and every artifact is bound and safe. Running resources and mutable
+active state/scenario resources block. A completed active scope may remain only
+so the separately previewed cleanup can release it after ledger release.
+The cleanup object is exactly:
+
+```json
+{
+  "apply_command": "./atrinik cleanup --apply --json",
+  "policy": "explicit-preview-first",
+  "preview_command": "./atrinik cleanup --dry-run --json"
+}
+```
+
+Run `release-preview`, review it, then pass its `plan_sha256` to
+`release-apply`. The crash-resumable complete marker is installed and fsynced
+before inventory excludes that ledger from overlap ownership. It retains the
+exact ledger generation/digest/device/inode and all post-merge evidence.
+
+Cleanup remains an independent wrapper operation. Run the recorded dry-run,
+retain its raw digest and canonical selection digest, review it, then run the
+same scoped apply and retain its raw digest. Delivery never invokes cleanup.
+Cleanup remains responsible for refusing dirty, detached, locked, active,
+referenced, foreign, uncertain, or mismatched worktrees/resources.
+
+Only after cleanup may archive evidence have exact `authority`, `archived_at`,
+`retain_until`, and `cleanup`. Each cleanup preview/apply row retains exact
+`{output, observed_at}`; `output` is the canonical inline payload of the raw
+wrapper JSON. The helper parses schema 1, requires `dry-run` then successful
+`apply`, no inventory/error/abort state, and derives the target selection from
+preview `eligible` and apply `removed`/`completed_actions` rows. Those exact
+sets and their canonical digests must match. The authority kind is
+`explicit-post-cleanup`, allows exactly the ledger ID, uses the delivery actor,
+strictly postdates both release and cleanup apply, and binds this canonical objective:
+
+```json
+{"ledger_id":"LEDGER_ID","operation":"archive","release_sha256":"RELEASE_SHA256"}
+```
+
+Cleanup apply is later than preview. Its sorted worktree rows exactly
+match the ledger and say `removed`, retaining the last safe observation. Its
+resource rows exactly match every slot and say `removed` or `retained`, with the
+same terminal lifecycle. The one exception converts a ledger-recorded active
+scope to `removed`/`released`, reflecting its intervening wrapper release.
+Its scope-produced worktree is absent from the generic cleanup
+eligible/removed selection: the exact completed scope-release journal, not a
+synthetic generic-cleanup action, is its removal evidence.
+That exception also requires the live scope subsystem's exact completed,
+generation-matched release journal, embedded canonical plan and exact completed
+action set, plus live absence of every released coordinate; a caller-authored
+summary is insufficient.
+The preview and apply reports must have identical scopes, age, and filters. The
+apply report must name the exact canonical schema-2 wrapper cleanup journal;
+that journal's request, embedded original report, targets, and completed actions
+journal must be terminal (`complete-pending-output` or
+`complete-delivered`) and its stored result plus canonical digest must exactly
+bind the retained final report. Pending output remains the retry authority until
+the consumer explicitly acknowledges delivery; the wrapper CLI flushes stdout
+before acknowledgement and direct API consumers acknowledge after consumption.
+Preview observation strictly precedes
+journal start, journal finish strictly precedes apply observation, and the
+archive authority remains later still. Cleanup journals persist one in-flight
+`prepared` action before revalidation and a `removing` phase only after exact
+locked revalidation immediately before mutation. Only `removing` can authorize
+absence recovery, and journals are resumed only by the identical request until
+every original target is complete. Archive holds the wrapper's
+physical-reference registry, Git-admin, source, profile, topology,
+state/scenario, and canonical profile-build coordinates from final absence
+proof through archive installation, plus the exact cleanup journal's shared
+lease through retry/member removal; journal retirement requires its exclusive
+lease. It repeats the proof immediately before the link.
+Archive preview/apply never removes those resources.
+It instead bundles canonical ledger, release, lock, optional report, migration
+marker/snapshot/source, every validated completed head/coordinate-correction
+snapshot and receipt, and embedded intent bytes into one canonical bounded
+archive before exact member unlinking. The installed archive makes interrupted
+member removal resumable and remains inert audit evidence.
+
+`reclaim-preview` derives current UTC itself and accepts one exact archive only
+at or after `retain_until`. Apply rechecks helper time and the original
+digest/device/inode. Review the returned bound plan and
+feed the complete preview to `reclaim-apply`. Reclaim removes only that bundle;
+it never follows a path or touches a worktree/resource. Exact unlink first moves
+the inode into a private crash-recoverable quarantine whose durable intent is
+inventory-recovered before link-count validation. Recovery restores the
+helper-owned transaction directory's traversal mode after process death before
+opening and identity-checking it. One fixed completion
+checkpoint makes an exact post-unlink retry converge until the next successful
+reclaim replaces that checkpoint, so completed deliveries cannot accumulate
+one receipt apiece; unrelated absent-archive requests fail. Use a retention period required by
+project policy; never shorten it merely to clear inventory pressure.
 
 ## Observe strict prohibitions
 
 - Never hand-create, edit, chmod, link, unlink, rename, truncate, or replace a
-  ledger, lock, stage, migration marker, snapshot, or managed report copy.
+  ledger, release, archive, lock, stage, migration marker, snapshot, or managed
+  report copy.
 - Never bypass `inventory`, ignore an unexpected entry, combine identities from
   separate `inspect` calls, or reuse a stale CAS tuple.
 - Never run fresh `create` after a delivery-owned external mutation. Use only a
@@ -1809,5 +1965,6 @@ blocks a mutation even when its target differs.
   intent. Never encode rewritten Git history as descendant lineage.
 - Never put credentials, tokens, passwords, confidential data, or unnecessary
   vulnerability detail in inputs, ledgers, comments, bodies, reports, or logs.
-- Never merge, close issues, force-push, apply cleanup, or treat this local
-  state machine as additional GitHub authority.
+- Never merge, close issues, force-push, apply cleanup from issue delivery, or
+  treat this local state machine as additional GitHub authority. Never infer
+  post-merge release/archive authority from a delivery goal or ready PR.

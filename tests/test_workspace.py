@@ -664,6 +664,34 @@ def cleanup_writer_wrapper_process(
             cleanup_command(Path(repository), "worktree", "prune")
 
 
+def wait_for_pid_file(path: Path, *, timeout: float = 5) -> int:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            pid = int(path.read_text(encoding="ascii"))
+        except (FileNotFoundError, ValueError):
+            time.sleep(0.05)
+            continue
+        if pid > 0:
+            return pid
+        time.sleep(0.05)
+    raise AssertionError(f"child did not publish a complete PID: {path}")
+
+
+def wait_for_topology_status(
+    workspace: Workspace, name: str, *, timeout: float = 5
+) -> dict[str, object]:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            return workspace.topology_status(name)
+        except WorkspaceError as error:
+            if str(error) != f"topology has not been started: {name}":
+                raise
+        time.sleep(0.05)
+    raise AssertionError(f"topology did not publish its status: {name}")
+
+
 def compiler_cache_first_use_process(
     wrapper: str,
     workspace_directory: str,
@@ -3759,6 +3787,7 @@ class WorkspaceTests(unittest.TestCase):
                     if item["path"] == str(generation)
                 )
                 self.assertEqual(removed["disposition"], "removed", removed)
+                self.workspace.cleanup_acknowledge(applied)
                 recreated = resolve()
                 self.assertEqual(
                     (recreated / "README").read_text(encoding="utf-8"),
@@ -16011,7 +16040,16 @@ class WorkspaceTests(unittest.TestCase):
                         os.close(pidfd)
                     deadline = time.monotonic() + 15
                     while time.monotonic() < deadline:
-                        crashed = observer.topology_status(names[0])
+                        try:
+                            crashed = observer.topology_status(names[0])
+                        except WorkspaceError as error:
+                            if str(error) != (
+                                "topology runtime generation lease is not retained: "
+                                f"{names[0]}"
+                            ):
+                                raise
+                            time.sleep(0.05)
+                            continue
                         if (
                             not crashed["supervisor"]["running"]
                             and crashed["observation"]["port_reservation"]["lease"]
@@ -16019,6 +16057,8 @@ class WorkspaceTests(unittest.TestCase):
                         ):
                             break
                         time.sleep(0.05)
+                    else:
+                        self.fail("crashed topology did not release its port")
                     self.assertFalse(crashed["supervisor"]["running"])
                     self.assertEqual(
                         crashed["observation"]["port_reservation"]["lease"],
@@ -16093,7 +16133,7 @@ class WorkspaceTests(unittest.TestCase):
                 while time.monotonic() < deadline and not marker.is_file():
                     time.sleep(0.02)
                 self.assertTrue(marker.is_file())
-                pending = observer.topology_status(name)
+                pending = wait_for_topology_status(observer, name)
                 self.assertEqual(
                     pending["observation"]["port_reservation"]["lease"],
                     "retained",
@@ -16902,10 +16942,29 @@ class WorkspaceTests(unittest.TestCase):
         hardlinked_path = Path(hardlinked["state_policy"]["path"])
         hardlink_target = self.root / "temporary-clean-hardlink"
         os.link(hardlinked_path / "motd", hardlink_target)
-        with self.assertRaisesRegex(
-            WorkspaceError, "retained because its integrity could not be proved"
+        real_bound_lease_locked = workspace_module.bound_lease_locked
+
+        def runtime_lease_observation(
+            path: Path, generation: str, identity: dict[str, int]
+        ) -> bool:
+            status = load_json(
+                self.workspace.paths.topologies
+                / "temporary-hardlinked"
+                / "status.json"
+            )
+            if status.get("stopped_at") is not None:
+                return False
+            return real_bound_lease_locked(path, generation, identity)
+
+        with mock.patch.object(
+            workspace_module,
+            "bound_lease_locked",
+            side_effect=runtime_lease_observation,
         ):
-            self.workspace.topology_down("temporary-hardlinked", timeout=5)
+            with self.assertRaisesRegex(
+                WorkspaceError, "retained because its integrity could not be proved"
+            ):
+                self.workspace.topology_down("temporary-hardlinked", timeout=5)
         self.assertEqual(
             self.workspace.topology_status("temporary-hardlinked")["state_policy"][
                 "lifecycle"
@@ -17338,10 +17397,21 @@ class WorkspaceTests(unittest.TestCase):
             os.close(pidfd)
         deadline = time.monotonic() + 15
         while time.monotonic() < deadline:
-            crashed = self.workspace.topology_status("temporary-crash")
+            try:
+                crashed = self.workspace.topology_status("temporary-crash")
+            except WorkspaceError as error:
+                if str(error) != (
+                    "topology runtime generation lease is not retained: "
+                    "temporary-crash"
+                ):
+                    raise
+                time.sleep(0.05)
+                continue
             if crashed["observation"]["process_tree_lease"] == "released":
                 break
             time.sleep(0.05)
+        else:
+            self.fail("temporary topology process tree was not released")
         self.assertEqual(crashed["state_policy"]["lifecycle"], "disposable")
         self.assertTrue(state.is_dir())
         recovered = self.workspace.topology_down("temporary-crash", timeout=5)
@@ -17552,6 +17622,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(malformed_applied_item["disposition"], "protected")
         self.assertTrue(state.is_dir())
+        self.workspace.cleanup_acknowledge(malformed_apply)
         saved_required_file.rename(required_file)
         required_directory = state / "keys"
         saved_required_directory = state / "keys.saved"
@@ -17578,6 +17649,7 @@ class WorkspaceTests(unittest.TestCase):
             missing_directory_applied_item["disposition"], "protected"
         )
         self.assertTrue(state.is_dir())
+        self.workspace.cleanup_acknowledge(missing_directory_apply)
         saved_required_directory.rename(required_directory)
         special = state / "unsafe-fifo"
         os.mkfifo(special)
@@ -17601,6 +17673,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertEqual(special_applied_item["disposition"], "protected")
         self.assertTrue(state.is_dir())
+        self.workspace.cleanup_acknowledge(special_apply)
         special.unlink()
         for metadata_path in (
             state / MANAGED_MARKER,
@@ -20331,11 +20404,7 @@ class WorkspaceTests(unittest.TestCase):
         child_pidfd: int | None = None
         try:
             wrapper.start()
-            deadline = time.monotonic() + 5
-            while time.monotonic() < deadline and not child_pid_path.is_file():
-                time.sleep(0.05)
-            self.assertTrue(child_pid_path.is_file())
-            child_pid = int(child_pid_path.read_text(encoding="ascii"))
+            child_pid = wait_for_pid_file(child_pid_path)
             child_pidfd = os.pidfd_open(child_pid)
             wrapper.kill()
             wrapper.join(timeout=5)
@@ -20402,13 +20471,7 @@ class WorkspaceTests(unittest.TestCase):
         child_pidfd: int | None = None
         try:
             wrapper.start()
-            deadline = time.monotonic() + 5
-            while time.monotonic() < deadline and not child_pid_path.is_file():
-                time.sleep(0.05)
-            self.assertTrue(child_pid_path.is_file())
-            child_pidfd = os.pidfd_open(
-                int(child_pid_path.read_text(encoding="ascii"))
-            )
+            child_pidfd = os.pidfd_open(wait_for_pid_file(child_pid_path))
             wrapper.kill()
             wrapper.join(timeout=5)
             self.assertFalse(wrapper.is_alive())

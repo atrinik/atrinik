@@ -17,9 +17,9 @@ Run from the wrapper root.
 3. Keep code, tests, packages, and releases with their physical owner; keep
    orchestration and wrapper contracts here.
 
-Checkouts are ignored repositories. A `classic` worktree holds all five
+Checkouts are ignored repositories. One `classic` worktree holds all five
 `classic-*` components. Both stacks share `content@main`; `content-1x` is
-historical. Composition lives in `.devcontainer/`.
+historical.
 
 ## Prepare safe worktrees
 
@@ -42,9 +42,8 @@ classic` adds classic. `sync` never clones.
 ```
 
 Sync only clean primaries; never replace, move, or remove dirty sources.
-Classic selectors create `workspace/worktrees/classic/LABEL`. Prefer atomic
-scopes: names resist collisions, retries are idempotent, and JSON is
-secret-free. Temporary state is the default.
+Classic selectors create `workspace/worktrees/classic/LABEL`. Prefer atomic,
+idempotent scopes and temporary state.
 Release with the fresh preview digest:
 
 ```sh
@@ -52,9 +51,8 @@ Release with the fresh preview digest:
 ./atrinik scope release REVIEW --apply --plan PLAN_SHA256 --json
 ```
 
-Release never stops topologies or deletes persistent state. Exact clean-down
-permits it. Interrupted substeps resume after a fresh preview; uncertainty
-fails closed and journals remain.
+Release never stops topologies or deletes persistent state. Interrupted steps
+resume after a fresh preview; uncertainty retains journals.
 
 Reclaim review data only through preview-first cleanup:
 
@@ -65,11 +63,13 @@ Reclaim review data only through preview-first cleanup:
 ./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ```
 
-After review, repeat the scoped command with `--apply`. Defaults cover
-worktrees/builds; caches/history are opt-in; `all` excludes topologies. Reclaim
-only stopped, released, exact marker-owned records; uncertainty fails closed.
-Apply sound-cache before its worktree. README/architecture define proof and
-apply-time revalidation.
+Repeat with `--apply`. Defaults cover worktrees/builds; caches/history opt in and
+`all` excludes topologies. Remove only stopped, released, exactly owned records;
+uncertainty fails closed. Apply sound-cache before its worktree. Retry unchanged
+so the journal resumes. Retire delivered receipts via an explicit
+`cleanup-journals` preview; nonempty receipts need exact names on apply.
+Pending/unsafe receipts stay protected. Delivery sidecars are separate and
+never cleanup targets.
 
 ## Compose coherent sources
 
@@ -86,8 +86,7 @@ Replacement repositories lack wrapper build/runtime closure.
 ```
 
 Classic selection is checkout-wide; subdirectories are not worktrees. Builds
-pin snapshots and caches use their identity. Live inputs retain leases;
-cleanup owns staging.
+pin snapshots; live inputs retain leases and cleanup owns staging.
 
 Lease order is registry, profile, Git-admin, source, topology/scenario, state,
 build, cache. Gate matching coordinates; multi-source writers retry
