@@ -6104,6 +6104,31 @@ class DeliveryLedgerTests(unittest.TestCase):
         scope_show = scope_show_bytes(request, repository_name="atrinik/client")
         install_scope_references(request, scope_show)
         worktree_list = worktree_list_bytes(request)
+        manifest = Manifest.load(Path(roots["wrapper"]["path"]) / "components.json")
+        components = {
+            component.name: {"kind": "primary", "value": ""}
+            for component in manifest.stack("default").components
+        }
+        components.pop("resources")
+        profile_path = (
+            Path(roots["workspace"]["path"])
+            / "profiles"
+            / "stale-scope-unrelated.json"
+        )
+        profile_path.parent.mkdir(parents=True, exist_ok=True)
+        profile_path.write_bytes(
+            json_bytes(
+                {
+                    "schema_version": 5,
+                    "name": "stale-scope-unrelated",
+                    "stack": "default",
+                    "sound_mode": "source",
+                    "sound_release": None,
+                    "components": components,
+                }
+            )
+        )
+        profile_before = profile_path.read_bytes()
         observation = ledger.observe_scope_worktree(
             document,
             "scope",
@@ -6111,6 +6136,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             worktree_list,
             "2026-08-14T18:03:00Z",
         )
+        self.assertEqual(profile_path.read_bytes(), profile_before)
         safety = json_bytes(observation)
 
         with tempfile.TemporaryDirectory() as temporary:
@@ -6131,6 +6157,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 value for value in bound.document["resources"] if value["kind"] == "scope"
             )
             self.assertEqual(resource["current"]["external_generation"], "1" * 32)
+            self.assertEqual(profile_path.read_bytes(), profile_before)
 
             advanced_outcome: list[object] = []
 
@@ -6699,6 +6726,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             (admin / "config.worktree", b"[delivery]\n\tlate = true\n"),
         ):
             self.assertFalse(absent_path.exists())
+            final_registration_calls = 0
 
             def appear_late(
                 descriptor: int,
@@ -6709,15 +6737,19 @@ class DeliveryLedgerTests(unittest.TestCase):
                 authority_raw: bytes = raw,
                 **keywords: object,
             ) -> tuple[int, bytes]:
+                nonlocal final_registration_calls
                 response = authority_git(descriptor, arguments, context, **keywords)
-                if context == "Git worktree registration":
-                    authority_path.write_bytes(authority_raw)
+                if context == "final Git worktree registration":
+                    final_registration_calls += 1
+                    if final_registration_calls == 2:
+                        authority_path.write_bytes(authority_raw)
                 return response
 
             try:
                 with mock.patch.object(ledger, "_git", side_effect=appear_late):
                     with self.assertRaisesRegex(
-                        ledger.LedgerError, "appeared during live Git proof"
+                        ledger.LedgerError,
+                        "appeared during live Git proof",
                     ):
                         ledger.observe_primitive_worktree(
                             document,
@@ -6954,6 +6986,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             ("locked", False),
         ):
             marker_path = admin / late_marker
+            final_registration_calls = 0
 
             def create_marker_after_final_registration(
                 descriptor: int,
@@ -6964,14 +6997,17 @@ class DeliveryLedgerTests(unittest.TestCase):
                 directory: bool = is_directory,
                 **keywords: object,
             ) -> tuple[int, bytes]:
+                nonlocal final_registration_calls
                 response = authority_git(descriptor, arguments, context, **keywords)
                 if context == "final Git worktree registration":
-                    if directory:
-                        target.mkdir()
-                    else:
-                        target.write_text(
-                            request["expected_head_sha"] + "\n", encoding="ascii"
-                        )
+                    final_registration_calls += 1
+                    if final_registration_calls == 2:
+                        if directory:
+                            target.mkdir()
+                        else:
+                            target.write_text(
+                                request["expected_head_sha"] + "\n", encoding="ascii"
+                            )
                 return response
 
             try:
@@ -7085,6 +7121,7 @@ class DeliveryLedgerTests(unittest.TestCase):
 
         loose_ref = common / "refs" / "heads" / request["branch"]
         self.assertFalse(loose_ref.exists())
+        final_registration_calls = 0
 
         def create_loose_ref_late(
             descriptor: int,
@@ -7092,10 +7129,15 @@ class DeliveryLedgerTests(unittest.TestCase):
             context: str,
             **keywords: object,
         ) -> tuple[int, bytes]:
+            nonlocal final_registration_calls
             response = authority_git(descriptor, arguments, context, **keywords)
-            if context == "Git worktree registration":
-                loose_ref.parent.mkdir(parents=True, exist_ok=True)
-                loose_ref.write_text(request["expected_head_sha"] + "\n", encoding="ascii")
+            if context == "final Git worktree registration":
+                final_registration_calls += 1
+                if final_registration_calls == 2:
+                    loose_ref.parent.mkdir(parents=True, exist_ok=True)
+                    loose_ref.write_text(
+                        request["expected_head_sha"] + "\n", encoding="ascii"
+                    )
             return response
 
         try:
@@ -7209,6 +7251,325 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(
                 json.loads(bind.stdout)["snapshot"]["document"]["generation"], 2
             )
+
+    def _stale_profile_worktree_fixture(
+        self,
+        name: str,
+        *,
+        claims_candidate: bool,
+    ) -> tuple[dict[str, object], dict[str, object], bytes, Path, bytes]:
+        roots = live_roots(self.live_base / name, "content")
+        document = deferred_primitive_pr(
+            roots,
+            number=480 if claims_candidate else 479,
+            node="P_stale_claim" if claims_candidate else "P_stale_unrelated",
+            branch=(
+                "Feature/StaleClaim"
+                if claims_candidate
+                else "Feature/StaleUnrelated"
+            ),
+            label="stale-profile-candidate",
+        )
+        retarget_repository(document, repository("content", "R_content"))
+        request = next(
+            slot
+            for slot in document["artifacts"]
+            if slot["kind"] == "worktree"
+        )["primitive_request"]
+        request["component"] = "content"
+        request["physical_checkout"] = "content"
+        worktree_list = worktree_list_bytes(request, use_wrapper_command=False)
+
+        manifest = Manifest.load(Path(roots["wrapper"]["path"]) / "components.json")
+        stack = manifest.stack("default")
+        components = {
+            component.name: {"kind": "primary", "value": ""}
+            for component in stack.components
+        }
+        components.pop("resources")
+        if claims_candidate:
+            components["content"] = {
+                "kind": "worktree",
+                "value": request["label"],
+            }
+        profile = {
+            "schema_version": 5,
+            "name": name,
+            "stack": "default",
+            "sound_mode": "source",
+            "sound_release": None,
+            "components": components,
+        }
+        profile_path = (
+            Path(roots["workspace"]["path"]) / "profiles" / f"{name}.json"
+        )
+        profile_path.parent.mkdir(parents=True, exist_ok=True)
+        profile_path.write_bytes(json_bytes(profile))
+        return document, request, worktree_list, profile_path, profile_path.read_bytes()
+
+    def test_40a_unrelated_incomplete_profile_allows_observe_and_bind(self) -> None:
+        document, request, worktree_list, profile_path, profile_before = (
+            self._stale_profile_worktree_fixture(
+                "stale-unrelated", claims_candidate=False
+            )
+        )
+        observation = ledger.observe_primitive_worktree(
+            document,
+            "worktree",
+            worktree_list,
+            "2026-08-15T22:40:00Z",
+        )
+        self.assertEqual(observation["safety"], ledger.SAFE_ARTIFACT_STATE)
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            review_root = Path(temporary)
+            initial = ledger.create(review_root, document)
+            result = ledger.bind_worktree_cas(
+                review_root,
+                initial.name,
+                "worktree",
+                worktree_list,
+                ledger.canonical_bytes(observation),
+                expected_generation=initial.document["generation"],
+                expected_digest=initial.digest,
+                expected_device=initial.device,
+                expected_inode=initial.inode,
+            )
+        self.assertEqual(result["snapshot"]["document"]["generation"], 2)
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+        self.assertEqual(
+            result["snapshot"]["document"]["artifacts"][2]["current"]["path"],
+            str(live_worktree_path(request)),
+        )
+
+    def test_40b_incomplete_profile_claiming_candidate_still_blocks(self) -> None:
+        document, _request, worktree_list, profile_path, profile_before = (
+            self._stale_profile_worktree_fixture(
+                "stale-claim", claims_candidate=True
+            )
+        )
+        with self.assertRaisesRegex(ledger.LedgerError, "reference set differs"):
+            ledger.observe_primitive_worktree(
+                document,
+                "worktree",
+                worktree_list,
+                "2026-08-15T22:41:00Z",
+            )
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+
+    def test_40c_profile_root_symlink_and_bind_replacement_fail_closed(self) -> None:
+        claiming, _request, claiming_list, profile_path, profile_before = (
+            self._stale_profile_worktree_fixture(
+                "stale-root-symlink", claims_candidate=True
+            )
+        )
+        profiles = profile_path.parent
+        hidden = profiles.with_name("profiles-hidden")
+        empty = profiles.with_name("profiles-empty")
+        profiles.rename(hidden)
+        empty.mkdir()
+        profiles.symlink_to(empty, target_is_directory=True)
+        try:
+            with self.assertRaisesRegex(ledger.LedgerError, "profiles root"):
+                ledger.observe_primitive_worktree(
+                    claiming,
+                    "worktree",
+                    claiming_list,
+                    "2026-08-15T22:42:00Z",
+                )
+            self.assertEqual((hidden / profile_path.name).read_bytes(), profile_before)
+        finally:
+            profiles.unlink()
+            empty.rmdir()
+            hidden.rename(profiles)
+
+        document, _request, worktree_list, profile_path, profile_before = (
+            self._stale_profile_worktree_fixture(
+                "stale-root-replacement", claims_candidate=False
+            )
+        )
+        observation = ledger.observe_primitive_worktree(
+            document,
+            "worktree",
+            worktree_list,
+            "2026-08-15T22:43:00Z",
+        )
+        profiles = profile_path.parent
+        hidden = profiles.with_name("profiles-hidden")
+
+        with tempfile.TemporaryDirectory() as temporary:
+            review_root = Path(temporary)
+            initial = ledger.create(review_root, document)
+            before = directory_snapshot(review_root)
+
+            def replace_profiles(point: str) -> None:
+                if point == "cas:proofed":
+                    profiles.rename(hidden)
+                    profiles.mkdir()
+
+            try:
+                with self.assertRaisesRegex(ledger.LedgerError, "profiles root"):
+                    ledger.bind_worktree_cas(
+                        review_root,
+                        initial.name,
+                        "worktree",
+                        worktree_list,
+                        json_bytes(observation),
+                        failpoint=replace_profiles,
+                        **cas_arguments(initial),
+                    )
+                self.assertEqual(directory_snapshot(review_root), before)
+                self.assertEqual((hidden / profile_path.name).read_bytes(), profile_before)
+            finally:
+                if profiles.is_dir():
+                    profiles.rmdir()
+                if hidden.exists():
+                    hidden.rename(profiles)
+
+        for index in range(4096):
+            (profiles / f"ignored-{index:04d}").touch()
+        with self.assertRaisesRegex(ledger.LedgerError, "inventory is oversized"):
+            ledger.observe_primitive_worktree(
+                document,
+                "worktree",
+                worktree_list,
+                "2026-08-15T22:44:00Z",
+            )
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+
+    def test_40d_manifest_mapping_drift_during_bind_fails_closed(self) -> None:
+        document, request, worktree_list, profile_path, _profile_before = (
+            self._stale_profile_worktree_fixture(
+                "stale-manifest-drift", claims_candidate=False
+            )
+        )
+        profile = json.loads(profile_path.read_bytes())
+        profile["components"].pop("content")
+        profile["components"]["sound"] = {
+            "kind": "worktree",
+            "value": request["label"],
+        }
+        profile_path.write_bytes(json_bytes(profile))
+        profile_before = profile_path.read_bytes()
+        manifest_path = Path(request["roots"]["wrapper"]["path"]) / "components.json"
+        manifest_before = manifest_path.read_bytes()
+        changed_manifest = json.loads(manifest_before)
+        for component in changed_manifest["components"]:
+            if component["name"] == "content":
+                component["source"] = "content"
+            elif component["name"] == "sound":
+                component["checkout"] = "content"
+                component["source"] = "sound"
+        parsed_manifest = Manifest.from_value(changed_manifest)
+        self.assertEqual(parsed_manifest.by_name["sound"].checkout_name, "content")
+        self.assertEqual(
+            Path(request["roots"]["workspace"]["path"])
+            / "worktrees"
+            / parsed_manifest.by_name["sound"].checkout_name
+            / request["label"],
+            live_worktree_path(request),
+        )
+
+        original_module_loader = ledger._load_workspace_module
+        constructed_workspaces = []
+
+        def load_with_postconstruction_drift(wrapper_root: str):
+            module = original_module_loader(wrapper_root)
+
+            def drifting_workspace(*args, **kwargs):
+                workspace = module.Workspace(*args, **kwargs)
+                constructed_workspaces.append(workspace)
+                manifest_path.write_bytes(json_bytes(changed_manifest))
+                return workspace
+
+            return type(
+                "DriftingWorkspaceModule",
+                (),
+                {
+                    "Manifest": module.Manifest,
+                    "Workspace": staticmethod(drifting_workspace),
+                },
+            )
+
+        try:
+            with mock.patch.object(
+                ledger,
+                "_load_workspace_module",
+                side_effect=load_with_postconstruction_drift,
+            ), self.assertRaisesRegex(
+                ledger.LedgerError, "manifest authority changed"
+            ):
+                ledger.observe_primitive_worktree(
+                    document,
+                    "worktree",
+                    worktree_list,
+                    "2026-08-15T22:45:00Z",
+                )
+        finally:
+            manifest_path.write_bytes(manifest_before)
+        self.assertEqual(len(constructed_workspaces), 1)
+        self.assertIsNone(constructed_workspaces[0]._wrapper_lease)
+
+        def load_with_manifest_aba(wrapper_root: str):
+            module = original_module_loader(wrapper_root)
+
+            def racing_workspace(*args, **kwargs):
+                manifest_path.write_bytes(json_bytes(changed_manifest))
+                try:
+                    return module.Workspace(*args, **kwargs)
+                finally:
+                    manifest_path.write_bytes(manifest_before)
+
+            return type(
+                "RacingWorkspaceModule",
+                (),
+                {
+                    "Manifest": module.Manifest,
+                    "Workspace": staticmethod(racing_workspace),
+                },
+            )
+
+        with mock.patch.object(
+            ledger,
+            "_load_workspace_module",
+            side_effect=load_with_manifest_aba,
+        ):
+            observation = ledger.observe_primitive_worktree(
+                document,
+                "worktree",
+                worktree_list,
+                "2026-08-15T22:46:00Z",
+            )
+        self.assertEqual(observation["safety"], ledger.SAFE_ARTIFACT_STATE)
+        self.assertEqual(profile_path.read_bytes(), profile_before)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            review_root = Path(temporary)
+            initial = ledger.create(review_root, document)
+            before = directory_snapshot(review_root)
+
+            def replace_manifest_mapping(point: str) -> None:
+                if point == "cas:proofed":
+                    manifest_path.write_bytes(json_bytes(changed_manifest))
+
+            try:
+                with self.assertRaisesRegex(
+                    ledger.LedgerError, "manifest authority changed"
+                ):
+                    ledger.bind_worktree_cas(
+                        review_root,
+                        initial.name,
+                        "worktree",
+                        worktree_list,
+                        json_bytes(observation),
+                        failpoint=replace_manifest_mapping,
+                        **cas_arguments(initial),
+                    )
+                self.assertEqual(directory_snapshot(review_root), before)
+                self.assertEqual(profile_path.read_bytes(), profile_before)
+            finally:
+                manifest_path.write_bytes(manifest_before)
 
     def test_41_fresh_known_paths_and_report_coordinate_reservations_stop(self) -> None:
         for mode, candidate in (
@@ -7796,7 +8157,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         )
         active_override = (
             "Workspace._source_references = "
-            "lambda self, source: {'profile:changed-authority'}"
+            "lambda self, source, **kwargs: {'profile:changed-authority'}"
         )
         inactive_override = "#" + active_override[1:]
         self.assertEqual(len(inactive_override), len(active_override))
@@ -7928,6 +8289,199 @@ class DeliveryLedgerTests(unittest.TestCase):
         self.assertFalse(writer.is_alive())
         self.assertEqual(writer_errors, [])
         self.assertFalse(aba_marker.exists())
+
+    def test_45a_candidate_bootstrap_requires_clean_wrapper_self_authority(self) -> None:
+        original_module_loader = ledger._load_workspace_module
+
+        def legacy_primary_module(wrapper_root: str):
+            module = original_module_loader(wrapper_root)
+
+            class LegacyWorkspace(module.Workspace):
+                def __init__(
+                    self,
+                    repository: Path,
+                    *,
+                    backfill_references: bool = True,
+                ) -> None:
+                    super().__init__(
+                        repository,
+                        backfill_references=backfill_references,
+                    )
+
+                def _source_references(self, source_root: Path) -> list[str]:
+                    return super()._source_references(source_root)
+
+            return type(
+                "LegacyPrimaryWorkspaceModule",
+                (),
+                {"Manifest": module.Manifest, "Workspace": LegacyWorkspace},
+            )
+
+        roots = live_roots(self.live_base / "dirty-bootstrap", "atrinik")
+        document = deferred_primitive_pr(
+            roots,
+            number=493,
+            node="P_dirty_bootstrap",
+            branch="Feature/DirtyBootstrap",
+            label="dirty-bootstrap",
+        )
+        request = next(
+            slot for slot in document["artifacts"] if slot["kind"] == "worktree"
+        )["primitive_request"]
+        live = live_worktree_path(request)
+        listing = worktree_list_bytes(request, use_wrapper_command=False)
+        marker = self.live_base / "dirty-bootstrap-executed"
+        candidate_init = live / "atrinik_workspace" / "__init__.py"
+        candidate_init.write_text(
+            candidate_init.read_text(encoding="utf-8")
+            + "\nfrom pathlib import Path as _DirtyBootstrapMarker\n"
+            + f"_DirtyBootstrapMarker({str(marker)!r}).write_text('executed')\n",
+            encoding="utf-8",
+        )
+        with mock.patch.object(
+            ledger, "_load_workspace_module", side_effect=legacy_primary_module
+        ) as primary_loader:
+            with self.assertRaisesRegex(ledger.LedgerError, "worktree is dirty"):
+                ledger.observe_primitive_worktree(
+                    document,
+                    "worktree",
+                    listing,
+                    "2026-08-16T10:00:00Z",
+                )
+        primary_loader.assert_not_called()
+        self.assertFalse(marker.exists())
+
+        replacement_roots = live_roots(
+            self.live_base / "bootstrap-root-replacement", "atrinik"
+        )
+        replacement_document = deferred_primitive_pr(
+            replacement_roots,
+            number=495,
+            node="P_bootstrap_root_replacement",
+            branch="Feature/BootstrapRootReplacement",
+            label="bootstrap-root-replacement",
+        )
+        replacement_request = next(
+            slot
+            for slot in replacement_document["artifacts"]
+            if slot["kind"] == "worktree"
+        )["primitive_request"]
+        replacement_live = live_worktree_path(replacement_request)
+        (replacement_live / "atrinik_workspace" / "bootstrap_identity_probe.py").write_text(
+            "PROBE = True\n", encoding="utf-8"
+        )
+        git_run(replacement_live, "add", "atrinik_workspace/bootstrap_identity_probe.py")
+        git_run(replacement_live, "commit", "-m", "test bootstrap identity")
+        replacement_head = git_run(
+            replacement_live, "rev-parse", "HEAD"
+        ).stdout.strip()
+        package = replacement_live / "atrinik_workspace"
+        hidden_package = replacement_live / "atrinik_workspace-retained"
+        replaced = False
+        snapshot_calls = 0
+        original_git_snapshot = ledger._git_workspace_package_snapshot
+
+        def replace_package_during_load(*args: object, **kwargs: object):
+            nonlocal replaced, snapshot_calls
+            snapshot_calls += 1
+            if snapshot_calls == 2:
+                package.rename(hidden_package)
+                package.mkdir()
+                replaced = True
+            return original_git_snapshot(*args, **kwargs)
+
+        replacement_descriptor = os.open(
+            replacement_live, os.O_RDONLY | os.O_DIRECTORY
+        )
+        try:
+            with mock.patch.object(
+                ledger,
+                "_git_workspace_package_snapshot",
+                side_effect=replace_package_during_load,
+            ):
+                with self.assertRaisesRegex(
+                    ledger.LedgerError, "Git tree changed during import"
+                ):
+                    ledger._load_workspace_module_from_git(
+                        str(replacement_live),
+                        replacement_descriptor,
+                        replacement_head,
+                    )
+            self.assertTrue(replaced)
+        finally:
+            os.close(replacement_descriptor)
+            if package.is_dir():
+                package.rmdir()
+            if hidden_package.exists():
+                hidden_package.rename(package)
+
+        symlink_roots = live_roots(
+            self.live_base / "bootstrap-git-symlink", "atrinik"
+        )
+        symlink_wrapper = Path(symlink_roots["wrapper"]["path"])
+        (symlink_wrapper / "atrinik_workspace" / "unsafe.py").symlink_to(
+            "workspace.py"
+        )
+        git_run(symlink_wrapper, "add", "atrinik_workspace/unsafe.py")
+        git_run(symlink_wrapper, "commit", "-m", "test package symlink")
+        symlink_head = git_run(symlink_wrapper, "rev-parse", "HEAD").stdout.strip()
+        symlink_descriptor = os.open(
+            symlink_wrapper, os.O_RDONLY | os.O_DIRECTORY
+        )
+        try:
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "Git entry is not a regular file"
+            ):
+                ledger._git_workspace_package_snapshot(
+                    symlink_wrapper / "atrinik_workspace",
+                    symlink_descriptor,
+                    symlink_head,
+                )
+        finally:
+            os.close(symlink_descriptor)
+
+        component_roots = live_roots(
+            self.live_base / "component-bootstrap", "content"
+        )
+        component_document = deferred_primitive_pr(
+            component_roots,
+            number=494,
+            node="P_component_bootstrap",
+            branch="Feature/ComponentBootstrap",
+            label="component-bootstrap",
+        )
+        retarget_repository(
+            component_document, repository("content", "R_content")
+        )
+        component_request = next(
+            slot
+            for slot in component_document["artifacts"]
+            if slot["kind"] == "worktree"
+        )["primitive_request"]
+        component_request["component"] = "content"
+        component_request["physical_checkout"] = "content"
+        component_listing = worktree_list_bytes(
+            component_request, use_wrapper_command=False
+        )
+        with (
+            mock.patch.object(
+                ledger,
+                "_load_workspace_module",
+                side_effect=legacy_primary_module,
+            ),
+            mock.patch.object(ledger, "_load_workspace_module_from_git") as candidate,
+        ):
+            with self.assertRaisesRegex(
+                ledger.LedgerError,
+                "primary wrapper lacks profile inventory authority",
+            ):
+                ledger.observe_primitive_worktree(
+                    component_document,
+                    "worktree",
+                    component_listing,
+                    "2026-08-16T10:01:00Z",
+                )
+        candidate.assert_not_called()
 
     def test_46_legacy_paths_reserve_deferred_primitive_and_scope_worktrees(self) -> None:
         primitive = issue_ledger()
@@ -8689,6 +9243,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             label: str,
             *,
             bad_kind: str = "missing",
+            mirror_pull_request: bool = False,
             producer: str = "primitive",
         ) -> tuple[object, object, str, str, Path]:
             checkout = "client" if producer == "scope" else "atrinik"
@@ -8767,6 +9322,13 @@ class DeliveryLedgerTests(unittest.TestCase):
                     **cas_arguments(first),
                 )
             predecessor = ledger.inspect(root, first.name)
+            if mirror_pull_request:
+                predecessor = ledger.cas(
+                    root,
+                    predecessor.name,
+                    bind_issue_created_pr(predecessor),
+                    **cas_arguments(predecessor),
+                )
             (live / "correction.txt").write_text("actual\n", encoding="utf-8")
             git_run(live, "add", "correction.txt")
             git_run(live, "commit", "-m", "actual correction head")
@@ -8784,8 +9346,11 @@ class DeliveryLedgerTests(unittest.TestCase):
             target_head = erroneous_document["targets"][0]["head"]
             target_head["current_sha"] = incident_bad_head
             target_head["lineage"].append(incident_bad_head)
+            mirrored_kinds = {"branch", "worktree"}
+            if mirror_pull_request:
+                mirrored_kinds.add("pull_request")
             for slot in erroneous_document["artifacts"]:
-                if slot["kind"] in {"branch", "worktree"}:
+                if slot["kind"] in mirrored_kinds:
                     slot["current"]["head_sha"] = incident_bad_head
             # Model exact bytes published by the pre-fix generic CAS.  The
             # public CAS must now reject this nonexistent coordinate; recovery
@@ -9026,6 +9591,140 @@ class DeliveryLedgerTests(unittest.TestCase):
                 )
             self.assertEqual(directory_snapshot(root), before)
             scope_file.write_bytes(retained_scope)
+
+        with (
+            self.subTest(delivery_created_pull_request=True),
+            tempfile.TemporaryDirectory() as temporary,
+        ):
+            root = Path(temporary)
+            predecessor, erroneous, actual, incident_bad, _ = incident(
+                root,
+                "correction-delivery-created-pr",
+                mirror_pull_request=True,
+            )
+            original_module_loader = ledger._load_workspace_module
+
+            def load_with_legacy_primary_api(wrapper_root: str):
+                module = original_module_loader(wrapper_root)
+
+                class LegacyWorkspace(module.Workspace):
+                    def __init__(
+                        self,
+                        repository: Path,
+                        *,
+                        backfill_references: bool = True,
+                    ) -> None:
+                        super().__init__(
+                            repository,
+                            backfill_references=backfill_references,
+                        )
+
+                    def _source_references(self, source_root: Path) -> list[str]:
+                        return super()._source_references(source_root)
+
+                return type(
+                    "LegacyPrimaryWorkspaceModule",
+                    (),
+                    {
+                        "Manifest": module.Manifest,
+                        "Workspace": LegacyWorkspace,
+                    },
+                )
+
+            with mock.patch.object(
+                ledger,
+                "_load_workspace_module",
+                side_effect=load_with_legacy_primary_api,
+            ):
+                corrected = ledger.correct_target_head(
+                    root,
+                    erroneous.name,
+                    predecessor.raw,
+                    head_correction_recovery(
+                        predecessor, erroneous, actual, incident_bad
+                    ),
+                    **cas_arguments(erroneous),
+                    bad_head=incident_bad,
+                    actual_head=actual,
+                )
+            self.assertEqual(
+                {
+                    slot["kind"]: slot["current"]["head_sha"]
+                    for slot in corrected.document["artifacts"]
+                    if slot["kind"] in {"branch", "pull_request", "worktree"}
+                },
+                {
+                    "branch": actual,
+                    "pull_request": actual,
+                    "worktree": actual,
+                },
+            )
+
+            def pull_request_slot(document: dict[str, object]) -> dict[str, object]:
+                return next(
+                    slot
+                    for slot in document["artifacts"]
+                    if slot["kind"] == "pull_request"
+                )
+
+            def reject_adopted(
+                before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                for document in (before, after):
+                    slot = pull_request_slot(document)
+                    slot["state"] = "adopted"
+                    slot["immutable"]["number"] = slot["current"]["number"]
+                    slot["immutable"]["node_id"] = slot["current"]["node_id"]
+
+            def reject_contributor_body(
+                before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                for document in (before, after):
+                    document["selected_prs"][0]["body"]["ownership"] = (
+                        "contributor-owned"
+                    )
+
+            def reject_foreign_head_repository(
+                before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                for document in (before, after):
+                    document["selected_prs"][0]["head_repository"] = repository(
+                        "fork", "R_fork"
+                    )
+
+            def reject_actor_mismatch(
+                before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                for document in (before, after):
+                    document["selected_prs"][0]["author_node_id"] = "U_other"
+
+            def reject_additional_current_change(
+                _before: dict[str, object], after: dict[str, object]
+            ) -> None:
+                pull_request_slot(after)["current"]["body_digest"] = "9" * 64
+
+            rejection_cases = (
+                ("adopted", reject_adopted),
+                ("contributor-owned", reject_contributor_body),
+                ("foreign-head", reject_foreign_head_repository),
+                ("actor-mismatch", reject_actor_mismatch),
+                ("additional-current-change", reject_additional_current_change),
+            )
+            for label, mutation in rejection_cases:
+                with self.subTest(pull_request_rejection=label):
+                    rejected_predecessor = copy.deepcopy(predecessor.document)
+                    rejected_erroneous = copy.deepcopy(erroneous.document)
+                    mutation(rejected_predecessor, rejected_erroneous)
+                    before = directory_snapshot(root)
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger._head_correction_document(
+                            rejected_predecessor,
+                            rejected_erroneous,
+                            ledger.canonical_object_digest(rejected_erroneous),
+                            bad_head=incident_bad,
+                            actual_head=actual,
+                        )
+                    self.assertEqual(directory_snapshot(root), before)
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

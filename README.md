@@ -1266,6 +1266,14 @@ owning operation and supported recovery action; an authored record that changes
 during confirmation fails with a distinct retry diagnostic. Profile names,
 topology names, scenarios, states, build roots, and cache keys remain
 workspace-local.
+
+Delivery live proof also reads saved profiles through a bounded, pinned,
+descriptor-relative inventory without modifying them. A profile whose selector
+map is a strict subset of its current stack is
+historical for reference discovery: its retained selectors are still fully
+validated, and any selector resolving to the candidate worktree remains a
+blocking reference. Extra components, malformed selectors, and other uncertain
+profile state fail closed.
 Each lease request publishes its locked `waiting` owner record before main-lock
 admission, then transitions it to `admitted` through a per-coordinate transition
 gate under owner-directory serialization. The main lock is acquired before that
