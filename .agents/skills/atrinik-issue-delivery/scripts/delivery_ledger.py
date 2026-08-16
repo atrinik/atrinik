@@ -8789,7 +8789,7 @@ def _head_correction_document(
             continue
         expected = expected_artifacts[slot_id]
         if (
-            before["kind"] not in {"branch", "worktree"}
+            before["kind"] not in {"branch", "pull_request", "worktree"}
             or before["current"] is None
             or after["current"] is None
             or before["current"].get("head_sha") != before_target["head"]["current_sha"]
@@ -8801,8 +8801,15 @@ def _head_correction_document(
             raise LedgerError("head correction source changed an unsupported artifact")
         expected["current"]["head_sha"] = bad_head
         changed_artifacts.append(after)
-    if sorted(slot["kind"] for slot in changed_artifacts) != ["branch", "worktree"]:
-        raise LedgerError("head correction requires mirrored bound branch/worktree heads")
+    changed_kinds = sorted(slot["kind"] for slot in changed_artifacts)
+    if changed_kinds not in (
+        ["branch", "worktree"],
+        ["branch", "pull_request", "worktree"],
+    ):
+        raise LedgerError(
+            "head correction requires mirrored bound branch/worktree heads and "
+            "at most one exact bound PR head"
+        )
     if erroneous != expected_erroneous:
         raise LedgerError("head correction source contains unrelated semantic changes")
     worktree_slot = next(slot for slot in changed_artifacts if slot["kind"] == "worktree")

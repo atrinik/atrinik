@@ -96,7 +96,8 @@ applicability; do not turn irrelevant categories into invented findings.
   objective binds the full source tuple/correction intent and exact ledger
   actor/repository/issue scope, exact no-lazy-fetch batch-check `missing` result
   for the full bad OID, live repository/branch/path, predecessor ancestry, recomputed merge
-  base, mirrored bound branch/worktree, zero unrelated semantic changes,
+  base, mirrored bound branch/worktree and optional exact bound PR, zero
+  unrelated semantic changes,
   durable snapshots/receipt, renamed-retry directory fsync, every publication
   failpoint, and correction-digest history continuity through later generations.
 - Before any delivery-owned mutation, use the helper to inventory every

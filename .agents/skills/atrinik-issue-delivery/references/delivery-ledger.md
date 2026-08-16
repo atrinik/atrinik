@@ -1534,8 +1534,9 @@ Ordinary CAS never rewrites lineage. If its caller nevertheless persisted one
 full-length but nonexistent target-head SHA, stop all delivery writes and retain
 the exact immediate-predecessor canonical ledger bytes. Use
 `correct-target-head` only when the bad generation differs from that predecessor
-solely by one target head advancement mirrored in exactly one bound branch and
-one bound primitive worktree. Supply the bad generation's fresh four-part CAS
+solely by one target head advancement mirrored in exactly one bound branch,
+one bound primitive worktree, and, when already bound, at most one exact PR
+artifact. Supply the bad generation's fresh four-part CAS
 identity, the nonexistent SHA, the exact live SHA, the predecessor file, and a
 canonical explicit-recovery authority/intent file.
 
@@ -1562,8 +1563,8 @@ cannot trigger a remote fetch, and the recorded merge base equals a fresh
 `git merge-base` result. It then
 appends the bad generation digest to history while rebuilding only the affected
 head lineage as predecessor lineage plus the actual SHA and mirroring that SHA
-into the bound branch/worktree identities. Every other semantic byte remains
-the bad generation's byte.
+into the bound branch/worktree identities and the optional exact bound PR
+identity. Every other semantic byte remains the bad generation's byte.
 
 The operation permanently retains canonical predecessor bytes and a hard link to
 the exact installed erroneous ledger inode plus the full recovery grant/intent

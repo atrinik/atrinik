@@ -8623,7 +8623,11 @@ class DeliveryLedgerTests(unittest.TestCase):
         bad_head = "f0f8d7493278dc691710056c79d0d63f1d802488"
 
         def incident(
-            root: Path, label: str, *, bad_kind: str = "missing"
+            root: Path,
+            label: str,
+            *,
+            bad_kind: str = "missing",
+            with_pull_request: bool = False,
         ) -> tuple[object, object, str, str, Path]:
             roots = live_roots(self.live_base / label, "atrinik")
             base = git_head(roots)
@@ -8663,6 +8667,17 @@ class DeliveryLedgerTests(unittest.TestCase):
                 **cas_arguments(first),
             )
             predecessor = ledger.inspect(root, first.name)
+            if with_pull_request:
+                predecessor = ledger.cas(
+                    root,
+                    predecessor.name,
+                    bind_issue_created_pr(
+                        predecessor,
+                        number=500,
+                        node=f"P_{label.replace('-', '_')}",
+                    ),
+                    **cas_arguments(predecessor),
+                )
             (live / "correction.txt").write_text("actual\n", encoding="utf-8")
             git_run(live, "add", "correction.txt")
             git_run(live, "commit", "-m", "actual correction head")
@@ -8681,7 +8696,9 @@ class DeliveryLedgerTests(unittest.TestCase):
             target_head["current_sha"] = incident_bad_head
             target_head["lineage"].append(incident_bad_head)
             for slot in erroneous_document["artifacts"]:
-                if slot["kind"] in {"branch", "worktree"}:
+                if slot["kind"] in {"branch", "worktree"} or (
+                    with_pull_request and slot["kind"] == "pull_request"
+                ):
                     slot["current"]["head_sha"] = incident_bad_head
             erroneous = ledger.cas(
                 root,
@@ -8771,6 +8788,29 @@ class DeliveryLedgerTests(unittest.TestCase):
                     ).digest,
                     corrected.digest,
                 )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            predecessor, erroneous, actual, incident_bad, _ = incident(
+                root, "correction-bound-pr", with_pull_request=True
+            )
+            corrected = ledger.correct_target_head(
+                root,
+                erroneous.name,
+                predecessor.raw,
+                head_correction_recovery(
+                    predecessor, erroneous, actual, incident_bad
+                ),
+                **cas_arguments(erroneous),
+                bad_head=incident_bad,
+                actual_head=actual,
+            )
+            pull_request = next(
+                slot
+                for slot in corrected.document["artifacts"]
+                if slot["kind"] == "pull_request"
+            )
+            self.assertEqual(pull_request["current"]["head_sha"], actual)
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
