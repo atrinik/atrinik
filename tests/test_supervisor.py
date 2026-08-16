@@ -202,7 +202,11 @@ class ServerReadinessCaptureTests(unittest.TestCase):
             mock.patch.object(supervisor_module.os, "pipe2", return_value=(10, 11)),
             mock.patch.object(supervisor_module.os, "fork", return_value=0),
             mock.patch.object(supervisor_module.os, "close") as close,
-            mock.patch.object(supervisor_module, "_guardian"),
+            mock.patch.object(
+                supervisor_module,
+                "_guardian",
+                side_effect=lambda *_: close.assert_any_call(22),
+            ),
             mock.patch.object(
                 supervisor_module.os, "_exit", side_effect=RuntimeError("exit")
             ),
