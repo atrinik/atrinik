@@ -13025,6 +13025,147 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "duplicate JSON key"):
             self.workspace._load_profile_file("duplicate", require_file=True)
 
+    def test_profile_reference_inventory_uses_explicit_directory_authority(
+        self,
+    ) -> None:
+        self.workspace.create_profile("descriptor-reference")
+        directory_fd = os.open(
+            self.workspace.paths.profiles,
+            os.O_RDONLY | os.O_DIRECTORY,
+        )
+        retained_profiles = self.workspace.paths.profiles.with_name(
+            "profiles-retained"
+        )
+        self.workspace.paths.profiles.rename(retained_profiles)
+        self.workspace.paths.profiles.mkdir()
+        try:
+            profile = self.workspace._load_profile_file(
+                "descriptor-reference",
+                require_file=True,
+                directory_fd=directory_fd,
+            )
+            component = next(
+                component
+                for component in self.workspace.manifest.stack(
+                    profile["stack"]
+                ).components
+                if component.name in profile["components"]
+            )
+            source = self.workspace._selector_root(profile, component)
+            self.assertIn(
+                "profile:descriptor-reference",
+                self.workspace._source_references(
+                    source,
+                    profiles_directory_fd=directory_fd,
+                ),
+            )
+            with self.assertRaisesRegex(
+                WorkspaceError, "profile does not exist: absent"
+            ):
+                self.workspace._load_profile_file(
+                    "absent",
+                    require_file=True,
+                    directory_fd=directory_fd,
+                )
+        finally:
+            os.close(directory_fd)
+            self.workspace.paths.profiles.rmdir()
+            retained_profiles.rename(self.workspace.paths.profiles)
+
+        with self.assertRaisesRegex(
+            WorkspaceError, "profile does not exist: absent"
+        ):
+            self.workspace._load_profile_file("absent", require_file=True)
+
+        self.assertNotIn(
+            "profile:descriptor-reference",
+            self.workspace._source_references(
+                source,
+                profiles_directory_absent=True,
+            ),
+        )
+        with self.assertRaisesRegex(
+            WorkspaceError, "profile inventory authority is ambiguous"
+        ):
+            self.workspace._source_references(
+                source,
+                profiles_directory_fd=0,
+                profiles_directory_absent=True,
+            )
+
+    def test_profile_reference_inventory_fails_closed_on_enumeration_errors(
+        self,
+    ) -> None:
+        directory_fd = os.open(
+            self.workspace.paths.profiles,
+            os.O_RDONLY | os.O_DIRECTORY,
+        )
+        try:
+            with (
+                mock.patch.object(
+                    self.workspace, "_scope_source_references", return_value=[]
+                ),
+                mock.patch.object(
+                    self.workspace, "_physical_reference_records", return_value=[]
+                ),
+                mock.patch.object(
+                    workspace_module.os,
+                    "scandir",
+                    side_effect=OSError("inventory unavailable"),
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "cannot enumerate profile references"
+                ),
+            ):
+                self.workspace._source_references(
+                    self.root / "unreferenced-source",
+                    profiles_directory_fd=directory_fd,
+                )
+        finally:
+            os.close(directory_fd)
+
+    def test_profile_reference_inventory_rejects_oversized_directories(
+        self,
+    ) -> None:
+        class Entry:
+            def __init__(self, name: str) -> None:
+                self.name = name
+
+        class Inventory:
+            def __enter__(self) -> object:
+                return iter(
+                    Entry(f"profile-{index}.json") for index in range(4097)
+                )
+
+            def __exit__(self, *_arguments: object) -> None:
+                return None
+
+        directory_fd = os.open(
+            self.workspace.paths.profiles,
+            os.O_RDONLY | os.O_DIRECTORY,
+        )
+        try:
+            with (
+                mock.patch.object(
+                    self.workspace, "_scope_source_references", return_value=[]
+                ),
+                mock.patch.object(
+                    self.workspace, "_physical_reference_records", return_value=[]
+                ),
+                mock.patch.object(
+                    workspace_module.os, "scandir", return_value=Inventory()
+                ),
+                self.assertRaisesRegex(
+                    WorkspaceError, "profile reference inventory is oversized"
+                ),
+            ):
+                self.workspace._source_references(
+                    self.root / "unreferenced-source",
+                    profiles_directory_fd=directory_fd,
+                )
+        finally:
+            os.close(directory_fd)
+
     def test_migration_reference_publisher_accepts_legacy_profile_shapes(self) -> None:
         content_source = self.workspace.paths.worktrees / "content-1x" / "maps"
         content_source.mkdir(parents=True)
