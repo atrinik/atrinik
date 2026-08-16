@@ -281,6 +281,12 @@ repeats the proof before replacement. The versioned explicit-recovery path can
 supersede one exact historical nonexistent-head generation whose predecessor
 also recorded a stale merge base; permanent predecessor/erroneous snapshots and
 an objective-bound receipt preserve both old coordinate values.
+Scope observation and binding similarly accept one exact physical checkout
+selector or one logical component selector, then require the observed row,
+repository, profile, and all checkout-owned logical components to agree. A
+released mistaken scope is terminal evidence: recover it by the existing
+hash-bound release/archive path and initialize a fresh exact scope, never by
+generic CAS or by mutating the released request in place.
 Terminal archive validates, bundles, and crash-resumably removes that complete
 correction evidence set with the ledger rather than leaving orphan sidecars.
 
