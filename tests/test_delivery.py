@@ -266,12 +266,31 @@ class DeliveryEvidenceTests(unittest.TestCase):
         cleanup.now = datetime.now(timezone.utc)
         references = {"delivery": {self.review_root.resolve(): [self.name]}}
 
-        items = cleanup._unmanaged_builds(set(), references)
+        items = cleanup._unmanaged_builds(set(), references, set())
 
         item = next(row for row in items if Path(row["path"]) == self.review_root)
         self.assertEqual(item["disposition"], "protected")
         self.assertIn("delivery_reference", item["reasons"])
         self.assertEqual(item["references"]["delivery"], [self.name])
+
+    def test_delivery_inventory_error_is_visible_on_review_root(self) -> None:
+        paths = SimpleNamespace(
+            repository=self.root,
+            builds=self.root / "workspace" / "build",
+        )
+        paths.builds.mkdir(parents=True)
+        cleanup = Cleanup.__new__(Cleanup)
+        cleanup._wrapper_primary = self.root
+        cleanup.paths = paths
+        cleanup.now = datetime.now(timezone.utc)
+
+        items = cleanup._unmanaged_builds(
+            set(), {"delivery": {}}, {"delivery_inventory_error"}
+        )
+
+        item = next(row for row in items if Path(row["path"]) == self.review_root)
+        self.assertEqual(item["disposition"], "protected")
+        self.assertIn("delivery_inventory_error", item["reasons"])
 
 
 class MigrationDeliveryBarrierTests(unittest.TestCase):
