@@ -678,6 +678,20 @@ def wait_for_pid_file(path: Path, *, timeout: float = 5) -> int:
     raise AssertionError(f"child did not publish a complete PID: {path}")
 
 
+def wait_for_topology_status(
+    workspace: Workspace, name: str, *, timeout: float = 5
+) -> dict[str, object]:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            return workspace.topology_status(name)
+        except WorkspaceError as error:
+            if str(error) != f"topology has not been started: {name}":
+                raise
+        time.sleep(0.05)
+    raise AssertionError(f"topology did not publish its status: {name}")
+
+
 def compiler_cache_first_use_process(
     wrapper: str,
     workspace_directory: str,
@@ -15967,7 +15981,7 @@ class WorkspaceTests(unittest.TestCase):
                 while time.monotonic() < deadline and not marker.is_file():
                     time.sleep(0.02)
                 self.assertTrue(marker.is_file())
-                pending = observer.topology_status(name)
+                pending = wait_for_topology_status(observer, name)
                 self.assertEqual(
                     pending["observation"]["port_reservation"]["lease"],
                     "retained",
