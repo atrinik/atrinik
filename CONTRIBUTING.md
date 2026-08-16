@@ -110,7 +110,7 @@ Before opening a pull request, run:
 
 ~~~sh
 python3 -m pip install --requirement requirements-dev.txt
-python3 -m coverage run -m unittest discover -v
+python3 -m coverage run -m unittest discover -v --durations 50
 python3 -m coverage report --show-missing
 python3 -m compileall -q atrinik atrinik_workspace tests
 python3 -m atrinik_workspace.guidance_inventory --check
@@ -120,6 +120,12 @@ python3 -m atrinik_workspace.mcp_contract validate
 ./atrinik supply-chain validate
 git diff --check
 ~~~
+
+The required workflow partitions the same discovery set with measured timing
+weights, verifies that every discovered test ran exactly once, and combines
+branch coverage before publishing the stable `Integration validation` check.
+See [CI performance](docs/CI_PERFORMANCE.md) for the budget, evidence format,
+and comparable-run method.
 
 When changing the repository-local skill, also run the skill validator
 available in the active Codex installation; its exact path is

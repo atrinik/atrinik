@@ -1,0 +1,36 @@
+{
+  "baseline": {
+    "head": "8e0b5fdf38a18bff3bec99a3a111dea3f783fff4",
+    "local_elapsed_seconds": 467.353,
+    "note": "Clean-base local run under Python 3.14; socket-restricted topology errors do not affect retained completed-test timings.",
+    "observed_at": "2026-08-16T03:49:00Z"
+  },
+  "default_seconds": 0.134,
+  "prefix_seconds": [
+    {
+      "prefix": "tests.test_delivery_ledger.DeliveryLedgerTests.",
+      "seconds": 1.653
+    },
+    {
+      "prefix": "tests.test_workspace.WorkspaceTests.",
+      "seconds": 0.565
+    }
+  ],
+  "schema_version": 1,
+  "tests": {
+    "tests.test_delivery_ledger.DeliveryLedgerTests.test_36_live_observation_atomic_bind_recovery_and_precommit_cleanup": 8.601,
+    "tests.test_delivery_ledger.DeliveryLedgerTests.test_37_scope_observation_and_atomic_bind_use_live_scope_authority": 7.584,
+    "tests.test_delivery_ledger.DeliveryLedgerTests.test_48_target_advancement_is_live_proven_and_crash_safe": 5.325,
+    "tests.test_delivery_ledger.DeliveryLedgerTests.test_48b_target_refresh_and_stale_merge_base_recovery_are_live_bound": 23.604,
+    "tests.test_delivery_ledger.DeliveryLedgerTests.test_49_exact_target_head_correction_is_audited_and_resumable": 36.531,
+    "tests.test_scopes.ScopeLifecycleTests.test_complete_dual_scope_server_lifecycle_is_independent": 5.135,
+    "tests.test_scopes.ScopeLifecycleTests.test_randomized_scope_lifecycle_stress_leaves_no_cross_scope_debris": 4.344,
+    "tests.test_workspace.WorkspaceTests.test_exact_resource_matrix_scopes_conflicts_to_coordinates": 4.278,
+    "tests.test_workspace.WorkspaceTests.test_incremental_harness_isolates_live_topology_conflicts": 7.658,
+    "tests.test_workspace.WorkspaceTests.test_mixed_layout_readers_preserve_markers_and_coordinates": 6.996,
+    "tests.test_workspace.WorkspaceTests.test_supervised_topology_lifecycle_and_logs": 6.094,
+    "tests.test_workspace.WorkspaceTests.test_concurrent_server_topologies_overlap_through_readiness": 13.573,
+    "tests.test_workspace.WorkspaceTests.test_supervised_pair_pins_client_and_holds_state_lock_until_down": 9.628,
+    "tests.test_workspace.WorkspaceTests.test_temporary_topology_state_clean_retain_and_promote_lifecycle": 18.562
+  }
+}
