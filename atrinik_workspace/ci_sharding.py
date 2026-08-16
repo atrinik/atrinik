@@ -1,10 +1,16 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import json
+import math
+import os
 from pathlib import Path
+import signal
+import subprocess
 import sys
+import tempfile
 import time
 from typing import Iterable
 import unittest
@@ -13,6 +19,8 @@ import unittest
 SCHEMA_VERSION = 1
 MAX_TESTS = 100_000
 MAX_JSON_BYTES = 1024 * 1024
+MAX_LOCAL_JOBS = 64
+LOCAL_MODULE = "atrinik_workspace.ci_sharding"
 
 
 def _canonical_digest(value: object) -> str:
@@ -293,6 +301,503 @@ def verify_shards(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def default_local_jobs() -> int:
+    """Choose a conservative process count for a developer workstation."""
+
+    return max(1, min(os.cpu_count() or 1, 3))
+
+
+def select_test_ids(
+    discovered_ids: list[str], requested_ids: list[str] | None
+) -> list[str]:
+    """Return a deterministic full-suite or explicitly targeted selection."""
+
+    if not requested_ids:
+        return discovered_ids
+    if len(requested_ids) != len(set(requested_ids)):
+        raise ValueError("targeted test IDs must be unique")
+    discovered = set(discovered_ids)
+    missing = sorted(set(requested_ids) - discovered)
+    if missing:
+        raise ValueError(f"targeted tests were not discovered: {missing[:10]}")
+    return sorted(requested_ids)
+
+
+def _local_timestamp() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace(
+        "+00:00", "Z"
+    )
+
+
+def _run_selected_tests(
+    selected_ids: list[str], *, durations: int
+) -> tuple[dict[str, object], int]:
+    suite = unittest.defaultTestLoader.loadTestsFromNames(selected_ids)
+    started = time.monotonic()
+    runner = unittest.TextTestRunner(verbosity=2, resultclass=TimingResult)
+    result = runner.run(suite)
+    elapsed = time.monotonic() - started
+    assert isinstance(result, TimingResult)
+    payload: dict[str, object] = {
+        "elapsed_seconds": elapsed,
+        "failed": not result.wasSuccessful(),
+        "schema_version": SCHEMA_VERSION,
+        "selected_ids": selected_ids,
+        "tests": dict(sorted(result.durations.items())),
+        "tests_run": result.testsRun,
+    }
+    print(f"\nSlowest {durations} tests")
+    for test_id, seconds in sorted(
+        result.durations.items(), key=lambda item: (-item[1], item[0])
+    )[:durations]:
+        print(f"{seconds:8.3f}s  {test_id}")
+    return payload, 0 if result.wasSuccessful() else 1
+
+
+def run_local_worker(arguments: argparse.Namespace) -> int:
+    assignment = json.loads(arguments.assignment.read_text(encoding="utf-8"))
+    if not isinstance(assignment, dict) or set(assignment) != {
+        "schema_version",
+        "selected_ids",
+        "shard_count",
+        "shard_index",
+    }:
+        raise ValueError("local shard assignment has an unsupported schema")
+    selected_ids = assignment["selected_ids"]
+    if (
+        assignment["schema_version"] != SCHEMA_VERSION
+        or not isinstance(selected_ids, list)
+        or any(not isinstance(test_id, str) for test_id in selected_ids)
+        or selected_ids != sorted(selected_ids)
+        or selected_ids != sorted(set(selected_ids))
+        or not isinstance(assignment["shard_count"], int)
+        or isinstance(assignment["shard_count"], bool)
+        or assignment["shard_count"] < 1
+        or not isinstance(assignment["shard_index"], int)
+        or isinstance(assignment["shard_index"], bool)
+        or assignment["shard_index"] < 0
+        or assignment["shard_index"] >= assignment["shard_count"]
+    ):
+        raise ValueError("local shard assignment is invalid")
+    result, exit_code = _run_selected_tests(selected_ids, durations=arguments.durations)
+    _write_json(arguments.result, result)
+    return exit_code
+
+
+def _terminate_local_process(process: subprocess.Popen[bytes]) -> None:
+    if process.poll() is not None:
+        return
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+            return
+        except ProcessLookupError:
+            return
+    process.terminate()
+
+
+def _kill_local_process(process: subprocess.Popen[bytes]) -> None:
+    if process.poll() is not None:
+        return
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+            return
+        except ProcessLookupError:
+            return
+    process.kill()
+
+
+def _validate_local_results(
+    run_root: Path,
+    assignments: list[list[str]],
+    expected_ids: list[str],
+    exit_codes: list[int],
+) -> list[str]:
+    errors: list[str] = []
+    seen: dict[str, int] = {}
+    for index, selected_ids in enumerate(assignments):
+        result_path = run_root / f"shard-{index}-result.json"
+        if not result_path.is_file():
+            errors.append(f"shard {index} did not retain a result")
+            continue
+        try:
+            result = json.loads(result_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            errors.append(f"shard {index} result is unreadable: {error}")
+            continue
+        if not isinstance(result, dict):
+            errors.append(f"shard {index} result is not an object")
+            continue
+        if result.get("schema_version") != SCHEMA_VERSION:
+            errors.append(f"shard {index} result has an unsupported schema")
+        if result.get("selected_ids") != selected_ids:
+            errors.append(f"shard {index} result assignment does not match")
+        tests = result.get("tests")
+        if not isinstance(tests, dict) or sorted(tests) != selected_ids:
+            errors.append(f"shard {index} did not report every selected test")
+        elif any(
+            not isinstance(seconds, (int, float))
+            or isinstance(seconds, bool)
+            or not math.isfinite(seconds)
+            or seconds < 0
+            for seconds in tests.values()
+        ):
+            errors.append(f"shard {index} reported invalid test durations")
+        elapsed = result.get("elapsed_seconds")
+        if (
+            not isinstance(elapsed, (int, float))
+            or isinstance(elapsed, bool)
+            or not math.isfinite(elapsed)
+            or elapsed < 0
+        ):
+            errors.append(f"shard {index} reported invalid elapsed time")
+        if result.get("tests_run") != len(selected_ids):
+            errors.append(f"shard {index} test count does not match its assignment")
+        if result.get("failed") is not False or exit_codes[index] != 0:
+            errors.append(f"shard {index} failed")
+        returned_ids = result.get("selected_ids")
+        if isinstance(returned_ids, list) and all(
+            isinstance(test_id, str) for test_id in returned_ids
+        ):
+            for test_id in returned_ids:
+                seen[test_id] = seen.get(test_id, 0) + 1
+    expected = set(expected_ids)
+    duplicates = sorted(test_id for test_id, count in seen.items() if count != 1)
+    missing = sorted(expected - seen.keys())
+    unexpected = sorted(seen.keys() - expected)
+    if duplicates or missing or unexpected:
+        errors.append(
+            "local test results do not cover the requested suite exactly once: "
+            f"duplicates={duplicates[:10]}, missing={missing[:10]}, "
+            f"unexpected={unexpected[:10]}"
+        )
+    return errors
+
+
+def _coverage_files(run_root: Path, shard_count: int) -> list[str]:
+    coverage_root = run_root / "coverage"
+    paths = sorted(path for path in coverage_root.iterdir() if path.is_file())
+    allowed = {
+        f".coverage.shard-{index}."
+        for index in range(shard_count)
+    }
+    unexpected = [
+        path.name
+        for path in paths
+        if not any(path.name.startswith(prefix) for prefix in allowed)
+    ]
+    if unexpected:
+        raise ValueError(f"coverage directory contains unexpected data: {unexpected}")
+    missing = [
+        str(index)
+        for index in range(shard_count)
+        if not any(path.name.startswith(f".coverage.shard-{index}.") for path in paths)
+    ]
+    if missing:
+        raise ValueError(f"coverage data is missing for shard(s): {', '.join(missing)}")
+    return [path.name for path in paths]
+
+
+def _print_local_evidence(run_root: Path, shard_count: int) -> None:
+    for index in range(shard_count):
+        log_path = run_root / f"shard-{index}.log"
+        if log_path.is_file():
+            print(f"\n=== shard {index} output ===")
+            print(log_path.read_text(encoding="utf-8"), end="")
+        result_path = run_root / f"shard-{index}-result.json"
+        if not result_path.is_file():
+            continue
+        try:
+            result = json.loads(result_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            print(f"shard {index}: result is unreadable: {error}")
+            continue
+        if not isinstance(result, dict):
+            print(f"shard {index}: result is not an object")
+            continue
+        tests = result.get("tests", {})
+        elapsed = result.get("elapsed_seconds", 0.0)
+        if isinstance(tests, dict) and isinstance(elapsed, (int, float)):
+            print(
+                f"shard {index}: {len(tests)} tests, {elapsed:.3f}s"
+            )
+
+
+def _local_timing_summary(run_root: Path, shard_count: int) -> dict[str, object]:
+    aggregate_test_seconds = 0.0
+    longest_shard_seconds = 0.0
+    shard_timings: list[dict[str, object]] = []
+    for index in range(shard_count):
+        result_path = run_root / f"shard-{index}-result.json"
+        if not result_path.is_file():
+            continue
+        try:
+            result = json.loads(result_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(result, dict):
+            continue
+        tests = result.get("tests", {})
+        elapsed = result.get("elapsed_seconds", 0.0)
+        if isinstance(tests, dict):
+            aggregate_test_seconds += sum(
+                seconds
+                for seconds in tests.values()
+                if (
+                    isinstance(seconds, (int, float))
+                    and not isinstance(seconds, bool)
+                    and math.isfinite(seconds)
+                    and seconds >= 0
+                )
+            )
+        if (
+            isinstance(elapsed, (int, float))
+            and not isinstance(elapsed, bool)
+            and math.isfinite(elapsed)
+            and elapsed >= 0
+        ):
+            longest_shard_seconds = max(longest_shard_seconds, elapsed)
+        shard_timings.append(
+            {
+                "elapsed_seconds": elapsed,
+                "index": index,
+                "test_count": len(tests) if isinstance(tests, dict) else 0,
+            }
+        )
+    return {
+        "aggregate_test_seconds": aggregate_test_seconds,
+        "longest_shard_seconds": longest_shard_seconds,
+        "shards": shard_timings,
+    }
+
+
+def run_local(arguments: argparse.Namespace) -> int:
+    weights = load_weights(arguments.weights)
+    discovered_ids = discover_test_ids()
+    selected_ids = select_test_ids(discovered_ids, arguments.tests)
+    if arguments.jobs is None:
+        jobs = default_local_jobs()
+    else:
+        jobs = arguments.jobs
+    if jobs < 1 or jobs > MAX_LOCAL_JOBS:
+        raise ValueError(f"local jobs must be between 1 and {MAX_LOCAL_JOBS}")
+    shard_count = min(jobs, len(selected_ids))
+    assignments = assign_tests(selected_ids, weights, shard_count)
+
+    output_root = arguments.output
+    output_root.mkdir(parents=True, exist_ok=True)
+    run_root = Path(tempfile.mkdtemp(prefix="run-", dir=output_root))
+    coverage_root = run_root / "coverage"
+    coverage_root.mkdir()
+    state: dict[str, object] = {
+        "completed_at": None,
+        "coverage": {"enabled": arguments.coverage, "combined": False},
+        "discovered_count": len(discovered_ids),
+        "discovered_sha256": _canonical_digest(discovered_ids),
+        "jobs": shard_count,
+        "schema_version": SCHEMA_VERSION,
+        "selected_count": len(selected_ids),
+        "selected_sha256": _canonical_digest(selected_ids),
+        "started_at": _local_timestamp(),
+        "status": "running",
+        "weights_sha256": _canonical_digest(weights),
+    }
+    _write_json(run_root / "run.json", state)
+    for index, selected in enumerate(assignments):
+        _write_json(
+            run_root / f"shard-{index}-manifest.json",
+            {
+                "assignments_sha256": _canonical_digest(
+                    {str(shard): shard_ids for shard, shard_ids in enumerate(assignments)}
+                ),
+                "discovered_count": len(discovered_ids),
+                "discovered_sha256": _canonical_digest(discovered_ids),
+                "schema_version": SCHEMA_VERSION,
+                "selected_ids": selected,
+                "shard_count": shard_count,
+                "shard_index": index,
+                "timing_weights_sha256": _canonical_digest(weights),
+            },
+        )
+
+    processes: list[subprocess.Popen[bytes]] = []
+    log_handles: list[object] = []
+    exit_codes: list[int] = []
+    previous_signal_handlers: dict[int, object] = {}
+
+    def interrupt(_signum: int, _frame: object) -> None:
+        raise KeyboardInterrupt
+
+    for signal_name in ("SIGINT", "SIGTERM"):
+        signal_number = getattr(signal, signal_name, None)
+        if signal_number is not None:
+            previous_signal_handlers[signal_number] = signal.getsignal(signal_number)
+            signal.signal(signal_number, interrupt)
+    try:
+        for index, selected in enumerate(assignments):
+            assignment_path = run_root / f"shard-{index}-assignment.json"
+            _write_json(
+                assignment_path,
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "selected_ids": selected,
+                    "shard_count": shard_count,
+                    "shard_index": index,
+                },
+            )
+            log_handle = (run_root / f"shard-{index}.log").open("wb")
+            log_handles.append(log_handle)
+            command = [sys.executable, "-m", LOCAL_MODULE]
+            if arguments.coverage:
+                command = [
+                    sys.executable,
+                    "-m",
+                    "coverage",
+                    "run",
+                    "--parallel-mode",
+                    "-m",
+                    LOCAL_MODULE,
+                ]
+            command.extend(
+                [
+                    "worker",
+                    "--assignment",
+                    str(assignment_path),
+                    "--result",
+                    str(run_root / f"shard-{index}-result.json"),
+                    "--durations",
+                    str(arguments.durations),
+                ]
+            )
+            environment = os.environ.copy()
+            environment.pop("COVERAGE_FILE", None)
+            if arguments.coverage:
+                environment["COVERAGE_FILE"] = str(
+                    coverage_root / f".coverage.shard-{index}"
+                )
+            process = subprocess.Popen(
+                command,
+                cwd=Path.cwd(),
+                env=environment,
+                stdout=log_handle,
+                stderr=subprocess.STDOUT,
+                start_new_session=os.name == "posix",
+            )
+            processes.append(process)
+        exit_codes = [process.wait() for process in processes]
+    except KeyboardInterrupt:
+        for process in processes:
+            _terminate_local_process(process)
+        for process in processes:
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                _kill_local_process(process)
+                process.wait()
+        exit_codes = [130 if process.returncode is None else process.returncode for process in processes]
+        state["status"] = "interrupted"
+        state["completed_at"] = _local_timestamp()
+        state["exit_code"] = 130
+        _write_json(run_root / "run.json", state)
+        print(f"local tests interrupted; evidence retained in {run_root}", file=sys.stderr)
+        return 130
+    except OSError as error:
+        for process in processes:
+            _terminate_local_process(process)
+        for process in processes:
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                _kill_local_process(process)
+                process.wait()
+        state["status"] = "failed"
+        state["completed_at"] = _local_timestamp()
+        state["errors"] = [f"unable to start local test shard: {error}"]
+        state["exit_code"] = 1
+        _write_json(run_root / "run.json", state)
+        print(f"local tests: unable to start local test shard: {error}", file=sys.stderr)
+        return 1
+    finally:
+        for signal_number, handler in previous_signal_handlers.items():
+            signal.signal(signal_number, handler)
+        for handle in log_handles:
+            handle.close()
+
+    errors = _validate_local_results(run_root, assignments, selected_ids, exit_codes)
+    state["timing"] = _local_timing_summary(run_root, shard_count)
+    if arguments.coverage and not errors:
+        try:
+            coverage_files = _coverage_files(run_root, shard_count)
+            combined = run_root / ".coverage"
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "coverage",
+                    "combine",
+                    "--data-file",
+                    str(combined),
+                    str(coverage_root),
+                ],
+                cwd=Path.cwd(),
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            report = (run_root / "coverage-report.txt").open("w", encoding="utf-8")
+            try:
+                subprocess.run(
+                    [
+                        sys.executable,
+                        "-m",
+                        "coverage",
+                        "report",
+                        "--data-file",
+                        str(combined),
+                    ],
+                    cwd=Path.cwd(),
+                    check=True,
+                    stdout=report,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                )
+            finally:
+                report.close()
+            state["coverage"] = {
+                "combined": True,
+                "data_files": coverage_files,
+                "enabled": True,
+                "report": str(run_root / "coverage-report.txt"),
+            }
+        except (OSError, subprocess.CalledProcessError, ValueError) as error:
+            errors.append(f"coverage aggregation failed: {error}")
+        except KeyboardInterrupt:
+            state["status"] = "interrupted"
+            state["completed_at"] = _local_timestamp()
+            state["exit_code"] = 130
+            _write_json(run_root / "run.json", state)
+            print(
+                f"local tests interrupted; evidence retained in {run_root}",
+                file=sys.stderr,
+            )
+            return 130
+    _print_local_evidence(run_root, shard_count)
+    state["completed_at"] = _local_timestamp()
+    state["errors"] = errors
+    state["exit_code"] = 0 if not errors else 1
+    state["status"] = "passed" if not errors else "failed"
+    _write_json(run_root / "run.json", state)
+    if errors:
+        for error in errors:
+            print(f"local tests: {error}", file=sys.stderr)
+        print(f"local test evidence retained in {run_root}", file=sys.stderr)
+        return 1
+    print(f"local tests passed; evidence retained in {run_root}")
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description="Run deterministic measured test shards")
     subparsers = result.add_subparsers(dest="command", required=True)
@@ -310,6 +815,21 @@ def parser() -> argparse.ArgumentParser:
     verify.add_argument("--manifests", type=Path, required=True)
     verify.add_argument("--output", type=Path, required=True)
     verify.set_defaults(function=verify_shards)
+    local = subparsers.add_parser(
+        "local", description="Run the suite in process-isolated local shards"
+    )
+    local.add_argument("--jobs", type=int)
+    local.add_argument("--weights", type=Path, default=Path("ci/test-timing-weights.json"))
+    local.add_argument("--test", dest="tests", action="append")
+    local.add_argument("--coverage", action="store_true")
+    local.add_argument("--output", type=Path, default=Path("build/local-tests"))
+    local.add_argument("--durations", type=int, default=20)
+    local.set_defaults(function=run_local)
+    worker = subparsers.add_parser("worker", help=argparse.SUPPRESS)
+    worker.add_argument("--assignment", type=Path, required=True)
+    worker.add_argument("--result", type=Path, required=True)
+    worker.add_argument("--durations", type=int, default=20)
+    worker.set_defaults(function=run_local_worker)
     return result
 
 

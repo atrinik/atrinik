@@ -1396,10 +1396,11 @@ def _base_item(kind: str, owner: str, repository: str, path: Path) -> dict[str, 
 class Cleanup:
     """Build and optionally execute a fail-closed workspace cleanup plan."""
 
-    def __init__(self, workspace: Any):
+    def __init__(self, workspace: Any, *, journal_limit: int | None = None):
         self.workspace = workspace
         self.paths = workspace.paths
         self.manifest = workspace.manifest
+        self._journal_limit = journal_limit
         self.now = datetime.now(timezone.utc)
         self._repositories: dict[str, Path] = {}
         self._wrapper_primary = self.paths.repository
@@ -1410,6 +1411,21 @@ class Cleanup:
         self._github_cache: dict[
             tuple[str, str], tuple[list[dict[str, Any]] | None, str | None]
         ] = {}
+
+    @property
+    def journal_limit(self) -> int:
+        value = (
+            CLEANUP_JOURNAL_LIMIT
+            if self._journal_limit is None
+            else self._journal_limit
+        )
+        if (
+            not isinstance(value, int)
+            or isinstance(value, bool)
+            or value < 1
+        ):
+            raise WorkspaceError("cleanup journal limit must be positive")
+        return value
 
     def execute(
         self,
@@ -1563,7 +1579,7 @@ class Cleanup:
             cursor = value
         after = cursor["after"] if cursor is not None else ""
         candidate_names = heapq.nsmallest(
-            CLEANUP_JOURNAL_LIMIT + 1,
+            self.journal_limit + 1,
             (
                 path.name
                 for path in self._stream_cleanup_journal_paths(root)
@@ -1576,8 +1592,8 @@ class Cleanup:
                 )
             ),
         )
-        has_more = len(candidate_names) > CLEANUP_JOURNAL_LIMIT
-        page = [root / name for name in candidate_names[:CLEANUP_JOURNAL_LIMIT]]
+        has_more = len(candidate_names) > self.journal_limit
+        page = [root / name for name in candidate_names[: self.journal_limit]]
         stored_match = (
             root / cursor["match"]
             if cursor is not None and cursor["match"] is not None
@@ -1736,7 +1752,7 @@ class Cleanup:
         else:
             paths = self._bounded_cleanup_journal_paths(
                 root,
-                CLEANUP_JOURNAL_LIMIT,
+                self.journal_limit,
             )
         match: tuple[Path, dict[str, Any]] | None = None
         cursor_match = (
@@ -2538,7 +2554,7 @@ class Cleanup:
         else:
             paths = self._bounded_cleanup_journal_paths(
                 root,
-                CLEANUP_JOURNAL_LIMIT,
+                self.journal_limit,
             )
         return [
             item
