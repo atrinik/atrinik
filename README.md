@@ -650,6 +650,12 @@ directories. Per-checkout coordinates can be selected deliberately:
   --json
 ~~~
 
+Classic has two selector namespaces: a logical component such as
+`classic-client` is positional, while `--label`, `--branch`, and `--start-point`
+overrides use the physical checkout key `classic`. A logical selector therefore
+uses `--label classic=...`; `classic-client=...` is rejected as an unselected
+checkout override.
+
 Automated scopes default to generation-owned temporary state. Persistent state
 is opt-in with `--state NAME` for an existing registered state or
 `--default-state` for the shared default. Provisioning does not start a
@@ -704,6 +710,15 @@ available to bounded, secret-free shell completion.
 Each destructive action is recorded as in-flight before mutation, so a retry
 can prove the exact absent post-state and finish after a crash between removal
 and the completed-action journal update.
+
+If a released scope's retained `requested_components` disagrees with the
+schema-v1 planned selector, do not edit or delete the ledger, scope record, or
+release journal. Use the delivery helper's `recover-released-scope` CAS with
+the exact predecessor tuple, scope-show bytes, completed release journal, and
+explicit-recovery authority. It accepts only the two proven Classic directions
+(`classic`/`classic-client`), preserves the old name, branch, start SHA, roots,
+and evidence, proves fresh replacement collisions, and replans the corrected
+selector under a new scope name.
 
 ## Checkout worktrees
 
