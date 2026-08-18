@@ -93,13 +93,13 @@ _CREATE_STAGE_RE = re.compile(
 _MIGRATE_STAGE_RE = re.compile(r"^\.(?P<target>.+\.md\.ledger\.json)\.migrate\.tmp$")
 _UPDATE_STAGE_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update"
-    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope)-[a-z0-9][a-z0-9._-]{0,127})?"
+    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127})?"
     r"-g(?P<generation>[0-9]+)-"
     r"from-(?P<digest>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_RECEIPT_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update-proof"
-    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope)-[a-z0-9][a-z0-9._-]{0,127})?"
+    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127})?"
     r"-g"
     r"(?P<generation>[0-9]+)-from-(?P<digest>[0-9a-f]{64})-"
     r"d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-"
@@ -252,6 +252,7 @@ class Snapshot:
 
 _ATOMIC_BIND_TOKEN = object()
 _TARGET_REFRESH_TOKEN = object()
+_SCOPE_RECOVERY_TOKEN = object()
 
 
 @dataclass(frozen=True)
@@ -263,6 +264,21 @@ class _AtomicBindingCapability:
     slot_id: str
     name: str
     before_raw: bytes | None
+    after_raw: bytes
+    expected_generation: int
+    expected_digest: str
+    expected_device: int
+    expected_inode: int
+
+
+@dataclass(frozen=True)
+class _ScopeRecoveryCapability:
+    """Authorize one explicit recovery of a released planned scope selector."""
+
+    token: object
+    slot_id: str
+    name: str
+    before_raw: bytes
     after_raw: bytes
     expected_generation: int
     expected_digest: str
@@ -12358,6 +12374,7 @@ def _transition(
     *,
     _binding_capability: _AtomicBindingCapability | None = None,
     _target_refresh_capability: _TargetRefreshCapability | None = None,
+    _scope_recovery_capability: _ScopeRecoveryCapability | None = None,
 ) -> None:
     immutable = {
         "schema_version",
@@ -12371,6 +12388,8 @@ def _transition(
         "migration",
     }
     for key in immutable:
+        if key == "authority" and _scope_recovery_capability is not None:
+            continue
         if old[key] != new[key]:
             raise LedgerError(f"immutable ledger field changed: {key}")
     if new["generation"] != old["generation"] + 1:
@@ -12678,6 +12697,20 @@ def _transition(
             raise LedgerError("scope resources must be reserved by fresh issue-mode create")
     for slot, before in old_resources.items():
         after = new_resources[slot]
+        if (
+            _scope_recovery_capability is not None
+            and slot == _scope_recovery_capability.slot_id
+        ):
+            if (
+                before["kind"] != "scope"
+                or before["state"] != "planned"
+                or before["current"] is not None
+                or after["kind"] != "scope"
+                or after["state"] != "planned"
+                or after["current"] is not None
+            ):
+                raise LedgerError("scope recovery requires one planned unbound scope")
+            continue
         if before.get("request") != after.get("request"):
             raise LedgerError(f"resource request changed: {slot}")
         if before["kind"] != after["kind"] or before["immutable"] != after["immutable"]:
@@ -13170,6 +13203,7 @@ def cas(
     _precommit: Callable[[], None] | None = None,
     _binding_capability: _AtomicBindingCapability | None = None,
     _target_refresh_capability: _TargetRefreshCapability | None = None,
+    _scope_recovery_capability: _ScopeRecoveryCapability | None = None,
     _target_refresh_legacy: bool = False,
 ) -> Snapshot:
     name = _direct_name(name)
@@ -13182,6 +13216,31 @@ def cas(
     _integer(expected_inode, "expected_inode")
     raw = canonical_bytes(prepared)
     operation = ""
+    if _scope_recovery_capability is not None:
+        capability = _scope_recovery_capability
+        if (
+            _binding_capability is not None
+            or _target_refresh_capability is not None
+            or not isinstance(capability, _ScopeRecoveryCapability)
+            or capability.token is not _SCOPE_RECOVERY_TOKEN
+            or not SLOT_RE.fullmatch(capability.slot_id)
+            or capability.name != name
+            or capability.after_raw != raw
+            or (
+                capability.expected_generation,
+                capability.expected_digest,
+                capability.expected_device,
+                capability.expected_inode,
+            )
+            != (
+                expected_generation,
+                expected_digest,
+                expected_device,
+                expected_inode,
+            )
+        ):
+            raise LedgerError("invalid internal scope-recovery capability")
+        operation = f"-recover-scope-{capability.slot_id}"
     if _binding_capability is not None:
         capability = _binding_capability
         if (
@@ -13314,12 +13373,16 @@ def cas(
                     )
                 if _target_refresh_capability.before_raw != current.raw:
                     raise LedgerError("target-refresh predecessor bytes changed")
+            if _scope_recovery_capability is not None:
+                if _scope_recovery_capability.before_raw != current.raw:
+                    raise LedgerError("scope-recovery predecessor bytes changed")
             _transition(
                 current.document,
                 prepared,
                 current.digest,
                 _binding_capability=_binding_capability,
                 _target_refresh_capability=_target_refresh_capability,
+                _scope_recovery_capability=_scope_recovery_capability,
             )
             stage_status = _ensure_stage(
                 directory,
@@ -13409,6 +13472,327 @@ def cas(
                 raise LedgerError("installed CAS lost its predecessor proof")
             _unlink_exact(directory, proof, proof_visible)
             return installed
+
+
+def _scope_recovery_coordinates(value: Any, context: str) -> dict[str, Any]:
+    return _exact(
+        value,
+        {
+            "name",
+            "component",
+            "profile",
+            "physical_checkout",
+            "topology",
+            "label",
+            "branch",
+            "start_sha",
+        },
+        context,
+    )
+
+
+def _scope_recovery_authority(value: Any, context: str) -> dict[str, Any]:
+    item = _exact(
+        value,
+        {"transaction", "source", "old_scope", "replacement", "candidate_sha256", "authority"},
+        context,
+    )
+    if item["transaction"] != "delivery-ledger-recover-released-scope-v1":
+        raise LedgerError(f"{context}.transaction is invalid")
+    source = _exact(
+        item["source"],
+        {"name", "ledger_id", "generation", "sha256", "device", "inode"},
+        f"{context}.source",
+    )
+    _direct_name(source["name"], f"{context}.source.name")
+    _string(source["ledger_id"], f"{context}.source.ledger_id", REFERENCE_RE)
+    _integer(source["generation"], f"{context}.source.generation", minimum=1)
+    _string(source["sha256"], f"{context}.source.sha256", SHA256_RE)
+    _integer(source["device"], f"{context}.source.device", minimum=0)
+    _integer(source["inode"], f"{context}.source.inode", minimum=1)
+    old_scope = _exact(
+        item["old_scope"],
+        {
+            "name",
+            "component",
+            "profile",
+            "physical_checkout",
+            "topology",
+            "label",
+            "branch",
+            "start_sha",
+            "scope_show_sha256",
+            "release_journal_sha256",
+        },
+        f"{context}.old_scope",
+    )
+    _string(old_scope["scope_show_sha256"], f"{context}.old_scope.scope_show_sha256", SHA256_RE)
+    _string(
+        old_scope["release_journal_sha256"],
+        f"{context}.old_scope.release_journal_sha256",
+        SHA256_RE,
+    )
+    replacement = _scope_recovery_coordinates(
+        item["replacement"], f"{context}.replacement"
+    )
+    _string(item["candidate_sha256"], f"{context}.candidate_sha256", SHA256_RE)
+    _authority(item["authority"], f"{context}.authority")
+    return {
+        "transaction": item["transaction"],
+        "source": source,
+        "old_scope": old_scope,
+        "replacement": replacement,
+        "candidate_sha256": item["candidate_sha256"],
+        "authority": item["authority"],
+    }
+
+
+def _scope_recovery_projection(
+    document: Mapping[str, Any],
+    scope_slot: str,
+    authority: Mapping[str, Any],
+    replacement: Mapping[str, Any],
+) -> dict[str, Any]:
+    projection = copy.deepcopy(document)
+    projection["generation"] = 1
+    projection["previous_byte_digest"] = None
+    projection["history"] = []
+    projection["authority"] = copy.deepcopy(authority)
+    resources = projection["resources"]
+    for resource in resources:
+        if resource["slot_id"] == scope_slot:
+            resource["immutable"]["name"] = replacement["name"]
+            resource["request"] = {
+                "name": replacement["name"],
+                "component": replacement["component"],
+                "profile": replacement["profile"],
+                "physical_checkout": replacement["physical_checkout"],
+                "label": replacement["label"],
+                "branch": replacement["branch"],
+                "start_sha": replacement["start_sha"],
+                "roots": copy.deepcopy(resource["request"]["roots"]),
+                "state_policy": copy.deepcopy(resource["request"]["state_policy"]),
+                "temporary_state": True,
+                "topology": replacement["topology"],
+            }
+    return projection
+
+
+def _scope_recovery_observed_request(
+    raw: bytes,
+    planned_request: Mapping[str, Any],
+    repository: Mapping[str, Any],
+    context: str,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Validate a released scope against its observed selector namespace."""
+
+    decoded = _decode(raw, context)
+    if not isinstance(decoded, dict):
+        raise LedgerError(f"{context} must be an object")
+    requested = _sorted_names(
+        decoded.get("requested_components"),
+        f"{context}.requested_components",
+    )
+    if len(requested) != 1:
+        raise LedgerError(f"{context} must contain one observed selector")
+    observed = copy.deepcopy(planned_request)
+    observed["component"] = requested[0]
+    if observed["component"] == planned_request["component"]:
+        raise LedgerError(f"{context} does not prove a selector mismatch")
+    if {planned_request["component"], observed["component"]} != {
+        "classic",
+        "classic-client",
+    } or planned_request["physical_checkout"] != "classic":
+        raise LedgerError(f"{context} is not one of the supported Classic selector mismatches")
+    record, row = _scope_show_record(raw, observed, repository, context)
+    return observed, record, row
+
+
+def recover_released_scope(
+    root: Path | str,
+    name: str,
+    document: Mapping[str, Any],
+    scope_show_raw: bytes,
+    recovery_raw: bytes,
+    *,
+    expected_generation: int,
+    expected_digest: str,
+    expected_device: int,
+    expected_inode: int,
+    failpoint: Failpoint = None,
+) -> Snapshot:
+    """Recover one explicitly authorized released planned scope selector."""
+
+    name = _direct_name(name)
+    candidate = prepare(document)
+    recovery = _scope_recovery_authority(
+        _decode(recovery_raw, "scope recovery authority"),
+        "scope recovery authority",
+    )
+    if recovery_raw != canonical_bytes(recovery):
+        raise LedgerError("scope recovery authority is not canonical")
+    snapshot = inspect(root, name)
+    if snapshot.name != recovery["source"]["name"]:
+        raise LedgerError("scope recovery source names a different ledger")
+    if (
+        snapshot.document["ledger_id"] != recovery["source"]["ledger_id"]
+        or snapshot.document["generation"] != recovery["source"]["generation"]
+        or snapshot.digest != recovery["source"]["sha256"]
+        or snapshot.device != recovery["source"]["device"]
+        or snapshot.inode != recovery["source"]["inode"]
+    ):
+        raise LedgerError("scope recovery source snapshot is stale")
+    candidate_raw = canonical_bytes(candidate)
+    if byte_digest(candidate_raw) != recovery["candidate_sha256"]:
+        raise LedgerError("scope recovery candidate digest differs from authority")
+    if candidate["authority"] != recovery["authority"]:
+        raise LedgerError("scope recovery candidate authority differs from grant")
+    if candidate["authority"]["kind"] != "explicit-recovery":
+        raise LedgerError("scope recovery requires explicit-recovery authority")
+    if candidate["authority"]["actor_node_id"] != snapshot.document["actor"]["node_id"]:
+        raise LedgerError("scope recovery actor differs from ledger actor")
+    if candidate["authority"]["allowed"] != {
+        "issues": [issue["node_id"] for issue in snapshot.document["issues"]["explicit"]],
+        "pull_requests": [],
+        "repositories": [target["repository"]["node_id"] for target in snapshot.document["targets"]],
+    }:
+        raise LedgerError("scope recovery authority scope differs from ledger")
+    expected_objective = canonical_object_digest(
+        {
+            "operation": "recover-released-scope",
+            "source": recovery["source"],
+            "old_scope": recovery["old_scope"],
+            "replacement": recovery["replacement"],
+        }
+    )
+    if candidate["authority"]["objective_sha256"] != expected_objective:
+        raise LedgerError("scope recovery authority objective does not bind coordinates")
+    if not _timestamp_is_after(
+        candidate["authority"]["issued_at"], snapshot.document["authority"]["issued_at"]
+    ):
+        raise LedgerError("scope recovery authority must postdate the prior authority")
+
+    old_scopes = [resource for resource in snapshot.document["resources"] if resource["kind"] == "scope"]
+    new_scopes = [resource for resource in candidate["resources"] if resource["kind"] == "scope"]
+    if len(old_scopes) != 1 or len(new_scopes) != 1:
+        raise LedgerError("scope recovery requires one exact scope resource")
+    old_scope = old_scopes[0]
+    new_scope = new_scopes[0]
+    if old_scope["slot_id"] != new_scope["slot_id"] or old_scope["state"] != "planned" or old_scope["current"] is not None:
+        raise LedgerError("scope recovery requires one planned unbound old scope")
+    old_coordinates = {
+        "name": old_scope["immutable"]["name"],
+        "component": old_scope["request"]["component"],
+        "profile": old_scope["request"]["profile"],
+        "physical_checkout": old_scope["request"]["physical_checkout"],
+        "topology": old_scope["request"]["topology"],
+        "label": old_scope["request"]["label"],
+        "branch": old_scope["request"]["branch"],
+        "start_sha": old_scope["request"]["start_sha"],
+    }
+    new_coordinates = {
+        "name": new_scope["immutable"]["name"],
+        "component": new_scope["request"]["component"],
+        "profile": new_scope["request"]["profile"],
+        "physical_checkout": new_scope["request"]["physical_checkout"],
+        "topology": new_scope["request"]["topology"],
+        "label": new_scope["request"]["label"],
+        "branch": new_scope["request"]["branch"],
+        "start_sha": new_scope["request"]["start_sha"],
+    }
+    old_scope_show = _retained_result_document(scope_show_raw, "old scope show output")
+    observed_request, scope_record, _row = _scope_recovery_observed_request(
+        scope_show_raw,
+        old_scope["request"],
+        old_scope["immutable"]["repository"],
+        "old scope show output",
+    )
+    old_coordinate_evidence = {
+        **old_coordinates,
+        "scope_show_sha256": recovery["old_scope"]["scope_show_sha256"],
+        "release_journal_sha256": recovery["old_scope"]["release_journal_sha256"],
+    }
+    if old_coordinate_evidence != recovery["old_scope"] or new_coordinates != recovery["replacement"]:
+        raise LedgerError("scope recovery coordinate evidence differs from ledger candidate")
+    if (
+        new_coordinates["component"] != observed_request["component"]
+        or new_coordinates["physical_checkout"] != old_coordinates["physical_checkout"]
+        or new_coordinates["profile"] != old_coordinates["profile"]
+        or new_coordinates["branch"] != old_coordinates["branch"]
+        or new_coordinates["start_sha"] != old_coordinates["start_sha"]
+        or new_coordinates["name"] == old_coordinates["name"]
+    ):
+        raise LedgerError("scope recovery is not the authorized Classic selector correction")
+    if old_scope_show["sha256"] != recovery["old_scope"]["scope_show_sha256"]:
+        raise LedgerError("old scope show digest differs from recovery authority")
+    released_scope = copy.deepcopy(old_scope)
+    released_scope["request"] = observed_request
+    released_scope["current"] = {"binding": old_scope_show}
+    _prove_scope_release(released_scope, "released scope recovery")
+    release_raw = _read_bytes_input(scope_record["cleanup"]["release_journal"])
+    if byte_digest(release_raw) != recovery["old_scope"]["release_journal_sha256"]:
+        raise LedgerError("release journal digest differs from recovery authority")
+
+    workspace_root = Path(old_scope["request"]["roots"]["workspace"]["path"])
+    replacement_root = workspace_root / "scopes" / new_coordinates["name"]
+    replacement_profile = workspace_root / "profiles" / f"scope-{new_coordinates['name']}.json"
+    replacement_topology = workspace_root / "topologies" / new_coordinates["topology"]
+    replacement_worktree = workspace_root / "worktrees" / new_coordinates["physical_checkout"] / new_coordinates["label"]
+    for path in (replacement_root, replacement_profile, replacement_topology, replacement_worktree):
+        if path.exists() or path.is_symlink():
+            raise LedgerError(f"replacement scope coordinate already exists: {path}")
+    branch_probe = subprocess.run(
+        [
+            "git",
+            "-C",
+            old_scope["request"]["roots"]["primary"]["path"],
+            "show-ref",
+            "--verify",
+            "--quiet",
+            f"refs/heads/{new_coordinates['branch']}",
+        ],
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    if branch_probe.returncode == 0:
+        raise LedgerError("replacement scope branch already exists")
+    if branch_probe.returncode != 1:
+        raise LedgerError("replacement scope branch absence could not be proven")
+
+    projected = _scope_recovery_projection(
+        snapshot.document,
+        old_scope["slot_id"],
+        candidate["authority"],
+        recovery["replacement"],
+    )
+    projected["generation"] = candidate["generation"]
+    projected["previous_byte_digest"] = candidate["previous_byte_digest"]
+    projected["history"] = candidate["history"]
+    if projected != candidate:
+        raise LedgerError("scope recovery changed fields outside authority and scope intent")
+    capability = _ScopeRecoveryCapability(
+        _SCOPE_RECOVERY_TOKEN,
+        old_scope["slot_id"],
+        name,
+        snapshot.raw,
+        candidate_raw,
+        expected_generation,
+        expected_digest,
+        expected_device,
+        expected_inode,
+    )
+    return cas(
+        root,
+        name,
+        candidate,
+        expected_generation=expected_generation,
+        expected_digest=expected_digest,
+        expected_device=expected_device,
+        expected_inode=expected_inode,
+        failpoint=failpoint,
+        _scope_recovery_capability=capability,
+    )
 
 
 def correct_target_head(
@@ -14470,6 +14854,19 @@ def parser() -> argparse.ArgumentParser:
     refresh_parser.add_argument("--expected-digest", required=True)
     refresh_parser.add_argument("--expected-device", required=True, type=int)
     refresh_parser.add_argument("--expected-inode", required=True, type=int)
+    scope_recovery_parser = commands.add_parser(
+        "recover-released-scope",
+        help="atomically recover one explicitly authorized released planned scope selector",
+    )
+    scope_recovery_parser.add_argument("root", help="initialized review root")
+    scope_recovery_parser.add_argument("name", help="direct canonical ledger filename")
+    scope_recovery_parser.add_argument("input", help="bounded replacement ledger JSON")
+    scope_recovery_parser.add_argument("scope_show", help="exact released scope-show JSON")
+    scope_recovery_parser.add_argument("recovery", help="exact explicit-recovery authority JSON")
+    scope_recovery_parser.add_argument("--expected-generation", required=True, type=int)
+    scope_recovery_parser.add_argument("--expected-digest", required=True)
+    scope_recovery_parser.add_argument("--expected-device", required=True, type=int)
+    scope_recovery_parser.add_argument("--expected-inode", required=True, type=int)
     correction_parser = commands.add_parser(
         "correct-target-head",
         help="live-prove and supersede one exact nonexistent target-head typo",
@@ -14709,6 +15106,20 @@ def main(argv: Sequence[str] | None = None) -> int:
                     arguments.root,
                     arguments.name,
                     _read_input(arguments.input),
+                    expected_generation=arguments.expected_generation,
+                    expected_digest=arguments.expected_digest,
+                    expected_device=arguments.expected_device,
+                    expected_inode=arguments.expected_inode,
+                ).json()
+            )
+        elif arguments.command == "recover-released-scope":
+            _print(
+                recover_released_scope(
+                    arguments.root,
+                    arguments.name,
+                    _read_input(arguments.input),
+                    _read_bytes_input(arguments.scope_show),
+                    _read_bytes_input(arguments.recovery),
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,
                     expected_device=arguments.expected_device,

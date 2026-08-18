@@ -48,13 +48,12 @@
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
-- Prefer `scope create` for agents; use JSON handoff and
-  preview/apply release. Primitives remain.
-- Use wrapper commands and paths; never reconstruct managed paths. Isolate
+- Prefer `scope create`; Classic uses logical positionals and physical checkout
+  overrides. Recover released mismatches only via helper CAS.
+- Use wrapper paths; never reconstruct managed paths. Isolate
   topology names/states/ports/client config; prefer temporary state and keep
   scenario secrets local.
-- Keep completion bounded, local, parser-driven, secret-free, and ahead of
-  `Workspace` construction.
+- Keep completion bounded, parser-driven, and secret-free.
 - Lease in order; gate same-coordinate readers; share the migration barrier.
 - Unbound persisted records are historical and inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket

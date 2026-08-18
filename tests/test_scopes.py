@@ -775,6 +775,28 @@ class ScopeLifecycleTests(unittest.TestCase):
             },
         )
 
+    def test_classic_logical_selector_uses_physical_override_namespace(self) -> None:
+        checkout = self.make_checkout("classic")
+        start = command("git", "rev-parse", "HEAD", cwd=checkout)
+        record = self.workspace.scope_create(
+            ["classic-client"],
+            name="classic-logical-selector",
+            base_profile="classic",
+            labels=["classic=classic-logical-label"],
+            branches=["classic=fix/classic-logical-selector"],
+            start_points=[f"classic={start}"],
+        )
+        self.assertEqual(record["requested_components"], ["classic-client"])
+        self.assertEqual(record["worktrees"][0]["checkout"], "classic")
+        self.assertEqual(record["worktrees"][0]["label"], "classic-logical-label")
+        with self.assertRaisesRegex(WorkspaceError, "unselected checkouts"):
+            self.workspace.scope_create(
+                ["classic-client"],
+                name="classic-logical-selector-rejected",
+                base_profile="classic",
+                labels=["classic-client=wrong-namespace"],
+            )
+
     def test_json_handoff_contains_supported_exact_commands_without_secrets(self) -> None:
         checkout = self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="handoff")
