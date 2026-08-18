@@ -121,6 +121,10 @@ python3 scripts/delivery_ledger.py scope-bind-cas REVIEW_ROOT LEDGER_NAME SLOT_I
   SCOPE_SHOW_JSON WORKTREE_LIST_JSON SAFETY_JSON \
   --expected-generation GENERATION --expected-digest SHA256 \
   --expected-device DEVICE --expected-inode INODE
+python3 scripts/delivery_ledger.py recover-released-scope REVIEW_ROOT LEDGER_NAME \
+  REPLACEMENT_LEDGER_JSON RELEASED_SCOPE_SHOW_JSON RECOVERY_AUTHORITY_JSON \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-device DEVICE --expected-inode INODE
 python3 scripts/delivery_ledger.py pr-create-payload REVIEW_ROOT LEDGER_NAME SLOT_ID
 python3 scripts/delivery_ledger.py body-check REVIEW_ROOT LEDGER_NAME PR_NODE_ID BODY
 python3 scripts/delivery_ledger.py body-plan REVIEW_ROOT LEDGER_NAME PR_NODE_ID BODY SECTION
@@ -1286,6 +1290,41 @@ Preserve it while the PR is open. A later separately authorized release
 advances the resource observation and transitions lifecycle to terminal
 `released`, which retains its first binding digest in history and is historical
 and non-reusable.
+
+### Recover one released Classic selector mismatch
+
+When a completed scope was released before binding and its retained
+`requested_components` disagrees with the planned schema-v1 selector, preserve
+the exact predecessor ledger tuple, raw `scope show` bytes, release journal,
+branch/start coordinates, roots, and collision observations. Prepare a
+generation-2 candidate through the helper contract, changing only the planned
+scope resource to a fresh name/label/topology and the selector proven by the
+released scope. Keep the physical checkout, base profile, branch, start SHA,
+and root identities unchanged.
+
+The explicit-recovery JSON binds the predecessor name/ledger ID/generation/
+digest/device/inode, all old scope coordinates plus the scope-show and release
+journal digests, the replacement coordinates, the candidate digest, and an
+`explicit-recovery` authority whose objective is the canonical digest of those
+exact values. Run:
+
+```sh
+python3 scripts/delivery_ledger.py recover-released-scope \
+  REVIEW_ROOT LEDGER_NAME REPLACEMENT_LEDGER_JSON \
+  RELEASED_SCOPE_SHOW_JSON RECOVERY_AUTHORITY_JSON \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-device DEVICE --expected-inode INODE
+```
+
+The helper proves a complete release journal and live absence of every old
+eligible coordinate, derives one observed selector from the retained record,
+and accepts only the two Classic directions `classic` ↔ `classic-client` on
+the same physical `classic` checkout. It proves the fresh name/profile/
+topology/worktree and branch collisions absent, then performs one tagged CAS.
+Wrong branches, heads, repositories, roots, duplicate coordinates, stale
+release evidence, changed authority, or a generic/manual edit fail closed.
+The predecessor digest remains in the successor history; never delete,
+overwrite, or hand-edit either ledger or release evidence.
 
 ## Create, inspect, and update
 

@@ -8627,6 +8627,208 @@ class DeliveryLedgerTests(unittest.TestCase):
         finally:
             os.close(wrapper_descriptor)
 
+    def test_43d_recover_released_classic_selector_mismatch_both_directions(self) -> None:
+        classic_repository = repository("classic", "R_classic")
+        for index, (planned_selector, observed_selector) in enumerate(
+            (("classic-client", "classic"), ("classic", "classic-client"))
+        ):
+            with self.subTest(planned=planned_selector, observed=observed_selector):
+                base = self.live_base / f"classic-recovery-{index}"
+                roots = live_roots(base, "classic")
+                primary = Path(roots["primary"]["path"])
+                start_sha = git_head(roots)
+                old_request = scope_request(
+                    name=f"issue-482-released-{index}",
+                    component=planned_selector,
+                    profile="classic",
+                    checkout="classic",
+                    label=f"released-{index}",
+                    branch=f"fix/issue-482-released-{index}",
+                    start_sha=start_sha,
+                    topology=f"released-{index}",
+                    roots=roots,
+                )
+                observed_request = copy.deepcopy(old_request)
+                observed_request["component"] = observed_selector
+                document = issue_ledger(
+                    number=482,
+                    issue_node=f"I_issue_482_recovery_{index}",
+                    branch=old_request["branch"],
+                )
+                document["resources"] = [scope_resource(old_request)]
+                worktree = next(
+                    slot for slot in document["artifacts"] if slot["kind"] == "worktree"
+                )
+                worktree["immutable"]["path"] = None
+                worktree["primitive_request"] = None
+                worktree["producer_resource_slot"] = "scope"
+                retarget_repository(document, classic_repository)
+                replace_sha(document, SHA_A, start_sha)
+                live_worktree_path(observed_request)
+                scope_show = scope_show_bytes(
+                    observed_request, repository_name="atrinik/classic"
+                )
+                install_scope_references(observed_request, scope_show)
+                record = json.loads(scope_show)
+                plan_items = [
+                    {
+                        "kind": "topology",
+                        "path": record["topology"]["path"],
+                        "disposition": "absent",
+                    },
+                    {"kind": "state", "path": None, "disposition": "absent"},
+                    {
+                        "kind": "profile",
+                        "path": record["profile"]["path"],
+                        "disposition": "eligible",
+                    },
+                    {
+                        "kind": "worktree",
+                        "checkout": "classic",
+                        "path": record["worktrees"][0]["path"],
+                        "disposition": "eligible",
+                    },
+                ]
+                release_plan = {
+                    "schema_version": 1,
+                    "scope": record["name"],
+                    "generation": record["generation"],
+                    "items": plan_items,
+                }
+                release_journal = {
+                    "schema_version": 1,
+                    "scope": record["name"],
+                    "generation": record["generation"],
+                    "plan_sha256": ledger.canonical_object_digest(release_plan),
+                    "plan": release_plan,
+                    "status": "complete",
+                    "completed": ["profile", "worktree:classic"],
+                    "in_flight": None,
+                    "pending_builds": [],
+                    "updated_at": "2026-08-14T18:05:00Z",
+                }
+                Path(record["cleanup"]["release_journal"]).write_bytes(
+                    ledger.canonical_bytes(release_journal)
+                )
+                released_worktree = Path(record["worktrees"][0]["path"])
+                git_run(primary, "worktree", "remove", "--force", str(released_worktree))
+                Path(record["profile"]["path"]).unlink()
+                git_run(primary, "branch", "-D", old_request["branch"])
+
+                with tempfile.TemporaryDirectory() as temporary:
+                    review_root = Path(temporary)
+                    initial = ledger.create(review_root, document)
+                    candidate = next_generation(initial)
+                    replacement = {
+                        "name": f"issue-482-recovered-{index}",
+                        "component": observed_selector,
+                        "profile": "classic",
+                        "physical_checkout": "classic",
+                        "topology": f"recovered-{index}",
+                        "label": f"recovered-{index}",
+                        "branch": old_request["branch"],
+                        "start_sha": start_sha,
+                    }
+                    scope = candidate["resources"][0]
+                    scope["immutable"]["name"] = replacement["name"]
+                    scope["request"].update(
+                        {
+                            key: replacement[key]
+                            for key in (
+                                "name",
+                                "component",
+                                "profile",
+                                "physical_checkout",
+                                "label",
+                                "branch",
+                                "start_sha",
+                                "topology",
+                            )
+                        }
+                    )
+                    candidate["authority"] = {
+                        "kind": "explicit-recovery",
+                        "reference": "recovery:issue-482-selector-mismatch",
+                        "objective_sha256": "0" * 64,
+                        "issued_at": "2026-08-14T18:06:00Z",
+                        "actor_node_id": initial.document["actor"]["node_id"],
+                        "allowed": copy.deepcopy(initial.document["authority"]["allowed"]),
+                    }
+                    source = {
+                        "name": initial.name,
+                        "ledger_id": initial.document["ledger_id"],
+                        "generation": initial.document["generation"],
+                        "sha256": initial.digest,
+                        "device": initial.device,
+                        "inode": initial.inode,
+                    }
+                    old_scope = {
+                        "name": old_request["name"],
+                        "component": planned_selector,
+                        "profile": old_request["profile"],
+                        "physical_checkout": old_request["physical_checkout"],
+                        "topology": old_request["topology"],
+                        "label": old_request["label"],
+                        "branch": old_request["branch"],
+                        "start_sha": old_request["start_sha"],
+                        "scope_show_sha256": ledger.byte_digest(scope_show),
+                        "release_journal_sha256": ledger.byte_digest(
+                            Path(record["cleanup"]["release_journal"]).read_bytes()
+                        ),
+                    }
+                    authority = {
+                        "transaction": "delivery-ledger-recover-released-scope-v1",
+                        "source": source,
+                        "old_scope": old_scope,
+                        "replacement": replacement,
+                        "candidate_sha256": "0" * 64,
+                        "authority": candidate["authority"],
+                    }
+                    authority["authority"]["objective_sha256"] = ledger.canonical_object_digest(
+                        {
+                            "operation": "recover-released-scope",
+                            "source": source,
+                            "old_scope": old_scope,
+                            "replacement": replacement,
+                        }
+                    )
+                    candidate = ledger.prepare(candidate)
+                    authority["candidate_sha256"] = ledger.byte_digest(
+                        ledger.canonical_bytes(candidate)
+                    )
+                    fake_workspace = mock.Mock()
+                    fake_workspace._scope_release_live_plan.return_value = {
+                        "scope": record["name"],
+                        "generation": record["generation"],
+                        "items": [
+                            {**item, "disposition": "absent"}
+                            for item in plan_items
+                        ],
+                    }
+                    fake_module = mock.Mock()
+                    fake_module.Workspace.return_value = fake_workspace
+                    with mock.patch.object(
+                        ledger, "_load_workspace_module", return_value=fake_module
+                    ):
+                        recovered = ledger.recover_released_scope(
+                            review_root,
+                            initial.name,
+                            candidate,
+                            scope_show,
+                            ledger.canonical_bytes(authority),
+                            **cas_arguments(initial),
+                        )
+                    self.assertEqual(recovered.document["generation"], 2)
+                    self.assertEqual(
+                        recovered.document["resources"][0]["request"]["component"],
+                        observed_selector,
+                    )
+                    self.assertEqual(
+                        recovered.document["resources"][0]["request"]["name"],
+                        replacement["name"],
+                    )
+                    self.assertEqual(recovered.document["history"], [initial.digest])
+
     def test_43c_disjoint_classic_scope_binds_concurrently(self) -> None:
         classic_repository = repository("classic", "R_classic")
         roots = live_roots(self.live_base / "classic-concurrent-scopes", "classic")
