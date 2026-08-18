@@ -1170,13 +1170,21 @@ class WorkspaceTests(unittest.TestCase):
         )
         payload_file = output / "maps" / "payload"
         payload_file.write_text(payload, encoding="utf-8")
+        migration_index = output / "maps" / "celestial-migration-index.json"
+        migration_index.write_text("{}\n", encoding="utf-8")
         library_file = output / "lib" / "payload"
         library_file.write_text(payload, encoding="utf-8")
         license_file = output / "attribution" / "maps" / "COPYING"
         license_file.parent.mkdir(parents=True)
         license_file.write_text("fixture license\n", encoding="utf-8")
         files = []
-        for candidate in (compatibility, license_file, library_file, payload_file):
+        for candidate in (
+            compatibility,
+            license_file,
+            library_file,
+            migration_index,
+            payload_file,
+        ):
             files.append(
                 {
                     "path": candidate.relative_to(output).as_posix(),
@@ -1207,6 +1215,20 @@ class WorkspaceTests(unittest.TestCase):
                 "replacement_toolkit_package": False,
                 "license_files": [files[1]],
                 "files": files,
+                "celestial_schema_version": 1,
+                "celestial_runtime_factory_version": 1,
+                "celestial_migration_index": "maps/celestial-migration-index.json",
+                "celestial_migration_index_sha256": hashlib.sha256(
+                    migration_index.read_bytes()
+                ).hexdigest(),
+                "celestial_manifest_files_sha256": hashlib.sha256(
+                    "".join(
+                        "{}\0{}\0{}\n".format(
+                            entry["path"], entry["sha256"], entry["size"]
+                        )
+                        for entry in files
+                    ).encode("utf-8")
+                ).hexdigest(),
             },
         )
 
