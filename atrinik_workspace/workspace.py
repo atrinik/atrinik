@@ -8734,6 +8734,11 @@ class Workspace:
                     "replacement_toolkit_package",
                     "license_files",
                     "files",
+                    "celestial_schema_version",
+                    "celestial_runtime_factory_version",
+                    "celestial_migration_index",
+                    "celestial_migration_index_sha256",
+                    "celestial_manifest_files_sha256",
                 }
                 or manifest.get("schema_version") != 2
                 or manifest.get("target") != "classic"
@@ -8757,6 +8762,18 @@ class Workspace:
                 )
                 or not isinstance(manifest.get("license_files"), list)
                 or not isinstance(manifest.get("files"), list)
+                or manifest.get("celestial_schema_version") != 1
+                or manifest.get("celestial_runtime_factory_version") != 1
+                or manifest.get("celestial_migration_index")
+                != "maps/celestial-migration-index.json"
+                or not isinstance(manifest.get("celestial_migration_index_sha256"), str)
+                or re.fullmatch(
+                    r"[0-9a-f]{64}", manifest.get("celestial_migration_index_sha256", "")
+                ) is None
+                or not isinstance(manifest.get("celestial_manifest_files_sha256"), str)
+                or re.fullmatch(
+                    r"[0-9a-f]{64}", manifest.get("celestial_manifest_files_sha256", "")
+                ) is None
             ):
                 raise WorkspaceError("collected Classic content manifest is invalid")
         elif adapter == "none":
@@ -15729,8 +15746,15 @@ class Workspace:
                     "client-maps": (build_root / "runtime" / "client-maps", set()),
                 }
             )
+            attribution = build_root / "runtime" / "content" / "attribution"
+            if attribution.is_dir() and not attribution.is_symlink():
+                directories["content-attribution"] = (attribution, set())
             for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
                 files[f"server-{name}"] = source / name
+            for name in ("manifest.json", "compatibility.json"):
+                path = build_root / "runtime" / "content" / name
+                if path.is_file() and not path.is_symlink():
+                    files[f"content-{name}"] = path
             custom = source / "server-custom.cfg"
             if custom.is_file() and not custom.is_symlink():
                 files["server-server-custom.cfg"] = custom
@@ -15836,6 +15860,12 @@ class Workspace:
                 self._copy_runtime_tree(
                     content / "maps", server_runtime / "maps"
                 )
+                attribution = content / "attribution"
+                if attribution.is_dir() and not attribution.is_symlink():
+                    self._copy_runtime_tree(attribution, server_runtime / "attribution")
+                for name in ("manifest.json", "compatibility.json"):
+                    if (content / name).is_file() and not (content / name).is_symlink():
+                        self._copy_runtime_regular_file(content / name, server_runtime / name)
                 self._copy_runtime_tree(
                     build_root / "runtime" / "resources",
                     server_runtime / "resources",
@@ -20008,6 +20038,12 @@ class Workspace:
             (runtime / name).symlink_to(
                 target, target_is_directory=target.is_dir()
             )
+        for name in ("attribution", "manifest.json", "compatibility.json"):
+            target = content / name
+            if target.is_dir() and not target.is_symlink():
+                (runtime / name).symlink_to(target, target_is_directory=True)
+            elif target.is_file() and not target.is_symlink():
+                (runtime / name).symlink_to(target)
         for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
             target = source / name
             if not target.is_file():
