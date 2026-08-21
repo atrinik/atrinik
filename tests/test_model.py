@@ -4,6 +4,7 @@ import copy
 import json
 import os
 from pathlib import Path
+import re
 import stat
 import sys
 import tempfile
@@ -603,7 +604,9 @@ class ReleaseConfigurationTests(unittest.TestCase):
         config = json.loads((root / ".releaserc.json").read_text(encoding="utf-8"))
         analyzer = config["plugins"][0]
 
-        self.assertEqual(config["branches"], ["main"])
+        self.assertEqual(
+            config["branches"], ["+([0-9]).+([0-9]).x", "main"]
+        )
         self.assertEqual(analyzer[0], "@semantic-release/commit-analyzer")
         self.assertEqual(
             analyzer[1]["releaseRules"],
@@ -613,6 +616,23 @@ class ReleaseConfigurationTests(unittest.TestCase):
                 {"type": "*", "release": "patch"},
             ],
         )
+
+    def test_release_branch_matrix_covers_mainline_and_pointfix_lines(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        config = json.loads((root / ".releaserc.json").read_text(encoding="utf-8"))
+        workflow = (root / ".github/workflows/release.yml").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("- main\n      - '[0-9]+.[0-9]+.x'", workflow)
+        maintenance = re.compile(r"^[0-9]+\.[0-9]+\.x$")
+        for branch in ("5.50.x", "12.3.x"):
+            with self.subTest(branch=branch):
+                self.assertTrue(maintenance.fullmatch(branch))
+        for branch in ("5.x", "5.50.0", "v5.50.x", "main"):
+            with self.subTest(branch=branch):
+                self.assertFalse(maintenance.fullmatch(branch))
+        self.assertEqual(config["tagFormat"], "v${version}")
 
     def test_every_component_checkout_is_ignored_at_wrapper_root(self) -> None:
         root = Path(__file__).resolve().parents[1]

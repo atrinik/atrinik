@@ -3,12 +3,37 @@
 Use Conventional Commits syntax for commits and pull-request titles:
 
 ~~~text
-type(optional-scope)!: concise description
+type(optional-scope): concise description
 ~~~
 
 Examples include `fix(cli): reject mismatched checkout paths` and
-`feat!: revise the profile schema`. Pull requests are squash-merged, and the
-squash title becomes the release-driving commit on `main`.
+`feat(agents): revise the profile schema`. Add the optional `!` marker only
+when a reviewer explicitly requests a breaking change that should trigger the
+next major release; agents should not add it automatically. Pull requests are
+squash-merged, and the squash title becomes the release-driving commit on
+`main`.
+
+## Release branches
+
+`main` is the forward development line. A maintenance branch uses the native
+semantic-release `X.Y.x` form and is cut from the existing `vX.Y.0` tag, for
+example:
+
+~~~sh
+git switch --create 5.50.x v5.50.0
+git push origin 5.50.x
+~~~
+
+The first fix on `5.50.x` publishes `v5.50.1`; later fixes publish
+`v5.50.2`, `v5.50.3`, and so on. The baseline `v5.50.0` tag is never
+recreated. Semantic-release constrains the maintenance line to its `X.Y.x`
+range, so an out-of-range release or a conflicting version is refused.
+
+After a maintenance fix is released, forward-port it to `main` through an
+explicit pull request. Merge the maintenance branch when its ancestry makes
+that transfer clear; otherwise open a main-targeted pull request carrying the
+equivalent change. Do not merge `main` back into a maintenance branch, because
+that can introduce commits outside its patch range.
 
 Write pull-request descriptions as renderable GitHub-Flavored Markdown with
 actual line breaks, never visible literal `\n` separators. For a multi-section
