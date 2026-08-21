@@ -123,12 +123,11 @@ executables or generated paths.
 
 ## Coordinate publication and policy
 
-Use `atrinik-github-governance` for PRs or policy. Titles use
+Use `atrinik-github-governance` for PRs. Titles:
 `type(optional-scope): concise description` by default; add `!` only when a
-reviewer explicitly requests a breaking change that should trigger the next
-major release. Bodies require renderable GitHub-Flavored Markdown and actual
-line breaks, never visible literal `\n` separators. Feed multi-section bodies
-by file/stdin. After create/edit, verify remote render.
+reviewer explicitly requests a breaking change, not auto. Bodies use
+GitHub-Flavored Markdown, actual line breaks, never literal `\n` separators.
+Feed multi-section bodies by file/stdin; after create/edit, verify remote.
 Semantic-release owns publication. Dependency changes update inventory and
 audit a profile. Follow `docs/PROVENANCE.md`; fail uncertainty closed.
 
