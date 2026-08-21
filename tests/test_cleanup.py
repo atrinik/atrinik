@@ -416,6 +416,57 @@ class CleanupTests(unittest.TestCase):
             ),
             "uncertain_topology",
         )
+        self.assertEqual(
+            self.workspace.topology_reference_classification(
+                "missing-classification", inactive, operation_active=False
+            ),
+            "uncertain_topology",
+        )
+        self.assertEqual(
+            self.workspace.topology_reference_classification(root.name),
+            "inactive_topology",
+        )
+        operation_descriptor = os.open(root / "operation.lock", os.O_RDWR)
+        try:
+            fcntl.flock(operation_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self.assertEqual(
+                self.workspace.topology_reference_classification(root.name, inactive),
+                "active_topology",
+            )
+        finally:
+            fcntl.flock(operation_descriptor, fcntl.LOCK_UN)
+            os.close(operation_descriptor)
+        (root / "operation.lock").unlink()
+        self.assertEqual(
+            self.workspace.topology_reference_classification(root.name, inactive),
+            "uncertain_topology",
+        )
+        self.assertEqual(
+            self.workspace.topology_reference_classification(
+                root.name,
+                {"observation": [], "stopped_at": "published"},
+                operation_active=False,
+            ),
+            "uncertain_topology",
+        )
+        self.assertEqual(
+            self.workspace.topology_reference_classification(
+                root.name,
+                self.topology_observation("exited", control="reachable"),
+                operation_active=False,
+            ),
+            "active_topology",
+        )
+        retained_cleanup = self.topology_observation("exited")
+        retained_cleanup["mutable_state_cleanup"] = {
+            "entries": [{"status": "pending"}]
+        }
+        self.assertEqual(
+            self.workspace.topology_reference_classification(
+                root.name, retained_cleanup, operation_active=False
+            ),
+            "retained_state",
+        )
 
     def test_topology_cleanup_supports_exact_name_recovery(self) -> None:
         selected = self.make_topology_record("exact-recovery-selected")
@@ -582,6 +633,9 @@ class CleanupTests(unittest.TestCase):
         (linked / "unsafe-link").symlink_to(self.root)
         missing_lock = self.make_topology_record("missing-operation-lock")
         (missing_lock / "operation.lock").unlink()
+        invalid_lock = self.make_topology_record("invalid-operation-lock")
+        (invalid_lock / "operation.lock").unlink()
+        (invalid_lock / "operation.lock").symlink_to(self.root)
         active = self.make_topology_record("active-operation")
         descriptor = os.open(active / "operation.lock", os.O_RDWR)
         fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -611,6 +665,10 @@ class CleanupTests(unittest.TestCase):
         self.assertIn(
             "topology_operation_lock_unavailable",
             items["missing-operation-lock"]["reasons"],
+        )
+        self.assertIn(
+            "invalid_topology_operation_lock",
+            items["invalid-operation-lock"]["reasons"],
         )
         self.assertIn("active_topology_operation", items["active-operation"]["reasons"])
         self.assertTrue(all(row["disposition"] == "protected" for row in items.values()))
