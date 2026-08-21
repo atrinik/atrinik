@@ -132,6 +132,13 @@ owner `AGENTS.md`; do not duplicate procedures.
   ./atrinik scope show SCOPE --json
   ```
 
+  For Classic, use the logical component as the positional selector and the
+  physical checkout for every override key: `scope create classic-client ...
+  --label classic=... --branch classic=... --start-point classic=...`. The
+  wrapper records `requested_components` separately from its checkout-wide
+  logical component rows; never substitute `classic-client=` for the `classic`
+  override key. Bind only the exact returned scope through the ledger helper.
+
   Feed raw `scope show`/list JSON to `scope-observe`; call `scope-bind-cas` with
   a fresh inspect tuple. It pins/reproves before CAS. Partial, released,
   referenced, cross-checkout, or mismatched evidence stops. Generic `cas`

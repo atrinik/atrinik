@@ -44,6 +44,22 @@ classic` adds classic. `sync` never clones.
 Sync only clean primaries; never replace, move, or remove dirty sources.
 Classic selectors create `workspace/worktrees/classic/LABEL`. Prefer atomic,
 idempotent scopes and temporary state.
+
+Classic scope selectors have two namespaces: the positional `components`
+arguments may use a logical component such as `classic-client`, while
+`--label`, `--branch`, and `--start-point` overrides are keyed by the physical
+checkout `classic`. For example:
+
+```sh
+./atrinik scope create classic-client --name REVIEW --from classic \
+  --label classic=LABEL --branch classic=TYPE/TOPIC \
+  --start-point classic=BASE_SHA --temporary-state --json
+```
+
+Do not use `classic-client=` as an override key. Before delivery mutation,
+compare the scope's `requested_components` and worktree checkout with the
+ledger request; a failed bind is recoverable only through the delivery helper,
+never by editing or deleting ledger state.
 Release with the fresh preview digest:
 
 ```sh
