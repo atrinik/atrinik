@@ -2,5 +2,10 @@
   "files.watcherExclude": {
     "workspace/**": true,
     "build/**": true
-  }
+  },
+  "clangd.arguments": [
+    "--background-index",
+    "--clang-tidy",
+    "--compile-commands-dir=${workspaceFolder}/classic/build/integrated-linux-debug"
+  ]
 }
