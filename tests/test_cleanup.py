@@ -468,6 +468,192 @@ class CleanupTests(unittest.TestCase):
             "retained_state",
         )
 
+        cases = (
+            (
+                "invalid-control",
+                self.topology_observation("exited", control="invalid"),
+                "uncertain_topology",
+            ),
+            (
+                "retained-server-state-lease",
+                {
+                    **self.topology_observation("exited"),
+                    "observation": {
+                        **self.topology_observation("exited")["observation"],
+                        "server_state_lease_owner": root.name,
+                    },
+                },
+                "active_topology",
+            ),
+            (
+                "retained-layout-lease",
+                self.topology_observation(
+                    "exited", repository_layout_lease_owner=root.name
+                ),
+                "active_topology",
+            ),
+            (
+                "retained-port-lease",
+                self.topology_observation(
+                    "exited", port_reservation={"lease": "retained"}
+                ),
+                "active_topology",
+            ),
+            (
+                "invalid-port-lease",
+                self.topology_observation(
+                    "exited", port_reservation={"lease": "invalid"}
+                ),
+                "uncertain_topology",
+            ),
+            (
+                "state-policy-missing",
+                {
+                    **self.topology_observation("exited"),
+                    "state": str(root / "state"),
+                    "state_policy": "invalid",
+                },
+                "retained_state",
+            ),
+            (
+                "temporary-state-retained",
+                {
+                    **self.topology_observation("exited"),
+                    "state": str(root / "state"),
+                    "state_policy": {
+                        "mode": "temporary",
+                        "lifecycle": "removed",
+                    },
+                },
+                "uncertain_topology",
+            ),
+            (
+                "named-policy-without-state",
+                {
+                    **self.topology_observation("exited"),
+                    "state_policy": {"mode": "named", "lifecycle": "active"},
+                },
+                "retained_state",
+            ),
+            (
+                "temporary-policy-without-state",
+                {
+                    **self.topology_observation("exited"),
+                    "state_policy": {
+                        "mode": "temporary",
+                        "lifecycle": "active",
+                    },
+                },
+                "retained_state",
+            ),
+            (
+                "invalid-cleanup-record",
+                {
+                    **self.topology_observation("exited"),
+                    "mutable_state_cleanup": "invalid",
+                },
+                "uncertain_topology",
+            ),
+            (
+                "invalid-runtime-outputs",
+                {
+                    **self.topology_observation("exited"),
+                    "runtime": {"mutable_state_outputs": "invalid"},
+                },
+                "uncertain_topology",
+            ),
+            (
+                "invalid-runtime-identities",
+                {
+                    **self.topology_observation("exited"),
+                    "runtime": {
+                        "mutable_state_outputs": [str(root / "output")],
+                        "mutable_state_output_identities": [],
+                    },
+                },
+                "uncertain_topology",
+            ),
+            (
+                "missing-runtime-identities",
+                {
+                    **self.topology_observation("exited"),
+                    "runtime": {"mutable_state_outputs": [str(root / "output")]},
+                },
+                "uncertain_topology",
+            ),
+            (
+                "invalid-runtime-output-path",
+                {
+                    **self.topology_observation("exited"),
+                    "runtime": {
+                        "mutable_state_outputs": [123],
+                        "mutable_state_output_identities": [{}],
+                    },
+                },
+                "uncertain_topology",
+            ),
+            (
+                "runtime-output-present",
+                {
+                    **self.topology_observation("exited"),
+                    "runtime": {
+                        "mutable_state_outputs": [str(root / "output")],
+                        "mutable_state_output_identities": [
+                            {"device": 1, "inode": 2}
+                        ],
+                    },
+                },
+                "retained_state",
+            ),
+            (
+                "invalid-runtime-record",
+                {
+                    **self.topology_observation("exited"),
+                    "runtime": "invalid",
+                },
+                "uncertain_topology",
+            ),
+        )
+        (root / "state").mkdir()
+        (root / "output").mkdir()
+        tombstone_output = root / "tombstone-output"
+        tombstone_identity = {"device": 3, "inode": 4}
+        tombstone = workspace_module._owned_tree_tombstone_path(
+            tombstone_output, tombstone_identity
+        )
+        tombstone.touch()
+        cases += (
+            (
+                "runtime-output-tombstone",
+                {
+                    **self.topology_observation("exited"),
+                    "runtime": {
+                        "mutable_state_outputs": [str(tombstone_output)],
+                        "mutable_state_output_identities": [tombstone_identity],
+                    },
+                },
+                "retained_state",
+            ),
+        )
+        for name, status, expected in cases:
+            with self.subTest(name=name):
+                self.assertEqual(
+                    self.workspace.topology_reference_classification(
+                        root.name, status, operation_active=False
+                    ),
+                    expected,
+                )
+
+        with mock.patch.object(
+            self.workspace, "topology_status", side_effect=WorkspaceError("invalid")
+        ):
+            self.assertEqual(
+                self.workspace.topology_reference_classification(
+                    root.name, None, operation_active=False
+                ),
+                "uncertain_topology",
+            )
+
     def test_topology_cleanup_supports_exact_name_recovery(self) -> None:
         selected = self.make_topology_record("exact-recovery-selected")
         preserved = self.make_topology_record("exact-recovery-preserved")
