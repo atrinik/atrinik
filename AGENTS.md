@@ -63,12 +63,13 @@
 - Update `supply-chain/inventory.json` when dependency ownership/validation
   changes. Keep Actions/images immutable, add no submodules, and audit a full
   profile. Only aggregate-root workflows and Dependabot are active.
-- Commits and PR titles use `type(optional-scope)!: concise description`. PR
-  bodies require renderable GitHub-Flavored Markdown and actual line breaks,
-  never visible literal `\n` separators. Feed multi-section bodies by file or
-  stdin; after create/edit, verify remote rendering. Use
-  `atrinik-github-governance` for publication, policy, or native PR stacks.
-  Semantic-release owns tags/assets; keep unreleased work off public surfaces.
+- Commits and PR titles use `type(optional-scope): concise description` by
+  default. Add `!` only when a reviewer explicitly requests a breaking change;
+  not auto. Bodies use GitHub-Flavored Markdown and actual
+  line breaks, never literal `\n` separators. Feed multi-section bodies by
+  file/stdin; after create/edit, verify remote. Use `atrinik-github-governance`
+  for PRs. Semantic-release owns tags; keep unreleased work off
+  public surfaces.
 
 ## Working agreements and commands
 

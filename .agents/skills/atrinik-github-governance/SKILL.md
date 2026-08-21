@@ -36,13 +36,12 @@ description: Publish Atrinik PRs, govern GitHub policy, or review and explicitly
 
 ## Publish pull requests
 
-Use `type(optional-scope)!: concise description` for PR titles. Write bodies as
-renderable GitHub-Flavored Markdown with actual line breaks, never visible
-literal `\n` separators. Pass multi-section bodies by file, standard input, or
-another newline-preserving method. After create/edit, inspect GitHub's rendered
-web view or rendered `bodyHTML`/`body_html`, not only the raw body. Verify
-headings, lists, inline code, issue-closing references, and validation sections
-render normally.
+Titles use `type(optional-scope): concise description` by default. Add `!` only
+when a reviewer explicitly requests a breaking change; not automatically.
+Bodies: GitHub-Flavored Markdown with actual line breaks, never literal `\n`
+separators. Feed multi-section bodies by file/stdin. After create/edit, inspect
+GitHub's `bodyHTML`/`body_html`, not raw body; verify headings, lists,
+inline code, issue-closing references, and validation sections.
 
 ## Validate and hand off
 

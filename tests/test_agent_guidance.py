@@ -1184,7 +1184,8 @@ class AgentGuidanceTests(unittest.TestCase):
             workspace_skill,
         ]
         markers = {
-            "type(optional-scope)!: concise description",
+            "type(optional-scope): concise description",
+            "reviewer explicitly requests a breaking change",
             "GitHub-Flavored Markdown",
             "actual line breaks",
             "literal `\\n` separators",
@@ -1195,6 +1196,10 @@ class AgentGuidanceTests(unittest.TestCase):
             for marker in markers:
                 with self.subTest(path=path.relative_to(ROOT), marker=marker):
                     self.assertIn(marker, guidance)
+            with self.subTest(path=path.relative_to(ROOT), marker="no automatic !"):
+                self.assertNotIn(
+                    "type(optional-scope)!: concise description", guidance
+                )
             with self.subTest(path=path.relative_to(ROOT), marker="body input"):
                 self.assertRegex(
                     guidance,
@@ -1230,7 +1235,10 @@ class AgentGuidanceTests(unittest.TestCase):
             "types: [opened, edited, synchronize, reopened]", title_workflow
         )
         self.assertIn("name: Conventional PR title", title_workflow)
-        self.assertIn("type(optional-scope)!: concise description", title_workflow)
+        self.assertIn("type(optional-scope): concise description", title_workflow)
+        self.assertIn(
+            "add ! only for an explicitly requested breaking change", title_workflow
+        )
 
         run_match = re.search(
             r"(?m)^ {8}run: \|\n(?P<script>(?:^ {10}.*(?:\n|$))+)",
