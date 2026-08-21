@@ -68,13 +68,7 @@
   not auto. Bodies use GitHub-Flavored Markdown and actual
   line breaks, never literal `\n` separators. Feed multi-section bodies by
   file/stdin; after create/edit, verify remote. Use `atrinik-github-governance`
-  for PRs. Semantic-release owns tags; keep unreleased work off
-  public surfaces.
-- Release-owning repositories use the shared branch policy: `main` advances
-  every release-driving commit to the next minor line, while `X.Y.x` branches
-  remain patch-only from their published `vX.Y.0` baseline. Keep the policy
-  module, workflow trigger, configuration test, and release documentation
-  aligned; preserve the historical `v8.0.1` tag as-is.
+  for PRs. Semantic-release owns branch-aware tags; see `CONTRIBUTING.md`.
 
 ## Working agreements and commands
 
