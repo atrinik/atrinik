@@ -2,6 +2,7 @@
 
 const assert = require("node:assert/strict");
 const {
+  currentBranch,
   nextVersion,
   releaseForCommit,
   rulesForBranch,
@@ -26,6 +27,13 @@ assert.equal(
   "major",
 );
 assert.throws(() => rulesForBranch("release"), /unsupported/);
+
+delete process.env.ATRINIK_RELEASE_BRANCH;
+process.env.GITHUB_REF_NAME = "421/merge";
+process.env.GITHUB_BASE_REF = "8.3.x";
+assert.equal(currentBranch(), "8.3.x");
+delete process.env.GITHUB_REF_NAME;
+delete process.env.GITHUB_BASE_REF;
 
 process.env.ATRINIK_RELEASE_BRANCH = "main";
 delete require.cache[require.resolve("./release-rules.cjs")];
