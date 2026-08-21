@@ -246,7 +246,7 @@ def parser() -> argparse.ArgumentParser:
         nargs="*",
         help=(
             "limit worktrees to checkout/component identities, or select exact "
-            "cleanup-journal names"
+            "topology or cleanup-journal names"
         ),
     ), "component")
     cleanup.add_argument(

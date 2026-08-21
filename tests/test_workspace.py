@@ -13266,6 +13266,263 @@ class WorkspaceTests(unittest.TestCase):
                 profiles_directory_absent=True,
             )
 
+    def test_topology_reference_exclusion_is_guarded_and_exact(self) -> None:
+        source = self.workspace.paths.repositories / "content"
+        topologies = self.workspace.paths.topologies
+        topologies.mkdir(parents=True, exist_ok=True)
+        inactive = topologies / "historical-reference"
+        active = topologies / "active-reference"
+        for root, key in ((inactive, "checkout_path"), (active, "path")):
+            root.mkdir()
+            atomic_json(
+                root / "spec.json",
+                {
+                    "resolved": {
+                        "ignored": "not-a-coordinate",
+                        "matched": {key: str(source)},
+                    }
+                },
+            )
+
+        def classify(name: str) -> str:
+            return (
+                "inactive_topology"
+                if name == inactive.name
+                else "active_topology"
+            )
+
+        with (
+            mock.patch.object(
+                self.workspace, "_scope_source_references", return_value=[]
+            ),
+            mock.patch.object(
+                self.workspace, "_physical_reference_records", return_value=[]
+            ),
+            mock.patch.object(
+                self.workspace,
+                "topology_reference_classification",
+                side_effect=classify,
+            ),
+        ):
+            references = self.workspace._source_references(
+                source,
+                profiles_directory_absent=True,
+                exclude_inactive_topologies=True,
+            )
+
+        self.assertEqual(references, [f"topology:{active.name}"])
+        self.assertEqual(
+            self.workspace._source_references(
+                source,
+                profiles_directory_absent=True,
+            ),
+            [
+                f"topology:{active.name}",
+                f"topology:{inactive.name}",
+            ],
+        )
+
+    def test_topology_reference_snapshot_and_operation_lock_are_no_follow(
+        self,
+    ) -> None:
+        topologies = self.workspace.paths.topologies
+        topologies.mkdir(parents=True, exist_ok=True)
+        visible = topologies / "visible-reference"
+        visible.mkdir()
+        (topologies / ".hidden-reference").mkdir()
+        (topologies / "port-reservations").mkdir()
+        (topologies / "ports.lock").write_text("", encoding="utf-8")
+        (topologies / "not-a-directory").write_text("", encoding="utf-8")
+        (topologies / "linked-reference").symlink_to(visible, target_is_directory=True)
+        self.assertEqual(
+            self.workspace._topology_reference_snapshot(),
+            ((visible.name, visible.stat().st_dev, visible.stat().st_ino),),
+        )
+
+        replaced = topologies.with_name("topologies-real")
+        topologies.rename(replaced)
+        topologies.symlink_to(replaced, target_is_directory=True)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "topology reference root is invalid"):
+                self.workspace._topology_reference_snapshot()
+        finally:
+            topologies.unlink()
+            replaced.rename(topologies)
+
+        operation_root = topologies / "operation-lock-observation"
+        operation_root.mkdir()
+        operation_lock = operation_root / "operation.lock"
+        self.assertEqual(
+            self.workspace._topology_operation_lock_state(operation_root),
+            "unverifiable",
+        )
+        operation_lock.touch(mode=0o600)
+        self.assertEqual(
+            self.workspace._topology_operation_lock_state(operation_root),
+            "available",
+        )
+        descriptor = os.open(operation_lock, os.O_RDWR)
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self.assertEqual(
+                self.workspace._topology_operation_lock_state(operation_root),
+                "active",
+            )
+        finally:
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+            os.close(descriptor)
+
+        os.link(operation_lock, operation_root / "operation-copy")
+        self.assertEqual(
+            self.workspace._topology_operation_lock_state(operation_root),
+            "unverifiable",
+        )
+        (operation_root / "operation-copy").unlink()
+        operation_lock.unlink()
+        operation_lock.symlink_to(operation_root / "operation-target")
+        self.assertEqual(
+            self.workspace._topology_operation_lock_state(operation_root),
+            "unverifiable",
+        )
+        operation_lock.unlink()
+        operation_lock.mkdir()
+        self.assertEqual(
+            self.workspace._topology_operation_lock_state(operation_root),
+            "unverifiable",
+        )
+        operation_lock.rmdir()
+        operation_lock.touch(mode=0o600)
+        with mock.patch.object(
+            workspace_module.os, "open", side_effect=OSError("open unavailable")
+        ):
+            self.assertEqual(
+                self.workspace._topology_operation_lock_state(operation_root),
+                "unverifiable",
+            )
+        operation_lock.unlink()
+        mismatch = mock.Mock(
+            st_mode=stat.S_IFREG,
+            st_nlink=1,
+            st_dev=operation_root.stat().st_dev,
+            st_ino=operation_root.stat().st_ino,
+        )
+        operation_lock.touch(mode=0o600)
+        with mock.patch.object(workspace_module.os, "fstat", return_value=mismatch):
+            self.assertEqual(
+                self.workspace._topology_operation_lock_state(operation_root),
+                "unverifiable",
+            )
+        with mock.patch.object(
+            workspace_module.fcntl,
+            "flock",
+            side_effect=BlockingIOError("operation in progress"),
+        ):
+            self.assertEqual(
+                self.workspace._topology_operation_lock_state(operation_root),
+                "active",
+            )
+        with mock.patch.object(
+            workspace_module.fcntl,
+            "flock",
+            side_effect=OSError("flock unavailable"),
+        ):
+            self.assertEqual(
+                self.workspace._topology_operation_lock_state(operation_root),
+                "unverifiable",
+            )
+        with mock.patch.object(
+            workspace_module.os,
+            "fstat",
+            side_effect=OSError("fstat unavailable"),
+        ):
+            self.assertEqual(
+                self.workspace._topology_operation_lock_state(operation_root),
+                "unverifiable",
+            )
+        operation_lock.unlink()
+        operation_root.rmdir()
+        shutil.rmtree(topologies)
+        self.assertEqual(self.workspace._topology_reference_snapshot(), ())
+        topologies.mkdir()
+        with mock.patch.object(
+            workspace_module.Path,
+            "iterdir",
+            side_effect=OSError("topology inventory unavailable"),
+        ), self.assertRaisesRegex(
+            WorkspaceError, "cannot inventory topology reference root"
+        ):
+            self.workspace._topology_reference_snapshot()
+
+    def test_topology_reference_inventory_fails_closed_on_races_and_malformed_records(
+        self,
+    ) -> None:
+        source = self.workspace.paths.repositories / "content"
+        topologies = self.workspace.paths.topologies
+        scenarios = self.workspace.paths.scenarios
+        topologies.mkdir(parents=True, exist_ok=True)
+        if scenarios.exists():
+            shutil.rmtree(scenarios)
+        try:
+            with (
+                mock.patch.object(
+                    self.workspace, "_scope_source_references", return_value=[]
+                ),
+                mock.patch.object(
+                    self.workspace, "_physical_reference_records", return_value=[]
+                ),
+                mock.patch.object(
+                    self.workspace, "_resource_locks", return_value=nullcontext()
+                ),
+            ):
+                self.assertEqual(
+                    self.workspace._source_references(
+                        source,
+                        profiles_directory_absent=True,
+                        exclude_inactive_topologies=True,
+                    ),
+                    [],
+                )
+
+                with mock.patch.object(
+                    self.workspace,
+                    "_topology_reference_snapshot",
+                    side_effect=[(), (("replacement", 1, 2),)],
+                ), self.assertRaisesRegex(
+                    WorkspaceError,
+                    "changed while its leases were acquired",
+                ):
+                    self.workspace._source_references(
+                        source,
+                        profiles_directory_absent=True,
+                        exclude_inactive_topologies=True,
+                    )
+
+                with mock.patch.object(
+                    self.workspace,
+                    "_topology_reference_snapshot",
+                    side_effect=[(), (), (("replacement", 1, 2),)],
+                ), self.assertRaisesRegex(
+                    WorkspaceError, "changed during classification"
+                ):
+                    self.workspace._source_references(
+                        source,
+                        profiles_directory_absent=True,
+                        exclude_inactive_topologies=True,
+                    )
+
+                malformed = topologies / "malformed-reference"
+                malformed.mkdir()
+                atomic_json(malformed / "spec.json", {"resolved": []})
+                with self.assertRaisesRegex(
+                    WorkspaceError, "cannot prove topology references"
+                ):
+                    self.workspace._source_references(
+                        source,
+                        profiles_directory_absent=True,
+                    )
+        finally:
+            scenarios.mkdir(parents=True, exist_ok=True)
+
     def test_profile_reference_inventory_fails_closed_on_enumeration_errors(
         self,
     ) -> None:

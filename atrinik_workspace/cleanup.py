@@ -2413,6 +2413,11 @@ class Cleanup:
             ):
                 raise WorkspaceError("cleanup journal filters must be direct names")
             return selected
+        if scopes == ["topologies"]:
+            selected = set(names)
+            for name in selected:
+                validate_name(name, "topology name")
+            return selected
         selected: set[str] = set()
         unknown: list[str] = []
         for name in names:
@@ -2506,7 +2511,7 @@ class Cleanup:
                 self._sound_caches(older_than_days, reference_errors)
             )
         if "topologies" in scopes:
-            items.extend(self._topologies(older_than_days))
+            items.extend(self._topologies(older_than_days, names))
         if "cleanup-journals" in scopes:
             items.extend(self._cleanup_journals(older_than_days, names))
         items.sort(key=lambda item: (item["kind"], item["owner"], item["path"]))
@@ -2931,7 +2936,9 @@ class Cleanup:
                 )
         return item
 
-    def _topologies(self, older_than_days: int) -> list[dict[str, Any]]:
+    def _topologies(
+        self, older_than_days: int, names: set[str] | None = None
+    ) -> list[dict[str, Any]]:
         root = self.paths.topologies
         if not root.exists() and not root.is_symlink():
             return []
@@ -2944,6 +2951,7 @@ class Cleanup:
             self._topology_item(path, older_than_days)
             for path in sorted(root.iterdir())
             if path.name not in infrastructure
+            and (names is None or path.name in names)
         ]
 
     @staticmethod
@@ -2959,6 +2967,7 @@ class Cleanup:
                 "runtime_bundle_lease": "unverifiable",
                 "port_reservation_lease": "unverifiable",
                 "repository_layout_lease": "unverifiable",
+                "reference_classification": "uncertain_topology",
                 "age_observed_at": None,
                 "deletion_paths": [],
                 "tree_identity": None,
@@ -3006,6 +3015,8 @@ class Cleanup:
         item["tree_identity"] = identity
         item["deletion_paths"] = deletion_paths
         item["_inodes"] = inodes
+        operation_active: bool | None = None
+        operation_uncertain = False
         if tree_error is not None:
             reasons.append("invalid_topology_tree")
             item["error"] = tree_error
@@ -3031,16 +3042,29 @@ class Cleanup:
             operation_lock = path / "operation.lock"
             if not operation_lock.exists() and not operation_lock.is_symlink():
                 reasons.append("topology_operation_lock_unavailable")
+                operation_uncertain = True
             else:
                 busy, lock_error = self._lock_busy(operation_lock)
+                operation_active = busy
                 if busy:
                     reasons.append("active_topology_operation")
                 if lock_error:
                     reasons.append("invalid_topology_operation_lock")
                     item["error"] = lock_error
+                    operation_uncertain = True
 
         try:
             status = self.workspace.topology_status(path.name)
+            item["reference_classification"] = (
+                self.workspace.topology_reference_classification(
+                    path.name,
+                    status,
+                    operation_active=(
+                        False if not check_operation else operation_active
+                    ),
+                    operation_uncertain=operation_uncertain,
+                )
+            )
             supervisor = status["supervisor"]
             services = status["services"].values()
             observed = [supervisor["liveness"], *(row["liveness"] for row in services)]
@@ -3202,6 +3226,7 @@ class Cleanup:
             "repository_layout_lease",
             "age_basis",
             "age_observed_at",
+            "reference_classification",
             "tree_identity",
             "deletion_paths",
         )
