@@ -1260,15 +1260,28 @@ untracked files untouched.
 
 ## Release model
 
-Pull-request titles and squash commits use Conventional Commits syntax. A push
-to `main` runs semantic-release with the standard conventional-commits
-parser: `fix` and other recognized work produce a patch, `feat` produces a
-minor, and a breaking change produces a major. The catch-all patch rule ensures
-every accepted squash commit produces a release. Releases attach the exact
-component manifest and its SHA-256 checksum; component artifacts remain owned
-by their respective repositories. The same workflow has a no-input manual
-dispatch trigger for recovering a missed or interrupted Actions run; semantic-
-release remains responsible for selecting the unreleased commit range and next
-version. Release ownership follows physical repositories: the five classic
-logical components share the `atrinik/classic` repository's commit and release
-history rather than publishing as independent checkouts.
+Pull-request titles and squash commits use Conventional Commits syntax without
+an automatic breaking marker. A reviewer may request `!` (or an equivalent
+breaking-change footer) when the change intentionally starts the next major
+release. Pushes to `main` run semantic-release with the standard
+conventional-commits parser: `fix` and other recognized work produce a patch,
+`feat` produces a minor, and a breaking change produces a major.
+
+The same release workflow also runs for numeric `X.Y.x` maintenance branches.
+Create each maintenance branch from its existing `vX.Y.0` tag; semantic-release
+then keeps it in that patch range, publishing `vX.Y.1`, `vX.Y.2`, and later
+pointfixes without recreating the baseline tag. Its distribution channel and
+tag uniqueness checks reject out-of-range or conflicting versions. Every
+maintenance fix is forward-ported to `main` through an explicit pull request;
+merge the maintenance line directly only when its ancestry is clear, and use
+an equivalent main-targeted change when it is not. Do not merge `main` into a
+maintenance line.
+
+The catch-all patch rule ensures every accepted squash commit produces a
+release. Releases attach the exact component manifest and its SHA-256 checksum;
+component artifacts remain owned by their respective repositories. The workflow
+has a no-input manual dispatch trigger for recovering a missed or interrupted
+Actions run; semantic-release remains responsible for selecting the unreleased
+commit range and next version. Release ownership follows physical repositories:
+the five classic logical components share the `atrinik/classic` repository's
+commit and release history rather than publishing as independent checkouts.
