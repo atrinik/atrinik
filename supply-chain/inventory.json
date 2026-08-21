@@ -2473,7 +2473,7 @@
       "owner": "server",
       "scope": ["server"],
       "required": true,
-      "version": "Go-1.26.5",
+      "version": "Go-1.26.6",
       "version_source": "go.mod, go.sum, and policy/dependencies.json",
       "license": "NOASSERTION",
       "source_url": "https://proxy.golang.org/",
@@ -4557,11 +4557,11 @@
       "owner": "server",
       "scope": ["protocol", "server"],
       "required": true,
-      "version": "1.26.5",
+      "version": "1.26.6",
       "version_source": "Server .go-version and protocol/server module/tool policy",
       "license": "BSD-3-Clause",
       "source_url": "https://go.dev/dl/",
-      "locator": "pkg:generic/go@1.26.5",
+      "locator": "pkg:generic/go@1.26.6",
       "commit": null,
       "checksum": null,
       "acquisition": "Pinned devcontainer image and actions/setup-go module-file resolution",
@@ -4572,8 +4572,8 @@
       "disposition": "retain",
       "packages": [],
       "evidence": [
-        {"repository":"protocol","path":"README.md","contains":"Go 1.26.5"},
-        {"repository":"server","path":".go-version","contains":"1.26.5"}
+        {"repository":"protocol","path":"README.md","contains":"Go 1.26.6"},
+        {"repository":"server","path":".go-version","contains":"1.26.6"}
       ]
     },
     {

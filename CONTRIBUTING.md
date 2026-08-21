@@ -15,9 +15,10 @@ squash-merged, and the squash title becomes the release-driving commit on
 
 ## Release branches
 
-`main` is the forward development line. A maintenance branch uses the native
-semantic-release `X.Y.x` form and is cut from the existing `vX.Y.0` tag, for
-example:
+`main` is the forward development line. Every release-driving mainline commit
+starts the next minor line: after `vX.Y.0`, a patch-like commit produces
+`vX.(Y+1).0`. A maintenance branch uses the native semantic-release `X.Y.x`
+form and is cut from the existing `vX.Y.0` tag, for example:
 
 ~~~sh
 git switch --create 5.50.x v5.50.0
@@ -27,7 +28,10 @@ git push origin 5.50.x
 The first fix on `5.50.x` publishes `v5.50.1`; later fixes publish
 `v5.50.2`, `v5.50.3`, and so on. The baseline `v5.50.0` tag is never
 recreated. Semantic-release constrains the maintenance line to its `X.Y.x`
-range, so an out-of-range release or a conflicting version is refused.
+range and keeps feature/breaking transitions from escaping it, so an
+out-of-range or conflicting version is refused. The already-published `v8.0.1`
+is preserved as historical evidence; do not rewrite its tag or release without
+a separate recovery decision.
 
 After a maintenance fix is released, forward-port it to `main` through an
 explicit pull request. Merge the maintenance branch when its ancestry makes
