@@ -68,8 +68,7 @@
   not auto. Bodies use GitHub-Flavored Markdown and actual
   line breaks, never literal `\n` separators. Feed multi-section bodies by
   file/stdin; after create/edit, verify remote. Use `atrinik-github-governance`
-  for PRs. Semantic-release owns tags; keep unreleased work off
-  public surfaces.
+  for PRs. Semantic-release owns branch-aware tags; see `CONTRIBUTING.md`.
 
 ## Working agreements and commands
 

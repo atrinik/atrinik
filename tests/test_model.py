@@ -610,12 +610,10 @@ class ReleaseConfigurationTests(unittest.TestCase):
         self.assertEqual(analyzer[0], "@semantic-release/commit-analyzer")
         self.assertEqual(
             analyzer[1]["releaseRules"],
-            [
-                {"breaking": True, "release": "major"},
-                {"type": "feat", "release": "minor"},
-                {"type": "*", "release": "patch"},
-            ],
+            "./scripts/release/release-rules.cjs",
         )
+        self.assertTrue((root / "scripts/release/release-policy.cjs").is_file())
+        self.assertTrue((root / "scripts/release/test-release-policy.cjs").is_file())
 
     def test_release_branch_matrix_covers_mainline_and_pointfix_lines(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -625,6 +623,7 @@ class ReleaseConfigurationTests(unittest.TestCase):
         )
 
         self.assertIn("- main\n      - '[0-9]+.[0-9]+.x'", workflow)
+        self.assertIn("node scripts/release/test-release-policy.cjs", workflow)
         maintenance = re.compile(r"^[0-9]+\.[0-9]+\.x$")
         for branch in ("5.50.x", "12.3.x"):
             with self.subTest(branch=branch):
