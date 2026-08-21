@@ -5985,8 +5985,14 @@ class Workspace:
         profiles_directory_fd: int | None = None,
         profiles_directory_absent: bool = False,
         profiles_inventory: tuple[tuple[str, bytes], ...] | None = None,
+        exclude_inactive_topologies: bool = False,
     ) -> list[str]:
-        """Return exact persisted references while the caller holds source exclusive."""
+        """Return exact persisted references while the caller holds source exclusive.
+
+        Historical topology records remain references for ordinary callers.  A
+        caller that has a live source proof may explicitly exclude only records
+        whose lifecycle evidence is classified as ``inactive_topology``.
+        """
 
         if profiles_directory_fd is not None and profiles_directory_absent:
             raise WorkspaceError("profile inventory authority is ambiguous")
@@ -6085,45 +6091,116 @@ class Workspace:
             }
             if target in roots:
                 references.append(f"profile:{profile['name']}")
-        for container, record_name in (
-            (self.paths.topologies, "topology"),
-            (self.paths.scenarios, "scenario"),
-        ):
-            if not container.exists():
-                continue
-            for directory in sorted(container.iterdir()):
-                if (
-                    directory.name.startswith(".")
-                    or not directory.is_dir()
-                    or directory.is_symlink()
-                ):
-                    continue
-                candidates = (
-                    (directory / "spec.json", directory / "status.json")
-                    if record_name == "topology"
-                    else (directory / "scenario.json",)
+        topology_leases = ExitStack()
+        try:
+            topology_snapshot: tuple[tuple[str, int, int], ...] = ()
+            if exclude_inactive_topologies:
+                topology_snapshot = self._topology_reference_snapshot()
+                topology_leases.enter_context(
+                    self._resource_locks(
+                        [
+                            self._lease_request(
+                                "topology",
+                                name,
+                                "shared",
+                                "classify topology source references",
+                            )
+                            for name, _device, _inode in topology_snapshot
+                        ]
+                    )
                 )
-                for record_path in candidates:
-                    if not record_path.exists():
+                if self._topology_reference_snapshot() != topology_snapshot:
+                    raise WorkspaceError(
+                        "topology reference inventory changed while its leases were acquired"
+                    )
+            for container, record_name in (
+                (self.paths.topologies, "topology"),
+                (self.paths.scenarios, "scenario"),
+            ):
+                if not container.exists():
+                    continue
+                for directory in sorted(container.iterdir()):
+                    if (
+                        directory.name.startswith(".")
+                        or not directory.is_dir()
+                        or directory.is_symlink()
+                    ):
                         continue
-                    value = load_json(record_path)
-                    resolved = value.get("resolved") if isinstance(value, dict) else None
-                    if not isinstance(resolved, dict):
-                        raise WorkspaceError(
-                            f"cannot prove {record_name} references: {record_path}"
-                        )
-                    for coordinate in resolved.values():
-                        if not isinstance(coordinate, dict):
+                    candidates = (
+                        (directory / "spec.json", directory / "status.json")
+                        if record_name == "topology"
+                        else (directory / "scenario.json",)
+                    )
+                    matched = False
+                    for record_path in candidates:
+                        if not record_path.exists():
                             continue
-                        raw_path = coordinate.get("checkout_path") or coordinate.get("path")
-                        if isinstance(raw_path, str) and Path(raw_path).resolve(
-                            strict=False
-                        ) == target:
-                            references.append(f"{record_name}:{directory.name}")
-                            break
-                    if references and references[-1] == f"{record_name}:{directory.name}":
-                        break
+                        value = load_json(record_path)
+                        resolved = (
+                            value.get("resolved")
+                            if isinstance(value, dict)
+                            else None
+                        )
+                        if not isinstance(resolved, dict):
+                            raise WorkspaceError(
+                                f"cannot prove {record_name} references: {record_path}"
+                            )
+                        for coordinate in resolved.values():
+                            if not isinstance(coordinate, dict):
+                                continue
+                            raw_path = coordinate.get("checkout_path") or coordinate.get(
+                                "path"
+                            )
+                            if isinstance(raw_path, str) and Path(raw_path).resolve(
+                                strict=False
+                            ) == target:
+                                matched = True
+                                break
+                    if matched and not (
+                        record_name == "topology"
+                        and exclude_inactive_topologies
+                        and self.topology_reference_classification(directory.name)
+                        == "inactive_topology"
+                    ):
+                        references.append(f"{record_name}:{directory.name}")
+            if (
+                exclude_inactive_topologies
+                and self._topology_reference_snapshot() != topology_snapshot
+            ):
+                raise WorkspaceError(
+                    "topology reference inventory changed during classification"
+                )
+        finally:
+            topology_leases.close()
         return sorted(set(references))
+
+    def _topology_reference_snapshot(self) -> tuple[tuple[str, int, int], ...]:
+        """Return direct topology directory identities for a guarded scan."""
+
+        root = self.paths.topologies
+        try:
+            metadata = root.lstat()
+        except FileNotFoundError:
+            return ()
+        if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISDIR(metadata.st_mode):
+            raise WorkspaceError(f"topology reference root is invalid: {root}")
+        rows: list[tuple[str, int, int]] = []
+        try:
+            for directory in sorted(root.iterdir()):
+                if directory.name.startswith(".") or directory.name in {
+                    "port-reservations",
+                    "ports.lock",
+                }:
+                    continue
+                child = directory.lstat()
+                if stat.S_ISLNK(child.st_mode) or not stat.S_ISDIR(child.st_mode):
+                    continue
+                rows.append((directory.name, child.st_dev, child.st_ino))
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inventory topology reference root: {root}: {error}"
+            ) from error
+        return tuple(rows)
 
     def _scope_source_references(self, target: Path) -> list[str]:
         """Keep complete or recoverable scope inputs visible to cleanup."""
@@ -14302,9 +14379,16 @@ class Workspace:
         validate_name(state_name, "state name")
         return state_mode, state_name
 
-    def _topology_directory(self, name: str, create: bool = False) -> Path:
+    def _topology_directory(
+        self,
+        name: str,
+        create: bool = False,
+        *,
+        ensure_workspace: bool = True,
+    ) -> Path:
         validate_name(name, "topology name")
-        self.paths.ensure()
+        if ensure_workspace:
+            self.paths.ensure()
         path = self.paths.topologies / name
         marker = path / MANAGED_MARKER
         metadata = {"schema_version": SCHEMA_VERSION, "purpose": f"topology:{name}"}
@@ -16306,6 +16390,209 @@ class Workspace:
                 f"cannot inspect topology process-tree lease {path}: {error}"
             ) from error
 
+    @staticmethod
+    def _topology_operation_lock_state(root: Path) -> str:
+        """Observe one topology operation lock without creating or changing it."""
+
+        path = root / "operation.lock"
+        try:
+            metadata = path.lstat()
+        except FileNotFoundError:
+            return "unverifiable"
+        if (
+            stat.S_ISLNK(metadata.st_mode)
+            or not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1
+        ):
+            return "unverifiable"
+        flags = os.O_RDWR | os.O_CLOEXEC
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        try:
+            descriptor = os.open(path, flags)
+        except OSError:
+            return "unverifiable"
+        try:
+            opened = os.fstat(descriptor)
+            visible = path.stat(follow_symlinks=False)
+            if (
+                not stat.S_ISREG(opened.st_mode)
+                or opened.st_nlink != 1
+                or (opened.st_dev, opened.st_ino)
+                != (visible.st_dev, visible.st_ino)
+            ):
+                return "unverifiable"
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return "active"
+            except OSError:
+                return "unverifiable"
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+            return "available"
+        except OSError:
+            return "unverifiable"
+        finally:
+            os.close(descriptor)
+
+    def topology_reference_classification(
+        self,
+        name: str,
+        status: dict[str, Any] | None = None,
+        *,
+        operation_active: bool | None = None,
+        operation_uncertain: bool = False,
+    ) -> str:
+        """Classify whether one topology record still owns source coordinates.
+
+        ``inactive_topology`` is granted only by current lifecycle evidence:
+        the stop is published, every runtime/port/process/layout lease is
+        released, temporary state is removed, mutable runtime output cleanup is
+        complete, and no topology operation is active.  Age is deliberately
+        absent from this predicate.
+        """
+
+        if operation_uncertain:
+            return "uncertain_topology"
+        try:
+            topology_root = self._topology_directory(
+                name, ensure_workspace=False
+            )
+        except Exception:
+            return "uncertain_topology"
+        if operation_active is None:
+            operation_state = self._topology_operation_lock_state(topology_root)
+            if operation_state == "active":
+                return "active_topology"
+            if operation_state != "available":
+                return "uncertain_topology"
+        elif operation_active:
+            return "active_topology"
+
+        if status is None:
+            try:
+                status = self.topology_status(name)
+            except Exception:
+                return "uncertain_topology"
+        if not isinstance(status, dict) or not isinstance(
+            status.get("observation"), dict
+        ):
+            return "uncertain_topology"
+        if not isinstance(status.get("stopped_at"), str) or not status["stopped_at"]:
+            return "uncertain_topology"
+
+        observation = status["observation"]
+        supervisor = status.get("supervisor")
+        services = status.get("services")
+        liveness = []
+        if isinstance(supervisor, dict):
+            liveness.append(supervisor.get("liveness"))
+        if isinstance(services, dict):
+            liveness.extend(
+                row.get("liveness")
+                for row in services.values()
+                if isinstance(row, dict)
+            )
+        if "live" in liveness:
+            return "active_topology"
+        if "unreachable" in liveness:
+            return "uncertain_topology"
+        if observation.get("control") == "reachable":
+            return "active_topology"
+        if observation.get("control") not in {"unreachable", "legacy"}:
+            return "uncertain_topology"
+        if observation.get("process_tree_lease") != "released":
+            return (
+                "active_topology"
+                if observation.get("process_tree_lease") == "retained"
+                else "uncertain_topology"
+            )
+        runtime_lease = observation.get("runtime_bundle_lease")
+        if runtime_lease not in {"released", "historical"}:
+            return (
+                "active_topology"
+                if runtime_lease == "retained"
+                else "uncertain_topology"
+            )
+        port = observation.get("port_reservation")
+        if isinstance(port, dict) and port.get("lease") != "released":
+            return (
+                "active_topology"
+                if port.get("lease") == "retained"
+                else "uncertain_topology"
+            )
+        if observation.get("server_state_lease_owner") is not None:
+            return "active_topology"
+        if observation.get("repository_layout_lease_owner") is not None:
+            return "active_topology"
+
+        state = status.get("state")
+        policy = status.get("state_policy")
+        if state is not None:
+            if not isinstance(policy, dict):
+                return "retained_state"
+            if (
+                policy.get("mode") == "temporary"
+                and policy.get("lifecycle") == "removed"
+            ):
+                state_path = Path(state)
+                if (
+                    state_path.exists()
+                    or state_path.is_symlink()
+                    or Path(f"{state}.lock").exists()
+                    or Path(f"{state}.lock").is_symlink()
+                ):
+                    return "uncertain_topology"
+            else:
+                return "retained_state"
+        elif isinstance(policy, dict):
+            if policy.get("mode") != "temporary":
+                return "retained_state"
+            if policy.get("lifecycle") != "removed":
+                return "retained_state"
+
+        cleanup = status.get("mutable_state_cleanup")
+        if isinstance(cleanup, dict):
+            entries = cleanup.get("entries")
+            if not isinstance(entries, list) or any(
+                not isinstance(entry, dict) or entry.get("status") != "complete"
+                for entry in entries
+            ):
+                return "retained_state"
+        elif cleanup is not None:
+            return "uncertain_topology"
+
+        runtime = status.get("runtime")
+        if isinstance(runtime, dict):
+            outputs = runtime.get("mutable_state_outputs")
+            if outputs is not None:
+                identities = runtime.get("mutable_state_output_identities")
+                if not isinstance(outputs, list):
+                    return "uncertain_topology"
+                if identities is not None and (
+                    not isinstance(identities, list) or len(identities) != len(outputs)
+                ):
+                    return "uncertain_topology"
+                if outputs and identities is None:
+                    return "uncertain_topology"
+                for index, value in enumerate(outputs):
+                    if not isinstance(value, str):
+                        return "uncertain_topology"
+                    output = Path(value)
+                    if output.exists() or output.is_symlink():
+                        return "retained_state"
+                    if isinstance(identities, list):
+                        identity = identities[index]
+                        if isinstance(identity, dict) and (
+                            _owned_tree_tombstone_path(output, identity).exists()
+                            or _owned_tree_tombstone_path(output, identity).is_symlink()
+                        ):
+                            return "retained_state"
+        elif runtime is not None:
+            return "uncertain_topology"
+
+        return "inactive_topology"
+
     def _validate_topology_state_policy(
         self,
         name: str,
@@ -16489,7 +16776,7 @@ class Workspace:
             self._validate_state_implementation(path, implementation)
 
     def topology_status(self, name: str) -> dict[str, Any]:
-        root = self._topology_directory(name)
+        root = self._topology_directory(name, ensure_workspace=False)
         status_path = root / "status.json"
         if not status_path.is_file() or status_path.is_symlink():
             raise WorkspaceError(f"topology has not been started: {name}")

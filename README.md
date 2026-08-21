@@ -789,6 +789,22 @@ opt-in `temporary-states`, `npm-cache`, `compiler-cache`, and `sound-cache`;
 Topology history is a separate opt-in `topologies` scope and is deliberately
 excluded from both the default and `all`, so a broad cache/worktree cleanup
 cannot silently expand to runtime history.
+For one abandoned topology, pass its exact name as the positional selector
+and inspect the JSON before applying the identical request:
+
+~~~sh
+./atrinik ps TOPOLOGY --json
+./atrinik cleanup --scope topologies TOPOLOGY --older-than 0 --dry-run --json
+./atrinik cleanup --scope topologies TOPOLOGY --older-than 0 --apply --json
+~~~
+
+The preview is eligible only when `reference_classification` is
+`inactive_topology`. That shared classification requires a published stop,
+unreachable or legacy control, released process/runtime/port/layout leases,
+removed temporary state, and complete mutable-output cleanup. Active,
+reachable, retained, malformed, or uncertain records remain protected. This
+is lifecycle-bound evidence; age never proves that a topology is safe, and an
+exact selector prevents recovery from selecting another agent's topology.
 Delivered cleanup receipts use the separate `cleanup-journals` scope, also
 excluded from `all`. Broad inventory remains bounded; an exact-name selection
 and its current or legacy journal retry remain recoverable above that bound.
@@ -1239,6 +1255,10 @@ the explicit preview-first cleanup scope:
 
 Cleanup never stops a topology and never removes a live, busy, linked,
 malformed, registered, retained, promoted, or otherwise uncertain state.
+For topology-history recovery, use the exact topology name with `ps` and the
+`topologies` scope. Do not infer inactivity from directory age or choose a
+different state/topology when another agent owns it; retained state, lease
+uncertainty, and concurrent restart/replacement are deliberately fail-closed.
 
 ### Package a Classic review profile for Windows
 
@@ -1635,6 +1655,9 @@ profile remain distinguishable by topology. Omit both `--port` options to have
 the coordinator choose two available ports. Two live servers may not use the
 same state directory; the state lock
 turns that mistake into an immediate error instead of mutable-data corruption.
+The same rule applies to parallel agents: allocate a unique topology name,
+profile, state, and port for each run. Inspect or recover by exact topology
+name (`./atrinik ps NAME --json`), never through a broad topology cleanup.
 
 ### Use case: run only a headless server
 
@@ -1659,8 +1682,8 @@ worktrees, so commit, stash, or otherwise preserve intentional edits first:
 
 ~~~sh
 ./atrinik down combined-review
-./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
-./atrinik cleanup --scope topologies --older-than 7 --apply
+./atrinik cleanup --scope topologies combined-review --older-than 0 --dry-run --json
+./atrinik cleanup --scope topologies combined-review --older-than 0 --apply --json
 ./atrinik profile set combined-review classic --primary
 ./atrinik profile set combined-review content --primary
 ./atrinik cleanup --scope worktrees --scope builds \

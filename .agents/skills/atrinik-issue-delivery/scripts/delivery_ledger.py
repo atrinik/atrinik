@@ -3007,6 +3007,13 @@ def _workspace_safety_lease(
             parameter is not None and parameter.kind is Parameter.VAR_KEYWORD
             for parameter in source_reference_parameters.values()
         )
+        supports_inactive_topology_exclusion = (
+            "exclude_inactive_topologies" in source_reference_parameters
+            or any(
+                parameter.kind is Parameter.VAR_KEYWORD
+                for parameter in source_reference_parameters.values()
+            )
+        )
         if not supports_reference_authority:
             wrapper_self = (
                 request["component"] == "atrinik"
@@ -3189,16 +3196,22 @@ def _workspace_safety_lease(
                                 )
                         if scope_record is not None:
                             _verify_live_scope(workspace, scope_record, context)
+                        reference_arguments = {
+                            "profiles_directory_fd": profiles_directory,
+                            "profiles_directory_absent": profiles_absent,
+                            "profiles_inventory": (
+                                None
+                                if profiles_snapshot is None
+                                else profiles_snapshot[1]
+                            ),
+                        }
+                        if supports_inactive_topology_exclusion:
+                            reference_arguments[
+                                "exclude_inactive_topologies"
+                            ] = True
                         references = set(
                             workspace._source_references(
-                                Path(path),
-                                profiles_directory_fd=profiles_directory,
-                                profiles_directory_absent=profiles_absent,
-                                profiles_inventory=(
-                                    None
-                                    if profiles_snapshot is None
-                                    else profiles_snapshot[1]
-                                ),
+                                Path(path), **reference_arguments
                             )
                         )
                         references.update(
