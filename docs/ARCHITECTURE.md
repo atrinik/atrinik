@@ -230,6 +230,18 @@ unreachable, stale, historical, mismatched, retained, busy, dirty/detached,
 replaced, unexpected, or uncertain inputs fail closed. The completed scope and
 release journal remain durable evidence after release.
 
+Delivery target refresh has one narrower, explicit exception for source
+references: its live proof opts into the wrapper's shared
+`topology_reference_classification` after acquiring shared topology leases and
+rechecking every direct topology directory's name/device/inode inventory. Only
+`inactive_topology` history may be omitted from the reference set. That
+classification requires a published stop, no active operation, unreachable or
+legacy control, released process/runtime/port/layout leases, removed temporary
+state, and complete mutable-output cleanup. Active, reachable, retained,
+malformed, or uncertain records remain references. The final inventory check
+and target-refresh CAS therefore reject a concurrent restart, replacement, or
+identity change; age alone is never inactivity evidence.
+
 The complete concurrency acceptance matrix composes the focused contracts
 rather than duplicating them:
 
@@ -1121,6 +1133,13 @@ advance. Generation directories stay with the marker-owned topology record so
 the preview-first topology reclamation contract in #397 can remove only an
 inactive, released, fully validated record; malformed, linked, unreachable, or
 retained generations fail closed.
+Topology cleanup exposes the same lifecycle classification in its JSON item
+and accepts exact topology names only when `--scope topologies` is selected.
+Preview and apply use the topology lease, revalidate the classification and
+directory identity, and preserve active, retained, malformed, linked, or
+uncertain history. This is the recovery path for one abandoned agent run;
+parallel agents must use distinct topology/profile/state/port identities and
+must inspect or reclaim by exact topology name rather than broadening cleanup.
 Generation-owned state has its own `temporary-states` cleanup scope. Dry-run
 inventory reports exact topology/generation ownership and only classifies an
 old disposable state as eligible after proving its markers, metadata, path

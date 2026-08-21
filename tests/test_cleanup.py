@@ -355,6 +355,85 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["liveness"], "exited")
         self.assertEqual(item["age_basis"], "stopped-at")
 
+    def test_topology_reference_classification_is_lifecycle_bound(self) -> None:
+        root = self.make_topology_record("classification")
+        inactive = self.topology_observation(
+            "exited", control="unreachable", stopped_at="2026-07-01T00:00:00+00:00"
+        )
+        inactive["state"] = str(root / "removed-state")
+        inactive["state_policy"] = {
+            "mode": "temporary",
+            "lifecycle": "removed",
+        }
+        self.assertEqual(
+            self.workspace.topology_reference_classification(
+                root.name, inactive, operation_active=False
+            ),
+            "inactive_topology",
+        )
+
+        cases = (
+            ("live", self.topology_observation("live"), "active_topology"),
+            (
+                "retained-state",
+                {
+                    **self.topology_observation("exited"),
+                    "state": str(root / "retained-state"),
+                    "state_policy": {"mode": "named", "lifecycle": "active"},
+                },
+                "retained_state",
+            ),
+            (
+                "uncertain-lease",
+                self.topology_observation(
+                    "exited", runtime_bundle_lease="unverifiable"
+                ),
+                "uncertain_topology",
+            ),
+            (
+                "unpublished-stop",
+                self.topology_observation("exited", stopped_at=None),
+                "uncertain_topology",
+            ),
+        )
+        for name, status, expected in cases:
+            with self.subTest(name=name):
+                self.assertEqual(
+                    self.workspace.topology_reference_classification(
+                        root.name, status, operation_active=False
+                    ),
+                    expected,
+                )
+        self.assertEqual(
+            self.workspace.topology_reference_classification(
+                root.name, inactive, operation_active=True
+            ),
+            "active_topology",
+        )
+        self.assertEqual(
+            self.workspace.topology_reference_classification(
+                root.name, inactive, operation_uncertain=True
+            ),
+            "uncertain_topology",
+        )
+
+    def test_topology_cleanup_supports_exact_name_recovery(self) -> None:
+        selected = self.make_topology_record("exact-recovery-selected")
+        preserved = self.make_topology_record("exact-recovery-preserved")
+
+        preview = self.workspace.cleanup(
+            ["topologies"], 0, [selected.name], False
+        )
+        self.assertEqual(
+            [item["name"] for item in preview["items"]], [selected.name]
+        )
+        applied = self.workspace.cleanup(
+            ["topologies"], 0, [selected.name], True
+        )
+        self.assertFalse(selected.exists())
+        self.assertTrue(preserved.exists())
+        self.assertEqual(applied["summary"]["removed_count"], 1)
+
     def test_topology_cleanup_preserves_generation_owned_state(self) -> None:
         root = self.make_topology_record("stateful-history")
         container = root / "temporary-states"

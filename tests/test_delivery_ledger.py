@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import base64
 from contextlib import contextmanager, nullcontext
+import fcntl
 import hashlib
 import importlib.util
 import json
@@ -570,6 +571,55 @@ def target_refresh_setup(
         if slot["kind"] in {"branch", "worktree"}:
             slot["current"]["head_sha"] = actual_head
     return predecessor, candidate, actual_head, base_head, live
+
+
+def make_historical_topology_reference(
+    live: Path, name: str, *, state: str | None = None
+) -> tuple[Path, Path]:
+    """Publish the smallest valid stopped topology record for reference tests."""
+
+    workspace = live.parents[2]
+    root = workspace / "topologies" / name
+    root.mkdir(parents=True)
+    (root / ".atrinik-workspace-managed.json").write_text(
+        json.dumps(
+            {"schema_version": 1, "purpose": f"topology:{name}"}
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (root / "operation.lock").touch(mode=0o600)
+    (root / "status.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "name": name,
+                "profile": "default",
+                "dependencies": [],
+                "state": state,
+                "build_root": str(workspace / "builds" / "profiles" / "fixture"),
+                "resolved": {},
+                "endpoint": None,
+                "ready": False,
+                "started_at": "2026-08-01T00:00:00Z",
+                "stopped_at": "2026-08-02T00:00:00Z",
+                "supervisor": {"pid": 999999, "start_time": "1"},
+                "services": {},
+                "error": "historical fixture",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    spec_path = root / "spec.json"
+    spec_path.write_text(
+        json.dumps(
+            {"resolved": {"client": {"checkout_path": str(live)}}}
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return root, root / "status.json"
 
 
 def stale_coordinate_recovery(
@@ -11396,7 +11446,138 @@ class DeliveryLedgerTests(unittest.TestCase):
                 base_head,
             )
 
-    def test_48c_target_head_correction_failpoints_are_resumable(self) -> None:
+    def test_48c_target_refresh_ignores_only_proven_inactive_topology_history(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            predecessor, candidate, _actual_head, _base_head, live = (
+                target_refresh_setup(self.live_base, root, "inactive-topology")
+            )
+            topology, status_path = make_historical_topology_reference(
+                live, "historical-topology"
+            )
+
+            refreshed = ledger.target_refresh_cas(
+                root,
+                predecessor.name,
+                candidate,
+                **cas_arguments(predecessor),
+            )
+
+            def advance(previous: object, marker: str) -> dict[str, object]:
+                assert isinstance(previous, ledger.Snapshot)
+                (live / marker).write_text("advance\n", encoding="utf-8")
+                git_run(live, "add", marker)
+                git_run(live, "commit", "-m", marker)
+                head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+                next_document = next_generation(previous)
+                target = next_document["targets"][0]
+                target["head"]["current_sha"] = head
+                target["head"]["lineage"].append(head)
+                for slot in next_document["artifacts"]:
+                    if slot["kind"] in {"branch", "worktree"}:
+                        slot["current"]["head_sha"] = head
+                return next_document
+
+            operation_descriptor = os.open(
+                topology / "operation.lock", os.O_RDWR
+            )
+            try:
+                fcntl.flock(
+                    operation_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB
+                )
+                active_candidate = advance(refreshed, "active-topology")
+                with self.assertRaisesRegex(
+                    ledger.LedgerError, "reference set differs"
+                ):
+                    ledger.target_refresh_cas(
+                        root,
+                        refreshed.name,
+                        active_candidate,
+                        **cas_arguments(refreshed),
+                    )
+            finally:
+                fcntl.flock(operation_descriptor, fcntl.LOCK_UN)
+                os.close(operation_descriptor)
+
+            status = json.loads(status_path.read_text(encoding="utf-8"))
+            status["state"] = str(live.parent.parent.parent / "retained-state")
+            status_path.write_text(json.dumps(status) + "\n", encoding="utf-8")
+            retained_candidate = advance(refreshed, "retained-topology")
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "reference set differs"
+            ):
+                ledger.target_refresh_cas(
+                    root,
+                    refreshed.name,
+                    retained_candidate,
+                    **cas_arguments(refreshed),
+                )
+
+            status["state"] = None
+            status_path.write_text(json.dumps(status) + "\n", encoding="utf-8")
+            (topology / "operation.lock").unlink()
+            uncertain_candidate = advance(refreshed, "uncertain-topology")
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "reference set differs"
+            ):
+                ledger.target_refresh_cas(
+                    root,
+                    refreshed.name,
+                    uncertain_candidate,
+                    **cas_arguments(refreshed),
+                )
+
+            (topology / "operation.lock").touch(mode=0o600)
+            raced = False
+            original_loader = ledger._load_workspace_module
+
+            def load_racing_module(wrapper_root: str) -> object:
+                module = original_loader(wrapper_root)
+
+                class RacingWorkspace(module.Workspace):
+                    def topology_reference_classification(
+                        self, *arguments: object, **keywords: object
+                    ) -> str:
+                        nonlocal raced
+                        result = super().topology_reference_classification(
+                            *arguments, **keywords
+                        )
+                        if not raced:
+                            raced = True
+                            current = json.loads(
+                                status_path.read_text(encoding="utf-8")
+                            )
+                            current["state"] = str(
+                                live.parent.parent.parent / "replacement-state"
+                            )
+                            status_path.write_text(
+                                json.dumps(current) + "\n", encoding="utf-8"
+                            )
+                        return result
+
+                return type(
+                    "RacingTopologyWorkspaceModule",
+                    (),
+                    {"Manifest": module.Manifest, "Workspace": RacingWorkspace},
+                )
+
+            raced_candidate = advance(refreshed, "replacement-topology")
+            with mock.patch.object(
+                ledger, "_load_workspace_module", side_effect=load_racing_module
+            ), self.assertRaisesRegex(
+                ledger.LedgerError, "reference set differs"
+            ):
+                ledger.target_refresh_cas(
+                    root,
+                    refreshed.name,
+                    raced_candidate,
+                    **cas_arguments(refreshed),
+                )
+            self.assertTrue(raced)
+
+    def test_48d_target_head_correction_failpoints_are_resumable(self) -> None:
         bad_head = "f0f8d7493278dc691710056c79d0d63f1d802488"
         for index, failpoint in enumerate(
             (
