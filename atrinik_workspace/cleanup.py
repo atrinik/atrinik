@@ -63,6 +63,9 @@ from .workspace import (
 CLEANUP_SCHEMA_VERSION = 1
 CLEANUP_JOURNAL_SCHEMA_VERSION = 2
 CLEANUP_JOURNAL_LIMIT = 4096
+# Cleanup receipts may contain one bounded deletion-path report, so they need
+# more room than the generic JSON reader while retaining a finite per-file cap.
+CLEANUP_JOURNAL_MAX_BYTES = 16 * 1024 * 1024
 OWNED_TREE_CLEANUP_KINDS = frozenset(
     {
         "profile-build",
@@ -1772,7 +1775,11 @@ class Cleanup:
                     continue
                 raise WorkspaceError(f"cleanup journal is unsafe: {path}")
             try:
-                value = load_regular_json(path, f"cleanup journal {path.name}")
+                value = load_regular_json(
+                    path,
+                    f"cleanup journal {path.name}",
+                    limit=CLEANUP_JOURNAL_MAX_BYTES,
+                )
             except (OSError, WorkspaceError):
                 if path == cursor_match:
                     raise WorkspaceError(
@@ -2371,7 +2378,11 @@ class Cleanup:
             ],
             include_wrapper=False,
         ):
-            journal = load_regular_json(journal_path, "cleanup acknowledgement journal")
+            journal = load_regular_json(
+                journal_path,
+                "cleanup acknowledgement journal",
+                limit=CLEANUP_JOURNAL_MAX_BYTES,
+            )
             if (
                 not isinstance(journal, dict)
                 or journal.get("schema_version") != CLEANUP_JOURNAL_SCHEMA_VERSION
@@ -2594,7 +2605,11 @@ class Cleanup:
             ):
                 reasons.append("unsafe_cleanup_journal")
             else:
-                value = load_regular_json(path, f"cleanup journal {path.name}")
+                value = load_regular_json(
+                    path,
+                    f"cleanup journal {path.name}",
+                    limit=CLEANUP_JOURNAL_MAX_BYTES,
+                )
         except (OSError, WorkspaceError) as error:
             reasons.append("invalid_cleanup_journal")
             item["error"] = str(error)
