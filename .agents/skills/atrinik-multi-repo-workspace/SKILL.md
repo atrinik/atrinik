@@ -13,8 +13,9 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
    orchestration/contracts here.
 
 Checkouts are ignored repositories. One `classic` worktree holds all five
-`classic-*` components; both stacks share `content@main` and `content-1x` is
-historical.
+`classic-*` components; both stacks share `content@main`. `content-1x` and the
+former 1.x branch are historical migration evidence only, never active
+components or delivery targets.
 
 ## Prepare safe worktrees
 
