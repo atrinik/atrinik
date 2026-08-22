@@ -106,6 +106,9 @@ python3 scripts/delivery_ledger.py check-reuse REVIEW_ROOT LEDGER_NAME --kind al
 python3 scripts/delivery_ledger.py check-reuse REVIEW_ROOT LEDGER_NAME --kind artifacts
 python3 scripts/delivery_ledger.py check-reuse REVIEW_ROOT LEDGER_NAME --kind resources
 python3 scripts/delivery_ledger.py bind-check REVIEW_ROOT LEDGER_NAME SLOT_ID INPUT
+python3 scripts/delivery_ledger.py pr-bind-cas REVIEW_ROOT LEDGER_NAME SLOT_ID PR_NUMBER \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-device DEVICE --expected-inode INODE
 python3 scripts/delivery_ledger.py worktree-bind REVIEW_ROOT LEDGER_NAME SLOT_ID \
   WORKTREE_LIST_JSON SAFETY_JSON [--create-output OUTPUT]
 python3 scripts/delivery_ledger.py worktree-observe REVIEW_ROOT LEDGER_NAME SLOT_ID \
@@ -162,6 +165,14 @@ candidate, and returns exactly `classification`, `slot_id`, `request_sha256`,
 `inspect`; stale identity or changed live state stops. A pending predecessor
 receipt can be recovered only with its original predecessor tuple. A fresh
 current tuple cannot treat that receipt as an ordinary `bound-match` retry.
+For an issue-mode planned PR, `bind-check` is likewise diagnostic only;
+`pr-bind-cas` is the mutation boundary. It accepts the slot, PR number, and one
+fresh four-part ledger tuple, then re-fetches the authenticated actor, complete
+same-repository draft PR identity, durable body bytes, comment state, target,
+and bound local worktree before its private CAS. Generic `cas` cannot perform
+this initial PR bind. An interrupted PR bind is retried with the identical
+original command and predecessor tuple so the helper can accept only its exact
+receipt.
 
 Before any dynamic `Workspace` import or Python execution, live proof performs
 a bounded component-wise no-follow ownership/mode prevalidation of the complete
@@ -1506,17 +1517,33 @@ python3 scripts/delivery_ledger.py bind-check \
   "$DELIVERY_PR_IDENTITY"
 ```
 
-Proceed only on `classification: bind-exact`. CAS the planned PR artifact to
-`created`, using the exact candidate as current identity, the target head, and
-freshly proven artifact safety. Append exactly one selected PR. Its repository
-and head repository are identical; its base/head match the wholly unchanged
-target; its authenticated actor is the author; it remains draft with null ready
-intent; its comment state is none; and its `delivery-created`/`written` body has
-null observed/intended digest/payload, null section, and equal current/outside
-digest matching the planned slot. Its PR artifact permanently retains the
-initial payload. This exception applies only while immutable
-`authority.allowed.pull_requests` is empty. The helper does not expand or
-rewrite authority and never adopts this result.
+Use `bind-check` only as a preflight diagnostic; it does not authorize a
+caller-built CAS. Immediately before mutation, inspect the ledger and run the
+purpose-specific binder with the exact PR number and the four identity values
+from that same snapshot:
+
+```sh
+python3 scripts/delivery_ledger.py pr-bind-cas \
+  "$DELIVERY_REVIEW_ROOT" "$DELIVERY_LEDGER" pull-request 423 \
+  --expected-generation "$DELIVERY_EXPECTED_GENERATION" \
+  --expected-digest "$DELIVERY_EXPECTED_DIGEST" \
+  --expected-device "$DELIVERY_EXPECTED_DEVICE" \
+  --expected-inode "$DELIVERY_EXPECTED_INODE"
+```
+
+`pr-bind-cas` performs the live authenticated-author, same-repository,
+unchanged-target, draft, durable-body, and no-comment proof itself immediately
+before the ledger CAS. On `bind-exact`, it marks the planned PR artifact
+`created` and appends exactly one selected PR. On an identical completed retry,
+it returns `bound-match`. The selected PR's repository and head repository are
+identical; its base/head match the wholly unchanged target; its authenticated
+actor is the author; it remains draft with null ready intent; its comment state
+is none; and its `delivery-created`/`written` body has null observed/intended
+digest/payload, null section, and equal current/outside digest matching the
+planned slot. Its PR artifact permanently retains the initial payload. This
+exception applies only while immutable `authority.allowed.pull_requests` is
+empty. The helper does not expand or rewrite authority and never adopts this
+result through generic `cas`.
 
 This CAS may change only ledger generation/history, that one PR slot, and that
 one matching selected PR. Normalizing generation/history, removing the added
@@ -1526,10 +1553,12 @@ or any root-coordinate change fails. Refetch and inspect after CAS.
 
 If remote creation returned an error or timed out, search all candidate PRs and
 run `bind-check` on the sole possible match, comparing the durable initial
-payload digest. Zero is not permission to retry an uncertain create; multiple
-or mismatched candidates stop. `pr-create-payload` reconstructs intent for
-recovery but never authorizes another uncertain create. PR mode never uses this
-path because its selected PR and adopted slot exist at genesis.
+payload digest. If it is exact, run `pr-bind-cas` for that PR number with a
+fresh ledger tuple; never use generic `cas`. Zero is not permission to retry an
+uncertain create; multiple or mismatched candidates stop.
+`pr-create-payload` reconstructs intent for recovery but never authorizes
+another uncertain create. PR mode never uses this path because its selected PR
+and adopted slot exist at genesis.
 
 ## Plan and recover body updates
 
@@ -1911,7 +1940,7 @@ stop for code-level recovery; never improvise file repair.
 | Atomic worktree/scope bind interrupted at either CAS boundary | Rerun the identical `worktree-bind-cas` or `scope-bind-cas` with the same retained inputs and original four-part predecessor tuple, never generic `cas`. The helper freshly reproves live state before replacement and before accepting an installed post-rename receipt; drift preserves evidence and stops. |
 | Migration operation-digest plan/snapshot/report/prepared/ledger/complete boundary | Rerun exact `migrate` with identical null-migration candidate, kind, direct source name, and original source identity/digest. A different candidate or source cannot reuse even a short planned-stage prefix. |
 | Complete migration | `inventory` and `inspect`; require source/snapshot/marker/ledger coherence and no pending stage. |
-| Planned PR slot after remote create uncertainty | Recover the immutable initial bytes with `pr-create-payload`, search live candidates, and use `bind-check`; bind one exact match only. Zero or a mismatch never permits another uncertain create. |
+| Planned PR slot after remote create uncertainty | Recover the immutable initial bytes with `pr-create-payload`, search live candidates, and use `bind-check`; for one exact match run `pr-bind-cas` with its number and a fresh tuple. Zero or a mismatch never permits another uncertain create. |
 | Planned primitive branch/worktree after an uncertain local mutation | Reinspect the exact branch and wrapper registration. For one present exact worktree, capture a fresh list, use `worktree-observe`, then run `worktree-bind-cas` with one fresh four-part tuple. Retain manifest-owner create output; omit it only for wrapper-self raw Git or genuinely unretained recovery. The atomic command reproves before CAS. An exact still-absent artifact permits only the original planned operation. Mismatch or uncertainty stops; an adopted worktree requires the branch already bound. |
 | Fresh issue planned scope after uncertain `scope create` | Rerun the exact idempotent create request, retain exact scope-show/list bytes, derive safety with `scope-observe`, then run `scope-bind-cas` with one fresh four-part tuple. It must atomically install the one scope/branch/worktree result; physical-checkout selectors and logical-component selectors are both accepted when they resolve to one exact checkout; partial, released, changed, referenced, or cross-checkout state stops. A live canonical scope with a legacy planned topology request is handled only by the explicit `recover-prebind-scope` evidence/CAS path; a released mistaken scope is terminal evidence and requires release/reinitialize, not in-place request mutation. |
 | Body `update-planned` | Run `body-recovery` with one digest/timestamp observation. Refresh a newer exact-current observation first; apply only returned durable bytes, bind equal-or-later intended bytes, or cancel only on exact proven non-application. Other live bytes stop. |

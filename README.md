@@ -1721,7 +1721,10 @@ operator prepares exact post-merge evidence and runs:
 Target base/head movement is likewise helper-owned: generic ledger CAS rejects
 it. The target-refresh CAS pins the recorded primitive/scope worktree, proves
 descendant commits and the exact live merge base, and rechecks immediately
-before replacement. An explicit recovery can correct one historical nonexistent
+before replacement. Fresh issue-mode draft PR binding is similarly
+helper-owned: `bind-check` is only a diagnostic, while `pr-bind-cas` re-proves
+the authenticated PR, comments, target, and bound worktree immediately before
+its private CAS. An explicit recovery can correct one historical nonexistent
 head plus its bound stale merge base while retaining both source generations.
 
 ~~~sh
