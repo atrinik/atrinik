@@ -1828,6 +1828,52 @@ def bind_issue_created_pr(
     return update
 
 
+def cas_issue_created_pr(
+    root: Path, snapshot: object, candidate: dict[str, object]
+) -> object:
+    """Install a fixture through the private PR-binding capability."""
+
+    assert isinstance(snapshot, ledger.Snapshot)
+    prepared = ledger.prepare(candidate)
+    old_slots = {
+        slot["slot_id"]: slot
+        for slot in snapshot.document["artifacts"]
+        if slot["kind"] == "pull_request"
+    }
+    new_slots = {
+        slot["slot_id"]: slot
+        for slot in prepared["artifacts"]
+        if slot["kind"] == "pull_request"
+    }
+    slot_ids = [
+        slot_id
+        for slot_id, old in old_slots.items()
+        if old["state"] == "planned"
+        and new_slots[slot_id]["state"] == "created"
+    ]
+    assert len(slot_ids) == 1
+    after_raw = ledger.canonical_bytes(prepared)
+    capability = ledger._AtomicBindingCapability(
+        ledger._ATOMIC_BIND_TOKEN,
+        "pr",
+        slot_ids[0],
+        snapshot.name,
+        snapshot.raw,
+        after_raw,
+        snapshot.document["generation"],
+        snapshot.digest,
+        snapshot.device,
+        snapshot.inode,
+    )
+    return ledger.cas(
+        root,
+        snapshot.name,
+        prepared,
+        **cas_arguments(snapshot),
+        _binding_capability=capability,
+    )
+
+
 def directory_snapshot(root: Path) -> tuple[tuple[object, ...], ...]:
     result: list[tuple[object, ...]] = []
     for path in sorted(root.iterdir(), key=lambda value: value.name):
@@ -3851,7 +3897,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                     "certain": True,
                 },
             )
-            bound = ledger.cas(root, initial.name, update, **cas_arguments(initial))
+            bound = cas_issue_created_pr(root, initial, update)
             self.assertEqual(bound.document["selected_prs"][0]["node_id"], "P_issue_created")
 
         invalid_timestamp = pr_ledger(
@@ -4153,6 +4199,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             "body-recovery",
             "pr-create-payload",
             "bind-check",
+            "pr-bind-cas",
             "comment-check",
         )
         for command in commands:
@@ -4373,17 +4420,8 @@ class DeliveryLedgerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             initial = ledger.create(root, issue_ledger())
-            bound = ledger.cas(root, initial.name, bind_one(initial), **cas_arguments(initial))
-            self.assertEqual(bound.document["authority"]["allowed"]["pull_requests"], [])
-            self.assertEqual(bound.document["selected_prs"][0]["node_id"], "P_issue_created")
-            self.assertEqual(
-                next(
-                    slot
-                    for slot in bound.document["artifacts"]
-                    if slot["kind"] == "pull_request"
-                )["state"],
-                "created",
-            )
+            with self.assertRaisesRegex(ledger.LedgerError, "initial pr binding"):
+                ledger.cas(root, initial.name, bind_one(initial), **cas_arguments(initial))
 
         def reject(label: str, mutate: object) -> None:
             with self.subTest(rejected=label), tempfile.TemporaryDirectory() as temporary:
@@ -4534,6 +4572,280 @@ class DeliveryLedgerTests(unittest.TestCase):
                 ledger.cas(root, initial.name, candidate, **cas_arguments(initial))
             self.assertEqual(directory_snapshot(root), before)
 
+    def test_25_pr_bind_cas_live_proof_drift_comments_and_recovery(self) -> None:
+        def document(roots: dict[str, object] | None = None) -> dict[str, object]:
+            branch = "docs/issue-499"
+            if roots is None:
+                worktree = "/workspace/worktrees/issue-499"
+            else:
+                worktree = str(
+                    Path(roots["workspace"]["path"])
+                    / "worktrees"
+                    / "atrinik"
+                    / "issue-499"
+                )
+            value = issue_ledger(
+                number=499,
+                issue_node="I_499",
+                branch=branch,
+                worktree=worktree,
+            )
+            if roots is not None:
+                live_head = git_head(roots)
+                replace_sha(value, SHA_A, live_head)
+                worktree_slot = next(
+                    slot for slot in value["artifacts"] if slot["kind"] == "worktree"
+                )
+                assert worktree_slot["primitive_request"] is not None
+                worktree_slot["primitive_request"]["roots"] = copy.deepcopy(roots)
+                worktree_slot["primitive_request"]["expected_head_sha"] = live_head
+            return value
+
+        def install_bound(root: Path, live_base: Path) -> tuple[dict[str, object], object]:
+            roots = live_roots(live_base, "atrinik")
+            value = document(roots)
+            initial = ledger.create(root, value)
+            worktree = next(
+                slot for slot in value["artifacts"] if slot["kind"] == "worktree"
+            )
+            request = worktree["primitive_request"]
+            assert request is not None
+            worktree_list = worktree_list_bytes(request)
+            safety = safety_observation_bytes(
+                request,
+                worktree_list,
+                producer_kind="primitive",
+                producer_digest=None,
+            )
+            bound_result = ledger.bind_worktree_cas(
+                root,
+                initial.name,
+                "worktree",
+                worktree_list,
+                safety,
+                **cas_arguments(initial),
+            )
+            return value, ledger.inspect(root, initial.name)
+
+        def live_pr(
+            value: dict[str, object],
+            *,
+            head_sha: str | None = None,
+            body: bytes = INITIAL_PR_BODY,
+            draft: bool = True,
+            base_branch: str | None = None,
+        ) -> dict[str, object]:
+            repository_value = {
+                "node_id": "R_repo",
+                "full_name": "atrinik/atrinik",
+            }
+            target = value["targets"][0]
+            if head_sha is None:
+                head_sha = target["head"]["current_sha"]
+            return {
+                "node_id": "P_issue_created",
+                "number": 500,
+                "state": "open",
+                "draft": draft,
+                "user": {"node_id": "U_actor"},
+                "base": {
+                    "ref": (
+                        target["base"]["branch"]
+                        if base_branch is None
+                        else base_branch
+                    ),
+                    "sha": target["base"]["current_sha"],
+                    "repo": copy.deepcopy(repository_value),
+                },
+                "head": {
+                    "ref": target["head"]["branch"],
+                    "sha": head_sha,
+                    "repo": copy.deepcopy(repository_value),
+                },
+                "body": body.decode("utf-8"),
+                "updated_at": "2026-08-14T18:00:00Z",
+            }
+
+        def gh_observer(live: dict[str, object], comments: object = None):
+            response_comments = [[]] if comments is None else comments
+
+            def observe(arguments: object, context: str) -> object:
+                del context
+                if tuple(arguments)[-1] == "user":
+                    return {"node_id": "U_actor"}
+                endpoint = tuple(arguments)[-1]
+                if "/pulls/500" in endpoint:
+                    return copy.deepcopy(live)
+                if "/comments?" in endpoint:
+                    return copy.deepcopy(response_comments)
+                raise AssertionError(f"unexpected gh observation: {arguments}")
+
+            return observe
+
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
+            value, bound = install_bound(root, Path(live_temporary))
+            with mock.patch.object(
+                ledger,
+                "_gh_json",
+                side_effect=gh_observer(live_pr(value)),
+            ):
+                bound_result = ledger.bind_pr_cas(
+                    root,
+                    bound.name,
+                    "pull-request",
+                    500,
+                    **cas_arguments(bound),
+                )
+                bound = ledger.inspect(root, bound.name)
+                repeated = ledger.bind_pr_cas(
+                    root,
+                    bound.name,
+                    "pull-request",
+                    500,
+                    **cas_arguments(bound),
+                )
+            self.assertEqual(bound_result["classification"], "bind-exact")
+            self.assertEqual(repeated["classification"], "bound-match")
+            self.assertEqual(bound.document["generation"], 3)
+            self.assertEqual(bound.document["selected_prs"][0]["node_id"], "P_issue_created")
+
+        def reject_live_drift(label: str, *, head_sha: str | None = None, body: bytes = INITIAL_PR_BODY) -> None:
+            with self.subTest(rejected=label), tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+                root = Path(temporary)
+                value, bound = install_bound(root, Path(live_temporary))
+                first = live_pr(value)
+                second = live_pr(value, head_sha=head_sha, body=body)
+                reads = 0
+
+                def observe(arguments: object, context: str) -> object:
+                    nonlocal reads
+                    del context
+                    endpoint = tuple(arguments)[-1]
+                    if endpoint == "user":
+                        return {"node_id": "U_actor"}
+                    if "/pulls/500" in endpoint:
+                        value = first if reads == 0 else second
+                        reads += 1
+                        return copy.deepcopy(value)
+                    if "/comments?" in endpoint:
+                        return [[]]
+                    raise AssertionError(f"unexpected gh observation: {arguments}")
+
+                before = directory_snapshot(root)
+                with mock.patch.object(
+                    ledger, "_gh_json", side_effect=observe
+                ), self.assertRaisesRegex(ledger.LedgerError, "remote observation changed"):
+                    ledger.bind_pr_cas(
+                        root,
+                        bound.name,
+                        "pull-request",
+                        500,
+                        **cas_arguments(bound),
+                    )
+                self.assertEqual(directory_snapshot(root), before)
+
+        reject_live_drift("target head drift", head_sha=SHA_B)
+        reject_live_drift("PR body drift", body=b"changed body\n")
+
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
+            value, bound = install_bound(root, Path(live_temporary))
+            before = directory_snapshot(root)
+            with mock.patch.object(
+                ledger,
+                "_gh_json",
+                side_effect=gh_observer(live_pr(value, base_branch="develop")),
+            ), self.assertRaisesRegex(ledger.LedgerError, "base branch differs"):
+                ledger.bind_pr_cas(
+                    root,
+                    bound.name,
+                    "pull-request",
+                    500,
+                    **cas_arguments(bound),
+                )
+            self.assertEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
+            value, bound = install_bound(root, Path(live_temporary))
+            before = directory_snapshot(root)
+            with mock.patch.object(
+                ledger,
+                "_gh_json",
+                side_effect=gh_observer(
+                    live_pr(value), [[{"id": 1, "user": {"type": "Bot"}}]]
+                ),
+            ), self.assertRaisesRegex(ledger.LedgerError, "external PR comments"):
+                ledger.bind_pr_cas(
+                    root,
+                    bound.name,
+                    "pull-request",
+                    500,
+                    **cas_arguments(bound),
+                )
+            self.assertEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
+            value, bound = install_bound(root, Path(live_temporary))
+            with mock.patch.object(
+                ledger,
+                "_gh_json",
+                side_effect=gh_observer(live_pr(value)),
+            ), self.assertRaises(ledger.InjectedCrash):
+                ledger.bind_pr_cas(
+                    root,
+                    bound.name,
+                    "pull-request",
+                    500,
+                    failpoint="cas:renamed",
+                    **cas_arguments(bound),
+                )
+            installed = ledger.inspect(root, bound.name)
+            self.assertEqual(installed.document["generation"], 3)
+            self.assertNotEqual(ledger.inventory(root).pending, ())
+            with mock.patch.object(
+                ledger,
+                "_gh_json",
+                side_effect=gh_observer(live_pr(value)),
+            ):
+                recovered = ledger.bind_pr_cas(
+                    root,
+                    installed.name,
+                    "pull-request",
+                    500,
+                    **cas_arguments(bound),
+                )
+            self.assertEqual(recovered["classification"], "bound-match")
+            self.assertEqual(ledger.inventory(root).pending, ())
+
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
+            predecessor, candidate, _actual_head, _base_head, _live = target_refresh_setup(
+                Path(live_temporary), root, "pr-bind-target-refresh", stale_predecessor=False
+            )
+            refreshed = ledger.target_refresh_cas(
+                root,
+                predecessor.name,
+                candidate,
+                **cas_arguments(predecessor),
+            )
+            with mock.patch.object(
+                ledger,
+                "_gh_json",
+                side_effect=gh_observer(live_pr(refreshed.document)),
+            ):
+                result = ledger.bind_pr_cas(
+                    root,
+                    refreshed.name,
+                    "pull-request",
+                    500,
+                    **cas_arguments(refreshed),
+                )
+            self.assertEqual(result["classification"], "bind-exact")
+            self.assertEqual(ledger.inspect(root, refreshed.name).document["generation"], 5)
+
     def test_25_strict_authority_genesis_and_git_ref_contracts(self) -> None:
         strict = issue_ledger()
         strict["schema_version"] = 1.0
@@ -4611,12 +4923,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             initial = ledger.create(root, issue_ledger())
-            bound = ledger.cas(
-                root,
-                initial.name,
-                bind_issue_created_pr(initial),
-                **cas_arguments(initial),
-            )
+            bound = cas_issue_created_pr(root, initial, bind_issue_created_pr(initial))
             old_digest = bound.document["selected_prs"][0]["body"]["current_digest"]
             body_projection = ledger.describe_body_plan(
                 bound.document,
@@ -10579,11 +10886,8 @@ class DeliveryLedgerTests(unittest.TestCase):
             ).stdout.strip()
             git_run(live, "merge", "--ff-only", actual)
             if mirror_pull_request:
-                predecessor = ledger.cas(
-                    root,
-                    predecessor.name,
-                    bind_issue_created_pr(predecessor),
-                    **cas_arguments(predecessor),
+                predecessor = cas_issue_created_pr(
+                    root, predecessor, bind_issue_created_pr(predecessor)
                 )
             incident_bad_head = bad_head
             if bad_kind == "blob":
@@ -12103,13 +12407,12 @@ class DeliveryLedgerTests(unittest.TestCase):
                 **cas_arguments(first),
             )
             bound = ledger.inspect(root, first.name)
-            pull_bound = ledger.cas(
+            pull_bound = cas_issue_created_pr(
                 root,
-                bound.name,
+                bound,
                 bind_issue_created_pr(
                     bound, number=460, node="P_archive_correction"
                 ),
-                **cas_arguments(bound),
             )
             ready_intent = next_generation(pull_bound)
             ready_intent["selected_prs"][0]["draft_intent"] = "ready"

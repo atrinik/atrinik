@@ -93,13 +93,13 @@ _CREATE_STAGE_RE = re.compile(
 _MIGRATE_STAGE_RE = re.compile(r"^\.(?P<target>.+\.md\.ledger\.json)\.migrate\.tmp$")
 _UPDATE_STAGE_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update"
-    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127})?"
+    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127})?"
     r"-g(?P<generation>[0-9]+)-"
     r"from-(?P<digest>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_RECEIPT_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update-proof"
-    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127})?"
+    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127})?"
     r"-g"
     r"(?P<generation>[0-9]+)-from-(?P<digest>[0-9a-f]{64})-"
     r"d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-"
@@ -7391,6 +7391,415 @@ def classify_pr_binding(
     return "bind-exact"
 
 
+def _pr_binding_remote(
+    document: Mapping[str, Any], target: Mapping[str, Any], pr_number: int
+) -> dict[str, Any]:
+    """Fetch and prove the complete remote state for one issue-created PR bind."""
+
+    number = _integer(pr_number, "PR binding number")
+    repository = target["repository"]
+    owner = repository["owner"]
+    name = repository["name"]
+    full_name = f"{owner}/{name}"
+    actor = _gh_json(
+        ("api", "--hostname", "github.com", "user"),
+        "PR binding authenticated actor",
+    )
+    if not isinstance(actor, dict) or actor.get("node_id") != document["actor"]["node_id"]:
+        raise LedgerError("authenticated GitHub actor differs from PR binding authority")
+    actor_node = _string(
+        actor.get("node_id"), "PR binding authenticated actor.node_id", NODE_RE
+    )
+    live = _gh_json(
+        (
+            "api",
+            "--hostname",
+            "github.com",
+            f"repos/{owner}/{name}/pulls/{number}",
+        ),
+        f"PR binding pull request {number}",
+    )
+    if not isinstance(live, dict):
+        raise LedgerError("PR binding pull request observation is not an object")
+
+    def prove_repository(value: Any, context: str) -> None:
+        if not isinstance(value, dict):
+            raise LedgerError(f"{context} is not an object")
+        if value.get("node_id") != repository["node_id"] or value.get("full_name") != full_name:
+            raise LedgerError(f"{context} differs from the exact target repository")
+
+    base = live.get("base")
+    head = live.get("head")
+    if not isinstance(base, dict) or not isinstance(head, dict):
+        raise LedgerError("PR binding observation lacks exact base and head objects")
+    prove_repository(base.get("repo"), "PR binding base repository")
+    prove_repository(head.get("repo"), "PR binding head repository")
+    live_number = _integer(live.get("number"), "PR binding observed number")
+    node = _string(live.get("node_id"), "PR binding observed node_id", NODE_RE)
+    if live_number != number:
+        raise LedgerError("PR binding observed number differs from the requested PR")
+    if live.get("state") != "open" or live.get("draft") is not True:
+        raise LedgerError("PR binding requires the exact open draft PR state")
+    author = live.get("user")
+    if not isinstance(author, dict) or author.get("node_id") != actor_node:
+        raise LedgerError("PR binding PR author differs from the authenticated actor")
+    base_branch = _branch(live.get("base", {}).get("ref"), "PR binding base branch")
+    head_branch = _branch(live.get("head", {}).get("ref"), "PR binding head branch")
+    base_sha = _string(
+        live.get("base", {}).get("sha"), "PR binding base head SHA", COMMIT_RE
+    )
+    head_sha = _string(
+        live.get("head", {}).get("sha"), "PR binding PR head SHA", COMMIT_RE
+    )
+    body = live.get("body")
+    if not isinstance(body, str):
+        raise LedgerError("PR binding requires a non-null UTF-8 PR body")
+    try:
+        body_raw = body.encode("utf-8")
+    except UnicodeError as error:
+        raise LedgerError("PR binding PR body is not valid UTF-8") from error
+    if len(body_raw) > MAX_RETAINED_RESULT_BYTES:
+        raise LedgerError("PR binding PR body exceeds the retained result limit")
+    updated_at = _string(
+        live.get("updated_at"), "PR binding PR updated_at", TIMESTAMP_RE
+    )
+    _timestamp_key(updated_at, "PR binding PR updated_at")
+    comments = _gh_json(
+        (
+            "api",
+            "--hostname",
+            "github.com",
+            f"repos/{owner}/{name}/issues/{number}/comments?per_page=1",
+        ),
+        f"PR binding comments for pull request {number}",
+    )
+    if not isinstance(comments, list):
+        raise LedgerError("PR binding comment pagination is not an array")
+    if comments and all(isinstance(page, list) for page in comments):
+        has_comments = any(bool(page) for page in comments)
+    elif comments and all(isinstance(comment, dict) for comment in comments):
+        # This is accepted for test doubles and older gh versions that return a
+        # single page without --slurp; any non-empty result is still unsafe.
+        has_comments = True
+    elif comments:
+        raise LedgerError("PR binding comment pagination has an invalid page")
+    else:
+        has_comments = False
+    if has_comments:
+        raise LedgerError("PR binding found external PR comments")
+    digest = byte_digest(body_raw)
+    pull = {
+        "repository": copy.deepcopy(repository),
+        "head_repository": copy.deepcopy(repository),
+        "number": number,
+        "node_id": node,
+        "author_node_id": actor_node,
+        "base_branch": base_branch,
+        "head_branch": head_branch,
+        "draft": True,
+        "draft_intent": None,
+        "body": {
+            "ownership": "delivery-created",
+            "state": "written",
+            "observed_digest": None,
+            "intended_digest": None,
+            "intended_payload": None,
+            "current_digest": digest,
+            "outside_digest": digest,
+            "section_digest": None,
+            "updated_at": updated_at,
+        },
+        "comment": {
+            "state": "none",
+            "marker": None,
+            "intended_digest": None,
+            "intended_payload": None,
+            "node_id": None,
+            "current_digest": None,
+        },
+    }
+    return {
+        "pull": pull,
+        "base_sha": base_sha,
+        "head_sha": head_sha,
+        "body_digest": digest,
+    }
+
+
+def _pr_binding_coordinates(
+    document: Mapping[str, Any], slot_id: str
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Resolve the exact target branch/worktree that a PR bind must protect."""
+
+    item = validate(document)
+    slot_id = _string(slot_id, "slot_id", SLOT_RE)
+    slots = [slot for slot in item["artifacts"] if slot["slot_id"] == slot_id]
+    if len(slots) != 1 or slots[0]["kind"] != "pull_request":
+        raise LedgerError("PR binding requires one exact pull-request slot")
+    pr_slot = slots[0]
+    targets = [
+        target
+        for target in item["targets"]
+        if target["repository"] == pr_slot["immutable"]["repository"]
+        and target["head"]["branch"] == pr_slot["immutable"]["branch"]
+    ]
+    if len(targets) != 1:
+        raise LedgerError("PR binding requires one exact target coordinate")
+    target = targets[0]
+    branches = [
+        slot
+        for slot in item["artifacts"]
+        if slot["kind"] == "branch"
+        and slot["immutable"]["repository"] == target["repository"]
+        and slot["immutable"]["branch"] == target["head"]["branch"]
+    ]
+    worktrees = [
+        slot
+        for slot in item["artifacts"]
+        if slot["kind"] == "worktree"
+        and slot["immutable"]["repository"] == target["repository"]
+        and slot["immutable"]["branch"] == target["head"]["branch"]
+    ]
+    if len(branches) != 1 or len(worktrees) != 1:
+        raise LedgerError("PR binding requires one exact branch and worktree")
+    branch = branches[0]
+    worktree = worktrees[0]
+    if (
+        branch["state"] == "planned"
+        or worktree["state"] == "planned"
+        or branch["safety"] != SAFE_ARTIFACT_STATE
+        or worktree["safety"] != SAFE_ARTIFACT_STATE
+        or worktree["current"] is None
+        or worktree["current"]["path"] is None
+    ):
+        raise LedgerError("PR binding requires one already-bound safe worktree")
+    return item, pr_slot, target, branch, worktree
+
+
+def _pr_binding_classification(
+    document: Mapping[str, Any],
+    slot_id: str,
+    target: Mapping[str, Any],
+    remote: Mapping[str, Any],
+) -> str:
+    """Classify the first bind or an exact installed post-rename retry."""
+
+    item, slot, _, _, _ = _pr_binding_coordinates(document, slot_id)
+    pull = remote["pull"]
+    if slot["state"] == "planned":
+        if item["entry_mode"] != "issue" or item["authority"]["allowed"]["pull_requests"]:
+            raise LedgerError("PR binding requires an issue-mode planned PR authority")
+        if remote["pull"]["base_branch"] != target["base"]["branch"]:
+            raise LedgerError("PR binding base branch differs from the exact target")
+        classify_pr_binding(
+            item,
+            slot_id,
+            {
+                "repository": copy.deepcopy(pull["repository"]),
+                "head_branch": pull["head_branch"],
+                "number": pull["number"],
+                "node_id": pull["node_id"],
+                "head_sha": remote["head_sha"],
+                "body_digest": remote["body_digest"],
+            },
+        )
+        if remote["base_sha"] != target["base"]["current_sha"]:
+            raise LedgerError("PR binding base head differs from the exact target")
+        return "bind-exact"
+    if slot["state"] not in {"created", "adopted"} or slot["current"] is None:
+        raise LedgerError("PR binding slot is not safely reusable")
+    selected = [
+        value
+        for value in item["selected_prs"]
+        if value["number"] == pull["number"] and value["node_id"] == pull["node_id"]
+    ]
+    current = slot["current"]
+    if (
+        len(selected) != 1
+        or selected[0] != pull
+        or current["number"] != pull["number"]
+        or current["node_id"] != pull["node_id"]
+        or current["head_sha"] != remote["head_sha"]
+        or current["body_digest"] != remote["body_digest"]
+        or pull["base_branch"] != target["base"]["branch"]
+    ):
+        raise LedgerError("bound PR differs from the exact live PR observation")
+    if remote["base_sha"] != target["base"]["current_sha"]:
+        raise LedgerError("bound PR base head differs from the exact target")
+    return "bound-match"
+
+
+def _pr_binding_candidate(
+    snapshot: Snapshot, slot_id: str, remote: Mapping[str, Any]
+) -> dict[str, Any]:
+    candidate = _json_object_copy(snapshot.document, "atomic PR binding candidate")
+    candidate["generation"] += 1
+    candidate["previous_byte_digest"] = snapshot.digest
+    candidate["history"].append(snapshot.digest)
+    slot = next(value for value in candidate["artifacts"] if value["slot_id"] == slot_id)
+    current = {
+        **copy.deepcopy(slot["immutable"]),
+        "number": remote["pull"]["number"],
+        "node_id": remote["pull"]["node_id"],
+        "head_sha": remote["head_sha"],
+    }
+    slot_result = _json_object_copy(slot, "atomic PR binding slot")
+    slot_result.update(
+        state="created",
+        current=current,
+        safety=dict(SAFE_ARTIFACT_STATE),
+    )
+    candidate["artifacts"] = [
+        slot_result if value["slot_id"] == slot_id else value
+        for value in candidate["artifacts"]
+    ]
+    candidate["selected_prs"] = [
+        *candidate["selected_prs"],
+        copy.deepcopy(remote["pull"]),
+    ]
+    return prepare(candidate)
+
+
+@contextmanager
+def _pr_binding_live_safety(
+    document: Mapping[str, Any], target: Mapping[str, Any], worktree: Mapping[str, Any]
+) -> Iterator[Callable[[], None]]:
+    """Pin the exact delivery worktree before each authenticated PR observation."""
+
+    request = worktree.get("primitive_request")
+    allowed: frozenset[str] = frozenset()
+    scope_record = None
+    scope_proof = None
+    if request is None:
+        request, allowed, scope_record, scope_proof = _target_refresh_worktree_provenance(
+            document, worktree
+        )
+    request = _decode(canonical_bytes(request), "PR binding worktree request")
+    # Target refresh advances artifact heads while preserving the original
+    # primitive request as immutable provenance.  Pin the live worktree to the
+    # refreshed target tip for this operation, just as target-refresh-cas does.
+    request["expected_head_sha"] = target["head"]["current_sha"]
+    path = worktree["current"]["path"]
+    with _pinned_live_worktree(
+        request,
+        path,
+        "atomic PR binding",
+        allowed_references=allowed,
+        scope_record=scope_record,
+    ) as guard:
+        def prove() -> None:
+            guard.prove()
+            if scope_proof is not None:
+                _scope_binding_observation(
+                    scope_proof["observation"],
+                    scope_proof["request"],
+                    scope_proof["repository"],
+                    scope_proof["row"],
+                    scope_proof["binding_digest"],
+                    scope_proof["record"],
+                    "atomic PR binding scope observation",
+                    live=True,
+                    guard=guard,
+                    live_request=request,
+                )
+
+        prove()
+        yield prove
+
+
+def bind_pr_cas(
+    root: Path | str,
+    name: str,
+    slot_id: str,
+    pr_number: int,
+    *,
+    expected_generation: int,
+    expected_digest: str,
+    expected_device: int,
+    expected_inode: int,
+    failpoint: Failpoint = None,
+) -> dict[str, Any]:
+    """Live-prove and atomically bind one issue-created draft PR slot."""
+
+    snapshot = inspect(root, name)
+    _, _, target, _, worktree = _pr_binding_coordinates(snapshot.document, slot_id)
+    with _pr_binding_live_safety(snapshot.document, target, worktree) as prove_local:
+        prove_local()
+        remote = _pr_binding_remote(snapshot.document, target, pr_number)
+        classification = _pr_binding_classification(
+            snapshot.document, slot_id, target, remote
+        )
+        _hit(failpoint, "pr-bind:classified")
+
+        def revalidate() -> None:
+            prove_local()
+            latest = _pr_binding_remote(snapshot.document, target, pr_number)
+            if latest != remote:
+                raise LedgerError("PR binding remote observation changed before CAS")
+
+        revalidate()
+        if (
+            classification == "bound-match"
+            and _snapshot_matches_tuple(
+                snapshot,
+                expected_generation,
+                expected_digest,
+                expected_device,
+                expected_inode,
+            )
+        ):
+            installed = _require_clean_bound_snapshot(root, snapshot)
+        else:
+            if classification == "bound-match":
+                candidate = snapshot.document
+                capability = _AtomicBindingCapability(
+                    _ATOMIC_BIND_TOKEN,
+                    "pr",
+                    slot_id,
+                    snapshot.name,
+                    None,
+                    snapshot.raw,
+                    expected_generation,
+                    expected_digest,
+                    expected_device,
+                    expected_inode,
+                )
+            else:
+                candidate = _pr_binding_candidate(snapshot, slot_id, remote)
+                capability = _AtomicBindingCapability(
+                    _ATOMIC_BIND_TOKEN,
+                    "pr",
+                    slot_id,
+                    snapshot.name,
+                    snapshot.raw,
+                    canonical_bytes(candidate),
+                    expected_generation,
+                    expected_digest,
+                    expected_device,
+                    expected_inode,
+                )
+            installed = cas(
+                root,
+                snapshot.name,
+                candidate,
+                expected_generation=expected_generation,
+                expected_digest=expected_digest,
+                expected_device=expected_device,
+                expected_inode=expected_inode,
+                failpoint=failpoint,
+                _precommit=revalidate,
+                _binding_capability=capability,
+            )
+    return {
+        "classification": classification,
+        "slot_id": slot_id,
+        "number": remote["pull"]["number"],
+        "node_id": remote["pull"]["node_id"],
+        "body_digest": remote["body_digest"],
+        "snapshot": installed.json(),
+    }
+
+
 def planned_pr_payload(document: Mapping[str, Any], slot_id: str) -> bytes:
     """Return the exact durable initial body for one still-planned PR slot."""
 
@@ -12689,6 +13098,7 @@ def _transition(
     if issue_created_prs:
         if len(issue_created_prs) != 1 or added_pr_keys != {issue_created_prs[0][0]}:
             raise LedgerError("issue-created PR bind must add exactly one selected PR")
+        protected_binding_kinds.add("pr")
         key, _, before_slot, after_slot = issue_created_prs[0]
         normalized = _decode(canonical_bytes(new), "issue-created PR transition")
         normalized["generation"] = old["generation"]
@@ -13283,7 +13693,7 @@ def cas(
         if (
             not isinstance(capability, _AtomicBindingCapability)
             or capability.token is not _ATOMIC_BIND_TOKEN
-            or capability.kind not in {"worktree", "scope"}
+            or capability.kind not in {"worktree", "scope", "pr"}
             or not SLOT_RE.fullmatch(capability.slot_id)
             or capability.name != name
             or capability.after_raw != raw
@@ -15409,6 +15819,17 @@ def parser() -> argparse.ArgumentParser:
     bind_parser.add_argument("name", help="direct canonical ledger filename")
     bind_parser.add_argument("slot_id", help="planned pull-request artifact slot")
     bind_parser.add_argument("input", help="bounded no-follow remote identity JSON file")
+    pr_bind_cas_parser = commands.add_parser(
+        "pr-bind-cas", help="atomically live-prove and bind an issue-created draft PR"
+    )
+    pr_bind_cas_parser.add_argument("root", help="initialized review root")
+    pr_bind_cas_parser.add_argument("name", help="direct canonical ledger filename")
+    pr_bind_cas_parser.add_argument("slot_id", help="planned pull-request artifact slot")
+    pr_bind_cas_parser.add_argument("pr_number", type=int, help="remote pull-request number")
+    pr_bind_cas_parser.add_argument("--expected-generation", required=True, type=int)
+    pr_bind_cas_parser.add_argument("--expected-digest", required=True)
+    pr_bind_cas_parser.add_argument("--expected-device", required=True, type=int)
+    pr_bind_cas_parser.add_argument("--expected-inode", required=True, type=int)
     worktree_bind_parser = commands.add_parser(
         "worktree-bind", help="classify retained fresh wrapper worktree evidence"
     )
@@ -15713,6 +16134,19 @@ def main(argv: Sequence[str] | None = None) -> int:
                         _read_input(arguments.input),
                     ),
                 }
+            )
+        elif arguments.command == "pr-bind-cas":
+            _print(
+                bind_pr_cas(
+                    arguments.root,
+                    arguments.name,
+                    arguments.slot_id,
+                    arguments.pr_number,
+                    expected_generation=arguments.expected_generation,
+                    expected_digest=arguments.expected_digest,
+                    expected_device=arguments.expected_device,
+                    expected_inode=arguments.expected_inode,
+                )
             )
         elif arguments.command == "worktree-bind":
             snapshot = inspect(arguments.root, arguments.name)
