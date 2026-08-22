@@ -38,10 +38,19 @@ description: Publish Atrinik PRs, govern GitHub policy, or review and explicitly
 
 Titles use `type(optional-scope): concise description` by default. Add `!` only
 when a reviewer explicitly requests a breaking change; not automatically.
-Bodies: GitHub-Flavored Markdown with actual line breaks, never literal `\n`
-separators. Feed multi-section bodies by file/stdin. After create/edit, inspect
-GitHub's `bodyHTML`/`body_html`, not raw body; verify headings, lists,
-inline code, issue-closing references, and validation sections.
+PR bodies must be substantive, rendered GitHub-Flavored Markdown with actual
+line breaks, never literal `\n` separators. The minimum body explains what changed
+and why in a concise `Summary`, gives relevant `Implementation / behavior`
+details, records `Validation` and its results, and states
+`Limitations / follow-up` when applicable. Issue and pull-request reference
+syntax remains supported, but an issue-closing line alone is insufficient. Feed
+multi-section bodies by file/stdin. When an agent updates an existing pull
+request, preserve contributor-authored text byte-for-byte and add or replace
+only a separately
+delivery-owned section when the delivery ownership rules authorize it. After
+create/edit, inspect GitHub's rendered `bodyHTML`/`body_html`, not raw body;
+verify headings, lists, inline code, issue-closing references, and validation
+sections.
 
 ## Validate and hand off
 
