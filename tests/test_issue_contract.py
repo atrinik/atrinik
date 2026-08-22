@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from contextlib import redirect_stderr, redirect_stdout
 import io
+from pathlib import Path
+import runpy
 import unittest
 from unittest import mock
 
 from atrinik_workspace.issue_contract import (
     MAX_ISSUE_BYTES,
     IssueContractError,
+    find_violations,
     main,
     validate_issue_contract,
 )
@@ -45,6 +48,38 @@ class IssueContractTests(unittest.TestCase):
             "required a backport to `1.x` and carried the old release label."
         )
         validate_issue_contract(body)
+
+    def test_scans_markdown_blocks_and_skips_unrelated_text(self) -> None:
+        body = """\
+        content@main is the source of truth.
+        - The `1.x` tag is recorded.
+        - Backport the change to `1.x`.
+        """
+        violations = find_violations(body)
+        self.assertEqual(len(violations), 1)
+        self.assertEqual(violations[0].line, 3)
+
+    def test_cli_rejects_ambiguous_input(self) -> None:
+        for argv in ([], ["body.md", "--stdin"]):
+            with self.subTest(argv=argv), redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    main(argv)
+
+    def test_module_entry_point_returns_success(self) -> None:
+        stdout = io.StringIO()
+        module_path = (
+            Path(__file__).resolve().parents[1]
+            / "atrinik_workspace"
+            / "issue_contract.py"
+        )
+        with redirect_stdout(stdout), mock.patch(
+            "sys.argv", [str(module_path), "--stdin"]
+        ), mock.patch(
+            "sys.stdin", io.StringIO("content@main is valid.\n")
+        ), self.assertRaises(SystemExit) as exit_info:
+            runpy.run_path(str(module_path), run_name="__main__")
+        self.assertEqual(exit_info.exception.code, 0)
+        self.assertIn("issue-contract: pass", stdout.getvalue())
 
     def test_rejects_oversized_input(self) -> None:
         with self.assertRaisesRegex(IssueContractError, "byte validation bound"):
