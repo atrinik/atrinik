@@ -43,9 +43,10 @@ line breaks, never literal `\n` separators. The minimum body explains what chang
 and why in a concise `Summary`, gives relevant `Implementation / behavior`
 details, records `Validation` and its results, and states
 `Limitations / follow-up` when applicable. Issue and pull-request reference
-syntax remains supported, but an issue-closing line alone is insufficient. Feed multi-section
-bodies by file/stdin. When an agent updates an existing pull request, preserve
-contributor-authored text byte-for-byte and add or replace only a separately
+syntax remains supported, but an issue-closing line alone is insufficient. Feed
+multi-section bodies by file/stdin. When an agent updates an existing pull
+request, preserve contributor-authored text byte-for-byte and add or replace
+only a separately
 delivery-owned section when the delivery ownership rules authorize it. After
 create/edit, inspect GitHub's rendered `bodyHTML`/`body_html`, not raw body;
 verify headings, lists, inline code, issue-closing references, and validation

@@ -73,8 +73,7 @@
   issue-closing line alone is insufficient; preserve issue/PR
   reference syntax. Existing PR updates must preserve contributor-authored text
   byte-for-byte under the delivery-owned section rules. Feed multi-section
-  bodies by file/stdin; after create/edit, verify the rendered remote body.
-  Use
+  bodies by file/stdin; after create/edit, verify the rendered remote body. Use
   `atrinik-github-governance` for PRs. Semantic-release owns branch-aware tags;
   see `CONTRIBUTING.md`.
 
