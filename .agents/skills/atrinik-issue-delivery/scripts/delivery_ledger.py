@@ -273,7 +273,7 @@ class _AtomicBindingCapability:
 
 @dataclass(frozen=True)
 class _ScopeRecoveryCapability:
-    """Authorize one explicit recovery of a released planned scope selector."""
+    """Authorize one explicit recovery of a planned scope request."""
 
     token: object
     slot_id: str
@@ -5645,6 +5645,26 @@ def _scope_request(value: Any, context: str) -> tuple[Any, ...]:
     return name, component, profile, checkout, label, branch, start, topology, roots
 
 
+def _canonical_scope_topology(name: str) -> str:
+    return f"scope-{name}"
+
+
+def _require_canonical_scope_requests(
+    document: Mapping[str, Any], context: str
+) -> None:
+    """Require canonical topology only when a new ledger generation is prepared."""
+
+    for index, resource in enumerate(document["resources"]):
+        if resource["kind"] != "scope":
+            continue
+        request = resource["request"]
+        expected = _canonical_scope_topology(request["name"])
+        if request["topology"] != expected:
+            raise LedgerError(
+                f"{context}.resources[{index}].request.topology must be canonical: {expected}"
+            )
+
+
 def _sorted_names(value: Any, context: str, *, nonempty: bool = True) -> list[str]:
     if not isinstance(value, list) or (nonempty and not value):
         raise LedgerError(f"{context} must be a sorted name array")
@@ -5783,7 +5803,10 @@ def _scope_show_record(
         _integer(profile[field], f"{context}.profile.{field}", minimum=0)
 
     topology = _exact(record["topology"], {"name", "path"}, f"{context}.topology")
-    expected_topology_path = Path(workspace_root) / "topologies" / request["topology"]
+    expected_topology = _canonical_scope_topology(request["name"])
+    if request["topology"] != expected_topology:
+        raise LedgerError(f"{context} scope request topology is not canonical")
+    expected_topology_path = Path(workspace_root) / "topologies" / expected_topology
     if (
         topology["name"] != request["topology"]
         or _absolute_path(topology["path"], f"{context}.topology.path")
@@ -6696,6 +6719,7 @@ def prepare(document: Mapping[str, Any]) -> dict[str, Any]:
     raw = canonical_bytes(document)
     result = _decode(raw, "prepared ledger")
     validate(result)
+    _require_canonical_scope_requests(result, "prepared ledger")
     return result
 
 
@@ -13591,6 +13615,118 @@ def _scope_recovery_projection(
     return projection
 
 
+def _scope_prebind_recovery_authority(value: Any, context: str) -> dict[str, Any]:
+    item = _exact(
+        value,
+        {
+            "transaction",
+            "source",
+            "scope",
+            "observed_topology",
+            "candidate_sha256",
+            "authority",
+        },
+        context,
+    )
+    if item["transaction"] != "delivery-ledger-recover-prebind-scope-v1":
+        raise LedgerError(f"{context}.transaction is invalid")
+    source = _exact(
+        item["source"],
+        {"name", "ledger_id", "generation", "sha256", "device", "inode"},
+        f"{context}.source",
+    )
+    _direct_name(source["name"], f"{context}.source.name")
+    _string(source["ledger_id"], f"{context}.source.ledger_id", REFERENCE_RE)
+    _integer(source["generation"], f"{context}.source.generation", minimum=1)
+    _string(source["sha256"], f"{context}.source.sha256", SHA256_RE)
+    _integer(source["device"], f"{context}.source.device", minimum=0)
+    _integer(source["inode"], f"{context}.source.inode", minimum=1)
+    scope = _exact(
+        item["scope"],
+        {
+            "name",
+            "component",
+            "profile",
+            "physical_checkout",
+            "topology",
+            "label",
+            "branch",
+            "start_sha",
+            "scope_show_sha256",
+            "worktree_list_sha256",
+            "safety_observation_sha256",
+        },
+        f"{context}.scope",
+    )
+    _scope_recovery_coordinates(
+        {key: scope[key] for key in (
+            "name",
+            "component",
+            "profile",
+            "physical_checkout",
+            "topology",
+            "label",
+            "branch",
+            "start_sha",
+        )},
+        f"{context}.scope.coordinates",
+    )
+    for key in (
+        "scope_show_sha256",
+        "worktree_list_sha256",
+        "safety_observation_sha256",
+    ):
+        _string(scope[key], f"{context}.scope.{key}", SHA256_RE)
+    _string(item["observed_topology"], f"{context}.observed_topology", SLOT_RE)
+    _string(item["candidate_sha256"], f"{context}.candidate_sha256", SHA256_RE)
+    _authority(item["authority"], f"{context}.authority")
+    return {
+        "transaction": item["transaction"],
+        "source": source,
+        "scope": scope,
+        "observed_topology": item["observed_topology"],
+        "candidate_sha256": item["candidate_sha256"],
+        "authority": item["authority"],
+    }
+
+
+def _scope_prebind_projection(
+    document: Mapping[str, Any],
+    scope_slot: str,
+    authority: Mapping[str, Any],
+    topology: str,
+) -> dict[str, Any]:
+    projection = copy.deepcopy(document)
+    projection["authority"] = copy.deepcopy(authority)
+    matches = [
+        resource
+        for resource in projection["resources"]
+        if resource["slot_id"] == scope_slot
+    ]
+    if len(matches) != 1 or matches[0]["kind"] != "scope":
+        raise LedgerError("pre-bind recovery requires one exact scope resource")
+    matches[0]["request"]["topology"] = topology
+    return projection
+
+
+def _prove_live_scope_topology(
+    request: Mapping[str, Any], scope_record: Mapping[str, Any], context: str
+) -> None:
+    expected = Path(request["roots"]["workspace"]["path"]) / "topologies" / (
+        _canonical_scope_topology(request["name"])
+    )
+    topology = scope_record["topology"]
+    if topology["name"] != _canonical_scope_topology(request["name"]):
+        raise LedgerError(f"{context} live topology name is not canonical")
+    if topology["path"] != str(expected):
+        raise LedgerError(f"{context} live topology path differs from canonical path")
+    descriptor = _directory_fd(expected)
+    try:
+        _recheck_pinned_directory(descriptor, str(expected), f"{context} topology")
+    finally:
+        os.close(descriptor)
+
+
 def _scope_recovery_observed_request(
     raw: bytes,
     planned_request: Mapping[str, Any],
@@ -13806,6 +13942,290 @@ def recover_released_scope(
         failpoint=failpoint,
         _scope_recovery_capability=capability,
     )
+
+
+def recover_prebind_scope(
+    root: Path | str,
+    name: str,
+    document: Mapping[str, Any],
+    scope_show_raw: bytes,
+    worktree_list_raw: bytes,
+    safety_observation_raw: bytes,
+    recovery_raw: bytes,
+    *,
+    expected_generation: int,
+    expected_digest: str,
+    expected_device: int,
+    expected_inode: int,
+    failpoint: Failpoint = None,
+) -> Snapshot:
+    """Recover only an exact live pre-bind topology mismatch by ledger CAS."""
+
+    name = _direct_name(name)
+    candidate = prepare(document)
+    recovery = _scope_prebind_recovery_authority(
+        _decode(recovery_raw, "pre-bind scope recovery authority"),
+        "pre-bind scope recovery authority",
+    )
+    if recovery_raw != canonical_bytes(recovery):
+        raise LedgerError("pre-bind scope recovery authority is not canonical")
+    snapshot = inspect(root, name)
+    source = recovery["source"]
+    expected_source = (
+        source["generation"],
+        source["sha256"],
+        source["device"],
+        source["inode"],
+    )
+    if (
+        expected_generation,
+        expected_digest,
+        expected_device,
+        expected_inode,
+    ) != expected_source:
+        raise LedgerError("pre-bind scope recovery source does not match CAS tuple")
+    if snapshot.name != source["name"]:
+        raise LedgerError("pre-bind scope recovery source names a different ledger")
+    candidate_raw = canonical_bytes(candidate)
+    if candidate["ledger_id"] != source["ledger_id"]:
+        raise LedgerError("pre-bind scope recovery candidate differs from source ledger")
+    resume = bool(
+        snapshot.raw == candidate_raw
+        and snapshot.document["generation"] == source["generation"] + 1
+        and snapshot.document["previous_byte_digest"] == source["sha256"]
+        and snapshot.document["history"]
+        and snapshot.document["history"][-1] == source["sha256"]
+    )
+    if not resume and (
+        snapshot.document["ledger_id"] != source["ledger_id"]
+        or snapshot.document["generation"] != source["generation"]
+        or snapshot.digest != source["sha256"]
+        or snapshot.device != source["device"]
+        or snapshot.inode != source["inode"]
+    ):
+        raise LedgerError("pre-bind scope recovery source snapshot is stale")
+    if byte_digest(candidate_raw) != recovery["candidate_sha256"]:
+        raise LedgerError("pre-bind scope recovery candidate digest differs from authority")
+    if candidate["authority"] != recovery["authority"]:
+        raise LedgerError("pre-bind scope recovery candidate authority differs from grant")
+    if candidate["authority"]["kind"] != "explicit-recovery":
+        raise LedgerError("pre-bind scope recovery requires explicit-recovery authority")
+    authority_document = snapshot.document if not resume else candidate
+    if candidate["authority"]["actor_node_id"] != authority_document["actor"]["node_id"]:
+        raise LedgerError("pre-bind scope recovery actor differs from ledger actor")
+    if candidate["authority"]["allowed"] != {
+        "issues": [
+            issue["node_id"] for issue in authority_document["issues"]["explicit"]
+        ],
+        "pull_requests": [],
+        "repositories": [
+            target["repository"]["node_id"]
+            for target in authority_document["targets"]
+        ],
+    }:
+        raise LedgerError("pre-bind scope recovery authority scope differs from ledger")
+    expected_objective = canonical_object_digest(
+        {
+            "operation": "recover-prebind-scope",
+            "source": source,
+            "scope": recovery["scope"],
+            "observed_topology": recovery["observed_topology"],
+        }
+    )
+    if candidate["authority"]["objective_sha256"] != expected_objective:
+        raise LedgerError("pre-bind scope recovery objective does not bind coordinates")
+    if not resume and not _timestamp_is_after(
+        candidate["authority"]["issued_at"], snapshot.document["authority"]["issued_at"]
+    ):
+        raise LedgerError("pre-bind scope recovery authority must postdate the prior authority")
+
+    new_scopes = [
+        resource for resource in candidate["resources"] if resource["kind"] == "scope"
+    ]
+    if len(new_scopes) != 1:
+        raise LedgerError("pre-bind scope recovery requires one exact scope resource")
+    new_scope = new_scopes[0]
+    if new_scope["state"] != "planned" or new_scope["current"] is not None:
+        raise LedgerError("pre-bind scope recovery requires one planned unbound scope")
+    if resume:
+        old_scope = None
+        old_coordinates = {
+            key: recovery["scope"][key]
+            for key in (
+                "name",
+                "component",
+                "profile",
+                "physical_checkout",
+                "topology",
+                "label",
+                "branch",
+                "start_sha",
+            )
+        }
+        scope_slot = new_scope["slot_id"]
+    else:
+        old_scopes = [
+            resource
+            for resource in snapshot.document["resources"]
+            if resource["kind"] == "scope"
+        ]
+        if len(old_scopes) != 1:
+            raise LedgerError("pre-bind scope recovery requires one exact old scope")
+        old_scope = old_scopes[0]
+        if (
+            old_scope["slot_id"] != new_scope["slot_id"]
+            or old_scope["state"] != "planned"
+            or old_scope["current"] is not None
+        ):
+            raise LedgerError("pre-bind scope recovery requires one planned unbound scope")
+        old_request = old_scope["request"]
+        old_coordinates = {
+            "name": old_scope["immutable"]["name"],
+            "component": old_request["component"],
+            "profile": old_request["profile"],
+            "physical_checkout": old_request["physical_checkout"],
+            "topology": old_request["topology"],
+            "label": old_request["label"],
+            "branch": old_request["branch"],
+            "start_sha": old_request["start_sha"],
+        }
+        scope_slot = old_scope["slot_id"]
+    canonical_topology = _canonical_scope_topology(old_coordinates["name"])
+    if old_coordinates["topology"] == canonical_topology:
+        raise LedgerError("pre-bind scope recovery does not prove a topology mismatch")
+    if recovery["observed_topology"] != canonical_topology:
+        raise LedgerError("pre-bind scope recovery observed topology is not canonical")
+    evidence = {
+        **old_coordinates,
+        "scope_show_sha256": recovery["scope"]["scope_show_sha256"],
+        "worktree_list_sha256": recovery["scope"]["worktree_list_sha256"],
+        "safety_observation_sha256": recovery["scope"]["safety_observation_sha256"],
+    }
+    if evidence != recovery["scope"]:
+        raise LedgerError("pre-bind scope evidence differs from ledger coordinates")
+
+    new_coordinates = {
+        "name": new_scope["immutable"]["name"],
+        "component": new_scope["request"]["component"],
+        "profile": new_scope["request"]["profile"],
+        "physical_checkout": new_scope["request"]["physical_checkout"],
+        "topology": new_scope["request"]["topology"],
+        "label": new_scope["request"]["label"],
+        "branch": new_scope["request"]["branch"],
+        "start_sha": new_scope["request"]["start_sha"],
+    }
+    if resume and new_coordinates != {
+        **old_coordinates,
+        "topology": canonical_topology,
+    }:
+        raise LedgerError("pre-bind scope recovery candidate differs from its evidence")
+    observed_request = copy.deepcopy(
+        old_scope["request"] if old_scope is not None else new_scope["request"]
+    )
+    observed_request["topology"] = canonical_topology
+    scope_repository = (
+        old_scope["immutable"]["repository"]
+        if old_scope is not None
+        else new_scope["immutable"]["repository"]
+    )
+    scope_show = _retained_result_document(scope_show_raw, "pre-bind scope show output")
+    if scope_show["sha256"] != recovery["scope"]["scope_show_sha256"]:
+        raise LedgerError("pre-bind scope-show digest differs from recovery authority")
+    scope_record, row = _scope_show_record(
+        scope_show_raw,
+        observed_request,
+        scope_repository,
+        "pre-bind scope show output",
+    )
+    worktree_list = _retained_result_document(
+        worktree_list_raw, "pre-bind worktree list output"
+    )
+    safety_observation = _retained_result_document(
+        safety_observation_raw, "pre-bind safety observation"
+    )
+    if worktree_list["sha256"] != recovery["scope"]["worktree_list_sha256"]:
+        raise LedgerError("pre-bind worktree-list digest differs from recovery authority")
+    if safety_observation["sha256"] != recovery["scope"]["safety_observation_sha256"]:
+        raise LedgerError("pre-bind safety-observation digest differs from recovery authority")
+    observation = {
+        "worktree_list": worktree_list,
+        "safety_observation": safety_observation,
+    }
+    _scope_binding_observation(
+        observation,
+        observed_request,
+        scope_repository,
+        row,
+        scope_show["sha256"],
+        scope_record,
+        "pre-bind scope recovery observation",
+        live=False,
+    )
+
+    projected = _scope_prebind_projection(
+        snapshot.document,
+        scope_slot,
+        candidate["authority"],
+        canonical_topology,
+    ) if not resume else None
+    if projected is not None:
+        projected["generation"] = candidate["generation"]
+        projected["previous_byte_digest"] = candidate["previous_byte_digest"]
+        projected["history"] = candidate["history"]
+        if projected != candidate:
+            raise LedgerError(
+                "pre-bind scope recovery changed fields outside topology and authority"
+            )
+
+    worktree_request = _scope_worktree_request(
+        observed_request, scope_repository
+    )
+    capability = _ScopeRecoveryCapability(
+        _SCOPE_RECOVERY_TOKEN,
+        scope_slot,
+        name,
+        None if resume else snapshot.raw,
+        candidate_raw,
+        expected_generation,
+        expected_digest,
+        expected_device,
+        expected_inode,
+    )
+    with _pinned_live_worktree(
+        worktree_request,
+        row["path"],
+        "pre-bind scope recovery",
+        allowed_references=_scope_owned_references(observed_request),
+        scope_record=scope_record,
+    ) as guard:
+
+        def revalidate() -> None:
+            _prove_live_scope_topology(observed_request, scope_record, "pre-bind scope recovery")
+            _scope_binding_observation(
+                observation,
+                observed_request,
+                scope_repository,
+                row,
+                scope_show["sha256"],
+                scope_record,
+                "pre-bind scope recovery",
+                live=True,
+                guard=guard,
+            )
+
+        revalidate()
+        return cas(
+            root,
+            name,
+            candidate,
+            expected_generation=expected_generation,
+            expected_digest=expected_digest,
+            expected_device=expected_device,
+            expected_inode=expected_inode,
+            failpoint=failpoint,
+            _precommit=revalidate,
+            _scope_recovery_capability=capability,
+        )
 
 
 def correct_target_head(
@@ -14880,6 +15300,27 @@ def parser() -> argparse.ArgumentParser:
     scope_recovery_parser.add_argument("--expected-digest", required=True)
     scope_recovery_parser.add_argument("--expected-device", required=True, type=int)
     scope_recovery_parser.add_argument("--expected-inode", required=True, type=int)
+    prebind_recovery_parser = commands.add_parser(
+        "recover-prebind-scope",
+        help="atomically recover one explicitly authorized live pre-bind topology mismatch",
+    )
+    prebind_recovery_parser.add_argument("root", help="initialized review root")
+    prebind_recovery_parser.add_argument("name", help="direct canonical ledger filename")
+    prebind_recovery_parser.add_argument("input", help="bounded replacement ledger JSON")
+    prebind_recovery_parser.add_argument("scope_show", help="exact live scope-show JSON")
+    prebind_recovery_parser.add_argument(
+        "worktree_list", help="exact complete wrapper worktree-list JSON"
+    )
+    prebind_recovery_parser.add_argument(
+        "safety", help="exact helper-produced live safety observation JSON"
+    )
+    prebind_recovery_parser.add_argument(
+        "recovery", help="exact explicit-recovery authority JSON"
+    )
+    prebind_recovery_parser.add_argument("--expected-generation", required=True, type=int)
+    prebind_recovery_parser.add_argument("--expected-digest", required=True)
+    prebind_recovery_parser.add_argument("--expected-device", required=True, type=int)
+    prebind_recovery_parser.add_argument("--expected-inode", required=True, type=int)
     correction_parser = commands.add_parser(
         "correct-target-head",
         help="live-prove and supersede one exact nonexistent target-head typo",
@@ -15132,6 +15573,22 @@ def main(argv: Sequence[str] | None = None) -> int:
                     arguments.name,
                     _read_input(arguments.input),
                     _read_bytes_input(arguments.scope_show),
+                    _read_bytes_input(arguments.recovery),
+                    expected_generation=arguments.expected_generation,
+                    expected_digest=arguments.expected_digest,
+                    expected_device=arguments.expected_device,
+                    expected_inode=arguments.expected_inode,
+                ).json()
+            )
+        elif arguments.command == "recover-prebind-scope":
+            _print(
+                recover_prebind_scope(
+                    arguments.root,
+                    arguments.name,
+                    _read_input(arguments.input),
+                    _read_bytes_input(arguments.scope_show),
+                    _read_bytes_input(arguments.worktree_list),
+                    _read_bytes_input(arguments.safety),
                     _read_bytes_input(arguments.recovery),
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,

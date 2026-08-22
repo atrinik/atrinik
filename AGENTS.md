@@ -2,7 +2,7 @@
 
 ## Overview
 
-- This MIT Python 3.11+ repository coordinates Atrinik repositories, not source.
+- This MIT Python 3.11+ repository coordinates Atrinik repositories, not source;
   `./atrinik` and `components.json` manage profiles, worktrees, builds, runtimes,
   cleanup, migration, and supply-chain reports.
 - `default` selects the MIT replacement stack (Rust, Go, Protobuf, and Astro).
@@ -15,25 +15,22 @@
 - `atrinik` is the CLI, `atrinik_workspace/` owns orchestration, and `tests/`
   the `unittest` suite.
 - Checkout, cohort, stack, role, source, and build contracts live in
-  `components.json`; machine policy in `supply-chain/` and `governance/`; longer
-  guidance in `docs/`, `README.md`, and `CONTRIBUTING.md`.
+  `components.json`; machine policy lives in `supply-chain/` and `governance/`.
 - Workflows live in `.agents/skills/`, composition in `.devcontainer/`,
   CI/release in `.github/`, and helpers in `scripts/`.
-- Manifest destinations are independent ignored repositories; `workspace/`
-  and `build/` are ignored generated state, so root status omits them.
+- Manifest destinations are independent ignored repositories; `workspace/` and
+  `build/` are ignored generated state, so root status omits them.
 - Resolve ownership through `components.json` and the checkout's nearest
   `AGENTS.md`; keep implementation, tests, packages, and releases there.
-- `classic/` provides `classic-*`; stacks share `content@main`.
-  `content-1x/` is historical; `playtester/` classic-only (`build: none`).
-  `tools/` is MIT-default except GPL-2.0-or-later `map-checker-qt/`; its
-  checkout: `LicenseRef-Atrinik-Tools-Mixed`. `.devcontainer/` composition;
-  `devcontainer/` images.
+- `classic/` provides `classic-*`; stacks share `content@main`; `content-1x/`
+  is historical; `playtester/` is classic-only. `tools/` is MIT-default except
+  GPL-2.0-or-later `map-checker-qt/` (`LicenseRef-Atrinik-Tools-Mixed`).
 
 ## Core behaviors and patterns
 
 - Use `atrinik-multi-repo-workspace` for wrapper ownership, profiles, worktrees,
-  migration, cleanup, releases, CLI, or layout. Add only applicable specialist
-  skills; use `atrinik-guidance-maintenance` for guidance audits.
+  migration, cleanup, releases, CLI, or layout; add only applicable specialist
+  skills and use `atrinik-guidance-maintenance` for guidance audits.
 - Use `atrinik-issue-delivery` only when explicitly invoked for an issue or
   existing PR; it stops before merge.
 - Use `atrinik-program-delivery` only when explicitly invoked for an ordered
@@ -48,11 +45,12 @@
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
-- Prefer `scope create`; Classic uses logical positionals and physical checkout
-  overrides. Recover released mismatches only via helper CAS.
-- Use wrapper paths; never reconstruct managed paths. Isolate
-  topology names/states/ports/client config; prefer temporary state and keep
-  scenario secrets local.
+- Prefer `scope create`; Classic uses selectors/physical overrides.
+  `scope-<name>` is the profile/topology; noncanonical overrides fail
+  pre-publication.
+  Recover via helper CAS.
+- Use wrapper paths; never reconstruct managed paths. Isolate topology, state,
+  ports, and client config; prefer temporary state and keep scenario secrets local.
 - Keep completion bounded, parser-driven, and secret-free.
 - Lease in order; gate same-coordinate readers; share the migration barrier.
 - Unbound persisted records are historical and inert.
@@ -62,25 +60,22 @@
   rights, identity, temporal, authorship, or scope uncertainty fails closed.
 - Update `supply-chain/inventory.json` when dependency ownership/validation
   changes. Keep Actions/images immutable, add no submodules, and audit a full
-  profile. Only aggregate-root workflows and Dependabot are active.
-- Commits and PR titles use `type(optional-scope): concise description` by
-  default. Add `!` only when a reviewer explicitly requests a breaking change;
-  not auto. PR bodies must be substantive, rendered GitHub-Flavored Markdown
-  with actual line breaks, never literal `\n` separators:
-  the minimum uses concise `Summary`, `Implementation / behavior`, and
-  `Validation` sections, plus `Limitations / follow-up` when applicable, to
-  explain what changed and why, relevant behavior details, and results. An
-  issue-closing line alone is insufficient; preserve issue/PR
-  reference syntax. Existing PR updates must preserve contributor-authored text
-  byte-for-byte under the delivery-owned section rules. Feed multi-section
-  bodies by file/stdin; after create/edit, verify the rendered remote body. Use
-  `atrinik-github-governance` for PRs. Semantic-release owns branch-aware tags;
-  see `CONTRIBUTING.md`.
+  profile; only aggregate-root workflows and Dependabot are active.
+- Commits and PR titles use `type(optional-scope): concise description`; add
+  `!` only when a reviewer explicitly requests a breaking change, not auto.
+  PR bodies must be substantive rendered GitHub-Flavored Markdown with actual
+  line breaks, never literal `\n` separators: include `Summary`,
+  `Implementation / behavior`, and `Validation` sections plus applicable
+  `Limitations / follow-up`. An issue-closing line alone is insufficient;
+  preserve issue/PR references and preserve contributor-authored text
+  byte-for-byte under the delivery-owned section rules. Feed
+  multi-section bodies by file/stdin; after create/edit verify the rendered
+  remote body. Use `atrinik-github-governance` for PRs.
 
 ## Working agreements and commands
 
-Run from this repository root. Inspect before mutation: initialization clones
-only missing repositories, and `sync` never initializes one:
+Run from this repository root. Inspect first; `init` clones only missing
+repositories and `sync` never initializes one:
 
 ```sh
 ./atrinik manifest validate
@@ -89,8 +84,7 @@ only missing repositories, and `sync` never initializes one:
 ./atrinik init --with classic
 ```
 
-Use this exact playable build/runtime lifecycle (`--follow` only for an
-interactive log session):
+Use this playable build/runtime lifecycle (`--follow` only for interactive logs):
 
 ```sh
 ./atrinik profile show classic --json
@@ -101,7 +95,7 @@ interactive log session):
 ./atrinik down classic-local
 ```
 
-Install test tooling once, then run the complete wrapper validation:
+Run complete wrapper validation:
 
 ```sh
 python3 -m pip install --requirement requirements-dev.txt
@@ -125,7 +119,6 @@ Run ShellCheck for shell changes, actionlint for workflows, and
 `./atrinik supply-chain audit --profile PROFILE` when dependency inputs change.
 Preserve `.coveragerc` and OIDC Codecov boundaries.
 
-Handoffs must name exact profiles, worktrees, topologies, services, states, and
-scenarios, plus prerequisites, results, validation, and cleanup. Synchronize
-this guide, affected skills, README, architecture, and contributor guidance
-with contract changes; treat stale guidance as a defect.
+Handoffs name exact profiles, worktrees, topologies, services, states,
+scenarios, prerequisites, results, validation, and cleanup. Synchronize this
+guide and affected skills/docs with contract changes; stale guidance is a defect.

@@ -195,10 +195,13 @@ side effect.
 
 Agent development scopes compose existing physical repository, profile,
 topology, state, and lease contracts without introducing a second path model.
-The transaction preflights its stable or collision-resistant generated name,
-base profile, deduplicated physical checkouts, labels, branches and exact start
-commits, destination paths, immutable profile, topology namespace, and state
-policy before reserving the name. It takes the name reservation first, then
+The scope name is the source of truth for the immutable `scope-<name>` profile
+and topology namespace; an optional topology override must equal that canonical
+name and is rejected before publication otherwise. The transaction preflights
+its stable or collision-resistant generated name, base profile, deduplicated
+physical checkouts, labels, branches and exact start commits, destination paths,
+immutable profile, topology namespace, and state policy before reserving the
+name. It takes the name reservation first, then
 acquires profile, Git-admin, source, topology, and state coordinates in the
 global lease order. Distinct names may overlap except for bounded Git-admin
 publication on one physical checkout; identical names or explicit branch/path
@@ -302,6 +305,12 @@ scope-show bytes, completed release journal, branch/start/root coordinates,
 collision proofs, and explicit-recovery authority, then replans one corrected
 Classic selector under a fresh scope name. Generic CAS and hand-editing or
 deleting released evidence remain prohibited.
+An older pre-bind topology mismatch has a separate `recover-prebind-scope` CAS:
+it accepts only an explicit authority bound to retained scope-show,
+worktree-list, safety, and predecessor evidence, updates only the canonical
+topology request, preserves the predecessor digest in history, and is
+crash-retryable. Released, changed, ambiguous, or unsafe live scope evidence
+fails closed.
 Terminal archive validates, bundles, and crash-resumably removes that complete
 correction evidence set with the ledger rather than leaving orphan sidecars.
 
