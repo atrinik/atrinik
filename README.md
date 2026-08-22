@@ -654,7 +654,10 @@ Classic has two selector namespaces: a logical component such as
 `classic-client` is positional, while `--label`, `--branch`, and `--start-point`
 overrides use the physical checkout key `classic`. A logical selector therefore
 uses `--label classic=...`; `classic-client=...` is rejected as an unselected
-checkout override.
+checkout override. The scope name is the single namespace source: the derived
+profile and topology are both `scope-<name>`. If `--topology` is supplied, it
+must equal that canonical value; creation rejects any other value before
+publishing a profile, topology, worktree, or scope record.
 
 Automated scopes default to generation-owned temporary state. Persistent state
 is opt-in with `--state NAME` for an existing registered state or
@@ -719,6 +722,15 @@ explicit-recovery authority. It accepts only the two proven Classic directions
 (`classic`/`classic-client`), preserves the old name, branch, start SHA, roots,
 and evidence, proves fresh replacement collisions, and replans the corrected
 selector under a new scope name.
+
+An older helper can instead leave a planned ledger whose live scope already
+uses the canonical topology but whose request retained another topology name.
+Preserve the exact predecessor tuple and raw `scope show`, worktree-list, and
+safety outputs. The delivery helper's `recover-prebind-scope` accepts only an
+explicit authority binding those bytes and coordinates; it CAS-updates the
+topology request alone, records the predecessor digest in history, and retries
+after a crash without manual ledger edits or deletion. Released, active-but-
+ambiguous, changed, or unsafe evidence is rejected.
 
 ## Checkout worktrees
 

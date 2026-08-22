@@ -137,12 +137,18 @@ owner `AGENTS.md`; do not duplicate procedures.
   --label classic=... --branch classic=... --start-point classic=...`. The
   wrapper records `requested_components` separately from its checkout-wide
   logical component rows; never substitute `classic-client=` for the `classic`
-  override key. Bind only the exact returned scope through the ledger helper.
+  override key. Scope creation derives the immutable `scope-SCOPE` profile and
+  topology names; a supplied `--topology` must equal `scope-SCOPE` and is
+  rejected before publication otherwise. Bind only the exact returned scope
+  through the ledger helper.
 
   Feed raw `scope show`/list JSON to `scope-observe`; call `scope-bind-cas` with
   a fresh inspect tuple. It pins/reproves before CAS. Partial, released,
   referenced, cross-checkout, or mismatched evidence stops. Generic `cas`
-  cannot bind it; `scope-bind` only diagnoses.
+  cannot bind it; `scope-bind` only diagnoses. An exact live pre-bind topology
+  mismatch from an older helper may use `recover-prebind-scope` with retained
+  scope-show, worktree-list, safety, and explicit-recovery evidence; it changes
+  only the proven topology request through CAS and preserves the predecessor.
 - In PR mode, set `TARGET_BRANCH`, `BASE_SHA`, `HEAD_BRANCH`, `HEAD_SHA`, and
   `MERGE_BASE` from the live PR. Fetch and verify the exact base/head refs
   without rewriting published history. Create the local head branch at the
@@ -175,70 +181,58 @@ owner `AGENTS.md`; do not duplicate procedures.
 ## Implement and publish or update PRs
 
 Implement requirements and owner tests/contracts. Commit/validate coherent
-Conventional checkpoints without rewriting published history. Reprove the
-helper's effective `origin` route, then run `git push origin HEAD_BRANCH` in the
-same scrubbed selector environment; reject HTTP, conceal URLs/credentials, and
-retain credential helpers.
+Conventional checkpoints without rewriting published history. Reprove `origin`,
+then run `git push origin HEAD_BRANCH` in the same scrubbed selector environment;
+reject HTTP, conceal URLs/credentials, and retain credential helpers. In issue
+mode, open one coherent draft per affected physical repository against
+`TARGET_BRANCH` (for example, `--base TARGET_BRANCH`) and verify each base; keep
+one canonical issue-closing path. In PR mode, update only the selected PR
+without changing base, head, draft, or valid linkage; Never convert an
+already-ready PR to draft; leave an already-ready PR ready and do not broaden
+its closing references.
 
-In issue mode, open one coherent draft per affected physical repository against
-its `TARGET_BRANCH` (for example, `--base TARGET_BRANCH`) and verify every
-returned base. Keep one unambiguous canonical issue-closing path. In PR mode,
-update only the selected PR without changing its base, head, draft state, or
-valid linkage as a shortcut. Never convert an already-ready PR to draft merely
-to replay this workflow. Preserve valid existing closing references and never
-invent or broaden them.
+Use `type(optional-scope): concise description` by default; add `!` only when a
+reviewer explicitly requests a breaking change. PR bodies must be substantive
+rendered GitHub-Flavored Markdown with actual line breaks, never literal `\n`
+separators. Include `Summary`, `Implementation / behavior`, `Validation`, and
+applicable `Limitations / follow-up`; an issue-closing line alone is
+insufficient. preserve contributor-authored text byte-for-byte and change only
+a separately delivery-owned section when authorized. Feed multi-section bodies
+by file/stdin. After creating or editing a pull request, inspect GitHub's
+rendered `bodyHTML`/`body_html`, not raw body; verify headings, lists, inline
+code, issue-closing references, and validation sections. Follow the ledger
+reference's coordinate-bound remote-write protocol; ledger-retain each exact
+initial PR/body/comment payload. A fresh contributor body is wholly read-only
+outside the helper-planned terminal delivery section; copied live markers grant
+no ownership. Refetch and verify rendered GFM/linkage after helper-bound updates.
 
-Use `type(optional-scope): concise description` for the title by default; add
-`!` only when a reviewer explicitly requests a breaking change. PR bodies must
-be substantive, rendered GitHub-Flavored Markdown
-with actual line breaks, never literal `\n` separators. Its minimum concise
-sections explain what changed and why (`Summary`), relevant implementation or
-behavior details (`Implementation / behavior`), validation and results
-(`Validation`), and limitations or follow-up when applicable
-(`Limitations / follow-up`). An issue-closing line alone is insufficient, while
-issue and pull-request reference syntax remains supported. Feed multi-section
-bodies by file/stdin. After creating or editing a pull request, inspect
-GitHub's rendered `bodyHTML`/`body_html`, not only the raw body; verify
-headings, lists, inline code, issue-closing references, and validation sections.
-Follow the ledger reference's coordinate-bound remote-write protocol:
-ledger-retain each exact initial PR/body/comment payload.
-
-For an existing contributor-owned PR, preserve contributor-authored text
-byte-for-byte. An agent may add or replace only the separately delivery-owned
-section when the helper ledger and ownership rules authorize it;
-copied live markers never grant ownership. Refetch and verify rendered GFM and
-linkage after the helper-bound update. A fresh contributor body is wholly
-read-only outside that helper-planned terminal delivery section; preserve every
-outside byte.
-
-Refetch bytes/timestamps and every marker match; CAS intent, refetch, then use
-only the helper-returned payload and bind its exact result. Cancel separately
-only after exact non-application proof and before drift. Zero comment matches
-permits one never-started post; reuse one exact actor-authored match.
-Wrong-author, malformed, duplicate, unexpected, or
-uncertain state stops without another post. Verify rendered GFM/linkage.
+Refetch bytes/timestamps and every marker; CAS intent, refetch, use only the
+helper payload, and bind its exact result. Cancel only after exact
+non-application proof and before drift. Zero comment matches permit one
+never-started post; reuse one exact actor-authored match. Wrong-author,
+malformed, duplicate, unexpected, or uncertain state stops. Verify rendered
+GFM/linkage.
 
 ## Review and fix to the exit condition
 
-Keep the helper ledger and separate human report current. Never commit or
-publish either or include credentials, confidential data, or unnecessary
-vulnerability detail.
+Keep the helper ledger and separate human report current; never commit/publish
+either or include credentials, confidential data, or unnecessary vulnerability
+detail.
 
 Read [the checklist](references/deep-review-checklist.md) in full. Review the
-complete current base-to-head diff against the selected issue and/or PR
-requirements. For non-trivial changes, give independent fresh-context reviewers
-the raw selected requirements and diff, not prior conclusions. Record stable
-finding IDs, evidence, resolution, status, fixing commit, and validation.
+complete current base-to-head diff against issue/PR requirements. For non-trivial
+changes, give independent fresh-context reviewers the raw requirements and diff,
+not prior conclusions. Record stable finding IDs, evidence, resolution, status,
+fixing commit, and validation.
 
 Fix every actionable finding, add useful tests, update the report, commit/push a
 checkpoint, rerun validation, then conduct a fresh whole-diff review. Repeat
 until a complete post-fix pass finds zero known actionable findings and none has
-reopened. Evidence any out-of-scope deferral. Keep GitHub feedback to one concise
-updated summary unless an inline note materially helps.
+reopened. Evidence out-of-scope deferrals; keep GitHub feedback concise.
 
 ## Verify with compatible resources
 
-Before provisioning, run the supported inventories as applicable:
+Before provisioning, run applicable supported inventories:
 
 ```sh
 ./atrinik status --json
@@ -251,62 +245,58 @@ Before provisioning, run the supported inventories as applicable:
 ```
 
 Reuse rather than recreate exact compatible profiles, stopped topologies,
-wrapper-owned state/data, or stopped/unlocked delivery scenarios. Prefer
-generation-owned temporary state; use named/default only for persistence or an
-existing account. Match immutable repository, branch, checkout, source,
-provider, commit, profile, generation, and owner to final HEAD; incomplete
-records are inert. Ordinary state must be test-safe with an appropriate account;
-never reset it.
+wrapper-owned state/data,
+or stopped/unlocked delivery scenarios. Prefer generation-owned temporary state;
+use named/default only for persistence or an existing account. Match immutable
+repository, branch, checkout, source, provider, commit, profile, generation,
+and owner to final HEAD; incomplete records are inert. Ordinary state must be
+test-safe with an appropriate account; never reset it.
 
-Let wrapper metadata choose generated paths/builds; never reconstruct, copy,
-edit, delete, or select internals. Never stop unrelated topologies, reset
-shared/default/external state, handcraft saves, or reuse/publish credentials.
-A disposable scenario password may appear only in local auto-login
-argv/client/Codex logs. Create a unique `basic-player` scenario only when
-interactive verification needs it and no exact delivery scenario exists; add a tested
-server-owned preset only when ordinary play is impractical.
+Let wrapper metadata choose paths/builds; never reconstruct, copy, edit, delete,
+or select internals. Never stop unrelated topologies, reset shared/default/
+external state, handcraft saves, or reuse/publish credentials. A disposable
+scenario password may appear only in local auto-login argv/client/Codex logs.
+Create a unique `basic-player` scenario only for interactive verification when
+no exact delivery scenario exists; add a tested server-owned preset only when
+ordinary play is impractical.
 
-For Classic, compose the runtime/scenario skills. Give exact profile, build,
+For Classic, compose the runtime/scenario skills and give exact profile, build,
 scenario, automatic-login topology, bounded logs, action/result, repeat,
 shutdown, cleanup, and state-policy commands. Initial `down` applies only to
-that topology; reset only delivery-owned data. State display/login
-prerequisites.
+that topology; reset only delivery-owned data; state display/login prerequisites.
 
 For replacement work, create or reuse a delivery profile selecting the final
-worktree and inspect current capabilities. While integrated adapters are
-absent, give owner-native validation plus supported profile/topology inspection,
-identify boundaries #266, #269, and #270, and never substitute Classic. If
-runtime is irrelevant, explain why and give exact applicable tests. Put the
-same exact capability-aware recipe in a concise PR update and final handoff.
+worktree and inspect capabilities. While integrated adapters are absent, give
+owner-native validation plus supported profile/topology inspection, identify
+boundaries #266, #269, and #270, and never substitute Classic. If runtime is
+irrelevant, give exact applicable tests and the same capability-aware recipe in
+the concise PR update and final handoff.
 
 ## Finish only on final HEAD
 
-Refetch every selected or delivery-created PR and its exact target and head
-refs. Recheck the complete diff, commits, mergeability, draft state, base and
-head repositories, branches and SHAs, linkage, review threads/comments, and
-expected checks; recompute every merge base. Any target/base/head or merge-base
-drift invalidates the affected review, validation, and checks and restarts the
-shared convergence loop at the new recorded coordinates.
+Refetch every selected or delivery-created PR and exact target/head refs. Recheck
+the complete diff, commits, mergeability, draft, repositories, branches, SHAs,
+linkage, review threads/comments, and expected checks; recompute every merge
+base. Any target/base/head or merge-base drift invalidates the affected review,
+validation, and checks and restarts the shared convergence loop at the new
+recorded coordinates.
 
 Wait for all expected pre-readiness checks; required and applicable optional
-checks must pass. Explain skipped/neutral checks and block on an expected
-missing, failed, or cancelled check. Only after stable final coordinates, final
-validation, a zero-finding review, all such checks pass, and live mergeability
-is determinate and conflict-free with no non-human blocker other than draft
-state may a draft be marked ready; leave an already-ready PR ready. Unknown or
-conflicting mergeability and any other non-human blocker wait or block. Requery
-after a ready transition, recheck mergeability, and wait for any expected checks
-it triggers. Report required human approval as a blocker rather than claiming
-literal merge eligibility. New actionable feedback restarts the fix,
-validation, and whole-diff loop. Missing human approval blocks merging, not the
-ready transition after the stated exit conditions pass.
+checks must pass. Explain skipped/neutral checks and block on missing, failed,
+or cancelled checks. Only after stable final coordinates, final validation, a
+zero-finding review, all such checks pass, and live mergeability is determinate
+and conflict-free with no non-human blocker other than draft state may a draft
+be marked ready. Unknown or conflicting mergeability blocks. Requery after
+ready, recheck mergeability, and wait for checks it triggers. Report required
+human approval as a blocker, not literal merge eligibility; new actionable
+feedback restarts the fix/validation/review loop. Missing human approval blocks
+merging, not the ready transition.
 
-Hand off the PR URLs and exact per-target bases, head repositories, branches,
-SHAs, merge bases, commits, worktrees, review findings, validation/checks,
-mergeability, runtime applicability, resources,
-verification/repeat/shutdown/cleanup commands, and blockers or `none`. Include
-issue URLs, claim state, and the canonical closing path only when issues
-actually exist; do not fabricate placeholders.
+Hand off PR URLs, exact per-target bases, repositories, branches, SHAs, merge
+bases, commits, worktrees, findings, validation/checks, mergeability, runtime
+applicability, resources, verification/repeat/shutdown/cleanup commands, and
+blockers or `none`. Include issue URLs, claim state, and canonical closing paths
+only when issues actually exist; do not fabricate placeholders.
 
 Keep issues open, PRs unmerged, and evidence preserved. A separate post-merge
 request must follow the ledger reference's terminal lifecycle; delivery grants

@@ -12,6 +12,7 @@ the ownership and recovery boundary.
 - [Create a fresh issue ledger](#create-a-fresh-issue-ledger)
 - [Create a fresh PR ledger](#create-a-fresh-pr-ledger)
 - [Provision a scope-produced worktree](#provision-a-scope-produced-worktree)
+- [Recover one exact live pre-bind topology mismatch](#recover-one-exact-live-pre-bind-topology-mismatch)
 - [Create, inspect, and update](#create-inspect-and-update)
 - [Bind a created PR](#bind-a-created-pr)
 - [Plan and recover body updates](#plan-and-recover-body-updates)
@@ -123,6 +124,11 @@ python3 scripts/delivery_ledger.py scope-bind-cas REVIEW_ROOT LEDGER_NAME SLOT_I
   --expected-device DEVICE --expected-inode INODE
 python3 scripts/delivery_ledger.py recover-released-scope REVIEW_ROOT LEDGER_NAME \
   REPLACEMENT_LEDGER_JSON RELEASED_SCOPE_SHOW_JSON RECOVERY_AUTHORITY_JSON \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-device DEVICE --expected-inode INODE
+python3 scripts/delivery_ledger.py recover-prebind-scope REVIEW_ROOT LEDGER_NAME \
+  REPLACEMENT_LEDGER_JSON SCOPE_SHOW_JSON WORKTREE_LIST_JSON SAFETY_JSON \
+  RECOVERY_AUTHORITY_JSON \
   --expected-generation GENERATION --expected-digest SHA256 \
   --expected-device DEVICE --expected-inode INODE
 python3 scripts/delivery_ledger.py pr-create-payload REVIEW_ROOT LEDGER_NAME SLOT_ID
@@ -484,6 +490,14 @@ name/repository/branch/start commit must match resource, target, and produced
 artifact intent. Scope `binding` retains raw scope-show bytes. Its `observation`
 has exact retained `worktree_list` and `safety_observation` members governed by
 the same fresh-live-evidence contract above.
+
+For every newly prepared generation, a scope request's topology is exactly
+`scope-<name>`. `prepare` rejects a non-canonical scope topology before a new
+ledger generation can be installed, while `validate` remains readable for
+historical pre-bind ledgers so their evidence can be inspected and recovered.
+The wrapper derives the same profile/topology namespace and scope-show paths;
+ordinary bind/observe operations reject a legacy mismatch rather than silently
+rewriting it.
 
 Resource observation generation starts at 1; its history has exactly
 `generation - 1` SHA-256 values. The external generation is required only for
@@ -1231,6 +1245,12 @@ wrapper/workspace/primary directory identities. Require successful create exit
 and preserve its capture. Repeat the exact command for an idempotent completed
 resume; partial/released/mismatched state stops.
 
+The canonical namespace is derived before publication: the profile is
+`scope-<name>` and the topology is also `scope-<name>`, with its path directly
+under `workspace/topologies/`. The optional CLI topology override is accepted
+only when it equals that value. The persisted request, scope-show record,
+commands, and all generated paths must carry the same canonical name.
+
 Use `scope show`, not an internal path, as the identity surface. From one fresh
 `inspect`, set the four `DELIVERY_EXPECTED_*` values used below:
 
@@ -1325,6 +1345,42 @@ Wrong branches, heads, repositories, roots, duplicate coordinates, stale
 release evidence, changed authority, or a generic/manual edit fail closed.
 The predecessor digest remains in the successor history; never delete,
 overwrite, or hand-edit either ledger or release evidence.
+
+### Recover one exact live pre-bind topology mismatch
+
+If an older helper or a crash left a planned, unbound scope request with a
+non-canonical topology while the live scope already uses `scope-<name>`, do not
+edit the ledger or delete the scope. Preserve one exact predecessor
+`generation/digest/device/inode` tuple and the raw `scope show`, complete
+worktree-list, and helper-produced safety observation. The live scope must be
+active, complete, unreleased, and exactly owned; released, partial, ambiguous,
+changed, or unsafe evidence is rejected.
+
+Prepare a generation-2 candidate with the same issue/target, scope slot,
+component, profile, physical checkout, label, branch, start commit, roots, and
+planned state. Change only the request topology to `scope-<name>` and add an
+`explicit-recovery` authority. The recovery authority must bind the exact
+predecessor tuple, all old scope coordinates, the canonical observed topology,
+the three raw evidence digests, the candidate digest, and an objective digest
+of those values. Run:
+
+```sh
+python3 scripts/delivery_ledger.py recover-prebind-scope \
+  REVIEW_ROOT LEDGER_NAME REPLACEMENT_LEDGER_JSON \
+  SCOPE_SHOW_JSON WORKTREE_LIST_JSON SAFETY_JSON RECOVERY_AUTHORITY_JSON \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-device DEVICE --expected-inode INODE
+```
+
+The helper verifies the retained scope and raw evidence, pins the exact
+worktree and canonical topology directory under workspace leases, then repeats
+that proof immediately before one tagged CAS. A candidate that changes any
+field outside topology/authority, a stale tuple, release journal, existing
+ambiguous coordinate, or non-canonical observation fails closed. If a crash
+occurs after the ledger rename, rerun the same command with the original
+predecessor tuple; the durable post-rename proof completes the transaction and
+the predecessor digest remains in `history`. Once that receipt is consumed, a
+newer tuple is required and an ordinary retry is rejected.
 
 ## Create, inspect, and update
 
@@ -1857,7 +1913,7 @@ stop for code-level recovery; never improvise file repair.
 | Complete migration | `inventory` and `inspect`; require source/snapshot/marker/ledger coherence and no pending stage. |
 | Planned PR slot after remote create uncertainty | Recover the immutable initial bytes with `pr-create-payload`, search live candidates, and use `bind-check`; bind one exact match only. Zero or a mismatch never permits another uncertain create. |
 | Planned primitive branch/worktree after an uncertain local mutation | Reinspect the exact branch and wrapper registration. For one present exact worktree, capture a fresh list, use `worktree-observe`, then run `worktree-bind-cas` with one fresh four-part tuple. Retain manifest-owner create output; omit it only for wrapper-self raw Git or genuinely unretained recovery. The atomic command reproves before CAS. An exact still-absent artifact permits only the original planned operation. Mismatch or uncertainty stops; an adopted worktree requires the branch already bound. |
-| Fresh issue planned scope after uncertain `scope create` | Rerun the exact idempotent create request, retain exact scope-show/list bytes, derive safety with `scope-observe`, then run `scope-bind-cas` with one fresh four-part tuple. It must atomically install the one scope/branch/worktree result; physical-checkout selectors and logical-component selectors are both accepted when they resolve to one exact checkout; partial, released, changed, referenced, or cross-checkout state stops. A released mistaken scope is terminal evidence and requires release/reinitialize, not in-place request mutation. |
+| Fresh issue planned scope after uncertain `scope create` | Rerun the exact idempotent create request, retain exact scope-show/list bytes, derive safety with `scope-observe`, then run `scope-bind-cas` with one fresh four-part tuple. It must atomically install the one scope/branch/worktree result; physical-checkout selectors and logical-component selectors are both accepted when they resolve to one exact checkout; partial, released, changed, referenced, or cross-checkout state stops. A live canonical scope with a legacy planned topology request is handled only by the explicit `recover-prebind-scope` evidence/CAS path; a released mistaken scope is terminal evidence and requires release/reinitialize, not in-place request mutation. |
 | Body `update-planned` | Run `body-recovery` with one digest/timestamp observation. Refresh a newer exact-current observation first; apply only returned durable bytes, bind equal-or-later intended bytes, or cancel only on exact proven non-application. Other live bytes stop. |
 | Comment `planned` | Run `comment-check`; CAS unchanged digest/payload intent to in-flight before any write, or separately cancel only after exact non-application proof. |
 | First comment `in-flight` | Fully paginate; bind one exact intended actor-owned result. No match is uncertain and cannot be retried. |

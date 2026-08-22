@@ -262,36 +262,23 @@ def scope_show_bytes(
     manifest = Manifest.from_value(wrapper_manifest)
     stack_name = request["profile"]
     stack = manifest.stack(stack_name)
-    selected_checkout = request["component"] == request["physical_checkout"]
-    logical_components = (
-        sorted(
-            component.name
-            for component in stack.components
-            if component.checkout_name == request["physical_checkout"]
-        )
-        if selected_checkout
-        else [request["component"]]
+    logical_components = sorted(
+        component.name
+        for component in stack.components
+        if component.checkout_name == request["physical_checkout"]
     )
     profile_components = {
         component: {
             "kind": (
                 "worktree"
-                if (
-                    selected_checkout
-                    and manifest.by_name[component].checkout_name
-                    == request["physical_checkout"]
-                )
-                or component == request["component"]
+                if manifest.by_name[component].checkout_name
+                == request["physical_checkout"]
                 else "primary"
             ),
             "value": (
                 request["label"]
-                if (
-                    selected_checkout
-                    and manifest.by_name[component].checkout_name
-                    == request["physical_checkout"]
-                )
-                or component == request["component"]
+                if manifest.by_name[component].checkout_name
+                == request["physical_checkout"]
                 else ""
             ),
         }
@@ -8695,7 +8682,6 @@ class DeliveryLedgerTests(unittest.TestCase):
                     label=f"released-{index}",
                     branch=f"fix/issue-482-released-{index}",
                     start_sha=start_sha,
-                    topology=f"released-{index}",
                     roots=roots,
                 )
                 observed_request = copy.deepcopy(old_request)
@@ -8774,7 +8760,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                         "component": observed_selector,
                         "profile": "classic",
                         "physical_checkout": "classic",
-                        "topology": f"recovered-{index}",
+                        "topology": f"scope-issue-482-recovered-{index}",
                         "label": f"recovered-{index}",
                         "branch": old_request["branch"],
                         "start_sha": start_sha,
@@ -8878,6 +8864,204 @@ class DeliveryLedgerTests(unittest.TestCase):
                         replacement["name"],
                     )
                     self.assertEqual(recovered.document["history"], [initial.digest])
+
+    def test_43e_recover_prebind_scope_topology_mismatch_is_exact_and_retryable(self) -> None:
+        classic_repository = repository("classic", "R_classic")
+        for index, component in enumerate(("classic-server", "classic-client")):
+            with self.subTest(component=component):
+                roots = live_roots(
+                    self.live_base / f"classic-prebind-{index}", "classic"
+                )
+                start_sha = git_head(roots)
+                name = f"issue-494-prebind-{index}"
+                canonical_topology = f"scope-{name}"
+                canonical_request = scope_request(
+                    name=name,
+                    component=component,
+                    profile="classic",
+                    checkout="classic",
+                    label=f"prebind-{index}",
+                    branch=f"fix/issue-494-prebind-{index}",
+                    start_sha=start_sha,
+                    roots=roots,
+                )
+                live_worktree_path(canonical_request)
+                workspace = Path(roots["workspace"]["path"])
+                (workspace / "topologies" / canonical_topology).mkdir(
+                    parents=True, exist_ok=True
+                )
+                scope_show = scope_show_bytes(
+                    canonical_request, repository_name="atrinik/classic"
+                )
+                install_scope_references(canonical_request, scope_show)
+                worktree_list = worktree_list_bytes(canonical_request)
+                document = issue_ledger(
+                    number=494,
+                    issue_node=f"I_issue_494_prebind_{index}",
+                    branch=canonical_request["branch"],
+                )
+                document["resources"] = [scope_resource(canonical_request)]
+                worktree = next(
+                    slot
+                    for slot in document["artifacts"]
+                    if slot["kind"] == "worktree"
+                )
+                worktree["immutable"]["path"] = None
+                worktree["primitive_request"] = None
+                worktree["producer_resource_slot"] = "scope"
+                retarget_repository(document, classic_repository)
+                replace_sha(document, SHA_A, start_sha)
+                observation = ledger.observe_scope_worktree(
+                    document,
+                    "scope",
+                    scope_show,
+                    worktree_list,
+                    "2026-08-22T06:40:00Z",
+                )
+                safety_observation = json_bytes(observation)
+
+                with tempfile.TemporaryDirectory() as temporary:
+                    review_root = Path(temporary)
+                    created = ledger.create(review_root, document)
+                    legacy_document = copy.deepcopy(created.document)
+                    legacy_topology = f"legacy-{name}"
+                    legacy_document["resources"][0]["request"][
+                        "topology"
+                    ] = legacy_topology
+                    legacy_raw = ledger.canonical_bytes(legacy_document)
+                    (review_root / created.name).write_bytes(legacy_raw)
+                    predecessor = ledger.inspect(review_root, created.name)
+                    self.assertEqual(predecessor.raw, legacy_raw)
+                    self.assertEqual(ledger.validate(legacy_document), legacy_document)
+                    with self.assertRaisesRegex(
+                        ledger.LedgerError, "must be canonical"
+                    ):
+                        ledger.prepare(legacy_document)
+
+                    candidate = next_generation(predecessor)
+                    candidate["resources"][0]["request"][
+                        "topology"
+                    ] = canonical_topology
+                    candidate["authority"] = {
+                        "kind": "explicit-recovery",
+                        "reference": "recovery:issue-494-prebind-scope-topology",
+                        "objective_sha256": "0" * 64,
+                        "issued_at": "2026-08-22T06:41:00Z",
+                        "actor_node_id": predecessor.document["actor"]["node_id"],
+                        "allowed": copy.deepcopy(
+                            predecessor.document["authority"]["allowed"]
+                        ),
+                    }
+                    source = {
+                        "name": predecessor.name,
+                        "ledger_id": predecessor.document["ledger_id"],
+                        "generation": predecessor.document["generation"],
+                        "sha256": predecessor.digest,
+                        "device": predecessor.device,
+                        "inode": predecessor.inode,
+                    }
+                    scope_evidence = {
+                        "name": name,
+                        "component": component,
+                        "profile": "classic",
+                        "physical_checkout": "classic",
+                        "topology": legacy_topology,
+                        "label": canonical_request["label"],
+                        "branch": canonical_request["branch"],
+                        "start_sha": start_sha,
+                        "scope_show_sha256": ledger.byte_digest(scope_show),
+                        "worktree_list_sha256": ledger.byte_digest(worktree_list),
+                        "safety_observation_sha256": ledger.byte_digest(
+                            safety_observation
+                        ),
+                    }
+                    recovery = {
+                        "transaction": "delivery-ledger-recover-prebind-scope-v1",
+                        "source": source,
+                        "scope": scope_evidence,
+                        "observed_topology": canonical_topology,
+                        "candidate_sha256": "0" * 64,
+                        "authority": candidate["authority"],
+                    }
+                    candidate["authority"]["objective_sha256"] = (
+                        ledger.canonical_object_digest(
+                            {
+                                "operation": "recover-prebind-scope",
+                                "source": source,
+                                "scope": scope_evidence,
+                                "observed_topology": canonical_topology,
+                            }
+                        )
+                    )
+                    candidate = ledger.prepare(candidate)
+                    recovery["authority"] = candidate["authority"]
+                    recovery["candidate_sha256"] = ledger.byte_digest(
+                        ledger.canonical_bytes(candidate)
+                    )
+                    recovery_raw = ledger.canonical_bytes(recovery)
+
+                    unsafe = copy.deepcopy(candidate)
+                    unsafe["resources"][0]["request"]["label"] = "unsafe-label"
+                    unsafe = ledger.prepare(unsafe)
+                    unsafe_recovery = copy.deepcopy(recovery)
+                    unsafe_recovery["candidate_sha256"] = ledger.byte_digest(
+                        ledger.canonical_bytes(unsafe)
+                    )
+                    with self.assertRaisesRegex(
+                        ledger.LedgerError, "changed fields outside topology"
+                    ):
+                        ledger.recover_prebind_scope(
+                            review_root,
+                            predecessor.name,
+                            unsafe,
+                            scope_show,
+                            worktree_list,
+                            safety_observation,
+                            ledger.canonical_bytes(unsafe_recovery),
+                            **cas_arguments(predecessor),
+                        )
+                    self.assertEqual(ledger.inspect(review_root, predecessor.name).raw, legacy_raw)
+
+                    with self.assertRaises(ledger.InjectedCrash):
+                        ledger.recover_prebind_scope(
+                            review_root,
+                            predecessor.name,
+                            candidate,
+                            scope_show,
+                            worktree_list,
+                            safety_observation,
+                            recovery_raw,
+                            failpoint="cas:renamed",
+                            **cas_arguments(predecessor),
+                        )
+                    resumed = ledger.recover_prebind_scope(
+                        review_root,
+                        predecessor.name,
+                        candidate,
+                        scope_show,
+                        worktree_list,
+                        safety_observation,
+                        recovery_raw,
+                        **cas_arguments(predecessor),
+                    )
+                    self.assertEqual(resumed.document["generation"], 2)
+                    self.assertEqual(
+                        resumed.document["resources"][0]["request"]["topology"],
+                        canonical_topology,
+                    )
+                    self.assertEqual(resumed.document["history"], [predecessor.digest])
+                    self.assertEqual(ledger.inventory(review_root).pending, ())
+                    with self.assertRaisesRegex(ledger.LedgerError, "proof|stale"):
+                        ledger.recover_prebind_scope(
+                            review_root,
+                            predecessor.name,
+                            candidate,
+                            scope_show,
+                            worktree_list,
+                            safety_observation,
+                            recovery_raw,
+                            **cas_arguments(predecessor),
+                        )
 
     def test_43c_disjoint_classic_scope_binds_concurrently(self) -> None:
         classic_repository = repository("classic", "R_classic")
