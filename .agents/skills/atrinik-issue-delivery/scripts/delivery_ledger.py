@@ -7574,6 +7574,18 @@ def _pr_binding_remote(
     }
 
 
+def _pr_binding_pull_equal(
+    left: Mapping[str, Any], right: Mapping[str, Any]
+) -> bool:
+    """Compare pull identity while ignoring comment-only PR timestamps."""
+
+    left_value = copy.deepcopy(left)
+    right_value = copy.deepcopy(right)
+    left_value["body"]["updated_at"] = None
+    right_value["body"]["updated_at"] = None
+    return left_value == right_value
+
+
 def _pr_binding_remote_equal(
     left: Mapping[str, Any], right: Mapping[str, Any]
 ) -> bool:
@@ -7581,9 +7593,9 @@ def _pr_binding_remote_equal(
 
     left_value = copy.deepcopy(left)
     right_value = copy.deepcopy(right)
-    left_value["pull"]["body"]["updated_at"] = None
-    right_value["pull"]["body"]["updated_at"] = None
-    return left_value == right_value
+    left_pull = left_value.pop("pull")
+    right_pull = right_value.pop("pull")
+    return _pr_binding_pull_equal(left_pull, right_pull) and left_value == right_value
 
 
 def _pr_binding_coordinates(
@@ -7676,7 +7688,7 @@ def _pr_binding_classification(
     current = slot["current"]
     if (
         len(selected) != 1
-        or selected[0] != pull
+        or not _pr_binding_pull_equal(selected[0], pull)
         or current["number"] != pull["number"]
         or current["node_id"] != pull["node_id"]
         or current["head_sha"] != remote["head_sha"]

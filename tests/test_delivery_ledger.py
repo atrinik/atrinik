@@ -4711,7 +4711,23 @@ class DeliveryLedgerTests(unittest.TestCase):
                     500,
                     **cas_arguments(bound),
                 )
-                bound = ledger.inspect(root, bound.name)
+            bound = ledger.inspect(root, bound.name)
+            with mock.patch.object(
+                ledger,
+                "_gh_json",
+                side_effect=gh_observer(
+                    live_pr(value, updated_at="2026-08-14T18:01:00Z"),
+                    {
+                        1: [
+                            {
+                                "node_id": "I_post_bind_reviewer",
+                                "body": "A reviewer comment arrived after binding.",
+                                "user": {"login": "reviewer", "type": "User"},
+                            }
+                        ]
+                    },
+                ),
+            ):
                 repeated = ledger.bind_pr_cas(
                     root,
                     bound.name,
