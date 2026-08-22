@@ -65,10 +65,18 @@
   profile. Only aggregate-root workflows and Dependabot are active.
 - Commits and PR titles use `type(optional-scope): concise description` by
   default. Add `!` only when a reviewer explicitly requests a breaking change;
-  not auto. Bodies use GitHub-Flavored Markdown and actual
-  line breaks, never literal `\n` separators. Feed multi-section bodies by
-  file/stdin; after create/edit, verify remote. Use `atrinik-github-governance`
-  for PRs. Semantic-release owns branch-aware tags; see `CONTRIBUTING.md`.
+  not auto. PR bodies must be substantive, rendered GitHub-Flavored Markdown
+  with actual line breaks, never literal `\n` separators:
+  the minimum uses concise `Summary`, `Implementation / behavior`, and
+  `Validation` sections, plus `Limitations / follow-up` when applicable, to
+  explain what changed and why, relevant behavior details, and results. An
+  issue-closing line alone is insufficient; preserve issue/PR
+  reference syntax. Existing PR updates must preserve contributor-authored text
+  byte-for-byte under the delivery-owned section rules. Feed multi-section
+  bodies by file/stdin; after create/edit, verify the rendered remote body.
+  Use
+  `atrinik-github-governance` for PRs. Semantic-release owns branch-aware tags;
+  see `CONTRIBUTING.md`.
 
 ## Working agreements and commands
 

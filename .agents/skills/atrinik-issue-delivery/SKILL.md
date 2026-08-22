@@ -188,11 +188,28 @@ valid linkage as a shortcut. Never convert an already-ready PR to draft merely
 to replay this workflow. Preserve valid existing closing references and never
 invent or broaden them.
 
-Use a Conventional title and newline-preserving GFM. Follow the ledger
-reference's coordinate-bound remote-write protocol: ledger-retain each exact
-initial PR/body/comment payload. A fresh contributor
-body is wholly read-only outside one helper-planned terminal delivery section;
-live markers grant nothing; preserve every outside byte.
+Use `type(optional-scope): concise description` for the title by default; add
+`!` only when a reviewer explicitly requests a breaking change. PR bodies must
+be substantive, rendered GitHub-Flavored Markdown
+with actual line breaks, never literal `\n` separators. Its minimum concise
+sections explain what changed and why (`Summary`), relevant implementation or
+behavior details (`Implementation / behavior`), validation and results
+(`Validation`), and limitations or follow-up when applicable
+(`Limitations / follow-up`). An issue-closing line alone is insufficient, while
+issue and pull-request reference syntax remains supported. Feed multi-section
+bodies by file/stdin. After creating or editing a pull request, inspect
+GitHub's rendered `bodyHTML`/`body_html`, not only the raw body; verify
+headings, lists, inline code, issue-closing references, and validation sections.
+Follow the ledger reference's coordinate-bound remote-write protocol:
+ledger-retain each exact initial PR/body/comment payload.
+
+For an existing contributor-owned PR, preserve contributor-authored text
+byte-for-byte. An agent may add or replace only the separately delivery-owned
+section when the helper ledger and ownership rules authorize it;
+copied live markers never grant ownership. Refetch and verify rendered GFM and
+linkage after the helper-bound update. A fresh contributor body is wholly
+read-only outside that helper-planned terminal delivery section; preserve every
+outside byte.
 
 Refetch bytes/timestamps and every marker match; CAS intent, refetch, then use
 only the helper-returned payload and bind its exact result. Cancel separately
