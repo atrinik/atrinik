@@ -113,10 +113,11 @@ owner `AGENTS.md`; do not duplicate procedures.
   issue/Project mutations. Such a PR is complete; never create a placeholder or
   broaden its closing scope.
 - For content, author only on `main` and validate every affected target and
-  consumer. The retired `1.x` line, artifacts, and local paths are immutable
-  migration/release evidence; never publish a new `1.x` PR. A content `main`
-  PR may close an explicitly selected issue when merged, but leave every issue
-  open for maintainers.
+  consumer. The former `1.x` branch no longer exists as a live delivery target;
+  its tags, artifacts, and local paths are immutable migration/release
+  evidence. Never recreate it, publish a new `1.x` PR, or request a backport
+  there. A content `main` PR may close an explicitly selected issue when
+  merged, but leave every issue open for maintainers.
 
 - In issue mode, set `TARGET_BRANCH` to the explicit or manifest/live target,
   fetch it, record exact `BASE_SHA`, and choose safe lowercase

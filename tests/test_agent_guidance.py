@@ -715,14 +715,16 @@ class AgentGuidanceTests(unittest.TestCase):
         for marker in {
             "`content@main` is the sole authored source",
             "select the target-specific publisher",
-            "never edit or create a PR against the retired `1.x` line",
+            "never edit, recreate, or create a PR against the former `1.x` line",
+            "Classic-target artifact generated from it",
         }:
             with self.subTest(surface="content", marker=marker):
                 self.assertIn(marker, content)
         for marker in {
             "author only on `main`",
             "validate every affected target and consumer",
-            "never publish a new `1.x` PR",
+            "former `1.x` branch no longer exists as a live delivery target",
+            "request a backport there",
             "A content `main` PR may close an explicitly selected issue",
             "per-target bases",
         }:
@@ -732,6 +734,25 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("cross-repository or cross-line", checklist)
         self.assertIn("Issue-closing path", report)
         self.assertIn("manual post-merge close", checklist)
+
+    def test_issue_authoring_contract_names_supported_content_path(self) -> None:
+        root_guide = " ".join(
+            (ROOT / "AGENTS.md").read_text(encoding="utf-8").split()
+        )
+        contributing = " ".join(
+            (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8").split()
+        )
+        for surface in (root_guide, contributing):
+            for marker in {
+                "content@main",
+                "Classic-target artifact",
+                "historical evidence",
+                "release label",
+                "backport destination",
+            }:
+                with self.subTest(surface=surface[:24], marker=marker):
+                    self.assertIn(marker, surface)
+        self.assertIn("python3 -m atrinik_workspace.issue_contract PATH", contributing)
 
     def test_program_delivery_is_explicit_and_merge_gated(self) -> None:
         skill = ROOT / ".agents/skills/atrinik-program-delivery"

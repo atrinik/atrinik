@@ -7,9 +7,11 @@ description: Change authored content on `main`, including maps, archetypes, medi
 
 `content@main` is the sole authored source for replacement and Classic targets.
 Use a `content` worktree and select the target-specific publisher during
-validation; never edit or create a PR against the retired `1.x` line. Retained
-`content-1x` checkouts, artifacts, and records are immutable migration or
-release evidence. Add `atrinik-multi-repo-workspace` for cross-repository work.
+validation; never edit, recreate, or create a PR against the former `1.x`
+line. Retained `content-1x` checkouts, artifacts, and records are immutable
+migration or release evidence. When drafting a linked content/Classic issue,
+name `content@main` and the Classic-target artifact generated from it. Add
+`atrinik-multi-repo-workspace` for cross-repository work.
 
 ## Establish the contract
 

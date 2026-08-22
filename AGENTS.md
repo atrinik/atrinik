@@ -22,9 +22,11 @@
   `build/` are ignored generated state, so root status omits them.
 - Resolve ownership through `components.json` and the checkout's nearest
   `AGENTS.md`; keep implementation, tests, packages, and releases there.
-- `classic/` provides `classic-*`; stacks share `content@main`; `content-1x/`
-  is historical; `playtester/` is classic-only. `tools/` is MIT-default except
-  GPL-2.0-or-later `map-checker-qt/` (`LicenseRef-Atrinik-Tools-Mixed`).
+- `classic/` provides `classic-*`; stacks share `content@main`. `content-1x/`
+  and the former 1.x branch are historical only: preserve any local migration
+  evidence, but never select, recreate, or backport delivery to them.
+  `playtester/` is classic-only. `tools/` is MIT-default except GPL-2.0-or-later
+  `map-checker-qt/` (`LicenseRef-Atrinik-Tools-Mixed`).
 
 ## Core behaviors and patterns
 
@@ -61,6 +63,10 @@
 - Update `supply-chain/inventory.json` when dependency ownership/validation
   changes. Keep Actions/images immutable, add no submodules, and audit a full
   profile; only aggregate-root workflows and Dependabot are active.
+- New content/Classic issues name `content@main` and its Classic-target
+  artifact. No live 1.x branch, checkout, release label, maintenance line,
+  publication target, or backport destination exists; historical evidence is
+  immutable.
 - Commits and PR titles use `type(optional-scope): concise description`; add
   `!` only when a reviewer explicitly requests a breaking change, not auto.
   PR bodies must be substantive rendered GitHub-Flavored Markdown with actual

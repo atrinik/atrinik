@@ -39,6 +39,17 @@ that transfer clear; otherwise open a main-targeted pull request carrying the
 equivalent change. Do not merge `main` back into a maintenance branch, because
 that can introduce commits outside its patch range.
 
+## Issue authoring contract
+
+New content and Classic issue drafts must name `content@main` as the sole
+authored source and identify the Classic-target artifact generated from it.
+Do not request the retired `1.x` branch, checkout, release label, maintenance
+line, publication target, or backport destination. The former line is
+historical evidence only: tags, releases, provenance, parity records, and
+preserved migration snapshots remain valid but immutable. Before publishing a
+draft, run `python3 -m atrinik_workspace.issue_contract PATH` and fix every
+reported active retired-line requirement.
+
 PR bodies must be substantive, renderable GitHub-Flavored Markdown with actual
 line breaks, never visible literal `\n` separators. The minimum body uses
 concise sections for:
