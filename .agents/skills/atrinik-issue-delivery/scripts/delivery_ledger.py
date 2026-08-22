@@ -41,6 +41,10 @@ MAX_RETAINED_RESULT_BYTES = 512 * 1024
 MAX_INVENTORY_ENTRIES = 4096
 MAX_INVENTORY_BYTES = 32 * 1024 * 1024
 MAX_ARCHIVE_BYTES = 16 * 1024 * 1024
+PR_BIND_COMMENT_PAGE_SIZE = 100
+MAX_PR_BIND_COMMENT_PAGES = MAX_INVENTORY_ENTRIES
+MAX_PR_BIND_COMMENT_ENTRIES = MAX_INVENTORY_ENTRIES
+MAX_PR_BIND_COMMENT_BODY_BYTES = MAX_RETAINED_RESULT_BYTES
 LEDGER_SUFFIX = ".md.ledger.json"
 ENTRY_MODES = {"issue", "pr"}
 ARTIFACT_KINDS = {"branch", "worktree", "pull_request"}
@@ -7391,6 +7395,72 @@ def classify_pr_binding(
     return "bind-exact"
 
 
+def _observe_pr_binding_comments(owner: str, name: str, number: int) -> None:
+    """Prove all pre-bind comments are ordinary external comments."""
+
+    seen_nodes: set[str] = set()
+    total = 0
+    for page_number in range(1, MAX_PR_BIND_COMMENT_PAGES + 1):
+        page = _gh_json(
+            (
+                "api",
+                "--hostname",
+                "github.com",
+                f"repos/{owner}/{name}/issues/{number}/comments?"
+                f"per_page={PR_BIND_COMMENT_PAGE_SIZE}&page={page_number}",
+            ),
+            f"PR binding comments page {page_number} for pull request {number}",
+        )
+        if not isinstance(page, list):
+            raise LedgerError(
+                f"PR binding comment page {page_number} is not an array"
+            )
+        if len(page) > PR_BIND_COMMENT_PAGE_SIZE:
+            raise LedgerError(
+                f"PR binding comment page {page_number} exceeds the page size"
+            )
+        total += len(page)
+        if total > MAX_PR_BIND_COMMENT_ENTRIES:
+            raise LedgerError("PR binding comment pagination exceeds the bounded limit")
+        for index, raw_comment in enumerate(page):
+            if not isinstance(raw_comment, dict):
+                raise LedgerError(
+                    f"PR binding comment page {page_number} entry {index} is not an object"
+                )
+            body = raw_comment.get("body")
+            if not isinstance(body, str):
+                raise LedgerError(
+                    f"PR binding comment page {page_number} entry {index} has an invalid body"
+                )
+            try:
+                body_raw = body.encode("utf-8")
+            except UnicodeError as error:
+                raise LedgerError(
+                    f"PR binding comment page {page_number} entry {index} has invalid UTF-8"
+                ) from error
+            if len(body_raw) > MAX_PR_BIND_COMMENT_BODY_BYTES:
+                raise LedgerError(
+                    f"PR binding comment page {page_number} entry {index} is too large"
+                )
+            node = _string(
+                raw_comment.get("node_id"),
+                f"PR binding comment page {page_number} entry {index}.node_id",
+                NODE_RE,
+            )
+            if node in seen_nodes:
+                raise LedgerError("PR binding comment pagination contains duplicate nodes")
+            seen_nodes.add(node)
+            # Before the selected PR is recorded, no comment marker can be
+            # proven to belong to this delivery coordinate.
+            if "atrinik-delivery:comment:" in body:
+                raise LedgerError(
+                    "PR binding found a delivery-owned or malformed comment marker"
+                )
+        if len(page) < PR_BIND_COMMENT_PAGE_SIZE:
+            return
+    raise LedgerError("PR binding comment pagination did not reach a bounded final page")
+
+
 def _pr_binding_remote(
     document: Mapping[str, Any], target: Mapping[str, Any], pr_number: int
 ) -> dict[str, Any]:
@@ -7464,29 +7534,7 @@ def _pr_binding_remote(
         live.get("updated_at"), "PR binding PR updated_at", TIMESTAMP_RE
     )
     _timestamp_key(updated_at, "PR binding PR updated_at")
-    comments = _gh_json(
-        (
-            "api",
-            "--hostname",
-            "github.com",
-            f"repos/{owner}/{name}/issues/{number}/comments?per_page=1",
-        ),
-        f"PR binding comments for pull request {number}",
-    )
-    if not isinstance(comments, list):
-        raise LedgerError("PR binding comment pagination is not an array")
-    if comments and all(isinstance(page, list) for page in comments):
-        has_comments = any(bool(page) for page in comments)
-    elif comments and all(isinstance(comment, dict) for comment in comments):
-        # This is accepted for test doubles and older gh versions that return a
-        # single page without --slurp; any non-empty result is still unsafe.
-        has_comments = True
-    elif comments:
-        raise LedgerError("PR binding comment pagination has an invalid page")
-    else:
-        has_comments = False
-    if has_comments:
-        raise LedgerError("PR binding found external PR comments")
+    _observe_pr_binding_comments(owner, name, number)
     digest = byte_digest(body_raw)
     pull = {
         "repository": copy.deepcopy(repository),
@@ -7524,6 +7572,18 @@ def _pr_binding_remote(
         "head_sha": head_sha,
         "body_digest": digest,
     }
+
+
+def _pr_binding_remote_equal(
+    left: Mapping[str, Any], right: Mapping[str, Any]
+) -> bool:
+    """Compare bind identity while ignoring comment-only PR timestamps."""
+
+    left_value = copy.deepcopy(left)
+    right_value = copy.deepcopy(right)
+    left_value["pull"]["body"]["updated_at"] = None
+    right_value["pull"]["body"]["updated_at"] = None
+    return left_value == right_value
 
 
 def _pr_binding_coordinates(
@@ -7731,13 +7791,14 @@ def bind_pr_cas(
         )
         _hit(failpoint, "pr-bind:classified")
 
-        def revalidate() -> None:
+        def revalidate(expected: Mapping[str, Any]) -> dict[str, Any]:
             prove_local()
             latest = _pr_binding_remote(snapshot.document, target, pr_number)
-            if latest != remote:
+            if not _pr_binding_remote_equal(latest, expected):
                 raise LedgerError("PR binding remote observation changed before CAS")
+            return latest
 
-        revalidate()
+        remote = revalidate(remote)
         if (
             classification == "bound-match"
             and _snapshot_matches_tuple(
@@ -7787,7 +7848,7 @@ def bind_pr_cas(
                 expected_device=expected_device,
                 expected_inode=expected_inode,
                 failpoint=failpoint,
-                _precommit=revalidate,
+                _precommit=lambda: revalidate(remote),
                 _binding_capability=capability,
             )
     return {

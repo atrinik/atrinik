@@ -4634,6 +4634,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             body: bytes = INITIAL_PR_BODY,
             draft: bool = True,
             base_branch: str | None = None,
+            updated_at: str = "2026-08-14T18:00:00Z",
         ) -> dict[str, object]:
             repository_value = {
                 "node_id": "R_repo",
@@ -4663,11 +4664,20 @@ class DeliveryLedgerTests(unittest.TestCase):
                     "repo": copy.deepcopy(repository_value),
                 },
                 "body": body.decode("utf-8"),
-                "updated_at": "2026-08-14T18:00:00Z",
+                "updated_at": updated_at,
             }
 
-        def gh_observer(live: dict[str, object], comments: object = None):
-            response_comments = [[]] if comments is None else comments
+        def gh_observer(
+            live: dict[str, object],
+            comments: object = None,
+            observed_pages: list[int] | None = None,
+        ):
+            if comments is None:
+                response_comments: object = {1: []}
+            elif isinstance(comments, dict):
+                response_comments = comments
+            else:
+                response_comments = {1: comments}
 
             def observe(arguments: object, context: str) -> object:
                 del context
@@ -4677,7 +4687,11 @@ class DeliveryLedgerTests(unittest.TestCase):
                 if "/pulls/500" in endpoint:
                     return copy.deepcopy(live)
                 if "/comments?" in endpoint:
-                    return copy.deepcopy(response_comments)
+                    page = int(endpoint.rsplit("page=", 1)[1])
+                    if observed_pages is not None:
+                        observed_pages.append(page)
+                    assert isinstance(response_comments, dict)
+                    return copy.deepcopy(response_comments.get(page, []))
                 raise AssertionError(f"unexpected gh observation: {arguments}")
 
             return observe
@@ -4729,7 +4743,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                         reads += 1
                         return copy.deepcopy(value)
                     if "/comments?" in endpoint:
-                        return [[]]
+                        return []
                     raise AssertionError(f"unexpected gh observation: {arguments}")
 
                 before = directory_snapshot(root)
@@ -4770,13 +4784,125 @@ class DeliveryLedgerTests(unittest.TestCase):
             root = Path(temporary)
             value, bound = install_bound(root, Path(live_temporary))
             before = directory_snapshot(root)
+            pull_reads = 0
+            existing_comment = {
+                "node_id": "I_existing",
+                "body": "A reviewer comment already present.",
+                "user": {"login": "reviewer", "type": "User"},
+            }
+            concurrent_comment = {
+                "node_id": "I_concurrent",
+                "body": "A second reviewer comment arrived during binding.",
+                "user": {"login": "reviewer-two", "type": "User"},
+            }
+
+            def observe_concurrent(arguments: object, context: str) -> object:
+                nonlocal pull_reads
+                del context
+                endpoint = tuple(arguments)[-1]
+                if endpoint == "user":
+                    return {"node_id": "U_actor"}
+                if "/pulls/500" in endpoint:
+                    pull_reads += 1
+                    return copy.deepcopy(
+                        live_pr(
+                            value,
+                            updated_at=(
+                                "2026-08-14T18:00:00Z"
+                                if pull_reads == 1
+                                else "2026-08-14T18:01:00Z"
+                            ),
+                        )
+                    )
+                if "/comments?" in endpoint:
+                    return copy.deepcopy(
+                        [existing_comment]
+                        if pull_reads == 1
+                        else [existing_comment, concurrent_comment]
+                    )
+                raise AssertionError(f"unexpected gh observation: {arguments}")
+
+            with mock.patch.object(
+                ledger, "_gh_json", side_effect=observe_concurrent
+            ):
+                result = ledger.bind_pr_cas(
+                    root,
+                    bound.name,
+                    "pull-request",
+                    500,
+                    **cas_arguments(bound),
+                )
+            self.assertEqual(result["classification"], "bind-exact")
+            self.assertEqual(
+                ledger.inspect(root, bound.name).document["selected_prs"][0]["body"]["updated_at"],
+                "2026-08-14T18:01:00Z",
+            )
+            self.assertNotEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
+            value, bound = install_bound(root, Path(live_temporary))
+            before = directory_snapshot(root)
+            observed_pages: list[int] = []
+            paginated_comments = {
+                1: [
+                    {
+                        "node_id": f"I_codecov_{index}",
+                        "body": f"Codecov coverage report {index}",
+                        "user": {"login": "codecov", "type": "Bot"},
+                    }
+                    for index in range(100)
+                ],
+                2: [
+                    {
+                        "node_id": "I_reviewer",
+                        "body": "Reviewed the change and it looks good.",
+                        "user": {"login": "reviewer", "type": "User"},
+                    }
+                ],
+            }
             with mock.patch.object(
                 ledger,
                 "_gh_json",
                 side_effect=gh_observer(
-                    live_pr(value), [[{"id": 1, "user": {"type": "Bot"}}]]
+                    live_pr(value), paginated_comments, observed_pages
                 ),
-            ), self.assertRaisesRegex(ledger.LedgerError, "external PR comments"):
+            ):
+                result = ledger.bind_pr_cas(
+                    root,
+                    bound.name,
+                    "pull-request",
+                    500,
+                    **cas_arguments(bound),
+                )
+            self.assertEqual(result["classification"], "bind-exact")
+            self.assertEqual(sorted(set(observed_pages)), [1, 2])
+            bound = ledger.inspect(root, bound.name)
+            self.assertEqual(bound.document["selected_prs"][0]["comment"]["state"], "none")
+            self.assertNotEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
+            value, bound = install_bound(root, Path(live_temporary))
+            before = directory_snapshot(root)
+            with mock.patch.object(
+                ledger,
+                "_gh_json",
+                side_effect=gh_observer(
+                    live_pr(value),
+                    {
+                        1: [
+                            {
+                                "node_id": "I_delivery_marker",
+                                "body": "<!-- atrinik-delivery:comment:foreign -->",
+                                "user": {"login": "reviewer", "type": "User"},
+                            }
+                        ]
+                    },
+                ),
+            ), self.assertRaisesRegex(
+                ledger.LedgerError, "delivery-owned or malformed comment marker"
+            ):
                 ledger.bind_pr_cas(
                     root,
                     bound.name,
