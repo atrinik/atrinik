@@ -39,13 +39,28 @@ that transfer clear; otherwise open a main-targeted pull request carrying the
 equivalent change. Do not merge `main` back into a maintenance branch, because
 that can introduce commits outside its patch range.
 
-Write pull-request descriptions as renderable GitHub-Flavored Markdown with
-actual line breaks, never visible literal `\n` separators. For a multi-section
-body, prefer `gh pr create --body-file FILE` or `gh pr edit --body-file FILE`;
-`--body-file -` reads standard input. After creating or editing a pull request,
+PR bodies must be substantive, renderable GitHub-Flavored Markdown with actual
+line breaks, never visible literal `\n` separators. The minimum body uses
+concise sections for:
+
+- `Summary`: what changed and why;
+- `Implementation / behavior`: relevant implementation details, affected
+  behavior, and compatibility or operational context;
+- `Validation`: tests, checks, or manual verification performed and their
+  results; and
+- `Limitations / follow-up` when applicable.
+
+Issue and pull-request reference syntax remains supported, but an
+issue-closing line alone is insufficient. For a multi-section body, prefer
+`gh pr create --body-file FILE` or `gh pr edit --body-file FILE`;
+`--body-file -` reads standard input. When an agent updates an existing pull
+request, it must preserve contributor-authored text byte-for-byte as
+read-only; the agent may add or replace only a separately delivery-owned
+section when the delivery ownership rules authorize it. After creating or
+editing a pull request,
 inspect GitHub's rendered web view or rendered `bodyHTML`/`body_html`, not only
-the raw body. Verify that headings, lists, inline code, issue-closing references,
-and validation sections render normally.
+the raw body. Verify that headings, lists, inline code, issue-closing
+references, and validation sections render normally.
 
 Keep component implementation in its owning repository. Changes here should
 remain focused on the manifest, multi-repository workflows, or their tests and

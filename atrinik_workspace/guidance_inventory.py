@@ -12,11 +12,11 @@ SKILLS_ROOT = ROOT / ".agents" / "skills"
 
 # Byte ceilings are model-independent regression guards. Exact tokenizer counts
 # remain PR evidence because tokenizer vocabularies and prompt wrappers change.
-MAX_ROOT_GUIDE_BYTES = 6_000
+MAX_ROOT_GUIDE_BYTES = 6_450
 MAX_CATALOG_BYTES = 2_000
-MAX_STARTUP_BYTES = 8_000
-MAX_MULTI_SELECTED_BYTES = 14_500
-MAX_ALL_SKILL_BYTES = 52_000
+MAX_STARTUP_BYTES = 8_400
+MAX_MULTI_SELECTED_BYTES = 15_100
+MAX_ALL_SKILL_BYTES = 53_500
 
 
 @dataclass(frozen=True)

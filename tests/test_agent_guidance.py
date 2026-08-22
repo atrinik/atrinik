@@ -1177,11 +1177,15 @@ class AgentGuidanceTests(unittest.TestCase):
         workspace_skill = (
             ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md"
         )
+        issue_delivery_skill = (
+            ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
+        )
         governed = [
             root_guide,
             contributing,
             governance_skill,
             workspace_skill,
+            issue_delivery_skill,
         ]
         markers = {
             "type(optional-scope): concise description",
@@ -1191,10 +1195,26 @@ class AgentGuidanceTests(unittest.TestCase):
             "literal `\\n` separators",
             "multi-section",
         }
+        substantive_markers = {
+            "PR bodies must be substantive",
+            "`Summary`",
+            "`Implementation / behavior`",
+            "`Validation`",
+            "`Limitations / follow-up`",
+            "issue-closing line alone is insufficient",
+            "preserve contributor-authored text",
+            "byte-for-byte",
+            "delivery-owned section",
+        }
         for path in governed:
             guidance = " ".join(path.read_text(encoding="utf-8").split())
             for marker in markers:
                 with self.subTest(path=path.relative_to(ROOT), marker=marker):
+                    self.assertIn(marker, guidance)
+            for marker in substantive_markers:
+                with self.subTest(
+                    path=path.relative_to(ROOT), marker=marker
+                ):
                     self.assertIn(marker, guidance)
             with self.subTest(path=path.relative_to(ROOT), marker="no automatic !"):
                 self.assertNotIn(
@@ -1213,7 +1233,7 @@ class AgentGuidanceTests(unittest.TestCase):
                     r"[^.]{0,160}(?:inspect|verify)[^.]{0,80}(?:remote|GitHub)",
                 )
 
-        for path in [contributing, governance_skill]:
+        for path in [contributing, governance_skill, issue_delivery_skill]:
             guidance = " ".join(path.read_text(encoding="utf-8").split())
             for marker in {
                 "headings",
