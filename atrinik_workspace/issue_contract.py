@@ -34,6 +34,14 @@ _HISTORICAL_CONTEXT = re.compile(
     r"should\s+not|cannot|without)\b",
     re.IGNORECASE,
 )
+_HISTORICAL_ISSUE_CONTEXT = re.compile(
+    r"(?:https?://github\.com/[^/\s)]+/[^/\s)]+/issues/\d+|"
+    r"(?:issue|#)\s*\d+)"
+    r"[^.!?\n]{0,160}\b(?:was|were|had|already|previously|carried|"
+    r"required|requested|repeated|established|corrected|"
+    r"preserved|remained)\b",
+    re.IGNORECASE,
+)
 _MARKDOWN_BLOCK_START = re.compile(
     r"^(?:[-+*]\s+|\d+[.)]\s+|#{1,6}\s+|>\s?|\|)"
 )
@@ -89,7 +97,9 @@ def find_violations(body: str) -> tuple[ContractViolation, ...]:
     for line_number, block in _markdown_blocks(body.splitlines()):
         if not re.search(_RETIRED_REFERENCE, block, re.IGNORECASE):
             continue
-        if _HISTORICAL_CONTEXT.search(block):
+        if _HISTORICAL_CONTEXT.search(block) or _HISTORICAL_ISSUE_CONTEXT.search(
+            block
+        ):
             continue
         if any(pattern.search(block) for pattern in _ACTIVE_PATTERNS):
             violations.append(

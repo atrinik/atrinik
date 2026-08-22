@@ -22,6 +22,7 @@ class IssueContractTests(unittest.TestCase):
             "Select the `content-1x` checkout for this issue.",
             "Add the `released on @1.x` label.",
             "Maintain the `1.x` maintenance line.",
+            "Required: backport the change to `1.x`.",
         )
         for body in cases:
             with self.subTest(body=body):
@@ -36,6 +37,13 @@ class IssueContractTests(unittest.TestCase):
         remain immutable historical evidence. Do not backport to the retired
         line.
         """
+        validate_issue_contract(body)
+
+    def test_allows_linked_historical_issue_account(self) -> None:
+        body = (
+            "[content#239](https://github.com/atrinik/content/issues/239) "
+            "required a backport to `1.x` and carried the old release label."
+        )
         validate_issue_contract(body)
 
     def test_rejects_oversized_input(self) -> None:
