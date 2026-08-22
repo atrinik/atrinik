@@ -56,10 +56,12 @@ checkout `classic`. For example:
   --start-point classic=BASE_SHA --temporary-state --json
 ```
 
-Do not use `classic-client=` as an override key. Before delivery mutation,
-compare the scope's `requested_components` and worktree checkout with the
-ledger request; a failed bind is recoverable only through the delivery helper,
-never by editing or deleting ledger state.
+Do not use `classic-client=` as an override key. The name derives the immutable
+`scope-<name>` profile and topology; non-canonical `--topology` fails before
+publication. Before delivery mutation, compare `requested_components`, the
+canonical topology, and worktree checkout with the ledger request; a failed bind
+is recoverable only through the delivery helper, never by editing or deleting
+ledger state.
 Release with the fresh preview digest:
 
 ```sh

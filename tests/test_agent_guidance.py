@@ -377,6 +377,8 @@ class AgentGuidanceTests(unittest.TestCase):
             "--from PROFILE",
             "--start-point CHECKOUT=BASE_SHA",
             "scope show SCOPE --json",
+            "scope-SCOPE",
+            "recover-prebind-scope",
             "--existing",
             "initial `HEAD` equals the mode's recorded SHA",
             "Never resume or edit a dirty, detached, locked, active, foreign",
@@ -468,6 +470,9 @@ class AgentGuidanceTests(unittest.TestCase):
             "creation journal is deliberately non-authoritative",
             "issue-mode and mode-less names reserve",
             "precommitted deferred primitive/scope managed paths",
+            "recover-prebind-scope REVIEW_ROOT LEDGER_NAME",
+            "`prepare` rejects a non-canonical scope topology",
+            "predecessor digest remains in `history`",
         }:
             with self.subTest(ledger_contract=contract):
                 self.assertIn(contract, normalized_ledger)

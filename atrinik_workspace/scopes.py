@@ -91,6 +91,20 @@ class ScopeLifecycle:
         return self._scope_root(name) / "release-journal.json"
 
     @staticmethod
+    def _canonical_topology_name(name: str) -> str:
+        validate_name(name, "scope name")
+        return f"scope-{name}"
+
+    @classmethod
+    def _requested_topology_name(cls, name: str, topology: str | None) -> str:
+        expected = cls._canonical_topology_name(name)
+        if topology is not None and topology != expected:
+            raise WorkspaceError(
+                f"scope topology must be canonical for {name}: {expected}"
+            )
+        return expected
+
+    @staticmethod
     def generated_name() -> str:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
         return f"agent-{stamp}-{secrets.token_hex(6)}"
@@ -201,7 +215,7 @@ class ScopeLifecycle:
             )
         record = self._load_record(name)
         self._require_unreleased(record)
-        expected_topology = topology or f"scope-{name}"
+        expected_topology = self._requested_topology_name(name, topology)
         expected_state_name = (
             None if state_mode == "temporary" else "default" if state_mode == "default" else state_name
         )
@@ -269,8 +283,8 @@ class ScopeLifecycle:
                 + ", ".join(sorted(unknown_overrides))
             )
 
-        profile_name = f"scope-{name}"
-        topology_name = topology or profile_name
+        profile_name = self._canonical_topology_name(name)
+        topology_name = self._requested_topology_name(name, topology)
         validate_name(profile_name, "scope profile name")
         validate_name(topology_name, "scope topology name")
         if profile_name in self.workspace.manifest.stacks:

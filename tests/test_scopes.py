@@ -284,10 +284,19 @@ class ScopeLifecycleTests(unittest.TestCase):
         profile.write_text("{}", encoding="utf-8")
         with self.assertRaisesRegex(WorkspaceError, "profile already exists"):
             preflight("profile-exists")
-        topology = self.workspace_directory / "topologies" / "occupied"
+        topology = self.workspace_directory / "topologies" / "scope-topology-exists"
         topology.mkdir(parents=True)
         with self.assertRaisesRegex(WorkspaceError, "topology namespace"):
-            preflight("topology-exists", topology="occupied")
+            preflight("topology-exists")
+        with self.assertRaisesRegex(WorkspaceError, "must be canonical"):
+            preflight("noncanonical-topology", topology="noncanonical-topology")
+        canonical = preflight("canonical-contract")
+        self.assertEqual(canonical["profile"]["name"], "scope-canonical-contract")
+        self.assertEqual(canonical["topology"]["name"], "scope-canonical-contract")
+        self.assertEqual(
+            canonical["topology"]["path"],
+            str(self.workspace_directory / "topologies" / "scope-canonical-contract"),
+        )
         destination = self.workspace_directory / "worktrees" / "client" / "occupied"
         destination.mkdir(parents=True)
         with self.assertRaisesRegex(WorkspaceError, "worktree path"):

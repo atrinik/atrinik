@@ -48,11 +48,12 @@
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
   component, or one of its roles selects one root for all five; profiles append
   manifest source directories.
-- Prefer `scope create`; Classic uses logical positionals and physical checkout
-  overrides. Recover released mismatches only via helper CAS.
-- Use wrapper paths; never reconstruct managed paths. Isolate
-  topology names/states/ports/client config; prefer temporary state and keep
-  scenario secrets local.
+- Prefer `scope create`; Classic uses selectors/physical overrides.
+  `scope-<name>` is the profile/topology; noncanonical overrides fail
+  pre-publication.
+  Recover via helper CAS.
+- Use wrapper paths; never reconstruct managed paths. Isolate topology/state/ports,
+  client config; prefer temporary state; keep scenario secrets local.
 - Keep completion bounded, parser-driven, and secret-free.
 - Lease in order; gate same-coordinate readers; share the migration barrier.
 - Unbound persisted records are historical and inert.

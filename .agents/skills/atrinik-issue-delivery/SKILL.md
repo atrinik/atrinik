@@ -137,12 +137,18 @@ owner `AGENTS.md`; do not duplicate procedures.
   --label classic=... --branch classic=... --start-point classic=...`. The
   wrapper records `requested_components` separately from its checkout-wide
   logical component rows; never substitute `classic-client=` for the `classic`
-  override key. Bind only the exact returned scope through the ledger helper.
+  override key. Scope creation derives the immutable `scope-SCOPE` profile and
+  topology names; a supplied `--topology` must equal `scope-SCOPE` and is
+  rejected before publication otherwise. Bind only the exact returned scope
+  through the ledger helper.
 
   Feed raw `scope show`/list JSON to `scope-observe`; call `scope-bind-cas` with
   a fresh inspect tuple. It pins/reproves before CAS. Partial, released,
   referenced, cross-checkout, or mismatched evidence stops. Generic `cas`
-  cannot bind it; `scope-bind` only diagnoses.
+  cannot bind it; `scope-bind` only diagnoses. An exact live pre-bind topology
+  mismatch from an older helper may use `recover-prebind-scope` with retained
+  scope-show, worktree-list, safety, and explicit-recovery evidence; it changes
+  only the proven topology request through CAS and preserves the predecessor.
 - In PR mode, set `TARGET_BRANCH`, `BASE_SHA`, `HEAD_BRANCH`, `HEAD_SHA`, and
   `MERGE_BASE` from the live PR. Fetch and verify the exact base/head refs
   without rewriting published history. Create the local head branch at the
