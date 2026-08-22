@@ -141,11 +141,19 @@ executables or generated paths.
 
 Use `atrinik-github-governance` for PRs. Titles:
 `type(optional-scope): concise description` by default; add `!` only when a
-reviewer explicitly requests a breaking change, not auto. Bodies use
-GitHub-Flavored Markdown, actual line breaks, never literal `\n` separators.
-Feed multi-section bodies by file/stdin; after create/edit, verify remote.
-Semantic-release owns publication. Dependency changes update inventory and
-audit a profile. Follow `docs/PROVENANCE.md`; fail uncertainty closed.
+reviewer explicitly requests a breaking change, not auto. PR bodies must be
+substantive rendered GitHub-Flavored Markdown with actual line breaks, never
+literal `\n` separators. The minimum explains what changed and why in a
+concise `Summary`, gives relevant `Implementation / behavior` details, records
+`Validation` and its results, and states `Limitations / follow-up` when
+applicable. An issue-closing line alone is insufficient, while issue and
+pull-request reference syntax remains supported. Feed multi-section bodies by
+file/stdin; when an agent updates an existing PR, preserve contributor-authored
+text byte-for-byte and use only a separately delivery-owned section when the
+delivery ownership rules authorize it. After create/edit, verify the rendered
+remote body. Semantic-release owns publication. Dependency changes update
+inventory and audit a profile. Follow `docs/PROVENANCE.md`; fail uncertainty
+closed.
 
 ## Maintain guidance
 
