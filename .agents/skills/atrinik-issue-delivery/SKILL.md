@@ -152,8 +152,12 @@ owner `AGENTS.md`; do not duplicate procedures.
 - In issue mode, `bind-check` only diagnoses a remotely created planned PR.
   Use the helper-owned `pr-bind-cas` with the exact PR number and a fresh
   four-part ledger tuple. It re-proves the authenticated actor, same-repository
-  draft PR, durable body, comments, target, and bound worktree immediately
-  before its private CAS; generic `cas` cannot perform this initial PR bind.
+  draft PR, durable body, complete paginated comment collection, target, and
+  bound worktree immediately before its private CAS; generic `cas` cannot
+  perform this initial PR bind. Ordinary Codecov, reviewer, and other external
+  comments are expected and remain untouched. Any malformed or reserved
+  `atrinik-delivery:comment:` marker, invalid comment page, duplicate node, or
+  incomplete/bounded-out pagination fails closed.
 - In PR mode, set `TARGET_BRANCH`, `BASE_SHA`, `HEAD_BRANCH`, `HEAD_SHA`, and
   `MERGE_BASE` from the live PR. Fetch and verify the exact base/head refs
   without rewriting published history. Create the local head branch at the
@@ -212,8 +216,11 @@ outside the helper-planned terminal delivery section; copied live markers grant
 no ownership. Refetch and verify rendered GFM/linkage after helper-bound updates.
 
 Refetch bytes/timestamps and every marker; CAS intent, refetch, use only the
-helper payload, and bind its exact result. Cancel only after exact
-non-application proof and before drift. Zero comment matches permit one
+helper payload, and bind its exact result. For an issue-mode initial PR bind,
+the helper's complete comment pagination classifies ordinary external comments
+as non-delivery state without recording or deleting them; reserved delivery
+comment markers and incomplete pagination stop the bind. Cancel only after
+exact non-application proof and before drift. Zero comment matches permit one
 never-started post; reuse one exact actor-authored match. Wrong-author,
 malformed, duplicate, unexpected, or uncertain state stops. Verify rendered
 GFM/linkage.

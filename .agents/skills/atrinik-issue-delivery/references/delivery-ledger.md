@@ -1532,18 +1532,23 @@ python3 scripts/delivery_ledger.py pr-bind-cas \
 ```
 
 `pr-bind-cas` performs the live authenticated-author, same-repository,
-unchanged-target, draft, durable-body, and no-comment proof itself immediately
-before the ledger CAS. On `bind-exact`, it marks the planned PR artifact
-`created` and appends exactly one selected PR. On an identical completed retry,
-it returns `bound-match`. The selected PR's repository and head repository are
-identical; its base/head match the wholly unchanged target; its authenticated
-actor is the author; it remains draft with null ready intent; its comment state
-is none; and its `delivery-created`/`written` body has null observed/intended
-digest/payload, null section, and equal current/outside digest matching the
-planned slot. Its PR artifact permanently retains the initial payload. This
-exception applies only while immutable `authority.allowed.pull_requests` is
-empty. The helper does not expand or rewrite authority and never adopts this
-result through generic `cas`.
+unchanged-target, draft, durable-body, and complete-comment-pagination proof
+itself immediately before the ledger CAS. Ordinary external comments, such as
+Codecov or reviewer comments, are classified as non-delivery state and remain
+untouched; a malformed or reserved `atrinik-delivery:comment:` marker, invalid
+page, duplicate node, or pagination that cannot reach a bounded final page
+fails closed. The helper records no external comments in the planned PR slot.
+On `bind-exact`, it marks the planned PR artifact `created` and appends exactly
+one selected PR. On an identical completed retry, it returns `bound-match`. The
+selected PR's repository and head repository are identical; its base/head match
+the wholly unchanged target; its authenticated actor is the author; it remains
+draft with null ready intent; its comment state is none; and its
+`delivery-created`/`written` body has null observed/intended digest/payload,
+null section, and equal current/outside digest matching the planned slot. Its
+PR artifact permanently retains the initial payload. This exception applies
+only while immutable `authority.allowed.pull_requests` is empty. The helper
+does not expand or rewrite authority and never adopts this result through
+generic `cas`.
 
 This CAS may change only ledger generation/history, that one PR slot, and that
 one matching selected PR. Normalizing generation/history, removing the added
