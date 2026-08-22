@@ -4673,6 +4673,48 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(preview["summary"]["candidate_count"], 1)
         self.assertEqual(preview["items"][0]["path"], str(receipt_path))
 
+    def test_cleanup_recovers_oversized_terminal_receipt(self) -> None:
+        request: dict[str, object] = {
+            "scopes": ["cleanup-journals"],
+            "older_than_days": 7,
+            "filters": [],
+        }
+        coordinate = cleanup_module._canonical_json_sha256(request)
+        deleted_path = "/already-removed-" + (
+            "x" * (cleanup_module.CLEANUP_JOURNAL_MAX_BYTES // 6)
+        )
+        receipt = self.make_delivered_cleanup_journal(
+            f"20000101T000000000000Z-{coordinate}-000000000000.json",
+            targets=[{"kind": "profile-build", "path": deleted_path}],
+            request=request,
+        )
+        value = json.loads(receipt.read_text(encoding="utf-8"))
+        value["status"] = "complete-pending-output"
+        value.pop("delivered_at")
+        receipt.write_text(json.dumps(value), encoding="utf-8")
+        receipt.chmod(0o600)
+
+        self.assertGreater(receipt.stat().st_size, 4 * 1024 * 1024)
+        self.assertLessEqual(
+            receipt.stat().st_size, cleanup_module.CLEANUP_JOURNAL_MAX_BYTES
+        )
+
+        recovered = self.workspace.cleanup(
+            ["cleanup-journals"], 7, [], True
+        )
+        self.assertEqual(recovered["journal"], str(receipt))
+        self.assertEqual(
+            recovered["completed_actions"],
+            [{"kind": "profile-build", "path": deleted_path}],
+        )
+        self.workspace.cleanup_acknowledge(recovered)
+
+        preview = self.workspace.cleanup(
+            ["cleanup-journals"], 0, [receipt.name], False
+        )
+        self.assertEqual(preview["summary"]["candidate_count"], 1)
+        self.assertEqual(preview["items"][0]["path"], str(receipt))
+
     def test_current_coordinate_recovery_pages_past_4096_receipts(self) -> None:
         journal_root = self.workspace.paths.workspace / "cleanup-journals"
         journal_root.mkdir(parents=True, exist_ok=True)
