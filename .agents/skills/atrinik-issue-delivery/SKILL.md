@@ -149,6 +149,11 @@ owner `AGENTS.md`; do not duplicate procedures.
   mismatch from an older helper may use `recover-prebind-scope` with retained
   scope-show, worktree-list, safety, and explicit-recovery evidence; it changes
   only the proven topology request through CAS and preserves the predecessor.
+- In issue mode, `bind-check` only diagnoses a remotely created planned PR.
+  Use the helper-owned `pr-bind-cas` with the exact PR number and a fresh
+  four-part ledger tuple. It re-proves the authenticated actor, same-repository
+  draft PR, durable body, comments, target, and bound worktree immediately
+  before its private CAS; generic `cas` cannot perform this initial PR bind.
 - In PR mode, set `TARGET_BRANCH`, `BASE_SHA`, `HEAD_BRANCH`, `HEAD_SHA`, and
   `MERGE_BASE` from the live PR. Fetch and verify the exact base/head refs
   without rewriting published history. Create the local head branch at the
