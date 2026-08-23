@@ -5,7 +5,8 @@
 - This MIT Python 3.11+ repository coordinates Atrinik repositories, not source;
   `./atrinik` and `components.json` manage profiles, worktrees, builds, runtimes,
   cleanup, migration, and supply-chain reports.
-- `default` selects the MIT replacement stack (Rust, Go, Protobuf, and Astro).
+- `default` selects the MIT replacement stack (Rust, Go, Protobuf, Astro, and
+  source-only Observatory).
   Its standalone M1 foundations lack wrapper build/runtime integration.
   `classic` selects playable C17/CMake/Ninja plus the MIT playtester. Never mix
   providers or route unavailable replacement adapters through classic.

@@ -13,8 +13,9 @@ profiles, builds components whose contracts are available, and shares
 persistent server state safely.
 
 No checkout is a submodule. Primary repositories are ignored, independent Git
-checkouts directly beside this README (`./client`, `./server`, `./classic`, and
-so on). The `atrinik/classic` checkout at `./classic` contains the logical
+checkouts directly beside this README (`./client`, `./server`, `./classic`,
+`./observatory`, and so on). The `atrinik/classic` checkout at `./classic`
+contains the logical
 `classic-client`, `classic-server`, `classic-editor`,
 `classic-libatrinik`, and `classic-protocol` source roots. Generated worktrees,
 builds, profiles, and default state live under the ignored `workspace/`
@@ -388,7 +389,8 @@ identity are coordinated here, while installation and tests remain owned by
 `atrinik/playtester`.
 
 Checkout entries have explicit local destinations; normally these are direct
-children of the wrapper root such as `./client`, `./classic`, and `./content`.
+children of the wrapper root such as `./client`, `./classic`, `./content`, and
+`./observatory`.
 Logical components name their owning checkout and a safe source root within
 it. Both stacks map role `content` to that one shared checkout. A local
 `./content-1x` directory may remain as preserved migration history, but it is
@@ -405,7 +407,9 @@ checkouts are reported as optional rather than invalidating status or a
 built-in profile.
 
 The manifest assigns logical roles such as `client`, `server`, `protocol`,
-`libatrinik`, `content`, and `playtester` to providers within each stack. The
+`libatrinik`, `content`, `playtester`, and source-only `observatory` to
+providers within each stack. The `observatory` role is default-only and has no
+wrapper build adapter or runtime dependency. The
 built-in `default` and `classic` profiles resolve exactly one compatible
 provider for every role they require.
 A runnable service closure cannot combine replacement and classic

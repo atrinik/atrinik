@@ -182,6 +182,13 @@ class InventoryTests(unittest.TestCase):
         self.assertIn("nawerhals", inventory.repositories_by_name)
         self.assertFalse(inventory.repositories_by_name["nawerhals"].supported)
         self.assertNotIn("content-1x", inventory.repositories_by_name)
+        observatory = inventory.repositories_by_name["observatory"]
+        self.assertEqual(observatory.repository, "atrinik/observatory")
+        self.assertEqual(observatory.cohorts, ("default",))
+        self.assertEqual(observatory.stacks, ("default",))
+        self.assertEqual(observatory.roles, ("observatory",))
+        self.assertEqual(observatory.license, "MIT")
+        self.assertEqual(observatory.audit_mode, "full")
         self.assertEqual(
             inventory.repositories_by_name["content"].stacks,
             ("classic", "default"),

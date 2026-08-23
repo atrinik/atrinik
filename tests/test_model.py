@@ -664,6 +664,7 @@ class ReleaseConfigurationTests(unittest.TestCase):
                 "metaserver-worker",
                 "devcontainer",
                 "github-settings",
+                "observatory",
             },
         )
         self.assertEqual(
@@ -675,6 +676,19 @@ class ReleaseConfigurationTests(unittest.TestCase):
             },
         )
         self.assertEqual(manifest.by_name["content"].branch, "main")
+        self.assertEqual(
+            manifest.by_checkout["observatory"].repository,
+            "atrinik/observatory",
+        )
+        self.assertEqual(
+            manifest.by_name["observatory"].requires,
+            (),
+        )
+        self.assertEqual(
+            manifest.stack("default").providers["observatory"].name,
+            "observatory",
+        )
+        self.assertNotIn("observatory", manifest.cohorts["classic"])
         self.assertEqual(manifest.effective_build("default", "content"), "none")
         self.assertEqual(
             manifest.effective_build("classic", "content"), "classic-content"

@@ -57,6 +57,7 @@ REQUIRED_COHORT_CHECKOUTS = {
         "metaserver-worker",
         "devcontainer",
         "github-settings",
+        "observatory",
     },
     "classic": {
         "classic",
@@ -79,6 +80,7 @@ REQUIRED_STACK_PROVIDERS = {
         "metaserver-worker": "metaserver-worker",
         "devcontainer": "devcontainer",
         "github-settings": "github-settings",
+        "observatory": "observatory",
     },
     "classic": {
         "client": "classic-client",
@@ -113,6 +115,7 @@ LOGICAL_ROLES = {
     "metaserver-worker",
     "devcontainer",
     "github-settings",
+    "observatory",
 }
 IMPLEMENTATION_ROLES = {
     "client",

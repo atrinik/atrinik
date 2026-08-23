@@ -337,6 +337,28 @@
       "audit_mode": "full",
       "branch": "main",
       "cohorts": [
+        "default"
+      ],
+      "license": "MIT",
+      "commit": null,
+      "name": "observatory",
+      "repository": "atrinik/observatory",
+      "role": "Read-only build, release, package, deployment, and public-service status dashboard",
+      "roles": [
+        "observatory"
+      ],
+      "stacks": [
+        "default"
+      ],
+      "supported": true,
+      "checkout": "observatory",
+      "source": "."
+    },
+    {
+      "audit_ready": true,
+      "audit_mode": "full",
+      "branch": "main",
+      "cohorts": [
         "classic"
       ],
       "license": "MIT",
