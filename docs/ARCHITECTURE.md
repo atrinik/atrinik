@@ -40,6 +40,10 @@ The classic-only `playtester` component occupies `atrinik/playtester@main` at
 `./playtester`, provides the `playtester` role, and requires the classic stack's
 `content`, `libatrinik`, and `protocol` providers. Its `build: none` contract
 keeps repository-owned installation and validation outside wrapper adapters.
+The default-only `observatory` component occupies
+`atrinik/observatory@main` at `./observatory` and provides a source-only
+`observatory` role. It has no wrapper build adapter or runtime dependency;
+Classic never selects it.
 
 Manifest validation rejects duplicate checkout or component names, duplicate
 local destinations, unsafe or overlapping source roots within one checkout,

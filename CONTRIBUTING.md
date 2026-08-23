@@ -122,7 +122,9 @@ Do not normalize them as source headers; change one only through deliberate
 repository-owned legal review.
 
 The canonical `server`, `client`, `editor`, `protocol`, `renderer`,
-`content-toolkit`, and `website` repositories form the MIT replacement stack.
+`content-toolkit`, `website`, and `observatory` repositories form the MIT
+replacement stack. `observatory` is source-only in the wrapper: it has no
+wrapper build adapter or runtime dependency and remains default-cohort only.
 Plain `./atrinik init` is replacement/default-only. Exact
 `./atrinik init --with classic` adds the complete currently playable classic
 cohort: the `atrinik/classic` monorepo checkout, the independent MIT

@@ -14,7 +14,8 @@
       "resources",
       "metaserver-worker",
       "devcontainer",
-      "github-settings"
+      "github-settings",
+      "observatory"
     ],
     "classic": [
       "classic",
@@ -38,7 +39,8 @@
         "resources",
         "metaserver-worker",
         "devcontainer",
-        "github-settings"
+        "github-settings",
+        "observatory"
       ],
       "providers": {
         "client": "client",
@@ -53,7 +55,8 @@
         "resources": "resources",
         "metaserver-worker": "metaserver-worker",
         "devcontainer": "devcontainer",
-        "github-settings": "github-settings"
+        "github-settings": "github-settings",
+        "observatory": "observatory"
       }
     },
     "classic": {
@@ -193,6 +196,14 @@
       "branch": "main",
       "path": "github-settings",
       "generation": "shared",
+      "license": "MIT"
+    },
+    {
+      "name": "observatory",
+      "repository": "atrinik/observatory",
+      "branch": "main",
+      "path": "observatory",
+      "generation": "replacement",
       "license": "MIT"
     },
     {
@@ -351,6 +362,16 @@
       "build": "none",
       "generation": "shared",
       "provides": ["github-settings"],
+      "requires": [],
+      "license": "MIT"
+    },
+    {
+      "name": "observatory",
+      "checkout": "observatory",
+      "source": ".",
+      "build": "none",
+      "generation": "replacement",
+      "provides": ["observatory"],
       "requires": [],
       "license": "MIT"
     },
