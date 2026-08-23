@@ -1,0 +1,23 @@
+# Large binary assets use Git LFS.
+*.png   filter=lfs diff=lfs merge=lfs -text
+*.jpg   filter=lfs diff=lfs merge=lfs -text
+*.jpeg  filter=lfs diff=lfs merge=lfs -text
+*.gif   filter=lfs diff=lfs merge=lfs -text
+*.webp  filter=lfs diff=lfs merge=lfs -text
+*.ico   filter=lfs diff=lfs merge=lfs -text
+*.flac  filter=lfs diff=lfs merge=lfs -text
+*.ogg   filter=lfs diff=lfs merge=lfs -text
+*.wav   filter=lfs diff=lfs merge=lfs -text
+*.mp3   filter=lfs diff=lfs merge=lfs -text
+*.opus  filter=lfs diff=lfs merge=lfs -text
+*.mid   filter=lfs diff=lfs merge=lfs -text
+*.midi  filter=lfs diff=lfs merge=lfs -text
+*.mod   filter=lfs diff=lfs merge=lfs -text
+*.s3m   filter=lfs diff=lfs merge=lfs -text
+*.xm    filter=lfs diff=lfs merge=lfs -text
+*.it    filter=lfs diff=lfs merge=lfs -text
+*.otf   filter=lfs diff=lfs merge=lfs -text
+*.ttf   filter=lfs diff=lfs merge=lfs -text
+*.woff  filter=lfs diff=lfs merge=lfs -text
+*.woff2 filter=lfs diff=lfs merge=lfs -text
+*.zip   filter=lfs diff=lfs merge=lfs -text
