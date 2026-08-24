@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from datetime import date
 import hashlib
 import json
@@ -15,9 +16,13 @@ from atrinik_workspace.cli import main, parser
 from atrinik_workspace.model import WorkspaceError
 from atrinik_workspace.provenance_identity import (
     MAX_DOCUMENT_BYTES,
+    _coordinator_pins,
     _git_blob,
     _git_environment,
     _git_output,
+    _migration_field_value,
+    _migration_scope_payload,
+    _preflight_blob,
     _preflight_git_output,
     _exact_keys,
     _iso_date,
@@ -25,7 +30,10 @@ from atrinik_workspace.provenance_identity import (
     _private_file_opener,
     _repository_path,
     _string_array,
+    _validate_external_reanchors,
     _validate_repository_trust,
+    _validate_fixture_replacements,
+    _validate_revision_migration,
     load_document,
     record_digest,
     validate_component_reference,
@@ -56,6 +64,14 @@ def schema() -> dict[str, object]:
 
 def reviewers() -> dict[str, object]:
     return json.loads(REVIEWERS.read_text(encoding="utf-8"))
+
+
+def revision_migration() -> dict[str, object]:
+    return json.loads(
+        (ROOT / "governance/provenance-revision-migration.json").read_text(
+            encoding="utf-8"
+        )
+    )
 
 
 def current() -> tuple[dict[str, dict[str, object]], dict[str, dict[str, object]]]:
@@ -287,6 +303,444 @@ class ProvenanceIdentityTests(unittest.TestCase):
                 ["cat-file", "-e", missing],
                 missing,
                 "atrinik/atrinik",
+            )
+
+    def test_preflight_object_integrity_failures_are_bounded(self) -> None:
+        object_name = f"{PINNED_REVISION}:AGENTS.md"
+        for failure in (
+            OSError("git unavailable"),
+            subprocess.TimeoutExpired(["git"], 10),
+        ):
+            with self.subTest(failure=type(failure).__name__), mock.patch(
+                "atrinik_workspace.provenance_identity.subprocess.run",
+                side_effect=failure,
+            ), self.assertRaisesRegex(WorkspaceError, "cannot resolve"):
+                _preflight_git_output(ROOT, ["cat-file", "-e", object_name], object_name, "atrinik/atrinik")
+
+        failures = (
+            ([b"different-git-object"], "object identity changed"),
+            ([b"expected-git-object", b"not-a-size"], "invalid size"),
+            ([b"expected-git-object", str(MAX_DOCUMENT_BYTES + 1).encode()], "exceeds the size limit"),
+            ([b"expected-git-object", b"3", b"xx"], "changed during read"),
+            ([b"expected-git-object", b"2", b"xx"], "SHA-256 mismatch"),
+        )
+        for outputs, message in failures:
+            with self.subTest(message=message), mock.patch(
+                "atrinik_workspace.provenance_identity._preflight_git_output",
+                side_effect=outputs,
+            ), self.assertRaisesRegex(WorkspaceError, message):
+                _preflight_blob(
+                    ROOT,
+                    PINNED_REVISION,
+                    "AGENTS.md",
+                    "atrinik/atrinik",
+                    expected_git_object="expected-git-object",
+                    expected_sha256="0" * 64,
+                )
+
+    def test_revision_migration_shape_validation_fails_closed(self) -> None:
+        base = revision_migration()
+        mutations = (
+            ("schema version", lambda value: value.update(schema_version=2)),
+            ("decision", lambda value: value.update(decision="rewrite-history")),
+            ("issue", lambda value: value.update(issue=None)),
+            ("rationale", lambda value: value.update(rationale=None)),
+            ("coordinator", lambda value: value.update(coordinator=None)),
+            (
+                "coordinator repository",
+                lambda value: value["coordinator"].update(repository="outside/project"),
+            ),
+            (
+                "coordinator ref",
+                lambda value: value["coordinator"].update(trusted_ref="HEAD"),
+            ),
+            (
+                "coordinator revision",
+                lambda value: value["coordinator"].update(revision="short"),
+            ),
+            (
+                "empty objects",
+                lambda value: value["coordinator"].update(objects=[]),
+            ),
+            (
+                "object entry",
+                lambda value: value["coordinator"].update(objects=[None]),
+            ),
+            (
+                "duplicate object path",
+                lambda value: value["coordinator"]["objects"][1].update(
+                    path=value["coordinator"]["objects"][0]["path"]
+                ),
+            ),
+            (
+                "object path",
+                lambda value: value["coordinator"]["objects"][0].update(path="/absolute"),
+            ),
+            (
+                "object revision",
+                lambda value: value["coordinator"]["objects"][0].update(git_object="short"),
+            ),
+            (
+                "object digest",
+                lambda value: value["coordinator"]["objects"][0].update(sha256="short"),
+            ),
+            ("empty replacements", lambda value: value.update(replacements=[])),
+            (
+                "replacement entry",
+                lambda value: value.update(replacements=[None]),
+            ),
+            (
+                "replacement file",
+                lambda value: value["replacements"][0].update(file=None),
+            ),
+            (
+                "replacement field",
+                lambda value: value["replacements"][0].update(field=" field"),
+            ),
+            (
+                "duplicate replacement",
+                lambda value: value["replacements"].append(
+                    copy.deepcopy(value["replacements"][0])
+                ),
+            ),
+            (
+                "replacement old revision",
+                lambda value: value["replacements"][0].update(old_revision="short"),
+            ),
+            (
+                "replacement new revision",
+                lambda value: value["replacements"][0].update(new_revision="short"),
+            ),
+            (
+                "replacement repository",
+                lambda value: value["replacements"][0].update(repository="outside/project"),
+            ),
+            (
+                "replacement anchor",
+                lambda value: value["replacements"][0].update(new_revision="0" * 40),
+            ),
+            (
+                "replacement path",
+                lambda value: value["replacements"][0].update(path=None),
+            ),
+            (
+                "partial reviewer digests",
+                lambda value: value["replacements"][0].update(old_reviewers_sha256="0" * 64),
+            ),
+            (
+                "reviewer digest",
+                lambda value: value["replacements"][2].update(old_reviewers_sha256="short"),
+            ),
+            ("empty external reanchors", lambda value: value.update(external_reanchors=[])),
+            ("empty fixture replacements", lambda value: value.update(fixture_replacements=[])),
+            ("empty historical references", lambda value: value.update(historical_references=[])),
+            (
+                "historical entry",
+                lambda value: value.update(historical_references=[None]),
+            ),
+            (
+                "historical revision",
+                lambda value: value["historical_references"][0].update(revision="short"),
+            ),
+            (
+                "historical disposition",
+                lambda value: value["historical_references"][0].update(disposition="resolved"),
+            ),
+        )
+        for name, mutate in mutations:
+            with self.subTest(mutation=name):
+                value = copy.deepcopy(base)
+                mutate(value)
+                with self.assertRaises(WorkspaceError):
+                    _validate_revision_migration(value)
+
+    def test_revision_migration_nested_validators_fail_closed(self) -> None:
+        migration = revision_migration()
+        external = migration["external_reanchors"]
+        external_mutations = (
+            ("item", lambda value: value.__setitem__(0, None)),
+            ("file", lambda value: value[0].update(file="/absolute")),
+            ("repository", lambda value: value[0].update(repository="outside/project")),
+            ("trusted ref", lambda value: value[0].update(trusted_ref="HEAD")),
+            ("disposition", lambda value: value[0].update(disposition=None)),
+            ("references", lambda value: value[0].update(references=[])),
+            (
+                "reference entry",
+                lambda value: value[0].update(references=[None]),
+            ),
+            (
+                "duplicate field",
+                lambda value: value[0].update(
+                    references=[
+                        value[0]["references"][0],
+                        copy.deepcopy(value[0]["references"][0]),
+                    ]
+                ),
+            ),
+            (
+                "reference revision",
+                lambda value: value[0]["references"][0].update(old_revision="short"),
+            ),
+        )
+        for name, mutate in external_mutations:
+            with self.subTest(external=name):
+                value = copy.deepcopy(external)
+                mutate(value)
+                with self.assertRaises(WorkspaceError):
+                    _validate_external_reanchors(value)
+
+        fixture = migration["fixture_replacements"]
+        fixture_mutations = (
+            ("empty", lambda value: value.clear()),
+            ("item", lambda value: value.__setitem__(0, None)),
+            ("file", lambda value: value[0].update(file="/absolute")),
+            ("case id", lambda value: value[0].update(case_id=None)),
+            ("boolean index", lambda value: value[0].update(coordinate_index=True)),
+            ("negative index", lambda value: value[0].update(coordinate_index=-1)),
+            (
+                "duplicate coordinate",
+                lambda value: value.append(copy.deepcopy(value[0])),
+            ),
+            ("repository", lambda value: value[0].update(repository="outside/project")),
+            ("old revision", lambda value: value[0].update(old_revision="short")),
+            ("new revision", lambda value: value[0].update(new_revision="short")),
+            ("anchor", lambda value: value[0].update(new_revision="0" * 40)),
+            ("workload file", lambda value: value[0].update(file="other.json")),
+        )
+        for name, mutate in fixture_mutations:
+            with self.subTest(fixture=name):
+                value = copy.deepcopy(fixture)
+                mutate(value)
+                with self.assertRaises(WorkspaceError):
+                    _validate_fixture_replacements(value, PINNED_REVISION)
+
+    def test_migration_helpers_require_exact_paths_and_digests(self) -> None:
+        with self.assertRaises(WorkspaceError):
+            _coordinator_pins(
+                {"repository": "atrinik/atrinik", "revision": PINNED_REVISION},
+                "pin",
+            )
+        with self.assertRaises(WorkspaceError):
+            _coordinator_pins(
+                {
+                    "repository": "atrinik/atrinik",
+                    "revision": "short",
+                    "path": "AGENTS.md",
+                },
+                "pin",
+            )
+        with self.assertRaisesRegex(WorkspaceError, "does not resolve"):
+            _migration_field_value({}, "root_policy.revision", "fixture")
+
+        reference = load_document(FIXTURES / "positive" / "synthetic-alpha.json")
+        replacement = next(
+            item
+            for item in revision_migration()["replacements"]
+            if item["file"].endswith("synthetic-alpha.json")
+        )
+        self.assertIsNone(_migration_scope_payload(reference, None))
+        self.assertIsNone(
+            _migration_scope_payload(reference, {**replacement, "field": "other"})
+        )
+        without_old_reviewers = dict(replacement)
+        without_old_reviewers.pop("old_reviewers_sha256")
+        self.assertIsNone(_migration_scope_payload(reference, without_old_reviewers))
+        self.assertIsNone(
+            _migration_scope_payload(
+                reference,
+                {**replacement, "new_revision": "0" * 40},
+            )
+        )
+        changed_reviewers = dict(reference)
+        changed_reviewers["evidence_reference"] = dict(reference["evidence_reference"])
+        changed_reviewers["evidence_reference"]["reviewers_sha256"] = "0" * 64
+        self.assertIsNone(_migration_scope_payload(changed_reviewers, replacement))
+        self.assertIsInstance(_migration_scope_payload(reference, replacement), bytes)
+
+    def test_preflight_rejects_unapplied_pins_and_fixture_coordinates(self) -> None:
+        workload_path = ROOT / "mcp/contract/v1/fixtures/workloads.json"
+        active_pin = [("pin", PINNED_REVISION, "AGENTS.md")]
+        original_load_document = load_document
+
+        def run_failure(loader, message, *, pins=active_pin):
+            with mock.patch(
+                "atrinik_workspace.provenance_identity.load_document",
+                side_effect=loader,
+            ), mock.patch(
+                "atrinik_workspace.provenance_identity._preflight_revision"
+            ), mock.patch(
+                "atrinik_workspace.provenance_identity._preflight_blob"
+            ), mock.patch(
+                "atrinik_workspace.provenance_identity._coordinator_pins",
+                return_value=pins,
+            ), self.assertRaisesRegex(WorkspaceError, message):
+                preflight_provenance_revisions(ROOT)
+
+        run_failure(
+            original_load_document,
+            "found no active coordinator revision pins",
+            pins=[],
+        )
+        run_failure(
+            original_load_document,
+            "does not use migration anchor",
+            pins=[("pin", "0" * 40, "AGENTS.md")],
+        )
+        run_failure(
+            original_load_document,
+            "lacks coordinator object",
+            pins=[("pin", PINNED_REVISION, "missing.md")],
+        )
+
+        foundations_path = ROOT / "governance/replacement-foundations.json"
+
+        def unapplied_foundation(path):
+            value = original_load_document(path)
+            if path.resolve() == foundations_path.resolve():
+                value = copy.deepcopy(value)
+                value["root_policy"]["revision"] = "0" * 40
+            return value
+
+        run_failure(unapplied_foundation, "migration row .* is not applied")
+
+        def workload_failure(mutator):
+            def loader(path):
+                value = original_load_document(path)
+                if path.resolve() == workload_path.resolve():
+                    value = copy.deepcopy(value)
+                    mutator(value)
+                return value
+
+            return loader
+
+        workload_mutations = (
+            ("cases", lambda value: value.update(cases=None), "cases must be an array"),
+            ("case", lambda value: value.update(cases=[None]), "case is invalid"),
+            (
+                "expected",
+                lambda value: next(
+                    case for case in value["cases"] if case["id"] == "github-planning-read"
+                ).update(expected=None),
+                "has no expected object",
+            ),
+            (
+                "coordinates",
+                lambda value: next(
+                    case for case in value["cases"] if case["id"] == "github-planning-read"
+                )["expected"].update(coordinates=None),
+                "coordinates are invalid",
+            ),
+            (
+                "coordinate",
+                lambda value: next(
+                    case for case in value["cases"] if case["id"] == "github-planning-read"
+                )["expected"]["coordinates"].__setitem__(0, None),
+                "coordinate is invalid",
+            ),
+            (
+                "revision",
+                lambda value: next(
+                    case for case in value["cases"] if case["id"] == "github-planning-read"
+                )["expected"]["coordinates"][0].update(commit="0" * 40),
+                "does not use migration anchor",
+            ),
+            (
+                "migration row",
+                lambda value: next(
+                    case for case in value["cases"] if case["id"] == "github-planning-read"
+                ).update(id="unmapped"),
+                "lacks an applied migration row",
+            ),
+            ("coordinate set", lambda value: value.update(cases=[]), "do not match active coordinates"),
+        )
+        for name, mutate, message in workload_mutations:
+            with self.subTest(workload=name):
+                run_failure(workload_failure(mutate), message)
+
+        def fixture_loader(path, *, external=False):
+            value = original_load_document(path)
+            if path.resolve().is_relative_to(
+                (ROOT / "tests/fixtures/provenance-identities").resolve()
+            ):
+                value = copy.deepcopy(value)
+                evidence = value.get("evidence_reference")
+                if isinstance(evidence, dict):
+                    if external:
+                        evidence["repository"] = "atrinik/other"
+            return value
+
+        with self.subTest(fixture="external repository"):
+            run_failure(
+                lambda path: fixture_loader(path, external=True),
+                "found no coordinator fixture revisions",
+            )
+        wrong_fixture = ROOT / "tests/fixtures/provenance-identities/extra-wrong.json"
+
+        def wrong_fixture_loader(path):
+            if path.resolve() == wrong_fixture.resolve():
+                return {
+                    "evidence_reference": {
+                        "repository": "atrinik/atrinik",
+                        "revision": "0" * 40,
+                    }
+                }
+            return original_load_document(path)
+
+        with self.subTest(fixture="wrong revision"), mock.patch(
+            "atrinik_workspace.provenance_identity.load_document",
+            side_effect=wrong_fixture_loader,
+        ), mock.patch(
+            "pathlib.Path.rglob",
+            return_value=[wrong_fixture],
+        ), mock.patch(
+            "atrinik_workspace.provenance_identity._preflight_revision"
+        ), mock.patch(
+            "atrinik_workspace.provenance_identity._preflight_blob"
+        ), mock.patch(
+            "atrinik_workspace.provenance_identity._coordinator_pins",
+            return_value=active_pin,
+        ), self.assertRaisesRegex(WorkspaceError, "does not use migration anchor"):
+            preflight_provenance_revisions(ROOT)
+
+        with mock.patch(
+            "pathlib.Path.rglob",
+            side_effect=OSError("fixture scan unavailable"),
+        ), mock.patch(
+            "atrinik_workspace.provenance_identity._preflight_revision"
+        ), mock.patch(
+            "atrinik_workspace.provenance_identity._preflight_blob"
+        ), mock.patch(
+            "atrinik_workspace.provenance_identity._coordinator_pins",
+            return_value=active_pin,
+        ), self.assertRaisesRegex(WorkspaceError, "cannot enumerate provenance fixtures"):
+            preflight_provenance_revisions(ROOT)
+
+    def test_failed_migration_signature_fallback_restores_current_error(self) -> None:
+        reference = load_document(FIXTURES / "positive" / "synthetic-alpha.json")
+        records, reviewer_keys = current()
+        replacement = next(
+            item
+            for item in revision_migration()["replacements"]
+            if item["file"].endswith("synthetic-alpha.json")
+        )
+        def reject_only_component_scope(*_args, context, **_kwargs):
+            if context == "component provenance scope_approval":
+                raise WorkspaceError("current signature")
+            if context == "component provenance migrated scope_approval":
+                raise WorkspaceError("legacy signature")
+
+        with mock.patch(
+            "atrinik_workspace.provenance_identity._verify_approval",
+            side_effect=reject_only_component_scope,
+        ), self.assertRaisesRegex(WorkspaceError, "current signature"):
+            validate_component_reference(
+                reference,
+                repository_root=ROOT,
+                as_of=AS_OF,
+                trusted_ref="HEAD",
+                current_records=records,
+                current_reviewers=reviewer_keys,
+                migration_replacement=replacement,
             )
 
     def test_duplicate_json_keys_fail_closed(self) -> None:
