@@ -760,7 +760,9 @@ def _sha256_text(value: object, context: str) -> str:
 def _coordinator_pins(value: object, context: str = "") -> list[tuple[str, str, str]]:
     pins: list[tuple[str, str, str]] = []
     if isinstance(value, dict):
-        if value.get("repository") == "atrinik/atrinik" and "revision" in value:
+        if value.get("repository") == "atrinik/atrinik":
+            if "revision" not in value:
+                raise WorkspaceError(f"{context}.revision must be present for a coordinator pin")
             path = value.get("path")
             if not isinstance(path, str) or not path:
                 raise WorkspaceError(f"{context}.path must be present for a coordinator pin")
@@ -994,8 +996,13 @@ def _validate_revision_migration(
             {"file", "context", "revision", "disposition"},
             f"provenance revision migration historical_references[{index}]",
         )
+        _repository_path(item["file"], f"historical_references[{index}].file")
+        _text(item["context"], f"historical_references[{index}].context")
         _revision_text(item["revision"], f"historical_references[{index}].revision")
-        if "preserved-unresolved" not in item["disposition"]:
+        disposition = _text(
+            item["disposition"], f"historical_references[{index}].disposition"
+        )
+        if "preserved-unresolved" not in disposition:
             raise WorkspaceError("provenance revision migration historical disposition must preserve uncertainty")
     return coordinator, object_map, replacement_map
 

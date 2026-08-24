@@ -456,8 +456,20 @@ class ProvenanceIdentityTests(unittest.TestCase):
                 lambda value: value["historical_references"][0].update(revision="short"),
             ),
             (
+                "historical file",
+                lambda value: value["historical_references"][0].update(file=None),
+            ),
+            (
+                "historical context",
+                lambda value: value["historical_references"][0].update(context=None),
+            ),
+            (
                 "historical disposition",
                 lambda value: value["historical_references"][0].update(disposition="resolved"),
+            ),
+            (
+                "historical disposition type",
+                lambda value: value["historical_references"][0].update(disposition=None),
             ),
         )
         for name, mutate in mutations:
@@ -531,6 +543,11 @@ class ProvenanceIdentityTests(unittest.TestCase):
         with self.assertRaises(WorkspaceError):
             _coordinator_pins(
                 {"repository": "atrinik/atrinik", "revision": PINNED_REVISION},
+                "pin",
+            )
+        with self.assertRaisesRegex(WorkspaceError, "revision must be present"):
+            _coordinator_pins(
+                {"repository": "atrinik/atrinik", "path": "AGENTS.md"},
                 "pin",
             )
         with self.assertRaises(WorkspaceError):
