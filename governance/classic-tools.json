@@ -4,22 +4,22 @@
     "repository": "atrinik/tools",
     "branch": "main",
     "audit_baseline": {
-      "revision": "7777cf9f9ab6deb58de8a481dfccd6b05d86e3e1",
+      "revision": "94ff0e5e8eedac20ac5aee0d27794aa8d0a60563",
       "tree": "daeb2eb5771d3f90ecf70ccfa2d9e1e4d768f6e4",
       "license": "GPL-2.0-or-later"
     },
     "provenance_policy": {
       "repository": "atrinik/atrinik",
-      "revision": "f0d1225791da7484e9456b39104cc30b0c77fe52",
+      "revision": "f2d8eda70776ef42acdaf9150223aaecded103b1",
       "path": "docs/PROVENANCE.md"
     },
     "identity_policy": {
       "repository": "atrinik/atrinik",
-      "revision": "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
+      "revision": "f2d8eda70776ef42acdaf9150223aaecded103b1",
       "path": "docs/PROVENANCE_IDENTITIES.md"
     },
     "transition_target": {
-      "revision": "33003ac9f737da9c722b446b6bf4948d669ce42b",
+      "revision": "90a6df596628892603cab7e4f850b75f59fbe04f",
       "tree": "1f84a1d32120fc3f32902c2a9603f7c1730e6034",
       "license": "LicenseRef-Atrinik-Tools-Mixed",
       "default_license": "MIT",

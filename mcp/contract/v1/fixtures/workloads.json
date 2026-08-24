@@ -169,7 +169,7 @@
         "coordinates": [
           {
             "branch": "main",
-            "commit": "f0d1225791da7484e9456b39104cc30b0c77fe52",
+            "commit": "f2d8eda70776ef42acdaf9150223aaecded103b1",
             "dirty_fingerprint": null,
             "repository": "atrinik/atrinik",
             "worktree": "primary"
@@ -220,7 +220,7 @@
         "coordinates": [
           {
             "branch": "main",
-            "commit": "f0d1225791da7484e9456b39104cc30b0c77fe52",
+            "commit": "f2d8eda70776ef42acdaf9150223aaecded103b1",
             "dirty_fingerprint": null,
             "repository": "atrinik/atrinik",
             "worktree": "primary"

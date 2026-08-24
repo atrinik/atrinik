@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "decision": "reanchor-unreachable-history",
+  "issue": "atrinik/atrinik#508",
+  "rationale": "The active coordinator provenance pins named by the aggregate tests are not present in the current full-history checkout. The replacement anchor is an independently verified reachable commit; it is not asserted to be the historical source of any grant or identity decision. Existing synthetic scope approvals remain bound to their original signed payloads, and validation accepts the re-anchored fixture only after the exact migration row reconstructs and verifies that legacy payload.",
+  "external_reanchors": [
+    {
+      "file": "governance/classic-tools.json",
+      "repository": "atrinik/tools",
+      "trusted_ref": "origin/main",
+      "references": [
+        {
+          "field": "source.audit_baseline.revision",
+          "old_revision": "7777cf9f9ab6deb58de8a481dfccd6b05d86e3e1",
+          "new_revision": "94ff0e5e8eedac20ac5aee0d27794aa8d0a60563",
+          "old_tree": "daeb2eb5771d3f90ecf70ccfa2d9e1e4d768f6e4",
+          "new_tree": "daeb2eb5771d3f90ecf70ccfa2d9e1e4d768f6e4"
+        },
+        {
+          "field": "source.transition_target.revision",
+          "old_revision": "33003ac9f737da9c722b446b6bf4948d669ce42b",
+          "new_revision": "90a6df596628892603cab7e4f850b75f59fbe04f",
+          "old_tree": "1f84a1d32120fc3f32902c2a9603f7c1730e6034",
+          "new_tree": "1f84a1d32120fc3f32902c2a9603f7c1730e6034"
+        }
+      ],
+      "disposition": "same-tree reachable replacements; neither replacement commit is asserted to be the unavailable historical commit"
+    }
+  ],
+  "fixture_replacements": [
+    {
+      "file": "mcp/contract/v1/fixtures/workloads.json",
+      "case_id": "github-planning-read",
+      "coordinate_index": 0,
+      "repository": "atrinik/atrinik",
+      "old_revision": "f0d1225791da7484e9456b39104cc30b0c77fe52",
+      "new_revision": "f2d8eda70776ef42acdaf9150223aaecded103b1"
+    },
+    {
+      "file": "mcp/contract/v1/fixtures/workloads.json",
+      "case_id": "runtime-bounded-observation",
+      "coordinate_index": 0,
+      "repository": "atrinik/atrinik",
+      "old_revision": "f0d1225791da7484e9456b39104cc30b0c77fe52",
+      "new_revision": "f2d8eda70776ef42acdaf9150223aaecded103b1"
+    }
+  ],
+  "coordinator": {
+    "repository": "atrinik/atrinik",
+    "trusted_ref": "origin/main",
+    "revision": "f2d8eda70776ef42acdaf9150223aaecded103b1",
+    "objects": [
+      {
+        "path": "AGENTS.md",
+        "git_object": "083147544944ff4c126471698c57ad65e76a0687",
+        "sha256": "73cc09357ad999ed892e071d6e5b54b4fb4ecf0e6753f4b0f8fc0bc950d46878"
+      },
+      {
+        "path": "docs/PROVENANCE.md",
+        "git_object": "216d2b6b5fb8886072ac272cb2426b15fe29ccc4",
+        "sha256": "77e3e8943a8ca824b8d25a22ac28ed064a97cd30b8bc7101871e3d2594a3b8f7"
+      },
+      {
+        "path": "docs/PROVENANCE_IDENTITIES.md",
+        "git_object": "411218ec9bd276e1f15194bc17f23262f146d5e1",
+        "sha256": "b7a099dfbea4ce2dde50a3d5cc5cd69043ea26206b4e0a7523c53fa1fe4c13f8"
+      },
+      {
+        "path": "governance/provenance-identities/registry.json",
+        "git_object": "5f1d37bc1c89aae58f91c69ac48bc5112fc53401",
+        "sha256": "0a04fcadccb37e64f6c1209bc0b7e8d5762639ce4c5521c3bba028d9eba037bd"
+      },
+      {
+        "path": "governance/provenance-identities/schema-v1.json",
+        "git_object": "fbd692d62da5d3d71ade41b096c5ebf461e592cb",
+        "sha256": "9c726627c8679b4b437db2b54b2480fe0c45eef788de7cd76de1dec5c3ce3409"
+      },
+      {
+        "path": "governance/provenance-identities/reviewers.json",
+        "git_object": "4aa3f5bf84ea3cf9524bed92d1c90776534fcb9a",
+        "sha256": "a0c765f70844ab5c368cade59afda5d05c4627d20c00e6c362217da804e12f19"
+      }
+    ]
+  },
+  "replacements": [
+    {
+      "file": "governance/replacement-foundations.json",
+      "field": "root_policy.revision",
+      "repository": "atrinik/atrinik",
+      "old_revision": "d64a8e958ca2adad783ad8912493d468a805f3fd",
+      "new_revision": "f2d8eda70776ef42acdaf9150223aaecded103b1",
+      "path": "AGENTS.md"
+    },
+    {
+      "file": "governance/classic-tools.json",
+      "field": "source.provenance_policy.revision",
+      "repository": "atrinik/atrinik",
+      "old_revision": "f0d1225791da7484e9456b39104cc30b0c77fe52",
+      "new_revision": "f2d8eda70776ef42acdaf9150223aaecded103b1",
+      "path": "docs/PROVENANCE.md"
+    },
+    {
+      "file": "governance/classic-tools.json",
+      "field": "source.identity_policy.revision",
+      "repository": "atrinik/atrinik",
+      "old_revision": "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
+      "new_revision": "f2d8eda70776ef42acdaf9150223aaecded103b1",
+      "path": "docs/PROVENANCE_IDENTITIES.md"
+    },
+    {
+      "file": "tests/fixtures/provenance-identities/positive/synthetic-alpha.json",
+      "field": "evidence_reference.revision",
+      "repository": "atrinik/atrinik",
+      "old_revision": "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
+      "new_revision": "f2d8eda70776ef42acdaf9150223aaecded103b1",
+      "path": "governance/provenance-identities/{registry,schema-v1,reviewers}.json",
+      "old_reviewers_sha256": "b7a44ad27cec663a9092b924a0f6a9c95bf95a2ce74cf75ba8873e7938782240",
+      "new_reviewers_sha256": "a0c765f70844ab5c368cade59afda5d05c4627d20c00e6c362217da804e12f19"
+    },
+    {
+      "file": "tests/fixtures/provenance-identities/positive/synthetic-beta.json",
+      "field": "evidence_reference.revision",
+      "repository": "atrinik/atrinik",
+      "old_revision": "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
+      "new_revision": "f2d8eda70776ef42acdaf9150223aaecded103b1",
+      "path": "governance/provenance-identities/{registry,schema-v1,reviewers}.json",
+      "old_reviewers_sha256": "b7a44ad27cec663a9092b924a0f6a9c95bf95a2ce74cf75ba8873e7938782240",
+      "new_reviewers_sha256": "a0c765f70844ab5c368cade59afda5d05c4627d20c00e6c362217da804e12f19"
+    },
+    {
+      "file": "tests/fixtures/provenance-identities/negative/broken-reference.json",
+      "field": "evidence_reference.revision",
+      "repository": "atrinik/atrinik",
+      "old_revision": "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
+      "new_revision": "f2d8eda70776ef42acdaf9150223aaecded103b1",
+      "path": "governance/provenance-identities/{registry,schema-v1,reviewers}.json",
+      "old_reviewers_sha256": "b7a44ad27cec663a9092b924a0f6a9c95bf95a2ce74cf75ba8873e7938782240",
+      "new_reviewers_sha256": "a0c765f70844ab5c368cade59afda5d05c4627d20c00e6c362217da804e12f19"
+    }
+  ],
+  "historical_references": [
+    {
+      "file": "docs/PROVENANCE.md",
+      "context": "historical first-recorded grant references",
+      "revision": "d2af1c9fba462e5c18782d3c8206dbc5cfd74bb0",
+      "disposition": "preserved-unresolved; replacement anchor is not historical evidence"
+    },
+    {
+      "file": "docs/PROVENANCE.md",
+      "context": "historical first-recorded grant references",
+      "revision": "d64a8e958ca2adad783ad8912493d468a805f3fd",
+      "disposition": "preserved-unresolved; replacement anchor is not historical evidence"
+    }
+  ]
+}

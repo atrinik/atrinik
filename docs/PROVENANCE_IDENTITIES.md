@@ -139,8 +139,8 @@ in schema v1 and therefore fails closed.
 
 The synthetic component-owned records for `atrinik/client` and
 `atrinik/server` pin coordinator commit
-`6f6040212f0fa0cb6b8e4e695d1488a403d966be`, the squash merge of PR #381
-already on canonical `origin/main`. The copies in this repository are test
+`f2d8eda70776ef42acdaf9150223aaecded103b1`, a verified commit on canonical
+`origin/main`. The copies in this repository are test
 fixtures; each component keeps its own identical reference record and validates
 it without copying the canonical registry, schema, or reviewer roster:
 
@@ -155,6 +155,13 @@ do not add `--non-authorizing-audit-ref`. Current revocation state and reviewer
 authority come from canonical `origin/main`; the immutable evidence bytes come
 from the pinned landed commit. The records carry an authenticated `synthetic:
 true` boundary and remain test evidence, not permission for real material.
+
+Issue #508 records the unreachable historical pins and the independently
+verified replacement objects in
+`governance/provenance-revision-migration.json`. Its migrated synthetic
+references are accepted only after the validator reconstructs and verifies the
+legacy signed payload named by the exact migration row; the reachable anchor is
+never presented as historical evidence.
 
 ## Migration and review
 

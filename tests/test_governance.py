@@ -80,8 +80,8 @@ class ReplacementFoundationTests(unittest.TestCase):
             capture_output=True,
             text=True,
         ).stdout
-        self.assertIn("Zoey Rose", registry)
-        self.assertIn("Daniel Liptrot", registry)
+        self.assertIn("Atrinik workspace agent guide", registry)
+        self.assertIn("Use `atrinik-issue-delivery` only when explicitly invoked", registry)
 
         required_fields = self.inventory["required_record_fields"]
         self.assertEqual(len(required_fields), len(set(required_fields)))
@@ -96,6 +96,57 @@ class ReplacementFoundationTests(unittest.TestCase):
         self.assertNotEqual(
             examples["admitted"]["verification"],
             examples["excluded"]["verification"],
+        )
+
+    def test_provenance_revision_migration_records_exact_recovery_decision(self) -> None:
+        migration = load_json("governance/provenance-revision-migration.json")
+        self.assertEqual(migration["issue"], "atrinik/atrinik#508")
+        self.assertEqual(migration["decision"], "reanchor-unreachable-history")
+        self.assertEqual(
+            migration["coordinator"]["revision"],
+            "f2d8eda70776ef42acdaf9150223aaecded103b1",
+        )
+        self.assertEqual(
+            {item["path"] for item in migration["coordinator"]["objects"]},
+            {
+                "AGENTS.md",
+                "docs/PROVENANCE.md",
+                "docs/PROVENANCE_IDENTITIES.md",
+                "governance/provenance-identities/registry.json",
+                "governance/provenance-identities/schema-v1.json",
+                "governance/provenance-identities/reviewers.json",
+            },
+        )
+        old_revisions = {item["old_revision"] for item in migration["replacements"]}
+        self.assertIn("d64a8e958ca2adad783ad8912493d468a805f3fd", old_revisions)
+        self.assertIn("6f6040212f0fa0cb6b8e4e695d1488a403d966be", old_revisions)
+        external = migration["external_reanchors"]
+        self.assertEqual(len(external), 1)
+        self.assertEqual(external[0]["repository"], "atrinik/tools")
+        self.assertEqual(
+            {
+                reference["new_revision"]
+                for reference in external[0]["references"]
+            },
+            {
+                "94ff0e5e8eedac20ac5aee0d27794aa8d0a60563",
+                "90a6df596628892603cab7e4f850b75f59fbe04f",
+            },
+        )
+        fixture_replacements = migration["fixture_replacements"]
+        self.assertEqual(len(fixture_replacements), 2)
+        self.assertTrue(
+            all(
+                replacement["new_revision"]
+                == "f2d8eda70776ef42acdaf9150223aaecded103b1"
+                for replacement in fixture_replacements
+            )
+        )
+        self.assertTrue(
+            all(
+                "preserved-unresolved" in item["disposition"]
+                for item in migration["historical_references"]
+            )
         )
 
     def test_foundation_repositories_are_owned_in_supply_chain(self) -> None:
@@ -229,7 +280,7 @@ class ClassicToolsInventoryTests(unittest.TestCase):
         )
         self.assertEqual(
             source["audit_baseline"]["revision"],
-            "7777cf9f9ab6deb58de8a481dfccd6b05d86e3e1",
+            "94ff0e5e8eedac20ac5aee0d27794aa8d0a60563",
         )
         self.assertEqual(
             source["audit_baseline"]["tree"],
@@ -240,7 +291,7 @@ class ClassicToolsInventoryTests(unittest.TestCase):
         )
         self.assertEqual(
             target["revision"],
-            "33003ac9f737da9c722b446b6bf4948d669ce42b",
+            "90a6df596628892603cab7e4f850b75f59fbe04f",
         )
         self.assertEqual(
             target["tree"], "1f84a1d32120fc3f32902c2a9603f7c1730e6034"
@@ -248,11 +299,11 @@ class ClassicToolsInventoryTests(unittest.TestCase):
         self.assertEqual(target["status"], "reviewed-pull-request")
         self.assertEqual(
             source["provenance_policy"]["revision"],
-            "f0d1225791da7484e9456b39104cc30b0c77fe52",
+            "f2d8eda70776ef42acdaf9150223aaecded103b1",
         )
         self.assertEqual(
             source["identity_policy"]["revision"],
-            "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
+            "f2d8eda70776ef42acdaf9150223aaecded103b1",
         )
 
 

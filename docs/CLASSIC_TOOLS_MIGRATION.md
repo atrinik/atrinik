@@ -1,14 +1,18 @@
 # Classic tools ownership and migration
 
 [`governance/classic-tools.json`](../governance/classic-tools.json) inventories
-every retained top-level entry point in `atrinik/tools`. Its GPL audit baseline is
-`7777cf9f9ab6deb58de8a481dfccd6b05d86e3e1` and tree
+every retained top-level entry point in `atrinik/tools`. Its GPL audit baseline uses
+reachable commit `94ff0e5e8eedac20ac5aee0d27794aa8d0a60563` with tree
 `daeb2eb5771d3f90ecf70ccfa2d9e1e4d768f6e4`; it is not the transitioned
-tree. The reviewed transition target is
-`33003ac9f737da9c722b446b6bf4948d669ce42b` (tree
+tree. The reviewed transition target uses reachable commit
+`90a6df596628892603cab7e4f850b75f59fbe04f` (tree
 `1f84a1d32120fc3f32902c2a9603f7c1730e6034`): MIT by default with a
 GPL-2.0-or-later `map-checker-qt/` exception. Complete-checkout metadata uses
 `LicenseRef-Atrinik-Tools-Mixed` until the checker is removed.
+The previously recorded commit objects `7777cf9f9ab6deb58de8a481dfccd6b05d86e3e1`
+and `33003ac9f737da9c722b446b6bf4948d669ce42b` are preserved as unresolved
+historical coordinates in the issue #508 migration record; the reachable
+replacement commits are not asserted to be those historical commits.
 The repository remains an explicit optional member of the classic cohort only;
 plain `./atrinik init` and the `default` profile neither select it nor depend on
 it for a build or runtime.

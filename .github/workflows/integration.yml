@@ -33,6 +33,8 @@ jobs:
           python-version: "3.13"
       - name: Install coverage tooling
         run: python3 -m pip install --requirement requirements-dev.txt
+      - name: Preflight provenance revision anchors
+        run: ./atrinik provenance preflight
       - name: Run measured test shard
         env:
           COVERAGE_FILE: build/ci/shard-${{ matrix.shard }}/.coverage.shard-${{ matrix.shard }}

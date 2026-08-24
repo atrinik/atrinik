@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 import unittest
@@ -17,6 +18,7 @@ from atrinik_workspace.provenance_identity import (
     _git_blob,
     _git_environment,
     _git_output,
+    _preflight_git_output,
     _exact_keys,
     _iso_date,
     _load_bytes,
@@ -30,6 +32,7 @@ from atrinik_workspace.provenance_identity import (
     validate_paths,
     validate_registry,
     validate_reviewers,
+    preflight_provenance_revisions,
 )
 
 
@@ -38,7 +41,7 @@ REGISTRY = ROOT / "governance/provenance-identities/registry.json"
 SCHEMA = ROOT / "governance/provenance-identities/schema-v1.json"
 FIXTURES = ROOT / "tests/fixtures/provenance-identities"
 REVIEWERS = ROOT / "governance/provenance-identities/reviewers.json"
-PINNED_REVISION = "6f6040212f0fa0cb6b8e4e695d1488a403d966be"
+PINNED_REVISION = "f2d8eda70776ef42acdaf9150223aaecded103b1"
 PINNED_REVIEWERS_PATH = "governance/provenance-identities/reviewers.json"
 AS_OF = date(2026, 8, 13)
 
@@ -256,6 +259,35 @@ class ProvenanceIdentityTests(unittest.TestCase):
         with mock.patch("builtins.print") as output:
             self.assertEqual(main(["provenance", "validate"]), 0)
         self.assertIn("2 records, 0 references", output.call_args.args[0])
+
+    def test_parser_exposes_provenance_revision_preflight(self) -> None:
+        options = parser().parse_args(["provenance", "preflight"])
+        self.assertEqual(options.command, "provenance")
+        self.assertEqual(options.provenance_command, "preflight")
+        self.assertEqual(preflight_provenance_revisions(ROOT), (1, 6))
+        with mock.patch("builtins.print") as output:
+            self.assertEqual(main(["provenance", "preflight"]), 0)
+        self.assertIn("1 coordinator revisions, 6 Git objects", output.call_args.args[0])
+        self.assertIn("governance/provenance-revision-migration.json", output.call_args.args[0])
+
+    def test_provenance_revision_preflight_reports_missing_object(self) -> None:
+        missing = "deadbeef" * 5 + ":AGENTS.md"
+        result = subprocess.CompletedProcess(
+            ["git", "cat-file", "-e", missing], 1, b"", b"missing"
+        )
+        with mock.patch(
+            "atrinik_workspace.provenance_identity.subprocess.run",
+            return_value=result,
+        ), self.assertRaisesRegex(
+            WorkspaceError,
+            f"cannot resolve atrinik/atrinik object {re.escape(missing)}",
+        ):
+            _preflight_git_output(
+                ROOT,
+                ["cat-file", "-e", missing],
+                missing,
+                "atrinik/atrinik",
+            )
 
     def test_duplicate_json_keys_fail_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -587,17 +619,18 @@ class ProvenanceIdentityTests(unittest.TestCase):
                     )
 
     def test_two_synthetic_component_references_validate_offline(self) -> None:
-        records, reviewer_keys = current()
-        for name in ("synthetic-alpha.json", "synthetic-beta.json"):
-            with self.subTest(name=name):
-                validate_component_reference(
-                    load_document(FIXTURES / "positive" / name),
-                    repository_root=ROOT,
-                    as_of=AS_OF,
-                    trusted_ref="HEAD",
-                    current_records=records,
-                    current_reviewers=reviewer_keys,
-                )
+        validate_paths(
+            ROOT,
+            registry_path=REGISTRY,
+            schema_path=SCHEMA,
+            reviewers_path=REVIEWERS,
+            reference_paths=[
+                FIXTURES / "positive" / "synthetic-alpha.json",
+                FIXTURES / "positive" / "synthetic-beta.json",
+            ],
+            as_of=AS_OF,
+            trusted_ref="HEAD",
+        )
 
     def test_broken_immutable_reference_fixture_fails_closed(self) -> None:
         records, reviewer_keys = current()
