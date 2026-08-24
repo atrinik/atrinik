@@ -21,6 +21,11 @@ CANONICALIZATION = "atrinik-json-v1"
 REGISTRY_PATH = Path("governance/provenance-identities/registry.json")
 SCHEMA_PATH = Path("governance/provenance-identities/schema-v1.json")
 REVIEWERS_PATH = Path("governance/provenance-identities/reviewers.json")
+REVISION_MIGRATION_PATH = Path("governance/provenance-revision-migration.json")
+REPLACEMENT_FOUNDATIONS_PATH = Path("governance/replacement-foundations.json")
+CLASSIC_TOOLS_PATH = Path("governance/classic-tools.json")
+PROVENANCE_FIXTURES_PATH = Path("tests/fixtures/provenance-identities")
+MCP_WORKLOAD_PATH = Path("mcp/contract/v1/fixtures/workloads.json")
 TRUSTED_SCHEMA_CANONICAL_SHA256 = "d80f49a1b17d00ad203a70229f2649d005bf69b738fc197c5ad6da8f944e57bd"
 CONFIDENTIAL_RECORD_ID_PATTERN = re.compile(r"^pir-c-[0-9a-f]{32}$")
 PUBLIC_RECORD_ID_PATTERN = re.compile(r"^pir-p-[0-9a-f]{32}$")
@@ -647,6 +652,531 @@ def _git_blob(repository_root: Path, revision: str, path: str) -> bytes:
     return result
 
 
+def _preflight_git_output(
+    repository_root: Path,
+    arguments: list[str],
+    object_name: str,
+    repository: str,
+) -> bytes:
+    try:
+        result = subprocess.run(
+            ["git", *arguments],
+            cwd=repository_root,
+            check=False,
+            capture_output=True,
+            timeout=10,
+            env=_git_environment(),
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise WorkspaceError(
+            f"provenance preflight cannot resolve {repository} object {object_name}"
+        ) from exc
+    if result.returncode != 0:
+        raise WorkspaceError(
+            f"provenance preflight cannot resolve {repository} object {object_name}"
+        )
+    return result.stdout
+
+
+def _preflight_revision(
+    repository_root: Path,
+    revision: str,
+    trusted_ref: str,
+    repository: str,
+) -> None:
+    _preflight_git_output(
+        repository_root,
+        ["rev-parse", "--verify", f"{revision}^{{commit}}"],
+        f"{revision}^{{commit}}",
+        repository,
+    )
+    _validate_repository_trust(repository_root, revision, trusted_ref)
+
+
+def _preflight_blob(
+    repository_root: Path,
+    revision: str,
+    path: str,
+    repository: str,
+    *,
+    expected_git_object: str,
+    expected_sha256: str,
+) -> None:
+    object_name = f"{revision}:{path}"
+    actual_git_object = _preflight_git_output(
+        repository_root,
+        ["rev-parse", "--verify", object_name],
+        object_name,
+        repository,
+    ).decode("ascii", errors="strict").strip()
+    if actual_git_object != expected_git_object:
+        raise WorkspaceError(
+            f"provenance preflight object identity changed for {repository} {object_name}"
+        )
+    raw_size = _preflight_git_output(
+        repository_root,
+        ["cat-file", "-s", object_name],
+        object_name,
+        repository,
+    )
+    try:
+        size = int(raw_size)
+    except ValueError as exc:
+        raise WorkspaceError(
+            f"provenance preflight returned an invalid size for {repository} object {object_name}"
+        ) from exc
+    if size > MAX_DOCUMENT_BYTES:
+        raise WorkspaceError(
+            f"provenance preflight object {repository} {object_name} exceeds the size limit"
+        )
+    blob = _preflight_git_output(
+        repository_root,
+        ["cat-file", "blob", object_name],
+        object_name,
+        repository,
+    )
+    if len(blob) != size:
+        raise WorkspaceError(
+            f"provenance preflight object {repository} {object_name} changed during read"
+        )
+    if sha256(blob) != expected_sha256:
+        raise WorkspaceError(
+            f"provenance preflight SHA-256 mismatch for {repository} object {object_name}"
+        )
+
+
+def _revision_text(value: object, context: str) -> str:
+    if not isinstance(value, str) or not REVISION_PATTERN.fullmatch(value):
+        raise WorkspaceError(f"{context} must be a full Git SHA")
+    return value
+
+
+def _sha256_text(value: object, context: str) -> str:
+    if not isinstance(value, str) or not SHA256_PATTERN.fullmatch(value):
+        raise WorkspaceError(f"{context} must be a SHA-256 digest")
+    return value
+
+
+def _coordinator_pins(value: object, context: str = "") -> list[tuple[str, str, str]]:
+    pins: list[tuple[str, str, str]] = []
+    if isinstance(value, dict):
+        if value.get("repository") == "atrinik/atrinik":
+            if "revision" not in value:
+                raise WorkspaceError(f"{context}.revision must be present for a coordinator pin")
+            path = value.get("path")
+            if not isinstance(path, str) or not path:
+                raise WorkspaceError(f"{context}.path must be present for a coordinator pin")
+            pins.append(
+                (
+                    context,
+                    _revision_text(value["revision"], f"{context}.revision"),
+                    _repository_path(path, f"{context}.path"),
+                )
+            )
+        for key, child in value.items():
+            child_context = f"{context}.{key}" if context else key
+            pins.extend(_coordinator_pins(child, child_context))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            pins.extend(_coordinator_pins(child, f"{context}[{index}]"))
+    return pins
+
+
+def _validate_external_reanchors(value: object) -> None:
+    if not isinstance(value, list) or not value:
+        raise WorkspaceError("provenance revision migration external_reanchors must be non-empty")
+    for index, item in enumerate(value):
+        context = f"provenance revision migration external_reanchors[{index}]"
+        if not isinstance(item, dict):
+            raise WorkspaceError(f"{context} must be an object")
+        _exact_keys(
+            item,
+            {"file", "repository", "trusted_ref", "references", "disposition"},
+            context,
+        )
+        _repository_path(item["file"], f"{context}.file")
+        if item["repository"] != "atrinik/tools":
+            raise WorkspaceError(f"{context}.repository is invalid")
+        if item["trusted_ref"] != "origin/main":
+            raise WorkspaceError(f"{context}.trusted_ref is invalid")
+        _text(item["disposition"], f"{context}.disposition")
+        references = item["references"]
+        if not isinstance(references, list) or not references:
+            raise WorkspaceError(f"{context}.references must be non-empty")
+        seen_fields: set[str] = set()
+        for reference_index, reference in enumerate(references):
+            reference_context = f"{context}.references[{reference_index}]"
+            if not isinstance(reference, dict):
+                raise WorkspaceError(f"{reference_context} must be an object")
+            _exact_keys(
+                reference,
+                {"field", "old_revision", "new_revision", "old_tree", "new_tree"},
+                reference_context,
+            )
+            field = _text(reference["field"], f"{reference_context}.field")
+            if field in seen_fields:
+                raise WorkspaceError(f"{reference_context}.field is duplicated")
+            seen_fields.add(field)
+            for key in ("old_revision", "new_revision", "old_tree", "new_tree"):
+                _revision_text(reference[key], f"{reference_context}.{key}")
+
+
+def _validate_fixture_replacements(
+    value: object, coordinator_revision: str
+) -> None:
+    if not isinstance(value, list) or not value:
+        raise WorkspaceError("provenance revision migration fixture_replacements must be non-empty")
+    seen: set[tuple[str, int]] = set()
+    for index, item in enumerate(value):
+        context = f"provenance revision migration fixture_replacements[{index}]"
+        if not isinstance(item, dict):
+            raise WorkspaceError(f"{context} must be an object")
+        _exact_keys(
+            item,
+            {
+                "file",
+                "case_id",
+                "coordinate_index",
+                "repository",
+                "old_revision",
+                "new_revision",
+            },
+            context,
+        )
+        file = _repository_path(item["file"], f"{context}.file")
+        case_id = _text(item["case_id"], f"{context}.case_id")
+        coordinate_index = item["coordinate_index"]
+        if (
+            type(coordinate_index) is not int
+            or coordinate_index < 0
+        ):
+            raise WorkspaceError(f"{context}.coordinate_index must be a non-negative integer")
+        key = (case_id, coordinate_index)
+        if key in seen:
+            raise WorkspaceError(f"{context} identifies a duplicate fixture coordinate")
+        seen.add(key)
+        if item["repository"] != "atrinik/atrinik":
+            raise WorkspaceError(f"{context}.repository is invalid")
+        _revision_text(item["old_revision"], f"{context}.old_revision")
+        _revision_text(item["new_revision"], f"{context}.new_revision")
+        if item["new_revision"] != coordinator_revision:
+            raise WorkspaceError(f"{context}.new_revision does not use the coordinator anchor")
+        if file != MCP_WORKLOAD_PATH.as_posix():
+            raise WorkspaceError(f"{context}.file is not the MCP workload fixture")
+
+
+def _validate_revision_migration(
+    value: dict[str, Any],
+) -> tuple[
+    dict[str, Any],
+    dict[str, dict[str, Any]],
+    dict[tuple[str, str], dict[str, Any]],
+]:
+    _exact_keys(
+        value,
+        {
+            "schema_version",
+            "decision",
+            "issue",
+            "rationale",
+            "external_reanchors",
+            "fixture_replacements",
+            "coordinator",
+            "replacements",
+            "historical_references",
+        },
+        "provenance revision migration",
+    )
+    if type(value["schema_version"]) is not int or value["schema_version"] != 1:
+        raise WorkspaceError("provenance revision migration has an unsupported schema version")
+    if value["decision"] != "reanchor-unreachable-history":
+        raise WorkspaceError("provenance revision migration decision is invalid")
+    _text(value["issue"], "provenance revision migration.issue")
+    _text(value["rationale"], "provenance revision migration.rationale")
+    coordinator = value["coordinator"]
+    if not isinstance(coordinator, dict):
+        raise WorkspaceError("provenance revision migration coordinator must be an object")
+    _exact_keys(
+        coordinator,
+        {"repository", "trusted_ref", "revision", "objects"},
+        "provenance revision migration coordinator",
+    )
+    if coordinator["repository"] != "atrinik/atrinik":
+        raise WorkspaceError("provenance revision migration coordinator repository is invalid")
+    if coordinator["trusted_ref"] != "origin/main":
+        raise WorkspaceError("provenance revision migration trusted ref is invalid")
+    coordinator_revision = _revision_text(
+        coordinator["revision"], "provenance revision migration coordinator.revision"
+    )
+    objects = coordinator["objects"]
+    if not isinstance(objects, list) or not objects:
+        raise WorkspaceError("provenance revision migration coordinator.objects must be non-empty")
+    object_map: dict[str, dict[str, Any]] = {}
+    for index, item in enumerate(objects):
+        if not isinstance(item, dict):
+            raise WorkspaceError(f"provenance revision migration coordinator.objects[{index}] must be an object")
+        _exact_keys(
+            item,
+            {"path", "git_object", "sha256"},
+            f"provenance revision migration coordinator.objects[{index}]",
+        )
+        path = item["path"]
+        if not isinstance(path, str) or not path or path in object_map:
+            raise WorkspaceError("provenance revision migration coordinator object path is invalid or duplicated")
+        _repository_path(path, f"coordinator.objects[{index}].path")
+        _revision_text(item["git_object"], f"coordinator.objects[{index}].git_object")
+        _sha256_text(item["sha256"], f"coordinator.objects[{index}].sha256")
+        object_map[path] = item
+    replacements = value["replacements"]
+    if not isinstance(replacements, list) or not replacements:
+        raise WorkspaceError("provenance revision migration replacements must be non-empty")
+    replacement_map: dict[tuple[str, str], dict[str, Any]] = {}
+    for index, item in enumerate(replacements):
+        if not isinstance(item, dict):
+            raise WorkspaceError(f"provenance revision migration replacements[{index}] must be an object")
+        required = {
+            "file",
+            "field",
+            "repository",
+            "old_revision",
+            "new_revision",
+            "path",
+        }
+        optional = {"old_reviewers_sha256", "new_reviewers_sha256"}
+        _exact_keys(
+            item,
+            required | (set(item) & optional),
+            f"provenance revision migration replacements[{index}]",
+        )
+        file = item["file"]
+        field = item["field"]
+        if not isinstance(file, str) or not file:
+            raise WorkspaceError(
+                f"provenance revision migration replacements[{index}].file is invalid"
+            )
+        _repository_path(
+            file, f"provenance revision migration replacements[{index}].file"
+        )
+        if not isinstance(field, str) or not field or field.strip() != field:
+            raise WorkspaceError(
+                f"provenance revision migration replacements[{index}].field is invalid"
+            )
+        replacement_key = (file, field)
+        if replacement_key in replacement_map:
+            raise WorkspaceError(
+                "provenance revision migration replacement is duplicated"
+            )
+        replacement_map[replacement_key] = item
+        _revision_text(item["old_revision"], f"replacements[{index}].old_revision")
+        _revision_text(item["new_revision"], f"replacements[{index}].new_revision")
+        if item.get("repository") != "atrinik/atrinik":
+            raise WorkspaceError("provenance revision migration replacement repository is invalid")
+        if item["new_revision"] != coordinator_revision:
+            raise WorkspaceError(
+                "provenance revision migration replacement does not use the coordinator anchor"
+            )
+        _text(item["path"], f"replacements[{index}].path")
+        if bool(set(item) & optional) and not optional <= set(item):
+            raise WorkspaceError(
+                "provenance revision migration reviewer digests must be provided together"
+            )
+        if "old_reviewers_sha256" in item:
+            _sha256_text(item["old_reviewers_sha256"], f"replacements[{index}].old_reviewers_sha256")
+            _sha256_text(item["new_reviewers_sha256"], f"replacements[{index}].new_reviewers_sha256")
+    _validate_external_reanchors(value["external_reanchors"])
+    _validate_fixture_replacements(value["fixture_replacements"], coordinator_revision)
+    historical = value["historical_references"]
+    if not isinstance(historical, list) or not historical:
+        raise WorkspaceError("provenance revision migration historical_references must be non-empty")
+    for index, item in enumerate(historical):
+        if not isinstance(item, dict):
+            raise WorkspaceError(f"provenance revision migration historical_references[{index}] must be an object")
+        _exact_keys(
+            item,
+            {"file", "context", "revision", "disposition"},
+            f"provenance revision migration historical_references[{index}]",
+        )
+        _repository_path(item["file"], f"historical_references[{index}].file")
+        _text(item["context"], f"historical_references[{index}].context")
+        _revision_text(item["revision"], f"historical_references[{index}].revision")
+        disposition = _text(
+            item["disposition"], f"historical_references[{index}].disposition"
+        )
+        if "preserved-unresolved" not in disposition:
+            raise WorkspaceError("provenance revision migration historical disposition must preserve uncertainty")
+    return coordinator, object_map, replacement_map
+
+
+def _migration_field_value(
+    document: dict[str, Any], field: str, context: str
+) -> object:
+    current: object = document
+    for part in field.split("."):
+        if not part or not isinstance(current, dict) or part not in current:
+            raise WorkspaceError(f"{context} does not resolve migration field {field}")
+        current = current[part]
+    return current
+
+
+def preflight_provenance_revisions(
+    root: Path,
+    *,
+    migration_path: Path = REVISION_MIGRATION_PATH,
+) -> tuple[int, int]:
+    if not migration_path.is_absolute():
+        migration_path = root / migration_path
+    migration = load_document(migration_path)
+    coordinator, object_map, replacement_map = _validate_revision_migration(migration)
+    revision = coordinator["revision"]
+    _preflight_revision(root, revision, coordinator["trusted_ref"], coordinator["repository"])
+
+    governance_paths = (REPLACEMENT_FOUNDATIONS_PATH, CLASSIC_TOOLS_PATH)
+    pins: list[tuple[str, str, str]] = []
+    for relative_path in governance_paths:
+        document = load_document(root / relative_path)
+        pins.extend(_coordinator_pins(document, relative_path.as_posix()))
+    if not pins:
+        raise WorkspaceError("provenance preflight found no active coordinator revision pins")
+    for context, pinned_revision, path in pins:
+        if pinned_revision != revision:
+            raise WorkspaceError(
+                f"provenance preflight active pin {context} does not use migration anchor {revision}"
+            )
+        expected = object_map.get(path)
+        if expected is None:
+            raise WorkspaceError(
+                f"provenance preflight migration lacks coordinator object {path}"
+            )
+        _preflight_blob(
+            root,
+            pinned_revision,
+            path,
+            coordinator["repository"],
+            expected_git_object=expected["git_object"],
+            expected_sha256=expected["sha256"],
+        )
+
+    for (relative_file, field), replacement in replacement_map.items():
+        target = root / relative_file
+        document = load_document(target)
+        actual = _migration_field_value(document, field, relative_file)
+        if actual != replacement["new_revision"]:
+            raise WorkspaceError(
+                f"provenance preflight migration row {relative_file}:{field} is not applied"
+            )
+
+    workloads = load_document(root / MCP_WORKLOAD_PATH)
+    cases = workloads.get("cases")
+    if not isinstance(cases, list):
+        raise WorkspaceError("provenance preflight MCP workload cases must be an array")
+    fixture_replacements = migration["fixture_replacements"]
+    assert isinstance(fixture_replacements, list)
+    replacement_coordinates: dict[tuple[str, int], dict[str, Any]] = {}
+    for item in fixture_replacements:
+        assert isinstance(item, dict)
+        replacement_coordinates[(item["case_id"], item["coordinate_index"])] = item
+    fixture_coordinates: set[tuple[str, int]] = set()
+    for case in cases:
+        if not isinstance(case, dict) or not isinstance(case.get("id"), str):
+            raise WorkspaceError("provenance preflight MCP workload case is invalid")
+        expected = case.get("expected")
+        if not isinstance(expected, dict):
+            raise WorkspaceError(
+                f"provenance preflight MCP workload case {case['id']} has no expected object"
+            )
+        coordinates = expected.get("coordinates")
+        if not isinstance(coordinates, list):
+            raise WorkspaceError(
+                f"provenance preflight MCP workload case {case['id']} coordinates are invalid"
+            )
+        for coordinate_index, coordinate in enumerate(coordinates):
+            if not isinstance(coordinate, dict):
+                raise WorkspaceError("provenance preflight MCP coordinate is invalid")
+            if coordinate.get("repository") != coordinator["repository"]:
+                continue
+            coordinate_revision = _revision_text(
+                coordinate.get("commit"),
+                f"{MCP_WORKLOAD_PATH}: {case['id']} coordinate {coordinate_index}.commit",
+            )
+            if coordinate_revision != revision:
+                raise WorkspaceError(
+                    f"provenance preflight MCP fixture {case['id']} coordinate "
+                    f"{coordinate_index} does not use migration anchor {revision}"
+                )
+            key = (case["id"], coordinate_index)
+            fixture_coordinates.add(key)
+            replacement = replacement_coordinates.get(key)
+            if replacement is None or replacement["new_revision"] != coordinate_revision:
+                raise WorkspaceError(
+                    f"provenance preflight MCP fixture {case['id']} coordinate "
+                    f"{coordinate_index} lacks an applied migration row"
+                )
+            _preflight_revision(root, coordinate_revision, coordinator["trusted_ref"], coordinator["repository"])
+    if fixture_coordinates != set(replacement_coordinates):
+        raise WorkspaceError("provenance preflight MCP fixture migration rows do not match active coordinates")
+
+    fixture_revisions: set[str] = set()
+    fixtures_root = root / PROVENANCE_FIXTURES_PATH
+    try:
+        fixture_paths = sorted(fixtures_root.rglob("*.json"))
+    except OSError as exc:
+        raise WorkspaceError("provenance preflight cannot enumerate provenance fixtures") from exc
+    for path in fixture_paths:
+        document = load_document(path)
+        evidence = document.get("evidence_reference")
+        if not isinstance(evidence, dict) or evidence.get("repository") != coordinator["repository"]:
+            continue
+        fixture_revision = _revision_text(
+            evidence.get("revision"),
+            f"{path}: evidence_reference.revision",
+        )
+        if fixture_revision != revision:
+            raise WorkspaceError(
+                f"provenance preflight fixture {path} does not use migration anchor {revision}"
+            )
+        fixture_revisions.add(fixture_revision)
+    if not fixture_revisions:
+        raise WorkspaceError("provenance preflight found no coordinator fixture revisions")
+
+    for path, expected in object_map.items():
+        _preflight_blob(
+            root,
+            revision,
+            path,
+            coordinator["repository"],
+            expected_git_object=expected["git_object"],
+            expected_sha256=expected["sha256"],
+        )
+    return 1, len(object_map)
+
+
+def _migration_scope_payload(
+    reference: dict[str, Any],
+    replacement: dict[str, Any] | None,
+) -> bytes | None:
+    if replacement is None or replacement["field"] != "evidence_reference.revision":
+        return None
+    if "old_reviewers_sha256" not in replacement:
+        return None
+    evidence = reference["evidence_reference"]
+    if evidence["revision"] != replacement["new_revision"]:
+        return None
+    if evidence["reviewers_sha256"] != replacement["new_reviewers_sha256"]:
+        return None
+    legacy_reference = dict(reference)
+    legacy_evidence = dict(evidence)
+    legacy_evidence["revision"] = replacement["old_revision"]
+    legacy_evidence["reviewers_sha256"] = replacement["old_reviewers_sha256"]
+    legacy_evidence["url"] = (
+        f"https://github.com/atrinik/atrinik/blob/{replacement['old_revision']}/"
+        f"{REGISTRY_PATH.as_posix()}#{legacy_evidence['record_id']}"
+    )
+    legacy_reference["evidence_reference"] = legacy_evidence
+    return canonical_bytes(
+        {key: value for key, value in legacy_reference.items() if key != "scope_approval"}
+    )
+
+
 def _load_bytes(value: bytes, context: str) -> dict[str, Any]:
     try:
         result = json.loads(value.decode("utf-8"), object_pairs_hook=_object_pairs)
@@ -665,6 +1195,7 @@ def validate_component_reference(
     trusted_ref: str,
     current_records: dict[str, dict[str, Any]],
     current_reviewers: dict[str, dict[str, Any]],
+    migration_replacement: dict[str, Any] | None = None,
 ) -> None:
     _exact_keys(
         reference,
@@ -786,15 +1317,32 @@ def validate_component_reference(
     scope_payload = canonical_bytes(
         {key: value for key, value in reference.items() if key != "scope_approval"}
     )
-    _verify_approval(
-        reference["scope_approval"],
-        scope_payload,
-        reviewer_identity=record["reviewer"],
-        reviewed_on=_iso_date(record["reviewed_on"], "referenced record reviewed_on"),
-        reviewers=current_reviewers,
-        synthetic=record["synthetic"],
-        context="component provenance scope_approval",
-    )
+    try:
+        _verify_approval(
+            reference["scope_approval"],
+            scope_payload,
+            reviewer_identity=record["reviewer"],
+            reviewed_on=_iso_date(record["reviewed_on"], "referenced record reviewed_on"),
+            reviewers=current_reviewers,
+            synthetic=record["synthetic"],
+            context="component provenance scope_approval",
+        )
+    except WorkspaceError as current_error:
+        legacy_payload = _migration_scope_payload(reference, migration_replacement)
+        if legacy_payload is None:
+            raise
+        try:
+            _verify_approval(
+                reference["scope_approval"],
+                legacy_payload,
+                reviewer_identity=record["reviewer"],
+                reviewed_on=_iso_date(record["reviewed_on"], "referenced record reviewed_on"),
+                reviewers=current_reviewers,
+                synthetic=record["synthetic"],
+                context="component provenance migrated scope_approval",
+            )
+        except WorkspaceError:
+            raise current_error
     if record["synthetic"] != reference["synthetic"]:
         raise WorkspaceError(
             "component provenance synthetic boundary does not match the attestation"
@@ -819,6 +1367,7 @@ def validate_paths(
         reviewers_value,
         as_of=as_of,
     )
+    migration_replacements: dict[tuple[str, str], dict[str, Any]] = {}
     if reference_paths:
         _validate_repository_trust(root, trusted_ref, trusted_ref)
         trusted_registry = _load_bytes(
@@ -840,7 +1389,16 @@ def validate_paths(
             as_of=as_of,
         )
         reviewers = validate_reviewers(trusted_reviewers_value, as_of=as_of)
+        migration_path = root / REVISION_MIGRATION_PATH
+        if migration_path.is_file():
+            _, _, migration_replacements = _validate_revision_migration(
+                load_document(migration_path)
+            )
     for path in reference_paths:
+        try:
+            relative_path = path.resolve().relative_to(root.resolve()).as_posix()
+        except ValueError:
+            relative_path = ""
         validate_component_reference(
             load_document(path),
             repository_root=root,
@@ -848,5 +1406,8 @@ def validate_paths(
             trusted_ref=trusted_ref,
             current_records=records,
             current_reviewers=reviewers,
+            migration_replacement=migration_replacements.get(
+                (relative_path, "evidence_reference.revision")
+            ),
         )
     return len(records)

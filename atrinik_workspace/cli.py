@@ -54,6 +54,12 @@ def validate_provenance_identity(*arguments: object, **keywords: object) -> obje
     return implementation(*arguments, **keywords)
 
 
+def preflight_provenance_revisions(*arguments: object, **keywords: object) -> object:
+    from .provenance_identity import preflight_provenance_revisions as implementation
+
+    return implementation(*arguments, **keywords)
+
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -533,6 +539,17 @@ def parser() -> argparse.ArgumentParser:
         ),
         "none",
     )
+    provenance_preflight = provenance_commands.add_parser(
+        "preflight", help="resolve pinned provenance revisions and Git objects"
+    )
+    mark(
+        provenance_preflight.add_argument(
+            "--migration",
+            type=Path,
+            default=ROOT / "governance/provenance-revision-migration.json",
+        ),
+        "path",
+    )
 
     launch = commands.add_parser("run", help="build and run client or server")
     launch_commands = launch.add_subparsers(dest="target", required=True)
@@ -600,6 +617,20 @@ def main(arguments: list[str] | None = None) -> int:
             print(f"components.json: valid ({len(manifest.components)} components)")
             return 0
         if options.command == "provenance":
+            if options.provenance_command == "preflight":
+                revisions, objects = preflight_provenance_revisions(
+                    ROOT, migration_path=options.migration
+                )
+                migration_display = options.migration
+                try:
+                    migration_display = options.migration.resolve().relative_to(ROOT)
+                except ValueError:
+                    pass
+                print(
+                    f"{migration_display}: valid "
+                    f"({revisions} coordinator revisions, {objects} Git objects)"
+                )
+                return 0
             count = validate_provenance_identity(
                 ROOT,
                 registry_path=options.registry,

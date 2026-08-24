@@ -18,11 +18,11 @@
   },
   "evidence_reference": {
     "repository": "atrinik/atrinik",
-    "revision": "6f6040212f0fa0cb6b8e4e695d1488a403d966be",
+    "revision": "f2d8eda70776ef42acdaf9150223aaecded103b1",
     "record_id": "pir-c-11111111111111111111111111111111",
     "registry_sha256": "0a04fcadccb37e64f6c1209bc0b7e8d5762639ce4c5521c3bba028d9eba037bd",
     "schema_sha256": "9c726627c8679b4b437db2b54b2480fe0c45eef788de7cd76de1dec5c3ce3409",
-    "reviewers_sha256": "b7a44ad27cec663a9092b924a0f6a9c95bf95a2ce74cf75ba8873e7938782240",
-    "url": "https://github.com/atrinik/atrinik/blob/6f6040212f0fa0cb6b8e4e695d1488a403d966be/governance/provenance-identities/registry.json#pir-c-11111111111111111111111111111111"
+    "reviewers_sha256": "a0c765f70844ab5c368cade59afda5d05c4627d20c00e6c362217da804e12f19",
+    "url": "https://github.com/atrinik/atrinik/blob/f2d8eda70776ef42acdaf9150223aaecded103b1/governance/provenance-identities/registry.json#pir-c-11111111111111111111111111111111"
   }
 }
