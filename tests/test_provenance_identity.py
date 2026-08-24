@@ -286,6 +286,19 @@ class ProvenanceIdentityTests(unittest.TestCase):
         self.assertIn("1 coordinator revisions, 6 Git objects", output.call_args.args[0])
         self.assertIn("governance/provenance-revision-migration.json", output.call_args.args[0])
 
+    def test_cli_preflight_keeps_external_migration_path_displayable(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            migration = Path(temporary) / "migration.json"
+            with mock.patch(
+                "atrinik_workspace.cli.preflight_provenance_revisions",
+                return_value=(1, 6),
+            ), mock.patch("builtins.print") as output:
+                self.assertEqual(
+                    main(["provenance", "preflight", "--migration", str(migration)]),
+                    0,
+                )
+        self.assertIn(str(migration), output.call_args.args[0])
+
     def test_provenance_revision_preflight_reports_missing_object(self) -> None:
         missing = "deadbeef" * 5 + ":AGENTS.md"
         result = subprocess.CompletedProcess(
@@ -1085,6 +1098,29 @@ class ProvenanceIdentityTests(unittest.TestCase):
             as_of=AS_OF,
             trusted_ref="HEAD",
         )
+
+    def test_external_reference_path_is_not_given_a_migration_replacement(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            reference_path = Path(temporary) / "external.json"
+            reference_path.write_text("{}\n", encoding="utf-8")
+            with mock.patch(
+                "atrinik_workspace.provenance_identity.validate_component_reference"
+            ) as validate_reference:
+                self.assertEqual(
+                    validate_paths(
+                        ROOT,
+                        registry_path=REGISTRY,
+                        schema_path=SCHEMA,
+                        reviewers_path=REVIEWERS,
+                        reference_paths=[reference_path],
+                        as_of=AS_OF,
+                        trusted_ref="HEAD",
+                    ),
+                    2,
+                )
+            self.assertIsNone(
+                validate_reference.call_args.kwargs["migration_replacement"]
+            )
 
     def test_broken_immutable_reference_fixture_fails_closed(self) -> None:
         records, reviewer_keys = current()
