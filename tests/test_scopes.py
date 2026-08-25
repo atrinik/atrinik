@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from contextlib import contextmanager
 import json
 import os
 import random
@@ -524,6 +525,337 @@ class ScopeLifecycleTests(unittest.TestCase):
             "complete",
         )
 
+    def test_rolled_back_scope_recovery_rejects_malformed_evidence(self) -> None:
+        checkout = self.make_checkout("client")
+        lifecycle = ScopeLifecycle(self.workspace)
+
+        def failed_scope(name: str) -> tuple[Path, Path, Path, dict[str, object], str]:
+            with mock.patch.dict(
+                os.environ, {SCOPE_FAILURE_BOUNDARIES_ENV: "worktree:client"}
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "injected scope failure"):
+                    self.workspace.scope_create(["client"], name=name)
+            root = self.workspace_directory / "scopes" / name
+            reservation_path = root / "reservation.json"
+            journal_path = root / "creation-journal.json"
+            journal = json.loads(journal_path.read_text(encoding="utf-8"))
+            return (
+                root,
+                reservation_path,
+                journal_path,
+                journal["request"],
+                journal["request_sha256"],
+            )
+
+        with self.assertRaisesRegex(WorkspaceError, "regular directory"):
+            lifecycle._directory_identity(checkout / "README", "test file")
+
+        def reject(
+            name: str,
+            mutate: object,
+            message: str,
+        ) -> None:
+            root, reservation_path, journal_path, request, digest = failed_scope(name)
+            mutate(root, reservation_path, journal_path, request)
+            with self.assertRaisesRegex(WorkspaceError, message):
+                lifecycle._load_recovery_inputs(request, digest)
+
+        reject(
+            "evidence-root",
+            lambda root, _reservation, _journal, _request: (
+                shutil.rmtree(root),
+                root.write_text("not a directory", encoding="utf-8"),
+            ),
+            "reservation is unsafe",
+        )
+        reject(
+            "evidence-reservation",
+            lambda _root, reservation, _journal, _request: reservation.unlink(),
+            "creation is incomplete",
+        )
+        reject(
+            "evidence-journal",
+            lambda _root, _reservation, journal, _request: journal.unlink(),
+            "creation is incomplete",
+        )
+
+        def change_reservation(
+            _root: Path, reservation: Path, _journal: Path, _request: dict[str, object]
+        ) -> None:
+            value = json.loads(reservation.read_text(encoding="utf-8"))
+            value["request_sha256"] = "0" * 64
+            reservation.write_text(json.dumps(value), encoding="utf-8")
+
+        reject("evidence-reservation-id", change_reservation, "reservation identity")
+
+        def change_journal_status(
+            _root: Path, _reservation: Path, journal: Path, _request: dict[str, object]
+        ) -> None:
+            value = json.loads(journal.read_text(encoding="utf-8"))
+            value["status"] = "creating"
+            journal.write_text(json.dumps(value), encoding="utf-8")
+
+        reject("evidence-journal-status", change_journal_status, "not safely retryable")
+
+        def change_worktree_shape(
+            _root: Path, _reservation: Path, journal: Path, _request: dict[str, object]
+        ) -> None:
+            value = json.loads(journal.read_text(encoding="utf-8"))
+            value["worktrees"] = [{"checkout": "client"}]
+            journal.write_text(json.dumps(value), encoding="utf-8")
+
+        reject("evidence-worktree-shape", change_worktree_shape, "worktree evidence")
+
+        def change_request(
+            _root: Path, _reservation: Path, journal: Path, _request: dict[str, object]
+        ) -> None:
+            value = json.loads(journal.read_text(encoding="utf-8"))
+            value["request"]["name"] = "tampered"
+            journal.write_text(json.dumps(value), encoding="utf-8")
+
+        reject("evidence-request", change_request, "request evidence")
+
+        def change_identity(
+            _root: Path, _reservation: Path, journal: Path, _request: dict[str, object]
+        ) -> None:
+            value = json.loads(journal.read_text(encoding="utf-8"))
+            value["identities"]["workspace"]["inode"] += 1
+            journal.write_text(json.dumps(value), encoding="utf-8")
+
+        reject("evidence-identity", change_identity, "repository or root identity")
+
+        def change_profile_status(
+            _root: Path, _reservation: Path, journal: Path, _request: dict[str, object]
+        ) -> None:
+            value = json.loads(journal.read_text(encoding="utf-8"))
+            value["profile"]["status"] = "created"
+            journal.write_text(json.dumps(value), encoding="utf-8")
+
+        reject("evidence-profile-status", change_profile_status, "published or uncertain")
+
+        def create_profile(
+            _root: Path, _reservation: Path, _journal: Path, request: dict[str, object]
+        ) -> None:
+            Path(request["profile"]["path"]).write_text("{}", encoding="utf-8")
+
+        reject("evidence-profile-path", create_profile, "profile reference changed")
+
+        def change_worktree_status(
+            _root: Path, _reservation: Path, journal: Path, _request: dict[str, object]
+        ) -> None:
+            value = json.loads(journal.read_text(encoding="utf-8"))
+            value["worktrees"][0]["status"] = "created"
+            journal.write_text(json.dumps(value), encoding="utf-8")
+
+        reject("evidence-worktree-status", change_worktree_status, "changed worktree evidence")
+
+    def test_rolled_back_scope_recovery_rechecks_live_worktree_state(self) -> None:
+        checkout = self.make_checkout("client")
+        lifecycle = ScopeLifecycle(self.workspace)
+
+        def failed_row(name: str, branch: str) -> dict[str, object]:
+            with mock.patch.dict(
+                os.environ, {SCOPE_FAILURE_BOUNDARIES_ENV: "worktree:client"}
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "injected scope failure"):
+                    self.workspace.scope_create(
+                        ["client"], name=name, branches=[f"client={branch}"]
+                    )
+            journal = json.loads(
+                (
+                    self.workspace_directory
+                    / "scopes"
+                    / name
+                    / "creation-journal.json"
+                ).read_text(encoding="utf-8")
+            )
+            return journal["worktrees"][0]
+
+        row = failed_row("live-worktree-reference", "issue/512-live-reference")
+        command(
+            "git",
+            "worktree",
+            "add",
+            "-b",
+            row["branch"],
+            "--",
+            row["path"],
+            row["commit"],
+            cwd=checkout,
+        )
+        with self.assertRaisesRegex(WorkspaceError, "existing worktree reference"):
+            lifecycle._recover_worktree(row)
+
+        row = failed_row("live-worktree-path", "issue/512-live-path")
+        Path(row["path"]).mkdir(parents=True)
+        with self.assertRaisesRegex(WorkspaceError, "worktree path already exists"):
+            lifecycle._recover_worktree(row)
+
+        row = failed_row("live-worktree-head", "issue/512-live-head")
+        command("git", "config", "user.name", "Tests", cwd=checkout)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=checkout)
+        (checkout / "advance.txt").write_text("advance\n", encoding="utf-8")
+        command("git", "add", "advance.txt", cwd=checkout)
+        command("git", "commit", "-m", "test: advance recovery head", cwd=checkout)
+        advanced = command("git", "rev-parse", "HEAD", cwd=checkout)
+
+        original_create_worktree = self.workspace._create_worktree
+
+        def change_head(*arguments: object, **keywords: object) -> Path:
+            result = original_create_worktree(*arguments, **keywords)
+            command("git", "reset", "--hard", advanced, cwd=result)
+            return result
+
+        with mock.patch.object(
+            self.workspace, "_create_worktree", side_effect=change_head
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "head changed"):
+                lifecycle._recover_worktree(row)
+
+        row = failed_row("live-worktree-branch", "issue/512-live-branch")
+
+        def detach_worktree(*arguments: object, **keywords: object) -> Path:
+            result = original_create_worktree(*arguments, **keywords)
+            command("git", "switch", "--detach", cwd=result)
+            return result
+
+        with mock.patch.object(
+            self.workspace, "_create_worktree", side_effect=detach_worktree
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "branch changed"):
+                lifecycle._recover_worktree(row)
+
+        row = failed_row("live-worktree-dirty", "issue/512-live-dirty")
+
+        def dirty_worktree(*arguments: object, **keywords: object) -> Path:
+            result = original_create_worktree(*arguments, **keywords)
+            (result / "dirty.txt").write_text("dirty\n", encoding="utf-8")
+            return result
+
+        with mock.patch.object(
+            self.workspace, "_create_worktree", side_effect=dirty_worktree
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "created a dirty worktree"):
+                lifecycle._recover_worktree(row)
+
+    def test_rolled_back_scope_recovery_handles_races_and_post_publish_failure(self) -> None:
+        self.make_checkout("client")
+        lifecycle = ScopeLifecycle(self.workspace)
+
+        with self.assertRaisesRegex(WorkspaceError, "reservation is unsafe"):
+            root = self.workspace_directory / "scopes" / "symlink-record"
+            root.mkdir(parents=True)
+            target = root / "target"
+            target.write_text("target\n", encoding="utf-8")
+            lifecycle._record_path("symlink-record").symlink_to(target)
+            self.workspace.scope_create(["client"], name="symlink-record")
+
+        complete = self.workspace.scope_create(["client"], name="complete-recovery")
+        complete_journal = json.loads(
+            (
+                self.workspace_directory
+                / "scopes"
+                / "complete-recovery"
+                / "creation-journal.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            lifecycle._recover_existing(
+                complete_journal["request"], complete["request_sha256"]
+            ),
+            complete,
+        )
+        with self.assertRaisesRegex(WorkspaceError, "different coordinates"):
+            lifecycle._recover_existing(complete_journal["request"], "0" * 64)
+
+        with mock.patch.dict(
+            os.environ, {SCOPE_FAILURE_BOUNDARIES_ENV: "worktree:client"}
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "injected scope failure"):
+                self.workspace.scope_create(["client"], name="coordinate-drift")
+        drift_journal_path = (
+            self.workspace_directory
+            / "scopes"
+            / "coordinate-drift"
+            / "creation-journal.json"
+        )
+        drift_journal = json.loads(drift_journal_path.read_text(encoding="utf-8"))
+        with mock.patch.object(
+            lifecycle,
+            "_preflight_request",
+            return_value={**drift_journal["request"], "name": "tampered"},
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "coordinates changed"):
+                lifecycle._recover_existing(
+                    drift_journal["request"], drift_journal["request_sha256"]
+                )
+
+        @contextmanager
+        def busy_after_scope(*_arguments: object, **_keywords: object):
+            busy_after_scope.calls += 1
+            if busy_after_scope.calls == 1:
+                yield
+                return
+            raise locking_module.LockBusyError("busy")
+
+        busy_after_scope.calls = 0
+        with mock.patch.object(
+            self.workspace, "_resource_locks", side_effect=busy_after_scope
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "remained busy"):
+                lifecycle._recover_existing(
+                    drift_journal["request"], drift_journal["request_sha256"]
+                )
+
+        checkout = self.workspace.manifest.by_checkout["client"]
+        primary = self.workspace._primary_path(checkout)
+        base = command("git", "rev-parse", "HEAD", cwd=primary)
+        original_create_worktree = self.workspace._create_worktree
+
+        def fail_after_branch(
+            component_name: str,
+            label: str,
+            branch_name: str,
+            start_point: str | None,
+            existing: bool,
+            *arguments: object,
+            **keywords: object,
+        ) -> Path:
+            if not existing:
+                command("git", "branch", branch_name, start_point or base, cwd=primary)
+                raise WorkspaceError("simulated filter failure")
+            return original_create_worktree(
+                component_name,
+                label,
+                branch_name,
+                start_point,
+                existing,
+                *arguments,
+                **keywords,
+            )
+
+        with mock.patch.object(
+            self.workspace, "_create_worktree", side_effect=fail_after_branch
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "simulated filter failure"):
+                self.workspace.scope_create(
+                    ["client"],
+                    name="post-publish",
+                    branches=["client=issue/512-post-publish"],
+                    start_points=[f"client={base}"],
+                )
+        with mock.patch.dict(
+            os.environ, {SCOPE_FAILURE_BOUNDARIES_ENV: "scope"}
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "injected scope failure"):
+                self.workspace.scope_create(
+                    ["client"],
+                    name="post-publish",
+                    branches=["client=issue/512-post-publish"],
+                    start_points=[f"client={base}"],
+                )
+        self.assertEqual(self.workspace.scope_show("post-publish")["status"], "complete")
+
     def test_invalid_requests_fail_before_publication(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "at least one component"):
             self.workspace.scope_create([], name="empty")
@@ -584,6 +916,20 @@ class ScopeLifecycleTests(unittest.TestCase):
         profile.write_text("{}", encoding="utf-8")
         with self.assertRaisesRegex(WorkspaceError, "profile already exists"):
             preflight("profile-exists")
+        with mock.patch.object(
+            self.workspace,
+            "_physical_reference_records",
+            return_value=[
+                {
+                    "schema_version": 1,
+                    "kind": "profiles",
+                    "reference": "scope-profile-reference",
+                    "sources": [],
+                }
+            ],
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "profile reference already exists"):
+                preflight("profile-reference")
         topology = self.workspace_directory / "topologies" / "scope-topology-exists"
         topology.mkdir(parents=True)
         with self.assertRaisesRegex(WorkspaceError, "topology namespace"):
