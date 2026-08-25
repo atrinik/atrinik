@@ -294,6 +294,8 @@ class ScopeLifecycleTests(unittest.TestCase):
     def test_rolled_back_scope_recovery_rejects_changed_branch_and_existing_refs(self) -> None:
         checkout = self.make_checkout("client")
         base = command("git", "rev-parse", "HEAD", cwd=checkout)
+        command("git", "config", "user.name", "Tests", cwd=checkout)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=checkout)
 
         def leave_branch(name: str, branch: str) -> None:
             original = self.workspace._create_worktree
