@@ -224,6 +224,275 @@ class ScopeLifecycleTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "different coordinates"):
             self.workspace.scope_create(["client"], name="custom-retry")
 
+    def test_rolled_back_scope_retries_and_adopts_branch_only_side_effect(self) -> None:
+        checkout = self.make_checkout("client")
+        base = command("git", "rev-parse", "HEAD", cwd=checkout)
+        branch = "issue/512-recovery"
+        original = self.workspace._create_worktree
+
+        def fail_after_branch(
+            component_name: str,
+            label: str,
+            branch_name: str,
+            start_point: str | None,
+            existing: bool,
+            *arguments: object,
+            **keywords: object,
+        ) -> Path:
+            if not existing:
+                command("git", "branch", branch_name, start_point or base, cwd=checkout)
+                raise WorkspaceError("git-lfs filter unavailable")
+            return original(
+                component_name,
+                label,
+                branch_name,
+                start_point,
+                existing,
+                *arguments,
+                **keywords,
+            )
+
+        with mock.patch.object(
+            self.workspace, "_create_worktree", side_effect=fail_after_branch
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "git-lfs filter unavailable"):
+                self.workspace.scope_create(
+                    ["client"],
+                    name="rolled-back",
+                    branches=[f"client={branch}"],
+                    start_points=[f"client={base}"],
+                )
+
+        scope_root = self.workspace_directory / "scopes" / "rolled-back"
+        journal_path = scope_root / "creation-journal.json"
+        journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(journal["status"], "rolled-back")
+        self.assertEqual(journal["worktrees"][0]["status"], "planned")
+        self.assertEqual(journal["request"]["worktrees"][0]["branch"], branch)
+        self.assertEqual(
+            journal["identities"]["repositories"][0]["path"], str(checkout)
+        )
+        legacy_journal = copy.deepcopy(journal)
+        legacy_journal.pop("request")
+        legacy_journal.pop("identities")
+        journal_path.write_text(json.dumps(legacy_journal), encoding="utf-8")
+
+        record = self.workspace.scope_create(
+            ["client"],
+            name="rolled-back",
+            branches=[f"client={branch}"],
+            start_points=[f"client={base}"],
+        )
+        self.assertEqual(record["status"], "complete")
+        self.assertEqual(record["request_sha256"], journal["request_sha256"])
+        self.assertEqual(self.workspace.scope_show("rolled-back"), record)
+        recovered_journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        self.assertEqual(recovered_journal["status"], "complete")
+        self.assertEqual(recovered_journal["recovery"]["status"], "complete")
+        self.assertTrue(Path(record["worktrees"][0]["path"]).is_dir())
+
+    def test_rolled_back_scope_recovery_rejects_changed_branch_and_existing_refs(self) -> None:
+        checkout = self.make_checkout("client")
+        base = command("git", "rev-parse", "HEAD", cwd=checkout)
+
+        def leave_branch(name: str, branch: str) -> None:
+            original = self.workspace._create_worktree
+
+            def fail_after_branch(
+                component_name: str,
+                label: str,
+                branch_name: str,
+                start_point: str | None,
+                existing: bool,
+                *arguments: object,
+                **keywords: object,
+            ) -> Path:
+                if not existing:
+                    command("git", "branch", branch_name, start_point or base, cwd=checkout)
+                    raise WorkspaceError("simulated filter failure")
+                return original(
+                    component_name,
+                    label,
+                    branch_name,
+                    start_point,
+                    existing,
+                    *arguments,
+                    **keywords,
+                )
+
+            with mock.patch.object(
+                self.workspace, "_create_worktree", side_effect=fail_after_branch
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "simulated filter failure"):
+                    self.workspace.scope_create(
+                        ["client"],
+                        name=name,
+                        branches=[f"client={branch}"],
+                        start_points=[f"client={base}"],
+                    )
+
+        leave_branch("changed-branch", "issue/512-changed")
+        changed = checkout / "changed.txt"
+        changed.write_text("changed\n", encoding="utf-8")
+        command("git", "add", "changed.txt", cwd=checkout)
+        command("git", "commit", "-m", "test: advance branch", cwd=checkout)
+        command("git", "branch", "-f", "issue/512-changed", "HEAD", cwd=checkout)
+        with self.assertRaisesRegex(WorkspaceError, "branch changed"):
+            self.workspace.scope_create(
+                ["client"],
+                name="changed-branch",
+                branches=["client=issue/512-changed"],
+                start_points=[f"client={base}"],
+            )
+
+        leave_branch("profile-reference", "issue/512-profile")
+        profile = self.workspace_directory / "profiles" / "scope-profile-reference.json"
+        profile.write_text("{}", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "profile already exists"):
+            self.workspace.scope_create(
+                ["client"],
+                name="profile-reference",
+                branches=["client=issue/512-profile"],
+                start_points=[f"client={base}"],
+            )
+
+        leave_branch("topology-reference", "issue/512-topology")
+        (self.workspace_directory / "topologies" / "scope-topology-reference").mkdir(
+            parents=True
+        )
+        with self.assertRaisesRegex(WorkspaceError, "topology namespace"):
+            self.workspace.scope_create(
+                ["client"],
+                name="topology-reference",
+                branches=["client=issue/512-topology"],
+                start_points=[f"client={base}"],
+            )
+
+        leave_branch("remote-reference", "issue/512-remote")
+        command(
+            "git",
+            "update-ref",
+            "refs/remotes/origin/issue/512-remote",
+            base,
+            cwd=checkout,
+        )
+        with self.assertRaisesRegex(WorkspaceError, "remote branch reference"):
+            self.workspace.scope_create(
+                ["client"],
+                name="remote-reference",
+                branches=["client=issue/512-remote"],
+                start_points=[f"client={base}"],
+            )
+
+    def test_rolled_back_scope_recovery_rejects_existing_worktree_and_serializes_retries(self) -> None:
+        checkout = self.make_checkout("client")
+        base = command("git", "rev-parse", "HEAD", cwd=checkout)
+
+        def leave_branch(name: str, branch: str) -> None:
+            original = self.workspace._create_worktree
+
+            def fail_after_branch(
+                component_name: str,
+                label: str,
+                branch_name: str,
+                start_point: str | None,
+                existing: bool,
+                *arguments: object,
+                **keywords: object,
+            ) -> Path:
+                if not existing:
+                    command("git", "branch", branch_name, start_point or base, cwd=checkout)
+                    raise WorkspaceError("simulated missing filter")
+                return original(
+                    component_name,
+                    label,
+                    branch_name,
+                    start_point,
+                    existing,
+                    *arguments,
+                    **keywords,
+                )
+
+            with mock.patch.object(
+                self.workspace, "_create_worktree", side_effect=fail_after_branch
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "simulated missing filter"):
+                    self.workspace.scope_create(
+                        ["client"],
+                        name=name,
+                        branches=[f"client={branch}"],
+                        start_points=[f"client={base}"],
+                    )
+
+        leave_branch("worktree-reference", "issue/512-worktree")
+        destination = (
+            self.workspace_directory / "worktrees" / "client" / "scope-worktree-reference"
+        )
+        command("git", "worktree", "add", str(destination), "issue/512-worktree", cwd=checkout)
+        (destination / "dirty.txt").write_text("dirty\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "worktree path"):
+            self.workspace.scope_create(
+                ["client"],
+                name="worktree-reference",
+                branches=["client=issue/512-worktree"],
+                start_points=[f"client={base}"],
+            )
+
+        leave_branch("concurrent-retry", "issue/512-concurrent")
+        barrier = threading.Barrier(2)
+
+        def retry() -> tuple[str, object]:
+            barrier.wait(timeout=10)
+            try:
+                return (
+                    "ok",
+                    self.workspace.scope_create(
+                        ["client"],
+                        name="concurrent-retry",
+                        branches=["client=issue/512-concurrent"],
+                        start_points=[f"client={base}"],
+                    ),
+                )
+            except WorkspaceError as error:
+                return ("error", str(error))
+
+        with ThreadPoolExecutor(max_workers=2) as workers:
+            results = list(workers.map(lambda _: retry(), range(2)))
+        self.assertEqual(sorted(result[0] for result in results), ["error", "ok"])
+        completed = next(result[1] for result in results if result[0] == "ok")
+        self.assertEqual(completed["status"], "complete")
+        self.assertIn("already in use", next(result[1] for result in results if result[0] == "error"))
+        self.assertEqual(
+            self.workspace.scope_create(
+                ["client"],
+                name="concurrent-retry",
+                branches=["client=issue/512-concurrent"],
+                start_points=[f"client={base}"],
+            ),
+            completed,
+        )
+
+    def test_rolled_back_scope_without_branch_side_effect_retries_exactly(self) -> None:
+        self.make_checkout("client")
+        with mock.patch.dict(
+            os.environ, {SCOPE_FAILURE_BOUNDARIES_ENV: "worktree:client"}
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "injected scope failure"):
+                self.workspace.scope_create(["client"], name="retry-rollback")
+        journal = json.loads(
+            (
+                self.workspace_directory
+                / "scopes"
+                / "retry-rollback"
+                / "creation-journal.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertEqual(journal["status"], "rolled-back")
+        self.assertEqual(
+            self.workspace.scope_create(["client"], name="retry-rollback")["status"],
+            "complete",
+        )
+
     def test_invalid_requests_fail_before_publication(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "at least one component"):
             self.workspace.scope_create([], name="empty")

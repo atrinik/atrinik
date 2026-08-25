@@ -209,48 +209,126 @@ class ScopeLifecycle:
         state_name: str | None,
     ) -> dict[str, Any]:
         record_path = self._record_path(name)
-        if record_path.is_symlink() or not record_path.is_file():
-            raise WorkspaceError(
-                f"scope creation is incomplete: {name}; preserve and inspect {self._journal_path(name)}"
+        if record_path.is_file() and not record_path.is_symlink():
+            record = self._load_record(name)
+            self._require_unreleased(record)
+            expected_topology = self._requested_topology_name(name, topology)
+            expected_state_name = (
+                None
+                if state_mode == "temporary"
+                else "default"
+                if state_mode == "default"
+                else state_name
             )
-        record = self._load_record(name)
-        self._require_unreleased(record)
-        expected_topology = self._requested_topology_name(name, topology)
-        expected_state_name = (
-            None if state_mode == "temporary" else "default" if state_mode == "default" else state_name
-        )
-        rows = {row["checkout"]: row for row in record["worktrees"]}
-        expected_rows = {
-            checkout: {
-                "label": labels.get(checkout, record["profile"]["name"]),
-                "branch": branches.get(checkout, f"scope/{name}/{checkout}"),
-                "start_point": start_points.get(
-                    checkout,
-                    f"refs/heads/{self.workspace.manifest.by_checkout[checkout].branch}",
-                ),
+            rows = {row["checkout"]: row for row in record["worktrees"]}
+            expected_rows = {
+                checkout: {
+                    "label": labels.get(checkout, record["profile"]["name"]),
+                    "branch": branches.get(checkout, f"scope/{name}/{checkout}"),
+                    "start_point": start_points.get(
+                        checkout,
+                        f"refs/heads/{self.workspace.manifest.by_checkout[checkout].branch}",
+                    ),
+                }
+                for checkout in rows
             }
-            for checkout in rows
-        }
-        conflicts = (
-            record["base_profile"] != base_profile
-            or record["requested_components"] != sorted(set(components))
-            or record["topology"]["name"] != expected_topology
-            or record["state_policy"]["mode"] != state_mode
-            or record["state_policy"]["name"] != expected_state_name
-            or set(labels) - set(rows)
-            or set(branches) - set(rows)
-            or set(start_points) - set(rows)
-            or any(
-                rows[checkout][coordinate] != expected
-                for checkout, coordinates in expected_rows.items()
-                for coordinate, expected in coordinates.items()
+            conflicts = (
+                record["base_profile"] != base_profile
+                or record["requested_components"] != sorted(set(components))
+                or record["topology"]["name"] != expected_topology
+                or record["state_policy"]["mode"] != state_mode
+                or record["state_policy"]["name"] != expected_state_name
+                or set(labels) - set(rows)
+                or set(branches) - set(rows)
+                or set(start_points) - set(rows)
+                or any(
+                    rows[checkout][coordinate] != expected
+                    for checkout, coordinates in expected_rows.items()
+                    for coordinate, expected in coordinates.items()
+                )
             )
+            if conflicts:
+                raise WorkspaceError(
+                    f"scope name is already bound to different coordinates: {name}"
+                )
+            return record
+
+        if record_path.is_symlink():
+            raise WorkspaceError(f"scope reservation is unsafe: {name}")
+        request = self._preflight_request(
+            name,
+            components,
+            base_profile,
+            labels,
+            branches,
+            start_points,
+            topology,
+            state_mode,
+            state_name,
+            allow_existing_branches=True,
         )
-        if conflicts:
+        digest = _canonical_sha256(request)
+        return self._recover_existing(request, digest)
+
+    def _recover_existing(self, request: dict[str, Any], digest: str) -> dict[str, Any]:
+        name = request["name"]
+        requests = self._creation_leases(request)
+        scope_request = requests[0]
+        scope_entered = False
+        try:
+            with self.workspace._resource_locks(
+                [scope_request], nonblocking=True, include_wrapper=False
+            ):
+                scope_entered = True
+                with self.workspace._resource_locks(requests[1:]):
+                    record_path = self._record_path(name)
+                    if record_path.is_file() and not record_path.is_symlink():
+                        record = self._load_record(name)
+                        self._require_unreleased(record)
+                        if record["request_sha256"] != digest:
+                            raise WorkspaceError(
+                                f"scope name is already bound to different coordinates: {name}"
+                            )
+                        return record
+                    current = self._preflight_request(
+                        name,
+                        request["requested_components"],
+                        request["base_profile"],
+                        {
+                            row["checkout"]: row["label"]
+                            for row in request["worktrees"]
+                        },
+                        {
+                            row["checkout"]: row["branch"]
+                            for row in request["worktrees"]
+                        },
+                        {
+                            row["checkout"]: row["start_point"]
+                            for row in request["worktrees"]
+                        },
+                        request["topology"]["name"],
+                        request["state_policy"]["mode"],
+                        request["state_policy"]["name"]
+                        if request["state_policy"]["mode"] == "named"
+                        else None,
+                        allow_existing_branches=True,
+                    )
+                    if current != request or _canonical_sha256(current) != digest:
+                        raise WorkspaceError(
+                            f"scope coordinates changed during recovery: {name}"
+                        )
+                    reservation, journal = self._load_recovery_inputs(
+                        request, digest
+                    )
+                    return self._recover_locked(request, digest, reservation, journal)
+        except LockBusyError as error:
+            if scope_entered:
+                raise WorkspaceError(
+                    f"scope resources remained busy while recovering: {name}; retry after the exact operation finishes"
+                ) from error
             raise WorkspaceError(
-                f"scope name is already bound to different coordinates: {name}"
-            )
-        return record
+                f"scope coordinates are already in use: {name}; inspect the exact scope, profile, topology, and worktree coordinates"
+            ) from error
 
     def _preflight_request(
         self,
@@ -263,6 +341,8 @@ class ScopeLifecycle:
         topology: str | None,
         state_mode: str,
         state_name: str | None,
+        *,
+        allow_existing_branches: bool = False,
     ) -> dict[str, Any]:
         from .workspace import git, run
 
@@ -293,6 +373,13 @@ class ScopeLifecycle:
         topology_path = self.paths.topologies / topology_name
         if profile_path.exists() or profile_path.is_symlink():
             raise WorkspaceError(f"scope profile already exists: {profile_name}")
+        if any(
+            isinstance(reference, dict)
+            and reference.get("kind") == "profiles"
+            and reference.get("reference") == profile_name
+            for reference in self.workspace._physical_reference_records()
+        ):
+            raise WorkspaceError(f"scope profile reference already exists: {profile_name}")
         if topology_path.exists() or topology_path.is_symlink():
             raise WorkspaceError(f"scope topology namespace already exists: {topology_name}")
 
@@ -406,9 +493,11 @@ class ScopeLifecycle:
                 stderr=subprocess.DEVNULL,
             )
             if completed.returncode == 0:
-                raise WorkspaceError(
-                    f"scope branch already exists: {row['checkout']}:{row['branch']}"
-                )
+                if not allow_existing_branches:
+                    raise WorkspaceError(
+                        f"scope branch already exists: {row['checkout']}:{row['branch']}"
+                    )
+                continue
             if completed.returncode != 1:
                 raise WorkspaceError(
                     f"cannot preflight scope branch: {row['checkout']}:{row['branch']}"
@@ -475,6 +564,380 @@ class ScopeLifecycle:
             )
         return requests
 
+    @staticmethod
+    def _directory_identity(path: Path, context: str) -> dict[str, Any]:
+        if path.is_symlink() or not path.is_dir():
+            raise WorkspaceError(f"{context} is not a regular directory: {path}")
+        identity = path.stat(follow_symlinks=False)
+        return {
+            "path": str(path),
+            "device": identity.st_dev,
+            "inode": identity.st_ino,
+        }
+
+    def _load_recovery_inputs(
+        self, request: dict[str, Any], digest: str
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        name = request["name"]
+        root = self._scope_root(name)
+        reservation_path = self._reservation_path(name)
+        journal_path = self._journal_path(name)
+        if root.is_symlink() or not root.is_dir():
+            raise WorkspaceError(f"scope reservation is unsafe: {name}")
+        if not reservation_path.is_file() or reservation_path.is_symlink():
+            raise WorkspaceError(
+                f"scope creation is incomplete: {name}; preserve and inspect {journal_path}"
+            )
+        if not journal_path.is_file() or journal_path.is_symlink():
+            raise WorkspaceError(
+                f"scope creation is incomplete: {name}; preserve and inspect {journal_path}"
+            )
+        reservation = load_regular_json(reservation_path, f"scope reservation {name}")
+        journal = load_regular_json(journal_path, f"scope creation journal {name}")
+        if (
+            not isinstance(reservation, dict)
+            or reservation.get("schema_version") != SCOPE_RESERVATION_SCHEMA_VERSION
+            or reservation.get("name") != name
+            or not isinstance(reservation.get("generation"), str)
+            or not re.fullmatch(r"[0-9a-f]{32}", reservation["generation"])
+            or not isinstance(reservation.get("reserved_at"), str)
+            or not reservation["reserved_at"]
+            or reservation.get("request_sha256") != digest
+        ):
+            raise WorkspaceError(f"scope reservation identity changed: {name}")
+        if (
+            not isinstance(journal, dict)
+            or journal.get("schema_version") != SCOPE_JOURNAL_SCHEMA_VERSION
+            or journal.get("name") != name
+            or journal.get("generation") != reservation["generation"]
+            or journal.get("request_sha256") != digest
+            or journal.get("status") not in {"rolled-back", "recovery-required"}
+        ):
+            raise WorkspaceError(
+                f"scope creation is not safely retryable: {name}; preserve and inspect {journal_path}"
+            )
+        if (
+            not isinstance(journal.get("worktrees"), list)
+            or not all(
+                isinstance(row, dict)
+                and isinstance(row.get("checkout"), str)
+                and isinstance(row.get("status"), str)
+                for row in journal["worktrees"]
+            )
+        ):
+            raise WorkspaceError(f"scope worktree evidence is invalid: {name}")
+        if "request" in journal and journal["request"] != request:
+            raise WorkspaceError(f"scope request evidence changed: {name}")
+        if "request" not in journal:
+            expected_rows = {
+                row["checkout"]: row for row in request["worktrees"]
+            }
+            retained_rows = {
+                row.get("checkout"): row
+                for row in journal.get("worktrees", [])
+                if isinstance(row, dict)
+            }
+            retained_profile = journal.get("profile")
+            if (
+                set(retained_rows) != set(expected_rows)
+                or not isinstance(retained_profile, dict)
+                or retained_profile.get("name") != request["profile"]["name"]
+                or retained_profile.get("path") != request["profile"]["path"]
+                or any(
+                    any(
+                        retained_rows[checkout].get(key) != expected_rows[checkout][key]
+                        for key in (
+                            "checkout",
+                            "repository",
+                            "logical_components",
+                            "label",
+                            "branch",
+                            "start_point",
+                            "commit",
+                            "tree",
+                            "path",
+                            "primary_path",
+                        )
+                    )
+                    for checkout in expected_rows
+                )
+            ):
+                raise WorkspaceError(f"scope request evidence changed: {name}")
+        identities = journal.get("identities")
+        if "identities" in journal:
+            expected_repositories = {
+                row["checkout"]: row["primary_path"] for row in request["worktrees"]
+            }
+            retained_repositories = {
+                item.get("checkout"): item
+                for item in identities.get("repositories", [])
+                if isinstance(item, dict)
+            } if isinstance(identities, dict) else {}
+            expected_workspace = self._directory_identity(
+                self.paths.workspace, "scope workspace root"
+            )
+            expected_scope = self._directory_identity(root, "scope reservation root")
+            if (
+                not isinstance(identities, dict)
+                or identities.get("workspace") != expected_workspace
+                or identities.get("scope") != expected_scope
+                or set(retained_repositories) != set(expected_repositories)
+                or any(
+                    retained_repositories[checkout].get("path")
+                    != expected_repositories[checkout]
+                    or {
+                        key: retained_repositories[checkout].get(key)
+                        for key in ("path", "device", "inode")
+                    }
+                    != self._directory_identity(
+                        Path(expected_repositories[checkout]),
+                        f"scope repository {checkout}",
+                    )
+                    for checkout in expected_repositories
+                )
+            ):
+                raise WorkspaceError(f"scope repository or root identity changed: {name}")
+        profile = journal.get("profile")
+        if not isinstance(profile, dict) or profile.get("status") not in {
+            "planned",
+            "rolled-back",
+        }:
+            raise WorkspaceError(
+                f"scope recovery has published or uncertain profile evidence: {name}"
+            )
+        profile_path = Path(request["profile"]["path"])
+        if profile_path.exists() or profile_path.is_symlink():
+            raise WorkspaceError(f"scope profile reference changed during recovery: {name}")
+        if any(
+            isinstance(row, dict)
+            and row.get("status") not in {"planned", "rolled-back"}
+            for row in journal.get("worktrees", [])
+        ):
+            raise WorkspaceError(
+                f"scope recovery contains changed worktree evidence: {name}"
+            )
+        return reservation, journal
+
+    def _recover_worktree(self, row: dict[str, Any]) -> None:
+        from .workspace import _is_clean, _worktree_records, git
+
+        checkout = self.workspace.manifest.by_checkout[row["checkout"]]
+        primary = Path(row["primary_path"])
+        destination = Path(row["path"])
+        records = _worktree_records(primary, trace=False)
+        destination_key = str(destination.resolve(strict=False))
+        target_branch = f"refs/heads/{row['branch']}"
+        matching_path = [
+            record
+            for record in records
+            if str(Path(record["worktree"]).resolve(strict=False)) == destination_key
+        ]
+        matching_branch = [
+            record for record in records if record.get("branch") == target_branch
+        ]
+        if matching_path or matching_branch:
+            raise WorkspaceError(
+                f"scope recovery found an existing worktree reference: {row['checkout']}:{row['branch']}"
+            )
+        remote_refs = git(
+            primary,
+            "for-each-ref",
+            "--format=%(refname)",
+            "refs/remotes",
+            capture=True,
+            trace=False,
+        ).splitlines()
+        if any(
+            reference.startswith("refs/remotes/")
+            and reference.removeprefix("refs/remotes/").partition("/")[2]
+            == row["branch"]
+            for reference in remote_refs
+        ):
+            raise WorkspaceError(
+                f"scope recovery found an existing remote branch reference: {row['checkout']}:{row['branch']}"
+            )
+        branch_head: str | None = None
+        try:
+            branch_head = git(
+                primary,
+                "rev-parse",
+                "--verify",
+                "--end-of-options",
+                target_branch,
+                capture=True,
+                trace=False,
+            )
+        except WorkspaceError:
+            branch_head = None
+        if branch_head is not None and branch_head != row["commit"]:
+            raise WorkspaceError(
+                f"scope branch changed during recovery: {row['checkout']}:{row['branch']}"
+            )
+        if destination.exists() or destination.is_symlink():
+            raise WorkspaceError(
+                f"scope worktree path already exists during recovery: {destination}"
+            )
+        self.workspace._create_worktree(
+            checkout.name,
+            row["label"],
+            row["branch"],
+            row["commit"],
+            branch_head is not None,
+            announce=False,
+        )
+        self.workspace._validate_checkout(checkout, destination, trace=False)
+        if git(destination, "rev-parse", "HEAD", capture=True, trace=False) != row["commit"]:
+            raise WorkspaceError(f"scope worktree head changed during recovery: {destination}")
+        if git(destination, "branch", "--show-current", capture=True, trace=False) != row["branch"]:
+            raise WorkspaceError(f"scope worktree branch changed during recovery: {destination}")
+        if not _is_clean(destination, trace=False):
+            raise WorkspaceError(f"scope recovery created a dirty worktree: {destination}")
+        common = str(self.workspace._git_common_directory(destination, trace=False))
+        identity = destination.stat(follow_symlinks=False)
+        row.update(
+            {
+                "status": "created",
+                "common_git_dir": common,
+                "path_device": identity.st_dev,
+                "path_inode": identity.st_ino,
+            }
+        )
+
+    def _recover_locked(
+        self,
+        request: dict[str, Any],
+        digest: str,
+        reservation: dict[str, Any],
+        journal: dict[str, Any],
+    ) -> dict[str, Any]:
+        from .workspace import PROFILE_SCHEMA_VERSION
+
+        name = request["name"]
+        journal["recovery"] = {
+            "status": "adopting",
+            "started_at": _now(),
+            "source_status": journal["status"],
+            "source_error": journal.get("error"),
+            "source_rollback": copy.deepcopy(journal.get("rollback", [])),
+            "observed_identities": {
+                "workspace": self._directory_identity(
+                    self.paths.workspace, "scope workspace root"
+                ),
+                "scope": self._directory_identity(
+                    self._scope_root(name), "scope reservation root"
+                ),
+                "repositories": [
+                    {
+                        "checkout": row["checkout"],
+                        **self._directory_identity(
+                            Path(row["primary_path"]),
+                            f"scope repository {row['checkout']}",
+                        ),
+                    }
+                    for row in request["worktrees"]
+                ],
+            },
+        }
+        journal["status"] = "recovering"
+        journal["updated_at"] = _now()
+        self._write_journal(journal)
+        final_published = False
+        try:
+            for row in journal["worktrees"]:
+                self._recover_worktree(row)
+                self._write_journal(journal)
+                self._boundary(journal, f"worktree:{row['checkout']}")
+
+            base = self.workspace._load_profile_file(
+                request["base_profile"], require_file=False
+            )
+            profile = {
+                "schema_version": PROFILE_SCHEMA_VERSION,
+                "name": request["profile"]["name"],
+                "stack": base["stack"],
+                "sound_mode": base["sound_mode"],
+                "sound_release": copy.deepcopy(base["sound_release"]),
+                "components": copy.deepcopy(base["components"]),
+            }
+            for row in request["worktrees"]:
+                for component in self.workspace.manifest.stack(profile["stack"]).components:
+                    if component.checkout_name == row["checkout"]:
+                        profile["components"][component.name] = {
+                            "kind": "worktree",
+                            "value": row["label"],
+                        }
+            profile_path = Path(request["profile"]["path"])
+            self.workspace._publish_profile_references(profile["name"], profile)
+            journal["profile"]["status"] = "reference-published"
+            self._write_journal(journal)
+            self._boundary(journal, "profile-reference")
+            durable_atomic_json(profile_path, profile)
+            profile_identity = profile_path.stat(follow_symlinks=False)
+            journal["profile"].update(
+                {
+                    "status": "created",
+                    "sha256": _file_sha256(profile_path),
+                    "path_device": profile_identity.st_dev,
+                    "path_inode": profile_identity.st_ino,
+                }
+            )
+            self._write_journal(journal)
+            self._boundary(journal, "profile")
+
+            worktrees = [
+                {
+                    key: row[key]
+                    for key in (
+                        "checkout",
+                        "repository",
+                        "logical_components",
+                        "label",
+                        "branch",
+                        "start_point",
+                        "commit",
+                        "tree",
+                        "path",
+                        "primary_path",
+                        "common_git_dir",
+                        "path_device",
+                        "path_inode",
+                    )
+                }
+                | {"created_by_scope": True}
+                for row in journal["worktrees"]
+            ]
+            record = self._record(
+                request,
+                digest,
+                reservation["generation"],
+                reservation["reserved_at"],
+                worktrees,
+                journal["profile"]["sha256"],
+                journal["profile"]["path_device"],
+                journal["profile"]["path_inode"],
+            )
+            self._validate_record(record, name)
+            durable_atomic_json(self._record_path(name), record)
+            final_published = True
+            journal["status"] = "complete"
+            journal["updated_at"] = _now()
+            journal["boundaries"].append("scope")
+            journal["recovery"].update({"status": "complete", "completed_at": journal["updated_at"]})
+            self._write_journal(journal)
+            self._maybe_fail("scope")
+            return record
+        except BaseException as error:
+            journal["status"] = "complete" if final_published else "recovery-required"
+            journal["error"] = f"{type(error).__name__}: {error}"
+            journal["updated_at"] = _now()
+            journal["recovery"]["status"] = "complete" if final_published else "required"
+            self._write_journal(journal)
+            if final_published:
+                raise
+            raise WorkspaceError(
+                f"scope recovery failed and recovery inputs were preserved in {self._journal_path(name)}: {error}"
+            ) from error
+
     def _existing_exact(self, name: str, digest: str) -> dict[str, Any] | None:
         root = self._scope_root(name)
         if not root.exists() and not root.is_symlink():
@@ -520,8 +983,25 @@ class ScopeLifecycle:
             "name": name,
             "generation": generation,
             "request_sha256": digest,
+            "request": copy.deepcopy(request),
             "status": "creating",
             "updated_at": reservation["reserved_at"],
+            "identities": {
+                "workspace": self._directory_identity(
+                    self.paths.workspace, "scope workspace root"
+                ),
+                "scope": self._directory_identity(root, "scope reservation root"),
+                "repositories": [
+                    {
+                        "checkout": row["checkout"],
+                        **self._directory_identity(
+                            Path(row["primary_path"]),
+                            f"scope repository {row['checkout']}",
+                        ),
+                    }
+                    for row in request["worktrees"]
+                ],
+            },
             "boundaries": [],
             "worktrees": [
                 {
@@ -542,6 +1022,7 @@ class ScopeLifecycle:
             },
             "rollback": [],
             "error": None,
+            "recovery": None,
         }
         durable_atomic_json(self._reservation_path(name), reservation)
         durable_atomic_json(self._journal_path(name), journal)

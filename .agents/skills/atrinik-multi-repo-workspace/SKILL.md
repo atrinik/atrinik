@@ -56,6 +56,11 @@ Do not use `classic-client=` as an override key. The name derives immutable
 publication. Compare `requested_components`, topology, and checkout with the
 ledger request; a failed bind is recoverable only through the helper, never by
 editing or deleting ledger state.
+
+A rolled-back named create after branch-only Git/LFS failure is retried.
+The wrapper proves generation/digest, rows/roots, base/head, and no coordinate
+conflict; drift or uncertainty stops. Then use `scope show`, `scope-observe`,
+and `scope-bind-cas`; never edit either.
 Release with a fresh preview digest:
 
 ```sh
