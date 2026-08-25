@@ -345,6 +345,17 @@ class ScopeLifecycleTests(unittest.TestCase):
                 start_points=[f"client={base}"],
             )
 
+        leave_branch("dirty-primary", "issue/512-dirty-primary")
+        (checkout / "dirty.txt").write_text("dirty\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "primary checkout is dirty"):
+            self.workspace.scope_create(
+                ["client"],
+                name="dirty-primary",
+                branches=["client=issue/512-dirty-primary"],
+                start_points=[f"client={base}"],
+            )
+        (checkout / "dirty.txt").unlink()
+
         leave_branch("profile-reference", "issue/512-profile")
         profile = self.workspace_directory / "profiles" / "scope-profile-reference.json"
         profile.write_text("{}", encoding="utf-8")
@@ -383,6 +394,24 @@ class ScopeLifecycleTests(unittest.TestCase):
                 branches=["client=issue/512-remote"],
                 start_points=[f"client={base}"],
             )
+
+        leave_branch("row-drift", "issue/512-row-drift")
+        journal_path = (
+            self.workspace_directory / "scopes" / "row-drift" / "creation-journal.json"
+        )
+        journal = json.loads(journal_path.read_text(encoding="utf-8"))
+        journal["worktrees"][0]["branch"] = "issue/512-tampered"
+        journal_path.write_text(json.dumps(journal), encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "request evidence changed"):
+            self.workspace.scope_create(
+                ["client"],
+                name="row-drift",
+                branches=["client=issue/512-row-drift"],
+                start_points=[f"client={base}"],
+            )
+        self.assertFalse(
+            (self.workspace_directory / "worktrees" / "client" / "scope-row-drift").exists()
+        )
 
     def test_rolled_back_scope_recovery_rejects_existing_worktree_and_serializes_retries(self) -> None:
         checkout = self.make_checkout("client")

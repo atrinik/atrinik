@@ -628,49 +628,54 @@ class ScopeLifecycle:
             raise WorkspaceError(f"scope worktree evidence is invalid: {name}")
         if "request" in journal and journal["request"] != request:
             raise WorkspaceError(f"scope request evidence changed: {name}")
-        if "request" not in journal:
-            expected_rows = {
-                row["checkout"]: row for row in request["worktrees"]
-            }
-            retained_rows = {
-                row.get("checkout"): row
-                for row in journal.get("worktrees", [])
-                if isinstance(row, dict)
-            }
-            retained_profile = journal.get("profile")
-            if (
-                set(retained_rows) != set(expected_rows)
-                or not isinstance(retained_profile, dict)
-                or retained_profile.get("name") != request["profile"]["name"]
-                or retained_profile.get("path") != request["profile"]["path"]
-                or any(
-                    any(
-                        retained_rows[checkout].get(key) != expected_rows[checkout][key]
-                        for key in (
-                            "checkout",
-                            "repository",
-                            "logical_components",
-                            "label",
-                            "branch",
-                            "start_point",
-                            "commit",
-                            "tree",
-                            "path",
-                            "primary_path",
-                        )
-                    )
-                    for checkout in expected_rows
+        expected_rows = {row["checkout"]: row for row in request["worktrees"]}
+        retained_rows = {
+            row.get("checkout"): row
+            for row in journal["worktrees"]
+            if isinstance(row, dict)
+        }
+        retained_profile = journal.get("profile")
+        row_coordinates = (
+            "checkout",
+            "repository",
+            "logical_components",
+            "label",
+            "branch",
+            "start_point",
+            "commit",
+            "tree",
+            "path",
+            "primary_path",
+        )
+        if (
+            len(journal["worktrees"]) != len(expected_rows)
+            or len(retained_rows) != len(expected_rows)
+            or set(retained_rows) != set(expected_rows)
+            or not isinstance(retained_profile, dict)
+            or retained_profile.get("name") != request["profile"]["name"]
+            or retained_profile.get("path") != request["profile"]["path"]
+            or any(
+                any(
+                    retained_rows[checkout].get(key) != expected_rows[checkout][key]
+                    for key in row_coordinates
                 )
-            ):
-                raise WorkspaceError(f"scope request evidence changed: {name}")
+                for checkout in expected_rows
+            )
+        ):
+            raise WorkspaceError(f"scope request evidence changed: {name}")
         identities = journal.get("identities")
         if "identities" in journal:
             expected_repositories = {
                 row["checkout"]: row["primary_path"] for row in request["worktrees"]
             }
+            retained_repository_rows = (
+                identities.get("repositories", [])
+                if isinstance(identities, dict)
+                else []
+            )
             retained_repositories = {
                 item.get("checkout"): item
-                for item in identities.get("repositories", [])
+                for item in retained_repository_rows
                 if isinstance(item, dict)
             } if isinstance(identities, dict) else {}
             expected_workspace = self._directory_identity(
@@ -681,6 +686,9 @@ class ScopeLifecycle:
                 not isinstance(identities, dict)
                 or identities.get("workspace") != expected_workspace
                 or identities.get("scope") != expected_scope
+                or not isinstance(retained_repository_rows, list)
+                or len(retained_repository_rows) != len(expected_repositories)
+                or len(retained_repositories) != len(expected_repositories)
                 or set(retained_repositories) != set(expected_repositories)
                 or any(
                     retained_repositories[checkout].get("path")
@@ -724,6 +732,10 @@ class ScopeLifecycle:
         checkout = self.workspace.manifest.by_checkout[row["checkout"]]
         primary = Path(row["primary_path"])
         destination = Path(row["path"])
+        if not _is_clean(primary, trace=False):
+            raise WorkspaceError(
+                f"scope recovery primary checkout is dirty: {row['checkout']}"
+            )
         records = _worktree_records(primary, trace=False)
         destination_key = str(destination.resolve(strict=False))
         target_branch = f"refs/heads/{row['branch']}"
