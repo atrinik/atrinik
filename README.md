@@ -683,6 +683,20 @@ created worktrees and profiles that remain clean, unchanged, and unreferenced;
 changed or uncertain inputs and the durable journal remain as explicit cleanup
 references for recovery.
 
+If a named create fails after Git has created the requested branch but before
+the worktree is registered—for example because Git LFS or a checkout filter is
+unavailable—the journal may finish `rolled-back` with that branch-only side
+effect retained. Rerun the exact original `scope create` command, including
+the same selectors, name, labels, branches, start points, profile, topology,
+and state flags. The wrapper verifies the reservation generation, request
+digest, retained row coordinates, repository/workspace/scope identities, base
+commit, and branch head, then adopts the branch only when the destination and
+all worktree, profile, topology, lease, and reference coordinates are absent
+and conflict-free. Changed, dirty, checked-out, foreign, ambiguous, or
+uncertain evidence fails closed while preserving the journal as audit evidence.
+After recovery, use `scope show --json` and the delivery helper's
+`scope-observe`/`scope-bind-cas`; never hand-edit the journal or ledger.
+
 The returned commands form one complete lifecycle: build the scope profile,
 start only its reserved topology with its recorded state policy, inspect it,
 stop it, then preview and apply release. Two scopes may select distinct

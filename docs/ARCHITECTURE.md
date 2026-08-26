@@ -212,15 +212,24 @@ publication on one physical checkout; identical names or explicit branch/path
 coordinates have one creator.
 
 `reservation.json` and `creation-journal.json` are durable before the first
-resource publication. Each full worktree, profile-reference, immutable profile,
-and completed-record publication is journaled in order. The schema-validated
+resource publication. The creation journal retains the canonical request,
+reservation generation, workspace/scope/repository identities, and each exact
+worktree row. Each full worktree, profile-reference, immutable profile, and
+completed-record publication is journaled in order. The schema-validated
 `scope.json` is last, so readers cannot observe a completed scope backed by a
 partial profile. Exact completed retries return that record. Conflicting or
 incomplete reservations never overwrite their existing evidence. Rollback
 requires the recorded path, common-Git directory, branch, commit, cleanliness,
 and reference set to remain exact; any uncertainty converts the journal to
-recovery-required. Complete and recoverable scope journals contribute exact
-cleanup references until release journals prove each worktree removed.
+recovery-required. A `rolled-back` reservation is also an exact retry boundary:
+the original create request may be rerun under the same leases, after the
+wrapper re-proves the retained digest/generation, live repository/root
+identities, base commit, and branch-only side effects. Adoption uses the
+existing branch only when no worktree, profile, topology, lease, or foreign
+reference conflicts; changed, dirty, checked-out, ambiguous, or uncertain
+evidence remains fail-closed. Complete and recoverable scope journals
+contribute exact cleanup references until release journals prove each worktree
+removed.
 
 Release computes a canonical SHA-256 plan over the completed scope generation
 and every observed topology, state, build, profile, worktree, and reference

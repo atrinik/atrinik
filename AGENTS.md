@@ -51,7 +51,7 @@
 - Prefer `scope create`; Classic uses selectors/physical overrides.
   `scope-<name>` is the profile/topology; noncanonical overrides fail
   pre-publication.
-  Recover via helper CAS.
+  Rerun exact named create after rollback; bind via helper CAS.
 - Use wrapper paths; never reconstruct managed paths. Isolate topology, state,
   ports, and client config; prefer temporary state and keep scenario secrets local.
 - Keep completion bounded, parser-driven, and secret-free.
