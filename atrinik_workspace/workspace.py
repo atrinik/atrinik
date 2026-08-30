@@ -10231,12 +10231,15 @@ class Workspace:
         self._record_classic_graph(root, {"client", "server"}, "integrated")
 
     def _build_library(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
+        protocol = self._mutable_cmake_source_view(
+            root, "protocol", selected["protocol"]
+        )
         self._cmake(
             selected["libatrinik"],
             root / "build" / "libatrinik",
             [
                 "-DENABLE_WARNING_ERRORS=ON",
-                f"-DATRINIK_PROTOCOL_SOURCE_DIR={selected['protocol']}",
+                f"-DATRINIK_PROTOCOL_SOURCE_DIR={protocol}",
             ],
             tests,
         )

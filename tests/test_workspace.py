@@ -7826,6 +7826,42 @@ class WorkspaceTests(unittest.TestCase):
         readme.write_text("mutable\n", encoding="utf-8")
         self.assertEqual(readme.read_text(encoding="utf-8"), "mutable\n")
 
+    def test_library_build_uses_mutable_protocol_source_view(self) -> None:
+        with self.workspace._resolved_profile_operation(
+            "default",
+            {"client"},
+            "build library",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            protocol = snapshot.paths()["protocol"]
+            root = self.workspace.paths.builds / "profiles" / "mutable-library"
+            managed_directory(root, self.workspace.paths.builds, "test-profile")
+            library = self.root / "libatrinik"
+            library.mkdir()
+
+            with mock.patch.object(self.workspace, "_cmake") as cmake:
+                self.workspace._build_library(
+                    root,
+                    {"libatrinik": library, "protocol": protocol},
+                    tests=True,
+                )
+
+            protocol_view = root / "sources" / "protocol"
+            cmake.assert_called_once_with(
+                library,
+                root / "build" / "libatrinik",
+                [
+                    "-DENABLE_WARNING_ERRORS=ON",
+                    f"-DATRINIK_PROTOCOL_SOURCE_DIR={protocol_view}",
+                ],
+                True,
+            )
+            self.assertNotEqual(protocol_view, protocol)
+            readme = protocol_view / "README"
+            self.assertTrue(readme.stat().st_mode & stat.S_IWUSR)
+            readme.write_text("mutable\n", encoding="utf-8")
+            self.assertEqual(readme.read_text(encoding="utf-8"), "mutable\n")
+
     def test_source_view_link_rejects_symlinked_nested_parent(self) -> None:
         view = self.workspace.paths.builds / "profiles" / "test" / "sources"
         managed_directory(view, self.workspace.paths.builds, "test-sources")
