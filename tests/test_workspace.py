@@ -6261,6 +6261,40 @@ class WorkspaceTests(unittest.TestCase):
             root / "build" / "integrated" / "server",
         )
 
+        with mock.patch.object(self.workspace, "_cmake") as selective_cmake:
+            self.workspace._build_integrated_classic(
+                root, selected, tests=False, build_services={"server"}
+            )
+            selective_cmake.assert_called_once_with(
+                root / "sources" / "integrated",
+                root / "build" / "integrated",
+                [
+                    "-DENABLE_WARNING_ERRORS=ON",
+                    "-DPACKAGE_TYPE=none",
+                    "-DENABLE_PYTHON_PLUGIN=ON",
+                ],
+                False,
+                build_targets=[
+                    "atrinik-server", "plugin_arena", "plugin_python"
+                ],
+            )
+
+            selective_cmake.reset_mock()
+            self.workspace._build_integrated_classic(
+                root, selected, tests=False, build_services={"client"}
+            )
+            selective_cmake.assert_called_once_with(
+                root / "sources" / "integrated",
+                root / "build" / "integrated",
+                [
+                    "-DENABLE_WARNING_ERRORS=ON",
+                    "-DPACKAGE_TYPE=none",
+                    "-DENABLE_PYTHON_PLUGIN=ON",
+                ],
+                False,
+                build_targets=["atrinik"],
+            )
+
     def test_paired_classic_build_falls_back_without_shared_role_builds(self) -> None:
         selected = {
             role: self.workspace.paths.repositories / role
@@ -6325,6 +6359,96 @@ class WorkspaceTests(unittest.TestCase):
             ["atrinik-server", "plugin_arena", "plugin_python"],
         )
 
+    def test_selective_integrated_build_forwards_service_targets(self) -> None:
+        selected = {
+            role: self.workspace.paths.repositories / role
+            for role in ("client", "server", "protocol", "libatrinik", "sound")
+        }
+        with (
+            mock.patch.object(
+                self.workspace, "_profile_build_key", return_value="integrated"
+            ),
+            mock.patch.object(self.workspace, "_refresh_build_metadata"),
+            mock.patch.object(
+                self.workspace,
+                "_prepare_sound",
+                return_value=(selected["sound"], None),
+            ),
+            mock.patch.object(self.workspace, "_collect_content"),
+            mock.patch.object(self.workspace, "_stage_resources"),
+            mock.patch.object(self.workspace, "_generate_region_maps"),
+            mock.patch.object(
+                self.workspace, "_uses_integrated_classic_build", return_value=True
+            ),
+            mock.patch.object(
+                self.workspace, "_build_integrated_classic"
+            ) as build_integrated,
+        ):
+            self.workspace._build_resolved(
+                "topology",
+                "default",
+                False,
+                ["client", "server"],
+                selected,
+                build_services={"server"},
+            )
+
+        build_integrated.assert_called_once_with(
+            mock.ANY,
+            selected,
+            False,
+            sound_root=mock.ANY,
+            build_services={"server"},
+        )
+
+    def test_selective_component_builds_forward_targeted_cmake_arguments(self) -> None:
+        root = self.workspace.paths.builds / "profiles" / "component-targets"
+        root.mkdir(parents=True)
+        selected = {
+            "client": self.workspace.paths.repositories / "client",
+            "server": self.workspace.paths.repositories / "server",
+            "protocol": self.workspace.paths.repositories / "protocol",
+            "libatrinik": self.workspace.paths.repositories / "libatrinik",
+            "sound": self.workspace.paths.repositories / "sound",
+        }
+        with (
+            mock.patch.object(self.workspace, "_profile_source_view", return_value=root),
+            mock.patch.object(self.workspace, "_prepare_component_source_includes"),
+            mock.patch.object(self.workspace, "_source_view_link"),
+            mock.patch.object(
+                self.workspace,
+                "_mutable_cmake_source_view",
+                side_effect=[
+                    root / "protocol",
+                    root / "library",
+                    root / "protocol",
+                    root / "library",
+                ],
+            ),
+            mock.patch.object(self.workspace, "_cmake") as cmake,
+        ):
+            self.workspace._build_client(
+                root,
+                selected,
+                False,
+                component=self.workspace.manifest.by_name["client"],
+                build_target="atrinik",
+            )
+            self.workspace._build_server(
+                root,
+                selected,
+                False,
+                component=self.workspace.manifest.by_name["server"],
+                build_targets=["atrinik-server", "plugin_arena", "plugin_python"],
+            )
+
+        self.assertEqual(cmake.call_count, 2)
+        self.assertEqual(cmake.call_args_list[0].kwargs["build_targets"], ["atrinik"])
+        self.assertEqual(
+            cmake.call_args_list[1].kwargs["build_targets"],
+            ["atrinik-server", "plugin_arena", "plugin_python"],
+        )
+
     def test_dev_restart_preserves_topology_coordinates_and_selects_one_service(self) -> None:
         initial = {
             "profile": "classic",
@@ -6333,7 +6457,7 @@ class WorkspaceTests(unittest.TestCase):
             "supervisor": {"running": True},
             "state_policy": {
                 "mode": "temporary",
-                "name": None,
+                "name": "scenario-issue-519",
                 "lifecycle": "disposable",
             },
             "endpoint": {"host": "127.0.0.1", "port": 17300},
@@ -6383,7 +6507,7 @@ class WorkspaceTests(unittest.TestCase):
         topology_up.assert_called_once_with(
             "classic-local",
             "classic",
-            None,
+            "scenario-issue-519",
             ["server", "client"],
             17300,
             "temporary",
@@ -6397,6 +6521,171 @@ class WorkspaceTests(unittest.TestCase):
             "dev restart classic-local server",
             materialize_clean_primaries=True,
         )
+
+    def test_dev_up_delegates_to_warmable_topology_root(self) -> None:
+        result = {"name": "classic-local", "ready": True}
+        with mock.patch.object(
+            self.workspace, "topology_up", return_value=result
+        ) as topology_up:
+            actual = self.workspace.dev_up(
+                "classic-local",
+                "classic",
+                "default",
+                ["client"],
+                17300,
+                state_mode="default",
+            )
+
+        self.assertEqual(actual, result)
+        topology_up.assert_called_once_with(
+            "classic-local",
+            "classic",
+            "default",
+            ["client"],
+            17300,
+            state_mode="default",
+            build_services={"client"},
+        )
+
+    def test_dev_restart_rejects_invalid_topology_coordinates(self) -> None:
+        with self.assertRaisesRegex(WorkspaceError, "unknown topology service"):
+            self.workspace.dev_restart("classic-local", "worker")
+
+        with mock.patch.object(
+            self.workspace,
+            "topology_status",
+            return_value={"inert_historical_record": True},
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "inert historical"):
+                self.workspace.dev_restart("classic-local", "server")
+
+        missing_client = {
+            "services": {"server": {}},
+            "profile": "classic",
+            "control": {"generation": "a" * 64},
+            "supervisor": {"running": True},
+        }
+        with mock.patch.object(
+            self.workspace, "topology_status", return_value=missing_client
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "does not contain"):
+                self.workspace.dev_restart("classic-local", "client")
+
+        not_running = {
+            "services": {"server": {}, "client": {}},
+            "profile": "classic",
+            "control": {"generation": "a" * 64},
+            "supervisor": {"running": False},
+            "state_policy": {
+                "mode": "temporary",
+                "name": None,
+                "lifecycle": "disposable",
+            },
+        }
+        with mock.patch.object(
+            self.workspace, "topology_status", return_value=not_running
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "not a current"):
+                self.workspace.dev_restart("classic-local", "server")
+
+        invalid_state = {
+            **not_running,
+            "supervisor": {"running": True},
+            "state_policy": {
+                "mode": "unsupported",
+                "name": None,
+                "lifecycle": "disposable",
+            },
+        }
+        with mock.patch.object(
+            self.workspace, "topology_status", return_value=invalid_state
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "invalid state policy"):
+                self.workspace.dev_restart("classic-local", "server")
+
+        retained_state = {
+            **not_running,
+            "supervisor": {"running": True},
+            "state_policy": {
+                "mode": "temporary",
+                "name": None,
+                "lifecycle": "retained",
+            },
+        }
+        with mock.patch.object(
+            self.workspace, "topology_status", return_value=retained_state
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "not disposable"):
+                self.workspace.dev_restart("classic-local", "server")
+
+    def test_dev_restart_rechecks_control_and_requires_clean_stop(self) -> None:
+        initial = {
+            "profile": "classic",
+            "services": {"server": {}, "client": {}},
+            "control": {"generation": "a" * 64},
+            "supervisor": {"running": True},
+            "state_policy": {
+                "mode": "default",
+                "name": "default",
+                "lifecycle": "persistent",
+            },
+            "endpoint": {"host": "127.0.0.1", "port": 17300},
+        }
+        topology_root = self.root / "topologies" / "classic-local"
+        changed = {**initial, "control": {"generation": "b" * 64}}
+        with (
+            mock.patch.object(
+                self.workspace, "topology_status", side_effect=[initial, changed]
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_resolved_profile_operation",
+                return_value=nullcontext(),
+            ),
+            mock.patch.object(
+                self.workspace, "_resource_locks", return_value=nullcontext()
+            ),
+            mock.patch.object(
+                self.workspace, "_topology_directory", return_value=topology_root
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.exclusive_lock",
+                return_value=nullcontext(),
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed before"):
+                self.workspace.dev_restart("classic-local", "server")
+
+        with (
+            mock.patch.object(
+                self.workspace, "topology_status", side_effect=[initial, initial]
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_resolved_profile_operation",
+                return_value=nullcontext(),
+            ),
+            mock.patch.object(
+                self.workspace, "_resource_locks", return_value=nullcontext()
+            ),
+            mock.patch.object(
+                self.workspace, "_topology_directory", return_value=topology_root
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.exclusive_lock",
+                return_value=nullcontext(),
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_controlled_topology_down",
+                return_value=(
+                    {**initial, "supervisor": {"running": False}},
+                    False,
+                ),
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "confirmed clean stop"):
+                self.workspace.dev_restart("classic-local", "server")
 
     def test_classic_binary_directory_tracks_last_successful_graph(self) -> None:
         root = self.workspace.paths.builds / "profiles" / "classic-test"
@@ -19296,6 +19585,44 @@ class WorkspaceTests(unittest.TestCase):
         finally:
             os.close(directory_fd)
 
+    def test_descriptor_relative_json_replacement_fails_closed(self) -> None:
+        state = self.root / "descriptor-replacement"
+        state.mkdir()
+        directory_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "descriptor-relative"):
+                workspace_module.durable_replace_json_at(
+                    directory_fd, "nested/value.json", {"invalid": True}
+                )
+
+            with (
+                mock.patch.object(
+                    workspace_module.os,
+                    "rename",
+                    side_effect=OSError("simulated replacement failure"),
+                ),
+                self.assertRaisesRegex(OSError, "replacement failure"),
+            ):
+                workspace_module.durable_replace_json_at(
+                    directory_fd, "metadata.json", {"value": 1}
+                )
+            self.assertEqual(list(state.iterdir()), [])
+
+            with (
+                mock.patch.object(
+                    workspace_module.os,
+                    "fdopen",
+                    side_effect=OSError("simulated open failure"),
+                ),
+                self.assertRaisesRegex(OSError, "open failure"),
+            ):
+                workspace_module.durable_replace_json_at(
+                    directory_fd, "metadata.json", {"value": 2}
+                )
+            self.assertEqual(list(state.iterdir()), [])
+        finally:
+            os.close(directory_fd)
+
     def test_physical_state_alias_conflict_reports_live_owner(self) -> None:
         first = self.root / "owner-alias"
         second = self.root / "contender-alias"
@@ -19465,6 +19792,102 @@ class WorkspaceTests(unittest.TestCase):
                 "state_policy"
             ],
             policy,
+        )
+
+    def test_temporary_state_clone_rejects_invalid_provenance_and_reuses_cleanup(self) -> None:
+        implementation = {
+            "stack": "default",
+            "provider": "server",
+            "repository": "atrinik/server",
+        }
+        coordinate = self.scenario_resolved_fixture()["server"]
+
+        invalid_root = self.workspace._topology_directory(
+            "clone-invalid", create=True
+        )
+        with self.assertRaisesRegex(WorkspaceError, "cannot be cloned"):
+            self.workspace._clone_temporary_state(
+                invalid_root,
+                "clone-invalid",
+                "default",
+                "b" * 64,
+                {"mode": "temporary"},
+                implementation,
+                coordinate,
+            )
+
+        def fixture(
+            name: str, old_generation: str
+        ) -> tuple[Path, Path, dict[str, object]]:
+            topology = self.workspace._topology_directory(name, create=True)
+            state, policy = self.workspace._create_temporary_state(
+                topology,
+                name,
+                "default",
+                old_generation,
+                self.workspace.paths.repositories / "server",
+                implementation,
+                coordinate,
+            )
+            with exclusive_lock(Path(f"{state}.lock"), "clone fixture") as lease:
+                metadata = os.fstat(lease.fileno())
+            return topology, state, {
+                **policy,
+                "lease_identity": {
+                    "device": metadata.st_dev,
+                    "inode": metadata.st_ino,
+                },
+            }
+
+        _, state, policy = fixture("clone-identity", "a" * 64)
+        bad_identity = {**policy, "identity": {"device": 0, "inode": 0}}
+        with self.assertRaisesRegex(WorkspaceError, "identity changed"):
+            self.workspace._clone_temporary_state(
+                state.parent.parent,
+                "clone-identity",
+                "default",
+                "b" * 64,
+                bad_identity,
+                implementation,
+                coordinate,
+            )
+
+        topology, state, policy = fixture("clone-marker", "c" * 64)
+        atomic_json(state / MANAGED_MARKER, {"schema_version": 1, "invalid": True})
+        with self.assertRaisesRegex(WorkspaceError, "ownership marker"):
+            self.workspace._clone_temporary_state(
+                topology,
+                "clone-marker",
+                "default",
+                "d" * 64,
+                policy,
+                implementation,
+                coordinate,
+            )
+
+        topology, state, policy = fixture("clone-destination", "e" * 64)
+        (topology / "temporary-states" / ("f" * 64)).mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "already exists"):
+            self.workspace._clone_temporary_state(
+                topology,
+                "clone-destination",
+                "default",
+                "f" * 64,
+                policy,
+                implementation,
+                coordinate,
+            )
+
+        with mock.patch.object(
+            self.workspace, "_rollback_temporary_state_creation"
+        ) as rollback:
+            self.workspace._remove_superseded_temporary_state(policy)
+        rollback.assert_called_once_with(
+            state,
+            mock.ANY,
+            policy["identity"],
+            policy["lease_identity"],
+            implementation=implementation,
         )
 
     def test_temporary_state_publication_rejects_container_replacement(self) -> None:

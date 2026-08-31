@@ -569,6 +569,8 @@ class ParserTests(unittest.TestCase):
     def test_dev_services_parse_in_stable_topology_order(self) -> None:
         self.assertEqual(_parse_services("client, server"), ["server", "client"])
         self.assertEqual(_parse_services("both"), ["server", "client"])
+        with self.assertRaisesRegex(WorkspaceError, "must name"):
+            _parse_services("server,")
         with self.assertRaisesRegex(WorkspaceError, "duplicates"):
             _parse_services("server,server")
         with self.assertRaisesRegex(WorkspaceError, "only server and client"):
@@ -588,6 +590,7 @@ class ParserTests(unittest.TestCase):
                 "source_views": "reused",
             },
             "runtime": {"staging": "deferred until dev up"},
+            "timing": {"elapsed_seconds": 0.0},
         }
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             workspace_type.return_value.dev_build.return_value = summary
@@ -616,6 +619,32 @@ class ParserTests(unittest.TestCase):
             use_ccache=False,
         )
         self.assertEqual(json.loads(output.call_args.args[0]), summary)
+
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.dev_build.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "dev",
+                        "build",
+                        "--profile",
+                        "classic",
+                        "--services",
+                        "server",
+                    ]
+                )
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            [call.args[0] for call in output.call_args_list],
+            [
+                "dev-build\t/workspace/build/classic",
+                "services\tserver",
+                "cache\treused",
+                "cache\tcontent\treused",
+                "runtime\tdeferred until dev up",
+                "elapsed\t0.000s",
+            ],
+        )
 
     def test_dev_up_and_restart_dispatch_exact_service_coordinates(self) -> None:
         status = {
@@ -664,6 +693,37 @@ class ParserTests(unittest.TestCase):
         output.assert_called_once_with(
             "topology classic-local: restarted server at 127.0.0.1:17300"
         )
+
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.dev_up.return_value = status
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "dev",
+                        "up",
+                        "--name",
+                        "classic-local",
+                        "--json",
+                    ]
+                )
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.call_args.args[0]), status)
+
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.dev_restart.return_value = status
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "dev",
+                        "restart",
+                        "classic-local",
+                        "--service",
+                        "client",
+                        "--json",
+                    ]
+                )
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.call_args.args[0]), status)
 
     def test_windows_package_dispatches_profile_state_port_and_output(self) -> None:
         summary = {
