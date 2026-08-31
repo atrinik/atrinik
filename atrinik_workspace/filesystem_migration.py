@@ -1486,7 +1486,7 @@ def _valid_absolute_path(value: str) -> bool:
 
 
 def _historical_only(path: Path) -> bool:
-    return ".archive-" in path.name or "/historical" in path.parts
+    return ".archive-" in path.name or "historical" in path.parts
 
 
 def _pair_digest(value: dict[str, Any]) -> str:

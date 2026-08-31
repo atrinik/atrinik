@@ -288,3 +288,14 @@ class FilesystemMigrationTests(unittest.TestCase):
         assert transformed is not None
         self.assertEqual(transformed["archive"]["inode"], 1234)
         self.assertNotEqual(transformed["archive"]["device"], 17)
+
+    def test_historical_directory_path_is_treated_as_historical_evidence(self) -> None:
+        value = {"snapshot": {"device": 17, "inode": 1234}}
+
+        transformed = migration._transform_document(
+            self.repository / "historical" / "record.json", value
+        )
+
+        assert transformed is not None
+        self.assertEqual(transformed["snapshot"]["inode"], 1234)
+        self.assertNotEqual(transformed["snapshot"]["device"], 17)

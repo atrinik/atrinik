@@ -4333,20 +4333,30 @@ class Workspace:
         git_common_identity = git_common.stat()
         expected_source_identity = state.get("sources", {}).get(component.source)
         if (
-            (checkout_identity.st_dev, checkout_identity.st_ino)
-            != (state.get("device"), state.get("inode"))
-            or str(git_common) != state.get("git_common")
-            or (git_common_identity.st_dev, git_common_identity.st_ino)
-            != (
-                state.get("git_common_device"),
-                state.get("git_common_inode"),
+            not pair_matches(
+                {
+                    "device": state.get("device"),
+                    "inode": state.get("inode"),
+                },
+                checkout_identity,
             )
-            or expected_source_identity
-            != {
-                "path": str(source.resolve()),
-                "device": source_identity.st_dev,
-                "inode": source_identity.st_ino,
-            }
+            or str(git_common) != state.get("git_common")
+            or not pair_matches(
+                {
+                    "device": state.get("git_common_device"),
+                    "inode": state.get("git_common_inode"),
+                },
+                git_common_identity,
+            )
+            or not isinstance(expected_source_identity, dict)
+            or expected_source_identity.get("path") != str(source.resolve())
+            or not pair_matches(
+                {
+                    "device": expected_source_identity.get("device"),
+                    "inode": expected_source_identity.get("inode"),
+                },
+                source_identity,
+            )
         ):
             raise WorkspaceError(
                 f"clean primary source identity changed before materialization: {checkout}"
@@ -4463,23 +4473,27 @@ class Workspace:
             current_source = source.stat()
             current_git_common_identity = current_git_common.stat()
             if (
-                (current_checkout.st_dev, current_checkout.st_ino)
-                != (state["device"], state["inode"])
+                not pair_matches(
+                    {"device": state["device"], "inode": state["inode"]},
+                    current_checkout,
+                )
                 or str(current_git_common) != state["git_common"]
-                or (
-                    current_git_common_identity.st_dev,
-                    current_git_common_identity.st_ino,
+                or not pair_matches(
+                    {
+                        "device": state["git_common_device"],
+                        "inode": state["git_common_inode"],
+                    },
+                    current_git_common_identity,
                 )
-                != (
-                    state["git_common_device"],
-                    state["git_common_inode"],
+                or not pair_matches(
+                    {
+                        "device": state["sources"][component.source]["device"],
+                        "inode": state["sources"][component.source]["inode"],
+                    },
+                    current_source,
                 )
-                or state["sources"][component.source]
-                != {
-                    "path": str(source.resolve()),
-                    "device": current_source.st_dev,
-                    "inode": current_source.st_ino,
-                }
+                or state["sources"][component.source]["path"]
+                != str(source.resolve())
                 or not _is_clean(checkout, trace=False)
                 or git(
                     checkout,
@@ -8866,10 +8880,10 @@ class Workspace:
                 git_common_identity = git_common.stat()
                 state.update(
                     {
-                        "device": identity.st_dev,
+                        "device": portable_device(identity),
                         "inode": identity.st_ino,
                         "git_common": str(git_common),
-                        "git_common_device": git_common_identity.st_dev,
+                        "git_common_device": portable_device(git_common_identity),
                         "git_common_inode": git_common_identity.st_ino,
                         "sources": {},
                     }
@@ -8884,7 +8898,7 @@ class Workspace:
                 identity = source.stat()
                 states[component.checkout_name]["sources"][component.source] = {
                     "path": str(source),
-                    "device": identity.st_dev,
+                    "device": portable_device(identity),
                     "inode": identity.st_ino,
                 }
         return states
