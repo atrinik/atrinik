@@ -14281,10 +14281,13 @@ class Workspace:
                 )
                 try:
                     previous_metadata = os.fstat(previous_fd)
-                    if previous_identity != {
-                        "device": previous_metadata.st_dev,
-                        "inode": previous_metadata.st_ino,
-                    }:
+                    try:
+                        previous_identity_matches = identity_matches(
+                            previous_identity, previous_metadata
+                        )
+                    except FilesystemIdentityError:
+                        previous_identity_matches = False
+                    if not previous_identity_matches:
                         raise WorkspaceError(
                             f"temporary topology state identity changed: {previous_state}"
                         )
@@ -14404,6 +14407,7 @@ class Workspace:
                             finally:
                                 os.close(tmp_fd)
                         staged_metadata = os.fstat(staging_fd)
+                        staged_identity = portable_identity(staged_metadata)
                         policy = {
                             "mode": "temporary",
                             "name": None,
@@ -14415,10 +14419,7 @@ class Workspace:
                             },
                             "lifecycle": "disposable",
                             "created_at": previous_policy["created_at"],
-                            "identity": {
-                                "device": staged_metadata.st_dev,
-                                "inode": staged_metadata.st_ino,
-                            },
+                            "identity": staged_identity,
                             "implementation": implementation,
                             "profile": profile_name,
                             "server": server_coordinate,
@@ -14472,8 +14473,8 @@ class Workspace:
                             follow_symlinks=False,
                         )
                         if (visible.st_dev, visible.st_ino) != (
-                            policy["identity"]["device"],
-                            policy["identity"]["inode"],
+                            staged_metadata.st_dev,
+                            staged_metadata.st_ino,
                         ):
                             raise WorkspaceError(
                                 f"temporary topology state identity changed during clone: {destination}"
