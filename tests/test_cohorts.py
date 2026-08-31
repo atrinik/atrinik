@@ -601,6 +601,7 @@ class CohortWorkspaceTests(unittest.TestCase):
             observed["targets"],
             {"content", "protocol", "libatrinik", "client", "server"},
         )
+        self.assertNotIn("metaserver-worker", observed["targets"])
         self.assertEqual(observed["selected"], expected_roles)
         self.assertEqual(observed["build_services"], {"server"})
         self.assertTrue(observed["force_reconfigure"])

@@ -151,6 +151,13 @@ ALL_BUILD_TARGETS = (
     "server",
     "metaserver-worker",
 )
+PLAYABLE_BUILD_TARGETS = (
+    "content",
+    "protocol",
+    "libatrinik",
+    "client",
+    "server",
+)
 SOURCE_VIEW_METADATA = ".atrinik-source-view.json"
 SOURCE_VIEW_SCHEMA_VERSION = 2
 SOURCE_INCLUDE_VIEW_METADATA = ".atrinik-source-includes.json"
@@ -7710,7 +7717,9 @@ class Workspace:
             materialize_clean_primaries=True,
         ) as snapshot:
             targets = [
-                target for target in ALL_BUILD_TARGETS if target in snapshot.paths()
+                target
+                for target in PLAYABLE_BUILD_TARGETS
+                if target in snapshot.paths()
             ]
             root = self._build_resolved(
                 "topology",
@@ -18660,7 +18669,7 @@ class Workspace:
             selected = self._resolve_build_profile(profile_name, build_required)
             required = set(selected)
             targets = (
-                [target for target in ALL_BUILD_TARGETS if target in selected]
+                [target for target in PLAYABLE_BUILD_TARGETS if target in selected]
                 if build_services is not None
                 else [
                     service
