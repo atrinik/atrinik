@@ -327,7 +327,9 @@ def _atomic_json(path: Path, value: Any, *, durable: bool) -> None:
         os.close(directory)
 
 
-def _atomic_json_windows(path: Path, value: Any, *, durable: bool) -> None:
+def _atomic_json_windows(  # pragma: no cover - exercised by native Windows CI
+    path: Path, value: Any, *, durable: bool
+) -> None:
     """Atomically publish JSON using Windows' replace and flush primitives.
 
     Windows has no portable descriptor-relative directory API equivalent to
@@ -1401,7 +1403,7 @@ class Paths:
             except OSError as error:
                 raise WorkspaceError(str(error)) from error
         self.workspace.mkdir(parents=True, exist_ok=True)
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(self.workspace, "workspace")
             except OSError as error:
