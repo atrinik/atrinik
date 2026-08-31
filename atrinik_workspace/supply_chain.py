@@ -18,6 +18,7 @@ from .model import (
     load_json,
     require_keys,
 )
+from .jsonc import loads as jsonc_loads
 from .sound import validate_release_coordinates
 
 
@@ -1549,7 +1550,7 @@ def _container_references(relative: str, text: str) -> list[str]:
                 stages.add(stage.casefold())
         return references
     try:
-        value = json.loads(text, object_pairs_hook=_reject_duplicate_json_keys)
+        value = jsonc_loads(text, object_pairs_hook=_reject_duplicate_json_keys)
     except json.JSONDecodeError as error:
         raise WorkspaceError(f"invalid devcontainer JSON {relative}: {error}") from error
     image = value.get("image") if isinstance(value, dict) else None

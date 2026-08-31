@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 import unittest
+
+from atrinik_workspace.jsonc import loads as jsonc_loads
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -10,8 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class DevcontainerTests(unittest.TestCase):
     def load_config(self, relative_path: str) -> dict[str, object]:
-        with (ROOT / relative_path).open(encoding="utf-8") as config_file:
-            return json.load(config_file)
+        return jsonc_loads((ROOT / relative_path).read_text(encoding="utf-8"))
 
     def test_default_configuration_initializes_component_checkouts(self) -> None:
         config = self.load_config(".devcontainer/devcontainer.json")
@@ -23,6 +23,7 @@ class DevcontainerTests(unittest.TestCase):
             "ghcr.io/atrinik/linux-build:1.3.0@sha256:"
             "260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a",
         )
+        self.assertEqual(config["containerEnv"]["SDL_VIDEODRIVER"], "x11")
 
     def test_windows_configuration_validates_component_manifest(self) -> None:
         config = self.load_config(

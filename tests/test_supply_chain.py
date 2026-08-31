@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from unittest import mock
 
+from atrinik_workspace.jsonc import loads as jsonc_loads
 from atrinik_workspace.model import Manifest, WorkspaceError
 from atrinik_workspace.supply_chain import (
     ACTION_REFERENCE_PATTERN,
@@ -1342,6 +1343,24 @@ FROM toolchain AS final
                 ".devcontainer/devcontainer.json", '{"image":"example/image"}'
             ),
             ["example/image"],
+        )
+
+    def test_container_reference_parsing_accepts_jsonc_comments(self) -> None:
+        document = """
+        {
+          // Keep this comment while parsing the devcontainer contract.
+          "image": "example/image",
+          /* A URL-like string must remain untouched. */
+          "url": "https://example.invalid//path"
+        }
+        """
+
+        self.assertEqual(
+            _container_references(".devcontainer/devcontainer.json", document),
+            ["example/image"],
+        )
+        self.assertEqual(
+            jsonc_loads(document)["url"], "https://example.invalid//path"
         )
 
     def test_container_reference_validation_normalizes_registry_coordinates(self) -> None:
