@@ -7,6 +7,13 @@ import signal
 import stat
 from typing import Iterable
 
+from .filesystem_identity import (
+    FilesystemIdentityError,
+    identity_matches,
+    portable_identity,
+    validate_identity,
+)
+
 
 def control_socket_path(topology_root: Path, generation: str) -> Path:
     """Return the bounded workspace-shared endpoint for one topology generation."""
@@ -17,7 +24,7 @@ def control_socket_path(topology_root: Path, generation: str) -> Path:
     return path
 
 
-def initialize_lease(descriptor: int, generation: str) -> dict[str, int]:
+def initialize_lease(descriptor: int, generation: str) -> dict[str, object]:
     """Bind a locked lease inode to one topology generation."""
     payload = f"{generation}\n".encode()
     os.ftruncate(descriptor, 0)
@@ -26,21 +33,17 @@ def initialize_lease(descriptor: int, generation: str) -> dict[str, int]:
         raise OSError("short write while initializing process-tree lease")
     os.fsync(descriptor)
     metadata = os.fstat(descriptor)
-    return {"device": metadata.st_dev, "inode": metadata.st_ino}
+    return portable_identity(metadata)
 
 
 def bound_lease_locked(
-    path: Path, generation: str, identity: dict[str, int]
+    path: Path, generation: str, identity: dict[str, object]
 ) -> bool:
     """Observe the exact generation-bound lease named by a status record."""
-    if (
-        set(identity) != {"device", "inode"}
-        or not all(
-            isinstance(value, int) and not isinstance(value, bool) and value >= 0
-            for value in identity.values()
-        )
-    ):
-        raise OSError("process-tree lease identity is invalid")
+    try:
+        validate_identity(identity, "process-tree lease identity")
+    except FilesystemIdentityError as error:
+        raise OSError(str(error)) from error
     flags = os.O_RDONLY | os.O_CLOEXEC
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
@@ -49,10 +52,7 @@ def bound_lease_locked(
         metadata = os.fstat(descriptor)
         if not stat.S_ISREG(metadata.st_mode):
             raise OSError(f"process-tree lease is not a regular file: {path}")
-        if (metadata.st_dev, metadata.st_ino) != (
-            identity["device"],
-            identity["inode"],
-        ):
+        if not identity_matches(identity, metadata):
             raise OSError(f"process-tree lease identity changed: {path}")
         os.lseek(descriptor, 0, os.SEEK_SET)
         if os.read(descriptor, 66) != f"{generation}\n".encode():

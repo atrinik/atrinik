@@ -36,6 +36,16 @@ import zipfile
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
+from .filesystem_identity import (
+    FilesystemIdentityError,
+    identity_digest,
+    identity_matches,
+    is_legacy_identity,
+    pair_matches,
+    portable_device,
+    portable_identity,
+    validate_identity,
+)
 from .locking import (
     LeaseRequest,
     LockBusyError,
@@ -353,6 +363,7 @@ CLASSIC_CLIENT_RUNTIME_SOURCE_EXCLUSIONS = frozenset(
     {".git", "build", "sound", MANAGED_MARKER, "shaders"}
 )
 CLASSIC_CLIENT_RUNTIME_BINARY_EXCLUSIONS = frozenset({"src", "shaders"})
+LEASE_NAMESPACE_IDENTITY_SCHEMA_VERSION = 2
 
 
 @dataclass
@@ -816,6 +827,53 @@ def _owned_tree_tombstone_path(
     )
 
 
+def _live_identity_dict(metadata: os.stat_result) -> dict[str, int]:
+    """Project an opened object into the identity used by live fences."""
+
+    return {"device": metadata.st_dev, "inode": metadata.st_ino}
+
+
+def _portable_tombstone_path(
+    path: Path, identity: dict[str, Any]
+) -> Path | None:
+    """Find an owned-tree tombstone without reconstructing a mount device.
+
+    Older tombstones include the old device in their filename.  New durable
+    records do not know that value after a remount, so recovery scans only the
+    exact name-hash family and proves the candidate through its opened
+    metadata.  Ambiguous candidates fail closed.
+    """
+
+    digest = hashlib.sha256(path.name.encode("utf-8")).hexdigest()[:16]
+    candidates: list[Path] = []
+    try:
+        entries = sorted(path.parent.iterdir())
+    except FileNotFoundError:
+        return None
+    except OSError as error:
+        raise WorkspaceError(
+            f"cannot inspect owned-tree tombstones for {path}: {error}"
+        ) from error
+    for candidate in entries:
+        if not re.fullmatch(rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+", candidate.name):
+            continue
+        try:
+            metadata = candidate.stat(follow_symlinks=False)
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot inspect owned-tree tombstone {candidate}: {error}"
+            ) from error
+        if (
+            pair_matches(identity, metadata)
+            if set(identity) == {"device", "inode"}
+            else identity_matches(identity, metadata)
+        ):
+            candidates.append(candidate)
+    if len(candidates) > 1:
+        raise WorkspaceError(f"owned-tree tombstones are ambiguous: {path}")
+    return candidates[0] if candidates else None
+
+
 def _fsync_directory(path: Path) -> None:
     descriptor = _open_directory_nofollow(
         path, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
@@ -835,7 +893,7 @@ def _remove_owned_tree_contents(
 ) -> None:
     def move_to_tombstone(name: str, child: os.stat_result) -> str:
         tombstone = _owned_tree_tombstone_name(
-            name, child.st_dev, child.st_ino
+            name, portable_device(child), child.st_ino
         )
         rename_no_replace_at(descriptor, name, descriptor, tombstone)
         moved = os.stat(tombstone, dir_fd=descriptor, follow_symlinks=False)
@@ -869,13 +927,19 @@ def _remove_owned_tree_contents(
         tombstone_match = re.fullmatch(
             r"\.remove-[0-9a-f]{16}-([0-9a-f]+)-([0-9a-f]+)", name
         )
-        if tombstone_match and (child.st_dev, child.st_ino) != (
-            int(tombstone_match.group(1), 16),
-            int(tombstone_match.group(2), 16),
-        ):
-            raise WorkspaceError(
-                f"owned removal has an uncertain tombstone: {child_display}"
-            )
+        if tombstone_match:
+            encoded_identity = {
+                "device": int(tombstone_match.group(1), 16),
+                "inode": int(tombstone_match.group(2), 16),
+            }
+            if not (
+                child.st_ino == encoded_identity["inode"]
+                and encoded_identity["device"]
+                in {child.st_dev, portable_device(child)}
+            ):
+                raise WorkspaceError(
+                    f"owned removal has an uncertain tombstone: {child_display}"
+                )
         if child.st_dev != device:
             raise WorkspaceError(
                 f"owned removal encountered a mount: {child_display}"
@@ -914,26 +978,44 @@ def _remove_owned_tree_contents(
 def remove_owned_tree(
     path: Path,
     *,
-    expected_identity: dict[str, int] | None = None,
+    expected_identity: dict[str, Any] | None = None,
     keep_root: bool = False,
     reject_links: bool = False,
     parent_directory_fd: int | None = None,
 ) -> None:
-    if expected_identity is not None and (
-        set(expected_identity) != {"device", "inode"}
-        or any(
-            not isinstance(value, int) or isinstance(value, bool) or value < 0
-            for value in expected_identity.values()
-        )
-    ):
-        raise WorkspaceError(f"owned removal root identity is invalid: {path}")
-    def root_tombstone_name(identity: dict[str, int] | tuple[int, int]) -> str:
-        device, inode = (
-            (identity["device"], identity["inode"])
-            if isinstance(identity, dict)
-            else identity
-        )
-        return _owned_tree_tombstone_name(path.name, device, inode)
+    if expected_identity is not None:
+        try:
+            validate_identity(expected_identity)
+        except FilesystemIdentityError as error:
+            raise WorkspaceError(
+                f"owned removal root identity is invalid: {path}"
+            ) from error
+
+    def find_tombstone() -> tuple[str, os.stat_result]:
+        candidates: list[tuple[str, os.stat_result]] = []
+        for name in sorted(os.listdir(parent_descriptor)):
+            if not re.fullmatch(
+                rf"\.remove-{hashlib.sha256(path.name.encode('utf-8')).hexdigest()[:16]}-[0-9a-f]+-[0-9a-f]+",
+                name,
+            ):
+                continue
+            try:
+                candidate = os.stat(
+                    name, dir_fd=parent_descriptor, follow_symlinks=False
+                )
+            except FileNotFoundError:
+                continue
+            if expected_identity is not None and (
+                pair_matches(expected_identity, candidate)
+                if set(expected_identity) == {"device", "inode"}
+                else identity_matches(expected_identity, candidate)
+            ):
+                candidates.append((name, candidate))
+        if len(candidates) > 1:
+            raise WorkspaceError(f"owned removal roots are ambiguous: {path}")
+        if not candidates:
+            raise FileNotFoundError(path)
+        return candidates[0]
 
     parent_descriptor = (
         os.dup(parent_directory_fd)
@@ -954,11 +1036,8 @@ def remove_owned_tree(
         except FileNotFoundError:
             if expected_identity is None:
                 raise WorkspaceError(f"owned removal root is invalid: {path}")
-            entry_name = root_tombstone_name(expected_identity)
             try:
-                before = os.stat(
-                    entry_name, dir_fd=parent_descriptor, follow_symlinks=False
-                )
+                entry_name, before = find_tombstone()
             except FileNotFoundError as error:
                 raise WorkspaceError(
                     f"owned removal root is invalid: {path}"
@@ -966,9 +1045,10 @@ def remove_owned_tree(
             already_tombstoned = True
         if not stat.S_ISDIR(before.st_mode):
             raise WorkspaceError(f"owned removal root is invalid: {path}")
-        if expected_identity is not None and (before.st_dev, before.st_ino) != (
-            expected_identity["device"],
-            expected_identity["inode"],
+        if expected_identity is not None and not (
+            pair_matches(expected_identity, before)
+            if set(expected_identity) == {"device", "inode"}
+            else identity_matches(expected_identity, before)
         ):
             raise WorkspaceError(f"owned removal root identity changed: {path}")
         parent_mount_id = _descriptor_mount_id(parent_descriptor)
@@ -1014,7 +1094,13 @@ def remove_owned_tree(
         if keep_root:
             os.fsync(parent_descriptor)
             return
-        tombstone = root_tombstone_name(expected)
+        tombstone = (
+            entry_name
+            if already_tombstoned
+            else _owned_tree_tombstone_name(
+                path.name, portable_device(opened), opened.st_ino
+            )
+        )
         if not already_tombstoned:
             rename_no_replace_at(
                 parent_descriptor,
@@ -2407,13 +2493,26 @@ class Workspace:
                 record = load_regular_json(
                     record_path, "physical lease namespace identity"
                 )
+                valid = False
                 if (
-                    not isinstance(record, dict)
-                    or set(record) != {"schema_version", "device", "inode"}
-                    or record.get("schema_version") != 1
-                    or record.get("device") != identity[0]
-                    or record.get("inode") != identity[1]
+                    isinstance(record, dict)
+                    and set(record) == {"schema_version", "device", "inode"}
+                    and record.get("schema_version") == 1
                 ):
+                    valid = record.get("device") == identity[0] and record.get(
+                        "inode"
+                    ) == identity[1]
+                elif (
+                    isinstance(record, dict)
+                    and set(record) == {"schema_version", "identity"}
+                    and record.get("schema_version")
+                    == LEASE_NAMESPACE_IDENTITY_SCHEMA_VERSION
+                ):
+                    try:
+                        valid = identity_matches(record["identity"], visible)
+                    except FilesystemIdentityError:
+                        valid = False
+                if not valid:
                     raise WorkspaceError(
                         "physical lease namespace identity changed; restore the "
                         f"original namespace: {namespace}"
@@ -2422,9 +2521,8 @@ class Workspace:
                 durable_atomic_json(
                     record_path,
                     {
-                        "schema_version": 1,
-                        "device": identity[0],
-                        "inode": identity[1],
+                        "schema_version": LEASE_NAMESPACE_IDENTITY_SCHEMA_VERSION,
+                        "identity": portable_identity(visible),
                     },
                 )
         return identity
@@ -12898,6 +12996,21 @@ class Workspace:
         return {"device": metadata.st_dev, "inode": metadata.st_ino}
 
     @staticmethod
+    def _state_portable_identity(path: Path) -> dict[str, Any]:
+        metadata = path.stat(follow_symlinks=False)
+        if not stat.S_ISDIR(metadata.st_mode):
+            raise WorkspaceError(f"server state is not a directory: {path}")
+        return portable_identity(metadata)
+
+    @staticmethod
+    def _state_identity_matches(path: Path, identity: Any) -> bool:
+        try:
+            metadata = path.stat(follow_symlinks=False)
+            return identity_matches(identity, metadata)
+        except (OSError, FilesystemIdentityError):
+            return False
+
+    @staticmethod
     def _state_implementation(
         stack: str,
         providers: dict[str, str],
@@ -13282,7 +13395,7 @@ class Workspace:
             "path": str(path),
             "owner": owner,
             "lifecycle": lifecycle,
-            "identity": self._state_identity(path),
+            "identity": self._state_portable_identity(path),
             "implementation": implementation,
         }
 
@@ -13398,13 +13511,7 @@ class Workspace:
             or not isinstance(record.get("generation"), str)
             or not re.fullmatch(r"[0-9a-f]{64}", record["generation"])
             or not isinstance(identity, dict)
-            or set(identity) != {"device", "inode"}
-            or not all(
-                isinstance(value, int)
-                and not isinstance(value, bool)
-                and value >= 0
-                for value in identity.values()
-            )
+            or not self._valid_state_identity(identity)
         ):
             raise WorkspaceError(
                 f"promoted state provenance is invalid: {record_path}"
@@ -13415,9 +13522,8 @@ class Workspace:
             raise WorkspaceError(
                 f"promoted state provenance is invalid: {record_path}: {error}"
             ) from error
-        if (
-            not stat.S_ISDIR(visible.st_mode)
-            or {"device": visible.st_dev, "inode": visible.st_ino} != identity
+        if not stat.S_ISDIR(visible.st_mode) or not self._state_identity_matches(
+            path, identity
         ):
             raise WorkspaceError(
                 f"promoted state provenance is invalid: {record_path}"
@@ -13603,6 +13709,12 @@ class Workspace:
                     same_state = isinstance(raw_status, dict) and (
                         raw_status.get("state") == str(path)
                         or (
+                            isinstance(raw_policy, dict)
+                            and self._state_identity_matches(
+                                path, raw_policy.get("identity")
+                            )
+                        )
+                        or (
                             requested_identity is not None
                             and isinstance(raw_policy, dict)
                             and raw_policy.get("identity") == requested_identity
@@ -13630,6 +13742,13 @@ class Workspace:
                     if (
                         (
                             status.get("state") == str(path)
+                            or (
+                                isinstance(status.get("state_policy"), dict)
+                                and self._state_identity_matches(
+                                    path,
+                                    status["state_policy"].get("identity"),
+                                )
+                            )
                             or (
                                 requested_identity is not None
                                 and status.get("state_policy", {}).get("identity")
@@ -13779,10 +13898,11 @@ class Workspace:
                 write_implementation=False,
             )
             staging_metadata = os.fstat(staging_fd)
-            identity = {
+            live_state_identity = {
                 "device": staging_metadata.st_dev,
                 "inode": staging_metadata.st_ino,
             }
+            persistent_state_identity = portable_identity(staging_metadata)
             policy = {
                 "mode": "temporary",
                 "name": None,
@@ -13794,7 +13914,7 @@ class Workspace:
                 },
                 "lifecycle": "disposable",
                 "created_at": created_at,
-                "identity": identity,
+                "identity": persistent_state_identity,
                 "implementation": implementation,
                 "profile": profile_name,
                 "server": server_coordinate,
@@ -13904,7 +14024,7 @@ class Workspace:
                 staging_name, dir_fd=container_fd, follow_symlinks=False
             )
             if (visible_staging.st_dev, visible_staging.st_ino) != (
-                identity["device"], identity["inode"]
+                live_state_identity["device"], live_state_identity["inode"]
             ):
                 raise WorkspaceError(
                     "temporary topology state staging changed before publication"
@@ -13912,7 +14032,7 @@ class Workspace:
             rename_no_replace_at(
                 container_fd, staging_name, container_fd, generation
             )
-            published_identity = identity
+            published_identity = live_state_identity
             if (
                 _tree_digest_descriptor(
                     staging_fd,
@@ -13942,7 +14062,10 @@ class Workspace:
             opened_container = os.fstat(container_fd)
             if (
                 (published.st_dev, published.st_ino)
-                != (identity["device"], identity["inode"])
+                != (
+                    live_state_identity["device"],
+                    live_state_identity["inode"],
+                )
                 or (visible_container.st_dev, visible_container.st_ino)
                 != (opened_container.st_dev, opened_container.st_ino)
             ):
@@ -15661,7 +15784,7 @@ class Workspace:
     @staticmethod
     def _runtime_state_output_identity_at(
         state_directory_fd: int, generation: str
-    ) -> dict[str, int]:
+    ) -> dict[str, Any]:
         flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
         descriptors: list[int] = []
         state_mount_id = _descriptor_mount_id(state_directory_fd)
@@ -15676,7 +15799,7 @@ class Workspace:
                     )
                 parent = descriptor
             metadata = os.fstat(descriptors[-1])
-            return {"device": metadata.st_dev, "inode": metadata.st_ino}
+            return portable_identity(metadata)
         finally:
             for descriptor in reversed(descriptors):
                 os.close(descriptor)
@@ -15687,7 +15810,7 @@ class Workspace:
         generation: str,
         state_directory_fd: int | None = None,
         cleanup_proof: list[bool] | None = None,
-    ) -> tuple[Path, int, dict[str, int]]:
+    ) -> tuple[Path, int, dict[str, Any]]:
         flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
         descriptors: list[int] = []
         created_generation = False
@@ -15784,10 +15907,7 @@ class Workspace:
                 os.close(marker_fd)
             metadata = os.fstat(generation_fd)
             result_fd = os.dup(generation_fd)
-            return output, result_fd, {
-                "device": metadata.st_dev,
-                "inode": metadata.st_ino,
-            }
+            return output, result_fd, portable_identity(metadata)
         except BaseException as error:
             if created_generation and len(descriptors) >= 4:
                 generation_fd = descriptors[-1]
@@ -15846,7 +15966,7 @@ class Workspace:
         path: Path,
         generation: str,
         state_directory_fd: int | None = None,
-        expected_identity: dict[str, int] | None = None,
+        expected_identity: dict[str, Any] | None = None,
         keep_tombstone: bool = False,
     ) -> None:
         if state_directory_fd is not None:
@@ -15884,28 +16004,41 @@ class Workspace:
                 already_tombstoned = False
                 try:
                     generation_fd = open_exact_directory(parent_fd, entry_name)
-                except FileNotFoundError:
+                except FileNotFoundError as missing:
                     digest = hashlib.sha256(
                         generation.encode("utf-8")
                     ).hexdigest()[:16]
-                    candidates = [
-                        name
-                        for name in os.listdir(parent_fd)
-                        if re.fullmatch(
+                    candidates: list[str] = []
+                    for name in os.listdir(parent_fd):
+                        if not re.fullmatch(
                             rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+", name
+                        ):
+                            continue
+                        try:
+                            candidate_metadata = os.stat(
+                                name, dir_fd=parent_fd, follow_symlinks=False
+                            )
+                        except FileNotFoundError:
+                            continue
+                        if expected_identity is not None and identity_matches(
+                            expected_identity, candidate_metadata
+                        ):
+                            candidates.append(name)
+                    if len(candidates) > 1:
+                        raise WorkspaceError(
+                            "server runtime state output tombstones are ambiguous: "
+                            f"{path}"
                         )
-                    ]
-                    if len(candidates) != 1:
-                        raise
+                    if not candidates:
+                        raise missing
                     entry_name = candidates[0]
                     generation_fd = open_exact_directory(parent_fd, entry_name)
                     already_tombstoned = True
                 descriptors.append(generation_fd)
                 metadata = os.fstat(generation_fd)
-                if expected_identity is None or expected_identity != {
-                    "device": metadata.st_dev,
-                    "inode": metadata.st_ino,
-                }:
+                if expected_identity is None or not identity_matches(
+                    expected_identity, metadata
+                ):
                     raise WorkspaceError(
                         f"server runtime state output identity changed: {path}"
                     )
@@ -15914,10 +16047,7 @@ class Workspace:
                         r"\.remove-[0-9a-f]{16}-([0-9a-f]+)-([0-9a-f]+)",
                         entry_name,
                     )
-                    if match is None or (metadata.st_dev, metadata.st_ino) != (
-                        int(match.group(1), 16),
-                        int(match.group(2), 16),
-                    ):
+                    if match is None:
                         raise WorkspaceError(
                             f"server runtime state output tombstone is invalid: {path}"
                         )
@@ -16007,7 +16137,7 @@ class Workspace:
     def _finish_runtime_state_output_tombstone(
         state_directory_fd: int,
         generation: str,
-        expected_identity: dict[str, int],
+        expected_identity: dict[str, Any],
     ) -> bool:
         flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
         descriptors = [os.dup(state_directory_fd)]
@@ -16027,24 +16157,37 @@ class Workspace:
                     )
                 descriptors.append(descriptor)
             parent_fd = descriptors[-1]
-            tombstone = _owned_tree_tombstone_name(
-                generation,
-                expected_identity["device"],
-                expected_identity["inode"],
-            )
-            try:
-                visible = os.stat(
-                    tombstone, dir_fd=parent_fd, follow_symlinks=False
+            digest = hashlib.sha256(generation.encode("utf-8")).hexdigest()[:16]
+            candidates: list[str] = []
+            for name in os.listdir(parent_fd):
+                if not re.fullmatch(
+                    rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+", name
+                ):
+                    continue
+                try:
+                    candidate = os.stat(
+                        name, dir_fd=parent_fd, follow_symlinks=False
+                    )
+                except FileNotFoundError:
+                    continue
+                if identity_matches(expected_identity, candidate):
+                    candidates.append(name)
+            if len(candidates) > 1:
+                raise WorkspaceError(
+                    "server runtime state output tombstones are ambiguous"
                 )
-            except FileNotFoundError:
+            if not candidates:
                 return False
+            tombstone = candidates[0]
+            visible = os.stat(
+                tombstone, dir_fd=parent_fd, follow_symlinks=False
+            )
             descriptor = os.open(tombstone, flags, dir_fd=parent_fd)
             descriptors.append(descriptor)
             opened = os.fstat(descriptor)
             if (
                 not stat.S_ISDIR(visible.st_mode)
-                or (visible.st_dev, visible.st_ino)
-                != (expected_identity["device"], expected_identity["inode"])
+                or not identity_matches(expected_identity, visible)
                 or (opened.st_dev, opened.st_ino)
                 != (visible.st_dev, visible.st_ino)
                 or _descriptor_mount_id(descriptor) != state_mount_id
@@ -16096,16 +16239,11 @@ class Workspace:
 
     @staticmethod
     def _valid_state_identity(value: Any) -> bool:
-        return bool(
-            isinstance(value, dict)
-            and set(value) == {"device", "inode"}
-            and all(
-                isinstance(value[key], int)
-                and not isinstance(value[key], bool)
-                and value[key] >= 0
-                for key in ("device", "inode")
-            )
-        )
+        try:
+            validate_identity(value)
+        except FilesystemIdentityError:
+            return False
+        return True
 
     @staticmethod
     def _clear_runtime_state_output_transaction(topology_root: Path) -> None:
@@ -16183,7 +16321,7 @@ class Workspace:
         output: Path,
         generation: str,
         state_directory_fd: int,
-        output_identity: dict[str, int],
+        output_identity: dict[str, Any],
     ) -> None:
         transaction_path = topology_root / RUNTIME_STATE_OUTPUT_TRANSACTION
         transaction = load_regular_json(
@@ -16556,10 +16694,7 @@ class Workspace:
                             "schema_version": SCHEMA_VERSION,
                             "generation": generation,
                             "state": str(state),
-                            "state_identity": {
-                                "device": state_metadata.st_dev,
-                                "inode": state_metadata.st_ino,
-                            },
+                            "state_identity": portable_identity(state_metadata),
                             "phase": "creating",
                             "output_identity": None,
                         },
@@ -16581,10 +16716,9 @@ class Workspace:
                             "schema_version": SCHEMA_VERSION,
                             "generation": generation,
                             "state": str(state),
-                            "state_identity": {
-                                "device": os.fstat(state_directory_fd).st_dev,
-                                "inode": os.fstat(state_directory_fd).st_ino,
-                            },
+                            "state_identity": portable_identity(
+                                os.fstat(state_directory_fd)
+                            ),
                             "phase": "prepared",
                             "output_identity": state_output_identity,
                         },
@@ -16617,7 +16751,9 @@ class Workspace:
                         state_directory_fd, generation
                     )
                     if state_directory_fd is not None
-                    else self._state_identity(state_output)
+                    else portable_identity(
+                        state_output.stat(follow_symlinks=False)
+                    )
                 )
                 if visible_output_identity != state_output_identity:
                     raise WorkspaceError(
@@ -16675,7 +16811,7 @@ class Workspace:
                 os.O_RDWR | os.O_CREAT,
                 "runtime generation lease",
             )
-            lease_identity = initialize_lease(lease_fd, generation)
+            initialize_lease(lease_fd, generation)
             try:
                 fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except OSError as error:
@@ -16687,6 +16823,7 @@ class Workspace:
                 "runtime generation manifest",
             )
             self._seal_runtime_generation(staging)
+            lease_identity = portable_identity(os.fstat(lease_fd))
             staging.replace(published)
             runtime_record = {
                 "schema_version": RUNTIME_GENERATION_SCHEMA_VERSION,
@@ -17166,8 +17303,17 @@ class Workspace:
                     if isinstance(identities, list):
                         identity = identities[index]
                         if isinstance(identity, dict) and (
-                            _owned_tree_tombstone_path(output, identity).exists()
-                            or _owned_tree_tombstone_path(output, identity).is_symlink()
+                            (
+                                (
+                                    tombstone := (
+                                        _owned_tree_tombstone_path(output, identity)
+                                        if is_legacy_identity(identity)
+                                        else _portable_tombstone_path(output, identity)
+                                    )
+                                )
+                                is not None
+                                and (tombstone.exists() or tombstone.is_symlink())
+                            )
                         ):
                             return "retained_state"
         elif runtime is not None:
@@ -17227,17 +17373,9 @@ class Workspace:
             or not isinstance(policy.get("owner"), dict)
             or not isinstance(policy.get("lifecycle"), str)
             or not isinstance(identity, dict)
-            or set(identity) != {"device", "inode"}
-            or not all(
-                isinstance(value, int) and not isinstance(value, bool) and value >= 0
-                for value in identity.values()
-            )
+            or not self._valid_state_identity(identity)
             or not isinstance(lease_identity, dict)
-            or set(lease_identity) != {"device", "inode"}
-            or not all(
-                isinstance(value, int) and not isinstance(value, bool) and value >= 0
-                for value in lease_identity.values()
-            )
+            or not self._valid_state_identity(lease_identity)
             or not isinstance(implementation, dict)
             or set(implementation) != {"stack", "provider", "repository"}
             or not isinstance(providers, dict)
@@ -17301,7 +17439,7 @@ class Workspace:
                 if (
                     path.is_symlink()
                     or not path.is_dir()
-                    or self._state_identity(path) != identity
+                    or not self._state_identity_matches(path, identity)
                     or marker.is_symlink()
                     or not marker.is_file()
                     or load_json(marker)
@@ -17352,7 +17490,7 @@ class Workspace:
                 or policy.get("owner") != expected_persistent["owner"]
                 or lifecycle != expected_persistent["lifecycle"]
                 or path != self._state_location(expected_name)
-                or self._state_identity(path) != identity
+                or not self._state_identity_matches(path, identity)
             ):
                 raise WorkspaceError(f"persistent topology state policy is invalid: {name}")
             self._validate_state_implementation(path, implementation)
@@ -17516,13 +17654,7 @@ class Workspace:
                     or set(entry) != {"path", "identity", "status"}
                     or not isinstance(entry.get("path"), str)
                     or not isinstance(entry.get("identity"), dict)
-                    or set(entry["identity"]) != {"device", "inode"}
-                    or any(
-                        not isinstance(value, int)
-                        or isinstance(value, bool)
-                        or value < 0
-                        for value in entry["identity"].values()
-                    )
+                    or not self._valid_state_identity(entry["identity"])
                     or entry.get("status") not in {"pending", "complete"}
                     for entry in cleanup_entries
                 )
@@ -17664,13 +17796,7 @@ class Workspace:
             or control.get("socket")
             != str(control_socket_path(root, control["generation"]))
             or not isinstance(control.get("lease"), dict)
-            or set(control["lease"]) != {"device", "inode"}
-            or not all(
-                isinstance(value, int)
-                and not isinstance(value, bool)
-                and value >= 0
-                for value in control["lease"].values()
-            )
+            or not self._valid_state_identity(control["lease"])
         ):
             raise WorkspaceError(f"topology control identity is invalid: {name}")
         process_keys = (
@@ -17746,26 +17872,14 @@ class Workspace:
                     != len(runtime["mutable_state_outputs"])
                     or any(
                         not isinstance(identity, dict)
-                        or set(identity) != {"device", "inode"}
-                        or any(
-                            not isinstance(value, int)
-                            or isinstance(value, bool)
-                            or value < 0
-                            for value in identity.values()
-                        )
+                        or not self._valid_state_identity(identity)
                         for identity in runtime[
                             "mutable_state_output_identities"
                         ]
                     )
                 )
                 or not isinstance(runtime.get("lease"), dict)
-                or set(runtime["lease"]) != {"device", "inode"}
-                or not all(
-                    isinstance(value, int)
-                    and not isinstance(value, bool)
-                    and value >= 0
-                    for value in runtime["lease"].values()
-                )
+                or not self._valid_state_identity(runtime["lease"])
             ):
                 raise WorkspaceError(f"topology runtime identity is invalid: {name}")
             if mutable_state_cleanup is not None and (
@@ -18689,8 +18803,7 @@ class Workspace:
                     state_policy = {
                         **state_policy,
                         "lease_identity": {
-                            "device": lock_metadata.st_dev,
-                            "inode": lock_metadata.st_ino,
+                            **portable_identity(lock_metadata, include_ctime=False),
                         },
                     }
                     try:
@@ -18737,10 +18850,9 @@ class Workspace:
                             else None
                         )
                     state_metadata = os.fstat(state_directory_fd)
-                    if state_policy["identity"] != {
-                        "device": state_metadata.st_dev,
-                        "inode": state_metadata.st_ino,
-                    }:
+                    if not identity_matches(
+                        state_policy["identity"], state_metadata
+                    ):
                         raise WorkspaceError(
                             f"server state identity changed before runtime publication: {state}"
                         )
@@ -19294,9 +19406,10 @@ class Workspace:
             visible = state.stat(follow_symlinks=False)
             identity = policy.get("identity")
             if (
-                {"device": opened.st_dev, "inode": opened.st_ino} != identity
-                or {"device": visible.st_dev, "inode": visible.st_ino}
-                != identity
+                not identity_matches(identity, opened)
+                or not identity_matches(identity, visible)
+                or (opened.st_dev, opened.st_ino)
+                != (visible.st_dev, visible.st_ino)
             ):
                 raise WorkspaceError(
                     f"server state identity changed before runtime cleanup: {state}"
@@ -19455,13 +19568,14 @@ class Workspace:
     def _unlink_temporary_state_lock(
         state: Path,
         state_lease: TextIO,
-        lease_identity: dict[str, int],
+        lease_identity: dict[str, Any],
         parent_directory_fd: int | None = None,
     ) -> None:
         Workspace._validate_temporary_state_lock(
             state, state_lease, lease_identity
         )
         lock = Path(f"{state}.lock")
+        live_lease_identity = _live_identity_dict(os.fstat(state_lease.fileno()))
 
         parent_fd = (
             os.dup(parent_directory_fd)
@@ -19472,9 +19586,10 @@ class Workspace:
             )
         )
         try:
+            durable_device = portable_device(os.fstat(state_lease.fileno()))
             tombstone = (
-                f".{lock.name}.remove-{lease_identity['device']:x}-"
-                f"{lease_identity['inode']:x}"
+                f".{lock.name}.remove-{durable_device:x}-"
+                f"{live_lease_identity['inode']:x}"
             )
             rename_no_replace_at(
                 parent_fd, lock.name, parent_fd, tombstone
@@ -19483,8 +19598,8 @@ class Workspace:
                 tombstone, dir_fd=parent_fd, follow_symlinks=False
             )
             expected = (
-                lease_identity["device"],
-                lease_identity["inode"],
+                live_lease_identity["device"],
+                live_lease_identity["inode"],
             )
             if (moved.st_dev, moved.st_ino) != expected:
                 try:
@@ -19515,6 +19630,7 @@ class Workspace:
                     or (opened.st_dev, opened.st_ino) != expected
                     or (visible.st_dev, visible.st_ino) != expected
                     or visible.st_nlink != 1
+                    or not identity_matches(lease_identity, opened)
                 ):
                     raise WorkspaceError(
                         f"temporary topology state lease changed before removal: {lock}"
@@ -19530,7 +19646,7 @@ class Workspace:
     def _validate_temporary_state_lock(
         state: Path,
         state_lease: TextIO,
-        lease_identity: dict[str, int],
+        lease_identity: dict[str, Any],
     ) -> None:
         lock = Path(f"{state}.lock")
         try:
@@ -19540,12 +19656,13 @@ class Workspace:
                 f"temporary topology state lease is missing: {lock}"
             ) from error
         opened = os.fstat(state_lease.fileno())
-        expected = (lease_identity["device"], lease_identity["inode"])
+        expected = (opened.st_dev, opened.st_ino)
         if (
             not stat.S_ISREG(visible.st_mode)
             or visible.st_nlink != 1
             or (visible.st_dev, visible.st_ino) != expected
             or (opened.st_dev, opened.st_ino) != expected
+            or not identity_matches(lease_identity, opened)
         ):
             raise WorkspaceError(
                 "temporary topology state lease changed before lifecycle "
@@ -19555,14 +19672,24 @@ class Workspace:
     @staticmethod
     def _finish_temporary_state_lock_tombstone(
         state: Path,
-        lease_identity: dict[str, int],
+        lease_identity: dict[str, Any],
         parent_directory_fd: int | None = None,
     ) -> bool:
         lock = Path(f"{state}.lock")
-        tombstone = lock.parent / (
-            f".{lock.name}.remove-{lease_identity['device']:x}-"
-            f"{lease_identity['inode']:x}"
-        )
+        tombstone: Path | None = None
+        for candidate in sorted(lock.parent.glob(f".{lock.name}.remove-*")):
+            try:
+                metadata = candidate.stat(follow_symlinks=False)
+            except FileNotFoundError:
+                continue
+            if identity_matches(lease_identity, metadata):
+                if tombstone is not None:
+                    raise WorkspaceError(
+                        f"temporary topology state lease tombstones are ambiguous: {lock}"
+                    )
+                tombstone = candidate
+        if tombstone is None:
+            return False
         if parent_directory_fd is None:
             if not tombstone.exists() and not tombstone.is_symlink():
                 return False
@@ -19594,13 +19721,13 @@ class Workspace:
                 visible = os.stat(
                     tombstone.name, dir_fd=parent_fd, follow_symlinks=False
                 )
-                expected = (lease_identity["device"], lease_identity["inode"])
                 if (
                     not stat.S_ISREG(metadata.st_mode)
                     or metadata.st_nlink != 1
-                    or (metadata.st_dev, metadata.st_ino) != expected
-                    or (visible.st_dev, visible.st_ino) != expected
+                    or (metadata.st_dev, metadata.st_ino)
+                    != (visible.st_dev, visible.st_ino)
                     or visible.st_nlink != 1
+                    or not identity_matches(lease_identity, metadata)
                 ):
                     raise WorkspaceError(
                         "temporary topology state lease tombstone is invalid: "
@@ -19617,7 +19744,7 @@ class Workspace:
     @staticmethod
     def _lock_state_directory_mutation(
         path: Path,
-        identity: dict[str, int],
+        identity: dict[str, Any],
         description: str = "temporary state",
     ) -> int:
         descriptor = _open_directory_nofollow(
@@ -19626,11 +19753,11 @@ class Workspace:
         try:
             opened = os.fstat(descriptor)
             visible = path.stat(follow_symlinks=False)
-            expected = (identity["device"], identity["inode"])
             if (
                 not stat.S_ISDIR(opened.st_mode)
-                or (opened.st_dev, opened.st_ino) != expected
-                or (visible.st_dev, visible.st_ino) != expected
+                or (opened.st_dev, opened.st_ino)
+                != (visible.st_dev, visible.st_ino)
+                or not identity_matches(identity, opened)
             ):
                 raise WorkspaceError(
                     f"{description} identity changed before mutation: {path}"
@@ -19699,8 +19826,8 @@ class Workspace:
     def _rollback_temporary_state_creation(
         state: Path,
         state_lease: TextIO,
-        state_identity: dict[str, int],
-        lease_identity: dict[str, int],
+        state_identity: dict[str, Any],
+        lease_identity: dict[str, Any],
         state_directory_fd: int | None = None,
         implementation: dict[str, str] | None = None,
     ) -> None:
@@ -19719,9 +19846,14 @@ class Workspace:
             Workspace._validate_temporary_state_integrity(
                 owned_descriptor, state, implementation
             )
+            state_metadata = os.fstat(owned_descriptor)
+            if not identity_matches(state_identity, state_metadata):
+                raise WorkspaceError(
+                    f"temporary state identity changed before rollback: {state}"
+                )
             remove_owned_tree(
                 state,
-                expected_identity=state_identity,
+                expected_identity=_live_identity_dict(state_metadata),
                 reject_links=True,
             )
         finally:
@@ -19773,30 +19905,39 @@ class Workspace:
         if lifecycle == "removal-pending":
             state_present = entry_present(state)
             tombstone_present = entry_present(tombstone)
-            removal_tombstone = _owned_tree_tombstone_path(tombstone, identity)
+            removal_tombstone = _portable_tombstone_path(tombstone, identity)
+            if removal_tombstone is None and state_present:
+                removal_tombstone = _owned_tree_tombstone_path(
+                    tombstone,
+                    _live_identity_dict(
+                        state.stat(follow_symlinks=False)
+                        if state_container_fd is None
+                        else os.stat(
+                            state.name,
+                            dir_fd=state_container_fd,
+                            follow_symlinks=False,
+                        )
+                    ),
+                )
             removal_tombstone_present = (
-                entry_present(removal_tombstone)
+                removal_tombstone is not None
+                and entry_present(removal_tombstone)
             )
             if state_present and tombstone_present:
                 raise WorkspaceError(
                     f"temporary state removal paths conflict: {state}"
                 )
             if state_present:
-                observed_state = (
-                    self._state_identity(state)
+                state_metadata = (
+                    state.stat(follow_symlinks=False)
                     if state_container_fd is None
-                    else {
-                        "device": (
-                            state_metadata := os.stat(
-                                state.name,
-                                dir_fd=state_container_fd,
-                                follow_symlinks=False,
-                            )
-                        ).st_dev,
-                        "inode": state_metadata.st_ino,
-                    }
+                    else os.stat(
+                        state.name,
+                        dir_fd=state_container_fd,
+                        follow_symlinks=False,
+                    )
                 )
-                if observed_state != identity:
+                if not identity_matches(identity, state_metadata):
                     raise WorkspaceError(
                         f"temporary state identity changed before removal: {state}"
                     )
@@ -19830,11 +19971,7 @@ class Workspace:
                 )
                 if (
                     not stat.S_ISDIR(tombstone_metadata.st_mode)
-                    or {
-                        "device": tombstone_metadata.st_dev,
-                        "inode": tombstone_metadata.st_ino,
-                    }
-                    != identity
+                    or not identity_matches(identity, tombstone_metadata)
                 ):
                     raise WorkspaceError(
                         f"temporary state removal identity is invalid: {tombstone}"
@@ -19888,8 +20025,7 @@ class Workspace:
             )
             if (
                 not stat.S_ISDIR(metadata.st_mode)
-                or (metadata.st_dev, metadata.st_ino)
-                != (identity["device"], identity["inode"])
+                or not identity_matches(identity, metadata)
                 or (
                     any(tombstone.iterdir())
                     if tombstone_fd is None
@@ -19977,13 +20113,25 @@ class Workspace:
                 retained = {**policy, "lifecycle": "retained"}
                 return self._write_temporary_state_policy(name, current, retained)
             removal_path = self._temporary_state_removal_path(policy)
-            removal_root_tombstone = _owned_tree_tombstone_path(
+            removal_root_tombstone = _portable_tombstone_path(
                 removal_path, policy["identity"]
             )
+            if removal_root_tombstone is None and (
+                state.exists() or state.is_symlink()
+            ):
+                removal_root_tombstone = _owned_tree_tombstone_path(
+                    removal_path,
+                    _live_identity_dict(state.stat(follow_symlinks=False)),
+                )
             mutation_path = next(
                 (
                     candidate
-                    for candidate in (state, removal_path, removal_root_tombstone)
+                    for candidate in (
+                        state,
+                        removal_path,
+                        removal_root_tombstone,
+                    )
+                    if candidate is not None
                     if candidate.exists() or candidate.is_symlink()
                 ),
                 None,
@@ -20131,11 +20279,12 @@ class Workspace:
                     if (
                         not stat.S_ISDIR(visible_state.st_mode)
                         or self._canonical_state_path(state) != state
-                        or {
-                            "device": opened_state.st_dev,
-                            "inode": opened_state.st_ino,
-                        }
-                        != policy.get("identity")
+                        or not identity_matches(
+                            policy.get("identity"), opened_state
+                        )
+                        or not identity_matches(
+                            policy.get("identity"), visible_state
+                        )
                         or (visible_state.st_dev, visible_state.st_ino)
                         != (opened_state.st_dev, opened_state.st_ino)
                     ):

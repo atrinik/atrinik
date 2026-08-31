@@ -628,6 +628,34 @@ class ParserTests(unittest.TestCase):
         )
         self.assertEqual(json.loads(output.call_args.args[0]), plan)
 
+    def test_filesystem_migration_dispatches_explicit_remount_confirmation(self) -> None:
+        plan = {
+            "migration": "filesystem-identity-migration-v1",
+            "status": "dry-run",
+            "records": [],
+            "requires_confirm_remount": False,
+        }
+        with mock.patch(
+            "atrinik_workspace.filesystem_migration.migrate_filesystem_records",
+            return_value=plan,
+        ) as migrate:
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "migrate",
+                        "filesystem",
+                        "--apply",
+                        "--confirm-remount",
+                        "--json",
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        migrate.assert_called_once_with(
+            mock.ANY, "apply", confirm_remount=True
+        )
+        self.assertEqual(json.loads(output.call_args.args[0]), plan)
+
     def test_repository_migration_refusal_returns_failure(self) -> None:
         plan = {
             "migration": "repositories",
