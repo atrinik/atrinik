@@ -190,7 +190,7 @@ def load_json(path: Path) -> Any:
 def unlink_validated_json(path: Path, validate: Callable[[Any], None]) -> None:
     """Validate and unlink the same no-follow JSON inode through a parent dirfd."""
 
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         raise WorkspaceError(
             "validated JSON removal is unavailable on native Windows: "
             "the wrapper cannot prove durable parent-directory unlink semantics"
@@ -259,7 +259,7 @@ def durable_atomic_json(path: Path, value: Any) -> None:
 
 
 def _atomic_json(path: Path, value: Any, *, durable: bool) -> None:
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         _atomic_json_windows(path, value, durable=durable)
         return
 
@@ -406,7 +406,7 @@ def _open_directory_nofollow(
 ) -> int:
     """Open every component of a directory path without following symlinks."""
 
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         raise WorkspaceError(
             "descriptor-relative directory operations are unavailable on native Windows"
         )
@@ -1355,7 +1355,7 @@ class Paths:
     @classmethod
     def discover(cls, repository: Path) -> "Paths":
         repository = Path(repository).expanduser()
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(repository, "repository")
             except OSError as error:
@@ -1365,7 +1365,7 @@ class Paths:
         workspace = Path(configured).expanduser() if configured else repository / "workspace"
         if not workspace.is_absolute():
             raise WorkspaceError("ATRINIK_WORKSPACE_DIR must be an absolute path")
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(workspace, "workspace")
             except OSError as error:
@@ -1395,7 +1395,7 @@ class Paths:
             raise WorkspaceError(f"refusing unsafe workspace path: {self.workspace}")
         if self.workspace.exists() and not self.workspace.is_dir():
             raise WorkspaceError(f"workspace path is not a directory: {self.workspace}")
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(self.workspace, "workspace")
             except OSError as error:
@@ -1415,7 +1415,7 @@ class Paths:
             flags |= os.O_NOFOLLOW
 
         while descriptor is None:
-            if IS_WINDOWS:
+            if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
                 try:
                     assert_no_symlink_components(self.marker, "workspace marker")
                 except OSError as error:
@@ -1457,7 +1457,7 @@ class Paths:
                     f"workspace ownership marker is invalid: {self.marker}: {error}"
                 ) from error
             opened = os.fstat(descriptor)
-            if IS_WINDOWS:
+            if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
                 try:
                     assert_no_symlink_components(self.marker, "workspace marker")
                     visible = self.marker.stat(follow_symlinks=False)
@@ -1491,7 +1491,7 @@ class Paths:
 
         try:
             opened = os.fstat(descriptor)
-            if IS_WINDOWS:
+            if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
                 try:
                     assert_no_symlink_components(self.marker, "workspace marker")
                     visible = self.marker.stat(follow_symlinks=False)

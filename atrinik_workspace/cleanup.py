@@ -17,7 +17,7 @@ import sys
 from typing import Any, Callable, Iterable, Iterator
 
 from .locking import LockBusyError, active_lock_fds
-from .platform_compat import fcntl
+from .platform_compat import fcntl, inherited_subprocess_handles
 from .content_migration import CONTENT_MIGRATION_PENDING, CONTENT_MIGRATION_RECORD
 from .delivery import inventory_active_delivery_evidence
 from .migration import MIGRATION_PENDING, MIGRATION_RECORD, OPERATION_PATHS
@@ -190,13 +190,14 @@ HISTORICAL_PULL_BASE_BOUNDARIES = {
 
 def _command(path: Path, *arguments: str) -> str:
     try:
-        result = subprocess.run(
-            ["git", "-C", str(path), *arguments],
-            check=True,
-            capture_output=True,
-            text=True,
-            pass_fds=active_lock_fds(),
-        )
+        with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+            result = subprocess.run(
+                ["git", "-C", str(path), *arguments],
+                check=True,
+                capture_output=True,
+                text=True,
+                **inheritance,
+            )
     except FileNotFoundError as error:
         raise WorkspaceError("required command not found: git") from error
     except subprocess.CalledProcessError as error:
@@ -4404,24 +4405,25 @@ class Cleanup:
     @staticmethod
     def _github_pulls(repository: str, head: str) -> list[dict[str, Any]]:
         try:
-            result = subprocess.run(
-                [
-                    "gh",
-                    "api",
-                    f"repos/{repository}/commits/{head}/pulls?per_page=100",
-                    "--header",
-                    "Accept: application/vnd.github+json",
-                    "--paginate",
-                    "--jq",
-                    ".[] | {number,state,merged_at,merge_commit_sha,"
-                    "head:{sha:.head.sha},base:{ref:.base.ref,sha:.base.sha},html_url}",
-                ],
-                check=True,
-                capture_output=True,
-                text=True,
-                pass_fds=active_lock_fds(),
-                timeout=30,
-            )
+            with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+                result = subprocess.run(
+                    [
+                        "gh",
+                        "api",
+                        f"repos/{repository}/commits/{head}/pulls?per_page=100",
+                        "--header",
+                        "Accept: application/vnd.github+json",
+                        "--paginate",
+                        "--jq",
+                        ".[] | {number,state,merged_at,merge_commit_sha,"
+                        "head:{sha:.head.sha},base:{ref:.base.ref,sha:.base.sha},html_url}",
+                    ],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                    **inheritance,
+                )
         except FileNotFoundError as error:
             raise WorkspaceError("required command not found: gh") from error
         except subprocess.CalledProcessError as error:

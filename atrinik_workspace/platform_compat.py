@@ -30,7 +30,7 @@ class PlatformCapabilityError(RuntimeError):
 def require_linux_capability(operation: str, capability: str) -> None:
     """Refuse a Linux-only operation with a stable, actionable diagnostic."""
 
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         raise PlatformCapabilityError(
             f"{operation} is unavailable on native Windows: {capability} "
             "requires Linux process and filesystem capabilities; use Linux, "
@@ -62,7 +62,7 @@ def assert_no_symlink_components(path: Path, description: str) -> None:
         del status
 
 
-if IS_WINDOWS:
+if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
     import ctypes
     from ctypes import wintypes
     import msvcrt

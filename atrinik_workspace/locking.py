@@ -125,7 +125,7 @@ def _open_lock(
     *,
     directory_fd: int | None = None,
 ) -> TextIO:
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         if directory_fd is not None:
             raise WorkspaceError(
                 "descriptor-relative lock paths are unavailable on native Windows"
@@ -222,7 +222,7 @@ def _advisory_lock(
     directory_fd: int | None = None,
 ) -> Iterator[TextIO]:
     if directory_fd is None:
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(path.parent, "lock")
             except OSError as error:
@@ -295,7 +295,7 @@ def _reap_staged_resource_owners(
 def _lease_owner_summary(
     path: Path, *, wait_for_transition: bool = True
 ) -> str:
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         return (
             "native Windows lock owner metadata is unavailable; "
             "the kernel lock itself remains authoritative"
@@ -1145,7 +1145,7 @@ def resource_locks(
             request.recovery,
         )
     ordered = sorted(combined.values(), key=lambda request: request.sort_key)
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         # Windows has no descriptor-relative directory API.  Use the same
         # kernel-backed LockFileEx leases and fair layout lock sequence, but do
         # not publish POSIX owner sidecars whose identity cannot be proven
@@ -1258,7 +1258,7 @@ def resource_lifetime_reader(
 ) -> Iterator[TextIO]:
     """Hold a fair diagnosed resource reader without subprocess registration."""
 
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         path = resource_lock_path(root, request.kind, request.coordinate)
         with shared_layout_lock(
             path,

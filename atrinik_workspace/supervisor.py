@@ -18,6 +18,7 @@ from typing import Any, BinaryIO
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .model import durable_atomic_json
+from .platform_compat import inherited_subprocess_handles
 from .process_tree import control_socket_path, holders_exist, signal_holders
 from .port_reservation import PortReservationError, validate_held
 
@@ -651,16 +652,17 @@ def supervise(
             inherited_locks.append(state_directory_fd)
         if state_output_fd is not None and name == "server":
             inherited_locks.append(state_output_fd)
-        process = subprocess.Popen(
-            command,
-            cwd=service["cwd"],
-            env=environment,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            start_new_session=True,
-            pass_fds=tuple(inherited_locks),
-        )
+        with inherited_subprocess_handles(tuple(inherited_locks)) as inheritance:
+            process = subprocess.Popen(
+                command,
+                cwd=service["cwd"],
+                env=environment,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+                **inheritance,
+            )
         processes[name] = process
         start_time = process_start_time(process.pid)
         if start_time is None:

@@ -18,6 +18,7 @@ from typing import Any
 
 from .locking import active_lock_fds
 from .model import WorkspaceError
+from .platform_compat import inherited_subprocess_handles
 
 
 _INVENTORY_LIMIT = 32 * 1024 * 1024
@@ -88,15 +89,16 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
     helper = root / _HELPER_RELATIVE
     _regular_path(helper, "delivery-ledger helper")
     try:
-        result = subprocess.run(
-            [sys.executable, "-B", str(helper), "inventory", str(review_root)],
-            cwd=root,
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=_INVENTORY_TIMEOUT_SECONDS,
-            pass_fds=active_lock_fds(),
-        )
+        with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+            result = subprocess.run(
+                [sys.executable, "-B", str(helper), "inventory", str(review_root)],
+                cwd=root,
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=_INVENTORY_TIMEOUT_SECONDS,
+                **inheritance,
+            )
     except (OSError, subprocess.TimeoutExpired) as error:
         raise WorkspaceError(f"delivery-ledger inventory failed: {error}") from error
     if (

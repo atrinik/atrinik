@@ -704,7 +704,7 @@ def main(arguments: list[str] | None = None) -> int:
     workspace: Any = None
     command_maintenance: Any = None
     try:
-        if IS_WINDOWS and (
+        if IS_WINDOWS and (  # pragma: no cover - exercised by native Windows CI
             options.command
             in {
                 "build",

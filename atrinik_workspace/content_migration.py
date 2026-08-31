@@ -34,6 +34,7 @@ from .process_tree import (
     holders_exist,
     lease_locked,
 )
+from .platform_compat import inherited_subprocess_handles
 from .sound import validate_release_coordinates
 from .supervisor import process_matches
 
@@ -88,13 +89,14 @@ def _durable_unlink(path: Path, *, missing_ok: bool = False) -> None:
 
 def _git(path: Path, *arguments: str, check: bool = True) -> str:
     try:
-        result = subprocess.run(
-            ["git", "-C", str(path), *arguments],
-            check=check,
-            capture_output=True,
-            text=True,
-            pass_fds=active_lock_fds(),
-        )
+        with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+            result = subprocess.run(
+                ["git", "-C", str(path), *arguments],
+                check=check,
+                capture_output=True,
+                text=True,
+                **inheritance,
+            )
     except FileNotFoundError as error:
         raise WorkspaceError("required command not found: git") from error
     except subprocess.CalledProcessError as error:
@@ -108,13 +110,14 @@ def _git(path: Path, *arguments: str, check: bool = True) -> str:
 
 def _git_succeeds(path: Path, *arguments: str) -> bool:
     try:
-        return subprocess.run(
-            ["git", "-C", str(path), *arguments],
-            check=False,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            pass_fds=active_lock_fds(),
-        ).returncode == 0
+        with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+            return subprocess.run(
+                ["git", "-C", str(path), *arguments],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                **inheritance,
+            ).returncode == 0
     except FileNotFoundError as error:
         raise WorkspaceError("required command not found: git") from error
 

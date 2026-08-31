@@ -1875,7 +1875,7 @@ def _run_wrapper_worktree_inventory(
 ) -> bytes:
     """Capture one Git worktree inventory with live byte and time bounds."""
 
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         try:
             with inherited_subprocess_handles(pass_fds) as inheritance:
                 completed = subprocess.run(
@@ -2062,7 +2062,7 @@ def _parse_worktree_porcelain(raw: bytes) -> list[dict[str, str]]:
 def open_regular_file(
     path: Path, flags: int, description: str, mode: int = 0o600
 ) -> int:
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         try:
             assert_no_symlink_components(path, description)
         except OSError as error:
@@ -2076,7 +2076,7 @@ def open_regular_file(
         opened = os.fstat(descriptor)
         if not stat.S_ISREG(opened.st_mode):
             raise WorkspaceError(f"{description} is not a regular file: {path}")
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             assert_no_symlink_components(path, description)
             visible = path.stat(follow_symlinks=False)
             if (
@@ -2519,7 +2519,7 @@ class Workspace:
 
     def _establish_lease_namespace_identity(self) -> tuple[int, int]:
         namespace = self._lease_namespace
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(namespace, "physical lease namespace")
             except OSError as error:
@@ -3096,25 +3096,26 @@ class Workspace:
         expected: dict[str, tuple[bytes, bytes, bytes]] = {}
         if kind == b"tree":
             try:
-                result = subprocess.run(
-                    [
-                        "git",
-                        "--no-replace-objects",
-                        "-C",
-                        str(checkout),
-                        "ls-tree",
-                        "-r",
-                        "-t",
-                        "--full-tree",
-                        "-z",
-                        object_id,
-                    ],
-                    check=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    pass_fds=active_lock_fds(),
-                    timeout=30,
-                )
+                with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+                    result = subprocess.run(
+                        [
+                            "git",
+                            "--no-replace-objects",
+                            "-C",
+                            str(checkout),
+                            "ls-tree",
+                            "-r",
+                            "-t",
+                            "--full-tree",
+                            "-z",
+                            object_id,
+                        ],
+                        check=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        timeout=30,
+                        **inheritance,
+                    )
             except FileNotFoundError as error:
                 raise WorkspaceError("required command not found: git") from error
             except subprocess.CalledProcessError as error:
@@ -3197,21 +3198,24 @@ class Workspace:
                     payload = tempfile.TemporaryFile()
                     try:
                         try:
-                            subprocess.run(
-                                [
-                                    "git",
-                                    "--no-replace-objects",
-                                    "-C",
-                                    str(checkout),
-                                    "cat-file",
-                                    "blob",
-                                    entry_object.decode(),
-                                ],
-                                check=True,
-                                stdout=payload,
-                                stderr=subprocess.PIPE,
-                                pass_fds=active_lock_fds(),
-                            )
+                            with inherited_subprocess_handles(
+                                active_lock_fds()
+                            ) as inheritance:
+                                subprocess.run(
+                                    [
+                                        "git",
+                                        "--no-replace-objects",
+                                        "-C",
+                                        str(checkout),
+                                        "cat-file",
+                                        "blob",
+                                        entry_object.decode(),
+                                    ],
+                                    check=True,
+                                    stdout=payload,
+                                    stderr=subprocess.PIPE,
+                                    **inheritance,
+                                )
                         except FileNotFoundError as error:
                             raise WorkspaceError(
                                 "required command not found: git"
@@ -3256,24 +3260,25 @@ class Workspace:
         """Return the complete, replacement-free entry inventory for a Git tree."""
 
         try:
-            result = subprocess.run(
-                [
-                    "git",
-                    "--no-replace-objects",
-                    "-C",
-                    str(checkout),
-                    "ls-tree",
-                    "-r",
-                    "-t",
-                    "--full-tree",
-                    "-z",
-                    source_tree,
-                ],
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                pass_fds=active_lock_fds(),
-            )
+            with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+                result = subprocess.run(
+                    [
+                        "git",
+                        "--no-replace-objects",
+                        "-C",
+                        str(checkout),
+                        "ls-tree",
+                        "-r",
+                        "-t",
+                        "--full-tree",
+                        "-z",
+                        source_tree,
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    **inheritance,
+                )
         except FileNotFoundError as error:
             raise WorkspaceError("required command not found: git") from error
         except subprocess.CalledProcessError as error:
@@ -4208,23 +4213,24 @@ class Workspace:
         algorithm = hashlib.sha1 if len(root_tree) == 40 else hashlib.sha256
         for include, expected_object in sorted(source_includes.items()):
             try:
-                result = subprocess.run(
-                    [
-                        "git",
-                        "--no-replace-objects",
-                        "-C",
-                        str(checkout),
-                        "ls-tree",
-                        "-z",
-                        root_tree,
-                        "--",
-                        include,
-                    ],
-                    check=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    pass_fds=active_lock_fds(),
-                )
+                with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+                    result = subprocess.run(
+                        [
+                            "git",
+                            "--no-replace-objects",
+                            "-C",
+                            str(checkout),
+                            "ls-tree",
+                            "-z",
+                            root_tree,
+                            "--",
+                            include,
+                        ],
+                        check=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        **inheritance,
+                    )
             except FileNotFoundError as error:
                 raise WorkspaceError("required command not found: git") from error
             except subprocess.CalledProcessError as error:
@@ -4674,13 +4680,16 @@ class Workspace:
                             ]
                             if archive_pathspec is not None:
                                 archive_command.extend(["--", archive_pathspec])
-                            subprocess.run(
-                                archive_command,
-                                check=True,
-                                stdout=archive_descriptor,
-                                stderr=subprocess.PIPE,
-                                pass_fds=active_lock_fds(),
-                            )
+                            with inherited_subprocess_handles(
+                                active_lock_fds()
+                            ) as inheritance:
+                                subprocess.run(
+                                    archive_command,
+                                    check=True,
+                                    stdout=archive_descriptor,
+                                    stderr=subprocess.PIPE,
+                                    **inheritance,
+                                )
                         except FileNotFoundError as error:
                             raise WorkspaceError(
                                 "required command not found: git"
@@ -5394,7 +5403,7 @@ class Workspace:
     def _ensure_repository(self, value: Checkout | Component) -> Path:
         checkout = self._checkout_identity(value)
         destination = self._primary_path(checkout)
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(destination, "component destination")
             except OSError as error:
@@ -5497,7 +5506,7 @@ class Workspace:
         self, value: Checkout | Component, path: Path, *, trace: bool = True
     ) -> str:
         checkout = self._checkout_identity(value)
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(path, "component checkout")
             except OSError as error:
@@ -6937,7 +6946,7 @@ class Workspace:
         self, name: str, value: dict[str, Any]
     ) -> None:
         namespace = self._lease_namespace
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             registry = namespace / "profile-references"
             try:
                 assert_no_symlink_components(namespace, "physical lease namespace")
@@ -7026,7 +7035,7 @@ class Workspace:
         *,
         expected_mode: int | None = None,
     ) -> None:
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(path, description)
                 metadata = path.stat(follow_symlinks=False)
@@ -7055,7 +7064,7 @@ class Workspace:
         self, *, only: str | None = None
     ) -> list[dict[str, Any]]:
         registry = self._lease_namespace / "profile-references"
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(registry, "physical reference registry")
                 if not registry.exists():
@@ -7178,7 +7187,7 @@ class Workspace:
         name = hashlib.sha256(str(authored_path.resolve()).encode()).hexdigest() + ".json"
         namespace = self._lease_namespace
         registry = namespace / "profile-references"
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(registry, "physical reference registry")
                 reference = registry / name
@@ -7462,7 +7471,7 @@ class Workspace:
         return Path(selector["value"])
 
     def _component_source(self, component: Component, checkout_root: Path) -> Path:
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(checkout_root, "component checkout")
             except OSError as error:
@@ -7490,7 +7499,7 @@ class Workspace:
                 f"component source is not a normal directory: {component.name}: {source}"
             )
         resolved = source.resolve()
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
                 assert_no_symlink_components(source, "component source")
             except OSError as error:
@@ -10163,22 +10172,23 @@ class Workspace:
             tracked = sorted(set(tracked))
         else:
             try:
-                result = subprocess.run(
-                    [
-                        "git",
-                        "-C",
-                        str(source),
-                        "ls-files",
-                        "-z",
-                        "--cached",
-                        "--",
-                        *runtime_paths,
-                    ],
-                    check=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    pass_fds=active_lock_fds(),
-                )
+                with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+                    result = subprocess.run(
+                        [
+                            "git",
+                            "-C",
+                            str(source),
+                            "ls-files",
+                            "-z",
+                            "--cached",
+                            "--",
+                            *runtime_paths,
+                        ],
+                        check=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        **inheritance,
+                    )
             except FileNotFoundError as error:
                 raise WorkspaceError("required command not found: git") from error
             except subprocess.CalledProcessError as error:
@@ -20031,16 +20041,19 @@ class Workspace:
                         if not python_path
                         else source_root + os.pathsep + python_path
                     )
-                    process = subprocess.Popen(
-                        command,
-                        cwd=self.paths.repository,
-                        env=environment,
-                        stdin=subprocess.DEVNULL,
-                        stdout=supervisor_log,
-                        stderr=subprocess.STDOUT,
-                        start_new_session=True,
-                        pass_fds=tuple(inherited_locks),
-                    )
+                    with inherited_subprocess_handles(
+                        tuple(inherited_locks)
+                    ) as inheritance:
+                        process = subprocess.Popen(
+                            command,
+                            cwd=self.paths.repository,
+                            env=environment,
+                            stdin=subprocess.DEVNULL,
+                            stdout=supervisor_log,
+                            stderr=subprocess.STDOUT,
+                            start_new_session=True,
+                            **inheritance,
+                        )
                     published_generation_owner.clear()
                     published_state_output_owner.clear()
                     temporary_state_owner.clear()
