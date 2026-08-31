@@ -1,7 +1,11 @@
 {
+  // This file is JSONC: comments document the WSLg contract used by the
+  // interactive Classic client and the GPU-backed Vulkan shader path.
   "name": "Atrinik 2026 Linux Build",
+  // Pin the published toolchain image so rebuilds use an auditable input.
   "image": "ghcr.io/atrinik/linux-build:1.3.0@sha256:260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a",
   "features": {
+    // The wrapper uses the Docker CLI for isolated runtime topologies.
     "ghcr.io/devcontainers/features/docker-in-docker:4": {
       "moby": false
     }
@@ -9,21 +13,47 @@
   "remoteUser": "ubuntu",
   "updateRemoteUserUID": true,
   "runArgs": [
+    // Let the client and server communicate through the host network namespace.
     "--network", "host",
+    // Permit the build/runtime tools to use their documented sandbox settings.
     "--security-opt", "seccomp=unconfined",
-    "--security-opt", "no-new-privileges=false"
+    "--security-opt", "no-new-privileges=false",
+    // WSL2 exposes the host GPU to Linux through the DirectX paravirtual device.
+    "--device=/dev/dxg",
+    // Ask Docker Desktop's NVIDIA runtime to make all GPU capabilities visible.
+    "--gpus=all"
   ],
   "initializeCommand": "install -d -m 700 \"${localEnv:HOME}/.codex-atrinik\" && if [ ! -e \"${localEnv:HOME}/.gitconfig\" ]; then install -m 600 /dev/null \"${localEnv:HOME}/.gitconfig\"; fi",
   "workspaceFolder": "/workspaces/atrinik",
   "mounts": [
+    // Keep Codex state and Git identity local to the host user.
     "source=${localEnv:HOME}/.codex-atrinik,target=/home/ubuntu/.codex,type=bind",
     "source=${localEnv:HOME}/.gitconfig,target=/home/ubuntu/.gitconfig,type=bind,readonly",
+    // WSLg owns the Wayland, X11, runtime, and audio endpoints under this tree.
+    "source=/mnt/wslg,target=/mnt/wslg,type=bind,readonly",
+    // WSLg's Xwayland socket lives here; expose it at the conventional X11 path.
+    "source=/mnt/wslg/.X11-unix,target=/tmp/.X11-unix,type=bind,readonly",
+    // Make WSL's NVIDIA user-mode libraries, including nvidia-smi, available.
+    "source=/usr/lib/wsl,target=/usr/lib/wsl,type=bind,readonly",
+    // Route SDL/Pulse audio to the WSLg host session.
     "source=/mnt/wslg/PulseServer,target=/mnt/wslg/PulseServer,type=bind"
   ],
   "containerEnv": {
+    // WSLg's Xwayland display; SDL uses it by default for reliable text input.
+    "DISPLAY": ":0",
+    // Keep the WSLg Wayland endpoint available to Vulkan and other clients.
+    "WAYLAND_DISPLAY": "wayland-0",
+    // Wayland discovers its socket and ancillary runtime files here.
+    "XDG_RUNTIME_DIR": "/mnt/wslg/runtime-dir",
+    // Resolve WSL's D3D12/NVIDIA user-mode libraries before container libraries.
+    "LD_LIBRARY_PATH": "/usr/lib/wsl/lib",
     "CODEX_HOME": "/home/ubuntu/.codex",
+    // WSLg currently lacks zwp_text_input_v3; SDL's X11 backend supplies text events.
+    "SDL_VIDEODRIVER": "x11",
     "PULSE_SERVER": "unix:/mnt/wslg/PulseServer",
-    "SDL_AUDIODRIVER": "pulse"
+    "SDL_AUDIODRIVER": "pulse",
+    // Expose graphics/display as well as compute and utility capabilities.
+    "NVIDIA_DRIVER_CAPABILITIES": "compute,utility,graphics,display"
   },
   "postCreateCommand": "./atrinik init",
   "customizations": {
