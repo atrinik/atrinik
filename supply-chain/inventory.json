@@ -232,6 +232,28 @@
       ],
       "license": "MIT",
       "commit": null,
+      "name": "deploy-control",
+      "repository": "atrinik/deploy-control",
+      "role": "Cloudflare control plane and registered host-agent infrastructure",
+      "roles": [
+        "deploy-control"
+      ],
+      "stacks": [
+        "default"
+      ],
+      "supported": true,
+      "checkout": "deploy-control",
+      "source": "."
+    },
+    {
+      "audit_ready": true,
+      "audit_mode": "full",
+      "branch": "main",
+      "cohorts": [
+        "default"
+      ],
+      "license": "MIT",
+      "commit": null,
       "name": "devcontainer",
       "repository": "atrinik/devcontainer",
       "role": "Linux and Windows build images",
@@ -669,6 +691,7 @@
         "client",
         "content",
         "content-toolkit",
+        "deploy-control",
         "devcontainer",
         "editor",
         "github-settings",
@@ -716,6 +739,11 @@
         {
           "repository": "content-toolkit",
           "path": ".github/workflows/validate.yml",
+          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+        },
+        {
+          "repository": "deploy-control",
+          "path": ".github/workflows/check.yml",
           "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
         },
         {
@@ -899,6 +927,7 @@
         "client",
         "content",
         "content-toolkit",
+        "deploy-control",
         "devcontainer",
         "editor",
         "github-settings",
@@ -951,6 +980,11 @@
         {
           "repository": "content-toolkit",
           "path": ".github/workflows/release.yml",
+          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+        },
+        {
+          "repository": "deploy-control",
+          "path": ".github/workflows/check.yml",
           "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
         },
         {
@@ -2183,6 +2217,57 @@
       ]
     },
     {
+      "id": "language/deploy-control-npm",
+      "name": "Deploy-control Worker and agent npm dependency graph",
+      "kind": "language-package-set",
+      "owner": "deploy-control",
+      "scope": [
+        "deploy-control"
+      ],
+      "required": true,
+      "version": "lockfileVersion-3",
+      "version_source": "package-lock.json",
+      "license": "NOASSERTION",
+      "source_url": "https://www.npmjs.com/",
+      "locator": "pkg:npm/atrinik-deploy-control@0.1.0",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "npm ci installs the exact package-lock graph",
+      "update_cadence_days": 7,
+      "update_mechanism": "Grouped Dependabot npm development and production updates",
+      "eol_response": "Upgrade incompatible packages on the supported Node line or replace them",
+      "validation": "npm ci, TypeScript checks, Vitest, and Wrangler dry-run validation",
+      "disposition": "retain",
+      "packages": [
+        "@types/node",
+        "typescript",
+        "vitest",
+        "wrangler"
+      ],
+      "evidence": [
+        {
+          "repository": "deploy-control",
+          "path": ".github/dependabot.yml",
+          "contains": "package-ecosystem: npm"
+        },
+        {
+          "repository": "deploy-control",
+          "path": "package-lock.json",
+          "contains": "\"lockfileVersion\": 3"
+        },
+        {
+          "repository": "deploy-control",
+          "path": "package.json",
+          "contains": "\"name\": \"atrinik-deploy-control\""
+        },
+        {
+          "repository": "deploy-control",
+          "path": "package.json",
+          "contains": "\"wrangler\": \"4.123.0\""
+        }
+      ]
+    },
+    {
       "id": "language/metaserver-npm",
       "name": "Metaserver Worker npm dependency graph",
       "kind": "language-package-set",
@@ -2223,6 +2308,11 @@
         },
         {
           "repository": "metaserver-worker",
+          "path": "deployment/review-check/package.json",
+          "contains": "\"private\": true"
+        },
+        {
+          "repository": "metaserver-worker",
           "path": "package-lock.json",
           "contains": "\"lockfileVersion\": 3"
         },
@@ -2234,7 +2324,7 @@
         {
           "repository": "metaserver-worker",
           "path": "package.json",
-          "contains": "\"wrangler\": \"4.119.0\""
+          "contains": "\"wrangler\": \"4.123.0\""
         }
       ]
     },
@@ -4389,6 +4479,7 @@
         "client",
         "content",
         "content-toolkit",
+        "deploy-control",
         "devcontainer",
         "editor",
         "github-settings",
@@ -4441,6 +4532,11 @@
         {
           "repository": "content-toolkit",
           "path": ".github/workflows/validate.yml",
+          "contains": "runs-on: ubuntu-24.04"
+        },
+        {
+          "repository": "deploy-control",
+          "path": ".github/workflows/check.yml",
           "contains": "runs-on: ubuntu-24.04"
         },
         {
@@ -4609,6 +4705,7 @@
         "client",
         "content",
         "content-toolkit",
+        "deploy-control",
         "devcontainer",
         "editor",
         "github-settings",
@@ -4624,7 +4721,7 @@
       ],
       "required": true,
       "version": "wrapper release 22; Classic release 24; Worker, playtester, and replacement releases 24.18.1",
-      "version_source": "Worker/website package engines and exact release workflow lines",
+      "version_source": "Worker/website/deploy-control package engines and exact release workflow lines",
       "license": "MIT",
       "source_url": "https://nodejs.org/",
       "locator": "pkg:generic/node",
@@ -4665,6 +4762,11 @@
           "repository": "content-toolkit",
           "path": ".github/workflows/release.yml",
           "contains": "node-version: 24.18.1"
+        },
+        {
+          "repository": "deploy-control",
+          "path": "package.json",
+          "contains": "\"node\": \"24.18.1\""
         },
         {
           "repository": "devcontainer",

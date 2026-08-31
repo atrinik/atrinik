@@ -190,6 +190,17 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(observatory.roles, ("observatory",))
         self.assertEqual(observatory.license, "MIT")
         self.assertEqual(observatory.audit_mode, "full")
+        deploy_control = inventory.repositories_by_name["deploy-control"]
+        self.assertEqual(deploy_control.repository, "atrinik/deploy-control")
+        self.assertEqual(deploy_control.cohorts, ("default",))
+        self.assertEqual(deploy_control.stacks, ("default",))
+        self.assertEqual(deploy_control.roles, ("deploy-control",))
+        self.assertEqual(deploy_control.license, "MIT")
+        self.assertEqual(deploy_control.audit_mode, "full")
+        self.assertEqual(
+            inventory.repositories_by_name["deploy-control"].source,
+            ".",
+        )
         self.assertEqual(
             inventory.repositories_by_name["content"].stacks,
             ("classic", "default"),
