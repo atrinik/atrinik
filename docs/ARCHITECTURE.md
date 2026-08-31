@@ -152,6 +152,38 @@ workspace/
   cleanup-journals/                  cleanup recovery/delivery receipts
 ~~~
 
+## Durable and ephemeral filesystem identity
+
+The wrapper does not use one filesystem identity for every purpose. Durable
+workspace JSON, topology leases, mutable-state outputs, physical lease
+anchors, scope journals, and delivery-ledger sidecars use the versioned
+portable identity object: object kind, inode, mode, and (for regular files)
+ctime, with an optional content digest. The mount-specific `st_dev` value is
+excluded from that object. Schema-v1 `{ "device", "inode" }` pairs remain
+readable only at compatibility boundaries and are converted by the explicit
+`migrate filesystem` transaction.
+
+Live operations retain the complete descriptor-derived `(st_dev, st_ino)`
+identity and mount identifier where needed for replacement, symlink, hard-link,
+and TOCTOU fencing. A portable identity does not authorize a path-only rebind;
+the live object must still pass the opened-handle check. This keeps a
+devcontainer remount from invalidating durable records without weakening live
+lease, ownership, generation, or content-integrity guarantees.
+Rename-prone lease records use a stable portable projection that omits ctime;
+their opened descriptors, generation tokens, and content checks remain
+ephemeral lifecycle fences.
+
+Filesystem migration snapshots each target before publication, records legacy
+evidence and portable pre/post identities in an atomic journal, and preserves a
+rollback identity after an undo replacement. Resume and audit accept only the
+exact before or after bytes together with their corresponding identity. Missing,
+changed, symlinked, foreign-owned, or ambiguous targets fail closed. The
+transaction covers workspace records, topology recovery records, the physical
+lease anchor, and repository-local delivery-ledger sidecars; cleanup, topology
+shutdown, scope release, and repository migration do not implicitly perform
+this rebind. The complete operator procedure and schema details are in
+[`docs/FILESYSTEM-IDENTITY.md`](FILESYSTEM-IDENTITY.md).
+
 ## Incremental Classic development contract
 
 The playable development workflow has one build-coordinate rule and one
