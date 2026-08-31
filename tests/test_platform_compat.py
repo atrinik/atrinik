@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import redirect_stderr
 from io import StringIO
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -13,9 +14,15 @@ from atrinik_workspace.locking import (
     active_lock_fds,
     resource_lifetime_reader,
 )
-from atrinik_workspace.model import atomic_json, durable_atomic_json, load_json
+from atrinik_workspace.model import (
+    WorkspaceError,
+    atomic_json,
+    durable_atomic_json,
+    load_json,
+)
 from atrinik_workspace.platform_compat import IS_WINDOWS, fcntl
 from atrinik_workspace import platform_compat
+from atrinik_workspace.workspace import open_regular_file
 
 
 class PlatformPathSafetyTests(unittest.TestCase):
@@ -56,6 +63,24 @@ class PlatformPathSafetyTests(unittest.TestCase):
                     platform_compat.assert_no_symlink_components(
                         Path(temporary) / "record.json", "test"
                     )
+
+    def test_open_regular_file_closes_descriptor_after_workspace_error(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary) / "directory"
+            directory.mkdir()
+            with self.assertRaisesRegex(WorkspaceError, "not a regular file"):
+                open_regular_file(directory, os.O_RDONLY, "test file")
+
+    def test_open_regular_file_closes_descriptor_after_os_error(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "record"
+            path.write_text("record", encoding="utf-8")
+            with mock.patch(
+                "atrinik_workspace.workspace.os.fstat",
+                side_effect=OSError("stat failed"),
+            ):
+                with self.assertRaisesRegex(WorkspaceError, "cannot open test file"):
+                    open_regular_file(path, os.O_RDONLY, "test file")
 
 
 @unittest.skipUnless(IS_WINDOWS, "native Windows compatibility coverage")
