@@ -2723,6 +2723,7 @@ class WorkspaceTests(unittest.TestCase):
                     None,
                 ),
             ),
+            mock.patch.object(self.workspace, "_prepare_gpu_shader", return_value=None),
             mock.patch.object(
                 self.workspace, "_collect_content", side_effect=prepare_runtime
             ),
@@ -6294,6 +6295,714 @@ class WorkspaceTests(unittest.TestCase):
                 False,
                 build_targets=["atrinik"],
             )
+
+    def test_classic_gpu_shader_preparation_is_lock_keyed_and_recorded(self) -> None:
+        source = self.root / "classic-client"
+        (source / "shaders").mkdir(parents=True)
+        (source / "tools").mkdir()
+        dxc_bytes = b"test dxc\n"
+        dxc_digest = hashlib.sha256(dxc_bytes).hexdigest()
+        lock = {
+            "schema_version": 1,
+            "dxc": {"files": {"bin/dxc": dxc_digest}},
+        }
+        lock_path = source / "shaders" / "toolchain.lock.json"
+        lock_path.write_text(json.dumps(lock), encoding="utf-8")
+        builder = source / "tools" / "prepare_gpu_shader_toolchain.py"
+        builder.write_text("# test preparer\n", encoding="utf-8")
+        manifest = source / "shaders" / "SHA256SUMS"
+        manifest.write_text("final_fragment.dxil test\n", encoding="utf-8")
+        root = self.workspace.paths.builds / "profiles" / "classic-gpu"
+        managed_directory(root, self.workspace.paths.builds, "profile:classic-gpu")
+        observed: list[tuple[list[str], Path]] = []
+
+        def prepare(arguments: list[str], **kwargs: object) -> None:
+            output = Path(arguments[arguments.index("--output") + 1])
+            observed.append((arguments, Path(kwargs["cwd"])))
+            (output / "dxc" / "bin").mkdir(parents=True, exist_ok=True)
+            (output / "dxc" / "lib").mkdir(exist_ok=True)
+            dxc = output / "dxc" / "bin" / "dxc"
+            dxc.write_bytes(dxc_bytes)
+            dxc.chmod(0o755)
+            (output / "spirv-cross" / "bin").mkdir(parents=True, exist_ok=True)
+            spirv_cross = output / "spirv-cross" / "bin" / "spirv-cross"
+            spirv_cross.write_bytes(b"test spirv-cross\n")
+            spirv_cross.chmod(0o755)
+            (output / "spirv-cross" / "LICENSE").write_text(
+                "license\n", encoding="utf-8"
+            )
+            atomic_json(
+                output / "toolchain.json",
+                {
+                    "schema_version": 1,
+                    "lock_sha256": hashlib.sha256(lock_path.read_bytes()).hexdigest(),
+                    "spirv_cross_sha256": hashlib.sha256(
+                        spirv_cross.read_bytes()
+                    ).hexdigest(),
+                },
+            )
+
+        overrides = {name: "" for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES}
+        with (
+            mock.patch.dict(os.environ, overrides, clear=False),
+            mock.patch.object(workspace_module, "run", side_effect=prepare),
+        ):
+            record = self.workspace._prepare_gpu_shader(
+                root, {"client": source}, "classic"
+            )
+
+        self.assertEqual(record["mode"], "managed")
+        self.assertEqual(record["lock_sha256"], hashlib.sha256(lock_path.read_bytes()).hexdigest())
+        self.assertEqual(len(observed), 1)
+        self.assertEqual(observed[0][1], source)
+        self.assertEqual(
+            observed[0][0][0:2], [sys.executable, str(builder)]
+        )
+        self.assertEqual(
+            record["toolchain_root"],
+            str(
+                root
+                / "producers"
+                / "classic-gpu-shader-toolchains"
+                / record["lock_sha256"]
+            ),
+        )
+        checkout_toolchain = source / "build" / "gpu-shader-toolchain"
+        shutil.copytree(record["toolchain_root"], checkout_toolchain)
+        with (
+            mock.patch.dict(os.environ, overrides, clear=False),
+            mock.patch.object(workspace_module, "run", side_effect=prepare),
+        ):
+            reused = self.workspace._prepare_gpu_shader(
+                root, {"client": source}, "classic"
+            )
+        self.assertEqual(reused["mode"], "managed")
+        self.assertEqual(reused["toolchain_root"], str(checkout_toolchain.resolve()))
+        self.assertEqual(len(observed), 2)
+        self.assertEqual(
+            observed[1][0][observed[1][0].index("--output") + 1],
+            str(checkout_toolchain),
+        )
+        self.workspace._refresh_build_metadata(
+            root,
+            "default",
+            "classic-gpu",
+            {"client": self.workspace.paths.repositories / "client"},
+            None,
+            record,
+        )
+        self.assertEqual(
+            load_json(root / workspace_module.BUILD_METADATA)["gpu_shader"],
+            record,
+        )
+
+        external_build = self.root / "external-build"
+        external_build.mkdir()
+        unsafe_source = self.root / "unsafe-source"
+        unsafe_source.mkdir()
+        (unsafe_source / "build").symlink_to(
+            external_build, target_is_directory=True
+        )
+        self.assertIsNone(
+            self.workspace._gpu_shader_existing_toolchain(unsafe_source, "classic")
+        )
+
+    def test_classic_gpu_shader_explicit_system_and_external_overrides(self) -> None:
+        dxc = self.root / "bin" / "dxc"
+        spirv_cross = self.root / "bin" / "spirv-cross"
+        dxc.parent.mkdir()
+        for executable in (dxc, spirv_cross):
+            executable.write_text("#!/bin/sh\n", encoding="utf-8")
+            executable.chmod(0o755)
+        library = self.root / "dxc-lib"
+        library.mkdir()
+        external = self.root / "shader-cohort"
+        external.mkdir()
+        (external / "SHA256SUMS").write_text(
+            "final_fragment.dxil 0000000000000000000000000000000000000000000000000000000000000000\n",
+            encoding="utf-8",
+        )
+        source = self.root / "classic-client"
+        source.mkdir()
+
+        system_values = {
+            name: ""
+            for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES
+        }
+        system_values.update(
+            {
+                "ATRINIK_DXC_EXECUTABLE": str(dxc),
+                "ATRINIK_SPIRV_CROSS_EXECUTABLE": str(spirv_cross),
+                "ATRINIK_DXC_LIBRARY_DIRECTORY": str(library),
+                "PATH": "",
+            }
+        )
+        with mock.patch.dict(os.environ, system_values, clear=False):
+            system = self.workspace._prepare_gpu_shader(
+                self.workspace.paths.builds / "profiles" / "system",
+                {"client": source},
+                "classic",
+            )
+        self.assertEqual(system["mode"], "system")
+        self.assertEqual(system["dxc_executable"], str(dxc.resolve()))
+        self.assertEqual(
+            self.workspace._gpu_shader_cmake_arguments(system),
+            [
+                f"-DATRINIK_DXC_EXECUTABLE={dxc.resolve()}",
+                f"-DATRINIK_SPIRV_CROSS_EXECUTABLE={spirv_cross.resolve()}",
+                f"-DATRINIK_DXC_LIBRARY_DIRECTORY={library.resolve()}",
+                f"-D{workspace_module.GPU_SHADER_WRAPPER_IDENTITY_ARGUMENT}={system['identity']}",
+            ],
+        )
+
+        external_values = {
+            name: "" for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES
+        }
+        external_values["ATRINIK_GPU_SHADER_DIRECTORY"] = str(external)
+        with mock.patch.dict(os.environ, external_values, clear=False):
+            cohort = self.workspace._prepare_gpu_shader(
+                self.workspace.paths.builds / "profiles" / "external",
+                {"client": source},
+                "classic",
+            )
+        self.assertEqual(cohort["mode"], "external")
+        self.assertEqual(cohort["shader_directory"], str(external.resolve()))
+        self.assertEqual(
+            self.workspace._gpu_shader_cmake_arguments(cohort),
+            [
+                f"-DATRINIK_GPU_SHADER_DIRECTORY={external.resolve()}",
+                f"-D{workspace_module.GPU_SHADER_WRAPPER_IDENTITY_ARGUMENT}={cohort['identity']}",
+            ],
+        )
+
+        partial = {name: "" for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES}
+        partial["ATRINIK_DXC_EXECUTABLE"] = str(dxc)
+        with mock.patch.dict(os.environ, partial, clear=False):
+            with self.assertRaisesRegex(
+                WorkspaceError, "set both ATRINIK_DXC_EXECUTABLE"
+            ):
+                self.workspace._prepare_gpu_shader(
+                    self.workspace.paths.builds / "profiles" / "partial",
+                    {"client": source},
+                    "classic",
+                )
+
+        unsupported = {
+            name: "" for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES
+        }
+        with (
+            mock.patch.dict(os.environ, unsupported, clear=False),
+            mock.patch.object(workspace_module.platform, "system", return_value="Darwin"),
+            mock.patch.object(
+                workspace_module.platform, "machine", return_value="arm64"
+            ),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "pinned Classic GPU shader toolchain targets"
+            ):
+                self.workspace._prepare_gpu_shader(
+                    self.workspace.paths.builds / "profiles" / "unsupported",
+                    {"client": source},
+                    "classic",
+                )
+
+    def test_classic_gpu_shader_provenance_and_override_validation(self) -> None:
+        digest = "a" * 64
+        external = {
+            "schema_version": 1,
+            "mode": "external",
+            "shader_directory": str(self.root.resolve()),
+            "manifest_path": str((self.root / "SHA256SUMS").resolve()),
+            "manifest_sha256": digest,
+            "identity": digest,
+        }
+        invalid_records = [
+            None,
+            {**external, "mode": "unknown"},
+            {**external, "schema_version": 2},
+            {**external, "shader_directory": "relative/cohort"},
+            {**external, "manifest_sha256": "not-a-digest"},
+            {**external, "identity": "not-a-digest"},
+        ]
+        for value in invalid_records:
+            with self.assertRaises(WorkspaceError):
+                workspace_module.validate_gpu_shader_record(value)
+        self.assertIs(workspace_module.validate_gpu_shader_record(external), external)
+
+        system = {
+            "schema_version": 1,
+            "mode": "system",
+            "dxc_executable": "/opt/dxc/bin/dxc",
+            "dxc_sha256": digest,
+            "spirv_cross_executable": "/opt/spirv-cross/bin/spirv-cross",
+            "spirv_cross_sha256": digest,
+            "dxc_library_directory": None,
+            "identity": digest,
+        }
+        self.assertIs(workspace_module.validate_gpu_shader_record(system), system)
+        with self.assertRaises(WorkspaceError):
+            workspace_module.validate_gpu_shader_record(
+                {**system, "dxc_library_directory": "relative/lib"}
+            )
+
+        missing = self.root / "missing-override"
+        with self.assertRaisesRegex(WorkspaceError, "must not be empty"):
+            self.workspace._resolve_gpu_shader_override(
+                "", "GPU override", directory=True
+            )
+        with self.assertRaisesRegex(WorkspaceError, "not a usable path"):
+            self.workspace._resolve_gpu_shader_override(
+                str(missing), "GPU override", directory=True
+            )
+
+        regular = self.root / "regular-override"
+        regular.write_text("not a directory\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._resolve_gpu_shader_override(
+                str(regular), "GPU override", directory=True
+            )
+        non_executable = self.root / "non-executable"
+        non_executable.write_text("not executable\n", encoding="utf-8")
+        non_executable.chmod(0o644)
+        with self.assertRaisesRegex(WorkspaceError, "not an executable"):
+            self.workspace._resolve_gpu_shader_override(
+                str(non_executable), "GPU override", directory=False
+            )
+
+        missing_cohort = self.root / "missing-cohort-manifest"
+        missing_cohort.mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "regular SHA256SUMS"):
+            self.workspace._gpu_shader_external_record(str(missing_cohort))
+        manifest_source = self.root / "manifest-source"
+        manifest_source.write_text("manifest\n", encoding="utf-8")
+        (missing_cohort / "SHA256SUMS").symlink_to(manifest_source)
+        with self.assertRaisesRegex(WorkspaceError, "regular SHA256SUMS"):
+            self.workspace._gpu_shader_external_record(str(missing_cohort))
+
+        combined_cohort = self.root / "combined-cohort"
+        combined_cohort.mkdir()
+        (combined_cohort / "SHA256SUMS").write_text(
+            "final_fragment.dxil " + "0" * 64 + "\n", encoding="utf-8"
+        )
+        combined = {
+            name: "" for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES
+        }
+        combined.update(
+            {
+                "ATRINIK_GPU_SHADER_DIRECTORY": str(combined_cohort),
+                "ATRINIK_DXC_EXECUTABLE": "/opt/dxc",
+            }
+        )
+        with mock.patch.dict(os.environ, combined, clear=False):
+            with self.assertRaisesRegex(
+                WorkspaceError, "cannot be combined with explicit"
+            ):
+                self.workspace._prepare_gpu_shader(
+                    self.workspace.paths.builds / "profiles" / "combined",
+                    {"client": self.root / "classic-client"},
+                    "classic",
+                )
+
+        missing_source = self.root / "missing-managed-source"
+        empty_overrides = {
+            name: "" for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES
+        }
+        with (
+            mock.patch.dict(os.environ, empty_overrides, clear=False),
+            mock.patch.object(workspace_module.platform, "system", return_value="Linux"),
+            mock.patch.object(
+                workspace_module.platform, "machine", return_value="x86_64"
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "configuration failed"):
+                self.workspace._prepare_gpu_shader(
+                    self.workspace.paths.builds / "profiles" / "missing-managed",
+                    {"client": missing_source},
+                    "classic",
+                )
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_gpu_shader_existing_toolchain",
+                return_value=None,
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_gpu_shader_managed_record",
+                side_effect=WorkspaceError(
+                    "profile classic Classic GPU shader toolchain preparation "
+                    "failed: test"
+                ),
+            ),
+            mock.patch.dict(os.environ, empty_overrides, clear=False),
+            mock.patch.object(workspace_module.platform, "system", return_value="Linux"),
+            mock.patch.object(
+                workspace_module.platform, "machine", return_value="x86_64"
+            ),
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "toolchain preparation failed"):
+                self.workspace._prepare_gpu_shader(
+                    self.workspace.paths.builds / "profiles" / "managed-error",
+                    {"client": missing_source},
+                    "classic",
+                )
+
+        with self.assertRaisesRegex(WorkspaceError, "unsupported GPU shader record"):
+            self.workspace._gpu_shader_cmake_arguments(
+                {"mode": "unknown", "identity": "a" * 64}
+            )
+        self.assertEqual(
+            self.workspace._gpu_shader_cmake_arguments(
+                {
+                    "mode": "system",
+                    "dxc_executable": "/opt/dxc",
+                    "spirv_cross_executable": "/opt/spirv-cross",
+                    "dxc_library_directory": None,
+                    "identity": "a" * 64,
+                }
+            ),
+            [
+                "-DATRINIK_DXC_EXECUTABLE=/opt/dxc",
+                "-DATRINIK_SPIRV_CROSS_EXECUTABLE=/opt/spirv-cross",
+                "-DATRINIK_GPU_SHADER_WRAPPER_IDENTITY=" + "a" * 64,
+            ],
+        )
+        with self.assertRaisesRegex(WorkspaceError, "identity is invalid"):
+            self.workspace._gpu_shader_cmake_arguments(
+                {
+                    "mode": "external",
+                    "shader_directory": "/opt/shaders",
+                    "identity": "invalid",
+                }
+            )
+
+    def test_classic_gpu_shader_toolchain_validation_and_source_guards(self) -> None:
+        lock = self.root / "shader-lock.json"
+
+        def write_lock(files: dict[str, object]) -> None:
+            atomic_json(lock, {"dxc": {"files": files}})
+
+        def write_marker(output: Path, spirv_digest: str = "b" * 64) -> None:
+            output.mkdir(parents=True, exist_ok=True)
+            atomic_json(
+                output / "toolchain.json",
+                {
+                    "schema_version": 1,
+                    "lock_sha256": "a" * 64,
+                    "spirv_cross_sha256": spirv_digest,
+                },
+            )
+
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._validate_gpu_shader_toolchain(
+                self.root / "missing-toolchain", lock, "a" * 64
+            )
+        symlink_target = self.root / "toolchain-target"
+        symlink_target.mkdir()
+        symlink_output = self.root / "toolchain-symlink"
+        symlink_output.symlink_to(symlink_target, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "not a directory"):
+            self.workspace._validate_gpu_shader_toolchain(
+                symlink_output, lock, "a" * 64
+            )
+
+        invalid_marker = self.root / "invalid-marker"
+        write_marker(invalid_marker)
+        atomic_json(invalid_marker / "toolchain.json", {"schema_version": 1})
+        with self.assertRaisesRegex(WorkspaceError, "marker is invalid"):
+            self.workspace._validate_gpu_shader_toolchain(
+                invalid_marker, lock, "a" * 64
+            )
+
+        no_files = self.root / "no-files"
+        write_marker(no_files)
+        write_lock({})
+        with self.assertRaisesRegex(WorkspaceError, "no DXC file contract"):
+            self.workspace._validate_gpu_shader_toolchain(
+                no_files, lock, "a" * 64
+            )
+
+        invalid_contract = self.root / "invalid-contract"
+        write_marker(invalid_contract)
+        write_lock({"bin/dxc": 1})
+        with self.assertRaisesRegex(WorkspaceError, "invalid DXC file contract"):
+            self.workspace._validate_gpu_shader_toolchain(
+                invalid_contract, lock, "a" * 64
+            )
+
+        unsafe_path = self.root / "unsafe-path"
+        write_marker(unsafe_path)
+        write_lock({"../dxc": "a" * 64})
+        with self.assertRaisesRegex(WorkspaceError, "unsafe DXC path"):
+            self.workspace._validate_gpu_shader_toolchain(
+                unsafe_path, lock, "a" * 64
+            )
+
+        stale = self.root / "stale-toolchain"
+        write_marker(stale)
+        dxc = stale / "dxc" / "bin" / "dxc"
+        dxc.parent.mkdir(parents=True)
+        dxc.write_bytes(b"stale")
+        dxc.chmod(0o755)
+        write_lock({"bin/dxc": "a" * 64})
+        with self.assertRaisesRegex(WorkspaceError, "stale or tampered"):
+            self.workspace._validate_gpu_shader_toolchain(
+                stale, lock, "a" * 64
+            )
+
+        invalid_layout = self.root / "invalid-layout"
+        dxc = invalid_layout / "dxc" / "bin" / "dxc"
+        dxc.parent.mkdir(parents=True)
+        dxc.write_bytes(b"dxc-layout")
+        dxc.chmod(0o755)
+        write_marker(invalid_layout)
+        write_lock({"bin/dxc": hashlib.sha256(dxc.read_bytes()).hexdigest()})
+        with self.assertRaisesRegex(WorkspaceError, "layout is invalid"):
+            self.workspace._validate_gpu_shader_toolchain(
+                invalid_layout, lock, "a" * 64
+            )
+
+        missing_source = self.root / "missing-source-root"
+        self.assertIsNone(
+            self.workspace._gpu_shader_existing_toolchain(missing_source, "classic")
+        )
+        generated_source = self.root / "generated-source"
+        checkout = self.root / "selector-checkout"
+        checkout.mkdir()
+        component = mock.Mock(source=".")
+        stack = mock.Mock(providers={"client": component})
+        with (
+            mock.patch.object(
+                self.workspace, "_source_generation_record", return_value={}
+            ),
+            mock.patch.object(
+                self.workspace, "_load_profile", return_value={"stack": "classic"}
+            ),
+            mock.patch.object(self.workspace.manifest, "stack", return_value=stack),
+            mock.patch.object(self.workspace, "_selector_root", return_value=checkout),
+        ):
+            self.assertEqual(
+                self.workspace._gpu_shader_existing_toolchain(
+                    generated_source, "classic"
+                ),
+                checkout / "build" / "gpu-shader-toolchain",
+            )
+            component.source = "client"
+            (checkout / "client").mkdir()
+            self.assertEqual(
+                self.workspace._gpu_shader_existing_toolchain(
+                    generated_source, "classic"
+                ),
+                checkout / "client" / "build" / "gpu-shader-toolchain",
+            )
+        with (
+            mock.patch.object(
+                self.workspace, "_source_generation_record", return_value=None
+            ),
+            mock.patch.object(Path, "lstat", side_effect=OSError("denied")),
+        ):
+            self.assertIsNone(
+                self.workspace._gpu_shader_existing_toolchain(
+                    self.root / "unreadable-source", "classic"
+                )
+            )
+
+    def test_classic_gpu_shader_managed_preparation_fails_closed(self) -> None:
+        dxc_bytes = b"test dxc\n"
+        dxc_digest = hashlib.sha256(dxc_bytes).hexdigest()
+
+        def source_fixture(name: str) -> tuple[Path, Path, Path]:
+            source = self.root / name
+            (source / "shaders").mkdir(parents=True)
+            (source / "tools").mkdir()
+            lock = source / "shaders" / "toolchain.lock.json"
+            atomic_json(
+                lock,
+                {"dxc": {"files": {"bin/dxc": dxc_digest}}},
+            )
+            builder = source / "tools" / "prepare_gpu_shader_toolchain.py"
+            builder.write_text("# test preparer\n", encoding="utf-8")
+            manifest = source / "shaders" / "SHA256SUMS"
+            manifest.write_text("manifest\n", encoding="utf-8")
+            return source, lock, manifest
+
+        def write_output(arguments: list[str], lock: Path) -> None:
+            output = Path(arguments[arguments.index("--output") + 1])
+            (output / "dxc" / "bin").mkdir(parents=True, exist_ok=True)
+            (output / "dxc" / "lib").mkdir()
+            dxc = output / "dxc" / "bin" / "dxc"
+            dxc.write_bytes(dxc_bytes)
+            dxc.chmod(0o755)
+            (output / "spirv-cross" / "bin").mkdir(parents=True)
+            spirv_cross = output / "spirv-cross" / "bin" / "spirv-cross"
+            spirv_cross.write_bytes(b"test spirv-cross\n")
+            spirv_cross.chmod(0o755)
+            (output / "spirv-cross" / "LICENSE").write_text(
+                "license\n", encoding="utf-8"
+            )
+            atomic_json(
+                output / "toolchain.json",
+                {
+                    "schema_version": 1,
+                    "lock_sha256": hashlib.sha256(lock.read_bytes()).hexdigest(),
+                    "spirv_cross_sha256": hashlib.sha256(
+                        spirv_cross.read_bytes()
+                    ).hexdigest(),
+                },
+            )
+
+        source, lock, _ = source_fixture("fallback-source")
+        root = self.workspace.paths.builds / "profiles" / "classic-fallback"
+        managed_directory(root, self.workspace.paths.builds, "profile:classic-fallback")
+        existing = self.root / "stale-source-toolchain"
+        existing.mkdir()
+        calls: list[list[str]] = []
+
+        def fallback_run(arguments: list[str], **_kwargs: object) -> None:
+            calls.append(arguments)
+            if len(calls) == 1:
+                raise WorkspaceError("stale source output")
+            write_output(arguments, lock)
+
+        with mock.patch.object(workspace_module, "run", side_effect=fallback_run):
+            record = self.workspace._gpu_shader_managed_record(
+                root,
+                source,
+                "classic-fallback",
+                existing_output=existing,
+            )
+        self.assertEqual(record["mode"], "managed")
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(
+            record["toolchain_root"],
+            str(
+                root
+                / "producers"
+                / "classic-gpu-shader-toolchains"
+                / record["lock_sha256"]
+            ),
+        )
+
+        changed_source, changed_lock, changed_manifest = source_fixture(
+            "changed-input-source"
+        )
+        changed_root = self.workspace.paths.builds / "profiles" / "classic-changed"
+        managed_directory(changed_root, self.workspace.paths.builds, "profile:classic-changed")
+
+        def changing_run(arguments: list[str], **_kwargs: object) -> None:
+            write_output(arguments, changed_lock)
+            changed_manifest.write_text("changed\n", encoding="utf-8")
+
+        with mock.patch.object(workspace_module, "run", side_effect=changing_run):
+            with self.assertRaisesRegex(WorkspaceError, "inputs changed"):
+                self.workspace._gpu_shader_managed_record(
+                    changed_root, changed_source, "classic-changed"
+                )
+
+        invalid_source = self.root / "invalid-input-source"
+        (invalid_source / "shaders" / "toolchain.lock.json").mkdir(parents=True)
+        with self.assertRaisesRegex(WorkspaceError, "not a regular file"):
+            self.workspace._gpu_shader_managed_record(
+                root, invalid_source, "classic-invalid-input"
+            )
+
+    def test_classic_gpu_shader_arguments_are_added_to_both_cmake_graphs(self) -> None:
+        checkout = self.root / "classic"
+        for role in ("client", "server", "protocol", "libatrinik"):
+            (checkout / role).mkdir(parents=True)
+            (checkout / role / "README").write_text(role + "\n", encoding="utf-8")
+        (checkout / "CMakeLists.txt").write_text(
+            "project(classic)\n", encoding="utf-8"
+        )
+        (checkout / "server" / "install_data").mkdir()
+        sound = self.root / "sound"
+        sound.mkdir()
+        selected = {
+            role: checkout / role
+            for role in ("client", "server", "protocol", "libatrinik")
+        }
+        selected["sound"] = sound
+        root = self.workspace.paths.builds / "profiles" / "classic-gpu-graphs"
+        root.mkdir(parents=True)
+        (root / "runtime" / "content").mkdir(parents=True)
+        (root / "runtime" / "resources").mkdir()
+        gpu = {
+            "mode": "system",
+            "dxc_executable": "/opt/dxc/bin/dxc",
+            "spirv_cross_executable": "/opt/spirv-cross/bin/spirv-cross",
+            "dxc_library_directory": "/opt/dxc/lib",
+            "identity": "a" * 64,
+        }
+
+        with mock.patch.object(self.workspace, "_cmake") as cmake:
+            self.workspace._build_integrated_classic(
+                root, selected, tests=True, sound_root=sound, gpu_shader=gpu
+            )
+        integrated_arguments = cmake.call_args.args[2]
+        self.assertEqual(
+            integrated_arguments[-4:], self.workspace._gpu_shader_cmake_arguments(gpu)
+        )
+
+        standalone_root = self.workspace.paths.builds / "profiles" / "classic-gpu-client"
+        standalone_root.mkdir(parents=True)
+        with mock.patch.object(self.workspace, "_cmake") as cmake:
+            self.workspace._build_client(
+                standalone_root,
+                selected,
+                tests=False,
+                component=self.workspace.manifest.by_name["client"],
+                sound_root=sound,
+                gpu_shader=gpu,
+            )
+        standalone_arguments = cmake.call_args.args[2]
+        self.assertEqual(
+            standalone_arguments[-4:], self.workspace._gpu_shader_cmake_arguments(gpu)
+        )
+
+    def test_classic_build_resolved_wires_gpu_record_before_client_graph(self) -> None:
+        stack = mock.Mock()
+        stack.name = "classic"
+        stack.providers = {"client": self.workspace.manifest.by_name["client"]}
+        selected = {"client": self.root / "classic-client"}
+        selected["client"].mkdir()
+        gpu = {
+            "mode": "system",
+            "dxc_executable": "/opt/dxc",
+            "spirv_cross_executable": "/opt/spirv-cross",
+            "dxc_library_directory": None,
+            "identity": "b" * 64,
+        }
+        root = self.workspace.paths.builds / "profiles" / "classic-routed-routed"
+        marker = {"schema_version": 1, "purpose": "profile:classic-routed:routed"}
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_load_profile",
+                return_value={"stack": "classic", "sound_mode": "source"},
+            ),
+            mock.patch.object(self.workspace.manifest, "stack", return_value=stack),
+            mock.patch.object(self.workspace, "_profile_build_key", return_value="routed"),
+            mock.patch.object(
+                self.workspace,
+                "_prepare_gpu_shader",
+                return_value=gpu,
+            ) as prepare_gpu,
+            mock.patch.object(self.workspace, "_refresh_build_metadata") as refresh,
+            mock.patch.object(
+                self.workspace, "_uses_integrated_classic_build", return_value=False
+            ),
+            mock.patch.object(self.workspace, "_build_client") as build_client,
+        ):
+            self.workspace._build_resolved(
+                "client", "classic-routed", False, ["client"], selected
+            )
+
+        prepare_gpu.assert_called_once_with(root, selected, "classic-routed")
+        self.assertIs(refresh.call_args.args[5], gpu)
+        self.assertIs(build_client.call_args.kwargs["gpu_shader"], gpu)
+        self.assertEqual(load_json(root / MANAGED_MARKER), marker)
 
     def test_paired_classic_build_falls_back_without_shared_role_builds(self) -> None:
         selected = {
@@ -10154,6 +10863,82 @@ class WorkspaceTests(unittest.TestCase):
                 (published / "client" / "src" / "include" / "version.h").exists()
             )
             self.assertTrue((published / "client" / "atrinik").is_file())
+        finally:
+            os.close(lease_fd)
+
+    def test_integrated_classic_runtime_owns_embedded_shaders_once(self) -> None:
+        owner = self.root / "runtime-owner"
+        owner.mkdir()
+        checkout = self.root / "classic"
+        client = checkout / "client"
+        sound = checkout / "sound"
+        client.mkdir(parents=True)
+        sound.mkdir()
+        (client / "data").mkdir()
+        (client / "data" / "config").write_text(
+            "client data\n", encoding="utf-8"
+        )
+        shader_source = checkout / "shader-source"
+        shader_source.mkdir()
+        (shader_source / "map.hlsl").write_text(
+            "source shader\n", encoding="utf-8"
+        )
+        (client / "shaders").symlink_to(shader_source, target_is_directory=True)
+        (sound / "sound").write_text("sound\n", encoding="utf-8")
+
+        build_root = self.root / "profile-build"
+        integrated_binary = build_root / "build" / "integrated" / "client"
+        (integrated_binary / "shaders" / "generated").mkdir(parents=True)
+        (integrated_binary / "shaders" / "generated" / "world_vertex.spv").write_bytes(
+            b"generated shader\n"
+        )
+        (integrated_binary / "src" / "include").mkdir(parents=True)
+        (integrated_binary / "src" / "include" / "generated.h").write_text(
+            "generated header\n", encoding="utf-8"
+        )
+        executable = integrated_binary / "atrinik"
+        executable.write_text("embedded shader executable\n", encoding="utf-8")
+        executable.chmod(0o755)
+        (build_root / "build").mkdir(exist_ok=True)
+        self.workspace._record_classic_graph(
+            build_root, {"client", "server"}, "integrated"
+        )
+
+        with mock.patch.object(
+            self.workspace,
+            "_classic_binary_directory",
+            wraps=self.workspace._classic_binary_directory,
+        ) as binary_directory:
+            published, lease_fd, _record, state_output_fd = (
+                self.workspace._publish_runtime_generation(
+                    owner,
+                    "b" * 64,
+                    "classic",
+                    build_root,
+                    {"client": client, "sound": sound},
+                    {},
+                    ["client"],
+                    identity={"kind": "test"},
+                    sound_root=sound,
+                )
+            )
+
+        try:
+            self.assertIsNone(state_output_fd)
+            binary_directory.assert_called_with(build_root, "client")
+            runtime_client = published / "client"
+            self.assertEqual(
+                (runtime_client / "data" / "config").read_text(
+                    encoding="utf-8"
+                ),
+                "client data\n",
+            )
+            self.assertTrue((runtime_client / "atrinik").is_file())
+            self.assertTrue((runtime_client / "sound" / "sound").is_file())
+            self.assertFalse(runtime_client.joinpath("shaders").exists())
+            self.assertFalse(
+                runtime_client.joinpath("src", "include", "generated.h").exists()
+            )
         finally:
             os.close(lease_fd)
 

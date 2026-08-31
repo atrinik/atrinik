@@ -1374,6 +1374,32 @@ one manifest-derived build-root selection across the `client`, `server`,
 `metaserver-worker` roles. Only the requested game service targets are built;
 the wider selection keeps their incremental outputs and recorded coordinates
 on one root. Partial profiles retain the requested service's dependency closure.
+
+### Classic GPU shader toolchain
+
+On x86-64 Linux, a managed Classic client build prepares the checksum-pinned
+shader toolchain from the selected Classic checkout and passes its absolute
+paths to CMake. The preparation is shared by standalone `build client`, paired
+`up`, and the client portion of `build all`; its lockfile and shader-manifest
+identity are retained in the profile build metadata. No caller `PATH` changes
+are required.
+
+For a host-provided toolchain, set both executable overrides and optionally the
+DXC library directory before invoking the wrapper:
+
+~~~sh
+export ATRINIK_DXC_EXECUTABLE=/absolute/path/to/dxc
+export ATRINIK_SPIRV_CROSS_EXECUTABLE=/absolute/path/to/spirv-cross
+export ATRINIK_DXC_LIBRARY_DIRECTORY=/absolute/path/to/dxc/lib
+./atrinik build client --profile classic --test
+~~~
+
+Alternatively, set `ATRINIK_GPU_SHADER_DIRECTORY` to an absolute directory
+containing a generated cohort and its `SHA256SUMS` manifest. The explicit
+cohort is validated by the Classic CMake contract. Do not combine that variable
+with the executable overrides; on platforms where the pinned cohort is not
+available, use one of these explicit overrides.
+
 Provider selection is stack-coherent: a classic service never binds a
 replacement protocol or `content@main`. Today the `classic` stack is the
 runnable implementation; the `default` replacement profile will become
