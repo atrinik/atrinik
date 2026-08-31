@@ -187,6 +187,21 @@ and comparable-run method.
 Use [local test execution](docs/LOCAL_TESTING.md) for targeted, serial, or
 process-isolated parallel runs before the complete validation recipe.
 
+Native Windows wrapper changes also require a clean Windows host or runner
+smoke of the supported surface:
+
+~~~powershell
+python .\atrinik --help
+python .\atrinik manifest validate
+python .\atrinik init --with classic
+python .\atrinik status --json
+python .\atrinik profile show classic --json
+~~~
+
+Supervised topology, build-publication, cleanup, migration, state, scenario,
+and direct-run commands must retain their documented capability diagnostic on
+Windows; do not replace it with a weaker lock or process cleanup path.
+
 When changing the repository-local skill, also run the skill validator
 available in the active Codex installation; its exact path is
 environment-specific.

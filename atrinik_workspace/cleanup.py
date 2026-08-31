@@ -4,7 +4,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager, nullcontext
 from contextvars import copy_context
 from datetime import datetime, timezone
-import fcntl
 import hashlib
 import heapq
 import json
@@ -18,6 +17,7 @@ import sys
 from typing import Any, Callable, Iterable, Iterator
 
 from .locking import LockBusyError, active_lock_fds
+from .platform_compat import fcntl
 from .content_migration import CONTENT_MIGRATION_PENDING, CONTENT_MIGRATION_RECORD
 from .delivery import inventory_active_delivery_evidence
 from .migration import MIGRATION_PENDING, MIGRATION_RECORD, OPERATION_PATHS

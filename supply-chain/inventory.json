@@ -4546,7 +4546,7 @@
       "name": "GitHub-hosted Windows 2025 runner",
       "kind": "toolchain",
       "owner": "github-settings",
-      "scope": ["classic", "client", "content", "devcontainer", "editor", "server", "website"],
+      "scope": ["atrinik", "classic", "client", "content", "devcontainer", "editor", "server", "website"],
       "required": true,
       "version": "windows-2025",
       "version_source": "Explicit GitHub Actions runner label and generated version report",
@@ -4563,6 +4563,7 @@
       "disposition": "retain",
       "packages": [],
       "evidence": [
+        {"repository":"atrinik","path":".github/workflows/integration.yml","contains":"runs-on: windows-2025"},
         {"repository":"classic","path":".github/workflows/check.yml","contains":"runs-on: windows-2025"},
         {"repository":"client","path":".github/workflows/validate.yml","contains":"runs-on: windows-2025"},
         {"repository":"content","path":".github/workflows/check.yml","contains":"- windows-2025"},

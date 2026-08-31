@@ -23,12 +23,40 @@ directory.
 
 ## Requirements
 
-- Python 3.11 or newer; supervised topologies require Linux process identity
-  and pidfd support
-- Git and the authenticated GitHub CLI (`gh`)
+- Python 3.11 or newer and Git
+- Native Windows support uses Python's Windows path handling and PowerShell or
+  Command Prompt; WSL and the devcontainer are not required for the supported
+  wrapper surface below
+- The GitHub CLI (`gh`) authenticated for GitHub operations
 - CMake, Ninja, and the dependencies required by the selected component when
   building the classic native stack
 - Node.js 20 or newer when building `metaserver-worker`
+
+### Native Windows wrapper support
+
+The coordinator can be invoked directly from a native Windows checkout with
+`python .\atrinik ...`. The supported Windows surface includes CLI import and
+help, manifest/provenance/supply-chain validation, replacement or Classic
+initialization and synchronization, repository status, profile inspection and
+publication, path resolution, and worktree inventory. For example:
+
+~~~powershell
+python .\atrinik manifest validate
+python .\atrinik init --with classic
+python .\atrinik status --json
+python .\atrinik profile show classic --json
+~~~
+
+Native Windows locks use the kernel `LockFileEx` API, and child Git processes
+receive the active lock handles. JSON publication uses an atomic replacement
+and `FlushFileBuffers`; path and junction components are rejected. Windows
+does not expose the POSIX descriptor-relative directory and process-identity
+facilities used by the wrapper's supervised topology, build publication,
+cleanup, migration, state, scenario, and direct-run workflows. Those commands
+return a stable capability diagnostic naming Linux/WSL2 or the documented
+Windows package workflow rather than weakening locking, cleanup, or topology
+isolation. The complete support matrix is maintained in
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 The Atrinik development container supplies the native build dependencies. Run
 all commands below from this repository's root.

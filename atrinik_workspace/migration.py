@@ -107,6 +107,27 @@ OPERATION_PATHS = (
 def rename_no_replace(source: Path, destination: Path) -> None:
     """Atomically move *source* without replacing a raced-in destination."""
 
+    if os.name == "nt":
+        if destination.exists() or destination.is_symlink():
+            raise WorkspaceError(
+                f"destination appeared before atomic install: {destination}"
+            )
+        try:
+            # Windows' MoveFileEx path used by os.rename does not replace an
+            # existing destination, so the kernel closes the check/rename race
+            # without requiring POSIX renameat2.
+            os.rename(source, destination)
+        except FileExistsError as error:
+            raise WorkspaceError(
+                f"destination appeared before atomic install: {destination}"
+            ) from error
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot move path without replacement: {source} -> {destination}: "
+                f"{error}"
+            ) from error
+        return
+
     try:
         renameat2 = ctypes.CDLL(None, use_errno=True).renameat2
     except AttributeError as error:

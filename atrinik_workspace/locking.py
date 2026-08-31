@@ -3,7 +3,6 @@ from __future__ import annotations
 from contextlib import ExitStack, contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
-import fcntl
 import hashlib
 import json
 import os
@@ -18,6 +17,12 @@ from datetime import datetime, timezone
 from typing import BinaryIO, Callable, Iterator, TextIO
 
 from .model import WorkspaceError
+from .platform_compat import (
+    IS_WINDOWS,
+    O_CLOEXEC,
+    assert_no_symlink_components,
+    fcntl,
+)
 
 
 LAYOUT_WRITER_INTENT_SUFFIX = ".writer-intent"
@@ -120,7 +125,43 @@ def _open_lock(
     *,
     directory_fd: int | None = None,
 ) -> TextIO:
-    flags = os.O_RDWR | os.O_CREAT | os.O_CLOEXEC
+    if IS_WINDOWS:
+        if directory_fd is not None:
+            raise WorkspaceError(
+                "descriptor-relative lock paths are unavailable on native Windows"
+            )
+        lock: TextIO | None = None
+        try:
+            assert_no_symlink_components(path, "lock")
+            opened_parent = path.parent.stat(follow_symlinks=False)
+            if not stat.S_ISDIR(opened_parent.st_mode):
+                raise OSError(f"lock parent is not a directory: {path.parent}")
+            lock = path.open("a+", encoding="utf-8")
+            opened = os.fstat(lock.fileno())
+            assert_no_symlink_components(path, "lock")
+            visible = path.stat(follow_symlinks=False)
+            visible_parent = path.parent.stat(follow_symlinks=False)
+            if (
+                not stat.S_ISREG(opened.st_mode)
+                or not stat.S_ISREG(visible.st_mode)
+                or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+                or (opened_parent.st_dev, opened_parent.st_ino)
+                != (visible_parent.st_dev, visible_parent.st_ino)
+            ):
+                raise WorkspaceError(f"{description} lock identity changed during open: {path}")
+            return lock
+        except WorkspaceError:
+            if lock is not None:
+                lock.close()
+            raise
+        except OSError as error:
+            if lock is not None:
+                lock.close()
+            raise WorkspaceError(
+                f"cannot open {description} lock {path}: {error}"
+            ) from error
+
+    flags = os.O_RDWR | os.O_CREAT | O_CLOEXEC
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
     directory_flags = os.O_RDONLY | os.O_CLOEXEC
@@ -181,6 +222,11 @@ def _advisory_lock(
     directory_fd: int | None = None,
 ) -> Iterator[TextIO]:
     if directory_fd is None:
+        if IS_WINDOWS:
+            try:
+                assert_no_symlink_components(path.parent, "lock")
+            except OSError as error:
+                raise WorkspaceError(str(error)) from error
         path.parent.mkdir(parents=True, exist_ok=True)
     with _open_lock(path, description, directory_fd=directory_fd) as lock:
         try:
@@ -249,6 +295,11 @@ def _reap_staged_resource_owners(
 def _lease_owner_summary(
     path: Path, *, wait_for_transition: bool = True
 ) -> str:
+    if IS_WINDOWS:
+        return (
+            "native Windows lock owner metadata is unavailable; "
+            "the kernel lock itself remains authoritative"
+        )
     owners = path.with_name(f"{path.name}.owners")
     parent_descriptor: int | None = None
     owners_descriptor: int | None = None
@@ -1094,6 +1145,37 @@ def resource_locks(
             request.recovery,
         )
     ordered = sorted(combined.values(), key=lambda request: request.sort_key)
+    if IS_WINDOWS:
+        # Windows has no descriptor-relative directory API.  Use the same
+        # kernel-backed LockFileEx leases and fair layout lock sequence, but do
+        # not publish POSIX owner sidecars whose identity cannot be proven
+        # without directory descriptors.  A held kernel lock is still the
+        # authority for admission and release.
+        with ExitStack() as stack:
+            leases: list[TextIO] = []
+            for request in ordered:
+                request_root = root(request) if callable(root) else root
+                path = resource_lock_path(request_root, request.kind, request.coordinate)
+                description = (
+                    f"resource {request.kind} coordinate {request.coordinate}"
+                )
+                if request.mode == "exclusive":
+                    context = exclusive_layout_lock(
+                        path,
+                        description,
+                        nonblocking,
+                        recovery_action=request.recovery,
+                    )
+                else:
+                    context = shared_layout_lock(
+                        path,
+                        description,
+                        nonblocking,
+                        recovery_action=request.recovery,
+                    )
+                leases.append(stack.enter_context(context))
+            yield tuple(leases)
+        return
     with ExitStack() as stack:
         leases: list[TextIO] = []
         for request in ordered:
@@ -1175,6 +1257,16 @@ def resource_lifetime_reader(
     request: LeaseRequest,
 ) -> Iterator[TextIO]:
     """Hold a fair diagnosed resource reader without subprocess registration."""
+
+    if IS_WINDOWS:
+        path = resource_lock_path(root, request.kind, request.coordinate)
+        with shared_layout_lock(
+            path,
+            f"resource {request.kind} coordinate {request.coordinate}",
+            recovery_action=request.recovery,
+        ) as lease:
+            yield lease
+        return
 
     directory_fd = _ensure_resource_lock_directory(root, request.kind)
     path = resource_lock_path(root, request.kind, request.coordinate)

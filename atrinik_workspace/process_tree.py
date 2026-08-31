@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-import fcntl
 import os
 from pathlib import Path
 import signal
 import stat
 from typing import Iterable
+
+from .platform_compat import fcntl
 
 
 def control_socket_path(topology_root: Path, generation: str) -> Path:

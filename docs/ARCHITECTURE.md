@@ -29,6 +29,35 @@ classic cohorts contain physical checkout identities. The built-in `default`
 and `classic` profiles are coherent stacks of logical components rather than
 aliases for every manifest entry.
 
+## Platform capability matrix
+
+The wrapper has a native Windows path for the repository-management surface.
+From a clean Windows checkout, `python .\atrinik manifest validate`,
+`python .\atrinik init --with classic`, `python .\atrinik status --json`, and
+`python .\atrinik profile show classic --json` use native Windows paths and do
+not require WSL or a devcontainer. `sync`, profile create/set, path resolution,
+provenance and supply-chain validation, and worktree inventory use the same
+surface. Git child processes inherit active Windows lock handles, so a clone
+or status operation cannot silently escape its wrapper lease.
+
+| Capability | Linux | Native Windows |
+| --- | --- | --- |
+| CLI import/help, manifest, provenance, and supply-chain validation | supported | supported |
+| Initialize/synchronize checkouts, status, profile inspection/publication, path resolution, and worktree inventory | supported | supported with `LockFileEx` and native paths |
+| Build publication, cleanup, repository/content migration, scope/state/scenario mutation | supported | deliberate capability result; requires descriptor-relative filesystem proof |
+| Supervised topology build/start/status/log/stop and direct client/server run | supported when host capabilities pass | deliberate capability result; requires Linux process identity, pidfd, signals, or `/proc` |
+| Windows review ZIP | supported through the pinned Windows cross-build workflow | use the package workflow from Linux, WSL2, or the `windows-cross` devcontainer |
+
+The native Windows adapter rejects symlink and junction path components, uses
+kernel shared/exclusive byte-range locks, passes active lock handles to child
+Git processes, and flushes atomically published JSON files with
+`FlushFileBuffers`. Windows ACLs are the host ownership boundary; POSIX uid,
+mode, descriptor-relative directory durability, and `/proc` identity are not
+invented or treated as equivalent. Commands that need those proofs fail before
+mutation with a stable diagnostic. This keeps profile/worktree/state lease
+isolation and fail-closed behavior explicit while preserving the stronger
+descriptor-relative implementation on Linux.
+
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,
 `classic-editor` from `editor/`, `classic-libatrinik` from `libatrinik/`, and

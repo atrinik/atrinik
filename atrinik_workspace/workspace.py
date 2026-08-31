@@ -10,7 +10,6 @@ import ctypes
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import errno
-import fcntl
 import hashlib
 import json
 import os
@@ -91,6 +90,14 @@ from .model import (
     profile_key,
     require_keys,
     validate_name,
+)
+from .platform_compat import (
+    IS_WINDOWS,
+    O_CLOEXEC,
+    assert_no_symlink_components,
+    fcntl,
+    flush_file,
+    inherited_subprocess_handles,
 )
 from .migration import (
     MIGRATED_CONTENT_WORKTREE_KIND,
@@ -456,16 +463,17 @@ def run(
         inherited_fds = tuple(
             dict.fromkeys((*active_lock_fds(), *pass_fds))
         )
-        result = subprocess.run(
-            arguments,
-            cwd=cwd,
-            check=True,
-            text=True,
-            capture_output=capture,
-            env=env,
-            stdout=sys.stderr if diagnostics_to_stderr and not capture else None,
-            pass_fds=inherited_fds,
-        )
+        with inherited_subprocess_handles(inherited_fds) as inheritance:
+            result = subprocess.run(
+                arguments,
+                cwd=cwd,
+                check=True,
+                text=True,
+                capture_output=capture,
+                env=env,
+                stdout=sys.stderr if diagnostics_to_stderr and not capture else None,
+                **inheritance,
+            )
     except FileNotFoundError as error:
         raise WorkspaceError(f"required command not found: {arguments[0]}") from error
     except subprocess.CalledProcessError as error:
@@ -1867,6 +1875,42 @@ def _run_wrapper_worktree_inventory(
 ) -> bytes:
     """Capture one Git worktree inventory with live byte and time bounds."""
 
+    if IS_WINDOWS:
+        try:
+            with inherited_subprocess_handles(pass_fds) as inheritance:
+                completed = subprocess.run(
+                    [
+                        "git",
+                        "-C",
+                        str(repository),
+                        "worktree",
+                        "list",
+                        "--porcelain",
+                        "-z",
+                    ],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=_WORKTREE_INVENTORY_TIMEOUT,
+                    check=False,
+                    **inheritance,
+                )
+        except FileNotFoundError as error:
+            raise WorkspaceError("required command not found: git") from error
+        except subprocess.TimeoutExpired as error:
+            raise WorkspaceError("wrapper worktree inventory timed out") from error
+        except OSError as error:
+            raise WorkspaceError(f"cannot list wrapper worktrees: {error}") from error
+        if len(completed.stdout) > _WORKTREE_INVENTORY_LIMIT:
+            raise WorkspaceError("wrapper worktree inventory output is not bounded")
+        if len(completed.stderr) > _WORKTREE_INVENTORY_ERROR_LIMIT:
+            raise WorkspaceError("wrapper worktree inventory error is not bounded")
+        if completed.returncode:
+            detail = completed.stderr.decode("utf-8", errors="replace").strip()
+            suffix = f": {detail}" if detail else ""
+            raise WorkspaceError(f"cannot list wrapper worktrees{suffix}")
+        return completed.stdout
+
     try:
         process = subprocess.Popen(
             [
@@ -1997,11 +2041,13 @@ def _parse_worktree_porcelain(raw: bytes) -> list[dict[str, str]]:
     seen: set[str] = set()
     for index, record in enumerate(records):
         path = Path(record["worktree"])
+        canonical = os.path.normcase(os.path.normpath(str(path)))
+        reported = os.path.normcase(os.path.normpath(record["worktree"]))
         if (
             not path.is_absolute()
-            or record["worktree"] == "/"
-            or str(path) != record["worktree"]
-            or os.path.normpath(record["worktree"]) != record["worktree"]
+            or path == Path(path.anchor)
+            or any(part in {"", ".", ".."} for part in path.parts)
+            or canonical != reported
         ):
             raise WorkspaceError(
                 f"wrapper worktree inventory record {index} has a non-canonical path"
@@ -2016,16 +2062,39 @@ def _parse_worktree_porcelain(raw: bytes) -> list[dict[str, str]]:
 def open_regular_file(
     path: Path, flags: int, description: str, mode: int = 0o600
 ) -> int:
-    flags |= os.O_CLOEXEC
+    if IS_WINDOWS:
+        try:
+            assert_no_symlink_components(path, description)
+        except OSError as error:
+            raise WorkspaceError(str(error)) from error
+    flags |= O_CLOEXEC
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
+    descriptor: int | None = None
     try:
         descriptor = os.open(path, flags, mode)
-        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
-            os.close(descriptor)
+        opened = os.fstat(descriptor)
+        if not stat.S_ISREG(opened.st_mode):
             raise WorkspaceError(f"{description} is not a regular file: {path}")
-        return descriptor
+        if IS_WINDOWS:
+            assert_no_symlink_components(path, description)
+            visible = path.stat(follow_symlinks=False)
+            if (
+                not stat.S_ISREG(visible.st_mode)
+                or (opened.st_dev, opened.st_ino)
+                != (visible.st_dev, visible.st_ino)
+            ):
+                raise WorkspaceError(f"{description} identity changed during open: {path}")
+        result = descriptor
+        descriptor = None
+        return result
+    except WorkspaceError:
+        if descriptor is not None:
+            os.close(descriptor)
+        raise
     except OSError as error:
+        if descriptor is not None:
+            os.close(descriptor)
         raise WorkspaceError(f"cannot open {description} {path}: {error}") from error
 
 
@@ -2450,9 +2519,16 @@ class Workspace:
 
     def _establish_lease_namespace_identity(self) -> tuple[int, int]:
         namespace = self._lease_namespace
+        if IS_WINDOWS:
+            try:
+                assert_no_symlink_components(namespace, "physical lease namespace")
+            except OSError as error:
+                raise WorkspaceError(str(error)) from error
         namespace.mkdir(mode=0o700, exist_ok=True)
         visible = namespace.stat(follow_symlinks=False)
-        if not stat.S_ISDIR(visible.st_mode) or stat.S_IMODE(visible.st_mode) != 0o700:
+        if not stat.S_ISDIR(visible.st_mode) or (
+            not IS_WINDOWS and stat.S_IMODE(visible.st_mode) != 0o700
+        ):
             raise WorkspaceError(f"physical lease namespace is unsafe: {namespace}")
         identity = (visible.st_dev, visible.st_ino)
         if not (self.paths.repository / ".git").exists():
@@ -2546,8 +2622,14 @@ class Workspace:
             "shared",
             "use wrapper worktree",
         )
+        # The Windows adapter holds the wrapper source lease for the lifetime
+        # of this Workspace.  LockFileEx rejects an overlapping acquisition
+        # through a second handle even in the same process, so that existing
+        # lifetime handle is the wrapper request's admission proof there.
         protected_requests = (
-            (*requests, wrapper_request) if include_wrapper else tuple(requests)
+            (*requests, wrapper_request)
+            if include_wrapper and not IS_WINDOWS
+            else tuple(requests)
         )
         with shared_maintenance_lock(
             self._lease_namespace / "repository-layout.lock"
@@ -5312,6 +5394,11 @@ class Workspace:
     def _ensure_repository(self, value: Checkout | Component) -> Path:
         checkout = self._checkout_identity(value)
         destination = self._primary_path(checkout)
+        if IS_WINDOWS:
+            try:
+                assert_no_symlink_components(destination, "component destination")
+            except OSError as error:
+                raise WorkspaceError(str(error)) from error
         if not destination.exists() and not destination.is_symlink():
             temporary = Path(
                 tempfile.mkdtemp(
@@ -5410,6 +5497,11 @@ class Workspace:
         self, value: Checkout | Component, path: Path, *, trace: bool = True
     ) -> str:
         checkout = self._checkout_identity(value)
+        if IS_WINDOWS:
+            try:
+                assert_no_symlink_components(path, "component checkout")
+            except OSError as error:
+                raise WorkspaceError(str(error)) from error
         if path.is_symlink() or not path.is_dir():
             raise WorkspaceError(f"component checkout is not a directory: {path}")
         try:
@@ -6845,6 +6937,22 @@ class Workspace:
         self, name: str, value: dict[str, Any]
     ) -> None:
         namespace = self._lease_namespace
+        if IS_WINDOWS:
+            registry = namespace / "profile-references"
+            try:
+                assert_no_symlink_components(namespace, "physical lease namespace")
+                assert_no_symlink_components(registry, "physical reference registry")
+                namespace.mkdir(mode=0o700, exist_ok=True)
+                registry.mkdir(mode=0o700, exist_ok=True)
+                assert_no_symlink_components(registry, "physical reference registry")
+                atomic_json(registry / name, value)
+            except (OSError, WorkspaceError) as error:
+                if isinstance(error, WorkspaceError):
+                    raise
+                raise WorkspaceError(
+                    f"cannot publish physical reference {name}: {error}"
+                ) from error
+            return
         flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
         flags |= getattr(os, "O_NOFOLLOW", 0)
         parent_fd = os.open(namespace, flags)
@@ -6918,6 +7026,17 @@ class Workspace:
         *,
         expected_mode: int | None = None,
     ) -> None:
+        if IS_WINDOWS:
+            try:
+                assert_no_symlink_components(path, description)
+                metadata = path.stat(follow_symlinks=False)
+            except OSError as error:
+                raise WorkspaceError(
+                    f"{description} was replaced or is unsafe: {path}: {error}"
+                ) from error
+            if not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(f"{description} was replaced or is unsafe: {path}")
+            return
         opened = os.fstat(descriptor)
         visible = path.stat(follow_symlinks=False)
         if (
@@ -6936,6 +7055,28 @@ class Workspace:
         self, *, only: str | None = None
     ) -> list[dict[str, Any]]:
         registry = self._lease_namespace / "profile-references"
+        if IS_WINDOWS:
+            try:
+                assert_no_symlink_components(registry, "physical reference registry")
+                if not registry.exists():
+                    return []
+                names = [only] if only is not None else sorted(path.name for path in registry.iterdir())
+                records: list[dict[str, Any]] = []
+                for name in names:
+                    if name is None:
+                        continue
+                    if re.fullmatch(r"\.[0-9a-f]{64}\.json\.[0-9a-f]{24}\.tmp", name):
+                        continue
+                    if not re.fullmatch(r"[0-9a-f]{64}\.json", name):
+                        raise WorkspaceError(
+                            f"cannot prove physical reference registry entry: {name}"
+                        )
+                    records.append(load_regular_json(registry / name, "physical reference registry entry"))
+                return records
+            except (OSError, UnicodeError, ValueError, RecursionError) as error:
+                raise WorkspaceError(
+                    f"cannot read physical reference registry {registry}: {error}"
+                ) from error
         flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
         flags |= getattr(os, "O_NOFOLLOW", 0)
         namespace_fd: int | None = None
@@ -7037,6 +7178,22 @@ class Workspace:
         name = hashlib.sha256(str(authored_path.resolve()).encode()).hexdigest() + ".json"
         namespace = self._lease_namespace
         registry = namespace / "profile-references"
+        if IS_WINDOWS:
+            try:
+                assert_no_symlink_components(registry, "physical reference registry")
+                reference = registry / name
+                if reference.is_symlink():
+                    raise WorkspaceError(
+                        f"refusing symlinked physical reference: {reference}"
+                    )
+                reference.unlink(missing_ok=True)
+            except (OSError, WorkspaceError) as error:
+                if isinstance(error, WorkspaceError):
+                    raise
+                raise WorkspaceError(
+                    f"cannot roll back physical reference {name}: {error}"
+                ) from error
+            return
         flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
         flags |= getattr(os, "O_NOFOLLOW", 0)
         namespace_fd: int | None = None
@@ -7305,6 +7462,11 @@ class Workspace:
         return Path(selector["value"])
 
     def _component_source(self, component: Component, checkout_root: Path) -> Path:
+        if IS_WINDOWS:
+            try:
+                assert_no_symlink_components(checkout_root, "component checkout")
+            except OSError as error:
+                raise WorkspaceError(str(error)) from error
         if checkout_root.is_symlink() or not checkout_root.is_dir():
             raise WorkspaceError(
                 f"component checkout is not a directory: {checkout_root}"
@@ -7328,6 +7490,11 @@ class Workspace:
                 f"component source is not a normal directory: {component.name}: {source}"
             )
         resolved = source.resolve()
+        if IS_WINDOWS:
+            try:
+                assert_no_symlink_components(source, "component source")
+            except OSError as error:
+                raise WorkspaceError(str(error)) from error
         if resolved != root and root not in resolved.parents:
             raise WorkspaceError(
                 f"component source escapes checkout: {component.name}: {source}"
