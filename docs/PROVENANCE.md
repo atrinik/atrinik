@@ -21,6 +21,18 @@ material receives additional MIT permission in the recorded destination; no
 surrounding file, dependency, asset, subtree, binary, or repository is
 relicensed.
 
+## Independent shared infrastructure
+
+`atrinik/deploy-control` is a separately authored MIT organization-infrastructure
+repository for the Cloudflare Worker, Durable Object, protocol, and registered
+host-agent contracts. The wrapper registration records its repository, branch,
+source root, license, and dependency/action ownership; it does not copy
+implementation or grant or relicense Classic material. Package locks,
+action pins, release/generated deployment outputs, and future source provenance
+remain owned by `deploy-control`. Cloudflare/application/agent keys, bindings,
+host state, player data, and mutable runtime state remain outside the wrapper.
+No historical MIT grant or provenance reuse is asserted by this registration.
+
 ## Identity evidence gates
 
 Historical identity reconciliation may use the privacy-preserving attestation

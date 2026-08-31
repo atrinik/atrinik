@@ -44,6 +44,15 @@ The default-only `observatory` component occupies
 `atrinik/observatory@main` at `./observatory` and provides a source-only
 `observatory` role. It has no wrapper build adapter or runtime dependency;
 Classic never selects it.
+The default-only shared `deploy-control` component occupies
+`atrinik/deploy-control@main` at `./deploy-control` and provides a source-only
+`deploy-control` role. Its root owns the Worker, Durable Object, protocol, and
+registered host-agent contracts; the wrapper provides no build or runtime
+adapter, and Classic never selects it. Package locks, npm caches, Wrangler
+dry-run/deployment output, release artifacts, and generated `dist` output stay
+with the deploy-control repository or its workflows. Cloudflare bindings,
+application and agent keys, host/player state, and mutable runtime state stay
+outside this coordinator.
 
 Manifest validation rejects duplicate checkout or component names, duplicate
 local destinations, unsafe or overlapping source roots within one checkout,
@@ -70,6 +79,10 @@ cohort, stack, role, and license, and mark uninitialized or non-selected commits
 unavailable so repeated coordinates such as `atrinik/content` or shared
 checkouts such as `atrinik/classic` cannot be collapsed into one ambiguous
 input.
+The shared `deploy-control` repository remains the authority for its Worker and
+agent dependency graph, action pins, runner contract, and release/deployment
+inputs. The wrapper inventory records those owned inputs and validation
+boundaries; it does not vendor or reimplement them.
 
 Source provenance is also a cross-repository contract.
 [`PROVENANCE.md`](PROVENANCE.md) is the single exhaustive historical MIT
@@ -91,6 +104,11 @@ separate eligible material, exclude conflicting embedded work, and record the
 exact source, destination, transformation, review, and registry revision. The
 Classic source remains GPL as distributed; later or uncovered contributions,
 dependencies, assets, and surrounding work receive no permission by association.
+Registering `atrinik/deploy-control` asserts only its separately authored MIT
+repository and ownership boundary. It does not copy Classic material, grant a
+new historical provenance permission, or relicense any Classic source; future
+deploy-control provenance remains recorded in that repository's own source and
+release history.
 
 The `supply-chain` command resolves component inputs through the same profile
 selectors as builds, then reads Git-indexed files without mutating a checkout.
