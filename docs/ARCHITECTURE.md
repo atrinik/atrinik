@@ -152,6 +152,42 @@ workspace/
   cleanup-journals/                  cleanup recovery/delivery receipts
 ~~~
 
+## Incremental Classic development contract
+
+The playable development workflow has one build-coordinate rule and one
+runtime-coordinate rule. `dev build` and `dev up` resolve the full
+client/server dependency closure, including shared protocol, library, content,
+resource, and sound inputs, and derive one topology build key from that
+closure. This makes a `dev build --services server` or `--services client`
+operation a valid warm-up for the paired topology without aliasing the
+standalone `build client` or `build server` CMake trees. The full source
+closure remains under shared profile/source leases even when only one service
+target is compiled.
+
+The selected service set controls both the supervised service manifest and the
+CMake target list. Shared inputs are reconciled and their cache decisions are
+reported; only the selected Classic executable (and the server's required
+plugins) is built when one service is selected. `--test` is explicit and
+materializes the configured CMake graph before running its unfiltered CTest
+suite, while the metaserver worker remains outside this playable scope. The ordinary
+`build all --profile classic --test` command remains the opt-in full
+validation path.
+
+`dev restart NAME --service SERVICE` first verifies the current control
+generation, takes the topology and full paired source coordinates, and performs
+a confirmed controlled stop. It then rebuilds the selected CMake target,
+copies a stopped disposable state into the new generation when necessary, and
+publishes a complete immutable runtime snapshot. The new snapshot retains the
+same loopback port and persistent state coordinate; the old temporary state is
+removed only after the replacement supervisor is ready. A complete snapshot
+keeps the existing generation/status/runtime validation contract intact while
+allowing the compile operation to remain service-scoped.
+
+Paired local launch explicitly disables metaserver, STUN, and port mapping and
+uses the reserved `127.0.0.1` endpoint. Runtime staging is therefore deferred
+until `dev up` or `dev restart`; a development build reports cache/source-view
+decisions but does not publish a topology generation.
+
 Selected sound repositories may also contain producer-owned
 `build/atrinik-workspace/<20-hex-key>/` playtest trees. They remain outside the
 wrapper build root but are inventoried only by the explicit preview-first

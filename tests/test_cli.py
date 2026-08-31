@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest import mock
 
-from atrinik_workspace.cli import _human_bytes, main, parser
+from atrinik_workspace.cli import _human_bytes, _parse_services, main, parser
 from atrinik_workspace.model import WorkspaceError
 
 
@@ -565,6 +565,165 @@ class ParserTests(unittest.TestCase):
             force_reconfigure=True,
             use_ccache=False,
         )
+
+    def test_dev_services_parse_in_stable_topology_order(self) -> None:
+        self.assertEqual(_parse_services("client, server"), ["server", "client"])
+        self.assertEqual(_parse_services("both"), ["server", "client"])
+        with self.assertRaisesRegex(WorkspaceError, "must name"):
+            _parse_services("server,")
+        with self.assertRaisesRegex(WorkspaceError, "duplicates"):
+            _parse_services("server,server")
+        with self.assertRaisesRegex(WorkspaceError, "only server and client"):
+            _parse_services("worker")
+
+    def test_dev_build_dispatches_selective_incremental_controls(self) -> None:
+        summary = {
+            "schema_version": 1,
+            "profile": "classic",
+            "services": ["server"],
+            "tests": True,
+            "build_root": "/workspace/build/classic",
+            "cache": {
+                "build_root": "reused",
+                "inputs": {"content": "reused"},
+                "cmake": {},
+                "source_views": "reused",
+            },
+            "runtime": {"staging": "deferred until dev up"},
+            "timing": {"elapsed_seconds": 0.0},
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.dev_build.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "dev",
+                        "build",
+                        "--profile",
+                        "classic",
+                        "--services",
+                        "server",
+                        "--test",
+                        "--force-reconfigure",
+                        "--no-ccache",
+                        "--json",
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.dev_build.assert_called_once_with(
+            "classic",
+            ["server"],
+            True,
+            force_reconfigure=True,
+            use_ccache=False,
+        )
+        self.assertEqual(json.loads(output.call_args.args[0]), summary)
+
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.dev_build.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "dev",
+                        "build",
+                        "--profile",
+                        "classic",
+                        "--services",
+                        "server",
+                    ]
+                )
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            [call.args[0] for call in output.call_args_list],
+            [
+                "dev-build\t/workspace/build/classic",
+                "services\tserver",
+                "cache\treused",
+                "cache\tcontent\treused",
+                "runtime\tdeferred until dev up",
+                "elapsed\t0.000s",
+            ],
+        )
+
+    def test_dev_up_and_restart_dispatch_exact_service_coordinates(self) -> None:
+        status = {
+            "name": "classic-local",
+            "endpoint": {"host": "127.0.0.1", "port": 17300},
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.dev_up.return_value = status
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "dev",
+                        "up",
+                        "--name",
+                        "classic-local",
+                        "--services",
+                        "client,server",
+                        "--temporary-state",
+                        "--port",
+                        "17300",
+                    ]
+                )
+        self.assertEqual(result, 0)
+        workspace_type.return_value.dev_up.assert_called_once_with(
+            "classic-local",
+            "classic",
+            None,
+            ["server", "client"],
+            17300,
+            state_mode="temporary",
+        )
+        output.assert_called_once_with(
+            "topology classic-local: started at 127.0.0.1:17300"
+        )
+
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.dev_restart.return_value = status
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    ["dev", "restart", "classic-local", "--service", "server"]
+                )
+        self.assertEqual(result, 0)
+        workspace_type.return_value.dev_restart.assert_called_once_with(
+            "classic-local", "server"
+        )
+        output.assert_called_once_with(
+            "topology classic-local: restarted server at 127.0.0.1:17300"
+        )
+
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.dev_up.return_value = status
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "dev",
+                        "up",
+                        "--name",
+                        "classic-local",
+                        "--json",
+                    ]
+                )
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.call_args.args[0]), status)
+
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.dev_restart.return_value = status
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "dev",
+                        "restart",
+                        "classic-local",
+                        "--service",
+                        "client",
+                        "--json",
+                    ]
+                )
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.call_args.args[0]), status)
 
     def test_windows_package_dispatches_profile_state_port_and_output(self) -> None:
         summary = {

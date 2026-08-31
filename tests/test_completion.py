@@ -130,6 +130,11 @@ class CompletionTests(unittest.TestCase):
         self.assertEqual(profile_names, ["review"])
         _, profile_values = self.candidates("profile", "set", "review", "")
         self.assertIn("libatrinik", profile_values)
+        _, dev_services = self.candidates("dev", "build", "--services", "")
+        self.assertEqual(
+            dev_services,
+            sorted(["server", "client", "server,client", "client,server", "both"]),
+        )
         mode, values = self.candidates("logs", "default", "server", "--f")
         self.assertEqual(mode, "candidates")
         self.assertEqual(values, ["--follow"])
