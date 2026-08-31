@@ -8,6 +8,7 @@ import re
 import stat
 from typing import Any, Iterable
 
+from .filesystem_identity import FilesystemIdentityError, validate_identity
 from .model import MANAGED_MARKER, Manifest, Paths, WorkspaceError, validate_name
 from .process_tree import control_socket_path
 from .sound import validate_release_coordinates
@@ -856,13 +857,7 @@ def _valid_topology(
         or control["socket"]
         != str(control_socket_path(topology_root, control["generation"]))
         or not isinstance(control.get("lease"), dict)
-        or set(control["lease"]) != {"device", "inode"}
-        or not all(
-            isinstance(value, int)
-            and not isinstance(value, bool)
-            and value >= 0
-            for value in control["lease"].values()
-        )
+        or not _valid_filesystem_identity(control["lease"])
     ):
         return False
     process_keys = (
@@ -1123,6 +1118,14 @@ def _valid_name(value: object) -> bool:
     try:
         validate_name(value, "completion candidate")
     except WorkspaceError:
+        return False
+    return True
+
+
+def _valid_filesystem_identity(value: Any) -> bool:
+    try:
+        validate_identity(value)
+    except FilesystemIdentityError:
         return False
     return True
 

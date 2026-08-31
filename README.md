@@ -500,6 +500,32 @@ stopped records, states, logs, and historical coordinates remain preserved and
 inert; this migration never deletes them. Cleanup continues to inventory those
 references and remains a separate preview-first operation.
 
+## Recovering persisted filesystem identities after a remount
+
+Persisted workspace, topology, lease, and delivery-ledger records created by
+older wrapper versions may contain the host-specific filesystem device number.
+Use the explicit, checked recovery transaction after a devcontainer rebuild or
+other remount:
+
+~~~sh
+./atrinik migrate filesystem --dry-run --json
+./atrinik migrate filesystem --apply --confirm-remount
+./atrinik migrate filesystem --audit --json
+~~~
+
+The dry run is read-only. Apply snapshots every affected record, preserves
+legacy evidence, rewrites durable identities atomically, and records portable
+pre/post identities plus rollback state in a local journal. It refuses a
+changed inode, replacement, symlink, foreign-owned target, or ambiguous
+record; never hand-edit the JSON. Live descriptor and mount fencing continues
+to use the complete ephemeral `(st_dev, st_ino)` check, while durable records
+omit `st_dev` and therefore remain valid when the same workspace is mounted
+again. Rename-prone lease records intentionally omit ctime as well; their
+opened-descriptor, generation, and content fences remain live. See
+[`docs/FILESYSTEM-IDENTITY.md`](docs/FILESYSTEM-IDENTITY.md) for the schema
+boundary and recovery guarantees. This operation is separate from
+cleanup, topology shutdown, scope release, and repository migration.
+
 The current classic client command opens a graphical application. Verify that
 the devcontainer display forwarding socket is live before launching it. Use
 `--dry-run` to build and print either launch command without starting the

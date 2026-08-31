@@ -78,6 +78,14 @@ remain focused on the manifest, multi-repository workflows, or their tests and
 documentation. Preserve dirty physical checkouts and persistent state during
 manual validation.
 
+Filesystem-identity changes must keep the durable/ephemeral boundary explicit:
+portable identities are the only values written to workspace, topology, lease,
+scope, and delivery-ledger records; raw `st_dev` values are limited to live
+descriptor or mount fencing. Add a remount/rebind regression test that covers
+the explicit migration journal, changed-inode refusal, and rollback or audit
+behavior. Validate the documented command with `--dry-run` and `--audit` in a
+temporary test-owned workspace; never apply it to shared generated state.
+
 ## Copyright headers
 
 Use `The Atrinik Project` as the exact collective holder for every new or
