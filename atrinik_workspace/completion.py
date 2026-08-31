@@ -358,6 +358,8 @@ def _dynamic_candidates(
         return _scenario_names(manifest, paths)
     if kind == "topology":
         return _topology_names(manifest, paths)
+    if kind == "dev_services":
+        return ["server", "client", "server,client", "client,server", "both"]
     if kind == "scope":
         return _scope_names(paths)
     return []

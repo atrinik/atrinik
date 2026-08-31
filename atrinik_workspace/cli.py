@@ -341,6 +341,83 @@ def parser() -> argparse.ArgumentParser:
         help="disable automatic C/C++ compiler caching",
     )
 
+    dev = commands.add_parser(
+        "dev", help="incremental, service-selective Classic development workflow"
+    )
+    dev_commands = dev.add_subparsers(dest="dev_command", required=True)
+    dev_build = dev_commands.add_parser(
+        "build", help="warm an incremental playable service build"
+    )
+    mark(dev_build.add_argument("--profile", default="classic"), "profile")
+    mark(
+        dev_build.add_argument(
+            "--services",
+            default="server,client",
+            metavar="SERVICE,...",
+            help="server, client, or both (default: server,client)",
+        ),
+        "dev_services",
+    )
+    dev_build.add_argument("--test", action="store_true")
+    dev_build.add_argument(
+        "--force-reconfigure",
+        action="store_true",
+        help="run CMake configure even when its managed fingerprint is unchanged",
+    )
+    dev_build.add_argument(
+        "--no-ccache",
+        action="store_true",
+        help="disable automatic C/C++ compiler caching",
+    )
+    dev_build.add_argument("--json", action="store_true")
+
+    dev_up = dev_commands.add_parser(
+        "up", help="build and start a local loopback development topology"
+    )
+    mark(dev_up.add_argument("--name"), "none")
+    mark(dev_up.add_argument("--profile", default="classic"), "profile")
+    mark(
+        dev_up.add_argument(
+            "--services",
+            default="server,client",
+            metavar="SERVICE,...",
+            help="server, client, or both (default: server,client)",
+        ),
+        "dev_services",
+    )
+    dev_up_state = dev_up.add_mutually_exclusive_group()
+    mark(dev_up_state.add_argument("--state", default="default"), "state")
+    dev_up_state.add_argument(
+        "--temporary-state",
+        dest="state_mode",
+        action="store_const",
+        const="temporary",
+        help="use a fresh disposable state owned by this topology generation",
+    )
+    dev_up_state.add_argument(
+        "--default-state",
+        dest="state_mode",
+        action="store_const",
+        const="default",
+        help="deliberately select the legacy managed persistent default state",
+    )
+    mark(
+        dev_up.add_argument(
+            "--port",
+            type=int,
+            help="server UDP port (default: choose an available port)",
+        ),
+        "none",
+    )
+    dev_up.add_argument("--json", action="store_true")
+
+    dev_restart = dev_commands.add_parser(
+        "restart", help="rebuild and restart one service in an existing topology"
+    )
+    mark(dev_restart.add_argument("name"), "topology")
+    dev_restart.add_argument("--service", choices=["server", "client"], required=True)
+    dev_restart.add_argument("--json", action="store_true")
+
     package = commands.add_parser(
         "package", help="package a resolved profile for another host"
     )
@@ -583,6 +660,23 @@ def parser() -> argparse.ArgumentParser:
 
 def _forwarded_arguments(arguments: list[str]) -> list[str]:
     return arguments[1:] if arguments and arguments[0] == "--" else arguments
+
+
+def _parse_services(value: str) -> list[str]:
+    """Parse the compact development service selector used by the CLI."""
+
+    if value == "both":
+        return ["server", "client"]
+    services = [item.strip() for item in value.split(",")]
+    if not services or any(not item for item in services):
+        raise WorkspaceError("--services must name server, client, or both")
+    if len(set(services)) != len(services):
+        raise WorkspaceError("--services cannot contain duplicates")
+    if set(services) - {"server", "client"}:
+        raise WorkspaceError(
+            "--services must contain only server and client, or both"
+        )
+    return [service for service in ("server", "client") if service in services]
 
 
 def _print_scenario(summary: dict[str, object]) -> None:
@@ -1141,6 +1235,65 @@ def main(arguments: list[str] | None = None) -> int:
                     use_ccache=not options.no_ccache,
                 )
             )
+        elif options.command == "dev":
+            if options.dev_command == "build":
+                services = _parse_services(options.services)
+                result = workspace.dev_build(
+                    options.profile,
+                    services,
+                    options.test,
+                    force_reconfigure=options.force_reconfigure,
+                    use_ccache=not options.no_ccache,
+                )
+                if options.json:
+                    print(json.dumps(result, indent=2, sort_keys=True))
+                else:
+                    print(f"dev-build\t{result['build_root']}")
+                    print(f"services\t{','.join(result['services'])}")
+                    print(f"cache\t{result['cache']['build_root']}")
+                    for name, value in sorted(result["cache"]["inputs"].items()):
+                        print(f"cache\t{name}\t{value}")
+                    print(f"runtime\t{result['runtime']['staging']}")
+                    print(
+                        f"elapsed\t{result['timing']['elapsed_seconds']:.3f}s"
+                    )
+            elif options.dev_command == "up":
+                services = _parse_services(options.services)
+                name = options.name or options.profile
+                state = None if options.state_mode == "temporary" else options.state
+                status = workspace.dev_up(
+                    name,
+                    options.profile,
+                    state,
+                    services,
+                    options.port,
+                    state_mode=options.state_mode,
+                )
+                if options.json:
+                    print(json.dumps(status, indent=2, sort_keys=True))
+                else:
+                    endpoint = status.get("endpoint")
+                    suffix = (
+                        f" at {endpoint['host']}:{endpoint['port']}"
+                        if endpoint
+                        else ""
+                    )
+                    print(f"topology {name}: started{suffix}")
+            else:
+                status = workspace.dev_restart(options.name, options.service)
+                if options.json:
+                    print(json.dumps(status, indent=2, sort_keys=True))
+                else:
+                    endpoint = status.get("endpoint")
+                    suffix = (
+                        f" at {endpoint['host']}:{endpoint['port']}"
+                        if endpoint
+                        else ""
+                    )
+                    print(
+                        f"topology {options.name}: restarted "
+                        f"{options.service}{suffix}"
+                    )
         elif options.command == "package":
             summary = workspace.package_windows_profile(
                 options.profile,
