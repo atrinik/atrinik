@@ -93,19 +93,22 @@ jobs:
       - name: Verify deliberate capability results remain stable
         shell: pwsh
         run: |
-          $errorPath = Join-Path $env:RUNNER_TEMP "atrinik-capability-error.txt"
-          python .\atrinik up 2> $errorPath
-          if ($LASTEXITCODE -ne 1) { throw "native Windows up did not return capability status 1" }
-          $message = Get-Content -Raw $errorPath
-          if ($message -notmatch "unavailable on native Windows") {
-            throw "native Windows capability diagnostic is missing"
+          function Invoke-CapabilityCommand {
+            param(
+              [string]$Label,
+              [string[]]$Arguments
+            )
+            $message = (& python .\atrinik @Arguments 2>&1 | Out-String)
+            $status = $LASTEXITCODE
+            Write-Host "$Label exit status: $status"
+            Write-Host $message
+            if ($status -ne 1) { throw "native Windows $Label did not return capability status 1" }
+            if ($message -notmatch "unavailable on native Windows") {
+              throw "native Windows $Label capability diagnostic is missing"
+            }
           }
-          python .\atrinik build all --profile classic 2> $errorPath
-          if ($LASTEXITCODE -ne 1) { throw "native Windows build did not return capability status 1" }
-          $message = Get-Content -Raw $errorPath
-          if ($message -notmatch "unavailable on native Windows") {
-            throw "native Windows build capability diagnostic is missing"
-          }
+          Invoke-CapabilityCommand "up" @("up")
+          Invoke-CapabilityCommand "build" @("build", "all", "--profile", "classic")
 
   integration:
     name: Integration validation
