@@ -57,6 +57,7 @@ from .workspace import (
     load_regular_json,
     rename_no_replace_at,
     remove_owned_tree,
+    validate_gpu_shader_record,
 )
 
 
@@ -130,6 +131,7 @@ SUPPORTED_SCOPES = (*ALL_SCOPES, "topologies", "cleanup-journals")
 BUILD_RETENTION_RECORD = "retention.json"
 LEGACY_BUILD_METADATA_SCHEMA_VERSION = 1
 PRE_SOURCE_GENERATION_BUILD_METADATA_SCHEMA_VERSION = 2
+PRE_GPU_SHADER_BUILD_METADATA_SCHEMA_VERSION = 3
 LEGACY_BUILD_METADATA_KEYS = {
     "schema_version",
     "profile",
@@ -138,7 +140,8 @@ LEGACY_BUILD_METADATA_KEYS = {
     "coordinates",
     "last_used_at",
 }
-BUILD_METADATA_KEYS = {*LEGACY_BUILD_METADATA_KEYS, "sound"}
+PRE_GPU_SHADER_BUILD_METADATA_KEYS = {*LEGACY_BUILD_METADATA_KEYS, "sound"}
+BUILD_METADATA_KEYS = {*PRE_GPU_SHADER_BUILD_METADATA_KEYS, "gpu_shader"}
 BUILD_COORDINATE_KEYS = {
     "component",
     "checkout",
@@ -5488,7 +5491,15 @@ class Cleanup:
         expected_keys = (
             LEGACY_BUILD_METADATA_KEYS
             if schema_version == LEGACY_BUILD_METADATA_SCHEMA_VERSION
-            else BUILD_METADATA_KEYS
+            else (
+                PRE_GPU_SHADER_BUILD_METADATA_KEYS
+                if schema_version
+                in {
+                    PRE_SOURCE_GENERATION_BUILD_METADATA_SCHEMA_VERSION,
+                    PRE_GPU_SHADER_BUILD_METADATA_SCHEMA_VERSION,
+                }
+                else BUILD_METADATA_KEYS
+            )
         )
         if set(value) != expected_keys:
             raise WorkspaceError("build metadata fields are invalid")
@@ -5497,6 +5508,7 @@ class Cleanup:
             not in {
                 LEGACY_BUILD_METADATA_SCHEMA_VERSION,
                 PRE_SOURCE_GENERATION_BUILD_METADATA_SCHEMA_VERSION,
+                PRE_GPU_SHADER_BUILD_METADATA_SCHEMA_VERSION,
                 BUILD_METADATA_SCHEMA_VERSION,
             }
             or value.get("profile") != item["profile"]
@@ -5640,6 +5652,9 @@ class Cleanup:
             if sound is not None:
                 from .sound import validate_sound_record
                 validate_sound_record(sound)
+            gpu_shader = value.get("gpu_shader")
+            if gpu_shader is not None:
+                validate_gpu_shader_record(gpu_shader)
         return value
 
     def _build_lock_busy(self, profile: str, key: str) -> tuple[bool, str | None]:

@@ -210,7 +210,107 @@ SCENARIO_INERT_HISTORICAL_IDENTITY = "historical_identity"
 SCENARIO_INERT_PROFILE_UNRESOLVABLE = "profile_unresolvable"
 SCENARIO_INERT_INVALID_RECORD = "invalid_record"
 BUILD_METADATA = ".atrinik-build.json"
-BUILD_METADATA_SCHEMA_VERSION = 3
+BUILD_METADATA_SCHEMA_VERSION = 4
+GPU_SHADER_RECORD_SCHEMA_VERSION = 1
+GPU_SHADER_OVERRIDE_NAMES = (
+    "ATRINIK_GPU_SHADER_DIRECTORY",
+    "ATRINIK_DXC_EXECUTABLE",
+    "ATRINIK_SPIRV_CROSS_EXECUTABLE",
+    "ATRINIK_DXC_LIBRARY_DIRECTORY",
+)
+GPU_SHADER_WRAPPER_IDENTITY_ARGUMENT = "ATRINIK_GPU_SHADER_WRAPPER_IDENTITY"
+GPU_SHADER_RECORD_KEYS = {
+    "external": {
+        "schema_version",
+        "mode",
+        "shader_directory",
+        "manifest_path",
+        "manifest_sha256",
+        "identity",
+    },
+    "system": {
+        "schema_version",
+        "mode",
+        "dxc_executable",
+        "dxc_sha256",
+        "spirv_cross_executable",
+        "spirv_cross_sha256",
+        "dxc_library_directory",
+        "identity",
+    },
+    "managed": {
+        "schema_version",
+        "mode",
+        "source_path",
+        "lock_path",
+        "lock_sha256",
+        "builder_path",
+        "builder_sha256",
+        "manifest_path",
+        "manifest_sha256",
+        "toolchain_root",
+        "toolchain_tree_sha256",
+        "dxc_executable",
+        "spirv_cross_executable",
+        "dxc_library_directory",
+        "identity",
+    },
+}
+GPU_SHADER_SHA256_FIELDS = {
+    "manifest_sha256",
+    "dxc_sha256",
+    "spirv_cross_sha256",
+    "lock_sha256",
+    "builder_sha256",
+    "toolchain_tree_sha256",
+}
+GPU_SHADER_PATH_FIELDS = {
+    "shader_directory",
+    "manifest_path",
+    "dxc_executable",
+    "spirv_cross_executable",
+    "source_path",
+    "lock_path",
+    "builder_path",
+    "toolchain_root",
+}
+
+
+def validate_gpu_shader_record(value: object) -> dict[str, Any]:
+    """Validate persisted provenance for a Classic GPU shader configuration."""
+
+    if not isinstance(value, dict):
+        raise WorkspaceError("GPU shader provenance record is not an object")
+    mode = value.get("mode")
+    if not isinstance(mode, str) or mode not in GPU_SHADER_RECORD_KEYS:
+        raise WorkspaceError("GPU shader provenance mode is invalid")
+    if (
+        value.get("schema_version") != GPU_SHADER_RECORD_SCHEMA_VERSION
+        or set(value) != GPU_SHADER_RECORD_KEYS[mode]
+    ):
+        raise WorkspaceError("GPU shader provenance record fields are invalid")
+    for key in GPU_SHADER_PATH_FIELDS & GPU_SHADER_RECORD_KEYS[mode]:
+        path = value.get(key)
+        if not isinstance(path, str) or not path or not Path(path).is_absolute():
+            raise WorkspaceError(f"GPU shader provenance path is invalid: {key}")
+    for key in GPU_SHADER_SHA256_FIELDS & GPU_SHADER_RECORD_KEYS[mode]:
+        digest = value.get(key)
+        if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise WorkspaceError(f"GPU shader provenance digest is invalid: {key}")
+    identity = value.get("identity")
+    if not isinstance(identity, str) or not re.fullmatch(r"[0-9a-f]{64}", identity):
+        raise WorkspaceError("GPU shader provenance identity is invalid")
+    if mode in {"system", "managed"}:
+        library = value.get("dxc_library_directory")
+        if library is not None and (
+            not isinstance(library, str)
+            or not library
+            or not Path(library).is_absolute()
+        ):
+            raise WorkspaceError("GPU shader provenance library path is invalid")
+    return value
+
+
 PROFILE_RESOLUTION_METADATA = ".atrinik-profile-resolution.json"
 PROFILE_RESOLUTION_SCHEMA_VERSION = 3
 SOURCE_GENERATION_METADATA = ".atrinik-source-generation.json"
@@ -7689,9 +7789,14 @@ class Workspace:
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
             sound_root = selected.get("sound")
             sound_record: dict[str, Any] | None = None
+            gpu_shader: dict[str, Any] | None = None
             if "client" in targets:
                 if sound_root is not None:
                     sound_root, sound_record = self._prepare_sound(
+                        root, selected, profile_name
+                    )
+                if stack.name == "classic":
+                    gpu_shader = self._prepare_gpu_shader(
                         root, selected, profile_name
                     )
             elif sound_root is not None:
@@ -7699,7 +7804,7 @@ class Workspace:
                 if profile["sound_mode"] == SOURCE_MODE:
                     sound_record = self._sound_source_record(sound_root)
             self._refresh_build_metadata(
-                root, profile_name, key, selected, sound_record
+                root, profile_name, key, selected, sound_record, gpu_shader
             )
             if "content" in targets or "server" in targets:
                 self._collect_content(root, selected, profile_name)
@@ -7714,7 +7819,11 @@ class Workspace:
                         f"integrated Classic profile {profile_name} has no sound provider"
                     )
                 self._build_integrated_classic(
-                    root, selected, tests, sound_root=sound_root
+                    root,
+                    selected,
+                    tests,
+                    sound_root=sound_root,
+                    gpu_shader=gpu_shader,
                 )
             else:
                 if "protocol" in targets:
@@ -7728,6 +7837,7 @@ class Workspace:
                         tests,
                         component=stack.providers["client"],
                         sound_root=sound_root,
+                        gpu_shader=gpu_shader,
                     )
                 if "server" in targets:
                     self._build_server(
@@ -7759,6 +7869,7 @@ class Workspace:
         key: str,
         selected: dict[str, Path],
         sound: dict[str, Any] | None = None,
+        gpu_shader: dict[str, Any] | None = None,
     ) -> None:
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
@@ -7795,6 +7906,7 @@ class Workspace:
                 "purpose": f"profile:{profile_name}:{key}",
                 "coordinates": coordinates,
                 "sound": sound,
+                "gpu_shader": gpu_shader,
                 "last_used_at": datetime.now(timezone.utc).isoformat(),
             },
         )
@@ -8120,6 +8232,466 @@ class Workspace:
             f"{record['output_tree_sha256']} at {output}"
         )
         return output, record
+
+    @staticmethod
+    def _gpu_shader_identity(inputs: dict[str, Any]) -> str:
+        payload = json.dumps(
+            inputs, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+        ).encode("utf-8")
+        return hashlib.sha256(payload).hexdigest()
+
+    @staticmethod
+    def _resolve_gpu_shader_override(
+        value: str, description: str, *, directory: bool
+    ) -> Path:
+        raw = value.strip()
+        if not raw:
+            raise WorkspaceError(f"{description} must not be empty")
+        try:
+            path = Path(raw).expanduser().resolve(strict=True)
+            metadata = path.stat()
+        except (OSError, RuntimeError, ValueError) as error:
+            raise WorkspaceError(
+                f"{description} is not a usable path: {raw}"
+            ) from error
+        if directory:
+            if not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(f"{description} is not a directory: {path}")
+        elif not stat.S_ISREG(metadata.st_mode) or not os.access(path, os.X_OK):
+            raise WorkspaceError(
+                f"{description} is not an executable regular file: {path}"
+            )
+        return path
+
+    def _gpu_shader_external_record(self, value: str) -> dict[str, Any]:
+        directory = self._resolve_gpu_shader_override(
+            value, "ATRINIK_GPU_SHADER_DIRECTORY", directory=True
+        )
+        manifest = directory / "SHA256SUMS"
+        try:
+            metadata = manifest.lstat()
+        except OSError as error:
+            raise WorkspaceError(
+                "ATRINIK_GPU_SHADER_DIRECTORY must contain a regular SHA256SUMS "
+                f"manifest: {manifest}"
+            ) from error
+        if not stat.S_ISREG(metadata.st_mode) or manifest.is_symlink():
+            raise WorkspaceError(
+                "ATRINIK_GPU_SHADER_DIRECTORY must contain a regular SHA256SUMS "
+                f"manifest: {manifest}"
+            )
+        manifest_sha256 = _file_digest(manifest, "GPU shader cohort manifest")
+        identity = self._gpu_shader_identity(
+            {
+                "mode": "external",
+                "directory": str(directory),
+                "manifest_sha256": manifest_sha256,
+            }
+        )
+        return {
+            "schema_version": GPU_SHADER_RECORD_SCHEMA_VERSION,
+            "mode": "external",
+            "shader_directory": str(directory),
+            "manifest_path": str(manifest.resolve()),
+            "manifest_sha256": manifest_sha256,
+            "identity": identity,
+        }
+
+    def _gpu_shader_system_record(
+        self,
+        dxc_value: str,
+        spirv_cross_value: str,
+        library_value: str,
+    ) -> dict[str, Any]:
+        dxc = self._resolve_gpu_shader_override(
+            dxc_value, "ATRINIK_DXC_EXECUTABLE", directory=False
+        )
+        spirv_cross = self._resolve_gpu_shader_override(
+            spirv_cross_value,
+            "ATRINIK_SPIRV_CROSS_EXECUTABLE",
+            directory=False,
+        )
+        library = (
+            self._resolve_gpu_shader_override(
+                library_value, "ATRINIK_DXC_LIBRARY_DIRECTORY", directory=True
+            )
+            if library_value
+            else None
+        )
+        dxc_sha256 = _file_digest(dxc, "DXC executable")
+        spirv_cross_sha256 = _file_digest(spirv_cross, "SPIRV-Cross executable")
+        record: dict[str, Any] = {
+            "schema_version": GPU_SHADER_RECORD_SCHEMA_VERSION,
+            "mode": "system",
+            "dxc_executable": str(dxc),
+            "dxc_sha256": dxc_sha256,
+            "spirv_cross_executable": str(spirv_cross),
+            "spirv_cross_sha256": spirv_cross_sha256,
+            "dxc_library_directory": str(library) if library is not None else None,
+        }
+        record["identity"] = self._gpu_shader_identity(
+            {
+                "mode": "system",
+                "dxc": {"path": str(dxc), "sha256": dxc_sha256},
+                "spirv_cross": {
+                    "path": str(spirv_cross),
+                    "sha256": spirv_cross_sha256,
+                },
+                "dxc_library_directory": (
+                    str(library) if library is not None else None
+                ),
+            }
+        )
+        return record
+
+    def _validate_gpu_shader_toolchain(
+        self, output: Path, lock: Path, lock_sha256: str
+    ) -> tuple[Path, Path, Path, str]:
+        if output.is_symlink() or not output.is_dir():
+            raise WorkspaceError(
+                f"prepared GPU shader toolchain is not a directory: {output}"
+            )
+        tree_sha256 = _tree_digest(
+            output,
+            set(),
+            reject_hardlinks=True,
+            reject_symlinks=True,
+        )
+        marker = output / "toolchain.json"
+        state = load_json(marker)
+        if (
+            not isinstance(state, dict)
+            or set(state) != {"schema_version", "lock_sha256", "spirv_cross_sha256"}
+            or state["schema_version"] != 1
+            or state["lock_sha256"] != lock_sha256
+            or not isinstance(state["spirv_cross_sha256"], str)
+        ):
+            raise WorkspaceError(
+                f"prepared GPU shader toolchain marker is invalid: {marker}"
+            )
+        lock_value = load_json(lock)
+        dxc_entry = lock_value.get("dxc") if isinstance(lock_value, dict) else None
+        files = dxc_entry.get("files") if isinstance(dxc_entry, dict) else None
+        if not isinstance(files, dict) or not files:
+            raise WorkspaceError("GPU shader lock has no DXC file contract")
+        for name, expected in files.items():
+            if not isinstance(name, str) or not isinstance(expected, str):
+                raise WorkspaceError("GPU shader lock has an invalid DXC file contract")
+            relative = PurePosixPath(name)
+            if (
+                relative.is_absolute()
+                or not relative.parts
+                or any(part in {"", ".", ".."} for part in relative.parts)
+            ):
+                raise WorkspaceError(f"GPU shader lock has an unsafe DXC path: {name}")
+            path = output / "dxc" / Path(*relative.parts)
+            if (
+                path.is_symlink()
+                or not path.is_file()
+                or _file_digest(path, f"DXC toolchain file {name}") != expected
+            ):
+                raise WorkspaceError(
+                    f"prepared GPU shader toolchain file is stale or tampered: {name}"
+                )
+        dxc = output / "dxc" / "bin" / "dxc"
+        spirv_cross = output / "spirv-cross" / "bin" / "spirv-cross"
+        library = output / "dxc" / "lib"
+        license_path = output / "spirv-cross" / "LICENSE"
+        if (
+            dxc.is_symlink()
+            or not dxc.is_file()
+            or not os.access(dxc, os.X_OK)
+            or spirv_cross.is_symlink()
+            or not spirv_cross.is_file()
+            or not os.access(spirv_cross, os.X_OK)
+            or library.is_symlink()
+            or not library.is_dir()
+            or license_path.is_symlink()
+            or not license_path.is_file()
+            or _file_digest(spirv_cross, "SPIRV-Cross toolchain file")
+            != state["spirv_cross_sha256"]
+        ):
+            raise WorkspaceError(
+                f"prepared GPU shader toolchain layout is invalid: {output}"
+            )
+        return dxc, spirv_cross, library, tree_sha256
+
+    def _gpu_shader_existing_toolchain(
+        self, source: Path, profile_name: str
+    ) -> Path | None:
+        if self._source_generation_record(source) is None:
+            source_root = source
+        else:
+            profile = self._load_profile(profile_name, require_file=False)
+            stack = self.manifest.stack(profile["stack"])
+            component = stack.providers["client"]
+            checkout = self._selector_root(profile, component)
+            if component.source == ".":
+                source_root = checkout
+            else:
+                source_root = checkout.joinpath(
+                    *PurePosixPath(component.source).parts
+                )
+        candidate = source_root / "build" / "gpu-shader-toolchain"
+        for path in (source_root, source_root / "build", candidate):
+            try:
+                metadata = path.lstat()
+            except FileNotFoundError:
+                if path == source_root:
+                    return None
+                continue
+            except OSError:
+                return None
+            if stat.S_ISLNK(metadata.st_mode) or (
+                path != candidate and not stat.S_ISDIR(metadata.st_mode)
+            ):
+                return None
+        return candidate
+
+    def _gpu_shader_managed_record(
+        self,
+        root: Path,
+        source: Path,
+        profile_name: str,
+        *,
+        existing_output: Path | None = None,
+    ) -> dict[str, Any]:
+        lock = source / "shaders" / "toolchain.lock.json"
+        builder = source / "tools" / "prepare_gpu_shader_toolchain.py"
+        manifest = source / "shaders" / "SHA256SUMS"
+        for path, description in (
+            (lock, "Classic GPU shader lock"),
+            (builder, "Classic GPU shader toolchain preparer"),
+            (manifest, "Classic GPU shader cohort manifest"),
+        ):
+            try:
+                metadata = path.lstat()
+            except OSError as error:
+                raise WorkspaceError(f"{description} is missing: {path}") from error
+            if not stat.S_ISREG(metadata.st_mode) or path.is_symlink():
+                raise WorkspaceError(f"{description} is not a regular file: {path}")
+        input_digests = {
+            "lock_sha256": _file_digest(lock, "Classic GPU shader lock"),
+            "builder_sha256": _file_digest(
+                builder, "Classic GPU shader toolchain preparer"
+            ),
+            "manifest_sha256": _file_digest(
+                manifest, "Classic GPU shader cohort manifest"
+            ),
+        }
+        output: Path | None = None
+        dxc: Path | None = None
+        spirv_cross: Path | None = None
+        library: Path | None = None
+        tree_sha256: str | None = None
+        producer = _managed_path_no_symlinks(
+            root / "producers", self.paths.builds
+        )
+        producer.mkdir(parents=True, exist_ok=True)
+        downloads = _managed_path_no_symlinks(
+            producer / "classic-gpu-shader-downloads", self.paths.builds
+        )
+        toolchains = _managed_path_no_symlinks(
+            producer / "classic-gpu-shader-toolchains", self.paths.builds
+        )
+        downloads.mkdir(parents=True, exist_ok=True)
+        toolchains.mkdir(parents=True, exist_ok=True)
+        try:
+            if existing_output is not None and (
+                existing_output.exists() or existing_output.is_symlink()
+            ):
+                try:
+                    run(
+                        [
+                            sys.executable,
+                            str(builder.resolve()),
+                            "--lock",
+                            str(lock.resolve()),
+                            "--cache",
+                            str(downloads),
+                            "--output",
+                            str(existing_output),
+                        ],
+                        cwd=source,
+                    )
+                    dxc, spirv_cross, library, tree_sha256 = (
+                        self._validate_gpu_shader_toolchain(
+                            existing_output, lock, input_digests["lock_sha256"]
+                        )
+                    )
+                    output = existing_output
+                except (OSError, WorkspaceError):
+                    # A stale source-checkout preparation is not authoritative;
+                    # rebuild it in the wrapper-owned producer cache below.
+                    output = None
+            if output is None:
+                output = _managed_path_no_symlinks(
+                    toolchains / input_digests["lock_sha256"], self.paths.builds
+                )
+                run(
+                    [
+                        sys.executable,
+                        str(builder.resolve()),
+                        "--lock",
+                        str(lock.resolve()),
+                        "--cache",
+                        str(downloads),
+                        "--output",
+                        str(output),
+                    ],
+                    cwd=source,
+                )
+                dxc, spirv_cross, library, tree_sha256 = (
+                    self._validate_gpu_shader_toolchain(
+                        output, lock, input_digests["lock_sha256"]
+                    )
+                )
+            assert (
+                output is not None
+                and dxc is not None
+                and spirv_cross is not None
+                and library is not None
+                and tree_sha256 is not None
+            )
+            final_digests = {
+                "lock_sha256": _file_digest(lock, "Classic GPU shader lock"),
+                "builder_sha256": _file_digest(
+                    builder, "Classic GPU shader toolchain preparer"
+                ),
+                "manifest_sha256": _file_digest(
+                    manifest, "Classic GPU shader cohort manifest"
+                ),
+            }
+            if final_digests != input_digests:
+                raise WorkspaceError(
+                    "Classic GPU shader inputs changed during toolchain preparation"
+                )
+        except (OSError, WorkspaceError) as error:
+            raise WorkspaceError(
+                f"profile {profile_name} Classic GPU shader toolchain preparation "
+                f"failed: {error}"
+            ) from error
+        record: dict[str, Any] = {
+            "schema_version": GPU_SHADER_RECORD_SCHEMA_VERSION,
+            "mode": "managed",
+            "source_path": str(source.resolve()),
+            "lock_path": str(lock.resolve()),
+            "lock_sha256": input_digests["lock_sha256"],
+            "builder_path": str(builder.resolve()),
+            "builder_sha256": input_digests["builder_sha256"],
+            "manifest_path": str(manifest.resolve()),
+            "manifest_sha256": input_digests["manifest_sha256"],
+            "toolchain_root": str(output.resolve()),
+            "toolchain_tree_sha256": tree_sha256,
+            "dxc_executable": str(dxc.resolve()),
+            "spirv_cross_executable": str(spirv_cross.resolve()),
+            "dxc_library_directory": str(library.resolve()),
+        }
+        record["identity"] = self._gpu_shader_identity(
+            {
+                "mode": "managed",
+                "lock_sha256": record["lock_sha256"],
+                "builder_sha256": record["builder_sha256"],
+                "manifest_sha256": record["manifest_sha256"],
+                "toolchain_tree_sha256": record["toolchain_tree_sha256"],
+            }
+        )
+        return record
+
+    def _prepare_gpu_shader(
+        self,
+        root: Path,
+        selected: dict[str, Path],
+        profile_name: str,
+    ) -> dict[str, Any]:
+        values = {
+            name: os.environ.get(name, "").strip()
+            for name in GPU_SHADER_OVERRIDE_NAMES
+        }
+        try:
+            if values["ATRINIK_GPU_SHADER_DIRECTORY"]:
+                if any(
+                    values[name]
+                    for name in GPU_SHADER_OVERRIDE_NAMES[1:]
+                ):
+                    raise WorkspaceError(
+                        "ATRINIK_GPU_SHADER_DIRECTORY cannot be combined with "
+                        "explicit GPU tool overrides"
+                    )
+                return self._gpu_shader_external_record(
+                    values["ATRINIK_GPU_SHADER_DIRECTORY"]
+                )
+            if any(
+                values[name]
+                for name in GPU_SHADER_OVERRIDE_NAMES[1:]
+            ):
+                if not values["ATRINIK_DXC_EXECUTABLE"] or not values[
+                    "ATRINIK_SPIRV_CROSS_EXECUTABLE"
+                ]:
+                    raise WorkspaceError(
+                        "set both ATRINIK_DXC_EXECUTABLE and "
+                        "ATRINIK_SPIRV_CROSS_EXECUTABLE for a system GPU "
+                        "shader override"
+                    )
+                return self._gpu_shader_system_record(
+                    values["ATRINIK_DXC_EXECUTABLE"],
+                    values["ATRINIK_SPIRV_CROSS_EXECUTABLE"],
+                    values["ATRINIK_DXC_LIBRARY_DIRECTORY"],
+                )
+            if platform.system() != "Linux" or platform.machine() not in {
+                "x86_64",
+                "AMD64",
+            }:
+                raise WorkspaceError(
+                    "the pinned Classic GPU shader toolchain targets x86-64 Linux; "
+                    "set ATRINIK_DXC_EXECUTABLE and "
+                    "ATRINIK_SPIRV_CROSS_EXECUTABLE for system tools, or set "
+                    "ATRINIK_GPU_SHADER_DIRECTORY to a validated external cohort"
+                )
+            return self._gpu_shader_managed_record(
+                root,
+                selected["client"],
+                profile_name,
+                existing_output=self._gpu_shader_existing_toolchain(
+                    selected["client"], profile_name
+                ),
+            )
+        except (OSError, WorkspaceError) as error:
+            if isinstance(error, WorkspaceError) and str(error).startswith(
+                f"profile {profile_name} Classic GPU shader toolchain preparation"
+            ):
+                raise
+            raise WorkspaceError(
+                f"profile {profile_name} Classic GPU shader configuration failed: "
+                f"{error}"
+            ) from error
+
+    @staticmethod
+    def _gpu_shader_cmake_arguments(record: dict[str, Any]) -> list[str]:
+        mode = record.get("mode")
+        if mode == "external":
+            arguments = [
+                f"-DATRINIK_GPU_SHADER_DIRECTORY={record['shader_directory']}"
+            ]
+        elif mode in {"managed", "system"}:
+            arguments = [
+                f"-DATRINIK_DXC_EXECUTABLE={record['dxc_executable']}",
+                f"-DATRINIK_SPIRV_CROSS_EXECUTABLE={record['spirv_cross_executable']}",
+            ]
+            if record.get("dxc_library_directory"):
+                arguments.append(
+                    "-DATRINIK_DXC_LIBRARY_DIRECTORY="
+                    f"{record['dxc_library_directory']}"
+                )
+        else:
+            raise WorkspaceError(f"unsupported GPU shader record mode: {mode}")
+        identity = record.get("identity")
+        if not isinstance(identity, str) or not re.fullmatch(r"[0-9a-f]{64}", identity):
+            raise WorkspaceError("GPU shader record identity is invalid")
+        arguments.append(
+            f"-D{GPU_SHADER_WRAPPER_IDENTITY_ARGUMENT}={identity}"
+        )
+        return arguments
 
     def _clean_sound_source_inputs(self, source: Path) -> dict[str, str]:
         generation = self._source_generation_record(source)
@@ -10174,6 +10746,7 @@ class Workspace:
         tests: bool,
         *,
         sound_root: Path | None = None,
+        gpu_shader: dict[str, Any] | None = None,
     ) -> None:
         checkout = selected["client"].parent.resolve()
         view = self._profile_source_view(
@@ -10227,16 +10800,14 @@ class Workspace:
             root / "runtime" / "resources",
             target_is_directory=True,
         )
-        self._cmake(
-            view,
-            root / "build" / "integrated",
-            [
-                "-DENABLE_WARNING_ERRORS=ON",
-                "-DPACKAGE_TYPE=none",
-                "-DENABLE_PYTHON_PLUGIN=ON",
-            ],
-            tests,
-        )
+        arguments = [
+            "-DENABLE_WARNING_ERRORS=ON",
+            "-DPACKAGE_TYPE=none",
+            "-DENABLE_PYTHON_PLUGIN=ON",
+        ]
+        if gpu_shader is not None:
+            arguments.extend(self._gpu_shader_cmake_arguments(gpu_shader))
+        self._cmake(view, root / "build" / "integrated", arguments, tests)
         self._record_classic_graph(root, {"client", "server"}, "integrated")
 
     def _build_library(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
@@ -10351,6 +10922,7 @@ class Workspace:
         *,
         component: Component,
         sound_root: Path | None = None,
+        gpu_shader: dict[str, Any] | None = None,
     ) -> None:
         view = self._profile_source_view(
             root,
@@ -10374,17 +10946,15 @@ class Workspace:
         library = self._mutable_cmake_source_view(
             root, "libatrinik", selected["libatrinik"]
         )
-        self._cmake(
-            view,
-            root / "build" / "client",
-            [
-                "-DENABLE_WARNING_ERRORS=ON",
-                "-DPACKAGE_TYPE=none",
-                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
-                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
-            ],
-            tests,
-        )
+        arguments = [
+            "-DENABLE_WARNING_ERRORS=ON",
+            "-DPACKAGE_TYPE=none",
+            f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
+            f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
+        ]
+        if gpu_shader is not None:
+            arguments.extend(self._gpu_shader_cmake_arguments(gpu_shader))
+        self._cmake(view, root / "build" / "client", arguments, tests)
         self._record_classic_graph(root, {"client"}, "standalone")
 
     def _build_server(
