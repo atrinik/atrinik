@@ -9664,6 +9664,82 @@ class WorkspaceTests(unittest.TestCase):
         finally:
             os.close(lease_fd)
 
+    def test_integrated_classic_runtime_owns_embedded_shaders_once(self) -> None:
+        owner = self.root / "runtime-owner"
+        owner.mkdir()
+        checkout = self.root / "classic"
+        client = checkout / "client"
+        sound = checkout / "sound"
+        client.mkdir(parents=True)
+        sound.mkdir()
+        (client / "data").mkdir()
+        (client / "data" / "config").write_text(
+            "client data\n", encoding="utf-8"
+        )
+        shader_source = checkout / "shader-source"
+        shader_source.mkdir()
+        (shader_source / "map.hlsl").write_text(
+            "source shader\n", encoding="utf-8"
+        )
+        (client / "shaders").symlink_to(shader_source, target_is_directory=True)
+        (sound / "sound").write_text("sound\n", encoding="utf-8")
+
+        build_root = self.root / "profile-build"
+        integrated_binary = build_root / "build" / "integrated" / "client"
+        (integrated_binary / "shaders" / "generated").mkdir(parents=True)
+        (integrated_binary / "shaders" / "generated" / "world_vertex.spv").write_bytes(
+            b"generated shader\n"
+        )
+        (integrated_binary / "src" / "include").mkdir(parents=True)
+        (integrated_binary / "src" / "include" / "generated.h").write_text(
+            "generated header\n", encoding="utf-8"
+        )
+        executable = integrated_binary / "atrinik"
+        executable.write_text("embedded shader executable\n", encoding="utf-8")
+        executable.chmod(0o755)
+        (build_root / "build").mkdir(exist_ok=True)
+        self.workspace._record_classic_graph(
+            build_root, {"client", "server"}, "integrated"
+        )
+
+        with mock.patch.object(
+            self.workspace,
+            "_classic_binary_directory",
+            wraps=self.workspace._classic_binary_directory,
+        ) as binary_directory:
+            published, lease_fd, _record, state_output_fd = (
+                self.workspace._publish_runtime_generation(
+                    owner,
+                    "b" * 64,
+                    "classic",
+                    build_root,
+                    {"client": client, "sound": sound},
+                    {},
+                    ["client"],
+                    identity={"kind": "test"},
+                    sound_root=sound,
+                )
+            )
+
+        try:
+            self.assertIsNone(state_output_fd)
+            binary_directory.assert_called_with(build_root, "client")
+            runtime_client = published / "client"
+            self.assertEqual(
+                (runtime_client / "data" / "config").read_text(
+                    encoding="utf-8"
+                ),
+                "client data\n",
+            )
+            self.assertTrue((runtime_client / "atrinik").is_file())
+            self.assertTrue((runtime_client / "sound" / "sound").is_file())
+            self.assertFalse(runtime_client.joinpath("shaders").exists())
+            self.assertFalse(
+                runtime_client.joinpath("src", "include", "generated.h").exists()
+            )
+        finally:
+            os.close(lease_fd)
+
     def test_topology_runtime_set_copy_failure_preserves_all_snapshots(self) -> None:
         topology = self.root / "topology"
         runtime = topology / "runtime"
