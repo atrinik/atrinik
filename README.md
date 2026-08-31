@@ -292,6 +292,46 @@ project, so protocol and libatrinik are compiled once and shared by the client
 and server. A component-specific build such as `build client` or `build server`
 continues to exercise that module's supported standalone FetchContent path.
 
+### Incremental Classic development
+
+Use the development workflow when iterating on a playable Classic service:
+
+~~~sh
+./atrinik dev build --profile classic --services server,client
+./atrinik dev build --profile classic --services server --json
+./atrinik dev up --profile classic --name classic-local \
+  --services server,client --temporary-state
+./atrinik dev restart classic-local --service server
+./atrinik dev restart classic-local --service client
+./atrinik down classic-local
+~~~
+
+`dev build` and `dev up` resolve the complete client/server dependency closure
+and use the same topology build root, so a warm direct development build warms
+the paired launch. `--services server`, `--services client`, and
+`--services both` select the playable service set; selecting one service limits
+the CMake build targets and does not rebuild the other service. Content,
+resources, region maps, source views, CMake configure state, and the shared
+compiler cache report `reused` or `refreshed` decisions in JSON output. Add
+`--test` when the selected development build should materialize the configured
+CMake graph and run its CTest validation; this explicit mode may build both
+playable services so the unfiltered suite has all of its targets. The
+metaserver worker is not part of this playable scope; use the explicit
+`build all --profile classic --test` workflow for full validation. JSON output
+also includes elapsed build time and per-CMake configure/build/test timings for
+the cold/warm and service-only rebuild matrix.
+
+`dev up` keeps local paired launch offline: the server disables port mapping and
+STUN, and the client disables the metaserver and STUN while connecting to the
+reserved loopback endpoint. `dev restart` requires a currently supervised
+topology, performs a controlled stop, rebuilds only the requested service
+target, and publishes a fresh immutable runtime generation. Persistent state
+and the reserved endpoint port are retained; disposable temporary state is
+copied into the new generation and the superseded copy is removed only after
+the replacement is ready. The topology may therefore restart both supervised
+processes as one sealed-generation transaction while keeping compilation
+service-selective and preserving the state/port contract.
+
 Managed source views are reconciled in place, so unchanged links and copied
 files retain their identity while changed, retargeted, and stale entries are
 updated without following unsafe symlinks. Linked-directory structure and

@@ -4,7 +4,7 @@ import binascii
 import copy
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from contextlib import AbstractContextManager, ExitStack, contextmanager
+from contextlib import AbstractContextManager, ExitStack, contextmanager, nullcontext
 from contextvars import copy_context
 import ctypes
 from dataclasses import dataclass
@@ -1968,6 +1968,44 @@ def durable_atomic_json_at(directory_fd: int, name: str, value: Any) -> None:
             os.close(descriptor)
 
 
+def durable_replace_json_at(directory_fd: int, name: str, value: Any) -> None:
+    """Durably replace one JSON file relative to a pinned directory."""
+
+    if Path(name).name != name:
+        raise WorkspaceError(f"descriptor-relative JSON name is invalid: {name}")
+    temporary = f".{name}.{secrets.token_hex(12)}.tmp"
+    descriptor: int | None = None
+    try:
+        descriptor = os.open(
+            temporary,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+            0o600,
+            dir_fd=directory_fd,
+        )
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            descriptor = None
+            json.dump(value, stream, indent=2, sort_keys=True)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.rename(
+            temporary,
+            name,
+            src_dir_fd=directory_fd,
+            dst_dir_fd=directory_fd,
+        )
+        os.fsync(directory_fd)
+    except BaseException:
+        try:
+            os.unlink(temporary, dir_fd=directory_fd)
+        except FileNotFoundError:
+            pass
+        raise
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+
+
 def rename_no_replace_at(
     source_directory_fd: int,
     source: str,
@@ -2211,6 +2249,18 @@ class Workspace:
     @_profile_snapshot.setter
     def _profile_snapshot(self, value: ProfileResolutionSnapshot | None) -> None:
         self._build_state.profile_snapshot = value
+
+    @property
+    def _build_summary(self) -> dict[str, Any]:
+        current = getattr(self._build_state, "build_summary", None)
+        if current is None:
+            current = {}
+            self._build_state.build_summary = current
+        return current
+
+    @_build_summary.setter
+    def _build_summary(self, value: dict[str, Any]) -> None:
+        self._build_state.build_summary = value
 
     @staticmethod
     def _lease_recovery(kind: str, coordinate: str) -> str:
@@ -7636,6 +7686,198 @@ class Workspace:
                 use_ccache=use_ccache,
             )
 
+    def dev_build(
+        self,
+        profile_name: str,
+        services: list[str] | None = None,
+        tests: bool = False,
+        *,
+        force_reconfigure: bool = False,
+        use_ccache: bool = True,
+    ) -> dict[str, Any]:
+        """Build only the selected playable Classic services incrementally."""
+
+        started = time.monotonic()
+        self.paths.ensure()
+        selected_services = self._topology_services(services)
+        self._require_classic_contracts(profile_name, set(TOPOLOGY_SERVICES))
+        profile = self._load_profile(profile_name, require_file=False)
+        build_roles = self._dependency_roles(profile, set(TOPOLOGY_SERVICES))
+        with self._resolved_profile_operation(
+            profile_name,
+            build_roles,
+            f"dev build {profile_name} {','.join(selected_services)}",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            targets = [
+                target for target in ALL_BUILD_TARGETS if target in snapshot.paths()
+            ]
+            root = self._build_resolved(
+                "topology",
+                profile_name,
+                tests,
+                targets,
+                snapshot.paths(),
+                force_reconfigure=force_reconfigure,
+                use_ccache=use_ccache,
+                build_services=set(selected_services),
+            )
+            summary = copy.deepcopy(self._build_summary)
+        cache = summary.get("cache", {})
+        if not isinstance(cache, dict):
+            cache = {}
+        inputs = cache.get("inputs", {})
+        if not isinstance(inputs, dict):
+            inputs = {}
+        return {
+            "schema_version": 1,
+            "profile": profile_name,
+            "services": selected_services,
+            "tests": tests,
+            "build_root": str(root),
+            "cache": {
+                "build_root": cache.get("build_root", "unknown"),
+                "inputs": dict(sorted(inputs.items())),
+                "cmake": cache.get("cmake", {}),
+                "source_views": cache.get("source_views", "unknown"),
+            },
+            "runtime": {
+                "staging": "deferred until dev up; immutable generation required"
+            },
+            "timing": {
+                "elapsed_seconds": round(time.monotonic() - started, 3)
+            },
+        }
+
+    def dev_up(
+        self,
+        name: str,
+        profile_name: str,
+        state_name: str | None,
+        services: list[str] | None = None,
+        port: int | None = None,
+        state_mode: str | None = None,
+    ) -> dict[str, Any]:
+        """Start the same warmable topology root used by :meth:`dev_build`."""
+
+        return self.topology_up(
+            name,
+            profile_name,
+            state_name,
+            services,
+            port,
+            state_mode=state_mode,
+            build_services=set(self._topology_services(services)),
+        )
+
+    def dev_restart(self, name: str, service: str) -> dict[str, Any]:
+        """Rebuild one service and republish the complete local topology."""
+
+        self.paths.ensure()
+        if service not in TOPOLOGY_SERVICES:
+            raise WorkspaceError(f"unknown topology service: {service}")
+        initial = self.topology_status(name)
+        if initial.get("inert_historical_record"):
+            raise WorkspaceError(
+                f"topology {name} is an inert historical record; choose a new topology"
+            )
+        services = [
+            candidate
+            for candidate in TOPOLOGY_SERVICES
+            if candidate in initial.get("services", {})
+        ]
+        if service not in services:
+            raise WorkspaceError(
+                f"topology {name} does not contain the {service} service"
+            )
+        control = initial.get("control")
+        if (
+            not isinstance(control, dict)
+            or not isinstance(initial.get("supervisor"), dict)
+            or not initial["supervisor"].get("running")
+            or (
+                "server" in services
+                and not isinstance(initial.get("state_policy"), dict)
+            )
+        ):
+            raise WorkspaceError(
+                f"topology {name} is not a current supervised development topology"
+            )
+        profile_name = initial["profile"]
+        state_policy = initial.get("state_policy")
+        if "server" in services:
+            assert isinstance(state_policy, dict)
+            state_mode = state_policy.get("mode")
+            state_name = state_policy.get("name")
+            if state_mode not in {"temporary", "named", "default"}:
+                raise WorkspaceError(
+                    f"topology {name} has an invalid state policy for restart"
+                )
+            if state_mode == "temporary" and state_policy.get("lifecycle") != "disposable":
+                raise WorkspaceError(
+                    f"topology {name} temporary state is not disposable; preserve it before restart"
+                )
+        else:
+            state_mode = "default"
+            state_name = None
+        endpoint = initial.get("endpoint")
+        port = endpoint.get("port") if isinstance(endpoint, dict) else None
+
+        with self._resolved_profile_operation(
+            profile_name,
+            set(TOPOLOGY_SERVICES),
+            f"dev restart {name} {service}",
+            materialize_clean_primaries=True,
+        ):
+            requests = [
+                self._lease_request(
+                    "topology", name, "exclusive", f"dev restart {name} {service}"
+                )
+            ]
+            if (
+                isinstance(state_name, str)
+                and state_name.startswith("scenario-")
+            ):
+                requests.append(
+                    self._lease_request(
+                        "scenario",
+                        state_name.removeprefix("scenario-"),
+                        "shared",
+                        f"dev restart {name} {service}",
+                    )
+                )
+            with self._resource_locks(requests):
+                topology_root = self._topology_directory(name)
+                with exclusive_lock(
+                    topology_root / "operation.lock",
+                    f"topology {name} operation",
+                    nonblocking=True,
+                ):
+                    current = self.topology_status(name)
+                    if current.get("control") != control:
+                        raise WorkspaceError(
+                            f"topology {name} changed before development restart; retry"
+                        )
+                    stopped, clean = self._controlled_topology_down(
+                        name, current, 15
+                    )
+                    if not clean:
+                        raise WorkspaceError(
+                            f"topology {name} did not complete a confirmed clean stop; "
+                            "preserve the stopped record for diagnosis"
+                        )
+                    return self._topology_up(
+                        name,
+                        profile_name,
+                        state_name,
+                        services,
+                        port,
+                        state_mode,
+                        build_services={service},
+                        restart_status=stopped,
+                        operation_lock_held=True,
+                    )
+
     def _build(
         self,
         target: str,
@@ -7668,7 +7910,19 @@ class Workspace:
         *,
         force_reconfigure: bool = False,
         use_ccache: bool = True,
+        build_services: set[str] | None = None,
     ) -> Path:
+        requested_services = set(targets).intersection(TOPOLOGY_SERVICES)
+        selective_build = build_services is not None
+        if build_services is None:
+            build_services = set(requested_services)
+        else:
+            invalid_services = set(build_services) - requested_services
+            if invalid_services:
+                raise WorkspaceError(
+                    "selective build services are outside the requested topology: "
+                    + ", ".join(sorted(invalid_services))
+                )
         key = self._profile_build_key(profile_name, selected)
         root = self.paths.builds / "profiles" / f"{profile_name}-{key}"
         profile = self._load_profile(profile_name, require_file=False)
@@ -7677,6 +7931,17 @@ class Workspace:
             self._force_reconfigure = force_reconfigure
             self._use_ccache = use_ccache
             self._source_view_unchanged = {}
+            self._build_summary = {
+                "cache": {
+                    "build_root": (
+                        "reused"
+                        if root.exists() and not root.is_symlink()
+                        else "created"
+                    ),
+                    "inputs": {},
+                    "cmake": {},
+                }
+            }
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
             sound_root = selected.get("sound")
             sound_record: dict[str, Any] | None = None
@@ -7704,28 +7969,45 @@ class Workspace:
                     raise WorkspaceError(
                         f"integrated Classic profile {profile_name} has no sound provider"
                     )
-                self._build_integrated_classic(
-                    root, selected, tests, sound_root=sound_root
-                )
+                if selective_build:
+                    self._build_integrated_classic(
+                        root,
+                        selected,
+                        tests,
+                        sound_root=sound_root,
+                        build_services=build_services,
+                    )
+                else:
+                    self._build_integrated_classic(
+                        root, selected, tests, sound_root=sound_root
+                    )
             else:
                 if "protocol" in targets:
                     self._build_protocol(root, selected, tests)
                 if "libatrinik" in targets:
                     self._build_library(root, selected, tests)
-                if "client" in targets:
+                if "client" in targets and "client" in build_services:
+                    client_arguments: dict[str, Any] = {
+                        "component": stack.providers["client"],
+                        "sound_root": sound_root,
+                    }
+                    if selective_build:
+                        client_arguments["build_target"] = "atrinik"
                     self._build_client(
-                        root,
-                        selected,
-                        tests,
-                        component=stack.providers["client"],
-                        sound_root=sound_root,
+                        root, selected, tests, **client_arguments
                     )
-                if "server" in targets:
+                if "server" in targets and "server" in build_services:
+                    server_arguments: dict[str, Any] = {
+                        "component": stack.providers["server"],
+                    }
+                    if selective_build:
+                        server_arguments["build_targets"] = [
+                            "atrinik-server",
+                            "plugin_arena",
+                            "plugin_python",
+                        ]
                     self._build_server(
-                        root,
-                        selected,
-                        tests,
-                        component=stack.providers["server"],
+                        root, selected, tests, **server_arguments
                     )
             if "server" in targets:
                 self._generate_region_maps(root, profile_name, selected)
@@ -7733,6 +8015,15 @@ class Workspace:
                 self._build_worker(root, selected)
             if target in {"sound", "resources"}:
                 print(f"{target}: selected {selected[target]}")
+            cache = self._build_summary.setdefault("cache", {})
+            cache["source_views"] = (
+                "reused"
+                if self._source_view_unchanged
+                and all(self._source_view_unchanged.values())
+                else "refreshed"
+                if self._source_view_unchanged
+                else "not-applicable"
+            )
         return root
 
     @contextmanager
@@ -9198,6 +9489,9 @@ class Workspace:
             and validated_cacheable == cacheable
             and validated_cacheable
         ):
+            self._build_summary.setdefault("cache", {}).setdefault(
+                "inputs", {}
+            )["content"] = "reused"
             print(f"content: cached {output}")
             return output
         inputs, cacheable = validated_inputs, validated_cacheable
@@ -9263,6 +9557,9 @@ class Workspace:
             if staging.exists():
                 shutil.rmtree(staging)
             raise
+        self._build_summary.setdefault("cache", {}).setdefault(
+            "inputs", {}
+        )["content"] = "refreshed"
         print(f"content: collected {output}")
         return output
 
@@ -9301,6 +9598,9 @@ class Workspace:
             and validated_runtime_paths == runtime_paths
             and validated_tracked == tracked
         ):
+            self._build_summary.setdefault("cache", {}).setdefault(
+                "inputs", {}
+            )["resources"] = "reused"
             print(f"resources: cached {output}")
             return output
         inputs, cacheable = validated_inputs, validated_cacheable
@@ -9392,6 +9692,9 @@ class Workspace:
             if staging.exists():
                 shutil.rmtree(staging)
             raise
+        self._build_summary.setdefault("cache", {}).setdefault(
+            "inputs", {}
+        )["resources"] = "refreshed"
         print(f"resources: staged {output}")
         return output
 
@@ -9401,10 +9704,19 @@ class Workspace:
         binary: Path,
         arguments: list[str],
         tests: bool,
+        *,
+        build_targets: list[str] | None = None,
     ) -> None:
         self._prepare_cmake_binary(binary)
         environment = os.environ.copy()
         ccache = shutil.which("ccache") if self._use_ccache else None
+        cache_inputs = self._build_summary.setdefault("cache", {}).setdefault(
+            "inputs", {}
+        )
+        if not self._use_ccache:
+            cache_inputs["compiler-cache"] = "disabled"
+        elif ccache is None:
+            cache_inputs["compiler-cache"] = "unavailable"
         cache_arguments = [
             "-DCMAKE_C_COMPILER_LAUNCHER=",
             "-DCMAKE_CXX_COMPILER_LAUNCHER=",
@@ -9414,6 +9726,11 @@ class Workspace:
         )
         if ccache is not None:
             cache = self.paths.builds / COMPILER_CACHE_PURPOSE
+            cache_inputs["compiler-cache"] = (
+                "reused"
+                if cache.is_dir() and not cache.is_symlink()
+                else "created"
+            )
             with exclusive_lock(
                 self.paths.builds / "locks" / "compiler-cache.lock",
                 "compiler cache initialization",
@@ -9500,24 +9817,56 @@ class Workspace:
         ):
             managed_reset(binary, self.paths.builds, "cmake-binary")
             configured = False
+        configured_now = False
+        configure_seconds: float | None = None
         if (
             self._force_reconfigure
             or not unchanged_view
             or not fingerprint["source"].get("configure_skip_safe", True)
             or not configured
         ):
+            configure_started = time.monotonic()
             run(configure, env=environment)
+            configure_seconds = time.monotonic() - configure_started
+            configured_now = True
             fingerprint = self._configure_fingerprint(
                 source, binary, configure, tests, environment, ccache
             )
             atomic_json(metadata_path, fingerprint)
         else:
             print(f"cmake: configure unchanged for {binary}; skipping", file=sys.stderr)
-        run(["cmake", "--build", str(binary), "--parallel"], env=environment)
+        build_command = ["cmake", "--build", str(binary), "--parallel"]
+        # CTest is registered for the whole configured graph.  An explicit
+        # validation request therefore has to materialize that graph before
+        # running the unfiltered suite; ordinary development builds retain
+        # their service-scoped target selection.
+        if build_targets and not tests:
+            build_command.extend(("--target", *build_targets))
+        build_started = time.monotonic()
+        run(build_command, env=environment)
+        build_seconds = time.monotonic() - build_started
+        cmake_summary = self._build_summary.setdefault("cache", {}).setdefault(
+            "cmake", {}
+        )
+        cmake_summary[str(binary)] = {
+            "configure": "refreshed" if configured_now else "reused",
+            "build": "targeted" if build_targets and not tests else "all",
+            "tests": tests,
+            "configure_seconds": (
+                round(configure_seconds, 3)
+                if configure_seconds is not None
+                else None
+            ),
+            "build_seconds": round(build_seconds, 3),
+        }
         if tests:
+            test_started = time.monotonic()
             run(
                 ["ctest", "--test-dir", str(binary), "--output-on-failure"],
                 env=environment,
+            )
+            cmake_summary[str(binary)]["test_seconds"] = round(
+                time.monotonic() - test_started, 3
             )
 
     def _prepare_cmake_binary(self, binary: Path) -> None:
@@ -10165,6 +10514,7 @@ class Workspace:
         tests: bool,
         *,
         sound_root: Path | None = None,
+        build_services: set[str] | None = None,
     ) -> None:
         checkout = selected["client"].parent.resolve()
         view = self._profile_source_view(
@@ -10218,16 +10568,33 @@ class Workspace:
             root / "runtime" / "resources",
             target_is_directory=True,
         )
-        self._cmake(
-            view,
-            root / "build" / "integrated",
-            [
-                "-DENABLE_WARNING_ERRORS=ON",
-                "-DPACKAGE_TYPE=none",
-                "-DENABLE_PYTHON_PLUGIN=ON",
-            ],
-            tests,
-        )
+        build_targets: list[str] | None = None
+        if build_services is not None and build_services != {"client", "server"}:
+            build_targets = []
+            if "client" in build_services:
+                build_targets.append("atrinik")
+            if "server" in build_services:
+                build_targets.extend(("atrinik-server", "plugin_arena", "plugin_python"))
+        arguments = [
+            "-DENABLE_WARNING_ERRORS=ON",
+            "-DPACKAGE_TYPE=none",
+            "-DENABLE_PYTHON_PLUGIN=ON",
+        ]
+        if build_targets is None:
+            self._cmake(
+                view,
+                root / "build" / "integrated",
+                arguments,
+                tests,
+            )
+        else:
+            self._cmake(
+                view,
+                root / "build" / "integrated",
+                arguments,
+                tests,
+                build_targets=build_targets,
+            )
         self._record_classic_graph(root, {"client", "server"}, "integrated")
 
     def _build_library(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
@@ -10342,6 +10709,7 @@ class Workspace:
         *,
         component: Component,
         sound_root: Path | None = None,
+        build_target: str | None = None,
     ) -> None:
         view = self._profile_source_view(
             root,
@@ -10365,17 +10733,27 @@ class Workspace:
         library = self._mutable_cmake_source_view(
             root, "libatrinik", selected["libatrinik"]
         )
-        self._cmake(
-            view,
-            root / "build" / "client",
-            [
-                "-DENABLE_WARNING_ERRORS=ON",
-                "-DPACKAGE_TYPE=none",
-                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
-                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
-            ],
-            tests,
-        )
+        arguments = [
+            "-DENABLE_WARNING_ERRORS=ON",
+            "-DPACKAGE_TYPE=none",
+            f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
+            f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
+        ]
+        if build_target is None:
+            self._cmake(
+                view,
+                root / "build" / "client",
+                arguments,
+                tests,
+            )
+        else:
+            self._cmake(
+                view,
+                root / "build" / "client",
+                arguments,
+                tests,
+                build_targets=[build_target],
+            )
         self._record_classic_graph(root, {"client"}, "standalone")
 
     def _build_server(
@@ -10385,6 +10763,7 @@ class Workspace:
         tests: bool,
         *,
         component: Component,
+        build_targets: list[str] | None = None,
     ) -> None:
         view = self._profile_source_view(
             root,
@@ -10433,18 +10812,28 @@ class Workspace:
         library = self._mutable_cmake_source_view(
             root, "libatrinik", selected["libatrinik"]
         )
-        self._cmake(
-            view,
-            root / "build" / "server",
-            [
-                "-DENABLE_WARNING_ERRORS=ON",
-                "-DPACKAGE_TYPE=none",
-                f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
-                f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
-                "-DENABLE_PYTHON_PLUGIN=ON",
-            ],
-            tests,
-        )
+        arguments = [
+            "-DENABLE_WARNING_ERRORS=ON",
+            "-DPACKAGE_TYPE=none",
+            f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
+            f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
+            "-DENABLE_PYTHON_PLUGIN=ON",
+        ]
+        if build_targets is None:
+            self._cmake(
+                view,
+                root / "build" / "server",
+                arguments,
+                tests,
+            )
+        else:
+            self._cmake(
+                view,
+                root / "build" / "server",
+                arguments,
+                tests,
+                build_targets=build_targets,
+            )
         self._record_classic_graph(root, {"server"}, "standalone")
 
     def _region_map_inputs(
@@ -10583,6 +10972,9 @@ class Workspace:
         output.parent.mkdir(parents=True, exist_ok=True)
         inputs, cacheable = self._region_map_inputs(profile_name, selected)
         if self._region_map_cache_matches(output, inputs, cacheable):
+            self._build_summary.setdefault("cache", {}).setdefault(
+                "inputs", {}
+            )["region-maps"] = "reused"
             print(f"region maps: cached {output}")
             return output
         if output.exists() or output.is_symlink():
@@ -10642,6 +11034,9 @@ class Workspace:
         finally:
             if staging_root.exists():
                 shutil.rmtree(staging_root)
+        self._build_summary.setdefault("cache", {}).setdefault(
+            "inputs", {}
+        )["region-maps"] = "refreshed"
         print(f"region maps: generated {output}")
         return output
 
@@ -13100,6 +13495,308 @@ class Workspace:
                 f"server state {path} is busy but its exact owner cannot be "
                 "confirmed; inspect ./atrinik ps --json and preserve the state"
             ) from error
+
+    def _clone_temporary_state(
+        self,
+        topology_root: Path,
+        topology_name: str,
+        profile_name: str,
+        generation: str,
+        previous_policy: dict[str, Any],
+        implementation: dict[str, str],
+        server_coordinate: dict[str, Any],
+    ) -> tuple[Path, dict[str, Any]]:
+        """Clone stopped development state into a new generation safely."""
+
+        previous_owner = previous_policy.get("owner")
+        previous_state_value = previous_policy.get("path")
+        previous_state = (
+            Path(previous_state_value)
+            if isinstance(previous_state_value, str)
+            else Path("/")
+        )
+        if (
+            not previous_state.is_absolute()
+            or previous_policy.get("mode") != "temporary"
+            or not isinstance(previous_owner, dict)
+            or previous_owner.get("kind") != "topology-generation"
+            or previous_owner.get("topology") != topology_name
+            or not isinstance(previous_owner.get("generation"), str)
+            or previous_owner.get("generation") == generation
+            or previous_state.parent
+            != topology_root / "temporary-states"
+            or previous_state.name != previous_owner.get("generation")
+        ):
+            raise WorkspaceError(
+                f"temporary topology state cannot be cloned for restart: {topology_name}"
+            )
+        try:
+            with self._topology_state_lock(
+                previous_state,
+                preparing_topology=topology_name,
+                physical_identity=False,
+            ) as previous_lease:
+                previous_identity = previous_policy.get("identity")
+                previous_lease_identity = previous_policy.get("lease_identity")
+                if (
+                    not isinstance(previous_identity, dict)
+                    or not isinstance(previous_lease_identity, dict)
+                ):
+                    raise WorkspaceError(
+                        f"temporary topology state identity is invalid: {previous_state}"
+                    )
+                self._validate_temporary_state_lock(
+                    previous_state,
+                    previous_lease,
+                    previous_lease_identity,
+                )
+                previous_fd = self._open_validated_state_directory(
+                    previous_state,
+                    implementation,
+                    write_implementation=False,
+                )
+                try:
+                    previous_metadata = os.fstat(previous_fd)
+                    if previous_identity != {
+                        "device": previous_metadata.st_dev,
+                        "inode": previous_metadata.st_ino,
+                    }:
+                        raise WorkspaceError(
+                            f"temporary topology state identity changed: {previous_state}"
+                        )
+                    self._validate_temporary_state_integrity(
+                        previous_fd, previous_state, implementation
+                    )
+                    previous_marker = self._load_state_json_at(
+                        previous_fd,
+                        MANAGED_MARKER,
+                        "temporary state ownership marker",
+                    )
+                    if previous_marker != {
+                        "schema_version": SCHEMA_VERSION,
+                        "purpose": "temporary-topology-state",
+                        "topology": topology_name,
+                        "generation": previous_owner["generation"],
+                    }:
+                        raise WorkspaceError(
+                            f"temporary topology state ownership marker is invalid: {previous_state}"
+                        )
+                    previous_creation = self._load_state_json_at(
+                        previous_fd,
+                        TEMPORARY_STATE_METADATA,
+                        "temporary state creation record",
+                    )
+                    if not self._temporary_state_metadata_matches(
+                        previous_policy,
+                        previous_creation.get("state_policy")
+                        if isinstance(previous_creation, dict)
+                        else None,
+                    ):
+                        raise WorkspaceError(
+                            f"temporary topology state creation record is invalid: {previous_state}"
+                        )
+                    previous_digest = _tree_digest_descriptor(
+                        previous_fd, previous_state
+                    )
+                    container, container_fd = self._temporary_state_container(
+                        topology_root
+                    )
+                    staging: Path | None = None
+                    staging_fd: int | None = None
+                    published = False
+                    try:
+                        destination = container / generation
+                        try:
+                            os.stat(
+                                generation,
+                                dir_fd=container_fd,
+                                follow_symlinks=False,
+                            )
+                        except FileNotFoundError:
+                            pass
+                        else:
+                            raise WorkspaceError(
+                                f"temporary topology state already exists for generation {generation}"
+                            )
+                        staging = Path(
+                            tempfile.mkdtemp(
+                                prefix=f".{generation}.",
+                                dir=f"/proc/self/fd/{container_fd}",
+                            )
+                        )
+                        staging_name = staging.name
+                        staging_fd = os.open(
+                            staging_name,
+                            os.O_RDONLY
+                            | os.O_CLOEXEC
+                            | os.O_DIRECTORY
+                            | os.O_NOFOLLOW,
+                            dir_fd=container_fd,
+                        )
+                        shutil.copytree(
+                            Path(f"/proc/self/fd/{previous_fd}"),
+                            staging,
+                            dirs_exist_ok=True,
+                            symlinks=False,
+                        )
+                        if _tree_digest_descriptor(
+                            previous_fd, previous_state
+                        ) != previous_digest:
+                            raise WorkspaceError(
+                                "temporary topology state changed during clone"
+                            )
+                        self._make_tree_owner_writable(staging)
+                        old_generation = previous_owner["generation"]
+                        old_output = (
+                            staging
+                            / "tmp"
+                            / "runtime-assets"
+                            / old_generation
+                        )
+                        if old_output.exists() or old_output.is_symlink():
+                            directory_flags = (
+                                os.O_RDONLY
+                                | os.O_CLOEXEC
+                                | os.O_DIRECTORY
+                                | os.O_NOFOLLOW
+                            )
+                            tmp_fd = os.open(
+                                "tmp", directory_flags, dir_fd=staging_fd
+                            )
+                            try:
+                                runtime_assets_fd = os.open(
+                                    "runtime-assets",
+                                    directory_flags,
+                                    dir_fd=tmp_fd,
+                                )
+                                try:
+                                    remove_owned_tree(
+                                        old_output,
+                                        reject_links=True,
+                                        parent_directory_fd=runtime_assets_fd,
+                                    )
+                                finally:
+                                    os.close(runtime_assets_fd)
+                            finally:
+                                os.close(tmp_fd)
+                        staged_metadata = os.fstat(staging_fd)
+                        policy = {
+                            "mode": "temporary",
+                            "name": None,
+                            "path": str(destination),
+                            "owner": {
+                                "kind": "topology-generation",
+                                "topology": topology_name,
+                                "generation": generation,
+                            },
+                            "lifecycle": "disposable",
+                            "created_at": previous_policy["created_at"],
+                            "identity": {
+                                "device": staged_metadata.st_dev,
+                                "inode": staged_metadata.st_ino,
+                            },
+                            "implementation": implementation,
+                            "profile": profile_name,
+                            "server": server_coordinate,
+                        }
+                        durable_replace_json_at(
+                            staging_fd,
+                            MANAGED_MARKER,
+                            {
+                                "schema_version": SCHEMA_VERSION,
+                                "purpose": "temporary-topology-state",
+                                "topology": topology_name,
+                                "generation": generation,
+                            },
+                        )
+                        durable_replace_json_at(
+                            staging_fd,
+                            TEMPORARY_STATE_METADATA,
+                            {
+                                "schema_version": TEMPORARY_STATE_SCHEMA_VERSION,
+                                "state_policy": policy,
+                            },
+                        )
+                        self._validate_temporary_state_integrity(
+                            staging_fd,
+                            destination,
+                            implementation,
+                            container_fd,
+                            staging_name,
+                        )
+                        creation_record = self._load_state_json_at(
+                            staging_fd,
+                            TEMPORARY_STATE_METADATA,
+                            "temporary state creation record",
+                        )
+                        if not self._temporary_state_metadata_matches(
+                            policy,
+                            creation_record.get("state_policy")
+                            if isinstance(creation_record, dict)
+                            else None,
+                        ):
+                            raise WorkspaceError(
+                                "temporary topology state clone metadata is invalid"
+                            )
+                        rename_no_replace_at(
+                            container_fd, staging_name, container_fd, generation
+                        )
+                        published = True
+                        visible = os.stat(
+                            generation,
+                            dir_fd=container_fd,
+                            follow_symlinks=False,
+                        )
+                        if (visible.st_dev, visible.st_ino) != (
+                            policy["identity"]["device"],
+                            policy["identity"]["inode"],
+                        ):
+                            raise WorkspaceError(
+                                f"temporary topology state identity changed during clone: {destination}"
+                            )
+                        return destination, policy
+                    except BaseException:
+                        if published:
+                            remove_owned_tree(
+                                destination,
+                                expected_identity=policy["identity"],
+                                parent_directory_fd=container_fd,
+                            )
+                        elif staging is not None and staging.exists():
+                            remove_owned_tree(
+                                staging,
+                                parent_directory_fd=container_fd,
+                            )
+                        raise
+                    finally:
+                        if staging_fd is not None:
+                            os.close(staging_fd)
+                        os.close(container_fd)
+                finally:
+                    os.close(previous_fd)
+        except (KeyError, TypeError) as error:
+            raise WorkspaceError(
+                f"temporary topology state metadata is invalid: {previous_state}"
+            ) from error
+
+    def _remove_superseded_temporary_state(
+        self, policy: dict[str, Any]
+    ) -> None:
+        """Remove the stopped generation left behind by a development restart."""
+
+        state = Path(policy["path"])
+        with exclusive_lock(
+            Path(f"{state}.lock"),
+            f"superseded temporary topology state {state}",
+            nonblocking=True,
+        ) as state_lease:
+            self._rollback_temporary_state_creation(
+                state,
+                state_lease,
+                policy["identity"],
+                policy["lease_identity"],
+                implementation=policy["implementation"],
+            )
 
     def _create_temporary_state(
         self,
@@ -17755,6 +18452,8 @@ class Workspace:
         services: list[str] | None = None,
         port: int | None = None,
         state_mode: str | None = None,
+        *,
+        build_services: set[str] | None = None,
     ) -> dict[str, Any]:
         self.paths.ensure()
         selected_services = self._topology_services(services)
@@ -17777,7 +18476,11 @@ class Workspace:
                 )
         with self._resolved_profile_operation(
             profile_name,
-            set(selected_services),
+            (
+                set(TOPOLOGY_SERVICES)
+                if build_services is not None
+                else set(selected_services)
+            ),
             f"prepare topology {name}",
         ):
             requests = [
@@ -17804,6 +18507,7 @@ class Workspace:
                     services,
                     port,
                     normalized_mode,
+                    build_services=build_services,
                 )
 
     def _topology_resolved_status(
@@ -17838,6 +18542,10 @@ class Workspace:
         services: list[str] | None = None,
         port: int | None = None,
         state_mode: str | None = None,
+        *,
+        build_services: set[str] | None = None,
+        restart_status: dict[str, Any] | None = None,
+        operation_lock_held: bool = False,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
         state_mode, state_name = self._normalize_topology_state_request(
@@ -17847,15 +18555,27 @@ class Workspace:
             client_launch_label(profile_name, name)
         if "server" not in selected_services and port is not None:
             raise WorkspaceError("--port requires the server service")
-        self._require_classic_contracts(profile_name, set(selected_services))
+        self._require_classic_contracts(
+            profile_name,
+            set(TOPOLOGY_SERVICES)
+            if build_services is not None
+            else set(selected_services),
+        )
         topology_root = self._topology_directory(name, create=True)
         operation_lock = topology_root / "operation.lock"
-        with exclusive_lock(
-            operation_lock, f"topology {name} operation", nonblocking=True
-        ):
+        operation_context = (
+            nullcontext()
+            if operation_lock_held
+            else exclusive_lock(
+                operation_lock, f"topology {name} operation", nonblocking=True
+            )
+        )
+        with operation_context:
             process_tree_path = topology_root / TOPOLOGY_PROCESS_TREE_LEASE
             status_path = topology_root / "status.json"
             startup_error_path = topology_root / "startup-error.json"
+            restarting = restart_status is not None
+            previous: dict[str, Any] | None = None
             self._recover_runtime_state_output_transaction(
                 topology_root, name
             )
@@ -17863,6 +18583,13 @@ class Workspace:
                 if status_path.is_symlink():
                     raise WorkspaceError(f"topology status is invalid: {name}")
                 previous = self.topology_status(name)
+                if restarting and (
+                    not isinstance(restart_status, dict)
+                    or previous.get("control") != restart_status.get("control")
+                ):
+                    raise WorkspaceError(
+                        f"topology {name} changed before development restart; retry"
+                    )
                 if previous.get("inert_historical_record"):
                     raise WorkspaceError(
                         f"topology {name} is an inert pre-migration record; "
@@ -17873,7 +18600,7 @@ class Workspace:
                 ):
                     raise WorkspaceError(f"topology is already running: {name}")
                 previous_policy = previous.get("state_policy")
-                if (
+                if not restarting and (
                     isinstance(previous_policy, dict)
                     and previous_policy.get("mode") == "temporary"
                     and previous_policy.get("lifecycle")
@@ -17905,19 +18632,42 @@ class Workspace:
                         previous = self._cleanup_topology_mutable_state_outputs(
                             previous
                         )
+            elif restarting:
+                raise WorkspaceError(
+                    f"topology {name} has no stopped status to restart"
+                )
+
+            restart_status_backup = (
+                copy.deepcopy(previous)
+                if restarting and isinstance(previous, dict)
+                else None
+            )
+            restart_port_backup = (
+                copy.deepcopy(previous.get("port_reservation"))
+                if isinstance(previous, dict)
+                and isinstance(previous.get("port_reservation"), dict)
+                else None
+            )
 
             if "client" in selected_services:
                 self._require_client_display()
 
-            selected = self._resolve_build_profile(
-                profile_name, set(selected_services)
+            build_required = (
+                set(TOPOLOGY_SERVICES)
+                if build_services is not None
+                else set(selected_services)
             )
+            selected = self._resolve_build_profile(profile_name, build_required)
             required = set(selected)
-            targets = [
-                service
-                for service in ("client", "server")
-                if service in selected_services
-            ]
+            targets = (
+                [target for target in ALL_BUILD_TARGETS if target in selected]
+                if build_services is not None
+                else [
+                    service
+                    for service in ("client", "server")
+                    if service in selected_services
+                ]
+            )
             profile = self._load_profile(profile_name, require_file=False)
             selected_stack = self.manifest.stack(profile["stack"])
             providers = {
@@ -17926,6 +18676,25 @@ class Workspace:
             }
 
             with ExitStack() as stack:
+                restore_restart_status = [restart_status_backup is not None]
+
+                def restore_stopped_restart_record() -> None:
+                    if not restore_restart_status.pop():
+                        return
+                    if (
+                        status_path.exists()
+                        or status_path.is_symlink()
+                        or restart_status_backup is None
+                    ):
+                        return
+                    atomic_json(status_path, restart_status_backup)
+                    if restart_port_backup is not None:
+                        atomic_json(
+                            topology_root / TOPOLOGY_PORT_RESERVATION_RECORD,
+                            restart_port_backup,
+                        )
+
+                stack.callback(restore_stopped_restart_record)
                 process_tree_fd = open_regular_file(
                     process_tree_path,
                     os.O_RDWR | os.O_CREAT,
@@ -18009,7 +18778,12 @@ class Workspace:
                         state_expected_identity = self._state_identity(state_location)
 
                 root = self._build_resolved(
-                    "topology", profile_name, False, targets, selected
+                    "topology",
+                    profile_name,
+                    False,
+                    targets,
+                    selected,
+                    build_services=build_services,
                 )
                 resolved_status = self._topology_resolved_status(
                     profile_name, selected
@@ -18024,6 +18798,7 @@ class Workspace:
                 state: Path | None = None
                 state_policy: dict[str, Any] | None = None
                 state_directory_fd: int | None = None
+                superseded_temporary_policy: dict[str, Any] | None = None
                 temporary_state_owner: list[
                     tuple[
                         Path,
@@ -18038,15 +18813,38 @@ class Workspace:
                     assert implementation is not None
                     if state_mode == "temporary":
                         server_provider = providers["server"]
-                        state, state_policy = self._create_temporary_state(
-                            topology_root,
-                            name,
-                            profile_name,
-                            generation,
-                            selected["server"],
-                            implementation,
-                            resolved_status[server_provider],
-                        )
+                        if restarting:
+                            if not isinstance(previous, dict):
+                                raise WorkspaceError(
+                                    f"topology {name} has no restart state record"
+                                )
+                            previous_policy = previous.get("state_policy")
+                            if not isinstance(previous_policy, dict):
+                                raise WorkspaceError(
+                                    f"topology {name} temporary state policy is invalid"
+                                )
+                            superseded_temporary_policy = copy.deepcopy(
+                                previous_policy
+                            )
+                            state, state_policy = self._clone_temporary_state(
+                                topology_root,
+                                name,
+                                profile_name,
+                                generation,
+                                previous_policy,
+                                implementation,
+                                resolved_status[server_provider],
+                            )
+                        else:
+                            state, state_policy = self._create_temporary_state(
+                                topology_root,
+                                name,
+                                profile_name,
+                                generation,
+                                selected["server"],
+                                implementation,
+                                resolved_status[server_provider],
+                            )
                         state_location = state
                         try:
                             state_lock = stack.enter_context(
@@ -18543,7 +19341,20 @@ class Workspace:
                                 f"topology supervisor failed: {status['error']}"
                             )
                         if status["supervisor"]["running"] and status["ready"]:
+                            restore_restart_status[0] = False
                             process.wait(timeout=2)
+                            if superseded_temporary_policy is not None:
+                                try:
+                                    self._remove_superseded_temporary_state(
+                                        superseded_temporary_policy
+                                    )
+                                except (OSError, WorkspaceError) as error:
+                                    print(
+                                        "warning: development restart left the "
+                                        "previous temporary state for safe cleanup: "
+                                        f"{error}",
+                                        file=sys.stderr,
+                                    )
                             return status
                         if not status["supervisor"]["running"]:
                             raise WorkspaceError(

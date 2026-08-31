@@ -6288,6 +6288,116 @@ class WorkspaceTests(unittest.TestCase):
         build_client.assert_called_once()
         build_server.assert_called_once()
 
+    def test_selective_classic_build_targets_only_requested_service(self) -> None:
+        selected = {
+            role: self.workspace.paths.repositories / role
+            for role in ("client", "server", "protocol", "libatrinik")
+        }
+        with (
+            mock.patch.object(
+                self.workspace, "_profile_build_key", return_value="selective"
+            ),
+            mock.patch.object(self.workspace, "_refresh_build_metadata"),
+            mock.patch.object(self.workspace, "_collect_content"),
+            mock.patch.object(self.workspace, "_stage_resources"),
+            mock.patch.object(self.workspace, "_build_protocol"),
+            mock.patch.object(self.workspace, "_build_library"),
+            mock.patch.object(self.workspace, "_build_client") as build_client,
+            mock.patch.object(self.workspace, "_build_server") as build_server,
+            mock.patch.object(self.workspace, "_generate_region_maps"),
+            mock.patch.object(
+                self.workspace, "_uses_integrated_classic_build", return_value=False
+            ),
+        ):
+            self.workspace._build_resolved(
+                "topology",
+                "default",
+                False,
+                ["client", "server"],
+                selected,
+                build_services={"server"},
+            )
+
+        build_client.assert_not_called()
+        build_server.assert_called_once()
+        self.assertEqual(
+            build_server.call_args.kwargs["build_targets"],
+            ["atrinik-server", "plugin_arena", "plugin_python"],
+        )
+
+    def test_dev_restart_preserves_topology_coordinates_and_selects_one_service(self) -> None:
+        initial = {
+            "profile": "classic",
+            "services": {"server": {}, "client": {}},
+            "control": {"generation": "a" * 64},
+            "supervisor": {"running": True},
+            "state_policy": {
+                "mode": "temporary",
+                "name": None,
+                "lifecycle": "disposable",
+            },
+            "endpoint": {"host": "127.0.0.1", "port": 17300},
+        }
+        stopped = {
+            **initial,
+            "supervisor": {"running": False},
+            "services": {"server": {}, "client": {}},
+        }
+        result = {"name": "classic-local", "ready": True}
+        topology_root = self.root / "topologies" / "classic-local"
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "topology_status",
+                side_effect=[initial, initial],
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_resolved_profile_operation",
+                return_value=nullcontext(),
+            ) as resolved,
+            mock.patch.object(
+                self.workspace, "_resource_locks", return_value=nullcontext()
+            ),
+            mock.patch.object(
+                self.workspace, "_topology_directory", return_value=topology_root
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.exclusive_lock",
+                return_value=nullcontext(),
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_controlled_topology_down",
+                return_value=(stopped, True),
+            ) as controlled_down,
+            mock.patch.object(
+                self.workspace, "_topology_up", return_value=result
+            ) as topology_up,
+        ):
+            actual = self.workspace.dev_restart("classic-local", "server")
+
+        self.assertEqual(actual, result)
+        controlled_down.assert_called_once_with("classic-local", initial, 15)
+        topology_up.assert_called_once_with(
+            "classic-local",
+            "classic",
+            None,
+            ["server", "client"],
+            17300,
+            "temporary",
+            build_services={"server"},
+            restart_status=stopped,
+            operation_lock_held=True,
+        )
+        resolved.assert_called_once_with(
+            "classic",
+            {"server", "client"},
+            "dev restart classic-local server",
+            materialize_clean_primaries=True,
+        )
+
     def test_classic_binary_directory_tracks_last_successful_graph(self) -> None:
         root = self.workspace.paths.builds / "profiles" / "classic-test"
         (root / "build").mkdir(parents=True)
@@ -8165,6 +8275,100 @@ class WorkspaceTests(unittest.TestCase):
             ]))
 
         self.assertTrue((binary / CONFIGURE_METADATA).is_file())
+
+    def test_cmake_selective_build_passes_only_requested_target(self) -> None:
+        source = self.root / "classic-source"
+        source.mkdir()
+        binary = self.workspace.paths.builds / "profiles" / "test" / "build" / "classic"
+        binary.mkdir(parents=True)
+        fingerprint = {
+            "build_tree_identity": {"toolchain_file": None},
+            "source": {"configure_skip_safe": True},
+        }
+        atomic_json(binary / CONFIGURE_METADATA, fingerprint)
+
+        with (
+            mock.patch.object(self.workspace, "_prepare_cmake_binary"),
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value=None),
+            mock.patch.object(
+                self.workspace,
+                "_add_debug_prefix_environment",
+                return_value={"cc": True, "cxx": True},
+            ),
+            mock.patch.object(
+                self.workspace, "_configure_fingerprint", return_value=fingerprint
+            ),
+            mock.patch.object(
+                self.workspace, "_cmake_state_valid", return_value=True
+            ),
+            mock.patch("atrinik_workspace.workspace.run") as run,
+        ):
+            self.workspace._cmake(
+                source,
+                binary,
+                [],
+                tests=False,
+                build_targets=["atrinik-server"],
+            )
+
+        self.assertEqual(
+            [call.args[0] for call in run.call_args_list],
+            [[
+                "cmake",
+                "--build",
+                str(binary),
+                "--parallel",
+                "--target",
+                "atrinik-server",
+            ]],
+        )
+
+    def test_cmake_validation_builds_configured_graph_before_ctest(self) -> None:
+        source = self.root / "classic-source"
+        source.mkdir()
+        binary = self.workspace.paths.builds / "profiles" / "test" / "build" / "classic"
+        binary.mkdir(parents=True)
+        fingerprint = {
+            "build_tree_identity": {"toolchain_file": None},
+            "source": {"configure_skip_safe": True},
+        }
+        atomic_json(binary / CONFIGURE_METADATA, fingerprint)
+
+        with (
+            mock.patch.object(self.workspace, "_prepare_cmake_binary"),
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value=None),
+            mock.patch.object(
+                self.workspace,
+                "_add_debug_prefix_environment",
+                return_value={"cc": True, "cxx": True},
+            ),
+            mock.patch.object(
+                self.workspace, "_configure_fingerprint", return_value=fingerprint
+            ),
+            mock.patch.object(
+                self.workspace, "_cmake_state_valid", return_value=True
+            ),
+            mock.patch("atrinik_workspace.workspace.run") as run,
+        ):
+            self.workspace._cmake(
+                source,
+                binary,
+                [],
+                tests=True,
+                build_targets=["atrinik-server"],
+            )
+
+        self.assertEqual(
+            [call.args[0] for call in run.call_args_list],
+            [
+                ["cmake", "--build", str(binary), "--parallel"],
+                ["ctest", "--test-dir", str(binary), "--output-on-failure"],
+            ],
+        )
+        self.assertEqual(
+            self.workspace._build_summary["cache"]["cmake"][str(binary)]["build"],
+            "all",
+        )
 
     def test_cmake_fingerprint_invalidates_for_tests_environment_and_toolchain(self) -> None:
         source = self.workspace.paths.repositories / "content"
@@ -19189,6 +19393,78 @@ class WorkspaceTests(unittest.TestCase):
         container = topology / "temporary-states"
         self.assertEqual(
             {path.name for path in container.iterdir()}, {MANAGED_MARKER}
+        )
+
+    def test_temporary_state_clone_rekeys_generation_and_preserves_user_data(self) -> None:
+        topology = self.workspace._topology_directory(
+            "clone", create=True
+        )
+        server = self.workspace.paths.repositories / "server"
+        implementation = {
+            "stack": "default",
+            "provider": "server",
+            "repository": "atrinik/server",
+        }
+        old_generation = "a" * 64
+        new_generation = "b" * 64
+        old_state, old_policy = self.workspace._create_temporary_state(
+            topology,
+            "clone",
+            "default",
+            old_generation,
+            server,
+            implementation,
+            self.scenario_resolved_fixture()["server"],
+        )
+        (old_state / "player-progress").write_text(
+            "preserve\n", encoding="utf-8"
+        )
+        old_runtime_output = old_state / "tmp" / "runtime-assets" / old_generation
+        old_runtime_output.mkdir(parents=True)
+        (old_runtime_output / "generated").write_text(
+            "discard\n", encoding="utf-8"
+        )
+        old_lock = Path(f"{old_state}.lock")
+        with exclusive_lock(old_lock, "clone source state") as lease:
+            lease_metadata = os.fstat(lease.fileno())
+        old_policy = {
+            **old_policy,
+            "lease_identity": {
+                "device": lease_metadata.st_dev,
+                "inode": lease_metadata.st_ino,
+            },
+        }
+        cloned, policy = self.workspace._clone_temporary_state(
+            topology,
+            "clone",
+            "default",
+            new_generation,
+            old_policy,
+            implementation,
+            self.scenario_resolved_fixture()["server"],
+        )
+
+        self.assertEqual(cloned.name, new_generation)
+        self.assertEqual(
+            policy["owner"],
+            {
+                "kind": "topology-generation",
+                "topology": "clone",
+                "generation": new_generation,
+            },
+        )
+        self.assertEqual(
+            (cloned / "player-progress").read_text(encoding="utf-8"),
+            "preserve\n",
+        )
+        self.assertFalse((cloned / "tmp" / "runtime-assets" / old_generation).exists())
+        self.assertTrue(old_state.is_dir())
+        self.assertTrue(old_runtime_output.is_dir())
+        self.assertEqual(
+            load_json(cloned / workspace_module.TEMPORARY_STATE_METADATA)[
+                "state_policy"
+            ],
+            policy,
         )
 
     def test_temporary_state_publication_rejects_container_replacement(self) -> None:

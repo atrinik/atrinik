@@ -524,6 +524,88 @@ class CohortWorkspaceTests(unittest.TestCase):
         )
         self.assertGreater(clean.call_count, 0)
 
+    def test_dev_build_uses_full_paired_closure_and_selected_service_target(self) -> None:
+        self.make_classic_build_profile(include_worker=False)
+        profile = self.workspace._load_profile("classic", require_file=False)
+        expected_roles = self.workspace._dependency_roles(
+            profile, {"client", "server"}
+        )
+        observed: dict[str, object] = {}
+
+        def build_resolved(
+            target: str,
+            profile_name: str,
+            tests: bool,
+            targets: list[str],
+            selected: dict[str, Path],
+            *,
+            force_reconfigure: bool = False,
+            use_ccache: bool = True,
+            build_services: set[str] | None = None,
+        ) -> Path:
+            observed.update(
+                {
+                    "target": target,
+                    "profile": profile_name,
+                    "tests": tests,
+                    "targets": set(targets),
+                    "selected": set(selected),
+                    "force_reconfigure": force_reconfigure,
+                    "use_ccache": use_ccache,
+                    "build_services": build_services,
+                }
+            )
+            return self.wrapper / "classic-build-root"
+
+        with (
+            mock.patch.object(
+                self.workspace, "_validate_selected_checkout", return_value="origin"
+            ),
+            mock.patch.object(
+                self.workspace, "_build_resolved", side_effect=build_resolved
+            ),
+            mock.patch(
+                "atrinik_workspace.workspace.git", return_value="a" * 40
+            ),
+            mock.patch("atrinik_workspace.workspace._is_clean", return_value=True),
+            mock.patch.object(
+                self.workspace,
+                "_git_common_directory",
+                return_value=self.wrapper / "classic",
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_materialize_clean_primary_sources",
+                side_effect=lambda _profile, selected, _states: (
+                    selected,
+                    set(),
+                    {},
+                ),
+            ),
+        ):
+            result = self.workspace.dev_build(
+                "classic",
+                ["server"],
+                tests=True,
+                force_reconfigure=True,
+                use_ccache=False,
+            )
+
+        self.assertEqual(result["services"], ["server"])
+        self.assertTrue(result["tests"])
+        self.assertEqual(result["build_root"], str(self.wrapper / "classic-build-root"))
+        self.assertEqual(observed["target"], "topology")
+        self.assertEqual(observed["profile"], "classic")
+        self.assertTrue(observed["tests"])
+        self.assertEqual(
+            observed["targets"],
+            {"content", "protocol", "libatrinik", "client", "server"},
+        )
+        self.assertEqual(observed["selected"], expected_roles)
+        self.assertEqual(observed["build_services"], {"server"})
+        self.assertTrue(observed["force_reconfigure"])
+        self.assertFalse(observed["use_ccache"])
+
     def test_complete_default_selection_uses_requested_service_closure(self) -> None:
         profile = self.workspace._load_profile("default", require_file=False)
         stack = self.workspace.manifest.stack("default")
