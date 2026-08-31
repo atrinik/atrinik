@@ -66,6 +66,7 @@ if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
     import ctypes
     from ctypes import wintypes
     import msvcrt
+    import threading
 
     LOCK_SH = 1
     LOCK_EX = 2
@@ -109,6 +110,7 @@ if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
     _flush_file_buffers = _kernel32.FlushFileBuffers
     _flush_file_buffers.argtypes = [wintypes.HANDLE]
     _flush_file_buffers.restype = wintypes.BOOL
+    _windows_handle_inheritance_lock = threading.Lock()
 
     def _lock_handle(value: object) -> wintypes.HANDLE:
         descriptor = value if isinstance(value, int) else value.fileno()  # type: ignore[union-attr]
@@ -163,26 +165,31 @@ if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
     ) -> Iterator[dict[str, object]]:
         """Pass active lock handles to a Windows child process."""
 
-        handles: list[int] = []
-        previous: list[tuple[int, bool]] = []
-        try:
-            for descriptor in dict.fromkeys(descriptors):
-                handle = msvcrt.get_osfhandle(descriptor)
-                if handle == -1 or handle == _INVALID_HANDLE_VALUE:
-                    raise OSError(errno.EBADF, "invalid inherited Windows handle")
-                inheritable = os.get_handle_inheritable(handle)
-                previous.append((handle, inheritable))
-                os.set_handle_inheritable(handle, True)
-                handles.append(handle)
-            if not handles:
-                yield {"close_fds": True}
-                return
-            startup = subprocess.STARTUPINFO()
-            startup.lpAttributeList = {"handle_list": handles}
-            yield {"close_fds": True, "startupinfo": startup}
-        finally:
-            for handle, inheritable in previous:
-                os.set_handle_inheritable(handle, inheritable)
+        # The active lock handles are shared by parallel initialization
+        # workers.  Keep the inheritable-state transition and CreateProcess
+        # call together so another worker cannot restore the handles halfway
+        # through startup.
+        with _windows_handle_inheritance_lock:
+            handles: list[int] = []
+            previous: list[tuple[int, bool]] = []
+            try:
+                for descriptor in dict.fromkeys(descriptors):
+                    handle = msvcrt.get_osfhandle(descriptor)
+                    if handle == -1 or handle == _INVALID_HANDLE_VALUE:
+                        raise OSError(errno.EBADF, "invalid inherited Windows handle")
+                    inheritable = os.get_handle_inheritable(handle)
+                    previous.append((handle, inheritable))
+                    os.set_handle_inheritable(handle, True)
+                    handles.append(handle)
+                if not handles:
+                    yield {"close_fds": True}
+                    return
+                startup = subprocess.STARTUPINFO()
+                startup.lpAttributeList = {"handle_list": handles}
+                yield {"close_fds": True, "startupinfo": startup}
+            finally:
+                for handle, inheritable in previous:
+                    os.set_handle_inheritable(handle, inheritable)
 
 else:
     import fcntl
