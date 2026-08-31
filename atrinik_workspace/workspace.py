@@ -244,6 +244,15 @@ WORKER_NPM_FILE_CONFIG_KEYS = {
 }
 RUNTIME_INPUT_METADATA = ".atrinik-dependency.json"
 RUNTIME_INPUT_SCHEMA_VERSION = 1
+# The Classic client embeds its validated shader cohort into the executable.
+# The source shader tree and the generated binary cohort are therefore
+# build-only inputs: neither has a filesystem owner in the published runtime.
+# Keep these exclusions shared by input authentication and both copy paths so
+# an integrated source/build graph cannot collide at client/shaders.
+CLASSIC_CLIENT_RUNTIME_SOURCE_EXCLUSIONS = frozenset(
+    {".git", "build", "sound", MANAGED_MARKER, "shaders"}
+)
+CLASSIC_CLIENT_RUNTIME_BINARY_EXCLUSIONS = frozenset({"src", "shaders"})
 
 
 @dataclass
@@ -15806,11 +15815,11 @@ class Workspace:
                 {
                     "client-source": (
                         selected["client"],
-                        {".git", "build", "sound", MANAGED_MARKER},
+                        CLASSIC_CLIENT_RUNTIME_SOURCE_EXCLUSIONS,
                     ),
                     "client-binary": (
                         self._classic_binary_directory(build_root, "client"),
-                        {"src"},
+                        CLASSIC_CLIENT_RUNTIME_BINARY_EXCLUSIONS,
                     ),
                     "sound": (
                         sound_root or selected["sound"],
@@ -15908,7 +15917,7 @@ class Workspace:
                 self._copy_runtime_directory_contents(
                     selected["client"],
                     client_runtime,
-                    frozenset({".git", "build", "sound", MANAGED_MARKER}),
+                    CLASSIC_CLIENT_RUNTIME_SOURCE_EXCLUSIONS,
                 )
                 self._copy_runtime_tree(
                     sound_root or selected["sound"],
@@ -15918,7 +15927,7 @@ class Workspace:
                 self._copy_runtime_directory_contents(
                     self._classic_binary_directory(build_root, "client"),
                     client_runtime,
-                    frozenset({"src"}),
+                    CLASSIC_CLIENT_RUNTIME_BINARY_EXCLUSIONS,
                 )
             if "server" in services:
                 if state is None:
