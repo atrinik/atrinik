@@ -292,6 +292,24 @@ def _transform_document(
 ) -> dict[str, Any] | None:
     if remapped_targets is None:
         remapped_targets = {}
+    if (
+        path.name == "atrinik-resource-leases.identity.json"
+        and isinstance(value, dict)
+        and set(value) == {"schema_version", "device", "inode"}
+        and value.get("schema_version") == 1
+    ):
+        namespace = path.with_name("atrinik-resource-leases")
+        metadata = _metadata(namespace, path)
+        try:
+            replacement, _evidence = migrate_legacy_identity(
+                {"device": value["device"], "inode": value["inode"]},
+                metadata,
+                str(path),
+                confirm_remount=True,
+            )
+        except FilesystemIdentityError as error:
+            raise FilesystemMigrationError(str(error)) from error
+        return {"schema_version": 2, "identity": replacement}
     changed = False
     evidence: list[dict[str, Any]] = []
 

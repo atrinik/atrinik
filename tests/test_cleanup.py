@@ -1607,6 +1607,43 @@ class CleanupTests(unittest.TestCase):
         self.assertIsNone(observed)
         self.assertIn("loop", error or "")
 
+    def test_text_evidence_rejects_replacement_between_read_and_lstat(self) -> None:
+        path = self.root / "worktree-pointer"
+        path.write_text("gitdir: /tmp/admin\n", encoding="utf-8")
+        real_identity = cleanup_module._regular_text_identity
+
+        def replace_after_read(candidate: Path) -> tuple[str, tuple[int, int, int, int]]:
+            value, identity = real_identity(candidate)
+            replacement = candidate.with_name("worktree-pointer-replacement")
+            replacement.write_text(value, encoding="utf-8")
+            os.replace(replacement, candidate)
+            return value, identity
+
+        with mock.patch.object(
+            cleanup_module,
+            "_regular_text_identity",
+            side_effect=replace_after_read,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "changed identity"):
+                cleanup_module._text_evidence(path)
+
+        path.write_text("gitdir: /tmp/admin\n", encoding="utf-8")
+        metadata = path.lstat()
+        expected = cleanup_module._portable_text_identity(
+            metadata, path.read_text(encoding="utf-8")
+        )
+        self.assertTrue(cleanup_module._text_evidence_matches(path, expected))
+        old_observed = expected
+        replacement = path.with_name("worktree-pointer-replacement")
+        replacement.write_text("gitdir: /tmp/other-admin\n", encoding="utf-8")
+        os.replace(replacement, path)
+        with mock.patch.object(
+            cleanup_module,
+            "_text_evidence",
+            return_value=("gitdir: /tmp/admin\n", old_observed),
+        ):
+            self.assertFalse(cleanup_module._text_evidence_matches(path, old_observed))
+
     def test_github_query_wraps_process_and_response_failures(self) -> None:
         repository = "atrinik/atrinik"
         head = "a" * 40

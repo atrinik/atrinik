@@ -441,6 +441,13 @@ def _regular_text_identity(path: Path) -> tuple[str, tuple[int, int, int, int]]:
 def _text_evidence(path: Path) -> tuple[str, dict[str, Any]]:
     value, identity = _regular_text_identity(path)
     metadata = path.lstat()
+    if identity != (
+        metadata.st_dev,
+        metadata.st_ino,
+        metadata.st_ctime_ns,
+        metadata.st_size,
+    ):
+        raise WorkspaceError(f"Git worktree metadata changed identity: {path}")
     if metadata.st_uid != os.geteuid():
         raise WorkspaceError(f"Git worktree metadata has a foreign owner: {path}")
     return value, _portable_text_identity(metadata, value)
@@ -564,6 +571,12 @@ def _text_evidence_matches(path: Path, expected: Any) -> bool:
         _value, observed = _text_evidence(path)
         metadata = path.lstat()
     except (OSError, RuntimeError, WorkspaceError):
+        return False
+    if (
+        observed.get("inode") != metadata.st_ino
+        or observed.get("ctime_ns") != metadata.st_ctime_ns
+        or observed.get("size") != metadata.st_size
+    ):
         return False
     if set(expected) != set(observed):
         return False
