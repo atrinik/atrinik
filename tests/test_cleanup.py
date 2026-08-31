@@ -2999,6 +2999,60 @@ class CleanupTests(unittest.TestCase):
         )
         self.assertIsNotNone(_parse_time(metadata["last_used_at"], "last use"))
 
+    def test_gpu_shader_build_metadata_is_reclaimable_and_prior_schema_survives(
+        self,
+    ) -> None:
+        worktree = self.make_component_worktree()
+        head = command("git", "rev-parse", "HEAD", cwd=worktree)
+        coordinate = {
+            "component": "client",
+            "checkout": "client",
+            "repository": "atrinik/client",
+            "branch": "main",
+            "source": ".",
+            "checkout_path": str(worktree),
+            "source_path": str(worktree),
+            "head": head,
+        }
+        gpu_shader = {
+            "schema_version": 1,
+            "mode": "system",
+            "dxc_executable": "/opt/dxc",
+            "dxc_sha256": "a" * 64,
+            "spirv_cross_executable": "/opt/spirv-cross",
+            "spirv_cross_sha256": "b" * 64,
+            "dxc_library_directory": None,
+            "identity": "c" * 64,
+        }
+        for schema_version, extra in (
+            (3, {}),
+            (workspace_module.BUILD_METADATA_SCHEMA_VERSION, {"gpu_shader": gpu_shader}),
+        ):
+            with self.subTest(schema_version=schema_version):
+                key = f"{schema_version:012d}"[-12:]
+                profile = f"metadata-{schema_version}"
+                build = self.make_build(
+                    profile,
+                    key,
+                )
+                atomic_json(
+                    build / ".atrinik-build.json",
+                    {
+                        "schema_version": schema_version,
+                        "profile": profile,
+                        "key": key,
+                        "purpose": f"profile:{profile}:{key}",
+                        "coordinates": {"client": coordinate},
+                        "sound": None,
+                        **extra,
+                        "last_used_at": self.old.isoformat(),
+                    },
+                )
+                report = self.plan(["builds"])
+                item = next(row for row in report["items"] if row["path"] == str(build))
+                self.assertEqual(item["disposition"], "eligible")
+                self.assertEqual(item["reasons"], ["stale_profile_build"])
+
     def test_invalid_or_future_build_metadata_protects_profile_root(self) -> None:
         worktree = self.make_component_worktree()
         build = self.make_build()

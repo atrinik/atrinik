@@ -2723,6 +2723,7 @@ class WorkspaceTests(unittest.TestCase):
                     None,
                 ),
             ),
+            mock.patch.object(self.workspace, "_prepare_gpu_shader", return_value=None),
             mock.patch.object(
                 self.workspace, "_collect_content", side_effect=prepare_runtime
             ),
@@ -6260,6 +6261,313 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._classic_binary_directory(root, "server"),
             root / "build" / "integrated" / "server",
         )
+
+    def test_classic_gpu_shader_preparation_is_lock_keyed_and_recorded(self) -> None:
+        source = self.root / "classic-client"
+        (source / "shaders").mkdir(parents=True)
+        (source / "tools").mkdir()
+        dxc_bytes = b"test dxc\n"
+        dxc_digest = hashlib.sha256(dxc_bytes).hexdigest()
+        lock = {
+            "schema_version": 1,
+            "dxc": {"files": {"bin/dxc": dxc_digest}},
+        }
+        lock_path = source / "shaders" / "toolchain.lock.json"
+        lock_path.write_text(json.dumps(lock), encoding="utf-8")
+        builder = source / "tools" / "prepare_gpu_shader_toolchain.py"
+        builder.write_text("# test preparer\n", encoding="utf-8")
+        manifest = source / "shaders" / "SHA256SUMS"
+        manifest.write_text("final_fragment.dxil test\n", encoding="utf-8")
+        root = self.workspace.paths.builds / "profiles" / "classic-gpu"
+        managed_directory(root, self.workspace.paths.builds, "profile:classic-gpu")
+        observed: list[tuple[list[str], Path]] = []
+
+        def prepare(arguments: list[str], **kwargs: object) -> None:
+            output = Path(arguments[arguments.index("--output") + 1])
+            observed.append((arguments, Path(kwargs["cwd"])))
+            (output / "dxc" / "bin").mkdir(parents=True, exist_ok=True)
+            (output / "dxc" / "lib").mkdir(exist_ok=True)
+            dxc = output / "dxc" / "bin" / "dxc"
+            dxc.write_bytes(dxc_bytes)
+            dxc.chmod(0o755)
+            (output / "spirv-cross" / "bin").mkdir(parents=True, exist_ok=True)
+            spirv_cross = output / "spirv-cross" / "bin" / "spirv-cross"
+            spirv_cross.write_bytes(b"test spirv-cross\n")
+            spirv_cross.chmod(0o755)
+            (output / "spirv-cross" / "LICENSE").write_text(
+                "license\n", encoding="utf-8"
+            )
+            atomic_json(
+                output / "toolchain.json",
+                {
+                    "schema_version": 1,
+                    "lock_sha256": hashlib.sha256(lock_path.read_bytes()).hexdigest(),
+                    "spirv_cross_sha256": hashlib.sha256(
+                        spirv_cross.read_bytes()
+                    ).hexdigest(),
+                },
+            )
+
+        overrides = {name: "" for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES}
+        with (
+            mock.patch.dict(os.environ, overrides, clear=False),
+            mock.patch.object(workspace_module, "run", side_effect=prepare),
+        ):
+            record = self.workspace._prepare_gpu_shader(
+                root, {"client": source}, "classic"
+            )
+
+        self.assertEqual(record["mode"], "managed")
+        self.assertEqual(record["lock_sha256"], hashlib.sha256(lock_path.read_bytes()).hexdigest())
+        self.assertEqual(len(observed), 1)
+        self.assertEqual(observed[0][1], source)
+        self.assertEqual(
+            observed[0][0][0:2], [sys.executable, str(builder)]
+        )
+        self.assertEqual(
+            record["toolchain_root"],
+            str(
+                root
+                / "producers"
+                / "classic-gpu-shader-toolchains"
+                / record["lock_sha256"]
+            ),
+        )
+        checkout_toolchain = source / "build" / "gpu-shader-toolchain"
+        shutil.copytree(record["toolchain_root"], checkout_toolchain)
+        with (
+            mock.patch.dict(os.environ, overrides, clear=False),
+            mock.patch.object(workspace_module, "run", side_effect=prepare),
+        ):
+            reused = self.workspace._prepare_gpu_shader(
+                root, {"client": source}, "classic"
+            )
+        self.assertEqual(reused["mode"], "managed")
+        self.assertEqual(reused["toolchain_root"], str(checkout_toolchain.resolve()))
+        self.assertEqual(len(observed), 2)
+        self.assertEqual(
+            observed[1][0][observed[1][0].index("--output") + 1],
+            str(checkout_toolchain),
+        )
+        self.workspace._refresh_build_metadata(
+            root,
+            "default",
+            "classic-gpu",
+            {"client": self.workspace.paths.repositories / "client"},
+            None,
+            record,
+        )
+        self.assertEqual(
+            load_json(root / workspace_module.BUILD_METADATA)["gpu_shader"],
+            record,
+        )
+
+        external_build = self.root / "external-build"
+        external_build.mkdir()
+        unsafe_source = self.root / "unsafe-source"
+        unsafe_source.mkdir()
+        (unsafe_source / "build").symlink_to(
+            external_build, target_is_directory=True
+        )
+        self.assertIsNone(
+            self.workspace._gpu_shader_existing_toolchain(unsafe_source, "classic")
+        )
+
+    def test_classic_gpu_shader_explicit_system_and_external_overrides(self) -> None:
+        dxc = self.root / "bin" / "dxc"
+        spirv_cross = self.root / "bin" / "spirv-cross"
+        dxc.parent.mkdir()
+        for executable in (dxc, spirv_cross):
+            executable.write_text("#!/bin/sh\n", encoding="utf-8")
+            executable.chmod(0o755)
+        library = self.root / "dxc-lib"
+        library.mkdir()
+        external = self.root / "shader-cohort"
+        external.mkdir()
+        (external / "SHA256SUMS").write_text(
+            "final_fragment.dxil 0000000000000000000000000000000000000000000000000000000000000000\n",
+            encoding="utf-8",
+        )
+        source = self.root / "classic-client"
+        source.mkdir()
+
+        system_values = {
+            name: ""
+            for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES
+        }
+        system_values.update(
+            {
+                "ATRINIK_DXC_EXECUTABLE": str(dxc),
+                "ATRINIK_SPIRV_CROSS_EXECUTABLE": str(spirv_cross),
+                "ATRINIK_DXC_LIBRARY_DIRECTORY": str(library),
+                "PATH": "",
+            }
+        )
+        with mock.patch.dict(os.environ, system_values, clear=False):
+            system = self.workspace._prepare_gpu_shader(
+                self.workspace.paths.builds / "profiles" / "system",
+                {"client": source},
+                "classic",
+            )
+        self.assertEqual(system["mode"], "system")
+        self.assertEqual(system["dxc_executable"], str(dxc.resolve()))
+        self.assertEqual(
+            self.workspace._gpu_shader_cmake_arguments(system),
+            [
+                f"-DATRINIK_DXC_EXECUTABLE={dxc.resolve()}",
+                f"-DATRINIK_SPIRV_CROSS_EXECUTABLE={spirv_cross.resolve()}",
+                f"-DATRINIK_DXC_LIBRARY_DIRECTORY={library.resolve()}",
+                f"-D{workspace_module.GPU_SHADER_WRAPPER_IDENTITY_ARGUMENT}={system['identity']}",
+            ],
+        )
+
+        external_values = {
+            name: "" for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES
+        }
+        external_values["ATRINIK_GPU_SHADER_DIRECTORY"] = str(external)
+        with mock.patch.dict(os.environ, external_values, clear=False):
+            cohort = self.workspace._prepare_gpu_shader(
+                self.workspace.paths.builds / "profiles" / "external",
+                {"client": source},
+                "classic",
+            )
+        self.assertEqual(cohort["mode"], "external")
+        self.assertEqual(cohort["shader_directory"], str(external.resolve()))
+        self.assertEqual(
+            self.workspace._gpu_shader_cmake_arguments(cohort),
+            [
+                f"-DATRINIK_GPU_SHADER_DIRECTORY={external.resolve()}",
+                f"-D{workspace_module.GPU_SHADER_WRAPPER_IDENTITY_ARGUMENT}={cohort['identity']}",
+            ],
+        )
+
+        partial = {name: "" for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES}
+        partial["ATRINIK_DXC_EXECUTABLE"] = str(dxc)
+        with mock.patch.dict(os.environ, partial, clear=False):
+            with self.assertRaisesRegex(
+                WorkspaceError, "set both ATRINIK_DXC_EXECUTABLE"
+            ):
+                self.workspace._prepare_gpu_shader(
+                    self.workspace.paths.builds / "profiles" / "partial",
+                    {"client": source},
+                    "classic",
+                )
+
+        unsupported = {
+            name: "" for name in workspace_module.GPU_SHADER_OVERRIDE_NAMES
+        }
+        with (
+            mock.patch.dict(os.environ, unsupported, clear=False),
+            mock.patch.object(workspace_module.platform, "system", return_value="Darwin"),
+            mock.patch.object(
+                workspace_module.platform, "machine", return_value="arm64"
+            ),
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "pinned Classic GPU shader toolchain targets"
+            ):
+                self.workspace._prepare_gpu_shader(
+                    self.workspace.paths.builds / "profiles" / "unsupported",
+                    {"client": source},
+                    "classic",
+                )
+
+    def test_classic_gpu_shader_arguments_are_added_to_both_cmake_graphs(self) -> None:
+        checkout = self.root / "classic"
+        for role in ("client", "server", "protocol", "libatrinik"):
+            (checkout / role).mkdir(parents=True)
+            (checkout / role / "README").write_text(role + "\n", encoding="utf-8")
+        (checkout / "CMakeLists.txt").write_text(
+            "project(classic)\n", encoding="utf-8"
+        )
+        (checkout / "server" / "install_data").mkdir()
+        sound = self.root / "sound"
+        sound.mkdir()
+        selected = {
+            role: checkout / role
+            for role in ("client", "server", "protocol", "libatrinik")
+        }
+        selected["sound"] = sound
+        root = self.workspace.paths.builds / "profiles" / "classic-gpu-graphs"
+        root.mkdir(parents=True)
+        (root / "runtime" / "content").mkdir(parents=True)
+        (root / "runtime" / "resources").mkdir()
+        gpu = {
+            "mode": "system",
+            "dxc_executable": "/opt/dxc/bin/dxc",
+            "spirv_cross_executable": "/opt/spirv-cross/bin/spirv-cross",
+            "dxc_library_directory": "/opt/dxc/lib",
+            "identity": "a" * 64,
+        }
+
+        with mock.patch.object(self.workspace, "_cmake") as cmake:
+            self.workspace._build_integrated_classic(
+                root, selected, tests=True, sound_root=sound, gpu_shader=gpu
+            )
+        integrated_arguments = cmake.call_args.args[2]
+        self.assertEqual(
+            integrated_arguments[-4:], self.workspace._gpu_shader_cmake_arguments(gpu)
+        )
+
+        standalone_root = self.workspace.paths.builds / "profiles" / "classic-gpu-client"
+        standalone_root.mkdir(parents=True)
+        with mock.patch.object(self.workspace, "_cmake") as cmake:
+            self.workspace._build_client(
+                standalone_root,
+                selected,
+                tests=False,
+                component=self.workspace.manifest.by_name["client"],
+                sound_root=sound,
+                gpu_shader=gpu,
+            )
+        standalone_arguments = cmake.call_args.args[2]
+        self.assertEqual(
+            standalone_arguments[-4:], self.workspace._gpu_shader_cmake_arguments(gpu)
+        )
+
+    def test_classic_build_resolved_wires_gpu_record_before_client_graph(self) -> None:
+        stack = mock.Mock()
+        stack.name = "classic"
+        stack.providers = {"client": self.workspace.manifest.by_name["client"]}
+        selected = {"client": self.root / "classic-client"}
+        selected["client"].mkdir()
+        gpu = {
+            "mode": "system",
+            "dxc_executable": "/opt/dxc",
+            "spirv_cross_executable": "/opt/spirv-cross",
+            "dxc_library_directory": None,
+            "identity": "b" * 64,
+        }
+        root = self.workspace.paths.builds / "profiles" / "classic-routed-routed"
+        marker = {"schema_version": 1, "purpose": "profile:classic-routed:routed"}
+
+        with (
+            mock.patch.object(
+                self.workspace,
+                "_load_profile",
+                return_value={"stack": "classic", "sound_mode": "source"},
+            ),
+            mock.patch.object(self.workspace.manifest, "stack", return_value=stack),
+            mock.patch.object(self.workspace, "_profile_build_key", return_value="routed"),
+            mock.patch.object(
+                self.workspace,
+                "_prepare_gpu_shader",
+                return_value=gpu,
+            ) as prepare_gpu,
+            mock.patch.object(self.workspace, "_refresh_build_metadata") as refresh,
+            mock.patch.object(
+                self.workspace, "_uses_integrated_classic_build", return_value=False
+            ),
+            mock.patch.object(self.workspace, "_build_client") as build_client,
+        ):
+            self.workspace._build_resolved(
+                "client", "classic-routed", False, ["client"], selected
+            )
+
+        prepare_gpu.assert_called_once_with(root, selected, "classic-routed")
+        self.assertIs(refresh.call_args.args[5], gpu)
+        self.assertIs(build_client.call_args.kwargs["gpu_shader"], gpu)
+        self.assertEqual(load_json(root / MANAGED_MARKER), marker)
 
     def test_paired_classic_build_falls_back_without_shared_role_builds(self) -> None:
         selected = {
