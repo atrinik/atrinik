@@ -11,6 +11,7 @@ import re
 import secrets
 from typing import Any, TYPE_CHECKING
 
+from .filesystem_identity import pair_matches, portable_device
 from .locking import LockBusyError, exclusive_lock
 from .model import (
     AtomicJsonCommitUncertain,
@@ -571,7 +572,7 @@ class ScopeLifecycle:
         identity = path.stat(follow_symlinks=False)
         return {
             "path": str(path),
-            "device": identity.st_dev,
+            "device": portable_device(identity),
             "inode": identity.st_ino,
         }
 
@@ -810,7 +811,7 @@ class ScopeLifecycle:
             {
                 "status": "created",
                 "common_git_dir": common,
-                "path_device": identity.st_dev,
+                "path_device": portable_device(identity),
                 "path_inode": identity.st_ino,
             }
         )
@@ -889,7 +890,7 @@ class ScopeLifecycle:
                 {
                     "status": "created",
                     "sha256": _file_sha256(profile_path),
-                    "path_device": profile_identity.st_dev,
+                    "path_device": portable_device(profile_identity),
                     "path_inode": profile_identity.st_ino,
                 }
             )
@@ -1063,7 +1064,7 @@ class ScopeLifecycle:
                     {
                         "status": "created",
                         "common_git_dir": common,
-                        "path_device": identity.st_dev,
+                        "path_device": portable_device(identity),
                         "path_inode": identity.st_ino,
                     }
                 )
@@ -1110,7 +1111,7 @@ class ScopeLifecycle:
                 {
                     "status": "created",
                     "sha256": _file_sha256(profile_path),
-                    "path_device": profile_identity.st_dev,
+                    "path_device": portable_device(profile_identity),
                     "path_inode": profile_identity.st_ino,
                 }
             )
@@ -1224,11 +1225,13 @@ class ScopeLifecycle:
                     profile_path.is_file()
                     and not profile_path.is_symlink()
                     and _file_sha256(profile_path) == profile["sha256"]
-                    and (
-                        profile_path.stat(follow_symlinks=False).st_dev,
-                        profile_path.stat(follow_symlinks=False).st_ino,
+                    and pair_matches(
+                        {
+                            "device": profile["path_device"],
+                            "inode": profile["path_inode"],
+                        },
+                        profile_path.stat(follow_symlinks=False),
                     )
-                    == (profile["path_device"], profile["path_inode"])
                 ):
                     profile_path.unlink()
                     self.workspace._remove_physical_reference(profile_path)
@@ -1262,8 +1265,13 @@ class ScopeLifecycle:
                 exact = (
                     path.is_dir()
                     and not path.is_symlink()
-                    and (path.stat(follow_symlinks=False).st_dev, path.stat(follow_symlinks=False).st_ino)
-                    == (row["path_device"], row["path_inode"])
+                    and pair_matches(
+                        {
+                            "device": row["path_device"],
+                            "inode": row["path_inode"],
+                        },
+                        path.stat(follow_symlinks=False),
+                    )
                     and self.workspace._git_common_directory(path, trace=False)
                     == Path(row["common_git_dir"])
                     and git(path, "rev-parse", "HEAD", capture=True, trace=False)
@@ -2050,10 +2058,10 @@ class ScopeLifecycle:
                     clean = records_match and stopped_cleanly and state_disposed
                     if clean:
                         topology_evidence = {
-                            "spec_device": spec_after.st_dev,
+                            "spec_device": portable_device(spec_after),
                             "spec_inode": spec_after.st_ino,
                             "spec_sha256": spec_sha256,
-                            "status_device": status_after.st_dev,
+                            "status_device": portable_device(status_after),
                             "status_inode": status_after.st_ino,
                             "status_sha256": status_sha256,
                         }
@@ -2155,7 +2163,7 @@ class ScopeLifecycle:
                 {
                     "kind": "build",
                     "path": str(root),
-                    "device": identity.st_dev if identity is not None else None,
+                    "device": portable_device(identity) if identity is not None else None,
                     "inode": identity.st_ino if identity is not None else None,
                     "metadata_sha256": metadata_sha256,
                     "marker_sha256": marker_sha256,
@@ -2173,12 +2181,12 @@ class ScopeLifecycle:
                 profile_reasons.append("changed_profile")
             else:
                 profile_identity = profile_path.stat(follow_symlinks=False)
-                if (
-                    profile_identity.st_dev,
-                    profile_identity.st_ino,
-                ) != (
-                    record["profile"]["path_device"],
-                    record["profile"]["path_inode"],
+                if not pair_matches(
+                    {
+                        "device": record["profile"]["path_device"],
+                        "inode": record["profile"]["path_inode"],
+                    },
+                    profile_identity,
                 ):
                     profile_reasons.append("replaced_profile")
             disposition = "protected" if profile_reasons else "eligible"
@@ -2199,8 +2207,12 @@ class ScopeLifecycle:
                 else:
                     try:
                         identity = path.stat(follow_symlinks=False)
-                        if (identity.st_dev, identity.st_ino) != (
-                            row["path_device"], row["path_inode"]
+                        if not pair_matches(
+                            {
+                                "device": row["path_device"],
+                                "inode": row["path_inode"],
+                            },
+                            identity,
                         ):
                             reasons.append("replaced_path")
                         if self.workspace._git_common_directory(path, trace=False) != Path(row["common_git_dir"]):
@@ -2301,6 +2313,7 @@ class ScopeLifecycle:
         from .workspace import (
             BUILD_METADATA,
             _owned_tree_tombstone_path,
+            _portable_tombstone_path,
             git,
             remove_owned_tree,
         )
@@ -2341,7 +2354,8 @@ class ScopeLifecycle:
                     )
                 identity = path.stat(follow_symlinks=False)
                 if (
-                    identity.st_dev != topology_item.get(f"{prefix}_device")
+                    portable_device(identity)
+                    != topology_item.get(f"{prefix}_device")
                     or identity.st_ino != topology_item.get(f"{prefix}_inode")
                     or _file_sha256(path) != topology_item.get(f"{prefix}_sha256")
                 ):
@@ -2545,9 +2559,36 @@ class ScopeLifecycle:
                     "device": item["device"],
                     "inode": item["inode"],
                 }
-                tombstone = _owned_tree_tombstone_path(root, recovery_identity)
-                if root.exists() or root.is_symlink() or tombstone.exists() or tombstone.is_symlink():
-                    remove_owned_tree(root, expected_identity=recovery_identity)
+                tombstone = _portable_tombstone_path(root, recovery_identity)
+                if tombstone is None and (root.exists() or root.is_symlink()):
+                    metadata = root.stat(follow_symlinks=False)
+                    tombstone = _owned_tree_tombstone_path(
+                        root,
+                        {"device": metadata.st_dev, "inode": metadata.st_ino},
+                    )
+                if (
+                    root.exists()
+                    or root.is_symlink()
+                    or tombstone is not None
+                    and (tombstone.exists() or tombstone.is_symlink())
+                ):
+                    target = root if root.exists() or root.is_symlink() else tombstone
+                    if target is None:
+                        raise WorkspaceError(
+                            f"scope build removal evidence disappeared: {root}"
+                        )
+                    metadata = target.stat(follow_symlinks=False)
+                    if not pair_matches(recovery_identity, metadata):
+                        raise WorkspaceError(
+                            f"scope build removal identity changed: {root}"
+                        )
+                    remove_owned_tree(
+                        root,
+                        expected_identity={
+                            "device": metadata.st_dev,
+                            "inode": metadata.st_ino,
+                        },
+                    )
                 finish(action)
                 continue
             if not root.exists() and not root.is_symlink():
@@ -2568,9 +2609,20 @@ class ScopeLifecycle:
                     f"scope build ownership changed during release: {root}"
                 )
             mark_removing(action)
+            root_metadata = root.stat(follow_symlinks=False)
+            if not pair_matches(
+                {"device": item["device"], "inode": item["inode"]},
+                root_metadata,
+            ):
+                raise WorkspaceError(
+                    f"scope build removal identity changed: {root}"
+                )
             remove_owned_tree(
                 root,
-                expected_identity={"device": item["device"], "inode": item["inode"]},
+                expected_identity={
+                    "device": root_metadata.st_dev,
+                    "inode": root_metadata.st_ino,
+                },
             )
             self._maybe_fail(f"release:build-tree:{root.name}")
             finish(action)
@@ -2602,13 +2654,12 @@ class ScopeLifecycle:
                     profile_path.is_symlink()
                     or not profile_path.is_file()
                     or _file_sha256(profile_path) != record["profile"]["sha256"]
-                    or (
-                        profile_path.stat(follow_symlinks=False).st_dev,
-                        profile_path.stat(follow_symlinks=False).st_ino,
-                    )
-                    != (
-                        record["profile"]["path_device"],
-                        record["profile"]["path_inode"],
+                    or not pair_matches(
+                        {
+                            "device": record["profile"]["path_device"],
+                            "inode": record["profile"]["path_inode"],
+                        },
+                        profile_path.stat(follow_symlinks=False),
                     )
                 ):
                     raise WorkspaceError("scope profile changed during release")
@@ -2695,8 +2746,13 @@ class ScopeLifecycle:
                 raise WorkspaceError(f"scope worktree changed during release: {path}")
             identity = path.stat(follow_symlinks=False)
             if (
-                (identity.st_dev, identity.st_ino)
-                != (row["path_device"], row["path_inode"])
+                not pair_matches(
+                    {
+                        "device": row["path_device"],
+                        "inode": row["path_inode"],
+                    },
+                    identity,
+                )
                 or self.workspace._git_common_directory(path, trace=False)
                 != Path(row["common_git_dir"])
                 or git(path, "rev-parse", "HEAD", capture=True, trace=False)

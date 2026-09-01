@@ -15,7 +15,8 @@
       "metaserver-worker",
       "devcontainer",
       "github-settings",
-      "observatory"
+      "observatory",
+      "deploy-control"
     ],
     "classic": [
       "classic",
@@ -40,7 +41,8 @@
         "metaserver-worker",
         "devcontainer",
         "github-settings",
-        "observatory"
+        "observatory",
+        "deploy-control"
       ],
       "providers": {
         "client": "client",
@@ -56,7 +58,8 @@
         "metaserver-worker": "metaserver-worker",
         "devcontainer": "devcontainer",
         "github-settings": "github-settings",
-        "observatory": "observatory"
+        "observatory": "observatory",
+        "deploy-control": "deploy-control"
       }
     },
     "classic": {
@@ -204,6 +207,14 @@
       "branch": "main",
       "path": "observatory",
       "generation": "replacement",
+      "license": "MIT"
+    },
+    {
+      "name": "deploy-control",
+      "repository": "atrinik/deploy-control",
+      "branch": "main",
+      "path": "deploy-control",
+      "generation": "shared",
       "license": "MIT"
     },
     {
@@ -372,6 +383,16 @@
       "build": "none",
       "generation": "replacement",
       "provides": ["observatory"],
+      "requires": [],
+      "license": "MIT"
+    },
+    {
+      "name": "deploy-control",
+      "checkout": "deploy-control",
+      "source": ".",
+      "build": "none",
+      "generation": "shared",
+      "provides": ["deploy-control"],
       "requires": [],
       "license": "MIT"
     },

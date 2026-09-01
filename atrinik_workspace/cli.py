@@ -160,6 +160,17 @@ def parser() -> argparse.ArgumentParser:
     migrate_content_mode.add_argument("--audit", action="store_true")
     migrate_content_mode.add_argument("--restore", action="store_true")
     migrate_content.add_argument("--json", action="store_true")
+    migrate_filesystem = migrate_commands.add_parser(
+        "filesystem", help="convert legacy filesystem identities after a remount"
+    )
+    migrate_filesystem_mode = migrate_filesystem.add_mutually_exclusive_group(
+        required=True
+    )
+    migrate_filesystem_mode.add_argument("--dry-run", action="store_true")
+    migrate_filesystem_mode.add_argument("--apply", action="store_true")
+    migrate_filesystem_mode.add_argument("--audit", action="store_true")
+    migrate_filesystem.add_argument("--confirm-remount", action="store_true")
+    migrate_filesystem.add_argument("--json", action="store_true")
 
     worktree = commands.add_parser(
         "worktree", help="manage physical-checkout worktrees"
@@ -774,6 +785,41 @@ def main(arguments: list[str] | None = None) -> int:
                 prefix + "governance/provenance-identities/registry.json: valid "
                 f"({count} records, {len(options.reference)} references)"
             )
+            return 0
+
+        if (
+            options.command == "migrate"
+            and options.migrate_command == "filesystem"
+        ):
+            from .filesystem_migration import migrate_filesystem_records
+
+            mode = (
+                "apply"
+                if options.apply
+                else "audit"
+                if options.audit
+                else "dry-run"
+            )
+            result = migrate_filesystem_records(
+                ROOT,
+                mode,
+                confirm_remount=options.confirm_remount,
+            )
+            if options.json:
+                print(json.dumps(result, indent=2, sort_keys=True))
+            else:
+                print(f"migration\t{result['migration']}")
+                print(f"status\t{result['status']}")
+                for record in result.get("records", []):
+                    print(
+                        f"record\t{record.get('status', 'planned')}\t"
+                        f"{record['path']}"
+                    )
+                if result.get("requires_confirm_remount"):
+                    print(
+                        "recovery\tlegacy identities require "
+                        "--apply --confirm-remount"
+                    )
             return 0
 
         workspace_type = Workspace

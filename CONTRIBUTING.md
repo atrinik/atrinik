@@ -78,6 +78,14 @@ remain focused on the manifest, multi-repository workflows, or their tests and
 documentation. Preserve dirty physical checkouts and persistent state during
 manual validation.
 
+Filesystem-identity changes must keep the durable/ephemeral boundary explicit:
+portable identities are the only values written to workspace, topology, lease,
+scope, and delivery-ledger records; raw `st_dev` values are limited to live
+descriptor or mount fencing. Add a remount/rebind regression test that covers
+the explicit migration journal, changed-inode refusal, and rollback or audit
+behavior. Validate the documented command with `--dry-run` and `--audit` in a
+temporary test-owned workspace; never apply it to shared generated state.
+
 ## Copyright headers
 
 Use `The Atrinik Project` as the exact collective holder for every new or
@@ -125,6 +133,12 @@ The canonical `server`, `client`, `editor`, `protocol`, `renderer`,
 `content-toolkit`, `website`, and `observatory` repositories form the MIT
 replacement stack. `observatory` is source-only in the wrapper: it has no
 wrapper build adapter or runtime dependency and remains default-cohort only.
+The separately authored MIT `atrinik/deploy-control` repository is shared
+organization infrastructure for the Cloudflare Worker, Durable Object,
+protocol, and registered host-agent contracts. Its wrapper registration is
+source-only and default-only; package installation, release/deployment
+outputs, Cloudflare bindings, credentials, agent keys, host state, and mutable
+runtime state remain owned or stored outside this coordinator.
 Plain `./atrinik init` is replacement/default-only. Exact
 `./atrinik init --with classic` adds the complete currently playable classic
 cohort: the `atrinik/classic` monorepo checkout, the independent MIT

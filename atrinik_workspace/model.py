@@ -66,6 +66,7 @@ REQUIRED_COHORT_CHECKOUTS = {
         "devcontainer",
         "github-settings",
         "observatory",
+        "deploy-control",
     },
     "classic": {
         "classic",
@@ -89,6 +90,7 @@ REQUIRED_STACK_PROVIDERS = {
         "devcontainer": "devcontainer",
         "github-settings": "github-settings",
         "observatory": "observatory",
+        "deploy-control": "deploy-control",
     },
     "classic": {
         "client": "classic-client",
@@ -124,6 +126,7 @@ LOGICAL_ROLES = {
     "devcontainer",
     "github-settings",
     "observatory",
+    "deploy-control",
 }
 IMPLEMENTATION_ROLES = {
     "client",

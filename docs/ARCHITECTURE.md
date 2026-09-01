@@ -73,6 +73,15 @@ The default-only `observatory` component occupies
 `atrinik/observatory@main` at `./observatory` and provides a source-only
 `observatory` role. It has no wrapper build adapter or runtime dependency;
 Classic never selects it.
+The default-only shared `deploy-control` component occupies
+`atrinik/deploy-control@main` at `./deploy-control` and provides a source-only
+`deploy-control` role. Its root owns the Worker, Durable Object, protocol, and
+registered host-agent contracts; the wrapper provides no build or runtime
+adapter, and Classic never selects it. Package locks, npm caches, Wrangler
+dry-run/deployment output, release artifacts, and generated `dist` output stay
+with the deploy-control repository or its workflows. Cloudflare bindings,
+application and agent keys, host/player state, and mutable runtime state stay
+outside this coordinator.
 
 Manifest validation rejects duplicate checkout or component names, duplicate
 local destinations, unsafe or overlapping source roots within one checkout,
@@ -99,6 +108,10 @@ cohort, stack, role, and license, and mark uninitialized or non-selected commits
 unavailable so repeated coordinates such as `atrinik/content` or shared
 checkouts such as `atrinik/classic` cannot be collapsed into one ambiguous
 input.
+The shared `deploy-control` repository remains the authority for its Worker and
+agent dependency graph, action pins, runner contract, and release/deployment
+inputs. The wrapper inventory records those owned inputs and validation
+boundaries; it does not vendor or reimplement them.
 
 Source provenance is also a cross-repository contract.
 [`PROVENANCE.md`](PROVENANCE.md) is the single exhaustive historical MIT
@@ -120,6 +133,11 @@ separate eligible material, exclude conflicting embedded work, and record the
 exact source, destination, transformation, review, and registry revision. The
 Classic source remains GPL as distributed; later or uncovered contributions,
 dependencies, assets, and surrounding work receive no permission by association.
+Registering `atrinik/deploy-control` asserts only its separately authored MIT
+repository and ownership boundary. It does not copy Classic material, grant a
+new historical provenance permission, or relicense any Classic source; future
+deploy-control provenance remains recorded in that repository's own source and
+release history.
 
 The `supply-chain` command resolves component inputs through the same profile
 selectors as builds, then reads Git-indexed files without mutating a checkout.
@@ -180,6 +198,38 @@ workspace/
   states.json                        named external-state registry
   cleanup-journals/                  cleanup recovery/delivery receipts
 ~~~
+
+## Durable and ephemeral filesystem identity
+
+The wrapper does not use one filesystem identity for every purpose. Durable
+workspace JSON, topology leases, mutable-state outputs, physical lease
+anchors, scope journals, and delivery-ledger sidecars use the versioned
+portable identity object: object kind, inode, mode, and (for regular files)
+ctime, with an optional content digest. The mount-specific `st_dev` value is
+excluded from that object. Schema-v1 `{ "device", "inode" }` pairs remain
+readable only at compatibility boundaries and are converted by the explicit
+`migrate filesystem` transaction.
+
+Live operations retain the complete descriptor-derived `(st_dev, st_ino)`
+identity and mount identifier where needed for replacement, symlink, hard-link,
+and TOCTOU fencing. A portable identity does not authorize a path-only rebind;
+the live object must still pass the opened-handle check. This keeps a
+devcontainer remount from invalidating durable records without weakening live
+lease, ownership, generation, or content-integrity guarantees.
+Rename-prone lease records use a stable portable projection that omits ctime;
+their opened descriptors, generation tokens, and content checks remain
+ephemeral lifecycle fences.
+
+Filesystem migration snapshots each target before publication, records legacy
+evidence and portable pre/post identities in an atomic journal, and preserves a
+rollback identity after an undo replacement. Resume and audit accept only the
+exact before or after bytes together with their corresponding identity. Missing,
+changed, symlinked, foreign-owned, or ambiguous targets fail closed. The
+transaction covers workspace records, topology recovery records, the physical
+lease anchor, and repository-local delivery-ledger sidecars; cleanup, topology
+shutdown, scope release, and repository migration do not implicitly perform
+this rebind. The complete operator procedure and schema details are in
+[`docs/FILESYSTEM-IDENTITY.md`](FILESYSTEM-IDENTITY.md).
 
 ## Incremental Classic development contract
 

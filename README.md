@@ -14,7 +14,7 @@ persistent server state safely.
 
 No checkout is a submodule. Primary repositories are ignored, independent Git
 checkouts directly beside this README (`./client`, `./server`, `./classic`,
-`./observatory`, and so on). The `atrinik/classic` checkout at `./classic`
+`./observatory`, `./deploy-control`, and so on). The `atrinik/classic` checkout at `./classic`
 contains the logical
 `classic-client`, `classic-server`, `classic-editor`,
 `classic-libatrinik`, and `classic-protocol` source roots. Generated worktrees,
@@ -188,7 +188,10 @@ Python dependency. GitHub
 Actions and container images use immutable commits or
 digests with human-readable update hints, and every active repository enables
 weekly Dependabot updates for its supported ecosystems. Git submodules are not
-a supported dependency path.
+a supported dependency path. The shared `deploy-control` checkout owns its
+Worker/agent package lock, action pins, runner contract, and release/deployment
+inputs; the wrapper records those boundaries without copying its implementation,
+credentials, bindings, or mutable host state.
 
 Validate the catalog alone or audit the exact checkouts selected by a complete
 profile. Initialize the replacement stack before its audit; use the additive
@@ -291,8 +294,10 @@ replacement build or runtime dependency.
 With no component arguments, `init` clones only the replacement/default
 initialization cohort. That includes the replacement MIT `server`, `client`,
 `editor`, `protocol`, `renderer`, `content-toolkit`, and `website` repositories;
-`content` from `atrinik/content@main`; compatible shared resources, sound, and
-metaserver code; and required development infrastructure. It does not clone
+`content` from `atrinik/content@main`; compatible shared resources, sound,
+metaserver code; the source-only shared `atrinik/deploy-control` checkout for
+organization infrastructure; and required development infrastructure. It does
+not clone
 `atrinik/classic`, `atrinik/playtester`, or the MIT-by-default `tools`
 repository with its GPL-2.0-or-later `map-checker-qt/` exception, and
 does not touch a retained historical `atrinik/content@1.x` checkout.
@@ -457,8 +462,8 @@ identity are coordinated here, while installation and tests remain owned by
 `atrinik/playtester`.
 
 Checkout entries have explicit local destinations; normally these are direct
-children of the wrapper root such as `./client`, `./classic`, `./content`, and
-`./observatory`.
+children of the wrapper root such as `./client`, `./classic`, `./content`,
+`./observatory`, and `./deploy-control`.
 Logical components name their owning checkout and a safe source root within
 it. Both stacks map role `content` to that one shared checkout. A local
 `./content-1x` directory may remain as preserved migration history, but it is
@@ -475,9 +480,11 @@ checkouts are reported as optional rather than invalidating status or a
 built-in profile.
 
 The manifest assigns logical roles such as `client`, `server`, `protocol`,
-`libatrinik`, `content`, `playtester`, and source-only `observatory` to
-providers within each stack. The `observatory` role is default-only and has no
-wrapper build adapter or runtime dependency. The
+`libatrinik`, `content`, `playtester`, source-only `observatory`, and shared
+source-only `deploy-control` to providers within each stack. The `observatory`
+and `deploy-control` roles are default-only and have no wrapper build adapter
+or runtime dependency; `deploy-control` owns its Worker/agent package and
+deployment workflow boundaries in its own repository. The
 built-in `default` and `classic` profiles resolve exactly one compatible
 provider for every role they require.
 A runnable service closure cannot combine replacement and classic
@@ -567,6 +574,32 @@ proven worktree paths can be restored with
 stopped records, states, logs, and historical coordinates remain preserved and
 inert; this migration never deletes them. Cleanup continues to inventory those
 references and remains a separate preview-first operation.
+
+## Recovering persisted filesystem identities after a remount
+
+Persisted workspace, topology, lease, and delivery-ledger records created by
+older wrapper versions may contain the host-specific filesystem device number.
+Use the explicit, checked recovery transaction after a devcontainer rebuild or
+other remount:
+
+~~~sh
+./atrinik migrate filesystem --dry-run --json
+./atrinik migrate filesystem --apply --confirm-remount
+./atrinik migrate filesystem --audit --json
+~~~
+
+The dry run is read-only. Apply snapshots every affected record, preserves
+legacy evidence, rewrites durable identities atomically, and records portable
+pre/post identities plus rollback state in a local journal. It refuses a
+changed inode, replacement, symlink, foreign-owned target, or ambiguous
+record; never hand-edit the JSON. Live descriptor and mount fencing continues
+to use the complete ephemeral `(st_dev, st_ino)` check, while durable records
+omit `st_dev` and therefore remain valid when the same workspace is mounted
+again. Rename-prone lease records intentionally omit ctime as well; their
+opened-descriptor, generation, and content fences remain live. See
+[`docs/FILESYSTEM-IDENTITY.md`](docs/FILESYSTEM-IDENTITY.md) for the schema
+boundary and recovery guarantees. This operation is separate from
+cleanup, topology shutdown, scope release, and repository migration.
 
 The current classic client command opens a graphical application. Verify that
 the devcontainer display forwarding socket is live before launching it. Use

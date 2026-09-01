@@ -17,6 +17,11 @@ import subprocess
 import tempfile
 from typing import Any, Callable, Iterable
 
+from .filesystem_identity import (
+    FilesystemIdentityError,
+    portable_device,
+    validate_identity,
+)
 from .locking import LockBusyError, active_lock_fds, exclusive_layout_lock
 from .delivery import inventory_active_delivery_evidence
 from .model import (
@@ -40,6 +45,14 @@ OLDEST_PROFILE_SCHEMA_VERSION = 3
 MIGRATION_NAME = "repositories"
 MIGRATION_RECORD = "migrations/repositories.json"
 MIGRATION_PENDING = "migrations/repositories.pending.json"
+
+
+def _valid_filesystem_identity(value: Any) -> bool:
+    try:
+        validate_identity(value)
+    except FilesystemIdentityError:
+        return False
+    return True
 
 
 def physical_repository_lock_path(repository_root: Path) -> Path:
@@ -3078,7 +3091,7 @@ class RepositoryMigration:
                 continue
             rows.append(
                 {
-                    "identity": f"{metadata.st_dev}:{metadata.st_ino}",
+                    "identity": f"{portable_device(metadata)}:{metadata.st_ino}",
                     "name": name,
                     "path": str(path),
                     "present": True,
@@ -3169,7 +3182,7 @@ class RepositoryMigration:
                     or control.get("socket")
                     != str(control_socket_path(directory, control["generation"]))
                     or not isinstance(control.get("lease"), dict)
-                    or set(control["lease"]) != {"device", "inode"}
+                    or not _valid_filesystem_identity(control["lease"])
                 ):
                     raise WorkspaceError("topology control identity is invalid")
                 generation = (

@@ -16,6 +16,7 @@ import threading
 import time
 from typing import Any, BinaryIO
 
+from .filesystem_identity import FilesystemIdentityError, validate_identity
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .model import durable_atomic_json
 from .platform_compat import inherited_subprocess_handles
@@ -434,13 +435,7 @@ def _open_control(spec: dict[str, Any], topology_root: Path) -> socket.socket | 
         or control["socket"]
         != str(control_socket_path(topology_root, control["generation"]))
         or not isinstance(control.get("lease"), dict)
-        or set(control["lease"]) != {"device", "inode"}
-        or not all(
-            isinstance(value, int)
-            and not isinstance(value, bool)
-            and value >= 0
-            for value in control["lease"].values()
-        )
+        or not _valid_filesystem_identity(control["lease"])
     ):
         raise RuntimeError("topology control identity is invalid")
     endpoint = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -453,6 +448,14 @@ def _open_control(spec: dict[str, Any], topology_root: Path) -> socket.socket | 
         endpoint.close()
         raise
     return endpoint
+
+
+def _valid_filesystem_identity(value: Any) -> bool:
+    try:
+        validate_identity(value)
+    except FilesystemIdentityError:
+        return False
+    return True
 
 
 def _validate_scenario_connect_field(label: str, value: object) -> str:

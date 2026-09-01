@@ -243,12 +243,13 @@ class Snapshot:
     digest: str
     device: int
     inode: int
+    record_device: int | None = None
 
     def json(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "digest": self.digest,
-            "device": self.device,
+            "device": _snapshot_record_device(self),
             "inode": self.inode,
             "document": self.document,
         }
@@ -353,13 +354,14 @@ class ReleaseRecord:
     digest: str
     device: int
     inode: int
+    record_device: int | None = None
 
     def json(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "ledger_name": self.ledger_name,
             "digest": self.digest,
-            "device": self.device,
+            "device": self.device if self.record_device is None else self.record_device,
             "inode": self.inode,
             "document": self.document,
         }
@@ -375,13 +377,14 @@ class ArchiveRecord:
     device: int
     inode: int
     status: os.stat_result
+    record_device: int | None = None
 
     def json(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "ledger_name": self.ledger_name,
             "digest": self.digest,
-            "device": self.device,
+            "device": self.device if self.record_device is None else self.record_device,
             "inode": self.inode,
             "document": self.document,
         }
@@ -573,6 +576,94 @@ def byte_digest(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+PORTABLE_FILESYSTEM_IDENTITY_SCHEMA_VERSION = 1
+
+
+def _portable_filesystem_identity(
+    status: os.stat_result, *, content_sha256: str | None = None
+) -> dict[str, Any]:
+    """Describe a live file or directory without persisting ``st_dev``."""
+
+    if not (stat.S_ISDIR(status.st_mode) or stat.S_ISREG(status.st_mode)):
+        raise LedgerError("portable filesystem identity requires a file or directory")
+    identity: dict[str, Any] = {
+        "schema_version": PORTABLE_FILESYSTEM_IDENTITY_SCHEMA_VERSION,
+        "kind": "directory" if stat.S_ISDIR(status.st_mode) else "file",
+        "inode": status.st_ino,
+        "mode": stat.S_IFMT(status.st_mode),
+    }
+    if stat.S_ISREG(status.st_mode):
+        identity["ctime_ns"] = status.st_ctime_ns
+        if content_sha256 is not None:
+            _string(content_sha256, "portable filesystem content digest", SHA256_RE)
+            identity["sha256"] = content_sha256
+    elif content_sha256 is not None:
+        raise LedgerError("directory portable identity cannot contain a content digest")
+    return identity
+
+
+def _portable_device(status: os.stat_result) -> int:
+    """Return the stable numeric projection retained by schema-v1 records."""
+
+    raw = json.dumps(
+        {
+            key: value
+            for key, value in _portable_filesystem_identity(status).items()
+            if key != "ctime_ns"
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("ascii")
+    return int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
+
+
+def _portable_pair(status: os.stat_result) -> dict[str, int]:
+    return {"device": _portable_device(status), "inode": status.st_ino}
+
+
+def _pair_matches_status(
+    value: Mapping[str, Any] | tuple[int, int], status: os.stat_result
+) -> bool:
+    """Accept old live pairs and the new portable projection during migration."""
+
+    if isinstance(value, tuple):
+        if len(value) != 2:
+            return False
+        device, inode = value
+    else:
+        if not {"device", "inode"}.issubset(value):
+            return False
+        device, inode = value["device"], value["inode"]
+    return (
+        type(device) is int
+        and device >= 0
+        and type(inode) is int
+        and inode >= 0
+        and inode == status.st_ino
+        and device in {status.st_dev, _portable_device(status)}
+    )
+
+
+def _snapshot_record_device(snapshot: Snapshot) -> int:
+    """Read the durable projection, retaining compatibility with test fixtures."""
+
+    value = getattr(snapshot, "record_device", None)
+    return snapshot.device if value is None else value
+
+
+def _snapshot_matches_identity(
+    snapshot: Snapshot, generation: int, digest: str, device: int, inode: int
+) -> bool:
+    """Match a persisted pair while accepting pre-migration raw-device callers."""
+
+    return (
+        snapshot.document["generation"] == generation
+        and snapshot.digest == digest
+        and snapshot.inode == inode
+        and device in {snapshot.device, _snapshot_record_device(snapshot)}
+    )
+
+
 def canonical_object_digest(value: Any) -> str:
     """Match the wrapper's canonical request digest (which has no final newline)."""
 
@@ -756,7 +847,7 @@ def _release_document(
             "ledger_id": snapshot.document["ledger_id"],
             "generation": snapshot.document["generation"],
             "sha256": snapshot.digest,
-            "device": snapshot.device,
+            "device": _snapshot_record_device(snapshot),
             "inode": snapshot.inode,
         },
         **request_copy,
@@ -1086,7 +1177,14 @@ def _release_record(name: str, raw: bytes, status: os.stat_result) -> ReleaseRec
     if name != _release_name(ledger_name):
         raise LedgerError(f"release marker filename is noncanonical: {name}")
     return ReleaseRecord(
-        name, ledger_name, document, raw, byte_digest(raw), status.st_dev, status.st_ino
+        name,
+        ledger_name,
+        document,
+        raw,
+        byte_digest(raw),
+        status.st_dev,
+        status.st_ino,
+        _portable_device(status),
     )
 
 
@@ -1791,7 +1889,7 @@ def _archive_member(name: str, raw: bytes, status: os.stat_result) -> dict[str, 
     return {
         "name": _direct_name(name, "archive member name"),
         "mode": stat.S_IMODE(status.st_mode),
-        "device": status.st_dev,
+        "device": _portable_device(status),
         "inode": status.st_ino,
         "sha256": byte_digest(raw),
         "raw_base64": base64.b64encode(raw).decode("ascii"),
@@ -1919,8 +2017,22 @@ def _validate_archived_head_correction(
         actual_head=receipt["actual_head"],
         actual_merge_base=receipt.get("actual_merge_base"),
     )
+    erroneous_snapshot = Snapshot(
+        erroneous_name,
+        erroneous,
+        erroneous_raw,
+        source,
+        erroneous_device,
+        erroneous_inode,
+        erroneous_device,
+    )
     _require_head_correction_recovery(
-        receipt["recovery"], erroneous, expected_intent, context
+        receipt["recovery"],
+        erroneous,
+        expected_intent,
+        context,
+        installed_snapshot=erroneous_snapshot,
+        allow_historical_device=True,
     )
     generation = corrected["generation"]
     current = snapshot.document
@@ -2018,6 +2130,7 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
         ledger_identity[3],
         ledger_identity[4],
         ledger_identity[5],
+        ledger_identity[4],
     )
     correction_members = _validate_archived_head_correction(
         archived_snapshot, members, context
@@ -2068,6 +2181,7 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
         item["release_sha256"],
         release_device,
         release_inode,
+        release_device,
     )
     archive_request = {
         key: item[key]
@@ -2104,7 +2218,15 @@ def _archive_record(name: str, raw: bytes, status: os.stat_result) -> ArchiveRec
         status.st_dev,
         status.st_ino,
         status,
+        _portable_device(status),
     )
+
+
+def _archive_record_device(archive: ArchiveRecord) -> int:
+    """Read the durable archive projection, retaining old fixture compatibility."""
+
+    value = getattr(archive, "record_device", None)
+    return archive.device if value is None else value
 
 
 def _exact(value: Any, keys: set[str], context: str) -> dict[str, Any]:
@@ -2691,7 +2813,7 @@ def _recheck_pinned_directory(
         not stat.S_ISDIR(opened.st_mode)
         or not stat.S_ISDIR(visible.st_mode)
         or identity != (visible.st_dev, visible.st_ino)
-        or (expected is not None and identity != expected)
+        or (expected is not None and not _pair_matches_status(expected, opened))
     ):
         raise LedgerError(f"{context} live path identity drifted")
     return opened
@@ -3330,8 +3452,13 @@ def _verify_live_scope(
             profile_status, f"{context} scope profile {profile_path}"
         )
         if (
-            (profile_status.st_dev, profile_status.st_ino)
-            != (profile.get("path_device"), profile.get("path_inode"))
+            not _pair_matches_status(
+                {
+                    "device": profile.get("path_device"),
+                    "inode": profile.get("path_inode"),
+                },
+                profile_status,
+            )
             or byte_digest(profile_raw) != profile.get("sha256")
         ):
             raise LedgerError(
@@ -4695,8 +4822,9 @@ def _prove_live_worktree_core(
         if primary_common_descriptor is not None:
             os.close(primary_common_descriptor)
     return {
-        "path_device": worktree_status.st_dev,
+        "path_device": _portable_device(worktree_status),
         "path_inode": worktree_status.st_ino,
+        "live_path_device": worktree_status.st_dev,
         "common_git_dir": common_git_dir,
         "tree": tree,
         "safety": dict(SAFE_ARTIFACT_STATE),
@@ -4787,8 +4915,9 @@ def _verify_live_observation(
     item: Mapping[str, Any], proof: Mapping[str, Any], context: str
 ) -> None:
     if (
-        (item["path_device"], item["path_inode"])
-        != (proof["path_device"], proof["path_inode"])
+        item["path_inode"] != proof["path_inode"]
+        or item["path_device"]
+        not in {proof["path_device"], proof.get("live_path_device")}
         or item["safety"] != proof["safety"]
     ):
         raise LedgerError(f"{context} differs from helper-owned live proof")
@@ -5415,7 +5544,15 @@ def _head_correction_receipt(value: Any, context: str) -> dict[str, Any]:
         or erroneous[0] != f"{expected_prefix}.erroneous.snapshot"
         or erroneous[1] != source_digest
         or recovery["intent"]["target"] != target
-        or recovery["intent"]["installed"] != source
+        or not (
+            recovery["intent"]["installed"] == source
+            or (
+                recovery["intent"]["installed"]["generation"]
+                == source["generation"]
+                and recovery["intent"]["installed"]["sha256"] == source["sha256"]
+                and recovery["intent"]["installed"]["inode"] == source["inode"]
+            )
+        )
         or recovery["intent"]["predecessor_sha256"] != predecessor[1]
         or recovery["intent"]["repository"] != item["repository"]
         or recovery["intent"]["branch"] != item["branch"]
@@ -5980,9 +6117,19 @@ def _scope_binding_observation(
         _verify_live_observation(observation, proof, context)
         if proof["common_git_dir"] != row["common_git_dir"]:
             raise LedgerError(f"{context} common Git directory differs from scope result")
-    if (observation["path_device"], observation["path_inode"]) != (
-        row["path_device"],
-        row["path_inode"],
+    try:
+        live_status = Path(path).stat(follow_symlinks=False)
+    except OSError as error:
+        raise LedgerError(f"{context} path identity cannot be rechecked") from error
+    if not _pair_matches_status(
+        {
+            "device": observation["path_device"],
+            "inode": observation["path_inode"],
+        },
+        live_status,
+    ) or not _pair_matches_status(
+        {"device": row["path_device"], "inode": row["path_inode"]},
+        live_status,
     ):
         raise LedgerError(f"{context} path identity differs from scope result")
 
@@ -8309,12 +8456,7 @@ def _snapshot_matches_tuple(
     device: int,
     inode: int,
 ) -> bool:
-    return (
-        snapshot.document["generation"],
-        snapshot.digest,
-        snapshot.device,
-        snapshot.inode,
-    ) == (generation, digest, device, inode)
+    return _snapshot_matches_identity(snapshot, generation, digest, device, inode)
 
 
 def _require_clean_bound_snapshot(root: Path | str, snapshot: Snapshot) -> Snapshot:
@@ -8819,7 +8961,15 @@ def _snapshot(directory: int, name: str) -> Snapshot:
     expected_name = canonical_name(document)
     if name != expected_name:
         raise LedgerError(f"ledger filename is noncanonical: {name}; expected {expected_name}")
-    return Snapshot(name, document, raw, byte_digest(raw), status.st_dev, status.st_ino)
+    return Snapshot(
+        name,
+        document,
+        raw,
+        byte_digest(raw),
+        status.st_dev,
+        status.st_ino,
+        _portable_device(status),
+    )
 
 
 def _exists(directory: int, name: str) -> bool:
@@ -8986,24 +9136,36 @@ def _ensure_head_correction_source_link(
     if (
         existing != raw
         or target_raw != raw
-        or (status.st_dev, status.st_ino) != (expected_device, expected_inode)
-        or (target_status.st_dev, target_status.st_ino)
-        != (expected_device, expected_inode)
+        or not _pair_matches_status(
+            {"device": expected_device, "inode": expected_inode}, status
+        )
+        or not _pair_matches_status(
+            {"device": expected_device, "inode": expected_inode}, target_status
+        )
     ):
         raise LedgerError("head-correction source hard link differs from exact CAS inode")
     return status
 
 
-def _unlink_exact(directory: int, name: str, expected: os.stat_result) -> None:
+def _unlink_exact(
+    directory: int,
+    name: str,
+    expected: os.stat_result,
+    *,
+    durable_device: int | None = None,
+) -> None:
     """Atomically quarantine the named inode before irreversible removal."""
 
+    durable_device = (
+        _portable_device(expected) if durable_device is None else durable_device
+    )
     token = hashlib.sha256(
-        f"{name}\0{expected.st_dev}\0{expected.st_ino}".encode("utf-8")
+        f"{name}\0{durable_device}\0{expected.st_ino}".encode("utf-8")
     ).hexdigest()
     receipt_document = {
         "schema_version": 1,
         "name": name,
-        "device": expected.st_dev,
+        "device": durable_device,
         "inode": expected.st_ino,
     }
     receipt_raw = canonical_bytes(receipt_document)
@@ -9054,7 +9216,9 @@ def _unlink_exact(directory: int, name: str, expected: os.stat_result) -> None:
                 _fsync(quarantine, "unlink quarantine after recovering transaction")
                 _fsync(directory, f"review root after recovering removal of {name}")
                 return
-            if (visible.st_dev, visible.st_ino) != (expected.st_dev, expected.st_ino):
+            if not _pair_matches_status(
+                {"device": durable_device, "inode": expected.st_ino}, visible
+            ):
                 raise LedgerError(f"staging file was replaced: {name}")
             os.rename(
                 name,
@@ -9072,7 +9236,9 @@ def _unlink_exact(directory: int, name: str, expected: os.stat_result) -> None:
                 pass
             else:
                 raise LedgerError(f"unlink transaction and source both exist: {name}")
-        if (payload.st_dev, payload.st_ino) != (expected.st_dev, expected.st_ino):
+        if not _pair_matches_status(
+            {"device": durable_device, "inode": expected.st_ino}, payload
+        ):
             raise LedgerError(f"quarantined file has the wrong identity: {name}")
         os.unlink("payload", dir_fd=transaction)
         _fsync(transaction, f"unlink transaction after removing {name}")
@@ -9166,9 +9332,16 @@ def _recover_unlink_quarantine(directory: int) -> None:
                 try:
                     visible = os.stat(name, dir_fd=directory, follow_symlinks=False)
                 except FileNotFoundError:
-                    _unlink_exact(directory, name, expected)
+                    _unlink_exact(
+                        directory,
+                        name,
+                        expected,
+                        durable_device=device,
+                    )
                     continue
-                if (visible.st_dev, visible.st_ino) != (device, inode):
+                if not _pair_matches_status(
+                    {"device": device, "inode": inode}, visible
+                ):
                     raise LedgerError(f"unlink recovery source identity changed: {name}")
                 # Intent was durable but the target was never quarantined. Do
                 # not let an inventory scan turn a forgeable same-UID receipt
@@ -9182,7 +9355,7 @@ def _recover_unlink_quarantine(directory: int) -> None:
                 os.rmdir(token, dir_fd=quarantine)
                 _fsync(quarantine, "unlink quarantine after aborting pre-commit intent")
                 continue
-            _unlink_exact(directory, name, expected)
+            _unlink_exact(directory, name, expected, durable_device=device)
         _fsync(directory, "review root after unlink recovery")
     finally:
         os.close(quarantine)
@@ -9882,9 +10055,47 @@ def _require_head_correction_recovery(
     document: Mapping[str, Any],
     expected_intent: Mapping[str, Any],
     context: str,
+    *,
+    installed_snapshot: Snapshot | None = None,
+    allow_historical_device: bool = False,
 ) -> None:
-    if recovery["intent"] != expected_intent:
-        raise LedgerError(f"{context} does not authorize the exact correction intent")
+    actual_intent = recovery["intent"]
+    if actual_intent != expected_intent:
+        compatible = False
+        if installed_snapshot is not None:
+            actual_installed = actual_intent.get("installed")
+            expected_installed = expected_intent.get("installed")
+            if isinstance(actual_installed, dict) and isinstance(expected_installed, dict):
+                normalized_actual = dict(actual_installed)
+                normalized_actual["device"] = expected_installed.get("device")
+                normalized_intent = dict(actual_intent)
+                normalized_intent["installed"] = normalized_actual
+                compatible = (
+                    normalized_intent == expected_intent
+                    and _snapshot_matches_identity(
+                        installed_snapshot,
+                        actual_installed.get("generation"),
+                        actual_installed.get("sha256"),
+                        actual_installed.get("device"),
+                        actual_installed.get("inode"),
+                    )
+                )
+        if allow_historical_device:
+            actual_installed = actual_intent.get("installed")
+            expected_installed = expected_intent.get("installed")
+            if (
+                isinstance(actual_installed, dict)
+                and isinstance(expected_installed, dict)
+                and type(actual_installed.get("device")) is int
+                and actual_installed["device"] >= 0
+            ):
+                normalized_actual = dict(actual_installed)
+                normalized_actual["device"] = expected_installed.get("device")
+                normalized_intent = dict(actual_intent)
+                normalized_intent["installed"] = normalized_actual
+                compatible = normalized_intent == expected_intent
+        if not compatible:
+            raise LedgerError(f"{context} does not authorize the exact correction intent")
     grant = recovery["grant"]
     if (
         grant["actor_node_id"] != document["actor"]["node_id"]
@@ -10429,6 +10640,7 @@ def _inventory_locked(directory: int) -> Inventory:
                     byte_digest(raw),
                     status.st_dev,
                     status.st_ino,
+                    _portable_device(status),
                 )
             )
             continue
@@ -10481,6 +10693,7 @@ def _inventory_locked(directory: int) -> Inventory:
                         byte_digest(raw),
                         status.st_dev,
                         status.st_ino,
+                        _portable_device(status),
                     )
                 )
                 break
@@ -10559,13 +10772,13 @@ def _inventory_locked(directory: int) -> Inventory:
                     or current.raw != erroneous_raw
                     or (erroneous_status.st_dev, erroneous_status.st_ino)
                     != (current.device, current.inode)
-                    or receipt["source"]
-                    != {
-                        "generation": current.document["generation"],
-                        "sha256": current.digest,
-                        "device": current.device,
-                        "inode": current.inode,
-                    }
+                    or not _snapshot_matches_identity(
+                        current,
+                        current.document["generation"],
+                        current.digest,
+                        receipt["source"]["device"],
+                        receipt["source"]["inode"],
+                    )
                 ):
                     raise LedgerError(f"head-correction source identity changed: {target}")
                 _, metadata, _ = _head_correction_document(
@@ -10591,12 +10804,22 @@ def _inventory_locked(directory: int) -> Inventory:
                     erroneous,
                     expected_intent,
                     f"head-correction receipt for {target}",
+                    installed_snapshot=current,
                 )
             continue
         if receipt is None or "erroneous" not in entries:
             raise LedgerError(f"installed head correction lacks evidence: {target}")
         erroneous_name, _, erroneous_raw, erroneous_status = entries["erroneous"]
         erroneous = validate(_decode(erroneous_raw, erroneous_name))
+        erroneous_snapshot = Snapshot(
+            erroneous_name,
+            erroneous,
+            erroneous_raw,
+            source_digest,
+            erroneous_status.st_dev,
+            erroneous_status.st_ino,
+            _portable_device(erroneous_status),
+        )
         if erroneous_raw != canonical_bytes(erroneous) or byte_digest(erroneous_raw) != source_digest:
             raise LedgerError(f"head-correction erroneous snapshot mismatch: {target}")
         corrected, metadata, _ = _head_correction_document(
@@ -10624,6 +10847,7 @@ def _inventory_locked(directory: int) -> Inventory:
             erroneous,
             expected_intent,
             f"head-correction receipt for {target}",
+            installed_snapshot=erroneous_snapshot,
         )
         correction_generation = corrected["generation"]
         correction_is_current = current.document["generation"] == correction_generation
@@ -10653,20 +10877,16 @@ def _inventory_locked(directory: int) -> Inventory:
             or receipt["predecessor_snapshot"] != {
                 "name": predecessor_name,
                 "sha256": byte_digest(predecessor_raw),
-                "device": predecessor_status.st_dev,
+                "device": _portable_device(predecessor_status),
                 "inode": predecessor_status.st_ino,
             }
             or receipt["erroneous_snapshot"] != {
                 "name": erroneous_name,
                 "sha256": source_digest,
-                "device": erroneous_status.st_dev,
+                "device": _portable_device(erroneous_status),
                 "inode": erroneous_status.st_ino,
             }
-            or (
-                receipt["source"]["device"],
-                receipt["source"]["inode"],
-            )
-            != (erroneous_status.st_dev, erroneous_status.st_ino)
+            or not _pair_matches_status(receipt["source"], erroneous_status)
             or "stage" in entries
         ):
             raise LedgerError(f"completed head correction evidence mismatch: {target}")
@@ -10798,8 +11018,9 @@ def _inventory_locked(directory: int) -> Inventory:
             related_raw, related_status = _read_regular(directory, related_name)
             if (
                 byte_digest(related_raw) != related_digest
-                or related_status.st_dev != related_device
-                or related_status.st_ino != related_inode
+                or not _pair_matches_status(
+                    {"device": related_device, "inode": related_inode}, related_status
+                )
             ):
                 raise LedgerError(f"migration related source changed: {related_name}")
         canonical_report = marker["canonical_report"]
@@ -10809,8 +11030,9 @@ def _inventory_locked(directory: int) -> Inventory:
         ):
             if (
                 byte_digest(source_raw) != source_digest
-                or source_status.st_dev != source_device
-                or source_status.st_ino != source_inode
+                or not _pair_matches_status(
+                    {"device": source_device, "inode": source_inode}, source_status
+                )
             ):
                 raise LedgerError(f"migration source changed: {source_name}")
         snapshot_raw: bytes | None = None
@@ -10832,8 +11054,9 @@ def _inventory_locked(directory: int) -> Inventory:
             )
             if (
                 byte_digest(snapshot_raw) != snapshot_digest
-                or snapshot_status.st_dev != snapshot_device
-                or snapshot_status.st_ino != snapshot_inode
+                or not _pair_matches_status(
+                    {"device": snapshot_device, "inode": snapshot_inode}, snapshot_status
+                )
             ):
                 raise LedgerError(f"migration snapshot changed: {snapshot_name}")
         try:
@@ -10965,7 +11188,7 @@ def _inventory_locked(directory: int) -> Inventory:
             identity["ledger_id"] != snapshot.document["ledger_id"]
             or identity["generation"] != snapshot.document["generation"]
             or identity["sha256"] != snapshot.digest
-            or identity["device"] != snapshot.device
+            or identity["device"] != _snapshot_record_device(snapshot)
             or identity["inode"] != snapshot.inode
         ):
             raise LedgerError(f"release marker is stale for {release.ledger_name}")
@@ -11011,6 +11234,7 @@ def _inventory_locked(directory: int) -> Inventory:
                 archive.document["ledger"]["sha256"],
                 archive.document["ledger"]["device"],
                 archive.document["ledger"]["inode"],
+                archive.document["ledger"]["device"],
             )
         )
     all_by_identity = {
@@ -11581,7 +11805,7 @@ def init_root(wrapper_root: Path | str) -> dict[str, Any]:
             raise LedgerError("initialized review root identity changed")
         return {
             "root": str(current_path),
-            "device": status.st_dev,
+            "device": _portable_device(status),
             "inode": status.st_ino,
         }
     finally:
@@ -12295,7 +12519,9 @@ def _finish_archive_members(
         if (
             current_raw != raw
             or stat.S_IMODE(status.st_mode) != mode
-            or (status.st_dev, status.st_ino) != (device, inode)
+            or not _pair_matches_status(
+                {"device": device, "inode": inode}, status
+            )
         ):
             raise LedgerError(f"archive member changed before removal: {name}")
         _unlink_exact(directory, name, status)
@@ -12318,7 +12544,15 @@ def _archive_snapshot(archive: ArchiveRecord) -> Snapshot:
     validate(document)
     if raw != canonical_bytes(document) or byte_digest(raw) != identity[3]:
         raise LedgerError("installed archive ledger member is mismatched")
-    return Snapshot(name, document, raw, identity[3], device, inode)
+    return Snapshot(
+        name,
+        document,
+        raw,
+        identity[3],
+        device,
+        inode,
+        device,
+    )
 
 
 def _require_archive_members_absent(directory: int, archive: ArchiveRecord) -> None:
@@ -12512,7 +12746,7 @@ def reclaim_preview(root: Path | str, name: str) -> dict[str, Any]:
                 "operation": "reclaim",
                 "archive": archive.name,
                 "sha256": archive.digest,
-                "device": archive.device,
+                "device": _archive_record_device(archive),
                 "inode": archive.inode,
                 "observed_at": observed,
             }
@@ -12522,7 +12756,7 @@ def reclaim_preview(root: Path | str, name: str) -> dict[str, Any]:
             "plan_sha256": plan,
             "archive": archive.name,
             "archive_sha256": archive.digest,
-            "device": archive.device,
+            "device": _archive_record_device(archive),
             "inode": archive.inode,
             "observed_at": observed,
             "state": "eligible",
@@ -12659,7 +12893,7 @@ def reclaim_apply(
                 "operation": "reclaim",
                 "archive": archive.name,
                 "sha256": archive.digest,
-                "device": archive.device,
+                "device": _archive_record_device(archive),
                 "inode": archive.inode,
                 "observed_at": item["observed_at"],
             }
@@ -12667,7 +12901,7 @@ def reclaim_apply(
         if (
             expected != plan
             or item["archive_sha256"] != archive.digest
-            or item["device"] != archive.device
+            or item["device"] != _archive_record_device(archive)
             or item["inode"] != archive.inode
         ):
             raise LedgerError("reclaim archive tuple or plan changed")
@@ -12765,6 +12999,7 @@ def create(
                 byte_digest(raw),
                 stage_status.st_dev,
                 stage_status.st_ino,
+                _portable_device(stage_status),
             )
             _reject_overlaps([*current.ledgers, staged_snapshot])
             try:
@@ -13682,10 +13917,13 @@ def target_refresh_cas(
     if (
         current.document["generation"],
         current.digest,
-        current.device,
+        _snapshot_record_device(current),
         current.inode,
     ) != expected:
-        raise LedgerError("stale target-refresh generation, digest, or inode")
+        if not _snapshot_matches_identity(
+            current, expected_generation, expected_digest, expected_device, expected_inode
+        ):
+            raise LedgerError("stale target-refresh generation, digest, or inode")
     change = _target_refresh_change(current.document, prepared, current.digest)
     capability = _TargetRefreshCapability(
         _TARGET_REFRESH_TOKEN,
@@ -13875,8 +14113,13 @@ def cas(
             if (
                 current.document["generation"] != expected_generation
                 or current.digest != expected_digest
-                or current.device != expected_device
-                or current.inode != expected_inode
+                or not _snapshot_matches_identity(
+                    current,
+                    expected_generation,
+                    expected_digest,
+                    expected_device,
+                    expected_inode,
+                )
             ):
                 raise LedgerError("stale CAS generation, digest, or inode")
             if _binding_capability is not None:
@@ -13951,8 +14194,13 @@ def cas(
             if (
                 rechecked.document["generation"] != expected_generation
                 or rechecked.digest != expected_digest
-                or rechecked.device != expected_device
-                or rechecked.inode != expected_inode
+                or not _snapshot_matches_identity(
+                    rechecked,
+                    expected_generation,
+                    expected_digest,
+                    expected_device,
+                    expected_inode,
+                )
             ):
                 raise LedgerError("CAS target changed after staging")
             staged_raw, staged_visible = _read_regular(
@@ -14270,8 +14518,13 @@ def recover_released_scope(
         snapshot.document["ledger_id"] != recovery["source"]["ledger_id"]
         or snapshot.document["generation"] != recovery["source"]["generation"]
         or snapshot.digest != recovery["source"]["sha256"]
-        or snapshot.device != recovery["source"]["device"]
-        or snapshot.inode != recovery["source"]["inode"]
+        or not _snapshot_matches_identity(
+            snapshot,
+            recovery["source"]["generation"],
+            recovery["source"]["sha256"],
+            recovery["source"]["device"],
+            recovery["source"]["inode"],
+        )
     ):
         raise LedgerError("scope recovery source snapshot is stale")
     candidate_raw = canonical_bytes(candidate)
@@ -14481,10 +14734,13 @@ def recover_prebind_scope(
     )
     if not resume and (
         snapshot.document["ledger_id"] != source["ledger_id"]
-        or snapshot.document["generation"] != source["generation"]
-        or snapshot.digest != source["sha256"]
-        or snapshot.device != source["device"]
-        or snapshot.inode != source["inode"]
+        or not _snapshot_matches_identity(
+            snapshot,
+            source["generation"],
+            source["sha256"],
+            source["device"],
+            source["inode"],
+        )
     ):
         raise LedgerError("pre-bind scope recovery source snapshot is stale")
     if byte_digest(candidate_raw) != recovery["candidate_sha256"]:
@@ -14764,14 +15020,27 @@ def correct_target_head(
     }
 
     snapshot = inspect(root, name)
+    installed_snapshot = snapshot
     if snapshot.digest == expected_digest:
         erroneous_raw = snapshot.raw
     else:
         with _locked_root(Path(root)) as directory:
-            erroneous_raw, _ = _read_regular(directory, erroneous_name, managed=True)
+            erroneous_raw, erroneous_status = _read_regular(
+                directory, erroneous_name, managed=True
+            )
     erroneous = validate(_decode(erroneous_raw, "head-correction erroneous bytes"))
     if byte_digest(erroneous_raw) != expected_digest:
         raise LedgerError("head-correction erroneous snapshot differs from expected digest")
+    if snapshot.digest != expected_digest:
+        installed_snapshot = Snapshot(
+            erroneous_name,
+            erroneous,
+            erroneous_raw,
+            expected_digest,
+            erroneous_status.st_dev,
+            erroneous_status.st_ino,
+            _portable_device(erroneous_status),
+        )
     corrected, metadata, live_provenance = _head_correction_document(
         predecessor,
         erroneous,
@@ -14789,7 +15058,7 @@ def correct_target_head(
     source_identity = {
         "generation": expected_generation,
         "sha256": expected_digest,
-        "device": expected_device,
+        "device": _snapshot_record_device(installed_snapshot),
         "inode": expected_inode,
     }
     expected_intent = _head_correction_intent(
@@ -14807,6 +15076,7 @@ def correct_target_head(
         erroneous,
         expected_intent,
         "head-correction recovery authority",
+        installed_snapshot=installed_snapshot,
     )
 
     live_context = (
@@ -14951,8 +15221,13 @@ def correct_target_head(
                 if (
                     current.document["generation"] != expected_generation
                     or current.digest != expected_digest
-                    or current.device != expected_device
-                    or current.inode != expected_inode
+                    or not _snapshot_matches_identity(
+                        current,
+                        expected_generation,
+                        expected_digest,
+                        expected_device,
+                        expected_inode,
+                    )
                     or current.raw != erroneous_raw
                 ):
                     raise LedgerError("stale head-correction generation, digest, or inode")
@@ -14984,13 +15259,13 @@ def correct_target_head(
                     "predecessor_snapshot": {
                         "name": predecessor_name,
                         "sha256": predecessor_digest,
-                        "device": predecessor_status.st_dev,
+                        "device": _portable_device(predecessor_status),
                         "inode": predecessor_status.st_ino,
                     },
                     "erroneous_snapshot": {
                         "name": erroneous_name,
                         "sha256": expected_digest,
-                        "device": erroneous_status.st_dev,
+                        "device": _portable_device(erroneous_status),
                         "inode": erroneous_status.st_ino,
                     },
                     "correction": {
@@ -15009,10 +15284,14 @@ def correct_target_head(
                 _hit(failpoint, "correct-target-head:receipt")
                 rechecked = _snapshot(directory, name)
                 if (
-                    rechecked.digest,
-                    rechecked.device,
-                    rechecked.inode,
-                ) != (expected_digest, expected_device, expected_inode):
+                    not _snapshot_matches_identity(
+                        rechecked,
+                        expected_generation,
+                        expected_digest,
+                        expected_device,
+                        expected_inode,
+                    )
+                ):
                     raise LedgerError("head-correction source changed before replacement")
                 staged_raw, staged_visible = _read_regular(
                     directory, stage, managed=True, sync=True
@@ -15234,7 +15513,7 @@ def migrate(
                 {
                     "name": name,
                     "sha256": byte_digest(raw),
-                    "device": status.st_dev,
+                    "device": _portable_device(status),
                     "inode": status.st_ino,
                 }
                 for name, raw, status in preflight_related
@@ -15246,7 +15525,7 @@ def migrate(
                 source={
                     "name": source_name,
                     "sha256": preflight_digest,
-                    "device": preflight_status.st_dev,
+                    "device": _portable_device(preflight_status),
                     "inode": preflight_status.st_ino,
                 },
                 related_sources=(
@@ -15423,16 +15702,14 @@ def migrate(
             if kind in LEGACY_MIGRATION_KINDS or marker["state"] != "complete":
                 if (
                     source_digest != source["sha256"]
-                    or source_status.st_dev != source["device"]
-                    or source_status.st_ino != source["inode"]
+                    or not _pair_matches_status(source, source_status)
                 ):
                     raise LedgerError("migration source changed before safe completion")
             for related in marker.get("related_sources", []):
                 related_raw, related_status = _read_regular(directory, related["name"])
                 if (
                     byte_digest(related_raw) != related["sha256"]
-                    or related_status.st_dev != related["device"]
-                    or related_status.st_ino != related["inode"]
+                    or not _pair_matches_status(related, related_status)
                 ):
                     raise LedgerError("migration related source changed before completion")
             if marker["state"] == "planned":
@@ -15451,7 +15728,7 @@ def migrate(
                 snapshot = {
                     "name": snapshot_name,
                     "sha256": byte_digest(snapshot_raw),
-                    "device": snapshot_visible.st_dev,
+                    "device": _portable_device(snapshot_visible),
                     "inode": snapshot_visible.st_ino,
                 }
                 _hit(failpoint, "migration:snapshot")
@@ -15542,8 +15819,7 @@ def migrate(
                 )
                 if (
                     byte_digest(snapshot_raw) != snapshot["sha256"]
-                    or snapshot_visible.st_dev != snapshot["device"]
-                    or snapshot_visible.st_ino != snapshot["inode"]
+                    or not _pair_matches_status(snapshot, snapshot_visible)
                 ):
                     raise LedgerError("immutable migration snapshot changed")
                 canonical_raw, _ = _read_regular(directory, canonical_report)

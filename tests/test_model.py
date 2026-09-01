@@ -665,6 +665,7 @@ class ReleaseConfigurationTests(unittest.TestCase):
                 "devcontainer",
                 "github-settings",
                 "observatory",
+                "deploy-control",
             },
         )
         self.assertEqual(
@@ -689,6 +690,25 @@ class ReleaseConfigurationTests(unittest.TestCase):
             "observatory",
         )
         self.assertNotIn("observatory", manifest.cohorts["classic"])
+        deploy_control = manifest.by_name["deploy-control"]
+        self.assertEqual(
+            manifest.by_checkout["deploy-control"].repository,
+            "atrinik/deploy-control",
+        )
+        self.assertEqual(manifest.by_checkout["deploy-control"].path, "deploy-control")
+        self.assertEqual(deploy_control.generation, "shared")
+        self.assertEqual(deploy_control.build, "none")
+        self.assertEqual(deploy_control.provides, ("deploy-control",))
+        self.assertEqual(deploy_control.requires, ())
+        self.assertEqual(
+            manifest.stack("default").providers["deploy-control"].name,
+            "deploy-control",
+        )
+        self.assertEqual(
+            manifest.effective_build("default", "deploy-control"),
+            "none",
+        )
+        self.assertNotIn("deploy-control", manifest.cohorts["classic"])
         self.assertEqual(manifest.effective_build("default", "content"), "none")
         self.assertEqual(
             manifest.effective_build("classic", "content"), "classic-content"
