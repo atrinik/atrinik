@@ -346,6 +346,12 @@ evidence remains fail-closed. Complete and recoverable scope journals
 contribute exact cleanup references until release journals prove each worktree
 removed.
 
+Scope command maps are persisted creation-time snapshots. Validation keeps
+those snapshots stable when the manifest later gains components: newly added
+coordinates are optional for an existing scope, but every retained command
+must still be recognized by the current stack and match its exact coordinate
+form. Removed, renamed, or edited retained coordinates remain fail-closed.
+
 Release computes a canonical SHA-256 plan over the completed scope generation
 and every observed topology, state, build, profile, worktree, and reference
 disposition. Apply requires that preview digest and recomputes it under the
