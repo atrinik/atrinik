@@ -1531,16 +1531,46 @@ class ScopeLifecycle:
             )
         ):
             raise WorkspaceError(f"scope command coordinates are invalid: {name}")
+        path_commands = commands["paths"]
+        build_commands = commands["builds"]
+        stack_components = {
+            component.name: component
+            for component in self.workspace.manifest.stacks[value["stack"]].components
+        }
+        buildable_components = {
+            component.name
+            for component in stack_components.values()
+            if self.workspace.manifest.effective_build(value["stack"], component) != "none"
+        }
         if (
             not isinstance(commands.get("paths"), dict)
             or not isinstance(commands.get("builds"), dict)
             or not isinstance(commands.get("logs"), dict)
             or set(commands["logs"]) != {"client", "server"}
-            or not all(isinstance(item, str) and item for item in commands["paths"].values())
-            or not all(isinstance(item, str) and item for item in commands["builds"].values())
+            or not all(
+                isinstance(key, str)
+                and key in stack_components
+                and isinstance(item, str)
+                and item
+                for key, item in path_commands.items()
+            )
+            or not all(
+                isinstance(key, str)
+                and key in buildable_components
+                and isinstance(item, str)
+                and item
+                for key, item in build_commands.items()
+            )
             or not all(isinstance(item, str) and item for item in commands["logs"].values())
         ):
             raise WorkspaceError(f"scope command maps are invalid: {name}")
+        selected_components = {
+            component
+            for row in worktrees
+            for component in row["logical_components"]
+        }
+        if not selected_components.issubset(path_commands):
+            raise WorkspaceError(f"scope commands do not match exact coordinates: {name}")
         cleanup = value.get("cleanup")
         if (
             not isinstance(cleanup, dict)
@@ -1581,7 +1611,21 @@ class ScopeLifecycle:
             profile["path_device"],
             profile["path_inode"],
         )
-        if value["commands"] != canonical["commands"]:
+        # Command maps are creation-time handoff snapshots. Compare every
+        # retained entry with its current exact coordinate, but do not require
+        # coordinates added to the manifest after this scope was created.
+        canonical_commands = {
+            **canonical["commands"],
+            "paths": {
+                key: canonical["commands"]["paths"][key]
+                for key in path_commands
+            },
+            "builds": {
+                key: canonical["commands"]["builds"][key]
+                for key in build_commands
+            },
+        }
+        if value["commands"] != canonical_commands:
             raise WorkspaceError(f"scope commands do not match exact coordinates: {name}")
         if value["cleanup"] != canonical["cleanup"]:
             raise WorkspaceError(f"scope cleanup does not match exact coordinates: {name}")
