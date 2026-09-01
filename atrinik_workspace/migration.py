@@ -33,6 +33,7 @@ from .model import (
     unlink_validated_json,
 )
 from .process_tree import bound_lease_locked, control_socket_path, lease_locked
+from .platform_compat import inherited_subprocess_handles
 from .sound import validate_release_coordinates
 from .supervisor import process_matches
 
@@ -59,13 +60,14 @@ def physical_repository_lock_path(repository_root: Path) -> Path:
 
     repository = Path(repository_root).resolve()
     try:
-        result = subprocess.run(
-            ["git", "-C", str(repository), "rev-parse", "--git-common-dir"],
-            check=True,
-            capture_output=True,
-            text=True,
-            pass_fds=active_lock_fds(),
-        )
+        with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+            result = subprocess.run(
+                ["git", "-C", str(repository), "rev-parse", "--git-common-dir"],
+                check=True,
+                capture_output=True,
+                text=True,
+                **inheritance,
+            )
     except (OSError, subprocess.CalledProcessError) as error:
         raise WorkspaceError(
             f"cannot derive physical repository maintenance lock: {repository}"
@@ -119,6 +121,27 @@ OPERATION_PATHS = (
 
 def rename_no_replace(source: Path, destination: Path) -> None:
     """Atomically move *source* without replacing a raced-in destination."""
+
+    if os.name == "nt":  # pragma: no cover - exercised by native Windows CI
+        if destination.exists() or destination.is_symlink():
+            raise WorkspaceError(
+                f"destination appeared before atomic install: {destination}"
+            )
+        try:
+            # Windows' MoveFileEx path used by os.rename does not replace an
+            # existing destination, so the kernel closes the check/rename race
+            # without requiring POSIX renameat2.
+            os.rename(source, destination)
+        except FileExistsError as error:
+            raise WorkspaceError(
+                f"destination appeared before atomic install: {destination}"
+            ) from error
+        except OSError as error:
+            raise WorkspaceError(
+                f"cannot move path without replacement: {source} -> {destination}: "
+                f"{error}"
+            ) from error
+        return
 
     try:
         renameat2 = ctypes.CDLL(None, use_errno=True).renameat2
@@ -198,14 +221,15 @@ def classic_lineage(path: Path, canonical: str) -> bool:
 
     def inspect(*arguments: str) -> subprocess.CompletedProcess[bytes]:
         try:
-            return subprocess.run(
-                ["git", "-C", str(path), *arguments],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=False,
-                env=environment,
-                pass_fds=active_lock_fds(),
-            )
+            with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+                return subprocess.run(
+                    ["git", "-C", str(path), *arguments],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                    env=environment,
+                    **inheritance,
+                )
         except OSError as error:
             raise WorkspaceError(f"cannot inspect Git history: {error}") from error
 
@@ -3907,13 +3931,22 @@ class RepositoryMigration:
 
     @staticmethod
     def _is_ancestor(path: Path, ancestor: str, descendant: str) -> bool:
-        process = subprocess.run(
-            ["git", "-C", str(path), "merge-base", "--is-ancestor", ancestor, descendant],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=False,
-            pass_fds=active_lock_fds(),
-        )
+        with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+            process = subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(path),
+                    "merge-base",
+                    "--is-ancestor",
+                    ancestor,
+                    descendant,
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+                **inheritance,
+            )
         if process.returncode == 0:
             return True
         if process.returncode == 1:
@@ -3926,14 +3959,15 @@ class RepositoryMigration:
         environment["GIT_OPTIONAL_LOCKS"] = "0"
         environment["GIT_NO_REPLACE_OBJECTS"] = "1"
         try:
-            return subprocess.run(
-                ["git", "-C", str(path), *arguments],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=False,
-                env=environment,
-                pass_fds=active_lock_fds(),
-            )
+            with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+                return subprocess.run(
+                    ["git", "-C", str(path), *arguments],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                    env=environment,
+                    **inheritance,
+                )
         except OSError as error:
             raise WorkspaceError(f"cannot run Git: {error}") from error
 
@@ -3968,15 +4002,16 @@ class RepositoryMigration:
         environment = environment.copy()
         environment["GIT_NO_REPLACE_OBJECTS"] = "1"
         try:
-            process = subprocess.run(
-                ["git", "-C", str(path), *arguments],
-                input=input_value,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=False,
-                env=environment,
-                pass_fds=active_lock_fds(),
-            )
+            with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+                process = subprocess.run(
+                    ["git", "-C", str(path), *arguments],
+                    input=input_value,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                    env=environment,
+                    **inheritance,
+                )
         except OSError as error:
             raise WorkspaceError(f"cannot run Git: {error}") from error
         if process.returncode:

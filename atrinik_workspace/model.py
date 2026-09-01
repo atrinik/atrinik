@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import fcntl
 import hashlib
 import json
 import os
@@ -11,6 +10,15 @@ import secrets
 import stat
 import time
 from typing import Any, Callable, Iterable
+
+from .platform_compat import (
+    IS_WINDOWS,
+    O_BINARY,
+    O_CLOEXEC,
+    assert_no_symlink_components,
+    fcntl,
+    flush_file,
+)
 
 
 SCHEMA_VERSION = 1
@@ -185,9 +193,15 @@ def load_json(path: Path) -> Any:
 def unlink_validated_json(path: Path, validate: Callable[[Any], None]) -> None:
     """Validate and unlink the same no-follow JSON inode through a parent dirfd."""
 
-    directory_flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
+        raise WorkspaceError(
+            "validated JSON removal is unavailable on native Windows: "
+            "the wrapper cannot prove durable parent-directory unlink semantics"
+        )
+
+    directory_flags = os.O_RDONLY | O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
     directory_flags |= getattr(os, "O_NOFOLLOW", 0)
-    file_flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NOFOLLOW", 0)
+    file_flags = os.O_RDONLY | O_CLOEXEC | getattr(os, "O_NOFOLLOW", 0)
     directory: int | None = None
     descriptor: int | None = None
     try:
@@ -248,7 +262,11 @@ def durable_atomic_json(path: Path, value: Any) -> None:
 
 
 def _atomic_json(path: Path, value: Any, *, durable: bool) -> None:
-    directory_flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
+        _atomic_json_windows(path, value, durable=durable)
+        return
+
+    directory_flags = os.O_RDONLY | O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
     directory_flags |= getattr(os, "O_NOFOLLOW", 0)
     directory = _open_directory_nofollow(
         path.parent, directory_flags, create=True
@@ -269,7 +287,7 @@ def _atomic_json(path: Path, value: Any, *, durable: bool) -> None:
             os.O_WRONLY
             | os.O_CREAT
             | os.O_EXCL
-            | os.O_CLOEXEC
+            | O_CLOEXEC
             | getattr(os, "O_NOFOLLOW", 0),
             0o600,
             dir_fd=directory,
@@ -312,10 +330,91 @@ def _atomic_json(path: Path, value: Any, *, durable: bool) -> None:
         os.close(directory)
 
 
+def _atomic_json_windows(  # pragma: no cover - exercised by native Windows CI
+    path: Path, value: Any, *, durable: bool
+) -> None:
+    """Atomically publish JSON using Windows' replace and flush primitives.
+
+    Windows has no portable descriptor-relative directory API equivalent to
+    the POSIX implementation above.  Existing path components are therefore
+    checked for links/junctions before the uniquely named temporary file is
+    written, and the file contents are flushed before and after replacement.
+    Operations that require durable parent-directory unlink proof remain
+    explicitly unavailable instead of using an unsafe fallback.
+    """
+
+    try:
+        assert_no_symlink_components(path.parent, "JSON")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        assert_no_symlink_components(path, "JSON")
+        opened_parent = path.parent.stat(follow_symlinks=False)
+        if not stat.S_ISDIR(opened_parent.st_mode):
+            raise OSError(f"JSON parent is not a directory: {path.parent}")
+    except OSError as error:
+        raise WorkspaceError(str(error)) from error
+    temporary = path.with_name(f".{path.name}.{secrets.token_hex(12)}.tmp")
+    descriptor: int | None = None
+    replaced = False
+    try:
+        descriptor = os.open(
+            temporary,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | O_BINARY | O_CLOEXEC,
+            0o600,
+        )
+        with os.fdopen(
+            descriptor, "w", encoding="utf-8", newline="\n"
+        ) as stream:
+            descriptor = None
+            json.dump(value, stream, indent=2, sort_keys=True)
+            stream.write("\n")
+            stream.flush()
+            flush_file(stream.fileno())
+        assert_no_symlink_components(path, "JSON")
+        visible_parent = path.parent.stat(follow_symlinks=False)
+        if (opened_parent.st_dev, opened_parent.st_ino) != (
+            visible_parent.st_dev,
+            visible_parent.st_ino,
+        ):
+            raise WorkspaceError(f"JSON parent directory was replaced: {path.parent}")
+        os.replace(temporary, path)
+        replaced = True
+        assert_no_symlink_components(path, "JSON")
+        if durable:
+            with path.open("r+b") as stream:
+                opened = os.fstat(stream.fileno())
+                visible = path.stat(follow_symlinks=False)
+                if (
+                    not stat.S_ISREG(opened.st_mode)
+                    or not stat.S_ISREG(visible.st_mode)
+                    or (opened.st_dev, opened.st_ino)
+                    != (visible.st_dev, visible.st_ino)
+                ):
+                    raise WorkspaceError(
+                        f"JSON file identity changed after replacement: {path}"
+                    )
+                flush_file(stream.fileno())
+    except BaseException as error:
+        if replaced:
+            raise AtomicJsonCommitUncertain(
+                "JSON replacement is visible but its Windows post-replacement "
+                f"file verification is uncertain: {path}: {error}"
+            ) from error
+        raise
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+        temporary.unlink(missing_ok=True)
+
+
 def _open_directory_nofollow(
     path: Path, flags: int, *, create: bool = False
 ) -> int:
     """Open every component of a directory path without following symlinks."""
+
+    if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
+        raise WorkspaceError(
+            "descriptor-relative directory operations are unavailable on native Windows"
+        )
 
     absolute = Path(os.path.abspath(path))
     descriptor = os.open("/", flags)
@@ -1260,11 +1359,22 @@ class Paths:
 
     @classmethod
     def discover(cls, repository: Path) -> "Paths":
+        repository = Path(repository).expanduser()
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
+            try:
+                assert_no_symlink_components(repository, "repository")
+            except OSError as error:
+                raise WorkspaceError(str(error)) from error
         repository = repository.resolve()
         configured = os.environ.get("ATRINIK_WORKSPACE_DIR")
         workspace = Path(configured).expanduser() if configured else repository / "workspace"
         if not workspace.is_absolute():
             raise WorkspaceError("ATRINIK_WORKSPACE_DIR must be an absolute path")
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
+            try:
+                assert_no_symlink_components(workspace, "workspace")
+            except OSError as error:
+                raise WorkspaceError(str(error)) from error
         workspace = workspace.resolve(strict=False)
         if workspace == repository:
             raise WorkspaceError(
@@ -1290,16 +1400,31 @@ class Paths:
             raise WorkspaceError(f"refusing unsafe workspace path: {self.workspace}")
         if self.workspace.exists() and not self.workspace.is_dir():
             raise WorkspaceError(f"workspace path is not a directory: {self.workspace}")
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
+            try:
+                assert_no_symlink_components(self.workspace, "workspace")
+            except OSError as error:
+                raise WorkspaceError(str(error)) from error
         self.workspace.mkdir(parents=True, exist_ok=True)
+        if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
+            try:
+                assert_no_symlink_components(self.workspace, "workspace")
+            except OSError as error:
+                raise WorkspaceError(str(error)) from error
         expected = {"schema_version": SCHEMA_VERSION}
         created = False
         descriptor: int | None = None
         empty_marker_retries = 0
-        flags = os.O_RDWR | os.O_CLOEXEC
+        flags = os.O_RDWR | O_BINARY | O_CLOEXEC
         if hasattr(os, "O_NOFOLLOW"):
             flags |= os.O_NOFOLLOW
 
         while descriptor is None:
+            if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
+                try:
+                    assert_no_symlink_components(self.marker, "workspace marker")
+                except OSError as error:
+                    raise WorkspaceError(str(error)) from error
             if self.marker.is_symlink():
                 raise WorkspaceError(
                     f"refusing unmanaged non-empty workspace directory: {self.workspace}"
@@ -1336,7 +1461,27 @@ class Paths:
                 raise WorkspaceError(
                     f"workspace ownership marker is invalid: {self.marker}: {error}"
                 ) from error
-            if os.fstat(descriptor).st_size == 0:
+            opened = os.fstat(descriptor)
+            if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
+                try:
+                    assert_no_symlink_components(self.marker, "workspace marker")
+                    visible = self.marker.stat(follow_symlinks=False)
+                except OSError as error:
+                    os.close(descriptor)
+                    descriptor = None
+                    raise WorkspaceError(str(error)) from error
+                if (
+                    not stat.S_ISREG(opened.st_mode)
+                    or not stat.S_ISREG(visible.st_mode)
+                    or (opened.st_dev, opened.st_ino)
+                    != (visible.st_dev, visible.st_ino)
+                ):
+                    os.close(descriptor)
+                    descriptor = None
+                    raise WorkspaceError(
+                        f"workspace ownership marker changed during open: {self.marker}"
+                    )
+            if opened.st_size == 0:
                 # The process that won O_EXCL has not published the complete
                 # marker yet. Do not take its lock first and mistake that
                 # transient empty file for corrupt ownership metadata.
@@ -1350,7 +1495,23 @@ class Paths:
                 time.sleep(0.01)
 
         try:
-            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            opened = os.fstat(descriptor)
+            if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
+                try:
+                    assert_no_symlink_components(self.marker, "workspace marker")
+                    visible = self.marker.stat(follow_symlinks=False)
+                except OSError as error:
+                    raise WorkspaceError(str(error)) from error
+                if (
+                    not stat.S_ISREG(opened.st_mode)
+                    or not stat.S_ISREG(visible.st_mode)
+                    or (opened.st_dev, opened.st_ino)
+                    != (visible.st_dev, visible.st_ino)
+                ):
+                    raise WorkspaceError(
+                        f"workspace ownership marker changed during open: {self.marker}"
+                    )
+            if not stat.S_ISREG(opened.st_mode):
                 raise WorkspaceError(
                     f"workspace ownership marker is invalid: {self.marker}"
                 )
@@ -1370,7 +1531,7 @@ class Paths:
                     json.dump(expected, stream, indent=2, sort_keys=True)
                     stream.write("\n")
                     stream.flush()
-                    os.fsync(stream.fileno())
+                    flush_file(stream.fileno())
                 else:
                     stream.seek(0)
                     try:

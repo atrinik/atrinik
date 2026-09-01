@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ctypes
 import errno
-import fcntl
 import json
 import os
 from pathlib import Path
@@ -18,6 +17,7 @@ from .filesystem_identity import (
     portable_identity,
     validate_identity,
 )
+from .platform_compat import fcntl
 
 
 PORT_RESERVATION_SCHEMA_VERSION = 1

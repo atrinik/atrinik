@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import fcntl
 import os
 from pathlib import Path
 import signal
@@ -13,6 +12,7 @@ from .filesystem_identity import (
     portable_identity,
     validate_identity,
 )
+from .platform_compat import fcntl
 
 
 def control_socket_path(topology_root: Path, generation: str) -> Path:

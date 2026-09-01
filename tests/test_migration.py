@@ -62,6 +62,25 @@ SHARED = (
 
 
 class RepositoryMigrationTests(unittest.TestCase):
+    def test_physical_repository_lock_path_inherits_active_descriptors(self) -> None:
+        completed = mock.MagicMock(returncode=0, stdout=".", stderr="")
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            mock.patch(
+                "atrinik_workspace.migration.subprocess.run",
+                return_value=completed,
+            ) as invoke,
+        ):
+            lock_path = migration_module.physical_repository_lock_path(Path(directory))
+
+        self.assertEqual(
+            lock_path,
+            Path(directory).resolve()
+            / "atrinik-resource-leases"
+            / "repository-layout.lock",
+        )
+        self.assertEqual(invoke.call_args.kwargs["pass_fds"], ())
+
     def test_git_helpers_inherit_all_exclusive_layout_descriptors(self) -> None:
         completed = mock.MagicMock(returncode=0, stdout=b"", stderr=b"")
         with (

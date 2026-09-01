@@ -9,6 +9,7 @@ from typing import Any
 
 from .completion import mark, protocol, protocol_command, shell_script
 from .model import Manifest, WorkspaceError
+from .platform_compat import IS_WINDOWS, PlatformCapabilityError, require_linux_capability
 
 
 # Keep completion startup independent from the heavyweight workspace/runtime module.
@@ -714,6 +715,36 @@ def main(arguments: list[str] | None = None) -> int:
     workspace: Any = None
     command_maintenance: Any = None
     try:
+        if IS_WINDOWS and (  # pragma: no cover - exercised by native Windows CI
+            options.command
+            in {
+                "build",
+                "cleanup",
+                "down",
+                "logs",
+                "migrate",
+                "package",
+                "ps",
+                "run",
+                "scenario",
+                "scope",
+                "state",
+                "topology",
+                "up",
+            }
+            or (
+                options.command == "dev"
+                and options.dev_command in {"build", "restart", "up"}
+            )
+            or (
+                options.command == "worktree"
+                and options.worktree_command in {"create", "remove"}
+            )
+        ):
+            require_linux_capability(
+                f"the '{options.command}' command",
+                "descriptor-relative filesystem operations or supervised process identity",
+            )
         if options.command == "completion":
             print(shell_script(options.shell), end="")
             return 0
@@ -1550,7 +1581,7 @@ def main(arguments: list[str] | None = None) -> int:
                     options.dry_run,
                 )
         return 0
-    except WorkspaceError as error:
+    except (PlatformCapabilityError, WorkspaceError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
     except OSError as error:

@@ -2,14 +2,14 @@
 
 ## Overview
 
-- This MIT Python 3.11+ repository coordinates Atrinik repositories, not source;
-  `./atrinik` and `components.json` manage profiles, worktrees, builds, runtimes,
-  cleanup, migration, and supply-chain reports.
+- This Python 3.11+ wrapper coordinates Atrinik repositories; `./atrinik` and
+  `components.json` own profiles, worktrees, builds, runtimes, cleanup,
+  migration, and supply-chain reports.
 - `default` selects the MIT replacement stack (Rust, Go, Protobuf, Astro,
-  source-only Observatory) plus source-only `deploy-control`.
-  Its standalone M1 foundations lack wrapper build/runtime integration.
-  `classic` selects playable C17/CMake/Ninja plus MIT playtester; never mix
-  providers or route unavailable adapters through Classic.
+  source-only Observatory) plus source-only `deploy-control`; M1 foundations
+  lack wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
+  playtester; never mix providers.
+- Windows supports repository commands; Linux-only commands return stable errors.
 
 ## Folder structure and ownership
 
@@ -19,8 +19,8 @@
   `components.json`; machine policy lives in `supply-chain/` and `governance/`.
 - Workflows live in `.agents/skills/`, composition in `.devcontainer/`,
   CI/release in `.github/`, and helpers in `scripts/`.
-- Manifest destinations are independent ignored repositories; `workspace/` and
-  `build/` are ignored generated state, so root status omits them.
+- Manifest destinations are ignored repositories; `workspace/` and `build/` are
+  ignored generated state omitted from root status.
 - Resolve ownership through `components.json` and the checkout's nearest
   `AGENTS.md`; keep implementation, tests, packages, and releases there.
 - `classic/` provides `classic-*`; stacks share `content@main`. `content-1x/`
@@ -32,15 +32,15 @@
 ## Core behaviors and patterns
 
 - Use `atrinik-multi-repo-workspace` for wrapper ownership, profiles, worktrees,
-  migration, cleanup, releases, CLI, or layout; add only applicable specialist
-  skills and use `atrinik-guidance-maintenance` for guidance audits.
+  migration, cleanup, releases, CLI, or layout; add applicable specialist skills
+  and use `atrinik-guidance-maintenance` for guidance audits.
 - Use `atrinik-issue-delivery` only when explicitly invoked for an issue or
   existing PR; it stops before merge.
 - Use `atrinik-program-delivery` only when explicitly invoked for an ordered
   master issue; it composes leaves across merge gates and stops before merge or
   issue closure.
-- Never replace or move a dirty primary checkout, remove a dirty worktree, or
-  overwrite mutable server data. Preserve recoverable migration inputs.
+- Never replace dirty primaries, remove dirty worktrees, or overwrite mutable
+  server data; preserve migration inputs.
 - Cleanup is preview-first; delivery completion grants none. Ledger terminal
   transactions stay separate from `./atrinik cleanup`. Preserve dirty,
   detached, locked, active, referenced, or uncertain targets; history fails
