@@ -1514,6 +1514,38 @@ class ScopeLifecycleTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "exact coordinates"):
             self.workspace.scope_show("edited-command")
 
+    def test_completed_record_rejects_edited_handoff_command_map(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="edited-command-map")
+        record["commands"]["paths"]["client"] = "./unexpected-command"
+        record_path = (
+            self.workspace_directory / "scopes" / "edited-command-map" / "scope.json"
+        )
+        record_path.write_text(json.dumps(record), encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "exact coordinates"):
+            self.workspace.scope_show("edited-command-map")
+
+    def test_completed_scope_survives_manifest_component_addition(self) -> None:
+        self.make_checkout("metaserver-worker")
+        record = self.workspace.scope_create(
+            ["metaserver-worker"], name="manifest-component-addition"
+        )
+        # Simulate a record created before deploy-control was registered; the
+        # command handoff is intentionally outside the request digest.
+        record["commands"]["paths"].pop("deploy-control")
+        record_path = (
+            self.workspace_directory
+            / "scopes"
+            / "manifest-component-addition"
+            / "scope.json"
+        )
+        record_path.write_text(json.dumps(record), encoding="utf-8")
+
+        self.assertEqual(
+            self.workspace.scope_show("manifest-component-addition"), record
+        )
+        self.assertEqual(self.workspace.scope_list(), [record])
+
     def test_failure_after_each_publication_boundary_is_journaled(self) -> None:
         self.make_checkout("client")
         for index, boundary in enumerate(

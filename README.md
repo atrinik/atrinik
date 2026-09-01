@@ -750,6 +750,11 @@ path, build, topology, log, shutdown, and release commands. Use those returned
 commands rather than reconstructing managed paths. `scope show` and `scope
 list` return the same validated records.
 
+Scope command maps are creation-time snapshots. A later manifest addition
+therefore does not invalidate a completed scope or retroactively add commands
+to its handoff; every retained entry must still be a valid current coordinate
+and exact command, while removed or edited coordinates fail closed.
+
 Creation journals every worktree, profile-reference, profile, and completed
 record publication boundary. A failed transaction removes only exact newly
 created worktrees and profiles that remain clean, unchanged, and unreferenced;
