@@ -2,16 +2,14 @@
 
 ## Overview
 
-- This MIT Python 3.11+ repository coordinates Atrinik repositories, not source;
-  `./atrinik` and `components.json` manage profiles, worktrees, builds, runtimes,
-  cleanup, migration, and supply-chain reports.
+- This Python 3.11+ wrapper coordinates Atrinik repositories; `./atrinik` and
+  `components.json` own profiles, worktrees, builds, runtimes, cleanup,
+  migration, and supply-chain reports.
 - `default` selects the MIT replacement stack (Rust, Go, Protobuf, Astro,
-  source-only Observatory) plus source-only `deploy-control`.
-  Its standalone M1 foundations lack wrapper build/runtime integration.
-  `classic` selects playable C17/CMake/Ninja plus MIT playtester; never mix
-  providers or route unavailable adapters through Classic.
-- Native Windows supports repository commands; Linux-only build/runtime commands
-  return stable capability errors.
+  source-only Observatory) plus source-only `deploy-control`; M1 foundations
+  lack wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
+  playtester; never mix providers.
+- Windows supports repository commands; Linux-only commands return stable errors.
 
 ## Folder structure and ownership
 
