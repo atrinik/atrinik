@@ -201,6 +201,14 @@ class InventoryTests(unittest.TestCase):
             inventory.repositories_by_name["deploy-control"].source,
             ".",
         )
+        web_platform = inventory.repositories_by_name["web-platform"]
+        self.assertEqual(web_platform.repository, "atrinik/web-platform")
+        self.assertEqual(web_platform.cohorts, ("default",))
+        self.assertEqual(web_platform.stacks, ("default",))
+        self.assertEqual(web_platform.roles, ("web-platform",))
+        self.assertEqual(web_platform.license, "MIT")
+        self.assertFalse(web_platform.audit_ready)
+        self.assertEqual(web_platform.audit_mode, "full")
         self.assertEqual(
             inventory.repositories_by_name["content"].stacks,
             ("classic", "default"),

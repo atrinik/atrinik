@@ -533,6 +533,28 @@
       "source": "."
     },
     {
+      "audit_ready": false,
+      "audit_mode": "full",
+      "branch": "main",
+      "cohorts": [
+        "default"
+      ],
+      "license": "MIT",
+      "commit": null,
+      "name": "web-platform",
+      "repository": "atrinik/web-platform",
+      "role": "Shared presentation package for Atrinik web applications",
+      "roles": [
+        "web-platform"
+      ],
+      "stacks": [
+        "default"
+      ],
+      "supported": true,
+      "checkout": "web-platform",
+      "source": "."
+    },
+    {
       "audit_ready": true,
       "audit_mode": "full",
       "branch": "main",

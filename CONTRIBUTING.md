@@ -130,15 +130,18 @@ Do not normalize them as source headers; change one only through deliberate
 repository-owned legal review.
 
 The canonical `server`, `client`, `editor`, `protocol`, `renderer`,
-`content-toolkit`, `website`, and `observatory` repositories form the MIT
-replacement stack. `observatory` is source-only in the wrapper: it has no
-wrapper build adapter or runtime dependency and remains default-cohort only.
+`content-toolkit`, `website`, `observatory`, and `web-platform` repositories
+form the MIT replacement stack. `observatory` is source-only in the wrapper:
+it has no wrapper build adapter or runtime dependency and remains
+default-cohort only.
 The separately authored MIT `atrinik/deploy-control` repository is shared
 organization infrastructure for the Cloudflare Worker, Durable Object,
 protocol, and registered host-agent contracts. Its wrapper registration is
 source-only and default-only; package installation, release/deployment
 outputs, Cloudflare bindings, credentials, agent keys, host state, and mutable
-runtime state remain owned or stored outside this coordinator.
+runtime state remain owned or stored outside this coordinator. The shared
+`atrinik/web-platform` package is source-only and default-cohort only until its
+package consumers and validation contract are established.
 Plain `./atrinik init` is replacement/default-only. Exact
 `./atrinik init --with classic` adds the complete currently playable classic
 cohort: the `atrinik/classic` monorepo checkout, the independent MIT

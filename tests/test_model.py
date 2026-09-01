@@ -666,6 +666,7 @@ class ReleaseConfigurationTests(unittest.TestCase):
                 "github-settings",
                 "observatory",
                 "deploy-control",
+                "web-platform",
             },
         )
         self.assertEqual(
@@ -709,6 +710,21 @@ class ReleaseConfigurationTests(unittest.TestCase):
             "none",
         )
         self.assertNotIn("deploy-control", manifest.cohorts["classic"])
+        web_platform = manifest.by_name["web-platform"]
+        self.assertEqual(
+            manifest.by_checkout["web-platform"].repository,
+            "atrinik/web-platform",
+        )
+        self.assertEqual(manifest.by_checkout["web-platform"].path, "web-platform")
+        self.assertEqual(web_platform.generation, "shared")
+        self.assertEqual(web_platform.build, "none")
+        self.assertEqual(web_platform.provides, ("web-platform",))
+        self.assertEqual(web_platform.requires, ())
+        self.assertEqual(
+            manifest.stack("default").providers["web-platform"].name,
+            "web-platform",
+        )
+        self.assertNotIn("web-platform", manifest.cohorts["classic"])
         self.assertEqual(manifest.effective_build("default", "content"), "none")
         self.assertEqual(
             manifest.effective_build("classic", "content"), "classic-content"

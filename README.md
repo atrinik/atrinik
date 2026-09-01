@@ -14,7 +14,7 @@ persistent server state safely.
 
 No checkout is a submodule. Primary repositories are ignored, independent Git
 checkouts directly beside this README (`./client`, `./server`, `./classic`,
-`./observatory`, `./deploy-control`, and so on). The `atrinik/classic` checkout at `./classic`
+`./observatory`, `./deploy-control`, `./web-platform`, and so on). The `atrinik/classic` checkout at `./classic`
 contains the logical
 `classic-client`, `classic-server`, `classic-editor`,
 `classic-libatrinik`, and `classic-protocol` source roots. Generated worktrees,
@@ -463,7 +463,7 @@ identity are coordinated here, while installation and tests remain owned by
 
 Checkout entries have explicit local destinations; normally these are direct
 children of the wrapper root such as `./client`, `./classic`, `./content`,
-`./observatory`, and `./deploy-control`.
+`./observatory`, `./deploy-control`, and `./web-platform`.
 Logical components name their owning checkout and a safe source root within
 it. Both stacks map role `content` to that one shared checkout. A local
 `./content-1x` directory may remain as preserved migration history, but it is
@@ -480,11 +480,14 @@ checkouts are reported as optional rather than invalidating status or a
 built-in profile.
 
 The manifest assigns logical roles such as `client`, `server`, `protocol`,
-`libatrinik`, `content`, `playtester`, source-only `observatory`, and shared
-source-only `deploy-control` to providers within each stack. The `observatory`
+`libatrinik`, `content`, `playtester`, source-only `observatory`, shared
+source-only `deploy-control`, and the shared `web-platform` package to
+providers within each stack. The `observatory`
 and `deploy-control` roles are default-only and have no wrapper build adapter
 or runtime dependency; `deploy-control` owns its Worker/agent package and
-deployment workflow boundaries in its own repository. The
+deployment workflow boundaries in its own repository. The shared
+`web-platform` package is default-only and has no wrapper build adapter or
+runtime dependency while its package contract is being established. The
 built-in `default` and `classic` profiles resolve exactly one compatible
 provider for every role they require.
 A runnable service closure cannot combine replacement and classic

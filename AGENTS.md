@@ -6,7 +6,8 @@
   `components.json` own profiles, worktrees, builds, runtimes, cleanup,
   migration, and supply-chain reports.
 - `default` selects the MIT replacement stack (Rust, Go, Protobuf, Astro,
-  source-only Observatory) plus source-only `deploy-control`; M1 foundations
+  source-only Observatory, shared `web-platform`, plus source-only
+  `deploy-control`; M1 foundations
   lack wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
   playtester; never mix providers.
 - Windows supports repository commands; Linux-only commands return stable errors.
