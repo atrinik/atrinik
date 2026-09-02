@@ -102,6 +102,17 @@ owner `AGENTS.md`; do not duplicate procedures.
   target-refresh CAS for a proven descendant base/head and recomputed merge-base
   refresh.
 
+### Prove the authoritative coordinator context
+
+Before any ledger mutation, run
+`python3 scripts/atrinik_coordinator_context.py --json` and require
+`status: "canonical-linux"` with `authoritative: true`. The bounded,
+secret-free probe combines the pinned config with live Linux/POSIX, user,
+Codex, no-follow, mode, and mount checks; runtime markers never authorize it.
+`native-windows`, `windows-cross`, and `unknown-or-unsafe` stop delivery.
+Attach or reopen the pinned ordinary devcontainer and reuse an existing VS
+Code session/caches; do not nest, remount, or discard evidence.
+
 ### Claim only explicitly authorized issues
 
 - Only after the authoritative ledger above exists, in issue mode or PR mode

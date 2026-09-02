@@ -16,7 +16,9 @@ MAX_ROOT_GUIDE_BYTES = 6_450
 MAX_CATALOG_BYTES = 2_000
 MAX_STARTUP_BYTES = 8_400
 MAX_MULTI_SELECTED_BYTES = 15_100
-MAX_ALL_SKILL_BYTES = 53_500
+# The delivery coordinator-context contract is intentionally kept in the
+# issue-delivery skill so Windows-hosted agents see the gate at invocation.
+MAX_ALL_SKILL_BYTES = 54_100
 
 
 @dataclass(frozen=True)

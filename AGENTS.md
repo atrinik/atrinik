@@ -9,7 +9,8 @@
   source-only Observatory) plus source-only `deploy-control`; M1 foundations
   lack wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
   playtester; never mix providers.
-- Windows supports repository commands; Linux-only commands return stable errors.
+- Windows supports repository commands; delivery-ledger coordination needs
+  pinned Linux devcontainer; other Linux-only commands return stable errors.
 
 ## Folder structure and ownership
 

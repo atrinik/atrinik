@@ -431,6 +431,11 @@ class AgentGuidanceTests(unittest.TestCase):
             "ledger-recorded profile/reference",
             "only when issues actually exist",
             "do not fabricate placeholders",
+            "atrinik_coordinator_context.py",
+            'status: "canonical-linux"',
+            "native-windows",
+            "windows-cross",
+            "unknown-or-unsafe",
         }:
             with self.subTest(contract=contract):
                 self.assertIn(contract, normalized_body)
