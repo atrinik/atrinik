@@ -8,8 +8,8 @@
   Observatory, shared `web-platform`, source-only `deploy-control`; M1
   lacks wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
   playtester; never mix providers.
-- Windows supports repo commands; delivery-ledger coordination needs a pinned Linux
-  devcontainer; other Linux-only commands return stable errors.
+- Windows supports repository commands; delivery-ledger needs pinned Linux
+  devcontainer; Linux-only commands fail stably.
 
 ## Folder structure and ownership
 
