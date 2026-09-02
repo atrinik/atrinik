@@ -268,6 +268,7 @@ def validate_tooling_ledger(root: Path = ROOT) -> list[str]:
         keys.add(key)
     return failures
 
+
 def process_improvement_ledger_path(root: Path | None = None) -> Path:
     return (root or ROOT) / PROCESS_IMPROVEMENT_LEDGER
 
