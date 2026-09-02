@@ -228,12 +228,20 @@ class AgentGuidanceTests(unittest.TestCase):
                 "secret-like content": valid.replace(
                     "A cache can be reused.", "token: do-not-store-this"
                 ),
+                "private host content": valid.replace(
+                    "A cache can be reused.", "host: internal.example"
+                ),
+                "invalid timestamp": valid.replace(
+                    "2026-09-02T00:00:00Z", "2026-99-99T00:00:00Z"
+                ),
             }
             expected_errors = {
                 "duplicate stable keys": "duplicate stable keys",
                 "invalid status": "invalid status",
                 "missing field": "all descriptive fields",
                 "secret-like content": "secret-like content",
+                "private host content": "secret-like content",
+                "invalid timestamp": "UTC last-observed timestamps",
             }
             for name, content in cases.items():
                 with self.subTest(name=name):

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import asdict, dataclass
+from datetime import datetime
 import json
 from pathlib import Path
 import re
@@ -48,6 +49,10 @@ PROCESS_SECRET_PATTERNS = (
     re.compile(
         r"(?i)\b(?:player|account|character)\s+(?:id|name|password)"
         r"\s*[:=]\s*[^\s|`]+"
+    ),
+    re.compile(
+        r"(?i)\b(?:host|hostname|server|private[_ -]?host)\s*[:=]\s*"
+        r"[^\s|`]+"
     ),
     re.compile(r"(?i)(?:^|[\s|])(?:/home|/users)/[^\s|]+"),
     re.compile(r"(?i)(?:^|[\s|])[a-z]:[\\/]+users[\\/][^\s|]+"),
@@ -123,6 +128,16 @@ def _process_ledger_ignore_error(root: Path, path: Path) -> str | None:
     if result.returncode:
         return "process-improvement ledger path is not ignored"
     return None
+
+
+def _valid_process_timestamp(value: str) -> bool:
+    if not PROCESS_TIMESTAMP.fullmatch(value):
+        return False
+    try:
+        datetime.fromisoformat(value[:-1] + "+00:00")
+    except ValueError:
+        return False
+    return True
 
 
 def validate_process_improvement_ledger(root: Path | None = None) -> list[str]:
@@ -206,7 +221,7 @@ def validate_process_improvement_ledger(root: Path | None = None) -> list[str]:
             errors.append("process-improvement ledger has an invalid status")
         if any(not cell for cell in cells[2:5]):
             errors.append("process-improvement ledger rows require all descriptive fields")
-        if not PROCESS_TIMESTAMP.fullmatch(cells[5].strip("`")):
+        if not _valid_process_timestamp(cells[5].strip("`")):
             errors.append("process-improvement ledger requires UTC last-observed timestamps")
 
     if row_count == 0:
