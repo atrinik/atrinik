@@ -232,6 +232,114 @@ class AgentGuidanceTests(unittest.TestCase):
                 )
             )
 
+            ignore.write_text('/build/\n', encoding='utf-8')
+            cases = {
+                'binary data': (
+                    valid.replace('generic mount symptom', 'generic\x00 mount symptom'),
+                    'contains binary data',
+                ),
+                'secret-like header': (
+                    (
+                        '| Token | Status | Observation | Impact | Recommended action |\n'
+                        '| --- | --- | --- | --- | --- |\n'
+                    )
+                    + valid,
+                    'contains a secret-like field',
+                ),
+                'missing table': ('# notes\n', 'missing the required Markdown table'),
+                'invalid separator': (
+                    valid.replace(
+                        '| --- | --- | --- | --- | --- |',
+                        '| -- | --- | --- | --- | --- |',
+                    ),
+                    'invalid Markdown table separator',
+                ),
+                'missing separator': (
+                    '| Stable key | Status | Observation | Impact | Recommended action |\n',
+                    'invalid Markdown table separator',
+                ),
+                'malformed row': (valid + '| malformed\n', 'malformed table row'),
+                'wrong width row': (
+                    valid + '| `mechanism=bad;remediation=width` | open | impact |\n',
+                    'malformed table row',
+                ),
+                'empty field': (
+                    valid
+                    + '| `mechanism=empty;remediation=field` | open |  | impact | action |\n',
+                    'empty required field',
+                ),
+                'invalid status': (
+                    valid
+                    + '| `mechanism=bad;remediation=status` | pending | observation | impact | action |\n',
+                    'invalid status',
+                ),
+            }
+            for name, (content, expected) in cases.items():
+                with self.subTest(name=name):
+                    ledger.write_text(content, encoding='utf-8')
+                    self.assertTrue(
+                        any(expected in failure for failure in validate_tooling_ledger(root))
+                    )
+
+            ledger.write_text(valid + 'trailing prose\n', encoding='utf-8')
+            self.assertEqual(validate_tooling_ledger(root), [])
+
+            ledger.write_bytes(b'\xff')
+            self.assertTrue(
+                any('is not UTF-8' in failure for failure in validate_tooling_ledger(root))
+            )
+
+            ledger.write_bytes(
+                b'x' * (guidance_inventory.TOOLING_LEDGER_MAX_BYTES + 1)
+            )
+            self.assertTrue(
+                any('exceeds the size limit' in failure for failure in validate_tooling_ledger(root))
+            )
+
+            ledger.write_text(valid, encoding='utf-8')
+            with mock.patch.object(Path, 'read_bytes', side_effect=OSError):
+                self.assertTrue(
+                    any('could not be read' in failure for failure in validate_tooling_ledger(root))
+                )
+
+            with mock.patch.object(Path, 'is_symlink', return_value=True):
+                self.assertTrue(
+                    any('not a regular file' in failure for failure in validate_tooling_ledger(root))
+                )
+            with mock.patch.object(Path, 'is_file', return_value=False):
+                self.assertTrue(
+                    any('not a regular file' in failure for failure in validate_tooling_ledger(root))
+                )
+
+            subprocess.run(
+                ['git', 'add', '--force', 'build/agent-tooling-issues.md'],
+                cwd=root,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            self.assertTrue(
+                any('is tracked' in failure for failure in validate_tooling_ledger(root))
+            )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            with mock.patch.object(
+                guidance_inventory.subprocess, 'run', side_effect=OSError
+            ):
+                failures = validate_tooling_ledger(Path(temporary))
+            self.assertEqual(
+                failures,
+                ['build/agent-tooling-issues.md is not ignored'],
+            )
+
+    def test_tooling_ledger_failure_is_reported(self) -> None:
+        stderr = io.StringIO()
+        with mock.patch.object(
+            guidance_inventory, 'validate_tooling_ledger', return_value=['ledger failure']
+        ), redirect_stdout(io.StringIO()), redirect_stderr(stderr):
+            self.assertEqual(main(['--check']), 1)
+        self.assertIn('guidance tooling ledger failed: ledger failure', stderr.getvalue())
+
     def test_inventory_requires_the_workspace_skill(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             with mock.patch.object(
