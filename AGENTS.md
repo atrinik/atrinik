@@ -10,8 +10,8 @@
   `deploy-control`; M1 foundations
   lack wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
   playtester; never mix providers.
-- Windows supports repository commands; delivery-ledger coordination needs
-  pinned Linux devcontainer; other Linux-only commands return stable errors.
+- Windows supports repository commands; delivery-ledger work uses a pinned Linux
+  devcontainer; other Linux-only commands return stable errors.
 
 ## Folder structure and ownership
 
@@ -21,10 +21,10 @@
   `components.json`; machine policy lives in `supply-chain/` and `governance/`.
 - Workflows live in `.agents/skills/`, composition in `.devcontainer/`,
   CI/release in `.github/`, and helpers in `scripts/`.
-- Manifest destinations are ignored repositories; `workspace/` and `build/` are
-  ignored generated state omitted from root status.
-- Resolve ownership through `components.json` and the checkout's nearest
-  `AGENTS.md`; keep implementation, tests, packages, and releases there.
+- Manifest destinations are ignored repos; `workspace/` and `build/` are ignored
+  state omitted from root status.
+- Resolve ownership via `components.json` and nearest `AGENTS.md`; keep
+  implementation, tests, packages, and releases there.
 - `classic/` provides `classic-*`; stacks share `content@main`. `content-1x/`
   and the former 1.x branch are historical only: preserve any local migration
   evidence, but never select, recreate, or backport delivery to them.
@@ -33,9 +33,8 @@
 
 ## Core behaviors and patterns
 
-- Use `atrinik-multi-repo-workspace` for wrapper ownership, profiles, worktrees,
-  migration, cleanup, releases, CLI, or layout; add applicable specialist skills
-  and use `atrinik-guidance-maintenance` for guidance audits.
+- Use `atrinik-multi-repo-workspace` for wrapper/layout work; add specialist
+  skills and use `atrinik-guidance-maintenance` for guidance audits.
 - Use `atrinik-issue-delivery` only when explicitly invoked for an issue or
   existing PR; it stops before merge.
 - Use `atrinik-program-delivery` only when explicitly invoked for an ordered
@@ -43,20 +42,20 @@
   issue closure.
 - Never replace dirty primaries, remove dirty worktrees, or overwrite mutable
   server data; preserve migration inputs.
-- Cleanup is preview-first; delivery completion grants none. Ledger terminal
-  transactions stay separate from `./atrinik cleanup`. Preserve dirty,
-  detached, locked, active, referenced, or uncertain targets; history fails
-  closed.
-- Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
-  component, or one of its roles selects one root for all five; profiles append
-  manifest source directories.
-- Prefer `scope create`; Classic uses selectors/physical overrides.
-  `scope-<name>` is the profile/topology; noncanonical overrides fail
-  pre-publication.
-  Rerun exact named create after rollback; bind via helper CAS.
-- Use wrapper paths; never reconstruct managed paths. Isolate topology, state,
-  ports, and client config; prefer temporary state and keep scenario secrets local.
-- Keep completion bounded, parser-driven, and secret-free.
+- Cleanup is preview-first; delivery grants no cleanup. Keep ledger terminal
+  transactions separate from cleanup; preserve dirty, detached, locked, active,
+  referenced, or uncertain targets; history fails closed.
+- Worktrees belong to physical checkouts; Classic selects one root for all five,
+  and profiles append manifest source directories.
+- Prefer `scope create`; Classic uses physical overrides. `scope-<name>` is
+  canonical; noncanonical overrides fail pre-publication; rerun exact creates
+  after rollback and bind through helper CAS.
+- Use wrapper paths; never reconstruct managed paths. Isolate topology/state,
+  ports, and client config; prefer temporary state and keep secrets local.
+- Keep completion bounded/parser-driven/secret-free. Every repo-work response says
+  `Tooling issues: none` or stable keys; record findings in ignored
+  `build/agent-tooling-issues.md` per tooling protocol; never commit/publish or
+  copy them into product issues.
 - Lease in order; gate same-coordinate readers; share the migration barrier.
 - Unbound persisted records are historical and inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
@@ -64,11 +63,11 @@
 - MIT reuse follows `docs/PROVENANCE.md` and its canonical identity registry;
   rights, identity, temporal, authorship, or scope uncertainty fails closed.
 - Update `supply-chain/inventory.json` when dependency ownership/validation
-  changes. Keep Actions/images immutable, add no submodules, and audit a full
-  profile; only aggregate-root workflows and Dependabot are active.
+  changes; keep Actions/images immutable, add no submodules, and audit a full
+  profile. Only aggregate-root workflows and Dependabot are active.
 - New content/Classic issues name `content@main` and its Classic-target
-  artifact. No live 1.x branch, checkout, release label, maintenance line,
-  publication target, or backport destination exists; historical evidence is
+  artifact; no live 1.x branch/checkout/release label/maintenance line/
+  publication target/backport destination exists; historical evidence is
   immutable.
 - Commits and PR titles use `type(optional-scope): concise description`; add
   `!` only when a reviewer explicitly requests a breaking change, not auto.

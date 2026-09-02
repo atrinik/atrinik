@@ -18,6 +18,7 @@ from atrinik_workspace.guidance_inventory import (
     main,
     render_text,
     skill_frontmatter,
+    validate_tooling_ledger,
 )
 
 
@@ -174,6 +175,63 @@ class AgentGuidanceTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         skill_frontmatter(path)
 
+    def test_tooling_ledger_is_optional_ignored_and_secret_safe(self) -> None:
+        self.assertEqual(validate_tooling_ledger(ROOT), [])
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            subprocess.run(
+                ['git', 'init', '--quiet'],
+                cwd=root,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            ignore = root / '.gitignore'
+            ignore.write_text('/build/\n', encoding='utf-8')
+            ledger = root / 'build/agent-tooling-issues.md'
+            self.assertEqual(validate_tooling_ledger(root), [])
+
+            ledger.parent.mkdir()
+            valid = (
+                '# Agent tooling issues\n\n'
+                '| Stable key | Status | Observation | Impact | Recommended action |\n'
+                '| --- | --- | --- | --- | --- |\n'
+                '| `mechanism=docker-mount;remediation=canonical-container` | open | '
+                'generic mount symptom | delivery was delayed | use the pinned container |\n'
+            )
+            ledger.write_text(valid, encoding='utf-8')
+            self.assertEqual(validate_tooling_ledger(root), [])
+
+            cases = {
+                'invalid stable key': valid.replace(
+                    'mechanism=docker-mount;remediation=canonical-container',
+                    'docker-mount',
+                ),
+                'secret-like value': valid.replace(
+                    'generic mount symptom', 'token: example'
+                ),
+                'private host path': valid.replace(
+                    'generic mount symptom', r'C:\Users\operator\mount.log'
+                ),
+            }
+            cases['duplicate stable key'] = valid + (
+                '| `mechanism=docker-mount;remediation=canonical-container` | open | '
+                'same symptom | same impact | same action |\n'
+            )
+            for name, content in cases.items():
+                with self.subTest(name=name):
+                    ledger.write_text(content, encoding='utf-8')
+                    self.assertTrue(validate_tooling_ledger(root), name)
+
+            ignore.write_text('/other/\n', encoding='utf-8')
+            ledger.write_text(valid, encoding='utf-8')
+            self.assertTrue(
+                any(
+                    'is not ignored' in failure
+                    for failure in validate_tooling_ledger(root)
+                )
+            )
+
     def test_inventory_requires_the_workspace_skill(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             with mock.patch.object(
@@ -304,6 +362,7 @@ class AgentGuidanceTests(unittest.TestCase):
                 "assets/deep-review-report.md",
                 "references/delivery-ledger.md",
                 "references/deep-review-checklist.md",
+                "references/tooling-issues.md",
                 "scripts/delivery_ledger.py",
             },
         )
@@ -319,9 +378,13 @@ class AgentGuidanceTests(unittest.TestCase):
         ledger = (skill / "references/delivery-ledger.md").read_text(
             encoding="utf-8"
         )
+        tooling = (skill / 'references/tooling-issues.md').read_text(
+            encoding='utf-8'
+        )
         normalized_body = " ".join(body.split())
         normalized_interface = " ".join(interface.split())
         normalized_ledger = " ".join(ledger.split())
+        normalized_tooling = ' '.join(tooling.split())
 
         self.assertIn("never trigger implicitly", body.lower())
         self.assertIn("$atrinik-issue-delivery", body)
@@ -485,6 +548,18 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("references/delivery-ledger.md", body)
         self.assertIn("references/deep-review-checklist.md", body)
         self.assertIn("assets/deep-review-report.md", body)
+        for marker in {
+            'Tooling issues: none',
+            'build/agent-tooling-issues.md',
+            'mechanism=<slug>;remediation=<slug>',
+            'same mechanism and remediation recur',
+            'materially different',
+            'never commit, publish',
+            'does not require local ledger bytes',
+        }:
+            with self.subTest(tooling_marker=marker):
+                self.assertIn(marker, normalized_tooling)
+        self.assertIn('references/tooling-issues.md', body)
         fetch_head = normalized_ledger.index(
             "fetch --no-tags origin refs/heads/docs/issue-419"
         )
