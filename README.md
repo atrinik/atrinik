@@ -58,6 +58,26 @@ Windows package workflow rather than weakening locking, cleanup, or topology
 isolation. The complete support matrix is maintained in
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+### Issue/PR delivery coordinator
+
+Native Windows is a supported host for editing, native Git and GitHub UI, and
+native D3D12 validation. It is not the authoritative coordinator for the
+issue-delivery ledger because the ledger requires Linux/POSIX locking,
+descriptor and mount identity, and durable no-follow filesystem proofs. Open
+the ordinary pinned Linux devcontainer and run this read-only probe before
+initializing or mutating delivery evidence:
+
+~~~sh
+python3 scripts/atrinik_coordinator_context.py --json
+~~~
+
+Continue only for `canonical-linux` with `authoritative: true`. The probe also
+recognizes `native-windows`, `windows-cross`, and `unknown-or-unsafe` with a
+bounded next action. If VS Code already attached the ordinary devcontainer,
+reuse that workspace/session and its warm caches; do not nest another
+container, remount the workspace, or discard the session's evidence. Keep the
+`windows-cross` container for package/build work and host-bound validation.
+
 The Atrinik development container supplies the native build dependencies. Run
 all commands below from this repository's root.
 
@@ -77,6 +97,14 @@ checkouts have been initialized.
 The wrapper owns these launch configurations because they compose the complete
 development workspace. The standalone `devcontainer` component owns only the
 published Linux and Windows toolchain images they reference.
+
+For delivery work on a Windows host, the ordinary configuration is the
+coordinator. Its source/worktree mount, `build/reviews` ledger root, wrapper
+workspace, and `/home/ubuntu/.codex` mount must remain Linux-native or backed
+by a trusted Docker volume with safe ownership, modes, and live mount identity.
+The wrapper probe checks those facts without creating or repairing them; the
+persistent-session and high-I/O volume topology described by #538/#543 must
+preserve the same ledger and cache boundaries.
 
 The workspace and container VS Code settings exclude the wrapper-owned
 `workspace/` and top-level `build/` trees from recursive file watching, and the

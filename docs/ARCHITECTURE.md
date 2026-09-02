@@ -46,6 +46,7 @@ or status operation cannot silently escape its wrapper lease.
 | Initialize/synchronize checkouts, status, profile inspection/publication, path resolution, and worktree inventory | supported | supported with `LockFileEx` and native paths |
 | Build publication, cleanup, repository/content migration, scope/state/scenario mutation | supported | deliberate capability result; requires descriptor-relative filesystem proof |
 | Supervised topology build/start/status/log/stop and direct client/server run | supported when host capabilities pass | deliberate capability result; requires Linux process identity, pidfd, signals, or `/proc` |
+| Issue/PR delivery ledger coordination, locking, CAS, and recovery | supported only from the pinned ordinary Linux devcontainer | host editing, native Git/GitHub UI, and D3D12 validation only; not an authoritative ledger coordinator |
 | Windows review ZIP | supported through the pinned Windows cross-build workflow | use the package workflow from Linux, WSL2, or the `windows-cross` devcontainer |
 
 The native Windows adapter rejects symlink and junction path components, uses
@@ -57,6 +58,18 @@ invented or treated as equivalent. Commands that need those proofs fail before
 mutation with a stable diagnostic. This keeps profile/worktree/state lease
 isolation and fail-closed behavior explicit while preserving the stronger
 descriptor-relative implementation on Linux.
+
+The wrapper-owned `scripts/atrinik_coordinator_context.py` probe is the
+delivery entry boundary. It returns `canonical-linux` only when the pinned
+ordinary devcontainer declaration, live Linux/POSIX runtime/user/Codex facts,
+repository/workspace layout, no-follow ownership and modes, and source,
+ledger, build, and Codex mount identities agree. `native-windows` is a stable
+host-boundary result, `windows-cross` identifies the subordinate MXE/package
+role, and `unknown-or-unsafe` covers arbitrary, mismatched, incomplete, or
+unsafe contexts. Runtime markers are corroborating signals rather than
+authorization. The probe never imports the ledger, acquires a lock, mounts or
+remounts a path, creates generated state, or changes the existing devcontainer
+definitions.
 
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,
