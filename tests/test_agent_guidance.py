@@ -21,6 +21,7 @@ from atrinik_workspace.guidance_inventory import (
     render_text,
     skill_frontmatter,
     validate_process_improvement_ledger,
+    validate_tooling_ledger,
 )
 
 
@@ -176,6 +177,171 @@ class AgentGuidanceTests(unittest.TestCase):
                     path.write_text(content, encoding="utf-8")
                     with self.assertRaises(ValueError):
                         skill_frontmatter(path)
+
+    def test_tooling_ledger_is_optional_ignored_and_secret_safe(self) -> None:
+        self.assertEqual(validate_tooling_ledger(ROOT), [])
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            subprocess.run(
+                ['git', 'init', '--quiet'],
+                cwd=root,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            ignore = root / '.gitignore'
+            ignore.write_text('/build/\n', encoding='utf-8')
+            ledger = root / 'build/agent-tooling-issues.md'
+            self.assertEqual(validate_tooling_ledger(root), [])
+
+            ledger.parent.mkdir()
+            valid = (
+                '# Agent tooling issues\n\n'
+                '| Stable key | Status | Observation | Impact | Recommended action |\n'
+                '| --- | --- | --- | --- | --- |\n'
+                '| `mechanism=docker-mount;remediation=canonical-container` | open | '
+                'generic mount symptom | delivery was delayed | use the pinned container |\n'
+            )
+            ledger.write_text(valid, encoding='utf-8')
+            self.assertEqual(validate_tooling_ledger(root), [])
+
+            cases = {
+                'invalid stable key': valid.replace(
+                    'mechanism=docker-mount;remediation=canonical-container',
+                    'docker-mount',
+                ),
+                'secret-like value': valid.replace(
+                    'generic mount symptom', 'token: example'
+                ),
+                'private host path': valid.replace(
+                    'generic mount symptom', r'C:\Users\operator\mount.log'
+                ),
+            }
+            cases['duplicate stable key'] = valid + (
+                '| `mechanism=docker-mount;remediation=canonical-container` | open | '
+                'same symptom | same impact | same action |\n'
+            )
+            for name, content in cases.items():
+                with self.subTest(name=name):
+                    ledger.write_text(content, encoding='utf-8')
+                    self.assertTrue(validate_tooling_ledger(root), name)
+
+            ignore.write_text('/other/\n', encoding='utf-8')
+            ledger.write_text(valid, encoding='utf-8')
+            self.assertTrue(
+                any(
+                    'is not ignored' in failure
+                    for failure in validate_tooling_ledger(root)
+                )
+            )
+
+            ignore.write_text('/build/\n', encoding='utf-8')
+            cases = {
+                'binary data': (
+                    valid.replace('generic mount symptom', 'generic\x00 mount symptom'),
+                    'contains binary data',
+                ),
+                'secret-like header': (
+                    (
+                        '| Token | Status | Observation | Impact | Recommended action |\n'
+                        '| --- | --- | --- | --- | --- |\n'
+                    )
+                    + valid,
+                    'contains a secret-like field',
+                ),
+                'missing table': ('# notes\n', 'missing the required Markdown table'),
+                'invalid separator': (
+                    valid.replace(
+                        '| --- | --- | --- | --- | --- |',
+                        '| -- | --- | --- | --- | --- |',
+                    ),
+                    'invalid Markdown table separator',
+                ),
+                'missing separator': (
+                    '| Stable key | Status | Observation | Impact | Recommended action |\n',
+                    'invalid Markdown table separator',
+                ),
+                'malformed row': (valid + '| malformed\n', 'malformed table row'),
+                'wrong width row': (
+                    valid + '| `mechanism=bad;remediation=width` | open | impact |\n',
+                    'malformed table row',
+                ),
+                'empty field': (
+                    valid
+                    + '| `mechanism=empty;remediation=field` | open |  | impact | action |\n',
+                    'empty required field',
+                ),
+                'invalid status': (
+                    valid
+                    + '| `mechanism=bad;remediation=status` | pending | observation | impact | action |\n',
+                    'invalid status',
+                ),
+            }
+            for name, (content, expected) in cases.items():
+                with self.subTest(name=name):
+                    ledger.write_text(content, encoding='utf-8')
+                    self.assertTrue(
+                        any(expected in failure for failure in validate_tooling_ledger(root))
+                    )
+
+            ledger.write_text(valid + 'trailing prose\n', encoding='utf-8')
+            self.assertEqual(validate_tooling_ledger(root), [])
+
+            ledger.write_bytes(b'\xff')
+            self.assertTrue(
+                any('is not UTF-8' in failure for failure in validate_tooling_ledger(root))
+            )
+
+            ledger.write_bytes(
+                b'x' * (guidance_inventory.TOOLING_LEDGER_MAX_BYTES + 1)
+            )
+            self.assertTrue(
+                any('exceeds the size limit' in failure for failure in validate_tooling_ledger(root))
+            )
+
+            ledger.write_text(valid, encoding='utf-8')
+            with mock.patch.object(Path, 'read_bytes', side_effect=OSError):
+                self.assertTrue(
+                    any('could not be read' in failure for failure in validate_tooling_ledger(root))
+                )
+
+            with mock.patch.object(Path, 'is_symlink', return_value=True):
+                self.assertTrue(
+                    any('not a regular file' in failure for failure in validate_tooling_ledger(root))
+                )
+            with mock.patch.object(Path, 'is_file', return_value=False):
+                self.assertTrue(
+                    any('not a regular file' in failure for failure in validate_tooling_ledger(root))
+                )
+
+            subprocess.run(
+                ['git', 'add', '--force', 'build/agent-tooling-issues.md'],
+                cwd=root,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            self.assertTrue(
+                any('is tracked' in failure for failure in validate_tooling_ledger(root))
+            )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            with mock.patch.object(
+                guidance_inventory.subprocess, 'run', side_effect=OSError
+            ):
+                failures = validate_tooling_ledger(Path(temporary))
+            self.assertEqual(
+                failures,
+                ['build/agent-tooling-issues.md is not ignored'],
+            )
+
+    def test_tooling_ledger_failure_is_reported(self) -> None:
+        stderr = io.StringIO()
+        with mock.patch.object(
+            guidance_inventory, 'validate_tooling_ledger', return_value=['ledger failure']
+        ), redirect_stdout(io.StringIO()), redirect_stderr(stderr):
+            self.assertEqual(main(['--check']), 1)
+        self.assertIn('guidance tooling ledger failed: ledger failure', stderr.getvalue())
 
     def test_inventory_requires_the_workspace_skill(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -561,6 +727,7 @@ class AgentGuidanceTests(unittest.TestCase):
                 "assets/deep-review-report.md",
                 "references/delivery-ledger.md",
                 "references/deep-review-checklist.md",
+                "references/tooling-issues.md",
                 "scripts/delivery_ledger.py",
             },
         )
@@ -576,9 +743,13 @@ class AgentGuidanceTests(unittest.TestCase):
         ledger = (skill / "references/delivery-ledger.md").read_text(
             encoding="utf-8"
         )
+        tooling = (skill / 'references/tooling-issues.md').read_text(
+            encoding='utf-8'
+        )
         normalized_body = " ".join(body.split())
         normalized_interface = " ".join(interface.split())
         normalized_ledger = " ".join(ledger.split())
+        normalized_tooling = ' '.join(tooling.split())
 
         self.assertIn("never trigger implicitly", body.lower())
         self.assertIn("$atrinik-issue-delivery", body)
@@ -742,6 +913,18 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("references/delivery-ledger.md", body)
         self.assertIn("references/deep-review-checklist.md", body)
         self.assertIn("assets/deep-review-report.md", body)
+        for marker in {
+            'Tooling issues: none',
+            'build/agent-tooling-issues.md',
+            'mechanism=<slug>;remediation=<slug>',
+            'same mechanism and remediation recur',
+            'materially different',
+            'never commit, publish',
+            'does not require local ledger bytes',
+        }:
+            with self.subTest(tooling_marker=marker):
+                self.assertIn(marker, normalized_tooling)
+        self.assertIn('references/tooling-issues.md', body)
         fetch_head = normalized_ledger.index(
             "fetch --no-tags origin refs/heads/docs/issue-419"
         )

@@ -12,9 +12,8 @@ Invocation permits ordinary pushes, selected/delivery-created PR updates,
 gated readiness, one coordinate-bound selected-PR comment, and issue-mode draft
 creation/claim. PR mode claims only an explicit verified issue; issue comments
 are read-only. It does not authorize force-pushes, issue
-creation/closure, merges, policy bypass, destructive resets, cleanup
-application, self-approval, retargeting, unrelated changes, or PR-discovered
-issue mutation.
+create/close, merges, bypass, destructive resets, cleanup application,
+self-approval, retargeting, unrelated changes, or PR-discovered issue mutation.
 Create/resume a persistent goal only when explicitly asked.
 
 Explicit `$atrinik-program-delivery` delegates only issue mode to ready live
@@ -239,11 +238,11 @@ GFM/linkage.
 
 ## Review and fix to the exit condition
 
-Keep the helper ledger and separate human report current; never commit/publish
-either or include credentials, confidential data, or unnecessary vulnerability
-detail.
+Keep ledger/report current; never commit/publish either or include credentials,
+confidential or excess vulnerability detail. Report `Tooling issues: none` or
+stable keys; follow [tooling protocol](references/tooling-issues.md).
 
-Read [the checklist](references/deep-review-checklist.md) in full. Review the
+Read [checklist](references/deep-review-checklist.md) in full. Review the
 complete current base-to-head diff against issue/PR requirements. For non-trivial
 changes, give independent fresh-context reviewers the raw requirements and diff,
 not prior conclusions. Record stable finding IDs, evidence, resolution, status,
@@ -289,12 +288,12 @@ scenario, automatic-login topology, bounded logs, action/result, repeat,
 shutdown, cleanup, and state-policy commands. Initial `down` applies only to
 that topology; reset only delivery-owned data; state display/login prerequisites.
 
-For replacement work, create or reuse a delivery profile selecting the final
-worktree and inspect capabilities. While integrated adapters are absent, give
+For replacement work, create/reuse a delivery profile selecting the final
+worktree; inspect capabilities. While adapters are absent, give
 owner-native validation plus supported profile/topology inspection, identify
-boundaries #266, #269, and #270, and never substitute Classic. If runtime is
-irrelevant, give exact applicable tests and the same capability-aware recipe in
-the concise PR update and final handoff.
+#266/#269/#270, and never substitute Classic. If runtime is irrelevant, give
+applicable tests and the capability-aware recipe in the concise PR update and final
+handoff.
 
 ## Finish only on final HEAD
 
