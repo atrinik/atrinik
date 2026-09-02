@@ -239,8 +239,8 @@ GFM/linkage.
 ## Review and fix to the exit condition
 
 Keep ledger/report current; never commit/publish either or include credentials,
-confidential data, or unnecessary vulnerability detail. Report `Tooling issues:
-none` or stable keys; follow the [tooling protocol](references/tooling-issues.md).
+confidential or excess vulnerability detail. Report `Tooling issues: none` or
+stable keys; follow [tooling protocol](references/tooling-issues.md).
 
 Read [checklist](references/deep-review-checklist.md) in full. Review the
 complete current base-to-head diff against issue/PR requirements. For non-trivial

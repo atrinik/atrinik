@@ -5,7 +5,9 @@ import io
 import json
 from pathlib import Path
 import re
+import runpy
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -18,6 +20,7 @@ from atrinik_workspace.guidance_inventory import (
     main,
     render_text,
     skill_frontmatter,
+    validate_process_improvement_ledger,
     validate_tooling_ledger,
 )
 
@@ -348,6 +351,235 @@ class AgentGuidanceTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "missing atrinik-multi"):
                     collect_inventory()
 
+    def test_process_improvement_ledger_is_optional_and_fail_closed(self) -> None:
+        valid = """# Agent process improvements
+
+| Key | Status | Observation | Expected benefit / proposed action | Related issue / PR | Last observed (UTC) |
+| --- | --- | --- | --- | --- | --- |
+| `cache-reuse` | observed | A cache can be reused. | Keep the cache warm. | none | 2026-09-02T00:00:00Z |
+"""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.assertEqual(validate_process_improvement_ledger(root), [])
+
+            ledger = root / guidance_inventory.PROCESS_IMPROVEMENT_LEDGER
+            ledger.parent.mkdir()
+            ledger.write_text(valid, encoding="utf-8")
+            with mock.patch.object(
+                guidance_inventory.subprocess,
+                "run",
+                return_value=mock.Mock(returncode=0),
+            ) as check_ignore:
+                self.assertEqual(validate_process_improvement_ledger(root), [])
+            check_ignore.assert_called_once_with(
+                [
+                    "git",
+                    "check-ignore",
+                    "--no-index",
+                    "--quiet",
+                    "--",
+                    "build/agent-process-improvements.md",
+                ],
+                cwd=root,
+                capture_output=True,
+                check=False,
+                timeout=5,
+            )
+
+            cases = {
+                "duplicate stable keys": valid.replace(
+                    "| `cache-reuse` | observed | A cache can be reused. | Keep the cache warm. | none | 2026-09-02T00:00:00Z |",
+                    "| `cache-reuse` | observed | A cache can be reused. | Keep the cache warm. | none | 2026-09-02T00:00:00Z |\n| `cache-reuse` | observed | A second observation. | Keep the cache warm. | none | 2026-09-02T00:00:00Z |",
+                ),
+                "invalid status": valid.replace("| observed |", "| complete |"),
+                "missing field": valid.replace("| Keep the cache warm. |", "|  |"),
+                "secret-like content": valid.replace(
+                    "A cache can be reused.", "token: do-not-store-this"
+                ),
+                "private host content": valid.replace(
+                    "A cache can be reused.", "host: internal.example"
+                ),
+                "invalid timestamp": valid.replace(
+                    "2026-09-02T00:00:00Z", "2026-99-99T00:00:00Z"
+                ),
+            }
+            expected_errors = {
+                "duplicate stable keys": "duplicate stable keys",
+                "invalid status": "invalid status",
+                "missing field": "all descriptive fields",
+                "secret-like content": "secret-like content",
+                "private host content": "secret-like content",
+                "invalid timestamp": "UTC last-observed timestamps",
+            }
+            for name, content in cases.items():
+                with self.subTest(name=name):
+                    ledger.write_text(content, encoding="utf-8")
+                    with mock.patch.object(
+                        guidance_inventory.subprocess,
+                        "run",
+                        return_value=mock.Mock(returncode=0),
+                    ):
+                        errors = validate_process_improvement_ledger(root)
+                    self.assertTrue(errors)
+                    self.assertTrue(
+                        any(expected_errors[name] in error for error in errors),
+                        errors,
+                    )
+
+            ledger.write_text(valid, encoding="utf-8")
+            with mock.patch.object(
+                guidance_inventory.subprocess,
+                "run",
+                return_value=mock.Mock(returncode=1),
+            ):
+                errors = validate_process_improvement_ledger(root)
+            self.assertIn("not ignored", " ".join(errors))
+
+    def test_process_improvement_ledger_rejects_structural_and_io_failures(self) -> None:
+        valid = """# Agent process improvements
+
+| Key | Status | Observation | Expected benefit / proposed action | Related issue / PR | Last observed (UTC) |
+| --- | --- | --- | --- | --- | --- |
+| `cache-reuse` | observed | A cache can be reused. | Keep the cache warm. | none | 2026-09-02T00:00:00Z |
+"""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            ledger = root / guidance_inventory.PROCESS_IMPROVEMENT_LEDGER
+            ledger.parent.mkdir()
+
+            def validate(content: str | bytes, **patch_kwargs: object) -> list[str]:
+                if isinstance(content, bytes):
+                    ledger.write_bytes(content)
+                else:
+                    ledger.write_text(content, encoding="utf-8")
+                with mock.patch.object(
+                    guidance_inventory.subprocess,
+                    "run",
+                    **{"return_value": mock.Mock(returncode=0), **patch_kwargs},
+                ):
+                    return validate_process_improvement_ledger(root)
+
+            self.assertIn(
+                "cannot verify",
+                " ".join(
+                    validate(valid, side_effect=OSError("git unavailable"))
+                ),
+            )
+            self.assertIn(
+                "cannot verify",
+                " ".join(
+                    validate(
+                        valid,
+                        side_effect=subprocess.TimeoutExpired(["git"], 5),
+                    )
+                ),
+            )
+            self.assertIn(
+                "bounded UTF-8",
+                " ".join(validate(b"\xff")),
+            )
+            self.assertIn(
+                "exceeds 128 KiB",
+                " ".join(validate(valid + "x" * (128 * 1024))),
+            )
+
+            cases = {
+                "missing newline": valid.rstrip("\n"),
+                "control character": valid.replace("A cache", "A \x01cache"),
+                "wrong title": valid.replace(
+                    "# Agent process improvements", "# Other improvements"
+                ),
+                "missing table": "# Agent process improvements\n\nNo rows yet.\n",
+                "missing separator": (
+                    "# Agent process improvements\n\n"
+                    + guidance_inventory.PROCESS_TABLE_HEADER
+                    + "\n"
+                ),
+                "invalid separator": valid.replace(
+                    "| --- | --- | --- | --- | --- | --- |",
+                    "| - | --- | --- | --- | --- | --- |",
+                ),
+                "wrong row shape": valid.replace(
+                    "| `cache-reuse` | observed | A cache can be reused. | "
+                    "Keep the cache warm. | none | 2026-09-02T00:00:00Z |",
+                    "| `cache-reuse` | observed | A cache can be reused. | "
+                    "Keep the cache warm. | none |",
+                ),
+                "invalid stable key": valid.replace(
+                    "`cache-reuse`", "`Cache reuse`"
+                ),
+                "invalid timestamp shape": valid.replace(
+                    "2026-09-02T00:00:00Z", "not-a-timestamp"
+                ),
+                "empty ledger": valid.split("| `cache-reuse`", 1)[0],
+                "blank before row": valid.replace(
+                    "| `cache-reuse`", "\n| `cache-reuse`"
+                ),
+                "text before row": valid.replace(
+                    "| `cache-reuse`", "note\n| `cache-reuse`"
+                ),
+                "blank after row": valid + "\n",
+                "text after row": valid + "notes\n",
+            }
+            expected_errors = {
+                "missing newline": "end with a newline",
+                "control character": "control characters",
+                "wrong title": "canonical title",
+                "missing table": "canonical table",
+                "missing separator": "requires a separator",
+                "invalid separator": "separator is invalid",
+                "wrong row shape": "six fields",
+                "invalid stable key": "invalid stable key",
+                "invalid timestamp shape": "UTC last-observed timestamps",
+                "empty ledger": "at least one row",
+            }
+            for name, content in cases.items():
+                with self.subTest(name=name):
+                    errors = validate(content)
+                    if name in expected_errors:
+                        self.assertIn(expected_errors[name], " ".join(errors))
+                    else:
+                        self.assertEqual(errors, [])
+
+            directory_root = root / "directory"
+            directory_root.mkdir()
+            directory_ledger = directory_root / guidance_inventory.PROCESS_IMPROVEMENT_LEDGER
+            directory_ledger.mkdir(parents=True)
+            self.assertIn(
+                "regular file",
+                " ".join(validate_process_improvement_ledger(directory_root)),
+            )
+
+            symlink_path = root / "symlink" / guidance_inventory.PROCESS_IMPROVEMENT_LEDGER
+            symlink_path.parent.mkdir(parents=True)
+            with mock.patch.object(
+                type(symlink_path), "is_symlink", return_value=True
+            ):
+                self.assertIn(
+                    "must not be a symlink",
+                    " ".join(validate_process_improvement_ledger(root / "symlink")),
+                )
+
+    def test_process_improvement_inventory_fails_closed_and_script_entrypoint_runs(
+        self,
+    ) -> None:
+        with mock.patch.object(
+            guidance_inventory,
+            "validate_process_improvement_ledger",
+            return_value=["invalid process ledger"],
+        ):
+            with self.assertRaisesRegex(ValueError, "invalid process ledger"):
+                collect_inventory()
+
+        with self.assertRaises(SystemExit) as exit_info:
+            with mock.patch.object(sys, "argv", ["guidance_inventory.py"]):
+                with redirect_stdout(io.StringIO()):
+                    runpy.run_path(
+                        str(ROOT / "atrinik_workspace/guidance_inventory.py"),
+                        run_name="__main__",
+                    )
+        self.assertEqual(exit_info.exception.code, 0)
+
     def test_command_output_and_failures(self) -> None:
         stdout = io.StringIO()
         with redirect_stdout(stdout):
@@ -359,6 +591,11 @@ class AgentGuidanceTests(unittest.TestCase):
             self.assertEqual(main(["--json"]), 0)
         inventory = json.loads(stdout.getvalue())
         self.assertEqual(inventory["summary"]["skill_count"], 10)
+        self.assertEqual(
+            inventory["process_improvements"]["path"],
+            "build/agent-process-improvements.md",
+        )
+        self.assertIsInstance(inventory["process_improvements"]["present"], bool)
 
         stderr = io.StringIO()
         with mock.patch.object(
@@ -376,6 +613,26 @@ class AgentGuidanceTests(unittest.TestCase):
             self.assertEqual(main([]), 1)
         self.assertIn(
             "guidance inventory failed: invalid guidance", stderr.getvalue()
+        )
+
+    def test_process_improvement_contract_is_guided(self) -> None:
+        guidance = [
+            (ROOT / "AGENTS.md").read_text(encoding="utf-8"),
+            (
+                ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md"
+            ).read_text(encoding="utf-8"),
+        ]
+        normalized = [" ".join(text.split()) for text in guidance]
+        for text in normalized:
+            self.assertIn("build/agent-process-improvements.md", text)
+            self.assertIn("Process improvements added: none", text)
+        self.assertIn(
+            "before repository or expensive build/package/runtime/remote-mutation",
+            normalized[0].lower(),
+        )
+        self.assertIn(
+            "before repository work or expensive build/package/runtime/remote-mutation",
+            normalized[1].lower(),
         )
 
     def test_local_guidance_links_resolve(self) -> None:
