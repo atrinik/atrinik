@@ -377,7 +377,9 @@ def _posix_locking_available() -> bool:
     return callable(getattr(locking, "flock", None))
 
 
-def _mxe_signals(environment: Mapping[str, str], user_name: str) -> list[str]:
+def _mxe_signals(
+    environment: Mapping[str, str], user_name: str | None
+) -> list[str]:
     signals: list[str] = []
     if user_name == WINDOWS_CROSS_REMOTE_USER:
         signals.append("windows-cross-remote-user")
