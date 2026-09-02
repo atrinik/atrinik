@@ -2,40 +2,38 @@
 
 ## Overview
 
-- This Python 3.11+ wrapper coordinates Atrinik repositories; `./atrinik` and
-  `components.json` own profiles, worktrees, builds, runtimes, cleanup,
-  migration, and supply-chain reports.
-- `default` selects the MIT replacement stack (Rust, Go, Protobuf, Astro,
-  source-only Observatory, shared `web-platform`, plus source-only
-  `deploy-control`; M1 foundations
-  lack wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
-  playtester; never mix providers.
+- Python 3.11+ `./atrinik` coordinates Atrinik repos; it and `components.json`
+  own profiles/worktrees/builds/runtimes/cleanup/migration and supply-chain
+  reports.
+- `default` selects MIT replacement: Rust, Go, Protobuf, Astro, source-only
+  Observatory, shared `web-platform`, source-only `deploy-control`; M1
+  foundations lack wrapper integration. `classic` is playable C17/CMake/Ninja
+  plus MIT playtester; never mix providers.
 - Windows supports repository commands; delivery-ledger coordination needs
   pinned Linux devcontainer; other Linux-only commands return stable errors.
 
 ## Folder structure and ownership
 
-- `atrinik` is the CLI, `atrinik_workspace/` owns orchestration, and `tests/`
-  the `unittest` suite.
-- Checkout, cohort, stack, role, source, and build contracts live in
-  `components.json`; machine policy lives in `supply-chain/` and `governance/`.
-- Workflows live in `.agents/skills/`, composition in `.devcontainer/`,
-  CI/release in `.github/`, and helpers in `scripts/`.
+- `atrinik` CLI, `atrinik_workspace/` orchestration, `tests/` unittest suite.
+- Checkout/cohort/stack/role/source/build contracts: `components.json`; machine
+  policy: `supply-chain/`, `governance/`.
+- Workflows: `.agents/skills/`; composition: `.devcontainer/`; CI/release:
+  `.github/`; helpers: `scripts/`.
 - Manifest destinations are ignored repositories; `workspace/` and `build/` are
   ignored generated state omitted from root status.
-- Resolve ownership through `components.json` and the checkout's nearest
-  `AGENTS.md`; keep implementation, tests, packages, and releases there.
-- `classic/` provides `classic-*`; stacks share `content@main`. `content-1x/`
-  and the former 1.x branch are historical only: preserve any local migration
-  evidence, but never select, recreate, or backport delivery to them.
-  `playtester/` is classic-only. `tools/` is MIT-default except GPL-2.0-or-later
+- Resolve ownership via `components.json` and nearest `AGENTS.md`; keep
+  implementation/tests/packages/releases with their physical owner.
+- `classic/` provides `classic-*`; stacks share `content@main`.
+  `content-1x/` and former 1.x branch are historical: preserve migration
+  evidence; never select, recreate, backport, or deliver to them. `playtester/`
+  is classic-only; `tools/` is MIT-default except GPL-2.0-or-later
   `map-checker-qt/` (`LicenseRef-Atrinik-Tools-Mixed`).
 
 ## Core behaviors and patterns
 
 - Use `atrinik-multi-repo-workspace` for wrapper ownership, profiles, worktrees,
-  migration, cleanup, releases, CLI, or layout; add applicable specialist skills
-  and use `atrinik-guidance-maintenance` for guidance audits.
+  migration, cleanup, releases, CLI/layout; add specialists; use
+  `atrinik-guidance-maintenance` for guidance audits.
 - Use `atrinik-issue-delivery` only when explicitly invoked for an issue or
   existing PR; it stops before merge.
 - Use `atrinik-program-delivery` only when explicitly invoked for an ordered
@@ -48,23 +46,25 @@
   detached, locked, active, referenced, or uncertain targets; history fails
   closed.
 - Worktrees belong to physical checkouts. Selecting `classic`, a `classic-*`
-  component, or one of its roles selects one root for all five; profiles append
-  manifest source directories.
+  component, or its roles selects a root for all five; profiles append
+  manifest source dirs.
 - Prefer `scope create`; Classic uses selectors/physical overrides.
   `scope-<name>` is the profile/topology; noncanonical overrides fail
   pre-publication.
   Rerun exact named create after rollback; bind via helper CAS.
-- Use wrapper paths; never reconstruct managed paths. Isolate topology, state,
-  ports, and client config; prefer temporary state and keep scenario secrets local.
-- Keep completion bounded, parser-driven, and secret-free.
-- Lease in order; gate same-coordinate readers; share the migration barrier.
-- Unbound persisted records are historical and inert.
+- Use wrapper paths; never reconstruct managed paths. Isolate topology/state,
+  ports/client config; prefer temporary state; keep scenario secrets local.
+- Before repository or expensive build/package/runtime/remote-mutation work,
+  consult ignored `build/agent-process-improvements.md` if present; update
+  recurring keys; report `Process improvements added: none` or keys/issues.
+- Keep completion bounded/parser-driven/secret-free; lease in order; gate
+  same-coordinate readers; share migration barrier; unbound records are inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
   holders per `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse follows `docs/PROVENANCE.md` and its canonical identity registry;
   rights, identity, temporal, authorship, or scope uncertainty fails closed.
 - Update `supply-chain/inventory.json` when dependency ownership/validation
-  changes. Keep Actions/images immutable, add no submodules, and audit a full
+  changes. Keep Actions/images immutable, add no submodules, audit a full
   profile; only aggregate-root workflows and Dependabot are active.
 - New content/Classic issues name `content@main` and its Classic-target
   artifact. No live 1.x branch, checkout, release label, maintenance line,
@@ -83,8 +83,8 @@
 
 ## Working agreements and commands
 
-Run from this repository root. Inspect first; `init` clones only missing
-repositories and `sync` never initializes one:
+Run from repository root; inspect first. `init` clones missing repos;
+`sync` never initializes:
 
 ```sh
 ./atrinik manifest validate
@@ -128,6 +128,6 @@ Run ShellCheck for shell changes, actionlint for workflows, and
 `./atrinik supply-chain audit --profile PROFILE` when dependency inputs change.
 Preserve `.coveragerc` and OIDC Codecov boundaries.
 
-Handoffs name exact profiles, worktrees, topologies, services, states,
-scenarios, prerequisites, results, validation, and cleanup. Synchronize this
-guide and affected skills/docs with contract changes; stale guidance is a defect.
+Handoffs name exact profiles, worktrees, topologies, services, states, scenarios,
+prerequisites, results, validation, and cleanup; synchronize this guide and
+affected skills/docs with contract changes; stale guidance is a defect.

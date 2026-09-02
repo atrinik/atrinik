@@ -18,6 +18,7 @@ from atrinik_workspace.guidance_inventory import (
     main,
     render_text,
     skill_frontmatter,
+    validate_process_improvement_ledger,
 )
 
 
@@ -182,6 +183,82 @@ class AgentGuidanceTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "missing atrinik-multi"):
                     collect_inventory()
 
+    def test_process_improvement_ledger_is_optional_and_fail_closed(self) -> None:
+        valid = """# Agent process improvements
+
+| Key | Status | Observation | Expected benefit / proposed action | Related issue / PR | Last observed (UTC) |
+| --- | --- | --- | --- | --- | --- |
+| `cache-reuse` | observed | A cache can be reused. | Keep the cache warm. | none | 2026-09-02T00:00:00Z |
+"""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.assertEqual(validate_process_improvement_ledger(root), [])
+
+            ledger = root / guidance_inventory.PROCESS_IMPROVEMENT_LEDGER
+            ledger.parent.mkdir()
+            ledger.write_text(valid, encoding="utf-8")
+            with mock.patch.object(
+                guidance_inventory.subprocess,
+                "run",
+                return_value=mock.Mock(returncode=0),
+            ) as check_ignore:
+                self.assertEqual(validate_process_improvement_ledger(root), [])
+            check_ignore.assert_called_once_with(
+                [
+                    "git",
+                    "check-ignore",
+                    "--no-index",
+                    "--quiet",
+                    "--",
+                    "build/agent-process-improvements.md",
+                ],
+                cwd=root,
+                capture_output=True,
+                check=False,
+                timeout=5,
+            )
+
+            cases = {
+                "duplicate stable keys": valid.replace(
+                    "| `cache-reuse` | observed | A cache can be reused. | Keep the cache warm. | none | 2026-09-02T00:00:00Z |",
+                    "| `cache-reuse` | observed | A cache can be reused. | Keep the cache warm. | none | 2026-09-02T00:00:00Z |\n| `cache-reuse` | observed | A second observation. | Keep the cache warm. | none | 2026-09-02T00:00:00Z |",
+                ),
+                "invalid status": valid.replace("| observed |", "| complete |"),
+                "missing field": valid.replace("| Keep the cache warm. |", "|  |"),
+                "secret-like content": valid.replace(
+                    "A cache can be reused.", "token: do-not-store-this"
+                ),
+            }
+            expected_errors = {
+                "duplicate stable keys": "duplicate stable keys",
+                "invalid status": "invalid status",
+                "missing field": "all descriptive fields",
+                "secret-like content": "secret-like content",
+            }
+            for name, content in cases.items():
+                with self.subTest(name=name):
+                    ledger.write_text(content, encoding="utf-8")
+                    with mock.patch.object(
+                        guidance_inventory.subprocess,
+                        "run",
+                        return_value=mock.Mock(returncode=0),
+                    ):
+                        errors = validate_process_improvement_ledger(root)
+                    self.assertTrue(errors)
+                    self.assertTrue(
+                        any(expected_errors[name] in error for error in errors),
+                        errors,
+                    )
+
+            ledger.write_text(valid, encoding="utf-8")
+            with mock.patch.object(
+                guidance_inventory.subprocess,
+                "run",
+                return_value=mock.Mock(returncode=1),
+            ):
+                errors = validate_process_improvement_ledger(root)
+            self.assertIn("not ignored", " ".join(errors))
+
     def test_command_output_and_failures(self) -> None:
         stdout = io.StringIO()
         with redirect_stdout(stdout):
@@ -193,6 +270,11 @@ class AgentGuidanceTests(unittest.TestCase):
             self.assertEqual(main(["--json"]), 0)
         inventory = json.loads(stdout.getvalue())
         self.assertEqual(inventory["summary"]["skill_count"], 10)
+        self.assertEqual(
+            inventory["process_improvements"]["path"],
+            "build/agent-process-improvements.md",
+        )
+        self.assertIsInstance(inventory["process_improvements"]["present"], bool)
 
         stderr = io.StringIO()
         with mock.patch.object(
@@ -210,6 +292,26 @@ class AgentGuidanceTests(unittest.TestCase):
             self.assertEqual(main([]), 1)
         self.assertIn(
             "guidance inventory failed: invalid guidance", stderr.getvalue()
+        )
+
+    def test_process_improvement_contract_is_guided(self) -> None:
+        guidance = [
+            (ROOT / "AGENTS.md").read_text(encoding="utf-8"),
+            (
+                ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md"
+            ).read_text(encoding="utf-8"),
+        ]
+        normalized = [" ".join(text.split()) for text in guidance]
+        for text in normalized:
+            self.assertIn("build/agent-process-improvements.md", text)
+            self.assertIn("Process improvements added: none", text)
+        self.assertIn(
+            "before repository or expensive build/package/runtime/remote-mutation",
+            normalized[0].lower(),
+        )
+        self.assertIn(
+            "before repository work or expensive build/package/runtime/remote-mutation",
+            normalized[1].lower(),
         )
 
     def test_local_guidance_links_resolve(self) -> None:
