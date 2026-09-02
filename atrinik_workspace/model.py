@@ -127,6 +127,7 @@ LOGICAL_ROLES = {
     "github-settings",
     "observatory",
     "deploy-control",
+    "web-platform",
 }
 IMPLEMENTATION_ROLES = {
     "client",

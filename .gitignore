@@ -27,6 +27,7 @@
 /sound/
 /tools/
 /website/
+/web-platform/
 *.log
 *.py[cod]
 __pycache__/

@@ -16,7 +16,8 @@
       "devcontainer",
       "github-settings",
       "observatory",
-      "deploy-control"
+      "deploy-control",
+      "web-platform"
     ],
     "classic": [
       "classic",
@@ -42,7 +43,8 @@
         "devcontainer",
         "github-settings",
         "observatory",
-        "deploy-control"
+        "deploy-control",
+        "web-platform"
       ],
       "providers": {
         "client": "client",
@@ -59,7 +61,8 @@
         "devcontainer": "devcontainer",
         "github-settings": "github-settings",
         "observatory": "observatory",
-        "deploy-control": "deploy-control"
+        "deploy-control": "deploy-control",
+        "web-platform": "web-platform"
       }
     },
     "classic": {
@@ -214,6 +217,14 @@
       "repository": "atrinik/deploy-control",
       "branch": "main",
       "path": "deploy-control",
+      "generation": "shared",
+      "license": "MIT"
+    },
+    {
+      "name": "web-platform",
+      "repository": "atrinik/web-platform",
+      "branch": "main",
+      "path": "web-platform",
       "generation": "shared",
       "license": "MIT"
     },
@@ -393,6 +404,16 @@
       "build": "none",
       "generation": "shared",
       "provides": ["deploy-control"],
+      "requires": [],
+      "license": "MIT"
+    },
+    {
+      "name": "web-platform",
+      "checkout": "web-platform",
+      "source": ".",
+      "build": "none",
+      "generation": "shared",
+      "provides": ["web-platform"],
       "requires": [],
       "license": "MIT"
     },

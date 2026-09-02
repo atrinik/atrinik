@@ -96,6 +96,12 @@ with the deploy-control repository or its workflows. Cloudflare bindings,
 application and agent keys, host/player state, and mutable runtime state stay
 outside this coordinator.
 
+The default-only shared `web-platform` component occupies
+`atrinik/web-platform@main` at `./web-platform` and provides the shared
+presentation-package source. It has no wrapper build adapter or runtime
+dependency while its package and consumer contracts are being established;
+Classic never selects it.
+
 Manifest validation rejects duplicate checkout or component names, duplicate
 local destinations, unsafe or overlapping source roots within one checkout,
 unknown cohorts, checkouts, or roles, generation mismatches, dependency
