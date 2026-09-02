@@ -125,6 +125,7 @@ class CoordinatorContextTests(unittest.TestCase):
 
         self.assertEqual(result["status"], "canonical-linux")
         self.assertTrue(result["authoritative"])
+        self.assertEqual(result["entry_mode"], context.ENTRY_MODE_VSCODE)
         self.assertEqual(result["failed_checks"], [])
         self.assertEqual(
             {path: path.read_bytes() for path in before}, before
@@ -145,6 +146,7 @@ class CoordinatorContextTests(unittest.TestCase):
 
         self.assertEqual(result["status"], "unknown-or-unsafe")
         self.assertFalse(result["authoritative"])
+        self.assertEqual(result["entry_mode"], context.ENTRY_MODE_NATIVE_HOST)
         self.assertIn("container-runtime-marker", result["failed_checks"])
 
     def test_canonical_container_launched_without_vscode_can_be_authoritative(
@@ -161,6 +163,90 @@ class CoordinatorContextTests(unittest.TestCase):
 
         self.assertEqual(result["status"], "canonical-linux")
         self.assertTrue(result["authoritative"])
+        self.assertEqual(result["entry_mode"], context.ENTRY_MODE_CONTAINER)
+
+    def test_vscode_plugin_signal_can_be_term_program_only(self) -> None:
+        result = self._probe(
+            environment={
+                "HOME": "/home/ubuntu",
+                "CODEX_HOME": "/home/ubuntu/.codex",
+                "PATH": "/usr/local/bin:/usr/bin",
+                "TERM_PROGRAM": "vscode",
+            }
+        )
+
+        self.assertEqual(result["status"], "canonical-linux")
+        self.assertTrue(result["authoritative"])
+        self.assertEqual(result["entry_mode"], context.ENTRY_MODE_VSCODE)
+
+    def test_direct_container_entry_needs_no_launcher_environment_signal(self) -> None:
+        result = self._probe(
+            environment={
+                "HOME": "/home/ubuntu",
+                "CODEX_HOME": "/home/ubuntu/.codex",
+                "PATH": "/usr/local/bin:/usr/bin",
+            }
+        )
+
+        self.assertEqual(result["status"], "canonical-linux")
+        self.assertTrue(result["authoritative"])
+        self.assertEqual(result["entry_mode"], context.ENTRY_MODE_CONTAINER)
+
+    def test_stale_session_signal_does_not_authorize_native_host(self) -> None:
+        result = self._probe(
+            environment={
+                "HOME": "/home/ubuntu",
+                "CODEX_HOME": "/home/ubuntu/.codex",
+                "PATH": "/usr/bin",
+                "DEVCONTAINER": "true",
+                "ATRINIK_COORDINATOR_SESSION": "stale-or-copied",
+            },
+            runtime_root=Path(self.temporary.name) / "no-marker",
+        )
+
+        self.assertEqual(result["status"], "unknown-or-unsafe")
+        self.assertFalse(result["authoritative"])
+        self.assertEqual(result["entry_mode"], context.ENTRY_MODE_NATIVE_HOST)
+        self.assertIn("container-runtime-marker", result["failed_checks"])
+
+    def test_nested_coordinator_signal_fails_closed(self) -> None:
+        result = self._probe(
+            environment={
+                "HOME": "/home/ubuntu",
+                "CODEX_HOME": "/home/ubuntu/.codex",
+                "PATH": "/usr/bin",
+                "DEVCONTAINER": "true",
+                "ATRINIK_COORDINATOR_DEPTH": "1",
+            }
+        )
+
+        self.assertEqual(result["status"], "unknown-or-unsafe")
+        self.assertFalse(result["authoritative"])
+        self.assertIn("nested-coordinator", result["failed_checks"])
+
+    def test_arbitrary_container_layout_is_not_authoritative(self) -> None:
+        arbitrary_workspace = Path(self.temporary.name) / "arbitrary-workspace"
+        (arbitrary_workspace / "workspace").mkdir(parents=True)
+
+        result = self._probe(
+            environment={
+                "HOME": "/home/ubuntu",
+                "CODEX_HOME": "/home/ubuntu/.codex",
+                "PATH": "/usr/bin",
+                "DEVCONTAINER": "true",
+            },
+            workspace_folder=arbitrary_workspace,
+        )
+
+        self.assertEqual(result["status"], "unknown-or-unsafe")
+        self.assertFalse(result["authoritative"])
+        self.assertTrue(
+            {
+                "canonical-workspace-folder",
+                "current-directory-outside-workspace",
+            }
+            & set(result["failed_checks"])
+        )
 
     def test_missing_kernel_user_identity_fails_closed(self) -> None:
         with mock.patch.object(context, "_current_user", return_value=None):
@@ -201,6 +287,7 @@ class CoordinatorContextTests(unittest.TestCase):
         )
         self.assertEqual(result["status"], "native-windows")
         self.assertFalse(result["authoritative"])
+        self.assertEqual(result["entry_mode"], context.ENTRY_MODE_NATIVE_HOST)
         self.assertIn("posix-ledger-primitives", result["failed_checks"])
 
     def test_windows_cross_role_is_not_a_delivery_coordinator(self) -> None:
@@ -233,8 +320,9 @@ class CoordinatorContextTests(unittest.TestCase):
             stdout = io.StringIO()
             with redirect_stdout(stdout):
                 self.assertEqual(context.main([]), 2)
-            self.assertIn("unknown-or-unsafe", stdout.getvalue())
-            self.assertIn("authoritative=false", stdout.getvalue())
+        self.assertIn("unknown-or-unsafe", stdout.getvalue())
+        self.assertIn("authoritative=false", stdout.getvalue())
+        self.assertIn("entry mode: unknown", stdout.getvalue())
 
     def test_probe_source_does_not_import_posix_locking(self) -> None:
         source = SCRIPT.read_text(encoding="utf-8")

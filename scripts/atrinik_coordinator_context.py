@@ -6,7 +6,9 @@ probe is therefore deliberately standalone: it performs bounded, read-only
 inspection and never imports the ledger, takes a lock, mounts a filesystem, or
 creates a directory.  A successful result is the conjunction of the pinned
 workspace contract and live facts; an environment marker by itself is never
-authorization.
+authorization.  The result also reports whether the live process appears to
+be an existing VS Code plugin session, a container bootstrap, or a native host;
+that entry-mode field is diagnostic only.
 """
 
 from __future__ import annotations
@@ -22,11 +24,16 @@ import stat
 from typing import Mapping
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 CANONICAL_STATUS = "canonical-linux"
 NATIVE_WINDOWS_STATUS = "native-windows"
 WINDOWS_CROSS_STATUS = "windows-cross"
 UNKNOWN_STATUS = "unknown-or-unsafe"
+
+ENTRY_MODE_VSCODE = "inside-vscode-devcontainer"
+ENTRY_MODE_CONTAINER = "container-bootstrap"
+ENTRY_MODE_NATIVE_HOST = "native-host"
+ENTRY_MODE_UNKNOWN = "unknown"
 
 CANONICAL_IMAGE = (
     "ghcr.io/atrinik/linux-build:1.3.0@sha256:"
@@ -392,17 +399,51 @@ def _mxe_signals(
     return signals
 
 
+def _entry_mode(
+    environment: Mapping[str, str],
+    *,
+    host: str,
+    runtime_marker: bool | None = None,
+) -> str:
+    """Classify the reported entry signal without granting authority.
+
+    The VS Code and Dev Containers variables are process-environment hints.
+    They are deliberately not required for a direct Docker attach and are
+    never sufficient for a canonical result.  The live container marker is
+    only used to distinguish a proven host-side handoff from a container
+    signal that failed its runtime checks.
+    """
+
+    if host == "Windows":
+        return ENTRY_MODE_NATIVE_HOST
+    if runtime_marker is False:
+        return ENTRY_MODE_NATIVE_HOST
+    if (
+        environment.get("REMOTE_CONTAINERS") == "true"
+        or environment.get("TERM_PROGRAM") == "vscode"
+    ):
+        return ENTRY_MODE_VSCODE
+    if environment.get("DEVCONTAINER") == "true":
+        return ENTRY_MODE_CONTAINER
+    if runtime_marker is True:
+        return ENTRY_MODE_CONTAINER
+    return ENTRY_MODE_UNKNOWN
+
+
 def _result(
     status: str,
     authoritative: bool,
     failures: list[str],
     next_action: str,
     diagnostic: str,
+    *,
+    entry_mode: str = ENTRY_MODE_UNKNOWN,
 ) -> dict[str, object]:
     bounded = sorted(set(failures))[:MAX_FAILED_CHECKS]
     return {
         "authoritative": authoritative,
         "diagnostic": diagnostic,
+        "entry_mode": entry_mode,
         "failed_checks": bounded,
         "next_action": next_action,
         "schema_version": SCHEMA_VERSION,
@@ -426,26 +467,28 @@ def probe(
     """Return a stable context record without changing any filesystem state."""
 
     host = system or platform.system()
+    environment = dict(os.environ if environment is None else environment)
     if host == "Windows":
         return _result(
             NATIVE_WINDOWS_STATUS,
             False,
             ["posix-ledger-primitives", "native-host-boundary"],
-            "Open or attach to the pinned Atrinik Linux devcontainer before any "
-            "delivery-ledger mutation.",
+            "Bootstrap or attach to the pinned Atrinik Linux devcontainer before "
+            "any delivery-ledger mutation.",
             "native-windows-boundary",
+            entry_mode=ENTRY_MODE_NATIVE_HOST,
         )
     if host != "Linux":
         return _result(
             UNKNOWN_STATUS,
             False,
             ["unsupported-host-platform", "posix-ledger-primitives"],
-            "Attach or reopen the pinned Atrinik Linux devcontainer and rerun "
-            "this probe.",
+            "Run this probe from the pinned Atrinik Linux devcontainer; a native "
+            "host must bootstrap or attach before delivery.",
             "unknown-or-unsupported-context",
+            entry_mode=ENTRY_MODE_UNKNOWN,
         )
 
-    environment = dict(os.environ if environment is None else environment)
     user_name = _current_user() if user_name is None else user_name
     uid = os.geteuid() if effective_uid is None else effective_uid
     failures: list[str] = []
@@ -456,9 +499,10 @@ def probe(
             UNKNOWN_STATUS,
             False,
             [str(error)],
-            "Attach or reopen the pinned Atrinik Linux devcontainer and rerun "
-            "this probe.",
+            "Run this probe from the pinned Atrinik Linux devcontainer; a native "
+            "host must bootstrap or attach before delivery.",
             "unknown-or-unsupported-context",
+            entry_mode=_entry_mode(environment, host=host),
         )
 
     role_signals = _mxe_signals(environment, user_name)
@@ -470,6 +514,7 @@ def probe(
             "Use the ordinary pinned Linux devcontainer as the delivery "
             "coordinator; keep windows-cross for host-bound package/build work.",
             "subordinate-windows-cross-context",
+            entry_mode=_entry_mode(environment, host=host),
         )
 
     root_status = _safe_directory(repository_root, "repository-root", uid, failures)
@@ -606,16 +651,23 @@ def probe(
         failures.append("runtime-user")
     if not _posix_locking_available():
         failures.append("posix-locking-unavailable")
-    if not (
-        environment.get("REMOTE_CONTAINERS") == "true"
-        or environment.get("DEVCONTAINER") == "true"
-    ):
-        failures.append("devcontainer-runtime-signal")
+    if environment.get("ATRINIK_COORDINATOR_NESTED") == "true":
+        failures.append("nested-coordinator")
+    try:
+        coordinator_depth = int(environment.get("ATRINIK_COORDINATOR_DEPTH", "0"))
+    except (TypeError, ValueError):
+        coordinator_depth = 1
+    if coordinator_depth != 0:
+        failures.append("nested-coordinator")
     configured_runtime_image = environment.get("DEVCONTAINER_IMAGE")
     if configured_runtime_image and configured_runtime_image != CANONICAL_IMAGE:
         failures.append("runtime-image-mismatch")
-    if not _marker_present(runtime_root, failures):
+    runtime_marker = _marker_present(runtime_root, failures)
+    if not runtime_marker:
         failures.append("container-runtime-marker")
+    entry_mode = _entry_mode(
+        environment, host=host, runtime_marker=runtime_marker
+    )
 
     try:
         mounts = _read_mountinfo(mountinfo)
@@ -659,9 +711,10 @@ def probe(
             UNKNOWN_STATUS,
             False,
             failures,
-            "Attach or reopen the pinned Atrinik Linux devcontainer, reuse that "
-            "session, and rerun this probe before ledger mutation.",
+            "Use the pinned Atrinik Linux devcontainer or the current proven "
+            "in-container session, then rerun this probe before ledger mutation.",
             "unknown-or-unsupported-context",
+            entry_mode=entry_mode,
         )
     return _result(
         CANONICAL_STATUS,
@@ -670,6 +723,7 @@ def probe(
         "This session is authoritative for the Atrinik delivery ledger; continue "
         "with the ledger and wrapper gates.",
         "canonical-coordinator",
+        entry_mode=entry_mode,
     )
 
 
@@ -686,6 +740,7 @@ def _render_human(result: Mapping[str, object]) -> str:
         (
             f"atrinik coordinator: {result['status']} "
             f"(authoritative={str(result['authoritative']).lower()})",
+            f"entry mode: {result['entry_mode']}",
             f"failed checks: {failure_text}",
             f"next action: {result['next_action']}",
         )
@@ -713,9 +768,10 @@ def main(argv: list[str] | None = None) -> int:
             UNKNOWN_STATUS,
             False,
             ["probe-failed-closed"],
-            "Attach or reopen the pinned Atrinik Linux devcontainer and rerun "
-            "this probe before ledger mutation.",
+            "Run this probe from the pinned Atrinik Linux devcontainer before "
+            "ledger mutation.",
             "unknown-or-unsupported-context",
+            entry_mode=ENTRY_MODE_UNKNOWN,
         )
     if args.json:
         print(json.dumps(result, sort_keys=True))

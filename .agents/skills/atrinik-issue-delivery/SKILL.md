@@ -109,8 +109,40 @@ Before any ledger mutation, run
 secret-free probe combines the pinned config with live Linux/POSIX, user,
 Codex, no-follow, mode, and mount checks; runtime markers never authorize it.
 `native-windows`, `windows-cross`, and `unknown-or-unsafe` stop delivery.
-Attach or reopen the pinned ordinary devcontainer and reuse an existing VS
-Code session/caches; do not nest, remount, or discard evidence.
+
+There are exactly two supported Codex entry modes. If the plugin is already
+inside the canonical VS Code devcontainer, continue the current process,
+workspace, ledger root, exact worktree, leases, and warm caches. Do not invoke
+Docker or the Dev Containers CLI merely to create, attach, recreate, remount,
+or re-enter another container. If Codex starts on a native host, use Docker or
+the Dev Containers CLI only for the minimum bootstrap/attach into the pinned
+ordinary Linux devcontainer. The native host may then perform only approved
+Git/GitHub and commit operations; every coordinator, ownership, repository,
+worktree, ledger lock/CAS/lease/recovery, edit, test, build, review, and
+validation operation runs inside that container. A native-host VS Code window
+is not a substitute, and Codex must not ask it to reopen or launch a
+container.
+
+The probe's `entry_mode` is descriptive corroboration, not authority: a
+`inside-vscode-devcontainer` signal, a `container-bootstrap` signal, a copied
+runtime marker, or a session ID cannot replace live image, filesystem,
+workspace, Codex-home, mount, and identity checks. The probe accepts a direct
+container attach when those live checks pass even if a launcher variable is
+absent, and fails closed for native hosts, unsafe bind mounts, arbitrary
+containers, nested coordinators, and stale or copied session evidence.
+
+Treat a persistent session as reusable only while its owner, pinned image,
+workspace/mount identities, and ledger/worktree coordinates still match.
+Reconnect and crash recovery rerun the probe plus fresh ledger/worktree
+observation and CAS/lease checks; idle time is bounded, and shutdown touches
+only the owned session. Parallel sessions use distinct exact worktrees,
+ledger leases, caches, credentials, ports, and mutable state. Docker commands
+explicitly required by a wrapper operation remain governed by that operation;
+this entry rule does not authorize arbitrary nesting or remounting.
+
+Codex never launches or controls VS Code, invokes `code` or `code.cmd`, sends
+VS Code URIs, or uses GUI automation. Any VS Code setup reference is
+human-facing only.
 
 ### Claim only explicitly authorized issues
 
