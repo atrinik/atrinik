@@ -73,19 +73,47 @@ python3 scripts/atrinik_coordinator_context.py --json
 
 Continue only for `canonical-linux` with `authoritative: true`. The probe also
 recognizes `native-windows`, `windows-cross`, and `unknown-or-unsafe` with a
-bounded next action. If VS Code already attached the ordinary devcontainer,
-reuse that workspace/session and its warm caches; do not nest another
-container, remount the workspace, or discard the session's evidence. Keep the
-`windows-cross` container for package/build work and host-bound validation.
+bounded next action. The probe reports an entry mode as a diagnostic, but the
+authoritative result comes only from the complete pinned identity, ownership,
+workspace, ledger, Codex-home, and live-mount contract.
+
+#### Codex entry modes
+
+Delivery supports exactly two Codex entry modes:
+
+- **Already inside the canonical VS Code devcontainer:** continue in the
+  current plugin process, workspace, ledger root, worktree, and warm caches.
+  Do not invoke Docker or the Dev Containers CLI merely to create, attach,
+  recreate, remount, or re-enter another container.
+- **Native-host bootstrap:** before delivery work, enter or attach to the
+  pinned ordinary Linux devcontainer with Docker or the Dev Containers CLI.
+  The native host may perform only that minimum bootstrap/attach and approved
+  Git/GitHub/commit operations. Wrapper/context, ownership, repository and
+  worktree setup, ledger locks/CAS/leases/recovery, edits, tests, builds,
+  review, and validation all run inside the container.
+
+In both modes, Codex must never launch or control VS Code, invoke `code` or
+`code.cmd`, send a VS Code URI, or use GUI automation. VS Code setup text in
+this README is for a human developer, not an agent handoff. A persistent
+session is reusable only while its owner and current container identity match;
+reconnect or crash recovery reruns the probe and exact ledger/worktree
+observation before continuing. Bound idle and shutdown operations to the
+owned session, and give parallel sessions distinct worktrees, leases, caches,
+credentials, ports, and mutable state. Copied or stale session markers,
+arbitrary containers, nested coordinators, and unsafe bind mounts never grant
+authority. Keep the `windows-cross` container for package/build work and
+host-bound validation.
 
 The Atrinik development container supplies the native build dependencies. Run
 all commands below from this repository's root.
 
 ### Development container
 
-Open this wrapper repository in VS Code and choose **Dev Containers: Reopen in
-Container** to use the pinned Linux build environment. On first creation, the
-container runs `./atrinik init`; it clones only missing replacement/default
+For a human developer, open this wrapper repository in VS Code and choose
+**Dev Containers: Reopen in Container** to use the pinned Linux build
+environment. Codex does not perform that GUI action or ask another VS Code
+session to reopen the container. On first creation, the container runs
+`./atrinik init`; it clones only missing replacement/default
 repositories and validates existing checkouts without updating or replacing
 them. It never adds classic repositories, the MIT playtester, or the
 MIT-by-default tools repository with its GPL-2.0-or-later `map-checker-qt/`

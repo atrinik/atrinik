@@ -635,6 +635,52 @@ class AgentGuidanceTests(unittest.TestCase):
             normalized[1].lower(),
         )
 
+    def test_codex_entry_modes_are_explicit_and_vscode_is_human_only(self) -> None:
+        paths = [
+            ROOT / "AGENTS.md",
+            ROOT / "README.md",
+            ROOT / "docs/ARCHITECTURE.md",
+            ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md",
+        ]
+        guidance = {
+            path: path.read_text(encoding="utf-8") for path in paths
+        }
+
+        for path in paths:
+            normalized = " ".join(guidance[path].split())
+            with self.subTest(path=path.relative_to(ROOT), marker="entry modes"):
+                self.assertIn("entry modes", normalized)
+                self.assertIn("canonical VS Code devcontainer", normalized)
+                self.assertRegex(normalized, r"\binside\b")
+                self.assertRegex(normalized.lower(), r"native[- ]host")
+                self.assertIn("pinned", normalized)
+                self.assertIn("Codex", normalized)
+            with self.subTest(path=path.relative_to(ROOT), marker="VS Code boundary"):
+                self.assertRegex(
+                    normalized,
+                    r"Codex (?:never|must never) (?:launches|launch|launch or controls)"
+                    r"[^.]{0,100}VS Code",
+                )
+                self.assertIn("GUI automation", normalized)
+
+        for path, text in guidance.items():
+            fenced_blocks = re.findall(r"```[^\n]*\n(.*?)```", text, re.DOTALL)
+            for block in fenced_blocks:
+                with self.subTest(
+                    path=path.relative_to(ROOT), marker="executable VS Code launch"
+                ):
+                    self.assertNotRegex(
+                        block,
+                        r"(?im)^\s*(?:code(?:\.cmd)?\b|vscode://|"
+                        r"(?:xdotool|ydotool|osascript|wmctrl)\b)",
+                    )
+
+        skill = guidance[ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"]
+        self.assertIn("entry_mode", skill)
+        self.assertIn("runtime markers never authorize", skill)
+        self.assertIn("Copied or stale session markers", guidance[ROOT / "README.md"])
+        self.assertIn("schema-2", guidance[ROOT / "docs/ARCHITECTURE.md"])
+
     def test_local_guidance_links_resolve(self) -> None:
         paths = [ROOT / "AGENTS.md"]
         paths.extend(sorted((ROOT / ".agents/skills").glob("*/SKILL.md")))

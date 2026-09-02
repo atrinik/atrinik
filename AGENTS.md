@@ -37,6 +37,17 @@
   Invoke explicitly.
 - Use `atrinik-program-delivery` only for explicitly invoked ordered master
   issues; it composes leaves across merge gates and stops before merge/closure.
+- Codex delivery has two entry modes: continue an already-running session
+  inside the canonical VS Code devcontainer, or bootstrap/attach that pinned
+  Linux devcontainer from a native host. In the latter mode, host work is
+  limited to bootstrap/attach and approved Git/GitHub/commit operations; all
+  wrapper, ledger, worktree, edit, test, build, review, and validation work
+  stays inside the container.
+- Codex never launches or controls VS Code, sends VS Code URIs, or uses GUI
+  automation. Do not nest or remount containers, rely on copied or stale
+  session evidence, or discard a warm session. Reconnect only after fresh
+  identity, mount, lease, and exact-worktree checks; parallel sessions need
+  separate caches, credentials, ports, and mutable state.
 - Never replace dirty primaries, remove dirty worktrees, or overwrite mutable server data;
   preserve migration inputs.
 - Cleanup is preview-first; delivery grants none. Keep ledger transactions separate

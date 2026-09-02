@@ -71,6 +71,27 @@ authorization. The probe never imports the ledger, acquires a lock, mounts or
 remounts a path, creates generated state, or changes the existing devcontainer
 definitions.
 
+Codex may reach that boundary through two entry modes: inside an already-running
+canonical VS Code devcontainer plugin session or through a native-host
+bootstrap/attach into the pinned ordinary Linux devcontainer. `entry_mode` in
+the probe's schema-2 record identifies the reported route
+(`inside-vscode-devcontainer`,
+`container-bootstrap`, `native-host`, or `unknown`) for diagnostics only; it
+does not authorize delivery. A direct Docker or Dev Containers CLI attach may
+omit launcher environment variables, while copied markers or stale session
+IDs cannot replace the live contract. Native-host work is limited to minimum
+bootstrap/attach and approved Git/GitHub/commit operations; all coordinator,
+ledger, worktree, edit, test, build, review, and validation work stays inside
+the pinned container.
+
+Session continuity is an ownership and identity boundary, not a trust token.
+Reconnect and crash recovery must re-prove the current container, mount,
+workspace, exact worktree, ledger CAS, and leases before resuming; idle and
+shutdown actions are bounded to the owned session. Parallel sessions require
+distinct worktrees, leases, caches, credentials, ports, and mutable state.
+Codex never launches or controls VS Code, uses its executable or URI, or uses
+GUI automation; launch-configuration instructions are for human operators.
+
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,
 `classic-editor` from `editor/`, `classic-libatrinik` from `libatrinik/`, and
