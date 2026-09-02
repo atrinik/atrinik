@@ -33,29 +33,28 @@
 
 ## Core behaviors and patterns
 
-- Use `atrinik-multi-repo-workspace` for wrapper/layout work; add specialist
-  skills and use `atrinik-guidance-maintenance` for guidance audits.
-- Use `atrinik-issue-delivery` only when explicitly invoked for an issue or
-  existing PR; it stops before merge.
-- Use `atrinik-program-delivery` only when explicitly invoked for an ordered
-  master issue; it composes leaves across merge gates and stops before merge or
-  issue closure.
+- Use `atrinik-multi-repo-workspace` for wrapper ownership/profiles/worktrees/
+  migration/cleanup/releases/CLI/layout; add applicable specialists and
+  `atrinik-guidance-maintenance` for audits.
+- Use `atrinik-issue-delivery` only for an issue or existing PR; it stops before
+  merge.
+- Use `atrinik-program-delivery` only on explicit ordered master issue; it
+  composes leaves across merge gates and stops before merge/issue closure.
 - Never replace dirty primaries, remove dirty worktrees, or overwrite mutable
   server data; preserve migration inputs.
-- Cleanup is preview-first; delivery grants no cleanup. Keep ledger terminal
-  transactions separate from cleanup; preserve dirty, detached, locked, active,
-  referenced, or uncertain targets; history fails closed.
-- Worktrees belong to physical checkouts; Classic selects one root for all five,
-  and profiles append manifest source directories.
-- Prefer `scope create`; Classic uses physical overrides. `scope-<name>` is
-  canonical; noncanonical overrides fail pre-publication; rerun exact creates
-  after rollback and bind through helper CAS.
+- Preview cleanup only; delivery grants none. Keep ledger transactions
+  separate from `./atrinik cleanup`; preserve dirty/detached/locked/active/
+  referenced/uncertain targets; history fails closed.
+- Physical-checkout worktrees: `classic`, a `classic-*` component, or a role
+  selects one root for all five; profiles append manifest sources.
+- Prefer `scope create`; Classic uses selectors/physical overrides. `scope-<name>`
+  is profile/topology; noncanonical overrides fail pre-publication; rerun exact named
+  create after rollback and bind via helper CAS.
 - Use wrapper paths; never reconstruct managed paths. Isolate topology/state,
-  ports, and client config; prefer temporary state and keep secrets local.
-- Keep completion bounded/parser-driven/secret-free. Every repo-work response says
-  `Tooling issues: none` or stable keys; record findings in ignored
-  `build/agent-tooling-issues.md` per tooling protocol; never commit/publish or
-  copy them into product issues.
+  ports/client config; prefer temporary state and local scenario secrets.
+- Keep completion bounded/parser-driven/secret-free. Every repo-work response reports
+  `Tooling issues: none` or stable keys; record in ignored `build/agent-tooling-issues.md`;
+  never commit/publish/copy into product issues.
 - Lease in order; gate same-coordinate readers; share the migration barrier.
 - Unbound persisted records are historical and inert.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket
