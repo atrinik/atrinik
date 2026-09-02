@@ -352,6 +352,7 @@ class AgentGuidanceTests(unittest.TestCase):
                 "text before row": valid.replace(
                     "| `cache-reuse`", "note\n| `cache-reuse`"
                 ),
+                "blank after row": valid + "\n",
                 "text after row": valid + "notes\n",
             }
             expected_errors = {
