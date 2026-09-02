@@ -162,6 +162,14 @@ class CoordinatorContextTests(unittest.TestCase):
         self.assertEqual(result["status"], "canonical-linux")
         self.assertTrue(result["authoritative"])
 
+    def test_missing_kernel_user_identity_fails_closed(self) -> None:
+        with mock.patch.object(context, "_current_user", return_value=None):
+            result = self._probe(user_name=None)
+
+        self.assertEqual(result["status"], "unknown-or-unsafe")
+        self.assertFalse(result["authoritative"])
+        self.assertIn("runtime-user", result["failed_checks"])
+
     def test_pinned_config_mismatch_fails_closed(self) -> None:
         config_path = self.repository / ".devcontainer/devcontainer.json"
         config = json.loads(

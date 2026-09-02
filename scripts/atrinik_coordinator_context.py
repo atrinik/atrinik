@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-import getpass
 import json
 import os
 from pathlib import Path
@@ -357,13 +356,15 @@ def _marker_present(runtime_root: Path, failures: list[str]) -> bool:
     return False
 
 
-def _current_user() -> str:
+def _current_user() -> str | None:
     try:
         import pwd
-
+    except ImportError:
+        return None
+    try:
         return pwd.getpwuid(os.geteuid()).pw_name
-    except (ImportError, KeyError, OSError):
-        return getpass.getuser()
+    except (KeyError, OSError):
+        return None
 
 
 def _posix_locking_available() -> bool:
@@ -443,7 +444,7 @@ def probe(
         )
 
     environment = dict(os.environ if environment is None else environment)
-    user_name = user_name or _current_user()
+    user_name = _current_user() if user_name is None else user_name
     uid = os.geteuid() if effective_uid is None else effective_uid
     failures: list[str] = []
     try:
