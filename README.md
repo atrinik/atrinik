@@ -126,6 +126,48 @@ The wrapper owns these launch configurations because they compose the complete
 development workspace. The standalone `devcontainer` component owns only the
 published Linux and Windows toolchain images they reference.
 
+#### Docker storage topology
+
+The ordinary pinned Linux configuration keeps live source checkouts, registered
+worktrees, `workspace/state`, and the trusted `build/reviews` delivery ledger on
+their Linux-native bind mounts. It mounts `workspace/build` as the named volume
+`atrinik-${devcontainerId}-build-cache` with `volume-nocopy`. The host-side
+`workspace/build` parent is created before the nested mount, and the one-time
+`onCreateCommand` repairs the fresh volume root to the remote user's ownership.
+The wrapper still discovers `workspace/build` through `Paths`, records its normal
+markers and leases there, and applies preview-first cleanup to marker-owned
+contents; the volume itself is never guessed or removed by a broad cleanup.
+
+The Windows cross-build configuration uses the same per-container workspace
+volume. Its Docker package fallback deliberately keeps the private immutable
+source staging root and final package output on bind mounts. It attaches separate
+namespaced named volumes for client/server CMake trees, ccache, and dependency
+downloads, initializes their writable roots before the non-root build, and
+records their exact names in the package build metadata. No source checkout,
+registered worktree, server state, credential, or delivery ledger is copied into
+a cache volume.
+
+Volume names use the Dev Container identity through
+`ATRINIK_DOCKER_VOLUME_NAMESPACE`; parallel containers therefore do not share
+mutable build state. Stop all containers using a volume before removing that
+exact volume. Wrapper cleanup remains preview-first for its marker-owned
+contents, while volume removal is an explicit operator action after the
+container lease is gone.
+
+The repeatable synthetic comparison records environment, pinned image,
+namespace, cold/warm bind and volume timings, interruption/cache-reuse
+observations, host export checksums, and exact cleanup results:
+
+~~~sh
+python3 scripts/benchmark_devcontainer_storage.py \
+  --image ghcr.io/atrinik/windows-build:1.2.1@sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb \
+  --output build/storage/windows-docker.json
+~~~
+
+The helper uses bounded deterministic input and refuses pre-existing benchmark
+volumes. Use `--keep-volumes` only when the exact reported volume is needed for
+manual inspection.
+
 For delivery work on a Windows host, the ordinary configuration is the
 coordinator. Its source/worktree mount, `build/reviews` ledger root, wrapper
 workspace, and `/home/ubuntu/.codex` mount must remain Linux-native or backed

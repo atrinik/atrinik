@@ -23,12 +23,15 @@
     // Ask Docker Desktop's NVIDIA runtime to make all GPU capabilities visible.
     "--gpus=all"
   ],
-  "initializeCommand": "install -d -m 700 \"${localEnv:HOME}/.codex-atrinik\" && if [ ! -e \"${localEnv:HOME}/.gitconfig\" ]; then install -m 600 /dev/null \"${localEnv:HOME}/.gitconfig\"; fi",
+  "initializeCommand": "install -d -m 700 \"${localWorkspaceFolder}/workspace/build\" && install -d -m 700 \"${localEnv:HOME}/.codex-atrinik\" && if [ ! -e \"${localEnv:HOME}/.gitconfig\" ]; then install -m 600 /dev/null \"${localEnv:HOME}/.gitconfig\"; fi",
   "workspaceFolder": "/workspaces/atrinik",
   "mounts": [
     // Keep Codex state and Git identity local to the host user.
     "source=${localEnv:HOME}/.codex-atrinik,target=/home/ubuntu/.codex,type=bind",
     "source=${localEnv:HOME}/.gitconfig,target=/home/ubuntu/.gitconfig,type=bind,readonly",
+    // Keep high-I/O generated workspace data in a per-container named volume.
+    // initializeCommand pre-creates the nested target's writable parent.
+    "source=atrinik-${devcontainerId}-build-cache,target=/workspaces/atrinik/workspace/build,type=volume,volume-nocopy",
     // WSLg owns the Wayland, X11, runtime, and audio endpoints under this tree.
     "source=/mnt/wslg,target=/mnt/wslg,type=bind,readonly",
     // WSLg's Xwayland socket lives here; expose it at the conventional X11 path.
@@ -48,6 +51,8 @@
     // Resolve WSL's D3D12/NVIDIA user-mode libraries before container libraries.
     "LD_LIBRARY_PATH": "/usr/lib/wsl/lib",
     "CODEX_HOME": "/home/ubuntu/.codex",
+    // The container identity namespaces its named build/cache volumes.
+    "ATRINIK_DOCKER_VOLUME_NAMESPACE": "${devcontainerId}",
     // WSLg currently lacks zwp_text_input_v3; SDL's X11 backend supplies text events.
     "SDL_VIDEODRIVER": "x11",
     "PULSE_SERVER": "unix:/mnt/wslg/PulseServer",
@@ -55,6 +60,8 @@
     // Expose graphics/display as well as compute and utility capabilities.
     "NVIDIA_DRIVER_CAPABILITIES": "compute,utility,graphics,display"
   },
+  // Fresh named volumes are root-owned; repair only this volume root once.
+  "onCreateCommand": "owner=$(stat -c %u /workspaces/atrinik/workspace/build) && if [ \"$owner\" != \"$(id -u ubuntu)\" ]; then sudo chown -R --no-dereference ubuntu:ubuntu /workspaces/atrinik/workspace/build; fi",
   "postCreateCommand": "./atrinik init",
   "customizations": {
     "vscode": {

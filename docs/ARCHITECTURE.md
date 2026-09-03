@@ -226,18 +226,53 @@ workspace/
   worktrees/<checkout>/<label>/      physical-checkout Git worktrees
   scopes/<name>/                     durable development-scope records/journals
   profiles/<name>.json               logical component -> checkout selectors
-  build/profiles/<name>-<key>/       isolated sources, builds, and runtime
-  build/source-generations/<checkout>/<key>/ immutable primary exports
-  build/npm-cache/                   shared package download cache
-  build/worker-dependencies/<key>/   shared validated Worker installations
-  build/compiler-cache/              bounded shared native compiler cache
-  build/retention.json               optional strict build pin/rollback record
+  build/                             profile/cache root; named Docker volume in
+                                      the pinned devcontainers, native otherwise
+    profiles/<name>-<key>/           isolated sources, builds, and runtime
+    source-generations/<checkout>/<key> immutable primary exports
+    npm-cache/                       shared package download cache
+    worker-dependencies/<key>/       shared validated Worker installations
+    compiler-cache/                  bounded shared native compiler cache
+    retention.json                   optional strict build pin/rollback record
   topologies/<name>/                 supervised process state and rotated logs
     temporary-states/<generation>/   disposable or retained exact state
   state/server/<name>/               persistent mutable server data
   states.json                        named external-state registry
   cleanup-journals/                  cleanup recovery/delivery receipts
 ~~~
+
+## Container storage topology
+
+The pinned ordinary Linux devcontainer mounts only `workspace/build` as the
+per-container named volume
+`atrinik-${devcontainerId}-build-cache`. Source checkouts, managed worktrees,
+`workspace/state`, and the top-level `build/reviews` delivery-ledger root stay
+on the trusted Linux-native source bind. This preserves live editing and
+ledger/worktree identity while moving CMake/Ninja trees, compiler caches, npm
+downloads, and other high-churn generated data away from the slow host bind.
+`volume-nocopy` prevents an accidental image-to-volume copy, and the host
+configuration creates the writable nested parent before Docker attaches the
+volume. The lifecycle ownership hook repairs only a fresh volume root; normal
+wrapper markers, ordered build locks, leases, and preview-first cleanup remain
+the authority for the mounted path.
+
+The Windows Docker package fallback has a separate boundary. Its private
+immutable staging tree is a source bind, and its `packages` result is a host
+export bind. Four exact, namespaced named volumes hold client and server build
+trees, ccache, and dependency-download state. The wrapper pre-creates each
+nested target, rejects symlinks or non-directories, initializes root-owned
+volumes before the non-root build, and records the volume names with the
+package's build metadata. The staging bind is package/provenance input only;
+it is not a replacement for the live source/worktree edit loop.
+
+A volume root is a storage backend for an existing wrapper path, not a second
+workspace ownership model. Cleanup inventories and removes only marker-owned
+entries below the path after its normal leases and mount-boundary checks. It
+does not scan or delete arbitrary Docker volumes. Operators remove an exact
+named volume only after all containers using it are stopped. The bounded
+`scripts/benchmark_devcontainer_storage.py` helper measures bind versus volume
+cold/warm I/O and records interruption, cache reuse, volume removal, and host
+export evidence without mutating source or server state.
 
 ## Durable and ephemeral filesystem identity
 
@@ -1121,9 +1156,13 @@ It then copies only those selected inputs into private temporary staging and
 runs the existing Classic client and server portable-package builders. The
 installed `windows-cross` toolchain is preferred; otherwise the command reads
 the digest-pinned image identity from the devcontainer composition and invokes
-that image through Docker. The two paths use the same package scripts and
-`0.0.0` non-release version, so this command cannot mint a release version or
-asset. Explicit, path-bounded package-script inputs preserve the profile's
+that image through Docker. The Docker fallback keeps the private staging
+root and package export on bind mounts while attaching exact namespaced volumes
+for the client/server build trees, ccache, and dependency downloads. The
+wrapper pre-creates and validates each nested target and initializes fresh
+volume ownership before the non-root package scripts run. The two paths use
+the same `0.0.0` non-release version, so this command cannot mint a release version
+or asset. Explicit, path-bounded package-script inputs preserve the profile's
 staged sound, content, and resources instead of resolving component release
 locks. Before publication, tree digests prove the packaged maps, content
 library, and resources still match those staged profile inputs.

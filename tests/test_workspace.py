@@ -31,6 +31,7 @@ from dataclasses import replace
 from unittest import mock
 
 from atrinik_workspace import workspace as workspace_module
+from atrinik_workspace.docker_storage import windows_package_volume_mounts
 from atrinik_workspace import cleanup as cleanup_module
 from atrinik_workspace import locking as locking_module
 from atrinik_workspace.cleanup import Cleanup
@@ -23278,17 +23279,44 @@ class WorkspaceTests(unittest.TestCase):
         staging = self.root / "windows-sources"
         staging.mkdir()
         image = "ghcr.io/atrinik/windows-build:1@sha256:" + "a" * 64
+        calls: list[list[str]] = []
 
         def synthetic_build(arguments: list[str], **_kwargs: object) -> str:
+            calls.append(arguments)
+            self.assertEqual(arguments[0:2], ["docker", "run"])
+            self.assertIn(image, arguments)
+            self.assertIn(
+                f"type=bind,source={staging},target=/workspace,readonly",
+                arguments,
+            )
+            self.assertIn(
+                f"type=bind,source={staging / 'packages'},target=/workspace/packages",
+                arguments,
+            )
+            expected_mounts = windows_package_volume_mounts(
+                self.workspace.paths.repository
+            )
+            for mount in expected_mounts:
+                self.assertIn(mount.docker_spec, arguments)
+            if "ATRINIK_PROFILE_SOUND_DIR=/workspace/client/sound" not in arguments:
+                self.assertEqual(
+                    arguments[arguments.index("--user") + 1],
+                    "0:0",
+                )
+                self.assertIn(
+                    "chown -R --no-dereference",
+                    arguments[-1],
+                )
+                return ""
+
             packages = staging / "packages"
             for component in ("client", "server"):
                 (packages / (
                     f"atrinik-classic-{component}-0.0.0-windows-x86_64.zip"
                 )).write_bytes(component.encode())
-            self.assertEqual(arguments[0:2], ["docker", "run"])
-            self.assertIn(image, arguments)
-            self.assertIn(
-                "ATRINIK_PROFILE_SOUND_DIR=/workspace/client/sound", arguments
+            self.assertEqual(
+                arguments[arguments.index("--user") + 1],
+                f"{os.getuid()}:{os.getgid()}",
             )
             self.assertIn(
                 "ATRINIK_PROFILE_CONTENT_DIR=/workspace/server/runtime/content",
@@ -23296,6 +23324,15 @@ class WorkspaceTests(unittest.TestCase):
             )
             self.assertIn(
                 "ATRINIK_PROFILE_RESOURCES_DIR=/workspace/server/resources",
+                arguments,
+            )
+            self.assertIn("CCACHE_DIR=/workspace/.ccache", arguments)
+            self.assertIn(
+                "XDG_CACHE_HOME=/workspace/.dependency-downloads",
+                arguments,
+            )
+            self.assertIn(
+                "ATRINIK_DEPENDENCY_DOWNLOADS=/workspace/.dependency-downloads",
                 arguments,
             )
             return ""
@@ -23312,9 +23349,30 @@ class WorkspaceTests(unittest.TestCase):
                 staging
             )
 
+        self.assertEqual(len(calls), 2)
         self.assertEqual(client.name, "atrinik-classic-client-0.0.0-windows-x86_64.zip")
         self.assertEqual(server.name, "atrinik-classic-server-0.0.0-windows-x86_64.zip")
-        self.assertEqual(build, {"mode": "container", "image": image})
+        expected_names = [
+            mount.name
+            for mount in windows_package_volume_mounts(
+                self.workspace.paths.repository
+            )
+        ]
+        self.assertEqual(
+            build,
+            {
+                "mode": "container",
+                "image": image,
+                "volumes": expected_names,
+            },
+        )
+        for target in (
+            staging / "client" / "build",
+            staging / "server" / "build",
+            staging / ".ccache",
+            staging / ".dependency-downloads",
+        ):
+            self.assertTrue(target.is_dir())
 
 
 if __name__ == "__main__":
