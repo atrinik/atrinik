@@ -60,9 +60,10 @@
   rerun exact named create after rollback and bind via helper CAS.
 - Use wrapper paths; never reconstruct managed paths. Isolate topology/state, ports,
   client config; prefer temporary state and local scenario secrets.
-- Before repository or expensive build/package/runtime/remote-mutation work, consult
-  ignored `build/agent-process-improvements.md`; update recurring keys; report
-  `Process improvements added: none` or keys/issues.
+- Before repository or expensive build/package/runtime/remote-mutation, consult
+  `build/agent-process-improvements.md`; `./atrinik agent-ledger update` only:
+  never manually edit ledgers. Report `Process improvements added: none` or
+  keys/issues; follow digest/lock/retry; handoff across separate filesystems.
 - Keep completion bounded, parser-driven, and secret-free; lease in order; gate
   same-coordinate readers; share migration barrier; unbound records inert. Report
   `Tooling issues: none` or stable keys in ignored

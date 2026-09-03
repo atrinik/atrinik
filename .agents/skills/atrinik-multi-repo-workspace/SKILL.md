@@ -13,7 +13,11 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
    orchestration/contracts stay here. Before repository work or expensive
    build/package/runtime/remote-mutation work, consult ignored
    `build/agent-process-improvements.md` when present, update recurring keys,
-   report `Process improvements added: none` or changed keys/issues.
+   report `Process improvements added: none` or changed keys/issues. Use
+   `./atrinik agent-ledger update` for both ignored agent ledgers; never
+   manually edit, overwrite, or truncate their Markdown directly. The helper resolves the
+   canonical shared root and returns the digest/lock/retry result; separate
+   filesystems need a coordinator or event handoff.
 
 Checkouts are ignored repositories. One `classic` worktree holds five
 `classic-*` components; both stacks share `content@main`. `content-1x` and the

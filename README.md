@@ -104,6 +104,27 @@ arbitrary containers, nested coordinators, and unsafe bind mounts never grant
 authority. Keep the `windows-cross` container for package/build work and
 host-bound validation.
 
+### Shared local agent ledgers
+
+The ignored `build/agent-process-improvements.md` and
+`build/agent-tooling-issues.md` files are local, human-readable workspace state.
+Update either one only through the wrapper's schema-aware transaction:
+
+~~~sh
+./atrinik agent-ledger update --ledger tooling-issues \
+  --key 'mechanism=<slug>;remediation=<slug>' --status open \
+  --observation 'generic symptom' --impact 'bounded impact' \
+  --recommended-action 'safe next action'
+~~~
+
+The command finds the shared wrapper root even when invoked from a linked
+worktree, reads and validates the latest bytes under a stable lock, and
+publishes a bounded atomic replacement. Use its returned digest with
+`--expected-digest` for fail-closed stale-writer detection; follow its lock,
+stale, and retry diagnostics. Separate filesystems cannot share that local
+lock and require an explicit coordinator or event handoff. Never copy ledger
+contents into source, CI, release, issue, pull-request, or delivery evidence.
+
 The Atrinik development container supplies the native build dependencies. Run
 all commands below from this repository's root.
 

@@ -87,6 +87,13 @@ owner `AGENTS.md`; do not duplicate procedures.
   artifact, scope, or resource mutation. CAS every result/live refresh through
   the helper; never hand-roll state, locks, markers, or recovery.
 
+  The ignored process-improvement and tooling-issue ledgers have one supported
+  edit path: `./atrinik agent-ledger update --ledger ...`. It resolves the
+  canonical shared root, reads and validates the latest bytes under a stable
+  shared lock, publishes atomically, and returns a digest/CAS result. Never
+  manually edit, overwrite, or truncate either file; follow stale/lock/retry
+  output. Separate filesystems require a coordinator or event handoff.
+
   Planned/absent creates after collision rechecks; planned/exact binds;
   created-or-adopted/exact reuses. Missing, duplicate, mismatched, dirty, or
   unsafe artifacts stop. Attach a bound branch with absent worktree through
