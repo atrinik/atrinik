@@ -93,7 +93,8 @@ class FilesystemMigrationTests(unittest.TestCase):
             },
         )
 
-        review = self.repository / "build" / "reviews" / "demo.md.ledger.json"
+        review_root = self.repository / "build" / "reviews"
+        review = review_root / "demo.md.ledger.json"
         write_json(
             review,
             {
@@ -116,6 +117,17 @@ class FilesystemMigrationTests(unittest.TestCase):
             },
         )
         review_inode = review.stat().st_ino
+        compact_receipt = review_root / (
+            ".delivery-update-receipt-" + "a" * 64 + ".json"
+        )
+        write_json(
+            compact_receipt,
+            {
+                "device": review.stat().st_dev + 1,
+                "inode": review_inode,
+                "target": review.name,
+            },
+        )
         release = self.repository / "build" / "reviews" / ".demo.md.ledger.json.release.json"
         write_json(
             release,
@@ -150,7 +162,13 @@ class FilesystemMigrationTests(unittest.TestCase):
         planned_paths = {item["path"] for item in plan["records"]}
         self.assertEqual(
             planned_paths,
-            {str(topology_record), str(review), str(release), str(reclaim_complete)},
+            {
+                str(topology_record),
+                str(review),
+                str(compact_receipt),
+                str(release),
+                str(reclaim_complete),
+            },
         )
         self.assertNotIn("before_base64", plan["records"][0])
 
@@ -175,6 +193,14 @@ class FilesystemMigrationTests(unittest.TestCase):
             release_value["ledger"]["device"], portable_pair(review.stat())["device"]
         )
         self.assertEqual(release_value["ledger"]["inode"], review.stat().st_ino)
+        compact_receipt_value = json.loads(compact_receipt.read_text(encoding="utf-8"))
+        self.assertEqual(
+            compact_receipt_value["device"],
+            migration.portable_device_from_components(
+                review_inode, stat.S_IFREG, "file"
+            ),
+        )
+        self.assertEqual(compact_receipt_value["inode"], review_inode)
         reclaim_value = json.loads(reclaim_complete.read_text(encoding="utf-8"))
         self.assertEqual(
             reclaim_value["preview"]["device"],

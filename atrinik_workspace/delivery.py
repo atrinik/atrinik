@@ -9,6 +9,7 @@ bytes itself.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -27,6 +28,22 @@ _LEDGER_SUFFIX = ".md.ledger.json"
 _HELPER_RELATIVE = Path(
     ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
 )
+
+
+def _ledger_lock_name(review_root: Path, ledger_name: str) -> str:
+    """Mirror the helper's bounded per-ledger lock coordinate."""
+
+    legacy = f".{ledger_name}.lock"
+    try:
+        name_limit = os.pathconf(review_root, "PC_NAME_MAX")
+    except (OSError, ValueError) as error:
+        raise WorkspaceError(
+            f"cannot determine delivery lock NAME_MAX: {review_root}: {error}"
+        ) from error
+    if len(legacy.encode("utf-8")) <= name_limit:
+        return legacy
+    marker = hashlib.sha256(ledger_name.encode("utf-8")).hexdigest()
+    return f".delivery-ledger-lock-{marker}.lock"
 
 
 @dataclass(frozen=True)
@@ -139,7 +156,7 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
             raise WorkspaceError(f"{context} is invalid")
         ledger_path = review_root / name
         report_path = review_root / name.removesuffix(".ledger.json")
-        lock_path = review_root / f".{name}.lock"
+        lock_path = review_root / _ledger_lock_name(review_root, name)
         for path, label in (
             (ledger_path, "active delivery ledger"),
             (report_path, "active delivery report"),

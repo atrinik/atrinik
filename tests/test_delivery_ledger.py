@@ -4184,6 +4184,228 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertEqual(resumed.document["migration"]["state"], "complete")
                 self.assertEqual(ledger.inventory(root).pending, ())
 
+    def test_22b_compact_cas_receipt_is_bounded_and_authoritative(self) -> None:
+        long_issue_number = int("9" * 100)
+        for failpoint in (
+            "cas:receipted",
+            "cas:staged",
+            "cas:proofed",
+            "cas:renamed",
+            "cas:installed",
+        ):
+            with self.subTest(failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                created = ledger.create(
+                    root,
+                    issue_ledger(number=long_issue_number, issue_node="I_compact"),
+                )
+                candidate = next_generation(created)
+                with self.assertRaises(ledger.InjectedCrash):
+                    ledger.cas(
+                        root,
+                        created.name,
+                        candidate,
+                        failpoint=failpoint,
+                        **cas_arguments(created),
+                    )
+                names = {path.name for path in root.iterdir()}
+                receipts = [
+                    path
+                    for path in root.iterdir()
+                    if path.name.startswith(".delivery-update-receipt-")
+                ]
+                self.assertEqual(len(receipts), 1)
+                name_limit = os.pathconf(root, "PC_NAME_MAX")
+                self.assertTrue(
+                    all(len(path.name.encode("utf-8")) <= name_limit for path in root.iterdir()),
+                    names,
+                )
+                receipt = json.loads(receipts[0].read_text(encoding="utf-8"))
+                self.assertEqual(receipt["operation"], "")
+                self.assertEqual(receipt["target"], created.name)
+                self.assertEqual(receipt["generation"], candidate["generation"])
+                self.assertEqual(receipt["expected_generation"], created.document["generation"])
+                self.assertEqual(receipt["predecessor_sha256"], created.digest)
+                self.assertEqual(
+                    receipt["candidate_sha256"], ledger.byte_digest(ledger.canonical_bytes(candidate))
+                )
+                self.assertEqual(receipt["candidate_size"], len(ledger.canonical_bytes(candidate)))
+                self.assertEqual(
+                    receipts[0].name,
+                    f".delivery-update-receipt-{receipt['marker']}.json",
+                )
+                self.assertEqual(
+                    receipt["staging"],
+                    f".delivery-update-stage-{receipt['marker']}.tmp",
+                )
+                resumed = ledger.cas(
+                    root,
+                    created.name,
+                    candidate,
+                    **cas_arguments(created),
+                )
+                self.assertEqual(resumed.raw, ledger.canonical_bytes(candidate))
+                self.assertEqual(ledger.inventory(root).pending, ())
+                self.assertEqual(
+                    [
+                        path.name
+                        for path in root.iterdir()
+                        if path.name.startswith(".delivery-update-")
+                    ],
+                    [],
+                )
+
+        roots = live_roots(self.live_base / "compact-binding", "atrinik")
+        document = deferred_primitive_pr(
+            roots,
+            number=long_issue_number,
+            node="P_compact_bind",
+            branch="Feature/Compact",
+            label="compact-bind",
+        )
+        request = next(
+            slot for slot in document["artifacts"] if slot["kind"] == "worktree"
+        )["primitive_request"]
+        assert request is not None
+        worktree_list = worktree_list_bytes(request)
+        safety = safety_observation_bytes(
+            request,
+            worktree_list,
+            producer_kind="primitive",
+            producer_digest=None,
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            initial = ledger.create(root, document)
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.bind_worktree_cas(
+                    root,
+                    initial.name,
+                    "worktree",
+                    worktree_list,
+                    safety,
+                    failpoint="cas:receipted",
+                    **cas_arguments(initial),
+                )
+            receipt_path = next(
+                path
+                for path in root.iterdir()
+                if path.name.startswith(".delivery-update-receipt-")
+            )
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            self.assertEqual(receipt["operation"], "-bind-worktree-worktree")
+            self.assertEqual(receipt["target"], initial.name)
+            recovered = ledger.bind_worktree_cas(
+                root,
+                initial.name,
+                "worktree",
+                worktree_list,
+                safety,
+                **cas_arguments(initial),
+            )
+            self.assertEqual(recovered["classification"], "bind-exact")
+            self.assertEqual(ledger.inventory(root).pending, ())
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            created = ledger.create(
+                root,
+                issue_ledger(number=long_issue_number, issue_node="I_tamper"),
+            )
+            candidate = next_generation(created)
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.cas(
+                    root,
+                    created.name,
+                    candidate,
+                    failpoint="cas:receipted",
+                    **cas_arguments(created),
+                )
+            receipt_path = next(
+                path
+                for path in root.iterdir()
+                if path.name.startswith(".delivery-update-receipt-")
+            )
+            original = receipt_path.read_bytes()
+            tampered = json.loads(original)
+            tampered["device"] += 1
+            receipt_path.write_bytes(ledger.canonical_bytes(tampered))
+            with self.assertRaisesRegex(ledger.LedgerError, "receipt"):
+                ledger.inventory(root)
+            receipt_path.write_bytes(original)
+            with self.assertRaisesRegex(ledger.LedgerError, "pending|stale"):
+                ledger.cas(
+                    root,
+                    created.name,
+                    candidate,
+                    expected_device=created.device + 1,
+                    expected_inode=created.inode,
+                    expected_generation=created.document["generation"],
+                    expected_digest=created.digest,
+                )
+            resumed = ledger.cas(
+                root,
+                created.name,
+                candidate,
+                **cas_arguments(created),
+            )
+            self.assertEqual(resumed.document["generation"], 2)
+            self.assertEqual(ledger.inventory(root).pending, ())
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            document = issue_ledger(number=int("9" * 215), issue_node="I_lock")
+            raw = ledger.canonical_bytes(document)
+            target = ledger.canonical_name(document)
+            name_limit = os.pathconf(root, "PC_NAME_MAX")
+            self.assertLessEqual(len(target.encode("utf-8")), name_limit)
+            (root / target).write_bytes(raw)
+            (root / target).chmod(0o600)
+            created = ledger.inspect(root, target)
+            candidate = next_generation(created)
+            updated = ledger.cas(
+                root,
+                target,
+                candidate,
+                **cas_arguments(created),
+            )
+            self.assertEqual(updated.document["generation"], 2)
+            compact_locks = [
+                path
+                for path in root.iterdir()
+                if path.name.startswith(".delivery-ledger-lock-")
+            ]
+            self.assertEqual(len(compact_locks), 1)
+            self.assertLessEqual(
+                len(compact_locks[0].name.encode("utf-8")), name_limit
+            )
+            foreign_lock = root / (".delivery-ledger-lock-" + "0" * 64 + ".lock")
+            foreign_lock.write_bytes(b"")
+            foreign_lock.chmod(0o600)
+            with self.assertRaisesRegex(ledger.LedgerError, "lock identity"):
+                ledger.inventory(root)
+
+        identity = {
+            "target": "target.md.ledger.json",
+            "generation": 2,
+            "expected_generation": 1,
+            "predecessor_sha256": "a" * 64,
+            "candidate_sha256": "b" * 64,
+            "candidate_size": 1,
+            "device": 1,
+            "inode": 2,
+        }
+        self.assertNotEqual(
+            ledger._update_transaction_marker(operation="", **identity),
+            ledger._update_transaction_marker(operation="-refresh-target", **identity),
+        )
+        self.assertEqual(
+            ledger._update_transaction_marker(operation="", **identity),
+            ledger._update_transaction_marker(
+                operation="", **{**identity, "device": identity["device"] + 1}
+            ),
+        )
+
     def test_23_recovery_binding_and_migration_cli_roundtrips(self) -> None:
         commands = (
             "init-root",
