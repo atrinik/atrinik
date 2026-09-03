@@ -39,6 +39,7 @@ FILESYSTEM_MIGRATION_TRANSACTION = "filesystem-identity-migration-v1"
 FILESYSTEM_MIGRATION_RECORD = "filesystem-identity-migration.json"
 FILESYSTEM_MIGRATION_LOCK = "filesystem-identity-migration.lock"
 MAX_MIGRATION_SNAPSHOT_BYTES = 64 * 1024 * 1024
+_COMPACT_UPDATE_RECEIPT_PREFIX = ".delivery-update-receipt-"
 _JOURNAL_KEYS = {
     "schema_version",
     "transaction",
@@ -268,6 +269,8 @@ def _is_delivery_json_record(name: str) -> bool:
 
     if name == ".delivery-ledger-reclaim-complete.json":
         return True
+    if _is_compact_update_receipt_name(name):
+        return True
     if name.endswith(".md.ledger.json"):
         return True
     return (
@@ -329,7 +332,7 @@ def _transform_document(
         }
         key = _current_key(ancestors)
         if _contains_legacy_pair(current) and _is_filesystem_pair_context(
-            current, key, ancestors
+            current, key, ancestors, path
         ):
             result = _rewrite_pair(
                 path,
@@ -629,6 +632,8 @@ def _identity_target(
     key: str | None,
     ancestors: tuple[tuple[str | int | None, Any], ...],
 ) -> tuple[Path | None, str]:
+    if key is None and _is_compact_update_receipt_name(document_path.name):
+        return None, "pair"
     candidate = current.get("path")
     if isinstance(candidate, str) and _valid_absolute_path(candidate):
         return Path(candidate), _projection_for(key, ancestors)
@@ -749,7 +754,12 @@ def _is_filesystem_pair_context(
     value: dict[str, Any],
     key: str | None,
     ancestors: tuple[tuple[str | int | None, Any], ...],
+    document_path: Path | None = None,
 ) -> bool:
+    if document_path is not None and key is None and _is_compact_update_receipt_name(
+        document_path.name
+    ):
+        return True
     if set(value) == {"device", "inode"}:
         return True
     if any(
@@ -1504,7 +1514,24 @@ def _valid_absolute_path(value: str) -> bool:
 
 
 def _historical_only(path: Path) -> bool:
-    return ".archive-" in path.name or "historical" in path.parts
+    return (
+        ".archive-" in path.name
+        or "historical" in path.parts
+        or _is_compact_update_receipt_name(path.name)
+    )
+
+
+def _is_compact_update_receipt_name(name: str) -> bool:
+    """Recognize the bounded JSON receipt without accepting aliases."""
+
+    if not name.startswith(_COMPACT_UPDATE_RECEIPT_PREFIX) or not name.endswith(
+        ".json"
+    ):
+        return False
+    marker = name[len(_COMPACT_UPDATE_RECEIPT_PREFIX) : -len(".json")]
+    return len(marker) == 64 and all(
+        character in "0123456789abcdef" for character in marker
+    )
 
 
 def _pair_digest(value: dict[str, Any]) -> str:
