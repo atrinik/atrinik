@@ -84,13 +84,29 @@ bootstrap/attach and approved Git/GitHub/commit operations; all coordinator,
 ledger, worktree, edit, test, build, review, and validation work stays inside
 the pinned container.
 
+### Persistent coordinator session contract
+
 Session continuity is an ownership and identity boundary, not a trust token.
+A secret-free session record may describe the agent identity, delivery scope and
+ledger, checkout/worktree and profile, container name and ID, pinned image,
+source mounts and live identities, named volumes and targets, timestamps,
+idle deadline, active services, and cleanup owner. It is corroboration only:
+the coordinator probe, delivery ledger, worktree, CAS, and leases remain the
+authority. Never store credentials, private keys, access tokens, or mutable
+server data in the record.
+
 Reconnect and crash recovery must re-prove the current container, mount,
-workspace, exact worktree, ledger CAS, and leases before resuming; idle and
-shutdown actions are bounded to the owned session. Parallel sessions require
-distinct worktrees, leases, caches, credentials, ports, and mutable state.
-Codex never launches or controls VS Code, uses its executable or URI, or uses
-GUI automation; launch-configuration instructions are for human operators.
+workspace, exact worktree, ledger CAS, and leases before resuming. A stopped or
+abandoned session preserves its worktree, ledger, report, and exact volumes
+until fresh liveness and ownership checks authorize recovery. Default session
+policy bounds idle time to 30 minutes and total lifetime to 12 hours; an
+active build lease prevents reclamation during work but does not make a
+session immortal. Parallel sessions may share immutable image layers and
+read-only inputs, but require distinct exact worktrees, delivery coordinates,
+profiles/build roots, named volume namespaces, credentials, ports, topology
+and state names, and mutable caches. Codex never launches or controls VS Code,
+uses its executable or URI, or uses GUI automation; launch-configuration
+instructions are for human operators.
 
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,
@@ -270,9 +286,15 @@ workspace ownership model. Cleanup inventories and removes only marker-owned
 entries below the path after its normal leases and mount-boundary checks. It
 does not scan or delete arbitrary Docker volumes. Operators remove an exact
 named volume only after all containers using it are stopped. The bounded
-`scripts/benchmark_devcontainer_storage.py` helper measures bind versus volume
-cold/warm I/O and records interruption, cache reuse, volume removal, and host
-export evidence without mutating source or server state.
+`scripts/benchmark_devcontainer_storage.py` helper measures bind versus
+volume cold/warm I/O and records interruption, cache reuse, volume removal, and host
+export evidence without mutating source or server state. The companion
+`scripts/benchmark_devcontainer_session.py` helper measures repeated cold
+container starts against warm `docker exec` work, forced-stop recovery on a
+preserved named volume, and independent parallel sessions. Its report records
+pinned image, Docker client/server/driver and Docker Desktop indicators,
+run-scoped resource names, timing comparisons, recovery evidence, and exact
+cleanup outcomes without mounting source, credentials, or server state.
 
 ## Durable and ephemeral filesystem identity
 

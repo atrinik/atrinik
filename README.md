@@ -95,14 +95,78 @@ Delivery supports exactly two Codex entry modes:
 In both modes, Codex must never launch or control VS Code, invoke `code` or
 `code.cmd`, send a VS Code URI, or use GUI automation. VS Code setup text in
 this README is for a human developer, not an agent handoff. A persistent
-session is reusable only while its owner and current container identity match;
-reconnect or crash recovery reruns the probe and exact ledger/worktree
-observation before continuing. Bound idle and shutdown operations to the
-owned session, and give parallel sessions distinct worktrees, leases, caches,
-credentials, ports, and mutable state. Copied or stale session markers,
-arbitrary containers, nested coordinators, and unsafe bind mounts never grant
-authority. Keep the `windows-cross` container for package/build work and
-host-bound validation.
+session is reusable only while its owner, pinned image, current
+container/mount identity, exact worktree, and delivery-ledger coordinates
+match. A secret-free session record may make those facts visible, but it never
+grants authority. Reconnect or crash recovery reruns the probe, exact
+worktree/ledger observation, CAS, and leases before continuing. Bound idle and
+shutdown operations to the owned session, and give parallel sessions distinct
+worktrees, leases, caches, credentials, ports, and mutable state.
+Copied or stale session markers, arbitrary containers, nested coordinators,
+and unsafe bind mounts never grant authority. Keep the `windows-cross` container for
+package/build work and host-bound validation.
+
+#### Agent-owned persistent sessions
+
+A session is one agent-owned container plus its exact, live identity; it is
+not a name, a copied marker, or a permission token. Keep a small ignored
+record at `build/sessions/<delivery-slug>.json` when a delivery needs
+continuity. The record is corroboration only and must contain no
+credentials, private keys, access tokens, or mutable server data. Record the
+agent identity, delivery scope and ledger, checkout/worktree and branch,
+profile, container name and ID, pinned image digest, source mounts and live
+identities, named volumes and targets, start/last-activity times, idle
+deadline, active services, and cleanup owner.
+
+A native host bootstraps once, then keeps using the returned container. It may
+run only bootstrap/attach, exact identity inspection, and approved
+Git/GitHub/commit operations. Require one exact active container row; ambiguity
+fails closed. After selecting its exact ID, run the coordinator and wrapper
+commands inside that container:
+
+~~~sh
+HOST_REPO="$(pwd)"
+devcontainer up --workspace-folder "$HOST_REPO"
+docker ps --filter "label=devcontainer.local_folder=$HOST_REPO" \
+  --format '{{.ID}}\t{{.Names}}'
+CONTAINER_ID=THE_EXACT_ID_FROM_THE_LIST
+docker exec --workdir /workspaces/atrinik "$CONTAINER_ID" \
+  python3 scripts/atrinik_coordinator_context.py --json
+docker exec --workdir /workspaces/atrinik "$CONTAINER_ID" \
+  ./atrinik worktree list --wrapper-self --json
+~~~
+
+Do not pass a remove-existing option or invoke bootstrap for every command.
+When already inside the canonical container, keep the current process, shell,
+worktree, ledger root, leases, and named build volume; do not start another
+container. On reconnect, inspect the exact ID/name/image/status and rerun the
+coordinator probe, wrapper worktree list, ledger `inventory`, fresh CAS
+proofs, and leases. If the container stopped or disappeared, preserve the
+worktree, report, ledger, and exact volumes; recover once with the pinned
+configuration only after the old container is proven stopped and all
+coordinates are re-proven. Stale metadata never authorizes recovery.
+
+Set an idle deadline of 30 minutes and a maximum lifetime of 12 hours by
+default; record UTC `last_activity_at` and `idle_deadline`. A build
+lease keeps active work from being reclaimed but does not make a session
+immortal. Only the owner may stop an idle session, and an abandoned session
+is retained for fresh liveness and lease checks. Parallel sessions may share
+immutable image layers and read-only inputs, but must use distinct exact
+worktrees, delivery ledgers/coordinates, profiles and build roots, named
+volume namespaces, Codex homes or credentials, topology/state names, ports,
+and mutable caches.
+
+For shutdown, finish or preserve the delivery evidence, then stop only the
+owned exact container:
+
+~~~sh
+docker stop --time 10 "$CONTAINER_ID"
+docker inspect "$CONTAINER_ID" --format '{{.Id}}\t{{.State.Status}}'
+~~~
+
+Leave exact named volumes for an authorized owner to inspect or remove after
+all holders and leases are gone. Never use docker volume prune, broad
+container cleanup, or ./atrinik cleanup --apply during delivery.
 
 ### Shared local agent ledgers
 
@@ -187,7 +251,19 @@ python3 scripts/benchmark_devcontainer_storage.py \
 
 The helper uses bounded deterministic input and refuses pre-existing benchmark
 volumes. Use `--keep-volumes` only when the exact reported volume is needed for
-manual inspection.
+manual inspection. The companion session benchmark measures repeated cold
+starts, warm `docker exec` reuse, forced-stop recovery, and independent
+parallel sessions while recording Docker Desktop/client/server environment
+facts:
+
+~~~sh
+python3 scripts/benchmark_devcontainer_session.py \
+  --output build/storage/devcontainer-session-benchmark.json
+~~~
+
+It creates only exact run-id-scoped benchmark containers and named volumes,
+does not mount source, credentials, or server state, and removes its exact
+temporary volumes unless `--keep-volumes` is requested.
 
 For delivery work on a Windows host, the ordinary configuration is the
 coordinator. Its source/worktree mount, `build/reviews` ledger root, wrapper

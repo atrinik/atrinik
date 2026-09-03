@@ -151,6 +151,19 @@ Codex never launches or controls VS Code, invokes `code` or `code.cmd`, sends
 VS Code URIs, or uses GUI automation. Any VS Code setup reference is
 human-facing only.
 
+### Reuse one owned devcontainer session
+
+Use one pinned container per scope and retain an ignored, secret-free record of
+the agent, ledger, worktree, container/mount/volume identities, lifecycle, and
+cleanup owner. It is corroboration only: the live probe, ledger/worktree CAS,
+and leases decide. Bound idle/lifetime to 30 minutes/12 hours; after a
+stop/crash preserve evidence, re-prove coordinates, and reacquire leases.
+Parallel scopes need distinct worktrees, coordinates, profiles/build roots,
+volume namespaces, credentials, ports, topology/state, and mutable caches;
+share only immutable image layers/read-only inputs. The session benchmark uses
+exact run-scoped resources for cold/warm/recovery/parallel measurements and
+never mounts source, credentials, private keys, or mutable server data.
+
 ### Claim only explicitly authorized issues
 
 - Only after the authoritative ledger above exists, in issue mode or PR mode

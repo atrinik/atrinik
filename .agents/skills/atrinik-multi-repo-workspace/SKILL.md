@@ -115,6 +115,14 @@ fail closed on incomplete/shared state. Migration alone takes the barrier. Publi
 generation, process-tree, state, and port leases. Completion is bounded, local,
 read-only, secret-free, and parser-driven before `Workspace`.
 
+A persistent coordinator session belongs to one agent and exact delivery
+coordinate. Reuse needs matching pinned container, mounts, worktree, profile/
+build roots, and ledger coordinates; reconnect/crash recovery reruns probe,
+worktree list, ledger inventory/CAS, and leases. Bound idle/lifetime; preserve
+failure evidence and stop only the owned container. Independent sessions may
+share immutable inputs but need distinct worktrees, coordinates, caches,
+credentials, ports, topology/state names, and mutable state.
+
 Verify concurrency with distinct worktrees/readiness rendezvous and A live through
 B's release; count transitions/conflicts; timeouts bound failure, not compiler speed.
 
