@@ -1632,6 +1632,16 @@ data, credentials, and the server private identity. Do not upload the ZIP to a
 public pull request, issue, CI artifact, or release. The wrapper never
 overwrites an existing ZIP.
 
+### Native Windows Classic GPU preflight
+
+A review ZIP is a handoff artifact, not proof of a successful native
+runtime. Follow [`docs/WINDOWS_GPU_PREFLIGHT.md`](docs/WINDOWS_GPU_PREFLIGHT.md)
+for the existing Windows package smoke, D3D12 qualification benchmark,
+evidence schema, failure classification, and safe cleanup sequence. The
+production ZIP has no Direct3D12 force-switch; the documented conformance
+environment is test-build-only. Never launch the graphical client in the
+Linux coordinator as a substitute for native Windows validation.
+
 For a complete Classic profile, `up`, scenarios, and individual builds resolve
 one manifest-derived build-root selection across the `client`, `server`,
 `content`, `protocol`, `libatrinik`, `sound`, `resources`, and
