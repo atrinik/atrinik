@@ -3,13 +3,20 @@
   "image": "ghcr.io/atrinik/windows-build:1.2.1@sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb",
   "workspaceFolder": "/workspaces/atrinik",
   "remoteUser": "vscode",
-  "initializeCommand": "if [ ! -e \"${localEnv:HOME}/.gitconfig\" ]; then install -m 600 /dev/null \"${localEnv:HOME}/.gitconfig\"; fi",
+  "initializeCommand": "install -d -m 700 \"${localWorkspaceFolder}/workspace/build\" && if [ ! -e \"${localEnv:HOME}/.gitconfig\" ]; then install -m 600 /dev/null \"${localEnv:HOME}/.gitconfig\"; fi",
   "mounts": [
-    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,readonly"
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,readonly",
+    // Keep Windows cross-build trees and caches in a per-container volume.
+    "source=atrinik-${devcontainerId}-build-cache,target=/workspaces/atrinik/workspace/build,type=volume,volume-nocopy"
   ],
+  "containerEnv": {
+    "ATRINIK_DOCKER_VOLUME_NAMESPACE": "${devcontainerId}"
+  },
   "remoteEnv": {
     "PATH": "/opt/mxe/usr/bin:${containerEnv:PATH}"
   },
+  // Fresh named volumes are root-owned; repair only this volume root once.
+  "onCreateCommand": "owner=$(stat -c %u /workspaces/atrinik/workspace/build) && if [ \"$owner\" != \"$(id -u vscode)\" ]; then sudo chown -R --no-dereference vscode:vscode /workspaces/atrinik/workspace/build; fi",
   "postCreateCommand": "./atrinik manifest validate",
   "customizations": {
     "vscode": {

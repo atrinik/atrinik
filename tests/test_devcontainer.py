@@ -18,6 +18,23 @@ class DevcontainerTests(unittest.TestCase):
 
         self.assertEqual(config["workspaceFolder"], "/workspaces/atrinik")
         self.assertEqual(config["postCreateCommand"], "./atrinik init")
+        self.assertIn(
+            "${localWorkspaceFolder}/workspace/build",
+            config["initializeCommand"],
+        )
+        self.assertIn(
+            "source=atrinik-${devcontainerId}-build-cache,"
+            "target=/workspaces/atrinik/workspace/build,type=volume,volume-nocopy",
+            config["mounts"],
+        )
+        self.assertIn(
+            "sudo chown -R --no-dereference ubuntu:ubuntu",
+            config["onCreateCommand"],
+        )
+        self.assertEqual(
+            config["containerEnv"]["ATRINIK_DOCKER_VOLUME_NAMESPACE"],
+            "${devcontainerId}",
+        )
         self.assertEqual(
             config["image"],
             "ghcr.io/atrinik/linux-build:1.3.0@sha256:"
@@ -33,6 +50,23 @@ class DevcontainerTests(unittest.TestCase):
         self.assertEqual(config["workspaceFolder"], "/workspaces/atrinik")
         self.assertEqual(
             config["postCreateCommand"], "./atrinik manifest validate"
+        )
+        self.assertIn(
+            "${localWorkspaceFolder}/workspace/build",
+            config["initializeCommand"],
+        )
+        self.assertIn(
+            "source=atrinik-${devcontainerId}-build-cache,"
+            "target=/workspaces/atrinik/workspace/build,type=volume,volume-nocopy",
+            config["mounts"],
+        )
+        self.assertIn(
+            "sudo chown -R --no-dereference vscode:vscode",
+            config["onCreateCommand"],
+        )
+        self.assertEqual(
+            config["containerEnv"]["ATRINIK_DOCKER_VOLUME_NAMESPACE"],
+            "${devcontainerId}",
         )
         self.assertEqual(
             config["image"],

@@ -35,6 +35,7 @@ import zipfile
 
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
+from .docker_storage import windows_package_volume_mounts
 from .filesystem_identity import (
     FilesystemIdentityError,
     identity_digest,
@@ -15498,7 +15499,7 @@ class Workspace:
 
     def _build_windows_profile_archives(
         self, staging: Path
-    ) -> tuple[Path, Path, dict[str, str]]:
+    ) -> tuple[Path, Path, dict[str, object]]:
         packages = staging / "packages"
         packages.mkdir()
         local_environment = self._local_windows_build_environment()
@@ -15530,7 +15531,70 @@ class Workspace:
                     "devcontainer toolchain or Docker"
                 )
             image = self._windows_build_image()
+            mounts = windows_package_volume_mounts(self.paths.repository)
+            staging_targets = (
+                staging / "client" / "build",
+                staging / "server" / "build",
+                staging / ".ccache",
+                staging / ".dependency-downloads",
+            )
+            expected_mount_targets = (
+                "/workspace/client/build",
+                "/workspace/server/build",
+                "/workspace/.ccache",
+                "/workspace/.dependency-downloads",
+            )
+            if tuple(mount.target for mount in mounts) != expected_mount_targets:
+                raise WorkspaceError("Windows Docker volume target contract is invalid")
+            for target in staging_targets:
+                try:
+                    assert_no_symlink_components(
+                        target, "Windows Docker volume target"
+                    )
+                except OSError as error:
+                    raise WorkspaceError(str(error)) from error
+                if target.is_symlink() or (
+                    target.exists() and not target.is_dir()
+                ):
+                    raise WorkspaceError(
+                        f"Windows Docker volume target is invalid: {target}"
+                    )
+                target.mkdir(parents=True, exist_ok=True)
+                try:
+                    assert_no_symlink_components(
+                        target, "Windows Docker volume target"
+                    )
+                except OSError as error:
+                    raise WorkspaceError(str(error)) from error
+                target.chmod(0o700)
+
+            volume_mount_arguments = [
+                argument
+                for mount in mounts
+                for argument in ("--mount", mount.docker_spec)
+            ]
+            uid = os.getuid()
+            gid = os.getgid()
+            initialization_lines = ["set -euo pipefail"]
+            for mount in mounts:
+                target = shlex.quote(mount.target)
+                initialization_lines.extend(
+                    [
+                        f"test -d {target}",
+                        f'if [ "$(stat -c %u {target})" != "{uid}" ]; then',
+                        f"  chown -R --no-dereference {uid}:{gid} {target}",
+                        "fi",
+                    ]
+                )
+            initialization_script = "\n".join(initialization_lines) + "\n"
+
             script = staging / ".atrinik-build-windows.sh"
+            if script.is_symlink() or (
+                script.exists() and not script.is_file()
+            ):
+                raise WorkspaceError(
+                    f"Windows Docker build script is invalid: {script}"
+                )
             script.write_text(
                 "#!/usr/bin/env bash\n"
                 "set -euo pipefail\n"
@@ -15541,13 +15605,38 @@ class Workspace:
                 encoding="utf-8",
             )
             script.chmod(0o700)
+
+            source_mount = (
+                f"type=bind,source={staging},target=/workspace,readonly"
+            )
+            package_mount = (
+                f"type=bind,source={packages},target=/workspace/packages"
+            )
             run(
                 [
                     "docker",
                     "run",
                     "--rm",
                     "--user",
-                    f"{os.getuid()}:{os.getgid()}",
+                    "0:0",
+                    "--mount",
+                    source_mount,
+                    "--mount",
+                    package_mount,
+                    *volume_mount_arguments,
+                    image,
+                    "bash",
+                    "-euc",
+                    initialization_script,
+                ]
+            )
+            run(
+                [
+                    "docker",
+                    "run",
+                    "--rm",
+                    "--user",
+                    f"{uid}:{gid}",
                     "--env",
                     f"ATRINIK_PACKAGE_VERSION={WINDOWS_PACKAGE_VERSION}",
                     "--env",
@@ -15558,8 +15647,17 @@ class Workspace:
                     "ATRINIK_PROFILE_CONTENT_DIR=/workspace/server/runtime/content",
                     "--env",
                     "ATRINIK_PROFILE_RESOURCES_DIR=/workspace/server/resources",
-                    "--volume",
-                    f"{staging}:/workspace",
+                    "--env",
+                    "CCACHE_DIR=/workspace/.ccache",
+                    "--env",
+                    "XDG_CACHE_HOME=/workspace/.dependency-downloads",
+                    "--env",
+                    "ATRINIK_DEPENDENCY_DOWNLOADS=/workspace/.dependency-downloads",
+                    "--mount",
+                    source_mount,
+                    "--mount",
+                    package_mount,
+                    *volume_mount_arguments,
                     "--workdir",
                     "/workspace",
                     image,
@@ -15567,7 +15665,11 @@ class Workspace:
                     "/workspace/.atrinik-build-windows.sh",
                 ]
             )
-            build = {"mode": "container", "image": image}
+            build = {
+                "mode": "container",
+                "image": image,
+                "volumes": [mount.name for mount in mounts],
+            }
 
         def one(pattern: str, label: str) -> Path:
             matches = sorted(packages.glob(pattern))
@@ -15788,9 +15890,13 @@ class Workspace:
                     }
                     build_metadata = load_json(build_root / BUILD_METADATA)
 
-            client_archive, server_archive, build = (
-                self._build_windows_profile_archives(staging / "sources")
-            )
+            with exclusive_lock(
+                self.paths.builds / "locks" / "windows-package-volumes.lock",
+                "Windows Docker package volumes",
+            ):
+                client_archive, server_archive, build = (
+                    self._build_windows_profile_archives(staging / "sources")
+                )
             package_root = staging / f"atrinik-{profile_name}-windows-review"
             package_root.mkdir()
             self._extract_portable_windows_package(
