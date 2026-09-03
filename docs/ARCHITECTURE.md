@@ -50,6 +50,17 @@ or status operation cannot silently escape its wrapper lease.
 | Windows review ZIP | supported through the pinned Windows cross-build workflow | use the package workflow from Linux, WSL2, or the `windows-cross` devcontainer |
 | Native Windows Classic GPU preflight | package and test-build handoff only; do not run the graphical client in Linux | native Windows package smoke and existing D3D12 qualification; see [`docs/WINDOWS_GPU_PREFLIGHT.md`](WINDOWS_GPU_PREFLIGHT.md) |
 
+For the end-to-end, copy-pasteable Windows workflow, see
+[`README.md`](../README.md#windows-host-and-pinned-container-workflow).
+Keep that workflow synchronized with this matrix: the native Windows host owns
+Git/GitHub authentication, optional SSH signing, commits, pushes, and final
+native execution; the pinned ordinary Linux devcontainer owns coordinator
+probe, delivery ledger, worktree/CAS, source edits, tests, compilation, and
+package orchestration; and `windows-cross` owns only the Classic Windows
+cross-build/package toolchain. A Windows-only package does not configure a
+Linux client unless that client is explicitly selected for a separate test,
+and a Linux graphical run never substitutes for native Windows evidence.
+
 The native Windows adapter rejects symlink and junction path components, uses
 kernel shared/exclusive byte-range locks, passes active lock handles to child
 Git processes, and flushes atomically published JSON files with

@@ -58,6 +58,167 @@ Windows package workflow rather than weakening locking, cleanup, or topology
 isolation. The complete support matrix is maintained in
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+### Windows host and pinned-container workflow
+
+Use one execution surface for each stage of a Windows review. The ordinary
+pinned Linux devcontainer is the authoritative coordinator, `windows-cross`
+is only the Classic Windows toolchain, and native Windows is the only place
+for final D3D12 execution. Do not mix the replacement/default and Classic
+providers.
+
+| Surface | Shell and working directory | Owns | Proof or handoff |
+| --- | --- | --- | --- |
+| Native Windows host | PowerShell; native checkout for repository-only commands | Bootstrap/attach, native `git` and `gh` authentication, optional SSH signing, commits/pushes, supported repository-management wrapper commands, and final Windows execution | GitHub state and native runtime evidence; never the authoritative delivery ledger |
+| Pinned ordinary Linux devcontainer ([`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json)) | POSIX shell; `/workspaces/atrinik`; `ubuntu` | Coordinator probe, `./atrinik` orchestration, delivery ledger/leases/CAS, dedicated worktrees, source edits, tests, compilation, and package orchestration | `canonical-linux`; authoritative delivery and Linux build evidence |
+| Pinned `windows-cross` devcontainer ([`.devcontainer/windows-cross/devcontainer.json`](.devcontainer/windows-cross/devcontainer.json)) | POSIX shell; `/workspaces/atrinik`; `vscode` | Classic Windows cross-build and package commands only; no delivery ledger, worktree authority, or GUI | Windows review ZIP plus SHA-256; not runtime proof |
+| Native Windows runtime | PowerShell; a new private extracted bundle directory | Package hash verification, the existing package-smoke script, D3D12 qualification, bounded logs/evidence, and exact-run cleanup | Native Windows package/GPU result; not a Linux-client result |
+
+The host may commit or push only from the exact delivery-bound worktree
+reported by `./atrinik worktree list`; never use the primary checkout for a
+delivery edit or commit. Never mount a private signing key into a container.
+Do not run native CMake, Ninja, MSVC, or a graphical client as part of a
+pinned-container delivery. Conversely, do not run Linux-only build, topology,
+state, scenario, cleanup, or ledger operations from PowerShell. A
+Windows-only package uses its packaged Classic server/client and does not
+configure a Linux client unless that Linux client is explicitly selected for a
+separate test.
+
+#### Select and initialize
+
+On a native Windows checkout, use only the supported repository-management
+surface for host inspection or bootstrap:
+
+~~~powershell
+Set-Location D:\Dev\atrinik
+python .\atrinik --help
+python .\atrinik manifest validate
+python .\atrinik init --with classic
+python .\atrinik status --json
+~~~
+
+For delivery or Linux-only coordination, enter the pinned ordinary Linux
+devcontainer and continue only when the probe reports
+`canonical-linux` with `authoritative: true`:
+
+~~~sh
+python3 scripts/atrinik_coordinator_context.py --json
+./atrinik manifest validate
+./atrinik init --with classic
+./atrinik status --json
+./atrinik profile show classic --json
+~~~
+
+#### Build, test, and capture bounded logs
+
+Run the Classic build and tests in the ordinary pinned Linux devcontainer:
+
+~~~sh
+./atrinik build all --profile classic --test
+~~~
+
+For an isolated supervised run, use one exact topology/state coordinate and
+bounded output; do not use `--follow` for automated evidence:
+
+~~~sh
+./atrinik ps REVIEW_TOPOLOGY --json
+./atrinik logs REVIEW_TOPOLOGY server --tail 100
+~~~
+
+#### Cross-package and hand off to Windows
+
+The selected Classic state must be stopped and must have been started at least
+once. Run this in the ordinary coordinator or directly in `windows-cross`:
+
+~~~sh
+./atrinik down REVIEW_TOPOLOGY
+./atrinik package windows \
+  --profile REVIEW_PROFILE \
+  --state REVIEW_STATE \
+  --output build/packages/review-windows.zip \
+  --json
+sha256sum build/packages/review-windows.zip
+~~~
+
+Copy the ZIP and its printed digest to Windows through a private handoff. The
+ZIP contains server data, credentials, and the private QUIC identity; never
+upload it to an issue, pull request, CI artifact, or release.
+
+~~~powershell
+$Package = (Resolve-Path -LiteralPath .\review-windows.zip).Path
+$ExpectedSha256 = "COPY_SHA256_FROM_PACKAGE_OUTPUT"
+$ActualSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $Package).Hash.ToLowerInvariant()
+if ($ActualSha256 -ne $ExpectedSha256) { throw "Review ZIP digest mismatch" }
+$ArtifactRoot = Join-Path $env:TEMP ("atrinik-review-" + [Guid]::NewGuid().ToString("N"))
+$EvidenceRoot = Join-Path $ArtifactRoot "evidence"
+New-Item -ItemType Directory -Path $EvidenceRoot -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $EvidenceRoot "commands") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $EvidenceRoot "logs") -Force | Out-Null
+Expand-Archive -LiteralPath $Package -DestinationPath $ArtifactRoot
+~~~
+
+#### Run native Windows smoke and evidence validation
+
+Keep the matching Classic source checkout at the selected revision for the
+existing smoke and qualification scripts. The package smoke is authoritative
+for the packaged server/client lifecycle; a Linux graphical run is not a
+substitute:
+
+~~~powershell
+$Revision = "BUNDLE_MANIFEST_REVISION"
+$ClassicRoot = "MATCHING_CLASSIC_SOURCE_ROOT"
+$Smoke = Join-Path $ClassicRoot "tools\ci\smoke_windows_review_bundle.ps1"
+& $Smoke -Package $Package -Revision $Revision `
+  1> (Join-Path $EvidenceRoot "commands\native-package-smoke.stdout") `
+  2> (Join-Path $EvidenceRoot "commands\native-package-smoke.stderr")
+$SmokeExitCode = $LASTEXITCODE
+if ($SmokeExitCode -ne 0) { throw "Native Windows package smoke failed" }
+~~~
+
+Run the existing D3D12 qualification path from
+[`docs/WINDOWS_GPU_PREFLIGHT.md`](docs/WINDOWS_GPU_PREFLIGHT.md), retain only
+sanitized, bounded stdout/stderr and redacted client/server logs, and validate
+the six-command evidence record:
+
+~~~powershell
+python3 scripts/validate_windows_gpu_evidence.py `
+  (Join-Path $ArtifactRoot "evidence.json") `
+  --root $ArtifactRoot
+if ($LASTEXITCODE -ne 0) { throw "Evidence contract rejected the preflight" }
+~~~
+
+The evidence paths remain relative to `evidence/`; the validator enforces the
+bounded, secret-free contract. Keep Linux-only coordinator failures separate
+from an independently passed native Windows package/runtime result.
+
+#### Preview cleanup and troubleshooting
+
+The wrapper cleanup commands are maintenance previews, not process
+containment. Never use `--apply` as part of this handoff. After the smoke and qualification paths
+have stopped and contained both packaged processes, remove only the exact
+private extraction directory when process ownership is certain:
+
+~~~sh
+./atrinik cleanup --scope all --older-than 7 --dry-run --json
+./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
+~~~
+
+~~~powershell
+if (Test-Path -LiteralPath $ArtifactRoot) {
+  Remove-Item -LiteralPath $ArtifactRoot -Recurse -Force
+}
+~~~
+
+| Symptom | Bounded next action |
+| --- | --- |
+| `.\atrinik` is denied or treated as a script | Use `python .\atrinik ...` for the supported native Windows wrapper surface. |
+| CMake/Ninja/MSVC is missing on the host | Return to the ordinary pinned Linux devcontainer; use `windows-cross` for the Classic Windows package. |
+| The coordinator probe reports `native-windows`, `windows-cross`, or `unknown-or-unsafe` | Do not acquire delivery authority there; enter the ordinary pinned Linux devcontainer and rerun the probe. |
+| Linux SDL/display or graphical launch fails | Record a Linux-only diagnostic and use the Windows ZIP plus the existing native smoke/qualification path; do not relabel it as a Windows runtime failure. |
+| Docker cannot safely mount the source or cache | Bootstrap from the Linux/WSL2 Docker namespace, rerun the canonical probe, and preserve the unsafe path; never remount an arbitrary primary or stale session. |
+| Package hash, manifest, process, or log evidence is missing | Stop, retain the exact private run directory, and repeat the matching-revision preflight with bounded redacted evidence. |
+
+Related coordination: [Docker volume/cache I/O (#538)](https://github.com/atrinik/atrinik/issues/538), [Windows package separation (#535)](https://github.com/atrinik/atrinik/issues/535), [tooling ledger (#536)](https://github.com/atrinik/atrinik/issues/536), and [native Windows GPU preflight (#539)](https://github.com/atrinik/atrinik/issues/539).
+
 ### Issue/PR delivery coordinator
 
 Native Windows is a supported host for editing, native Git and GitHub UI, and
