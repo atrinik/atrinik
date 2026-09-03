@@ -33,7 +33,7 @@
 - Use `atrinik-multi-repo-workspace` for wrapper ownership/profiles/worktrees/
   migration/cleanup/releases/CLI/layout; add specialists and use
   `atrinik-guidance-maintenance` for audits.
-- Explicitly invoke `atrinik-issue-delivery` for issues/PRs; it stops before merge.
+- Explicitly invoke `atrinik-issue-delivery` for an issue or existing PR; it stops before merge.
 - Native Windows Classic GPU preflight: follow
   `docs/WINDOWS_GPU_PREFLIGHT.md`; reuse its smoke/qualification path and
   separate Linux coordinator failures from native results.
@@ -69,10 +69,10 @@
   same-coordinate readers; share migration barrier; unbound records inert. Report
   `Tooling issues: none` or stable keys in ignored
   `build/agent-tooling-issues.md`; never commit/publish/copy to product issues.
-- Optional SSH commit signing stays on host; follow
-  `.agents/skills/atrinik-github-governance/references/ssh-signing.md` for the
-  boundary; never copy or mount private keys into a container.
-- On touch, refresh existing Atrinik-owned copyright terminal years/holders per
+- Optional SSH signing stays on host; follow
+  `.agents/skills/atrinik-github-governance/references/ssh-signing.md`; never copy
+  or mount private keys in a container.
+- On touch, refresh existing Atrinik-owned copyright terminal years; blanket holders per
   `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse follows `docs/PROVENANCE.md` and its canonical registry; rights, identity,
   temporal, authorship, or scope uncertainty fails closed.
