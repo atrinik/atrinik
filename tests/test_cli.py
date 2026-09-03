@@ -10,6 +10,84 @@ from atrinik_workspace.model import WorkspaceError
 
 
 class ParserTests(unittest.TestCase):
+    def test_agent_ledger_update_dispatches_without_initializing_workspace(self) -> None:
+        result = {
+            "schema_version": 1,
+            "ledger": "tooling-issues",
+            "operation": "updated",
+            "key": "mechanism=cli;remediation=dispatch",
+            "digest": "a" * 64,
+        }
+        shared_root = Path("/shared/wrapper")
+        with mock.patch(
+            "atrinik_workspace.cli.shared_agent_ledger_root",
+            return_value=shared_root,
+        ) as resolve_root, mock.patch(
+            "atrinik_workspace.cli.update_agent_ledger", return_value=result
+        ) as update, mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            with mock.patch("builtins.print") as output:
+                code = main(
+                    [
+                        "agent-ledger",
+                        "update",
+                        "--ledger",
+                        "tooling-issues",
+                        "--key",
+                        "mechanism=cli;remediation=dispatch",
+                        "--status",
+                        "open",
+                        "--observation",
+                        "the helper is used",
+                        "--impact",
+                        "manual replacement is unsafe",
+                        "--recommended-action",
+                        "use the wrapper command",
+                        "--expected-digest",
+                        "b" * 64,
+                        "--json",
+                    ]
+                )
+
+        self.assertEqual(code, 0)
+        resolve_root.assert_called_once()
+        update.assert_called_once_with(
+            shared_root,
+            "tooling-issues",
+            key="mechanism=cli;remediation=dispatch",
+            status="open",
+            observation="the helper is used",
+            expected_benefit=None,
+            related="none",
+            observed_at=None,
+            impact="manual replacement is unsafe",
+            recommended_action="use the wrapper command",
+            expected_digest="b" * 64,
+            nonblocking=False,
+        )
+        workspace_type.assert_not_called()
+        self.assertEqual(json.loads(output.call_args.args[0]), result)
+
+    def test_agent_ledger_parser_requires_one_supported_ledger(self) -> None:
+        options = parser().parse_args(
+            [
+                "agent-ledger",
+                "update",
+                "--ledger",
+                "process-improvements",
+                "--key",
+                "cache-reuse",
+                "--status",
+                "observed",
+                "--observation",
+                "cache is reusable",
+                "--expected-benefit",
+                "keep the cache warm",
+            ]
+        )
+        self.assertEqual(options.command, "agent-ledger")
+        self.assertEqual(options.agent_ledger_command, "update")
+        self.assertEqual(options.ledger, "process-improvements")
+
     def test_scope_human_output_reports_exact_coordinates(self) -> None:
         record = {
             "name": "review",

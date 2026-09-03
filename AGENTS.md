@@ -61,8 +61,12 @@
 - Use wrapper paths; never reconstruct managed paths. Isolate topology/state, ports,
   client config; prefer temporary state and local scenario secrets.
 - Before repository or expensive build/package/runtime/remote-mutation work, consult
-  ignored `build/agent-process-improvements.md`; update recurring keys; report
-  `Process improvements added: none` or keys/issues.
+  ignored `build/agent-process-improvements.md`; update recurring keys through
+  `./atrinik agent-ledger update`; report `Process improvements added: none` or
+  keys/issues. That command is the only edit path for both ignored ledgers:
+  never manually edit, overwrite, or truncate them; follow its latest digest,
+  lock, and retry output. It locks the canonical shared root; separate filesystems
+  require a coordinator/event handoff.
 - Keep completion bounded, parser-driven, and secret-free; lease in order; gate
   same-coordinate readers; share migration barrier; unbound records inert. Report
   `Tooling issues: none` or stable keys in ignored

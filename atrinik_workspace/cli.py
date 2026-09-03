@@ -64,6 +64,18 @@ def preflight_provenance_revisions(*arguments: object, **keywords: object) -> ob
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def shared_agent_ledger_root(repository: Path) -> Path:
+    from .agent_ledgers import resolve_shared_root
+
+    return resolve_shared_root(repository)
+
+
+def update_agent_ledger(*arguments: object, **keywords: object) -> object:
+    from .agent_ledgers import update_agent_ledger as implementation
+
+    return implementation(*arguments, **keywords)
+
+
 def _human_bytes(value: int) -> str:
     """Render an exact byte count compactly for human-facing output."""
 
@@ -136,6 +148,34 @@ def parser() -> argparse.ArgumentParser:
     )
     mark(status.add_argument("components", nargs="*"), "component")
     status.add_argument("--json", action="store_true")
+
+    agent_ledger = commands.add_parser(
+        "agent-ledger", help="update one ignored local agent ledger safely"
+    )
+    agent_ledger_commands = agent_ledger.add_subparsers(
+        dest="agent_ledger_command", required=True
+    )
+    agent_ledger_update = agent_ledger_commands.add_parser(
+        "update", help="add or replace one stable-key row"
+    )
+    agent_ledger_update.add_argument(
+        "--ledger", choices=["process-improvements", "tooling-issues"], required=True
+    )
+    agent_ledger_update.add_argument("--key", required=True)
+    agent_ledger_update.add_argument("--status", required=True)
+    agent_ledger_update.add_argument("--observation", required=True)
+    agent_ledger_update.add_argument("--expected-benefit")
+    agent_ledger_update.add_argument("--related", default="none")
+    agent_ledger_update.add_argument("--observed-at")
+    agent_ledger_update.add_argument("--impact")
+    agent_ledger_update.add_argument("--recommended-action")
+    agent_ledger_update.add_argument("--expected-digest")
+    agent_ledger_update.add_argument(
+        "--non-blocking",
+        action="store_true",
+        help="fail immediately with a retry diagnostic if another update holds the lock",
+    )
+    agent_ledger_update.add_argument("--json", action="store_true")
 
     migrate = commands.add_parser(
         "migrate", help="safely migrate an existing workspace layout"
@@ -751,6 +791,32 @@ def main(arguments: list[str] | None = None) -> int:
         if options.command == "manifest":
             manifest = Manifest.load(ROOT / "components.json")
             print(f"components.json: valid ({len(manifest.components)} components)")
+            return 0
+        if options.command == "agent-ledger":
+            if options.agent_ledger_command != "update":
+                raise WorkspaceError("unknown agent-ledger command")
+            result = update_agent_ledger(
+                shared_agent_ledger_root(ROOT),
+                options.ledger,
+                key=options.key,
+                status=options.status,
+                observation=options.observation,
+                expected_benefit=options.expected_benefit,
+                related=options.related,
+                observed_at=options.observed_at,
+                impact=options.impact,
+                recommended_action=options.recommended_action,
+                expected_digest=options.expected_digest,
+                nonblocking=options.non_blocking,
+            )
+            if options.json:
+                print(json.dumps(result, indent=2, sort_keys=True))
+            else:
+                print(
+                    f"agent-ledger\t{result['ledger']}\t"
+                    f"{result['operation']}\t{result['key']}"
+                )
+                print(f"digest\t{result['digest']}")
             return 0
         if options.command == "provenance":
             if options.provenance_command == "preflight":

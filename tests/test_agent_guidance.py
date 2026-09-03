@@ -626,6 +626,9 @@ class AgentGuidanceTests(unittest.TestCase):
         for text in normalized:
             self.assertIn("build/agent-process-improvements.md", text)
             self.assertIn("Process improvements added: none", text)
+            self.assertIn("./atrinik agent-ledger update", text)
+            self.assertIn("never manually edit", text)
+            self.assertIn("separate filesystems", text)
         self.assertIn(
             "before repository or expensive build/package/runtime/remote-mutation",
             normalized[0].lower(),
@@ -962,6 +965,11 @@ class AgentGuidanceTests(unittest.TestCase):
         for marker in {
             'Tooling issues: none',
             'build/agent-tooling-issues.md',
+            './atrinik agent-ledger update',
+            'build/.agent-ledgers.lock',
+            '--expected-digest absent',
+            'never manually edit',
+            'separate filesystems',
             'mechanism=<slug>;remediation=<slug>',
             'same mechanism and remediation recur',
             'materially different',
