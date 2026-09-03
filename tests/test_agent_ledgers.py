@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+import errno
+import io
 import os
 from pathlib import Path
 import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest import mock
 
@@ -285,6 +288,266 @@ class AgentLedgerTests(unittest.TestCase):
         with self.assertRaises(AgentLedgerError):
             self._tooling("mechanism=symlink;remediation=reject")
         self.assertEqual(outside.read_text(encoding="utf-8"), "do not touch\n")
+
+    def test_validation_rejects_bad_inputs_and_mapping_shapes(self) -> None:
+        with self.assertRaisesRegex(AgentLedgerError, "process-improvements or"):
+            agent_ledgers._spec("unsupported")
+        with self.assertRaisesRegex(AgentLedgerError, "lowercase SHA-256"):
+            agent_ledgers._validate_expected_digest("not-a-digest")
+        with self.assertRaisesRegex(AgentLedgerError, "must be text"):
+            agent_ledgers._field(None, None)  # type: ignore[arg-type]
+        with self.assertRaisesRegex(AgentLedgerError, "must not be empty"):
+            agent_ledgers._field("value", " ")
+        with self.assertRaisesRegex(AgentLedgerError, "without pipes"):
+            agent_ledgers._field("value", "bad | value")
+        with self.assertRaisesRegex(AgentLedgerError, "without pipes"):
+            agent_ledgers._field("value", "bad\nvalue")
+        with self.assertRaisesRegex(AgentLedgerError, "control character"):
+            agent_ledgers._field("value", "bad\x01value")
+        with self.assertRaisesRegex(AgentLedgerError, "backticks"):
+            agent_ledgers._field("key", "bad`key", key=True)
+        self.assertRegex(agent_ledgers._timestamp(None), r"Z$")
+        with self.assertRaisesRegex(AgentLedgerError, "valid UTC timestamp"):
+            agent_ledgers._timestamp("2026-09-03")
+
+        with self.assertRaisesRegex(
+            AgentLedgerError, "process-improvement stable key"
+        ):
+            self._process("bad key")
+        with self.assertRaisesRegex(AgentLedgerError, "process-improvement status"):
+            update_agent_ledger(
+                self.root,
+                "process-improvements",
+                key="valid-key",
+                status="invalid",
+                observation="observed",
+                expected_benefit="bounded benefit",
+            )
+        with self.assertRaisesRegex(AgentLedgerError, "tooling-issue status"):
+            update_agent_ledger(
+                self.root,
+                "tooling-issues",
+                key="mechanism=valid;remediation=status",
+                status="invalid",
+                observation="observed",
+                impact="bounded impact",
+                recommended_action="retry safely",
+            )
+        with self.assertRaisesRegex(AgentLedgerError, "unsupported row fields"):
+            agent_ledgers.update_from_mapping(
+                self.root,
+                "tooling-issues",
+                {
+                    "key": "mechanism=mapping;remediation=unknown",
+                    "status": "open",
+                    "observation": "observed",
+                    "unexpected": "reject",
+                },
+            )
+        with self.assertRaisesRegex(AgentLedgerError, "missing required fields"):
+            agent_ledgers.update_from_mapping(
+                self.root,
+                "tooling-issues",
+                {"key": "mechanism=mapping;remediation=missing", "status": "open"},
+            )
+        result = agent_ledgers.update_from_mapping(
+            self.root,
+            "tooling-issues",
+            {
+                "key": "mechanism=mapping;remediation=valid",
+                "status": "open",
+                "observation": "observed",
+                "impact": "bounded impact",
+                "recommended_action": "retry safely",
+            },
+        )
+        self.assertEqual(result["operation"], "added")
+
+    def test_candidate_and_table_validation_rejects_bad_bytes(self) -> None:
+        spec = agent_ledgers._spec("tooling-issues")
+        with self.assertRaisesRegex(AgentLedgerError, "exceeds the 128 KiB"):
+            agent_ledgers._validate_candidate(
+                spec, b"x" * (agent_ledgers.AGENT_LEDGER_MAX_BYTES + 1)
+            )
+        with self.assertRaisesRegex(AgentLedgerError, "not UTF-8"):
+            agent_ledgers._validate_candidate(spec, b"\xff")
+        with mock.patch.object(
+            agent_ledgers, "validate_tooling_ledger_text", return_value=["invalid"]
+        ):
+            with self.assertRaisesRegex(AgentLedgerError, "candidate rejected"):
+                agent_ledgers._validate_candidate(spec, b"candidate")
+
+        header = "| Stable key | Status | Observation | Impact | Recommended action |"
+        separator = "| --- | --- | --- | --- | --- |"
+        row = "| `mechanism=table;remediation=valid` | open | observed | impact | action |"
+        with self.assertRaisesRegex(AgentLedgerError, "table is not canonical"):
+            agent_ledgers._table_for(spec, "# Agent tooling issues\n")
+        with self.assertRaisesRegex(AgentLedgerError, "separator is invalid"):
+            agent_ledgers._table_for(spec, f"{header}\n| bad |\n{row}\n")
+        with self.assertRaisesRegex(AgentLedgerError, "malformed row"):
+            agent_ledgers._table_for(spec, f"{header}\n{separator}\n| bad |\n")
+        with self.assertRaisesRegex(AgentLedgerError, "duplicate stable keys"):
+            agent_ledgers._table_for(spec, f"{header}\n{separator}\n{row}\n{row}\n")
+        with self.assertRaisesRegex(AgentLedgerError, "contains no rows"):
+            agent_ledgers._table_for(spec, f"{header}\n{separator}\n")
+        table = agent_ledgers._table_for(
+            spec, f"{header}\n{separator}\n{row}\n\nnotes\n"
+        )
+        self.assertEqual(table.insert_at, 3)
+        with self.assertRaisesRegex(AgentLedgerError, "not UTF-8"):
+            agent_ledgers._merge(
+                spec,
+                b"\xff",
+                ("mechanism=x;remediation=y", "open", "o", "i", "a"),
+            )
+        no_final_newline = f"# Agent tooling issues\n\n{header}\n{separator}\n{row}"
+        merged, operation = agent_ledgers._merge(
+            spec,
+            no_final_newline.encode("utf-8"),
+            ("mechanism=table;remediation=added", "open", "o", "i", "a"),
+        )
+        self.assertEqual(operation, "added")
+        self.assertTrue(merged.endswith(b"\n"))
+
+    @unittest.skipIf(
+        os.name == "nt", "native Windows has different descriptor semantics"
+    )
+    def test_snapshot_and_directory_guards_fail_closed(self) -> None:
+        build = self.root / "build"
+        build.mkdir()
+        not_a_directory = self.root / "not-a-directory"
+        not_a_directory.write_text("file", encoding="utf-8")
+        with self.assertRaisesRegex(
+            AgentLedgerError, "shared build directory is unsafe"
+        ):
+            with agent_ledgers._opened_build_directory(not_a_directory):
+                pass
+        with agent_ledgers._opened_build_directory(build) as directory:
+            path = build / "not-a-file"
+            path.mkdir()
+            with self.assertRaisesRegex(AgentLedgerError, "not a regular file"):
+                agent_ledgers._read_snapshot(path, directory)
+            with mock.patch.object(
+                agent_ledgers.os,
+                "open",
+                side_effect=OSError(errno.ENOENT, "missing"),
+            ):
+                self.assertIsNone(
+                    agent_ledgers._read_snapshot(build / "missing", directory).data
+                )
+        self.assertEqual(agent_ledgers._read_limited(io.BytesIO(b"bytes")), b"bytes")
+        with self.assertRaisesRegex(AgentLedgerError, "exceeds the 128 KiB"):
+            agent_ledgers._read_limited(
+                io.BytesIO(b"x" * (agent_ledgers.AGENT_LEDGER_MAX_BYTES + 1))
+            )
+
+    @unittest.skipIf(
+        os.name == "nt", "native Windows has different symlink semantics"
+    )
+    def test_repository_and_local_only_discovery_errors(self) -> None:
+        with mock.patch.object(
+            agent_ledgers.subprocess, "run", side_effect=OSError("git unavailable")
+        ):
+            with self.assertRaisesRegex(AgentLedgerError, "cannot discover"):
+                agent_ledgers._git_root_output(self.root, "--show-toplevel")
+        with mock.patch.object(
+            agent_ledgers.subprocess,
+            "run",
+            return_value=SimpleNamespace(returncode=1, stdout=""),
+        ):
+            with self.assertRaisesRegex(AgentLedgerError, "not a Git checkout"):
+                agent_ledgers._git_root_output(self.root, "--show-toplevel")
+        file_path = self.root / "file"
+        file_path.write_text("file", encoding="utf-8")
+        with self.assertRaisesRegex(AgentLedgerError, "not a directory"):
+            agent_ledgers.resolve_shared_root(file_path)
+        with self.assertRaisesRegex(
+            AgentLedgerError, "shared root is not a directory"
+        ):
+            agent_ledgers._canonical_root(file_path)
+        outside = self.root / "outside"
+        outside.mkdir()
+        (self.root / "build").symlink_to(outside, target_is_directory=True)
+        with self.assertRaisesRegex(
+            AgentLedgerError, "establish the shared build directory"
+        ):
+            agent_ledgers._ensure_build_directory(self.root)
+
+        spec = agent_ledgers._spec("tooling-issues")
+        with mock.patch.object(
+            agent_ledgers.subprocess, "run", side_effect=OSError("check failed")
+        ):
+            with self.assertRaisesRegex(AgentLedgerError, "cannot verify"):
+                agent_ledgers._verify_local_only(self.root, spec)
+        with mock.patch.object(
+            agent_ledgers.subprocess,
+            "run",
+            side_effect=[SimpleNamespace(returncode=0), OSError("tracking failed")],
+        ):
+            with self.assertRaisesRegex(AgentLedgerError, "tracking state"):
+                agent_ledgers._verify_local_only(self.root, spec)
+        with mock.patch.object(
+            agent_ledgers.subprocess,
+            "run",
+            side_effect=[SimpleNamespace(returncode=0), SimpleNamespace(returncode=2)],
+        ):
+            with self.assertRaisesRegex(AgentLedgerError, "cannot verify tracking"):
+                agent_ledgers._verify_local_only(self.root, spec)
+
+    def test_publication_and_update_recovery_edges(self) -> None:
+        build = self.root / "build"
+        build.mkdir()
+        path = build / "agent-tooling-issues.md"
+        with agent_ledgers._opened_build_directory(build) as directory:
+            with mock.patch.object(
+                agent_ledgers,
+                "_assert_directory_identity",
+                side_effect=[None, AgentLedgerError("verification failed")],
+            ):
+                with self.assertRaises(AgentLedgerCommitUncertain):
+                    agent_ledgers._atomic_publish(path, directory, b"published\n")
+            self.assertEqual(path.read_bytes(), b"published\n")
+        with self.assertRaisesRegex(AgentLedgerError, "missing shared directory"):
+            agent_ledgers._atomic_publish(path, None, b"data")
+        for failure in (FileNotFoundError(), OSError("cleanup failed")):
+            with agent_ledgers._opened_build_directory(build) as directory:
+                with mock.patch.object(
+                    agent_ledgers, "flush_file", side_effect=OSError("flush failed")
+                ), mock.patch.object(agent_ledgers.os, "unlink", side_effect=failure):
+                    with self.assertRaises(OSError):
+                        agent_ledgers._atomic_publish(path, directory, b"retry\n")
+
+        with mock.patch.object(
+            agent_ledgers, "ledger_lock_path", return_value=ledger_path(self.root, "tooling-issues")
+        ):
+            with self.assertRaisesRegex(AgentLedgerError, "replaceable ledger"):
+                self._tooling("mechanism=lock;remediation=reject")
+        with mock.patch.object(
+            agent_ledgers,
+            "_read_snapshot",
+            return_value=agent_ledgers._Snapshot(
+                b"x" * (agent_ledgers.AGENT_LEDGER_MAX_BYTES + 1)
+            ),
+        ):
+            with self.assertRaisesRegex(AgentLedgerError, "current ledger exceeds"):
+                self._tooling("mechanism=oversized;remediation=reject")
+        with mock.patch.object(
+            agent_ledgers, "_read_snapshot", return_value=agent_ledgers._Snapshot(b"\xff")
+        ):
+            with self.assertRaisesRegex(
+                AgentLedgerError, "current ledger is not UTF-8"
+            ):
+                self._tooling("mechanism=encoding;remediation=reject")
+        with mock.patch.object(
+            agent_ledgers,
+            "_read_snapshot",
+            side_effect=[
+                agent_ledgers._Snapshot(None),
+                agent_ledgers._Snapshot(b"changed"),
+            ],
+        ):
+            with self.assertRaisesRegex(AgentLedgerError, "changed while preparing"):
+                self._tooling("mechanism=latest;remediation=changed")
 
     def test_linked_worktree_resolves_to_the_wrapper_root(self) -> None:
         repository = Path(__file__).resolve().parents[1]

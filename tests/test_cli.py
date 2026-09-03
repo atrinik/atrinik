@@ -1,11 +1,21 @@
 from __future__ import annotations
 
+import io
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
 from unittest import mock
 
-from atrinik_workspace.cli import _human_bytes, _parse_services, main, parser
+from atrinik_workspace import agent_ledgers
+from atrinik_workspace.cli import (
+    _human_bytes,
+    _parse_services,
+    main,
+    parser,
+    shared_agent_ledger_root,
+    update_agent_ledger,
+)
 from atrinik_workspace.model import WorkspaceError
 
 
@@ -87,6 +97,81 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(options.command, "agent-ledger")
         self.assertEqual(options.agent_ledger_command, "update")
         self.assertEqual(options.ledger, "process-improvements")
+
+    def test_agent_ledger_lazy_wrappers_load_implementation(self) -> None:
+        root = Path("/shared/wrapper")
+        with mock.patch.object(
+            agent_ledgers, "resolve_shared_root", return_value=root
+        ) as resolve_root:
+            self.assertEqual(shared_agent_ledger_root(Path("/repo")), root)
+        resolve_root.assert_called_once_with(Path("/repo"))
+
+        result = {"ledger": "tooling-issues", "operation": "added"}
+        with mock.patch.object(
+            agent_ledgers, "update_agent_ledger", return_value=result
+        ) as implementation:
+            self.assertIs(
+                update_agent_ledger(
+                    root,
+                    "tooling-issues",
+                    key="mechanism=wrapper;remediation=lazy",
+                    status="open",
+                    observation="observed",
+                    impact="bounded impact",
+                    recommended_action="retry safely",
+                ),
+                result,
+            )
+        implementation.assert_called_once()
+
+    def test_agent_ledger_update_prints_text_output(self) -> None:
+        result = {
+            "ledger": "tooling-issues",
+            "operation": "added",
+            "key": "mechanism=cli;remediation=text",
+            "digest": "c" * 64,
+        }
+        with mock.patch(
+            "atrinik_workspace.cli.shared_agent_ledger_root",
+            return_value=Path("/shared/wrapper"),
+        ), mock.patch(
+            "atrinik_workspace.cli.update_agent_ledger", return_value=result
+        ), mock.patch("atrinik_workspace.cli.Workspace"):
+            with mock.patch("builtins.print") as output:
+                code = main(
+                    [
+                        "agent-ledger",
+                        "update",
+                        "--ledger",
+                        "tooling-issues",
+                        "--key",
+                        "mechanism=cli;remediation=text",
+                        "--status",
+                        "open",
+                        "--observation",
+                        "the helper is used",
+                        "--impact",
+                        "manual replacement is unsafe",
+                        "--recommended-action",
+                        "use the wrapper command",
+                    ]
+                )
+        self.assertEqual(code, 0)
+        output.assert_any_call(
+            "agent-ledger\ttooling-issues\tadded\tmechanism=cli;remediation=text"
+        )
+        output.assert_any_call(f"digest\t{'c' * 64}")
+
+    def test_agent_ledger_unknown_subcommand_is_reported(self) -> None:
+        fake_parser = mock.Mock()
+        fake_parser.parse_args.return_value = SimpleNamespace(
+            command="agent-ledger", agent_ledger_command="unexpected"
+        )
+        with mock.patch("atrinik_workspace.cli.parser", return_value=fake_parser):
+            with mock.patch("sys.stderr", new=io.StringIO()) as stderr:
+                code = main(["agent-ledger"])
+        self.assertEqual(code, 1)
+        self.assertIn("unknown agent-ledger command", stderr.getvalue())
 
     def test_scope_human_output_reports_exact_coordinates(self) -> None:
         record = {
