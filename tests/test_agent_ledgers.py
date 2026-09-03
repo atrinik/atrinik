@@ -287,8 +287,17 @@ class AgentLedgerTests(unittest.TestCase):
         self.assertEqual(outside.read_text(encoding="utf-8"), "do not touch\n")
 
     def test_linked_worktree_resolves_to_the_wrapper_root(self) -> None:
-        root = resolve_shared_root(Path(__file__).resolve().parents[1])
-        self.assertEqual(root, Path("/workspaces/atrinik"))
+        repository = Path(__file__).resolve().parents[1]
+        root = resolve_shared_root(repository)
+        common = Path(
+            subprocess.check_output(
+                ["git", "-C", str(repository), "rev-parse", "--git-common-dir"],
+                text=True,
+            ).strip()
+        )
+        if not common.is_absolute():
+            common = repository / common
+        self.assertEqual(root, common.resolve().parent)
 
 
 if __name__ == "__main__":
