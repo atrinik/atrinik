@@ -78,6 +78,56 @@ remain focused on the manifest, multi-repository workflows, or their tests and
 documentation. Preserve dirty physical checkouts and persistent state during
 manual validation.
 
+## Optional SSH commit signing
+
+SSH commit signing is optional and is configured per user on the host. It does
+not require GPG, change repository rulesets, or put Git configuration in the
+repository. GitHub supports SSH signatures with Git 2.34 or later.
+
+On a Windows host, check Git, create or choose an Ed25519 key, and load its
+private half into the Windows OpenSSH agent. A dedicated signing key keeps
+authentication and signing roles separate; reusing an authentication key is
+fine when its public half is also registered with GitHub as a **Signing Key**.
+
+```powershell
+git --version
+ssh-keygen -t ed25519 -C "Atrinik Git signing" -f "$env:USERPROFILE\.ssh\id_ed25519_atrinik_signing"
+Get-Service ssh-agent | Set-Service -StartupType Manual
+Start-Service ssh-agent
+ssh-add "$env:USERPROFILE\.ssh\id_ed25519_atrinik_signing"
+ssh-add -l
+```
+
+Let `ssh-keygen` prompt for a passphrase; never put the passphrase in a
+command, script, or repository file. In GitHub **Settings -> SSH and GPG keys
+-> New SSH key**, choose **Signing Key** and paste only the
+`id_ed25519_atrinik_signing.pub` contents. If the key is also an
+authentication key, register the same public key for that use too.
+
+Tell Git to use the public key and an email verified on the same GitHub account:
+
+```powershell
+git config --global gpg.format ssh
+git config --global user.signingkey "$env:USERPROFILE\.ssh\id_ed25519_atrinik_signing.pub"
+git config --global user.email "your-verified-address@example.com"
+git config --global commit.gpgsign true
+```
+
+Leave `commit.gpgsign` unset and use `git commit -S` for per-commit opt-in
+if a global default is not wanted. The private key and signing configuration
+stay on the host. Native host Git is the default place to create and sign
+commits; use the Docker/devcontainer for compilation and tests. An exceptional
+container commit may forward `SSH_AUTH_SOCK` when that workflow explicitly
+supports it, but never copy or mount a private key or private `.ssh` directory.
+
+Verify locally with `git show --show-signature -1` and, if useful, inspect the
+commit object's `gpgsig` header with `git cat-file commit HEAD`. After push,
+GitHub's **Verified** badge is a separate remote check that depends on the
+registered public signing key and verified author email. A `Signed-off-by`
+trailer from `git commit -s` is not a cryptographic signature and does not
+produce that badge. See the [agent-facing SSH signing reference](.agents/skills/atrinik-github-governance/references/ssh-signing.md)
+for the full host/container procedure and troubleshooting notes.
+
 Filesystem-identity changes must keep the durable/ephemeral boundary explicit:
 portable identities are the only values written to workspace, topology, lease,
 scope, and delivery-ledger records; raw `st_dev` values are limited to live
