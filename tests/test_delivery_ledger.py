@@ -41,6 +41,18 @@ finally:
     sys.dont_write_bytecode = _DONT_WRITE_BYTECODE
 
 
+_TEST_CLI_ACTOR_BOOTSTRAP = (
+    "import importlib.util,sys\n"
+    "spec = importlib.util.spec_from_file_location('delivery_ledger_test_child', sys.argv[1])\n"
+    "module = importlib.util.module_from_spec(spec)\n"
+    "sys.modules[spec.name] = module\n"
+    "spec.loader.exec_module(module)\n"
+    "module._authenticated_actor = lambda document, _context=None: document['actor']\n"
+    "script = sys.argv[1]\n"
+    "sys.argv = [script, *sys.argv[2:]]\n"
+    "raise SystemExit(module.main())\n"
+)
+
 SHA_A = "a" * 40
 SHA_B = "b" * 40
 SHA_C = "c" * 40
@@ -1622,6 +1634,146 @@ def next_generation(snapshot: object) -> dict[str, object]:
     return result
 
 
+def install_issue_bound(
+    root: Path,
+    live_base: Path,
+    *,
+    number: int = 419,
+    label: str = "issue-419",
+) -> tuple[dict[str, object], ledger.Snapshot]:
+    roots = live_roots(live_base / label, "atrinik")
+    document = issue_ledger(
+        number=number,
+        issue_node=f"I_{label.replace('-', '_')}",
+        branch=f"fix/{label}",
+        worktree=str(
+            Path(roots["workspace"]["path"])
+            / "worktrees"
+            / "atrinik"
+            / label
+        ),
+    )
+    replace_sha(document, SHA_A, git_head(roots))
+    worktree = next(
+        slot for slot in document["artifacts"] if slot["kind"] == "worktree"
+    )
+    assert worktree["primitive_request"] is not None
+    worktree["primitive_request"]["roots"] = copy.deepcopy(roots)
+    initial = ledger.create(root, document)
+    request = worktree["primitive_request"]
+    assert request is not None
+    worktree_list = worktree_list_bytes(request)
+    safety = safety_observation_bytes(
+        request,
+        worktree_list,
+        producer_kind="primitive",
+        producer_digest=None,
+    )
+    ledger.bind_worktree_cas(
+        root,
+        initial.name,
+        "worktree",
+        worktree_list,
+        safety,
+        **cas_arguments(initial),
+    )
+    return document, ledger.inspect(root, initial.name)
+
+
+def identity_recovery_material(
+    snapshot: object,
+    *,
+    new_login: str = "newactor",
+    new_node: str = "U_new",
+) -> tuple[dict[str, object], bytes]:
+    assert isinstance(snapshot, ledger.Snapshot)
+    candidate = next_generation(snapshot)
+    new_actor = {
+        "login": new_login,
+        "node_id": new_node,
+        "push_repository_node_ids": ["R_repo"],
+    }
+    candidate["actor"] = new_actor
+    candidate["authority"] = {
+        "kind": "explicit-recovery",
+        "reference": f"recovery:{snapshot.name.removesuffix('.md.ledger.json')}",
+        "objective_sha256": "0" * 64,
+        "issued_at": "2026-08-14T18:02:00Z",
+        "actor_node_id": new_node,
+        "allowed": ledger._identity_recovery_allowed(candidate),
+    }
+    source = {
+        "name": snapshot.name,
+        "ledger_id": snapshot.document["ledger_id"],
+        "generation": snapshot.document["generation"],
+        "sha256": snapshot.digest,
+        "device": snapshot.device,
+        "inode": snapshot.inode,
+    }
+    targets_sha256 = ledger.canonical_object_digest(snapshot.document["targets"])
+    artifacts_sha256 = ledger.canonical_object_digest(snapshot.document["artifacts"])
+    objective = ledger.canonical_object_digest(
+        {
+            "operation": "recover-prebind-identity",
+            "source": source,
+            "old_actor": snapshot.document["actor"],
+            "new_actor": new_actor,
+            "targets_sha256": targets_sha256,
+            "artifacts_sha256": artifacts_sha256,
+        }
+    )
+    candidate["authority"]["objective_sha256"] = objective
+    candidate_raw = ledger.canonical_bytes(candidate)
+    recovery = {
+        "transaction": "delivery-ledger-recover-prebind-identity-v1",
+        "source": source,
+        "old_actor": copy.deepcopy(snapshot.document["actor"]),
+        "new_actor": new_actor,
+        "targets_sha256": targets_sha256,
+        "artifacts_sha256": artifacts_sha256,
+        "prior_authority_issued_at": snapshot.document["authority"]["issued_at"],
+        "candidate_sha256": ledger.byte_digest(candidate_raw),
+        "authority": copy.deepcopy(candidate["authority"]),
+    }
+    return candidate, ledger.canonical_bytes(recovery)
+
+
+def live_issue_pr(
+    value: dict[str, object],
+    *,
+    number: int = 500,
+    node: str = "P_issue_created",
+    actor_node: str = "U_actor",
+    body: bytes = INITIAL_PR_BODY,
+) -> dict[str, object]:
+    target = value["targets"][0]
+    repository_value = {
+        "node_id": target["repository"]["node_id"],
+        "full_name": (
+            f"{target['repository']['owner']}/{target['repository']['name']}"
+        ),
+    }
+    return {
+        "node_id": node,
+        "number": number,
+        "state": "open",
+        "draft": True,
+        "user": {"node_id": actor_node},
+        "base": {
+            "ref": target["base"]["branch"],
+            "sha": target["base"]["current_sha"],
+            "repo": copy.deepcopy(repository_value),
+        },
+        "head": {
+            "ref": target["head"]["branch"],
+            "sha": target["head"]["current_sha"],
+            "repo": copy.deepcopy(repository_value),
+        },
+        "body": body.decode("utf-8"),
+        "updated_at": "2026-08-14T18:01:00Z",
+    }
+
+
 def cas_arguments(snapshot: object) -> dict[str, object]:
     assert isinstance(snapshot, ledger.Snapshot)
     return {
@@ -1900,8 +2052,17 @@ class DeliveryLedgerTests(unittest.TestCase):
             ledger, "_release_live_safety", side_effect=lambda _document: nullcontext([])
         )
         self.release_safety.start()
+        self.authenticated_actor = mock.patch.object(
+            ledger,
+            "_authenticated_actor",
+            side_effect=lambda document, _context=None: copy.deepcopy(
+                document["actor"]
+            ),
+        )
+        self.authenticated_actor.start()
 
     def tearDown(self) -> None:
+        self.authenticated_actor.stop()
         self.release_safety.stop()
         self.live_temporary.cleanup()
 
@@ -2067,7 +2228,14 @@ class DeliveryLedgerTests(unittest.TestCase):
                 path = base / f"input-{index}.json"
                 path.write_text(json.dumps(document), encoding="utf-8")
                 return subprocess.Popen(
-                    [sys.executable, "-B", str(SCRIPT), "create", str(review_root), str(path)],
+                    [
+                        sys.executable,
+                        "-B",
+                        "-c",
+                        _TEST_CLI_ACTOR_BOOTSTRAP,
+                        str(SCRIPT),
+                        "create", str(review_root), str(path),
+                    ],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
@@ -3976,6 +4144,8 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c",
+                    _TEST_CLI_ACTOR_BOOTSTRAP,
                     str(SCRIPT),
                     "create",
                     str(review_root),
@@ -13678,6 +13848,223 @@ class DeliveryLedgerTests(unittest.TestCase):
             with self.assertRaisesRegex(ledger.LedgerError, "squash merge change differs"):
                 ledger._prove_release_git(document, document["selected_prs"][0], proof)
 
+    def test_genesis_proves_live_actor_tuple_before_any_local_mutation(self) -> None:
+        def graphql_response(
+            *, login: str = "zoeyrose", node_id: str = "U_actor", permission: str = "ADMIN"
+        ) -> dict[str, object]:
+            return {
+                "data": {
+                    "viewer": {"login": login, "id": node_id},
+                    "repository0": {
+                        "id": "R_repo",
+                        "viewerPermission": permission,
+                    },
+                }
+            }
+
+        cases = (
+            (
+                "mixed login and node",
+                graphql_response(login="different", node_id="U_actor"),
+                "differs from the caller-supplied ledger actor",
+            ),
+            (
+                "stale node",
+                graphql_response(login="zoeyrose", node_id="U_stale"),
+                "differs from the caller-supplied ledger actor",
+            ),
+            (
+                "read-only repository",
+                graphql_response(permission="READ"),
+                "lacks push authority",
+            ),
+        )
+        self.authenticated_actor.stop()
+        try:
+            for label, response, message in cases:
+                with self.subTest(rejected=label), tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    before = directory_snapshot(root)
+                    with mock.patch.object(
+                        ledger, "_gh_json", return_value=response
+                    ) as observer, self.assertRaisesRegex(
+                        ledger.LedgerError, message
+                    ):
+                        ledger.create(root, issue_ledger())
+                    self.assertEqual(directory_snapshot(root), before)
+                    arguments = observer.call_args.args[0]
+                    self.assertEqual(tuple(arguments[:4]), (
+                        "api", "--hostname", "github.com", "graphql"
+                    ))
+                    self.assertIn("viewer{login id}", arguments[5])
+                    self.assertIn("owner0=atrinik", arguments)
+                    self.assertIn("name0=atrinik", arguments)
+
+            with tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                with mock.patch.object(
+                    ledger, "_gh_json", return_value=graphql_response()
+                ):
+                    created = ledger.create(root, issue_ledger())
+                self.assertEqual(created.document["generation"], 1)
+                self.assertEqual(ledger.inventory(root).pending, ())
+        finally:
+            self.authenticated_actor.start()
+
+    def test_pr_binding_reproves_full_actor_tuple_before_cas(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            value, bound = install_issue_bound(root, self.live_base / "pr-actor-reproof")
+            remote = live_issue_pr(value)
+            changed_actor = {
+                "login": "newactor",
+                "node_id": "U_new",
+                "push_repository_node_ids": ["R_repo"],
+            }
+
+            def observe(arguments: object, _context: str) -> object:
+                endpoint = tuple(arguments)[-1]
+                if "/pulls/500" in endpoint:
+                    return copy.deepcopy(remote)
+                if "/comments?" in endpoint:
+                    return []
+                raise AssertionError(f"unexpected gh observation: {arguments}")
+
+            before = directory_snapshot(root)
+            self.authenticated_actor.stop()
+            try:
+                with mock.patch.object(
+                    ledger,
+                    "_authenticated_actor",
+                    side_effect=[
+                        copy.deepcopy(bound.document["actor"]),
+                        changed_actor,
+                    ],
+                ) as actor_proof, mock.patch.object(
+                    ledger, "_gh_json", side_effect=observe
+                ), self.assertRaisesRegex(
+                    ledger.LedgerError,
+                    "differs from the caller-supplied ledger actor",
+                ):
+                    ledger.bind_pr_cas(
+                        root,
+                        bound.name,
+                        "pull-request",
+                        500,
+                        **cas_arguments(bound),
+                    )
+                self.assertEqual(actor_proof.call_count, 2)
+                self.assertEqual(directory_snapshot(root), before)
+            finally:
+                self.authenticated_actor.start()
+
+    def test_prebind_identity_recovery_preserves_exact_artifacts_and_predecessor(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            value, bound = install_issue_bound(
+                root, self.live_base / "identity-recovery-success"
+            )
+            candidate, recovery = identity_recovery_material(bound)
+            self.authenticated_actor.stop()
+            try:
+                with mock.patch.object(
+                    ledger,
+                    "_authenticated_actor",
+                    return_value=candidate["actor"],
+                ) as actor_proof, mock.patch.object(
+                    ledger, "_gh_json", return_value=[]
+                ) as no_prs:
+                    recovered = ledger.recover_prebind_identity(
+                        root,
+                        bound.name,
+                        candidate,
+                        recovery,
+                        **cas_arguments(bound),
+                    )
+                self.assertEqual(
+                    recovered.document["generation"],
+                    bound.document["generation"] + 1,
+                )
+                self.assertEqual(
+                    recovered.document["previous_byte_digest"], bound.digest
+                )
+                self.assertEqual(recovered.document["history"][-1], bound.digest)
+                self.assertEqual(recovered.document["actor"], candidate["actor"])
+                self.assertEqual(
+                    recovered.document["targets"], bound.document["targets"]
+                )
+                self.assertEqual(
+                    recovered.document["artifacts"], bound.document["artifacts"]
+                )
+                self.assertEqual(actor_proof.call_count, 2)
+                self.assertEqual(no_prs.call_count, 2)
+                self.assertEqual(ledger.inventory(root).pending, ())
+            finally:
+                self.authenticated_actor.start()
+
+    def test_prebind_identity_recovery_retry_keeps_exact_cas_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            value, bound = install_issue_bound(
+                root, self.live_base / "identity-recovery-retry"
+            )
+            candidate, recovery = identity_recovery_material(bound)
+            self.authenticated_actor.stop()
+            try:
+                with mock.patch.object(
+                    ledger,
+                    "_authenticated_actor",
+                    return_value=candidate["actor"],
+                ), mock.patch.object(
+                    ledger, "_gh_json", return_value=[]
+                ):
+                    with self.assertRaises(ledger.InjectedCrash):
+                        ledger.recover_prebind_identity(
+                            root,
+                            bound.name,
+                            candidate,
+                            recovery,
+                            failpoint="cas:renamed",
+                            **cas_arguments(bound),
+                        )
+                    installed = ledger.inspect(root, bound.name)
+                    self.assertEqual(installed.raw, ledger.canonical_bytes(candidate))
+                    self.assertTrue(ledger.inventory(root).pending)
+                    retried = ledger.recover_prebind_identity(
+                        root,
+                        bound.name,
+                        candidate,
+                        recovery,
+                        **cas_arguments(bound),
+                    )
+                self.assertEqual(retried.raw, ledger.canonical_bytes(candidate))
+                self.assertEqual(ledger.inventory(root).pending, ())
+            finally:
+                self.authenticated_actor.start()
+
+    def test_prebind_identity_recovery_rejects_coordinate_drift_without_mutation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            value, bound = install_issue_bound(
+                root, self.live_base / "identity-recovery-drift"
+            )
+            candidate, recovery = identity_recovery_material(bound)
+            base = candidate["targets"][0]["base"]
+            base["current_sha"] = SHA_B
+            base["lineage"].append(SHA_B)
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "candidate digest differs"
+            ):
+                ledger.recover_prebind_identity(
+                    root,
+                    bound.name,
+                    candidate,
+                    recovery,
+                    **cas_arguments(bound),
+                )
+            self.assertEqual(directory_snapshot(root), before)
+
     def test_63_github_proof_pins_host_executable_and_environment(self) -> None:
         completed = subprocess.CompletedProcess(
             [ledger._GH_EXECUTABLE], 0, stdout=b'{"node_id":"U_actor"}\n', stderr=b""
@@ -13699,7 +14086,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             )
         arguments = run.call_args.args[0]
         environment = run.call_args.kwargs["env"]
-        self.assertEqual(arguments[0], ledger._GH_EXECUTABLE)
+        self.assertIn(arguments[0], ledger._GH_EXECUTABLE_CANDIDATES)
         self.assertIn("github.com", arguments)
         self.assertTrue(set(hostile).isdisjoint(environment))
 

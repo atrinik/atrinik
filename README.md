@@ -2076,6 +2076,16 @@ keeps its active coordinates and recovery evidence. After the PR is externally
 merged and selected issues reach their expected states, a separately authorized
 operator prepares exact post-merge evidence and runs:
 
+Actor identity is live evidence for delivery. Issue-mode genesis captures the
+viewer login/node and push authority for every target repository in one live
+authenticated response before generation-1 publication; a mixed or stale
+tuple fails before local staging or any delivery mutation. `pr-bind-cas`
+repeats the complete tuple immediately before its CAS. If the actor changes
+after genesis but before PR binding, use only the helper's
+`recover-prebind-identity` transaction: it preserves the predecessor
+digest/history and exact target/artifact coordinates, and requires an explicit
+recovery authority, a safe bound worktree, live reproof, and no candidate PR.
+
 Target base/head movement is likewise helper-owned: generic ledger CAS rejects
 it. The target-refresh CAS pins the recorded primitive/scope worktree, proves
 descendant commits and the exact live merge base, and rechecks immediately

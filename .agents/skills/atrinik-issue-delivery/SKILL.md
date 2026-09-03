@@ -221,6 +221,7 @@ never mounts source, credentials, private keys, or mutable server data.
   comments are expected and remain untouched. Any malformed or reserved
   `atrinik-delivery:comment:` marker, invalid comment page, duplicate node, or
   incomplete/bounded-out pagination fails closed.
+- Issue-mode actor proof precedes genesis; pre-bind changes use audited recovery.
 - In PR mode, set `TARGET_BRANCH`, `BASE_SHA`, `HEAD_BRANCH`, `HEAD_SHA`, and
   `MERGE_BASE` from the live PR. Fetch and verify the exact base/head refs
   without rewriting published history. Create the local head branch at the
