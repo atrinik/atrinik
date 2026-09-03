@@ -44,10 +44,11 @@
   wrapper, ledger, worktree, edit, test, build, review, and validation work
   stays inside the container.
 - Codex never launches or controls VS Code, sends VS Code URIs, or uses GUI
-  automation. Do not nest or remount containers, rely on copied or stale
-  session evidence, or discard a warm session. Reconnect only after fresh
-  identity, mount, lease, and exact-worktree checks; parallel sessions need
-  separate caches, credentials, ports, and mutable state.
+  automation; do not nest/remount or trust copied/stale evidence. Reuse only
+  with exact owner/container/image/mount/worktree/ledger coordinates; reconnect
+  reruns fresh probe, worktree, ledger, and lease checks. Idle/shutdown is
+  bounded to the owner; parallel sessions need separate caches, credentials,
+  ports, and mutable state.
 - Never replace dirty primaries, remove dirty worktrees, or overwrite mutable server data;
   preserve migration inputs.
 - Cleanup is preview-first; delivery grants none. Keep ledger transactions separate
