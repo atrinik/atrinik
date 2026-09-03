@@ -74,8 +74,8 @@
 
 ## Working agreements and commands
 
-Run from repository root; inspect first. `init` clones missing repos;
-`sync` never initializes:
+At root; inspect first. See README: Windows workflow.
+`init` clones missing repos; `sync` never initializes:
 
 ```sh
 ./atrinik manifest validate
