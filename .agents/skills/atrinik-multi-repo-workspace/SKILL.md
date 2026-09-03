@@ -13,7 +13,11 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
    orchestration/contracts stay here. Before repository work or expensive
    build/package/runtime/remote-mutation work, consult ignored
    `build/agent-process-improvements.md` when present, update recurring keys,
-   report `Process improvements added: none` or changed keys/issues.
+   report `Process improvements added: none` or changed keys/issues. Use
+   `./atrinik agent-ledger update` for both ignored agent ledgers; never
+   manually edit, overwrite, or truncate their Markdown directly. The helper resolves the
+   canonical shared root and returns the digest/lock/retry result; separate
+   filesystems need a coordinator or event handoff.
 
 Checkouts are ignored repositories. One `classic` worktree holds five
 `classic-*` components; both stacks share `content@main`. `content-1x` and the
@@ -110,6 +114,14 @@ build, cache. Gate matching coordinates; multi-source writers retry all-or-none;
 fail closed on incomplete/shared state. Migration alone takes the barrier. Published runtimes retain
 generation, process-tree, state, and port leases. Completion is bounded, local,
 read-only, secret-free, and parser-driven before `Workspace`.
+
+A persistent coordinator session belongs to one agent and exact delivery
+coordinate. Reuse needs matching pinned container, mounts, worktree, profile/
+build roots, and ledger coordinates; reconnect/crash recovery reruns probe,
+worktree list, ledger inventory/CAS, and leases. Bound idle/lifetime; preserve
+failure evidence and stop only the owned container. Independent sessions may
+share immutable inputs but need distinct worktrees, coordinates, caches,
+credentials, ports, topology/state names, and mutable state.
 
 Verify concurrency with distinct worktrees/readiness rendezvous and A live through
 B's release; count transitions/conflicts; timeouts bound failure, not compiler speed.

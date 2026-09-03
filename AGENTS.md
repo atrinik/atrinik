@@ -33,7 +33,8 @@
 - Use `atrinik-multi-repo-workspace` for wrapper ownership/profiles/worktrees/
   migration/cleanup/releases/CLI/layout; add specialists and use
   `atrinik-guidance-maintenance` for audits.
-- Explicitly invoke `atrinik-issue-delivery` for an issue or existing PR; it stops before merge.
+- Use `atrinik-issue-delivery` for an issue or existing PR; it stops before merge.
+  Invoke explicitly.
 - Native Windows Classic GPU preflight: follow
   `docs/WINDOWS_GPU_PREFLIGHT.md`; reuse its smoke/qualification path and
   separate Linux coordinator failures from native results.
@@ -46,10 +47,11 @@
   wrapper, ledger, worktree, edit, test, build, review, and validation work
   stays inside the container.
 - Codex never launches or controls VS Code, sends VS Code URIs, or uses GUI
-  automation. Do not nest or remount containers, rely on copied or stale
-  session evidence, or discard a warm session. Reconnect only after fresh
-  identity, mount, lease, and exact-worktree checks; parallel sessions need
-  separate caches, credentials, ports, and mutable state.
+  automation; do not nest/remount or trust copied/stale evidence. Reuse only
+  with exact owner/container/image/mount/worktree/ledger coordinates; reconnect
+  reruns fresh probe, worktree, ledger, and lease checks. Idle/shutdown is
+  bounded to the owner; parallel sessions need separate caches, credentials,
+  ports, and mutable state.
 - Never replace dirty primaries, remove dirty worktrees, or overwrite mutable server data;
   preserve migration inputs.
 - Cleanup is preview-first; delivery grants none. Keep ledger transactions separate
@@ -60,11 +62,13 @@
 - Prefer `scope create`; Classic uses selectors/physical overrides.
   `scope-<name>` is profile/topology; noncanonical overrides fail pre-publication;
   rerun exact named create after rollback and bind via helper CAS.
-- Use wrapper paths; never reconstruct them. Isolate topology/state, ports, client
-  config; prefer temporary state and local scenario secrets.
+- Use wrapper paths; never reconstruct managed paths. Isolate topology/state, ports,
+  client config; prefer temporary state and local scenario secrets.
 - Before repository or expensive build/package/runtime/remote-mutation work, consult
-  ignored `build/agent-process-improvements.md`; update keys; report
-  `Process improvements added: none` or keys/issues.
+  ignored `build/agent-process-improvements.md` when present; use
+  `./atrinik agent-ledger update` only for both ignored agent ledgers; never
+  manually edit ledgers. Report `Process improvements added: none` or
+  keys/issues; follow digest/lock/retry; handoff across separate filesystems.
 - Keep completion bounded, parser-driven, and secret-free; lease in order; gate
   same-coordinate readers; share migration barrier; unbound records inert. Report
   `Tooling issues: none` or stable keys in ignored

@@ -626,6 +626,9 @@ class AgentGuidanceTests(unittest.TestCase):
         for text in normalized:
             self.assertIn("build/agent-process-improvements.md", text)
             self.assertIn("Process improvements added: none", text)
+            self.assertIn("./atrinik agent-ledger update", text)
+            self.assertIn("never manually edit", text)
+            self.assertIn("separate filesystems", text)
         self.assertIn(
             "before repository or expensive build/package/runtime/remote-mutation",
             normalized[0].lower(),
@@ -704,6 +707,42 @@ class AgentGuidanceTests(unittest.TestCase):
         }:
             with self.subTest(path=path.relative_to(ROOT)):
                 self.assertIn("WINDOWS_GPU_PREFLIGHT.md", path.read_text(encoding="utf-8"))
+
+    def test_persistent_session_contract_is_synchronized(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        architecture = (
+            ROOT / "docs/ARCHITECTURE.md"
+        ).read_text(encoding="utf-8")
+        delivery = (
+            ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
+        ).read_text(encoding="utf-8")
+        workspace = (
+            ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("Agent-owned persistent sessions", readme)
+        self.assertIn("build/sessions/<delivery-slug>.json", readme)
+        self.assertIn("benchmark_devcontainer_session.py", readme)
+        self.assertIn("persistent coordinator session", workspace)
+        self.assertIn("Reuse one owned devcontainer session", delivery)
+        self.assertIn("Persistent coordinator session contract", architecture)
+
+        normalized = [
+            " ".join(text.split())
+            for text in (readme, architecture, delivery, workspace)
+        ]
+        for text in normalized:
+            with self.subTest(contract="safe parallelism"):
+                self.assertIn("distinct", text)
+                self.assertIn("credentials", text)
+                self.assertIn("mutable", text)
+        for text in normalized[:3]:
+            with self.subTest(contract="bounded lifecycle"):
+                self.assertIn("30 minutes", text)
+                self.assertIn("12 hours", text)
+            with self.subTest(contract="non-authority"):
+                self.assertIn("corroboration", text)
+                self.assertIn("stale", text)
 
     def test_local_guidance_links_resolve(self) -> None:
         paths = [ROOT / "AGENTS.md"]
@@ -986,6 +1025,11 @@ class AgentGuidanceTests(unittest.TestCase):
         for marker in {
             'Tooling issues: none',
             'build/agent-tooling-issues.md',
+            './atrinik agent-ledger update',
+            'build/.agent-ledgers.lock',
+            '--expected-digest absent',
+            'never manually edit',
+            'separate filesystems',
             'mechanism=<slug>;remediation=<slug>',
             'same mechanism and remediation recur',
             'materially different',

@@ -175,39 +175,12 @@ def _git_check(root: Path, *arguments: str) -> int | None:
         return None
 
 
-def validate_tooling_ledger(root: Path = ROOT) -> list[str]:
-    '''Validate optional local tooling-ledger state without requiring it.'''
+def validate_tooling_ledger_text(
+    text: str, relative: str = TOOLING_LEDGER_RELATIVE.as_posix()
+) -> list[str]:
+    '''Validate tooling-ledger Markdown already decoded as UTF-8.'''
 
-    relative = TOOLING_LEDGER_RELATIVE.as_posix()
     failures: list[str] = []
-    ignored = _git_check(
-        root, 'check-ignore', '--quiet', '--no-index', '--', relative
-    )
-    if ignored != 0:
-        failures.append(f'{relative} is not ignored')
-    tracked = _git_check(root, 'ls-files', '--error-unmatch', '--', relative)
-    if tracked == 0:
-        failures.append(f'{relative} is tracked')
-
-    path = root / TOOLING_LEDGER_RELATIVE
-    if not path.exists() and not path.is_symlink():
-        return failures
-    if path.is_symlink() or not path.is_file():
-        failures.append(f'{relative} is not a regular file')
-        return failures
-    try:
-        raw = path.read_bytes()
-    except OSError:
-        failures.append(f'{relative} could not be read')
-        return failures
-    if len(raw) > TOOLING_LEDGER_MAX_BYTES:
-        failures.append(f'{relative} exceeds the size limit')
-        return failures
-    try:
-        text = raw.decode('utf-8')
-    except UnicodeDecodeError:
-        failures.append(f'{relative} is not UTF-8')
-        return failures
     if '\x00' in text:
         failures.append(f'{relative} contains binary data')
     if _SECRET_VALUE.search(text) or _PRIVATE_HOST_PATH.search(text):
@@ -269,6 +242,42 @@ def validate_tooling_ledger(root: Path = ROOT) -> list[str]:
     return failures
 
 
+def validate_tooling_ledger(root: Path = ROOT) -> list[str]:
+    '''Validate optional local tooling-ledger state without requiring it.'''
+
+    relative = TOOLING_LEDGER_RELATIVE.as_posix()
+    failures: list[str] = []
+    ignored = _git_check(
+        root, 'check-ignore', '--quiet', '--no-index', '--', relative
+    )
+    if ignored != 0:
+        failures.append(f'{relative} is not ignored')
+    tracked = _git_check(root, 'ls-files', '--error-unmatch', '--', relative)
+    if tracked == 0:
+        failures.append(f'{relative} is tracked')
+
+    path = root / TOOLING_LEDGER_RELATIVE
+    if not path.exists() and not path.is_symlink():
+        return failures
+    if path.is_symlink() or not path.is_file():
+        failures.append(f'{relative} is not a regular file')
+        return failures
+    try:
+        raw = path.read_bytes()
+    except OSError:
+        failures.append(f'{relative} could not be read')
+        return failures
+    if len(raw) > TOOLING_LEDGER_MAX_BYTES:
+        failures.append(f'{relative} exceeds the size limit')
+        return failures
+    try:
+        text = raw.decode('utf-8')
+    except UnicodeDecodeError:
+        failures.append(f'{relative} is not UTF-8')
+        return failures
+    return failures + validate_tooling_ledger_text(text, relative)
+
+
 def process_improvement_ledger_path(root: Path | None = None) -> Path:
     return (root or ROOT) / PROCESS_IMPROVEMENT_LEDGER
 
@@ -300,28 +309,10 @@ def _valid_process_timestamp(value: str) -> bool:
     return True
 
 
-def validate_process_improvement_ledger(root: Path | None = None) -> list[str]:
-    root = root or ROOT
-    path = process_improvement_ledger_path(root)
-    if path.is_symlink():
-        return ["process-improvement ledger must not be a symlink"]
-    if not path.exists():
-        return []
-    if not path.is_file():
-        return ["process-improvement ledger must be a regular file"]
+def validate_process_improvement_ledger_text(text: str) -> list[str]:
+    '''Validate process-improvement Markdown already decoded as UTF-8.'''
 
     errors: list[str] = []
-    ignore_error = _process_ledger_ignore_error(root, path)
-    if ignore_error:
-        errors.append(ignore_error)
-    try:
-        raw = path.read_bytes()
-        if len(raw) > 128 * 1024:
-            errors.append("process-improvement ledger exceeds 128 KiB")
-        text = raw.decode("utf-8")
-    except (OSError, UnicodeError):
-        return errors + ["process-improvement ledger must be bounded UTF-8"]
-
     if not text.endswith("\n"):
         errors.append("process-improvement ledger must end with a newline")
     if any(
@@ -387,6 +378,30 @@ def validate_process_improvement_ledger(root: Path | None = None) -> list[str]:
     if row_count == 0:
         errors.append("process-improvement ledger requires at least one row")
     return errors
+
+
+def validate_process_improvement_ledger(root: Path | None = None) -> list[str]:
+    root = root or ROOT
+    path = process_improvement_ledger_path(root)
+    if path.is_symlink():
+        return ["process-improvement ledger must not be a symlink"]
+    if not path.exists():
+        return []
+    if not path.is_file():
+        return ["process-improvement ledger must be a regular file"]
+
+    errors: list[str] = []
+    ignore_error = _process_ledger_ignore_error(root, path)
+    if ignore_error:
+        errors.append(ignore_error)
+    try:
+        raw = path.read_bytes()
+        if len(raw) > 128 * 1024:
+            errors.append("process-improvement ledger exceeds 128 KiB")
+        text = raw.decode("utf-8")
+    except (OSError, UnicodeError):
+        return errors + ["process-improvement ledger must be bounded UTF-8"]
+    return errors + validate_process_improvement_ledger_text(text)
 
 
 def collect_inventory() -> dict[str, object]:

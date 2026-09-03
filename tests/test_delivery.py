@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+import os
 from pathlib import Path
 import subprocess
 from types import SimpleNamespace
@@ -12,6 +13,7 @@ from unittest import mock
 from atrinik_workspace.cleanup import Cleanup
 from atrinik_workspace.delivery import (
     ActiveDeliveryEvidence,
+    _ledger_lock_name,
     inventory_active_delivery_evidence,
 )
 from atrinik_workspace.migration import RepositoryMigration
@@ -75,6 +77,14 @@ class DeliveryEvidenceTests(unittest.TestCase):
         self.assertIn(self.review_root.resolve(), evidence.references)
         self.assertEqual(invoke.call_args.args[0][3], "inventory")
         self.assertEqual(invoke.call_args.kwargs["timeout"], 30)
+
+    def test_compact_ledger_lock_coordinate_obeys_name_limit(self) -> None:
+        ledger_name = "a" * 240 + ".md.ledger.json"
+        lock_name = _ledger_lock_name(self.review_root, ledger_name)
+        self.assertTrue(lock_name.startswith(".delivery-ledger-lock-"))
+        self.assertLessEqual(
+            len(lock_name.encode("utf-8")), os.pathconf(self.review_root, "PC_NAME_MAX")
+        )
 
     def test_missing_report_fails_closed(self) -> None:
         (self.review_root / self.name.removesuffix(".ledger.json")).unlink()

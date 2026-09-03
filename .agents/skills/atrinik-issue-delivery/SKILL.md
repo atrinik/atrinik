@@ -87,6 +87,13 @@ owner `AGENTS.md`; do not duplicate procedures.
   artifact, scope, or resource mutation. CAS every result/live refresh through
   the helper; never hand-roll state, locks, markers, or recovery.
 
+  The ignored process-improvement and tooling-issue ledgers have one supported
+  edit path: `./atrinik agent-ledger update --ledger ...`. It resolves the
+  canonical shared root, reads and validates the latest bytes under a stable
+  shared lock, publishes atomically, and returns a digest/CAS result. Never
+  manually edit, overwrite, or truncate either file; follow stale/lock/retry
+  output. Separate filesystems require a coordinator or event handoff.
+
   Planned/absent creates after collision rechecks; planned/exact binds;
   created-or-adopted/exact reuses. Missing, duplicate, mismatched, dirty, or
   unsafe artifacts stop. Attach a bound branch with absent worktree through
@@ -143,6 +150,19 @@ this entry rule does not authorize arbitrary nesting or remounting.
 Codex never launches or controls VS Code, invokes `code` or `code.cmd`, sends
 VS Code URIs, or uses GUI automation. Any VS Code setup reference is
 human-facing only.
+
+### Reuse one owned devcontainer session
+
+Use one pinned container per scope and retain an ignored, secret-free record of
+the agent, ledger, worktree, container/mount/volume identities, lifecycle, and
+cleanup owner. It is corroboration only: the live probe, ledger/worktree CAS,
+and leases decide. Bound idle/lifetime to 30 minutes/12 hours; after a
+stop/crash preserve evidence, re-prove coordinates, and reacquire leases.
+Parallel scopes need distinct worktrees, coordinates, profiles/build roots,
+volume namespaces, credentials, ports, topology/state, and mutable caches;
+share only immutable image layers/read-only inputs. The session benchmark uses
+exact run-scoped resources for cold/warm/recovery/parallel measurements and
+never mounts source, credentials, private keys, or mutable server data.
 
 ### Claim only explicitly authorized issues
 
