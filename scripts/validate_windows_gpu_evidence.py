@@ -44,7 +44,8 @@ ARCHITECTURES = frozenset({"x86_64", "arm64"})
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 COMMIT = re.compile(r"^[0-9a-f]{40}$")
 PROFILE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
-ARTIFACT_PATH = re.compile(r"^evidence/[A-Za-z0-9][A-Za-z0-9._/-]{0,159}$")
+MAX_ARTIFACT_PATH_CHARS = 160
+ARTIFACT_PATH = re.compile(r"^evidence/[A-Za-z0-9][A-Za-z0-9._/-]*$")
 UTC_TIMESTAMP = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"
     r"(?:\.\d{1,9})?Z$"
@@ -70,6 +71,15 @@ IP_ADDRESS = re.compile(
 
 class EvidenceError(ValueError):
     """A stable, secret-free evidence validation failure."""
+
+
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise EvidenceError("evidence contains duplicate JSON object keys")
+        result[key] = value
+    return result
 
 
 def _exact_keys(value: Mapping[str, Any], expected: set[str], label: str) -> None:
@@ -114,7 +124,11 @@ def _sha(value: Any, label: str) -> str:
 
 
 def _artifact_path(value: Any, label: str, root: Path | None) -> str:
-    if not isinstance(value, str) or ARTIFACT_PATH.fullmatch(value) is None:
+    if (
+        not isinstance(value, str)
+        or len(value) > MAX_ARTIFACT_PATH_CHARS
+        or ARTIFACT_PATH.fullmatch(value) is None
+    ):
         raise EvidenceError(f"{label} must be a relative evidence path")
     parts = value.split("/")
     if any(part in {"", ".", ".."} for part in parts) or "\\" in value:
@@ -187,7 +201,10 @@ def _validate_host(value: Any) -> Mapping[str, Any]:
     if not os_name.startswith("Windows"):
         raise EvidenceError("host.os must identify Windows")
     _safe_text(host["os_build"], "host.os_build")
-    if host["architecture"] not in ARCHITECTURES:
+    if (
+        not isinstance(host["architecture"], str)
+        or host["architecture"] not in ARCHITECTURES
+    ):
         raise EvidenceError("host.architecture is unsupported")
     return host
 
@@ -207,13 +224,16 @@ def _validate_gpu(value: Any, status: str) -> Mapping[str, Any]:
         },
         "gpu",
     )
-    if gpu["backend"] not in BACKENDS:
+    if not isinstance(gpu["backend"], str) or gpu["backend"] not in BACKENDS:
         raise EvidenceError("gpu.backend is unsupported")
     for field in ("adapter", "device", "driver_name", "driver_version"):
         _safe_text(gpu[field], f"gpu.{field}")
     if not isinstance(gpu["qualified_hardware"], bool):
         raise EvidenceError("gpu.qualified_hardware must be boolean")
-    if gpu["hardware_tier"] not in HARDWARE_TIERS:
+    if (
+        not isinstance(gpu["hardware_tier"], str)
+        or gpu["hardware_tier"] not in HARDWARE_TIERS
+    ):
         raise EvidenceError("gpu.hardware_tier is unsupported")
     if status == "passed":
         if gpu["backend"] != "direct3d12":
@@ -239,7 +259,10 @@ def _validate_commands(value: Any, root: Path | None) -> dict[str, Mapping[str, 
         if command["name"] != expected_name or expected_name in result:
             raise EvidenceError("commands must be in the prescribed order without duplicates")
         command_status = command["status"]
-        if command_status not in COMMAND_STATUSES:
+        if (
+            not isinstance(command_status, str)
+            or command_status not in COMMAND_STATUSES
+        ):
             raise EvidenceError(f"commands.{expected_name}.status is unsupported")
         exit_code = command["exit_code"]
         if command_status == "not-run":
@@ -260,7 +283,10 @@ def _validate_commands(value: Any, root: Path | None) -> dict[str, Mapping[str, 
 def _validate_benchmark(value: Any, root: Path | None) -> Mapping[str, Any]:
     benchmark = _mapping(value, "benchmark")
     _exact_keys(benchmark, {"status", "performance_json_path", "records"}, "benchmark")
-    if benchmark["status"] not in COMMAND_STATUSES:
+    if (
+        not isinstance(benchmark["status"], str)
+        or benchmark["status"] not in COMMAND_STATUSES
+    ):
         raise EvidenceError("benchmark.status is unsupported")
     records = _integer(benchmark["records"], "benchmark.records", maximum=100_000)
     path = benchmark["performance_json_path"]
@@ -289,7 +315,10 @@ def _validate_logs(value: Any, root: Path | None) -> Mapping[str, Any]:
 def _validate_cleanup(value: Any) -> Mapping[str, Any]:
     cleanup = _mapping(value, "cleanup")
     _exact_keys(cleanup, {"status", "actions", "exit_codes"}, "cleanup")
-    if cleanup["status"] not in {"passed", "failed"}:
+    if (
+        not isinstance(cleanup["status"], str)
+        or cleanup["status"] not in {"passed", "failed"}
+    ):
         raise EvidenceError("cleanup.status must be passed or failed")
     actions = cleanup["actions"]
     exit_codes = cleanup["exit_codes"]
@@ -378,10 +407,10 @@ def validate_evidence(document: Any, *, root: Path | None = None) -> Mapping[str
         raise EvidenceError("kind is unsupported")
     _timestamp(evidence["recorded_at_utc"])
     status = evidence["status"]
-    if status not in {"passed", "failed"}:
+    if not isinstance(status, str) or status not in {"passed", "failed"}:
         raise EvidenceError("status must be passed or failed")
     classification = evidence["classification"]
-    if classification not in FAILURE_CLASSES:
+    if not isinstance(classification, str) or classification not in FAILURE_CLASSES:
         raise EvidenceError("classification is unsupported")
     next_action = _safe_text(evidence["next_action"], "next_action")
     _validate_source(evidence["source"], status)
@@ -426,8 +455,16 @@ def _load(path: Path) -> Any:
     if status.st_size > MAX_EVIDENCE_BYTES:
         raise EvidenceError("evidence input exceeds the bounded size")
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        with path.open("rb") as stream:
+            raw = stream.read(MAX_EVIDENCE_BYTES + 1)
+        if len(raw) > MAX_EVIDENCE_BYTES:
+            raise EvidenceError("evidence input exceeds the bounded size")
+        return json.loads(
+            raw.decode("utf-8"), object_pairs_hook=_reject_duplicate_keys
+        )
+    except EvidenceError:
+        raise
+    except (OSError, UnicodeError, json.JSONDecodeError, RecursionError) as error:
         raise EvidenceError("evidence input is not valid UTF-8 JSON") from error
 
 

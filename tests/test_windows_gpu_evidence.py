@@ -159,6 +159,10 @@ class WindowsGpuEvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(EvidenceError, "relative evidence path"):
             validate_evidence(evidence)
         evidence = self._evidence()
+        evidence["commands"][0]["stdout_path"] = "evidence/" + ("a" * 152)
+        with self.assertRaisesRegex(EvidenceError, "relative evidence path"):
+            validate_evidence(evidence)
+        evidence = self._evidence()
         evidence["gpu"]["driver_version"] = "token: abc123"
         with self.assertRaisesRegex(EvidenceError, "sensitive"):
             validate_evidence(evidence)
@@ -175,6 +179,26 @@ class WindowsGpuEvidenceTests(unittest.TestCase):
             self.assertEqual(result, 1)
             self.assertIn("not valid UTF-8 JSON", stderr.getvalue())
             self.assertNotIn("not-json", stderr.getvalue())
+
+    def test_cli_rejects_duplicate_keys_and_invalid_types(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            duplicate_path = Path(temporary) / "duplicate.json"
+            duplicate_path.write_text(
+                '{"schema_version": 1, "schema_version": 2}', encoding="utf-8"
+            )
+            self.assertEqual(main([str(duplicate_path)]), 1)
+            evidence = self._evidence()
+            evidence["status"] = []
+            with self.assertRaisesRegex(EvidenceError, "status must be"):
+                validate_evidence(evidence)
+            evidence = self._evidence()
+            evidence["gpu"]["hardware_tier"] = []
+            with self.assertRaisesRegex(EvidenceError, "hardware_tier"):
+                validate_evidence(evidence)
+            evidence = self._evidence()
+            evidence["gpu"]["backend"] = []
+            with self.assertRaisesRegex(EvidenceError, "backend"):
+                validate_evidence(evidence)
 
 
 if __name__ == "__main__":
