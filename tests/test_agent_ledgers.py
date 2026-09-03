@@ -245,6 +245,36 @@ class AgentLedgerTests(unittest.TestCase):
         with self.assertRaisesRegex(AgentLedgerError, "non-ignored"):
             self._tooling("mechanism=not-ignored;remediation=reject")
 
+    def test_stable_lock_local_only_guard_fails_closed(self) -> None:
+        self._tooling("mechanism=tracked-lock;remediation=reject")
+        lock = ledger_lock_path(self.root)
+        subprocess.run(
+            ["git", "add", "--force", "--", lock.relative_to(self.root).as_posix()],
+            cwd=self.root,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        path = ledger_path(self.root, "tooling-issues")
+        before = path.read_bytes()
+        with self.assertRaisesRegex(AgentLedgerError, "tracked ledger path"):
+            self._tooling("mechanism=tracked-lock;remediation=reject", "blocked")
+        self.assertEqual(path.read_bytes(), before)
+
+    @unittest.skipIf(os.name == "nt", "native Windows has no directory descriptor pin")
+    def test_replaced_build_directory_is_rejected_before_read(self) -> None:
+        self._tooling("mechanism=directory-replacement;remediation=reject")
+        build = self.root / "build"
+        original = self.root / "build-original"
+        path = ledger_path(self.root, "tooling-issues")
+        with agent_ledgers._opened_build_directory(build) as directory:
+            build.rename(original)
+            build.mkdir()
+            with self.assertRaisesRegex(AgentLedgerError, "changed during publication"):
+                agent_ledgers._read_snapshot(path, directory)
+        self.assertTrue((original / path.name).is_file())
+        self.assertFalse(path.exists())
+
     @unittest.skipIf(os.name == "nt", "native Windows has different symlink privileges")
     def test_symlink_target_is_rejected_without_following_it(self) -> None:
         outside = self.root / "outside.md"

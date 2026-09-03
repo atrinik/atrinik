@@ -219,44 +219,45 @@ def _canonical_root(root: Path) -> Path:
 
 
 def _verify_local_only(root: Path, spec: _LedgerSpec) -> None:
-    relative = spec.relative.as_posix()
-    try:
-        ignored = subprocess.run(
-            ["git", "check-ignore", "--no-index", "--quiet", "--", relative],
-            cwd=root,
-            capture_output=True,
-            check=False,
-            timeout=5,
-        )
-    except (OSError, subprocess.TimeoutExpired) as error:
-        raise AgentLedgerError(
-            f"agent-ledger: cannot verify that {relative} is ignored"
-        ) from error
-    if ignored.returncode != 0:
-        raise AgentLedgerError(
-            f"agent-ledger: refusing non-ignored ledger path {relative}"
-        )
+    paths = (spec.relative.as_posix(), AGENT_LEDGER_LOCK.as_posix())
+    for relative in paths:
+        try:
+            ignored = subprocess.run(
+                ["git", "check-ignore", "--no-index", "--quiet", "--", relative],
+                cwd=root,
+                capture_output=True,
+                check=False,
+                timeout=5,
+            )
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise AgentLedgerError(
+                f"agent-ledger: cannot verify that {relative} is ignored"
+            ) from error
+        if ignored.returncode != 0:
+            raise AgentLedgerError(
+                f"agent-ledger: refusing non-ignored ledger path {relative}"
+            )
 
-    try:
-        tracked = subprocess.run(
-            ["git", "ls-files", "--error-unmatch", "--", relative],
-            cwd=root,
-            capture_output=True,
-            check=False,
-            timeout=5,
-        )
-    except (OSError, subprocess.TimeoutExpired) as error:
-        raise AgentLedgerError(
-            f"agent-ledger: cannot verify tracking state for {relative}"
-        ) from error
-    if tracked.returncode == 0:
-        raise AgentLedgerError(
-            f"agent-ledger: refusing tracked ledger path {relative}"
-        )
-    if tracked.returncode != 1:
-        raise AgentLedgerError(
-            f"agent-ledger: cannot verify tracking state for {relative}"
-        )
+        try:
+            tracked = subprocess.run(
+                ["git", "ls-files", "--error-unmatch", "--", relative],
+                cwd=root,
+                capture_output=True,
+                check=False,
+                timeout=5,
+            )
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise AgentLedgerError(
+                f"agent-ledger: cannot verify tracking state for {relative}"
+            ) from error
+        if tracked.returncode == 0:
+            raise AgentLedgerError(
+                f"agent-ledger: refusing tracked ledger path {relative}"
+            )
+        if tracked.returncode != 1:
+            raise AgentLedgerError(
+                f"agent-ledger: cannot verify tracking state for {relative}"
+            )
 
 
 def _ensure_build_directory(root: Path) -> Path:
@@ -374,12 +375,14 @@ def _read_snapshot(path: Path, directory: int | None) -> _Snapshot:
 
     if directory is None:  # pragma: no cover - protected by the context manager
         raise AgentLedgerError("agent-ledger: missing shared directory descriptor")
+    _assert_directory_identity(path.parent, directory)
     flags = os.O_RDONLY | O_CLOEXEC | getattr(os, "O_NOFOLLOW", 0)
     descriptor: int | None = None
     try:
         try:
             descriptor = os.open(path.name, flags, dir_fd=directory)
         except FileNotFoundError:
+            _assert_directory_identity(path.parent, directory)
             return _Snapshot(None)
         opened = os.fstat(descriptor)
         if not stat.S_ISREG(opened.st_mode):
@@ -399,6 +402,7 @@ def _read_snapshot(path: Path, directory: int | None) -> _Snapshot:
             raise AgentLedgerError(
                 f"agent-ledger: ledger changed while being read: {path}"
             )
+        _assert_directory_identity(path.parent, directory)
         return _Snapshot(data)
     except AgentLedgerError:
         raise
@@ -769,14 +773,16 @@ def update_agent_ledger(
         raise AgentLedgerError("agent-ledger: stable lock cannot be the replaceable ledger")
 
     try:
-        with exclusive_lock(
-            lock,
-            "agent ledgers",
-            nonblocking=nonblocking,
-            inherit=False,
-        ):
-            _verify_local_only(canonical_root, spec)
-            with _opened_build_directory(build) as directory:
+        with _opened_build_directory(build) as directory:
+            lock_directory = None if IS_WINDOWS else directory
+            with exclusive_lock(
+                lock,
+                "agent ledgers",
+                nonblocking=nonblocking,
+                directory_fd=lock_directory,
+                inherit=False,
+            ):
+                _verify_local_only(canonical_root, spec)
                 snapshot = _read_snapshot(path, directory)
                 actual_digest = _digest(snapshot.data)
                 actual_display = actual_digest or ABSENT_DIGEST
