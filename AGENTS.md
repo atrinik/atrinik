@@ -33,13 +33,12 @@
 - Use `atrinik-multi-repo-workspace` for wrapper ownership/profiles/worktrees/
   migration/cleanup/releases/CLI/layout; add specialists and use
   `atrinik-guidance-maintenance` for audits.
-- Use `atrinik-issue-delivery` for an issue or existing PR; it stops before merge.
-  Invoke explicitly.
-- Native Windows Classic GPU preflight and evidence are documented in
-  `docs/WINDOWS_GPU_PREFLIGHT.md`; use its existing Classic smoke/qualification
-  path and keep Linux coordinator failures separate from native runtime results.
-- Use `atrinik-program-delivery` only for explicitly invoked ordered master
-  issues; it composes leaves across merge gates and stops before merge/closure.
+- Explicitly invoke `atrinik-issue-delivery` for issues/PRs; it stops before merge.
+- Native Windows Classic GPU preflight: follow
+  `docs/WINDOWS_GPU_PREFLIGHT.md`; reuse its smoke/qualification path and
+  separate Linux coordinator failures from native results.
+- Explicitly invoke `atrinik-program-delivery` for ordered master issues; it
+  composes leaves across merge gates and stops before merge/closure.
 - Codex delivery has two entry modes: continue an already-running session
   inside the canonical VS Code devcontainer, or bootstrap/attach that pinned
   Linux devcontainer from a native host. In the latter mode, host work is
@@ -61,20 +60,19 @@
 - Prefer `scope create`; Classic uses selectors/physical overrides.
   `scope-<name>` is profile/topology; noncanonical overrides fail pre-publication;
   rerun exact named create after rollback and bind via helper CAS.
-- Use wrapper paths; never reconstruct managed paths. Isolate topology/state, ports,
-  client config; prefer temporary state and local scenario secrets.
+- Use wrapper paths; never reconstruct them. Isolate topology/state, ports, client
+  config; prefer temporary state and local scenario secrets.
 - Before repository or expensive build/package/runtime/remote-mutation work, consult
-  ignored `build/agent-process-improvements.md`; update recurring keys; report
+  ignored `build/agent-process-improvements.md`; update keys; report
   `Process improvements added: none` or keys/issues.
 - Keep completion bounded, parser-driven, and secret-free; lease in order; gate
   same-coordinate readers; share migration barrier; unbound records inert. Report
   `Tooling issues: none` or stable keys in ignored
   `build/agent-tooling-issues.md`; never commit/publish/copy to product issues.
-- Optional SSH commit signing stays on the host; use
+- Optional SSH commit signing stays on host; follow
   `.agents/skills/atrinik-github-governance/references/ssh-signing.md` for the
-  host/container boundary, and never copy or mount private signing keys into a
-  container.
-- On touch, refresh existing Atrinik-owned copyright terminal years and blanket holders per
+  boundary; never copy or mount private keys into a container.
+- On touch, refresh existing Atrinik-owned copyright terminal years/holders per
   `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse follows `docs/PROVENANCE.md` and its canonical registry; rights, identity,
   temporal, authorship, or scope uncertainty fails closed.
