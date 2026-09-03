@@ -20,6 +20,13 @@ description: Publish Atrinik PRs, govern GitHub policy, or review and explicitly
 5. Keep controls Team-plan compatible; document and review Enterprise-only
    migrations.
 
+## Optional commit-signing guidance
+
+For optional SSH commit-signing setup and the host/container boundary, read
+[the SSH signing reference](references/ssh-signing.md). It keeps personal
+keys and signing configuration out of the repository and does not change
+repository commit-signing policy.
+
 ## Change policy coherently
 
 - Synchronize required workflow jobs with repository rulesets; when workflows
