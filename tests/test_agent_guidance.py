@@ -1524,6 +1524,58 @@ class AgentGuidanceTests(unittest.TestCase):
             with self.subTest(stale=stale):
                 self.assertNotIn(stale, corpus)
 
+    def test_ssh_signing_guidance_is_optional_and_secret_safe(self) -> None:
+        contributing = (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
+        agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        skill = (
+            ROOT / ".agents/skills/atrinik-github-governance/SKILL.md"
+        ).read_text(encoding="utf-8")
+        reference = (
+            ROOT
+            / ".agents/skills/atrinik-github-governance/references/ssh-signing.md"
+        ).read_text(encoding="utf-8")
+        corpus = "\n".join((contributing, agents, skill, reference))
+        normalized = " ".join(corpus.split())
+
+        for marker in {
+            "SSH commit signing is optional",
+            "Git 2.34",
+            "Ed25519",
+            "ssh-agent",
+            "gpg.format ssh",
+            "user.signingkey",
+            "commit.gpgsign true",
+            "gpgsig",
+            "**Verified**",
+            "Signed-off-by",
+            "SSH_AUTH_SOCK",
+            "public key",
+            "private signing key",
+            "verified author email",
+            "references/ssh-signing.md",
+        }:
+            with self.subTest(marker=marker):
+                self.assertIn(marker, normalized)
+
+        self.assertNotRegex(
+            corpus, r"-----BEGIN [^-]*PRIVATE KEY-----"
+        )
+        self.assertNotRegex(
+            corpus,
+            r"(?im)^\s*(?:all|every|each)\s+commits?\s+must\s+be\s+signed\b",
+        )
+        self.assertNotRegex(
+            corpus,
+            r"(?i)\b(?:signed commits|commit signing|commit signatures)\s+"
+            r"(?:is|are)\s+(?:required|mandatory)\b",
+        )
+        self.assertNotRegex(
+            corpus,
+            r"(?i)\b(?:repository|project|organization)\s+"
+            r"(?:requires|enforces|mandates)\s+"
+            r"(?:signed commits|commit signing)\b",
+        )
+
     def test_native_pr_stack_governance_is_guarded_and_complete(self) -> None:
         skill = ROOT / ".agents/skills/atrinik-github-governance"
         package = {
@@ -1537,6 +1589,7 @@ class AgentGuidanceTests(unittest.TestCase):
                 "SKILL.md",
                 "agents/openai.yaml",
                 "references/pr-stack-review-and-merge.md",
+                "references/ssh-signing.md",
             },
         )
 
