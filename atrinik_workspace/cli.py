@@ -161,15 +161,15 @@ def parser() -> argparse.ArgumentParser:
     agent_ledger_update.add_argument(
         "--ledger", choices=["process-improvements", "tooling-issues"], required=True
     )
-    agent_ledger_update.add_argument("--key", required=True)
-    agent_ledger_update.add_argument("--status", required=True)
-    agent_ledger_update.add_argument("--observation", required=True)
-    agent_ledger_update.add_argument("--expected-benefit")
-    agent_ledger_update.add_argument("--related", default="none")
-    agent_ledger_update.add_argument("--observed-at")
-    agent_ledger_update.add_argument("--impact")
-    agent_ledger_update.add_argument("--recommended-action")
-    agent_ledger_update.add_argument("--expected-digest")
+    mark(agent_ledger_update.add_argument("--key", required=True), "none")
+    mark(agent_ledger_update.add_argument("--status", required=True), "none")
+    mark(agent_ledger_update.add_argument("--observation", required=True), "none")
+    mark(agent_ledger_update.add_argument("--expected-benefit"), "none")
+    mark(agent_ledger_update.add_argument("--related", default="none"), "none")
+    mark(agent_ledger_update.add_argument("--observed-at"), "none")
+    mark(agent_ledger_update.add_argument("--impact"), "none")
+    mark(agent_ledger_update.add_argument("--recommended-action"), "none")
+    mark(agent_ledger_update.add_argument("--expected-digest"), "none")
     agent_ledger_update.add_argument(
         "--non-blocking",
         action="store_true",
