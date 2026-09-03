@@ -132,6 +132,12 @@ Use wrapper commands:
 ./atrinik down TOPOLOGY
 ```
 
+For the native Windows Classic GPU handoff, follow
+[`docs/WINDOWS_GPU_PREFLIGHT.md`](../../../docs/WINDOWS_GPU_PREFLIGHT.md)
+and reuse the existing Classic package smoke and D3D12 qualification
+commands. Keep package, test-build, native runtime, and Linux coordinator
+results as separate evidence.
+
 Record prerequisites/actions/results/cleanup and applicable handoff commands;
 never replace wrapper operations with internal executables or generated paths.
 

@@ -35,6 +35,9 @@
   `atrinik-guidance-maintenance` for audits.
 - Use `atrinik-issue-delivery` for an issue or existing PR; it stops before merge.
   Invoke explicitly.
+- Native Windows Classic GPU preflight and evidence are documented in
+  `docs/WINDOWS_GPU_PREFLIGHT.md`; use its existing Classic smoke/qualification
+  path and keep Linux coordinator failures separate from native runtime results.
 - Use `atrinik-program-delivery` only for explicitly invoked ordered master
   issues; it composes leaves across merge gates and stops before merge/closure.
 - Codex delivery has two entry modes: continue an already-running session

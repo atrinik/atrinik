@@ -681,6 +681,30 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("Copied or stale session markers", guidance[ROOT / "README.md"])
         self.assertIn("schema-2", guidance[ROOT / "docs/ARCHITECTURE.md"])
 
+    def test_native_windows_gpu_handoff_is_synchronized(self) -> None:
+        handoff = ROOT / "docs/WINDOWS_GPU_PREFLIGHT.md"
+        self.assertTrue(handoff.is_file())
+        handoff_text = handoff.read_text(encoding="utf-8")
+        for marker in {
+            "native-windows-classic-gpu-preflight",
+            "native-package-smoke",
+            "d3d12-benchmark",
+            "linux-only-coordinator",
+            "ATRINIK_GPU_CONFORMANCE_DRIVER",
+            "scripts/validate_windows_gpu_evidence.py",
+        }:
+            with self.subTest(marker=marker):
+                self.assertIn(marker, handoff_text)
+
+        for path in {
+            ROOT / "AGENTS.md",
+            ROOT / "README.md",
+            ROOT / "docs/ARCHITECTURE.md",
+            ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md",
+        }:
+            with self.subTest(path=path.relative_to(ROOT)):
+                self.assertIn("WINDOWS_GPU_PREFLIGHT.md", path.read_text(encoding="utf-8"))
+
     def test_local_guidance_links_resolve(self) -> None:
         paths = [ROOT / "AGENTS.md"]
         paths.extend(sorted((ROOT / ".agents/skills").glob("*/SKILL.md")))
