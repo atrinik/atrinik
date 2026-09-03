@@ -112,13 +112,12 @@ generation, process-tree, state, and port leases. Completion is bounded, local,
 read-only, secret-free, and parser-driven before `Workspace`.
 
 A persistent coordinator session belongs to one agent and exact delivery
-coordinate. Reuse requires the pinned container, mount identities, worktree,
-profile/build roots, and ledger coordinates to match; reconnect or crash
-recovery reruns the probe, wrapper worktree list, ledger inventory/CAS, and
-leases. Bound idle and total lifetime, preserve exact evidence after failure,
-and stop only the owned container. Independent sessions may share immutable
-inputs but must use distinct worktrees, ledger coordinates, caches, credentials,
-ports, topology/state names, and mutable state.
+coordinate. Reuse needs matching pinned container, mounts, worktree, profile/
+build roots, and ledger coordinates; reconnect/crash recovery reruns probe,
+worktree list, ledger inventory/CAS, and leases. Bound idle/lifetime; preserve
+failure evidence and stop only the owned container. Independent sessions may
+share immutable inputs but need distinct worktrees, coordinates, caches,
+credentials, ports, topology/state names, and mutable state.
 
 Verify concurrency with distinct worktrees/readiness rendezvous and A live through
 B's release; count transitions/conflicts; timeouts bound failure, not compiler speed.

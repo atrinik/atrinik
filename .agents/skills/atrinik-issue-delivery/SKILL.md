@@ -146,25 +146,16 @@ human-facing only.
 
 ### Reuse one owned devcontainer session
 
-- Bootstrap/attach once per scope. Native host only attaches or does approved
-  Git/GitHub/commit work; wrapper/ledger/worktree/edit/test/build/review/
-  validation stay inside. Agents reuse process and warm volume.
-- Keep an ignored secret-free record of agent/scope/ledger, worktree/profile,
-  container name/ID/image, mounts/volumes, times, idle deadline, services,
-  cleanup owner. Corroboration only; live probe, ledger/worktree CAS, and
-  leases decide. Never store credentials, keys, or mutable server data.
-- Bound idle to 30 minutes and lifetime to 12 hours. A build lease is not
-  immortal. After stop/crash, preserve evidence, re-prove
-  container/mount/worktree/ledger, rerun observations, reacquire leases;
-  stale/copied markers never authorize recovery.
-- Parallel work needs distinct worktrees/coordinates, profiles/build roots,
-  volume namespaces, credentials, ports, topology/state, mutable caches; same
-  coordinates serialize by ledger/leases. Share immutable image
-  layers/read-only inputs.
-- Run python3 scripts/benchmark_devcontainer_session.py for cold/warm,
-  recovery, and parallel comparison. It refuses existing resources, records
-  Docker Desktop facts, cleans exact resources; never mount source, credentials,
-  private keys, or mutable server data.
+Use one pinned container per scope and retain an ignored, secret-free record of
+the agent, ledger, worktree, container/mount/volume identities, lifecycle, and
+cleanup owner. It is corroboration only: the live probe, ledger/worktree CAS,
+and leases decide. Bound idle/lifetime to 30 minutes/12 hours; after a
+stop/crash preserve evidence, re-prove coordinates, and reacquire leases.
+Parallel scopes need distinct worktrees, coordinates, profiles/build roots,
+volume namespaces, credentials, ports, topology/state, and mutable caches;
+share only immutable image layers/read-only inputs. The session benchmark uses
+exact run-scoped resources for cold/warm/recovery/parallel measurements and
+never mounts source, credentials, private keys, or mutable server data.
 
 ### Claim only explicitly authorized issues
 
