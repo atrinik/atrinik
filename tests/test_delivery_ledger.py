@@ -4227,6 +4227,10 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertEqual(receipt["expected_generation"], created.document["generation"])
                 self.assertEqual(receipt["predecessor_sha256"], created.digest)
                 self.assertEqual(
+                    receipt["device"],
+                    ledger._portable_file_device_from_inode(created.inode),
+                )
+                self.assertEqual(
                     receipt["candidate_sha256"], ledger.byte_digest(ledger.canonical_bytes(candidate))
                 )
                 self.assertEqual(receipt["candidate_size"], len(ledger.canonical_bytes(candidate)))
@@ -4238,6 +4242,26 @@ class DeliveryLedgerTests(unittest.TestCase):
                     receipt["staging"],
                     f".delivery-update-stage-{receipt['marker']}.tmp",
                 )
+                self.assertEqual(
+                    receipt["proof"],
+                    f".delivery-update-proof-{receipt['marker']}.tmp",
+                )
+                proof_path = root / receipt["proof"]
+                if failpoint in {"cas:proofed", "cas:renamed", "cas:installed"}:
+                    self.assertTrue(proof_path.is_file())
+                    self.assertEqual(proof_path.stat().st_nlink, 2)
+                    self.assertEqual(proof_path.read_bytes(), ledger.canonical_bytes(candidate))
+                if failpoint == "cas:installed":
+                    receipts[0].unlink()
+                    recovered_inventory = ledger.inventory(root)
+                    self.assertIn(
+                        {
+                            "kind": "update-proof",
+                            "target": created.name,
+                            "staging": proof_path.name,
+                        },
+                        [row.json() for row in recovered_inventory.pending],
+                    )
                 resumed = ledger.cas(
                     root,
                     created.name,

@@ -117,6 +117,9 @@ _UPDATE_OPERATION_RE = re.compile(
 _COMPACT_UPDATE_STAGE_RE = re.compile(
     r"^\.delivery-update-stage-(?P<transaction>[0-9a-f]{64})\.tmp$"
 )
+_COMPACT_UPDATE_PROOF_RE = re.compile(
+    r"^\.delivery-update-proof-(?P<transaction>[0-9a-f]{64})\.tmp$"
+)
 _COMPACT_UPDATE_RECEIPT_RE = re.compile(
     r"^\.delivery-update-receipt-(?P<transaction>[0-9a-f]{64})\.json$"
 )
@@ -729,10 +732,9 @@ def _update_transaction_marker(
             "predecessor_sha256": predecessor_sha256,
             "candidate_sha256": candidate_sha256,
             "candidate_size": candidate_size,
-            # The receipt retains the exact predecessor device below.  Its
-            # filename marker must survive the explicit filesystem migration,
-            # which rewrites that mount-specific value to the portable file
-            # projection while preserving the inode.
+            # A raw mount device is not remount-stable.  Use the portable file
+            # projection in the marker so filesystem migration can preserve
+            # the transaction while retaining the inode and full receipt data.
             "device": _portable_file_device_from_inode(inode),
             "inode": inode,
         }
@@ -751,7 +753,7 @@ def _compact_update_transaction(
     device: int,
     inode: int,
 ) -> tuple[str, str, dict[str, Any]]:
-    """Return bounded stage/receipt names and their authoritative receipt."""
+    """Return bounded stage/proof names and their authoritative receipt."""
 
     marker = _update_transaction_marker(
         operation=operation,
@@ -765,10 +767,11 @@ def _compact_update_transaction(
         inode=inode,
     )
     stage = f".delivery-update-stage-{marker}.tmp"
+    proof = f".delivery-update-proof-{marker}.tmp"
     receipt = f".delivery-update-receipt-{marker}.json"
     return (
         stage,
-        receipt,
+        proof,
         {
             "transaction": "delivery-ledger-update-v1",
             "marker": marker,
@@ -779,9 +782,14 @@ def _compact_update_transaction(
             "predecessor_sha256": predecessor_sha256,
             "candidate_sha256": candidate_sha256,
             "candidate_size": candidate_size,
-            "device": device,
+            # Compact receipts use the durable projection that filesystem
+            # migration writes back.  The caller's raw mount device remains
+            # part of the live CAS precondition, while this persisted value
+            # must remain valid after a remount.
+            "device": _portable_file_device_from_inode(inode),
             "inode": inode,
             "staging": stage,
+            "proof": proof,
             "receipt": receipt,
         },
     )
@@ -807,6 +815,7 @@ def _update_receipt_document(
             "device",
             "inode",
             "staging",
+            "proof",
             "receipt",
         },
         f"update receipt {name}",
@@ -849,8 +858,9 @@ def _update_receipt_document(
     device = _integer(item["device"], f"update receipt device {name}", minimum=0)
     inode = _integer(item["inode"], f"update receipt inode {name}")
     staging = _direct_name(item["staging"], f"update receipt staging {name}")
+    proof = _direct_name(item["proof"], f"update receipt proof {name}")
     receipt = _direct_name(item["receipt"], f"update receipt receipt {name}")
-    expected_staging, expected_receipt, expected = _compact_update_transaction(
+    expected_staging, expected_proof, expected = _compact_update_transaction(
         operation=item["operation"],
         target=target,
         generation=generation,
@@ -861,9 +871,11 @@ def _update_receipt_document(
         device=device,
         inode=inode,
     )
+    expected_receipt = expected["receipt"]
     if (
         name != expected_receipt
         or staging != expected_staging
+        or proof != expected_proof
         or receipt != expected_receipt
         or item != expected
     ):
@@ -9627,15 +9639,16 @@ def _discard_exact_cas_pending(
 def _discard_exact_compact_update_pending(
     directory: int,
     stage: str,
+    proof: str,
     receipt: str,
     receipt_document: Mapping[str, Any],
     raw: bytes,
 ) -> bool:
-    """Remove one exact uninstalled compact CAS stage and receipt pair."""
+    """Remove one exact uninstalled compact CAS stage, proof, and receipt."""
 
     try:
         stage_raw, stage_status = _read_regular(
-            directory, stage, managed=True, expected_nlinks={1}
+            directory, stage, managed=True, expected_nlinks={1, 2}
         )
         receipt_raw, receipt_status = _read_regular(
             directory, receipt, managed=True, expected_nlinks={1}
@@ -9650,6 +9663,25 @@ def _discard_exact_compact_update_pending(
             )
             != receipt_document
         ):
+            return False
+        if _exists(directory, proof):
+            if receipt_document["proof"] != proof:
+                return False
+            proof_raw, proof_status = _read_regular(
+                directory, proof, managed=True, expected_nlinks={2}
+            )
+            if (
+                proof_raw != raw
+                or (proof_status.st_dev, proof_status.st_ino)
+                != (stage_status.st_dev, stage_status.st_ino)
+                or stage_status.st_nlink != 2
+            ):
+                return False
+            _unlink_exact(directory, proof, proof_status)
+            stage_raw, stage_status = _read_regular(
+                directory, stage, managed=True, expected_nlinks={1}
+            )
+        elif stage_status.st_nlink != 1:
             return False
         _unlink_exact(directory, stage, stage_status)
         _unlink_exact(directory, receipt, receipt_status)
@@ -10572,6 +10604,7 @@ def _inventory_locked(directory: int) -> Inventory:
     reclaims: list[ReclaimRecord] = []
     managed_stats: dict[str, os.stat_result] = {}
     compact_update_stages: dict[str, tuple[str, bytes, os.stat_result]] = {}
+    compact_update_proofs: dict[str, tuple[str, bytes, os.stat_result]] = {}
     compact_update_receipts: dict[
         str, tuple[str, dict[str, Any], bytes, os.stat_result]
     ] = {}
@@ -10594,6 +10627,7 @@ def _inventory_locked(directory: int) -> Inventory:
             or name == _RECLAIM_COMPLETE_NAME
             or _RECLAIM_COMPLETE_STAGE_RE.fullmatch(name) is not None
             or _COMPACT_UPDATE_STAGE_RE.fullmatch(folded) is not None
+            or _COMPACT_UPDATE_PROOF_RE.fullmatch(folded) is not None
             or _COMPACT_UPDATE_RECEIPT_RE.fullmatch(folded) is not None
             or _COMPACT_LEDGER_LOCK_RE.fullmatch(folded) is not None
         )
@@ -10907,13 +10941,27 @@ def _inventory_locked(directory: int) -> Inventory:
                 directory,
                 name,
                 managed=True,
-                expected_nlinks={1},
+                expected_nlinks={1, 2},
             )
             transaction = compact_stage_match.group("transaction")
             if transaction in compact_update_stages:
                 raise LedgerError(f"duplicate compact update stage: {name}")
             managed_stats[name] = status
             compact_update_stages[transaction] = (name, raw, status)
+            continue
+        compact_proof_match = _COMPACT_UPDATE_PROOF_RE.fullmatch(name)
+        if compact_proof_match:
+            raw, status = _read_regular(
+                directory,
+                name,
+                managed=True,
+                expected_nlinks={2},
+            )
+            transaction = compact_proof_match.group("transaction")
+            if transaction in compact_update_proofs:
+                raise LedgerError(f"duplicate compact update proof: {name}")
+            managed_stats[name] = status
+            compact_update_proofs[transaction] = (name, raw, status)
             continue
         receipt_match = _UPDATE_RECEIPT_RE.fullmatch(name)
         if receipt_match:
@@ -11010,11 +11058,16 @@ def _inventory_locked(directory: int) -> Inventory:
         else:
             if relevant:
                 raise LedgerError(f"unexpected delivery helper entry: {name}")
-    compact_transactions = set(compact_update_receipts) | set(compact_update_stages)
+    compact_transactions = (
+        set(compact_update_receipts)
+        | set(compact_update_stages)
+        | set(compact_update_proofs)
+    )
     known_targets = {
         snapshot.name for snapshot in [*committed, *ledgers]
     } | {
-        receipt["target"] for _name, receipt, _raw, _status in compact_update_receipts.values()
+        receipt["target"]
+        for _name, receipt, _raw, _status in compact_update_receipts.values()
     }
     valid_lock_names = {
         _ledger_lock_name(directory, target) for target in known_targets
@@ -11022,53 +11075,99 @@ def _inventory_locked(directory: int) -> Inventory:
     for lock_name in compact_ledger_locks:
         if lock_name not in valid_lock_names:
             raise LedgerError(f"compact delivery lock identity is invalid: {lock_name}")
+    committed_by_name = {item.name: item for item in committed}
     for transaction in sorted(compact_transactions):
         receipt_entry = compact_update_receipts.get(transaction)
         stage_entry = compact_update_stages.get(transaction)
+        proof_entry = compact_update_proofs.get(transaction)
         if receipt_entry is None:
-            raise LedgerError(
-                f"compact update stage lacks its authoritative receipt: {stage_entry[0]}"
-            )
-        receipt_name, receipt, _receipt_raw, _receipt_status = receipt_entry
-        target = receipt["target"]
-        installed = next(
-            (snapshot for snapshot in committed if snapshot.name == target),
-            None,
-        )
-        if installed is None:
-            raise LedgerError(f"compact update receipt target is missing: {target}")
-        if stage_entry is None:
-            if byte_digest(installed.raw) == receipt["candidate_sha256"]:
-                _update_candidate_matches_receipt(installed.raw, receipt, installed.name)
-            elif not _snapshot_matches_identity(
-                installed,
-                receipt["expected_generation"],
-                receipt["predecessor_sha256"],
-                receipt["device"],
-                receipt["inode"],
+            if stage_entry is not None:
+                raise LedgerError(
+                    f"compact update stage lacks its authoritative receipt: {stage_entry[0]}"
+                )
+            if proof_entry is None:
+                raise LedgerError("compact update transaction lacks its authoritative receipt")
+            proof_name, proof_raw, proof_status = proof_entry
+            proof_document = validate(_decode(proof_raw, proof_name))
+            if proof_raw != canonical_bytes(proof_document):
+                raise LedgerError(f"compact update proof is noncanonical: {proof_name}")
+            target = canonical_name(proof_document)
+            installed = committed_by_name.get(target)
+            if installed is None or (
+                installed.raw != proof_raw
+                or (installed.device, installed.inode)
+                != (proof_status.st_dev, proof_status.st_ino)
             ):
                 raise LedgerError(
-                    f"compact update receipt target identity is invalid: {receipt_name}"
+                    f"compact update proof lacks its installed target: {proof_name}"
                 )
+            pending.append(PendingOperation("update-proof", target, proof_name))
             continue
-        stage_name, stage_raw, stage_status = stage_entry
-        if receipt["staging"] != stage_name:
-            raise LedgerError(f"compact update stage does not match its receipt: {stage_name}")
-        pending.append(PendingOperation("update", receipt["target"], stage_name))
-        if len(stage_raw) < receipt["candidate_size"]:
-            continue
-        document = _update_candidate_matches_receipt(stage_raw, receipt, stage_name)
-        ledgers.append(
-            Snapshot(
-                receipt["target"],
-                document,
-                stage_raw,
-                byte_digest(stage_raw),
-                stage_status.st_dev,
-                stage_status.st_ino,
-                _portable_device(stage_status),
+        receipt_name, receipt, _receipt_raw, _receipt_status = receipt_entry
+        target = receipt["target"]
+        installed = committed_by_name.get(target)
+        if installed is None:
+            raise LedgerError(f"compact update receipt target is missing: {target}")
+        if stage_entry is not None:
+            stage_name, stage_raw, stage_status = stage_entry
+            if receipt["staging"] != stage_name:
+                raise LedgerError(
+                    f"compact update stage does not match its receipt: {stage_name}"
+                )
+            if proof_entry is not None:
+                proof_name, proof_raw, proof_status = proof_entry
+                if receipt["proof"] != proof_name or (
+                    proof_raw != stage_raw
+                    or (proof_status.st_dev, proof_status.st_ino)
+                    != (stage_status.st_dev, stage_status.st_ino)
+                ):
+                    raise LedgerError(
+                        f"compact update proof does not match its stage: {proof_name}"
+                    )
+            elif stage_status.st_nlink != 1:
+                raise LedgerError(f"compact update stage link count is invalid: {stage_name}")
+            pending.append(PendingOperation("update", target, stage_name))
+            if len(stage_raw) < receipt["candidate_size"]:
+                continue
+            document = _update_candidate_matches_receipt(stage_raw, receipt, stage_name)
+            ledgers.append(
+                Snapshot(
+                    target,
+                    document,
+                    stage_raw,
+                    byte_digest(stage_raw),
+                    stage_status.st_dev,
+                    stage_status.st_ino,
+                    _portable_device(stage_status),
+                )
             )
-        )
+            continue
+        if proof_entry is not None:
+            proof_name, proof_raw, proof_status = proof_entry
+            if receipt["proof"] != proof_name or (
+                installed.raw != proof_raw
+                or (installed.device, installed.inode)
+                != (proof_status.st_dev, proof_status.st_ino)
+            ):
+                raise LedgerError(
+                    f"compact update proof lacks its installed target: {proof_name}"
+                )
+            _update_candidate_matches_receipt(proof_raw, receipt, proof_name)
+            continue
+        if byte_digest(installed.raw) == receipt["candidate_sha256"]:
+            raise LedgerError(
+                f"compact update receipt lacks its installed proof: {receipt_name}"
+            )
+        if not _snapshot_matches_identity(
+            installed,
+            receipt["expected_generation"],
+            receipt["predecessor_sha256"],
+            receipt["device"],
+            receipt["inode"],
+        ):
+            raise LedgerError(
+                f"compact update receipt target identity is invalid: {receipt_name}"
+            )
     for operation in pending:
         if (
             _MIGRATE_STAGE_RE.fullmatch(operation.staging) is not None
@@ -11325,6 +11424,43 @@ def _inventory_locked(directory: int) -> Inventory:
                     and stage_match.group("operation")
                     == proof_match.group("operation")
                 )
+            compact_proof_name = next(
+                (
+                    value
+                    for value in linked_names
+                    if _COMPACT_UPDATE_PROOF_RE.fullmatch(value)
+                ),
+                None,
+            )
+            if compact_proof_name is not None:
+                compact_proof_match = _COMPACT_UPDATE_PROOF_RE.fullmatch(
+                    compact_proof_name
+                )
+                assert compact_proof_match is not None
+                other = (
+                    linked_names[0]
+                    if linked_names[1] == compact_proof_name
+                    else linked_names[1]
+                )
+                compact_proof = compact_update_proofs.get(
+                    compact_proof_match.group("transaction")
+                )
+                proof_target = None
+                if compact_proof is not None:
+                    proof_document = validate(
+                        _decode(compact_proof[1], compact_proof[0])
+                    )
+                    if compact_proof[1] != canonical_bytes(proof_document):
+                        raise LedgerError(
+                            f"compact update proof is noncanonical: {compact_proof_name}"
+                        )
+                    proof_target = canonical_name(proof_document)
+                stage_match = _COMPACT_UPDATE_STAGE_RE.fullmatch(other)
+                allowed_pair = (
+                    stage_match is not None
+                    and stage_match.group("transaction")
+                    == compact_proof_match.group("transaction")
+                ) or other == proof_target
             erroneous_name = next(
                 (
                     value
@@ -14432,6 +14568,7 @@ def cas(
         lock_name = _ledger_lock_name(directory, name)
         compact = not _names_fit(directory, (name, legacy_stage, legacy_proof, lock_name))
         receipt_document: dict[str, Any] | None = None
+        receipt_name: str | None = None
         if compact:
             stage, proof, receipt_document = _compact_update_transaction(
                 operation=operation,
@@ -14444,6 +14581,7 @@ def cas(
                 device=expected_device,
                 inode=expected_inode,
             )
+            receipt_name = receipt_document["receipt"]
             receipt_raw = canonical_bytes(receipt_document)
         else:
             stage, proof = legacy_stage, legacy_proof
@@ -14452,7 +14590,12 @@ def cas(
             ("update", name, stage),
             ("update-proof", name, proof),
         }
-        _require_names_fit(directory, (name, stage, proof, lock_name))
+        if receipt_name is not None:
+            allowed_pending.add(("update-proof", name, receipt_name))
+        required_names = (name, stage, proof, lock_name)
+        if receipt_name is not None:
+            required_names += (receipt_name,)
+        _require_names_fit(directory, required_names)
         initial_inventory = _inventory_locked(directory)
         if any(row.ledger_name == name for row in initial_inventory.releases):
             raise LedgerError("terminally released ledger cannot be updated")
@@ -14481,34 +14624,60 @@ def cas(
                 and prepared["previous_byte_digest"] == expected_digest
             ):
                 if compact:
+                    assert receipt_name is not None
+                    assert receipt_document is not None
                     if _exists(directory, stage):
                         raise LedgerError(
                             "completed compact CAS retained its staging file"
                         )
-                    if not _exists(directory, proof):
+                    proof_exists = _exists(directory, proof)
+                    receipt_exists = _exists(directory, receipt_name)
+                    if not proof_exists:
+                        if receipt_exists:
+                            raise LedgerError(
+                                "completed compact CAS lost its predecessor proof"
+                            )
                         raise LedgerError(
-                            "stale compact CAS tuple has no durable receipt"
+                            "stale compact CAS tuple has no durable predecessor proof"
                         )
-                    receipt_existing_raw, receipt_status = _read_regular(
+                    proof_existing_raw, proof_status = _read_regular(
                         directory,
                         proof,
                         managed=True,
-                        expected_nlinks={1},
+                        expected_nlinks={2},
+                        sync=True,
                     )
-                    receipt_existing = _update_receipt_document(
-                        _decode(receipt_existing_raw, proof), proof, proof.removeprefix(
-                            ".delivery-update-receipt-"
-                        ).removesuffix(".json")
-                    )
-                    if (
-                        receipt_existing_raw != canonical_bytes(receipt_existing)
-                        or receipt_existing != receipt_document
-                    ):
-                        raise LedgerError("compact CAS receipt identity changed")
+                    if proof_existing_raw != raw or (
+                        proof_status.st_dev,
+                        proof_status.st_ino,
+                    ) != (current.device, current.inode):
+                        raise LedgerError("compact CAS proof does not match installed bytes")
+                    receipt_status = None
+                    if receipt_exists:
+                        receipt_existing_raw, receipt_status = _read_regular(
+                            directory,
+                            receipt_name,
+                            managed=True,
+                            expected_nlinks={1},
+                        )
+                        receipt_existing = _update_receipt_document(
+                            _decode(receipt_existing_raw, receipt_name),
+                            receipt_name,
+                            receipt_name.removeprefix(
+                                ".delivery-update-receipt-"
+                            ).removesuffix(".json"),
+                        )
+                        if (
+                            receipt_existing_raw != canonical_bytes(receipt_existing)
+                            or receipt_existing != receipt_document
+                        ):
+                            raise LedgerError("compact CAS receipt identity changed")
                     if _precommit is not None:
                         _precommit()
                     _fsync(directory, f"review root while resuming update of {name}")
-                    _unlink_exact(directory, proof, receipt_status)
+                    if receipt_status is not None:
+                        _unlink_exact(directory, receipt_name, receipt_status)
+                    _unlink_exact(directory, proof, proof_status)
                     return current
                 if not _exists(directory, proof):
                     raise LedgerError("stale CAS tuple has no durable post-rename proof")
@@ -14567,11 +14736,12 @@ def cas(
                 _scope_recovery_capability=_scope_recovery_capability,
             )
             if compact:
+                assert receipt_name is not None
                 assert receipt_document is not None
                 assert receipt_raw is not None
                 receipt_status = _ensure_stage(
                     directory,
-                    proof,
+                    receipt_name,
                     receipt_raw,
                     expected_nlinks={1},
                 )
@@ -14581,24 +14751,63 @@ def cas(
                 stage,
                 raw,
                 allow_prefix_resume=True,
-                expected_nlinks={1} if compact else {1, 2},
+                expected_nlinks={1, 2},
             )
             _hit(failpoint, "cas:staged")
             if compact:
+                assert receipt_name is not None
+                assert receipt_document is not None
                 receipt_check_raw, receipt_status = _read_regular(
                     directory,
-                    proof,
+                    receipt_name,
                     managed=True,
                     expected_nlinks={1},
                     sync=True,
                 )
                 receipt_check = _update_receipt_document(
-                    _decode(receipt_check_raw, proof),
-                    proof,
-                    proof.removeprefix(".delivery-update-receipt-").removesuffix(".json"),
+                    _decode(receipt_check_raw, receipt_name),
+                    receipt_name,
+                    receipt_name.removeprefix(
+                        ".delivery-update-receipt-"
+                    ).removesuffix(".json"),
                 )
-                if receipt_check_raw != canonical_bytes(receipt_check) or receipt_check != receipt_document:
+                if (
+                    receipt_check_raw != canonical_bytes(receipt_check)
+                    or receipt_check != receipt_document
+                ):
                     raise LedgerError("compact CAS receipt changed before proof")
+                if _exists(directory, proof):
+                    proof_raw, proof_status = _read_regular(
+                        directory,
+                        proof,
+                        managed=True,
+                        expected_nlinks={2},
+                    )
+                    if proof_raw != raw or (
+                        proof_status.st_dev,
+                        proof_status.st_ino,
+                    ) != (stage_status.st_dev, stage_status.st_ino):
+                        raise LedgerError("compact CAS proof differs from staging")
+                else:
+                    if stage_status.st_nlink != 1:
+                        raise LedgerError("compact CAS staging has an unknown hard link")
+                    os.link(
+                        stage,
+                        proof,
+                        src_dir_fd=directory,
+                        dst_dir_fd=directory,
+                        follow_symlinks=False,
+                    )
+                    _fsync(directory, f"review root after proving update of {name}")
+                    proof_status = os.stat(
+                        proof, dir_fd=directory, follow_symlinks=False
+                    )
+                    if (
+                        proof_status.st_nlink != 2
+                        or (proof_status.st_dev, proof_status.st_ino)
+                        != (stage_status.st_dev, stage_status.st_ino)
+                    ):
+                        raise LedgerError("compact CAS predecessor proof link mismatch")
             elif _exists(directory, proof):
                 proof_raw, proof_status = _read_regular(
                     directory,
@@ -14651,7 +14860,7 @@ def cas(
                 directory,
                 stage,
                 managed=True,
-                expected_nlinks={1} if compact else {2},
+                expected_nlinks={2},
                 sync=True,
             )
             if staged_raw != raw or (staged_visible.st_dev, staged_visible.st_ino) != (
@@ -14663,13 +14872,21 @@ def cas(
                 try:
                     _precommit()
                 except LedgerError as error:
-                    discarded = (
-                        _discard_exact_compact_update_pending(
-                            directory, stage, proof, receipt_document, raw
+                    if compact:
+                        assert receipt_name is not None
+                        assert receipt_document is not None
+                        discarded = _discard_exact_compact_update_pending(
+                            directory,
+                            stage,
+                            proof,
+                            receipt_name,
+                            receipt_document,
+                            raw,
                         )
-                        if compact
-                        else _discard_exact_cas_pending(directory, stage, proof, raw)
-                    )
+                    else:
+                        discarded = _discard_exact_cas_pending(
+                            directory, stage, proof, raw
+                        )
                     if not discarded:
                         raise LedgerError(
                             f"{error}; exact uninstalled CAS pending files could not "
@@ -14684,25 +14901,42 @@ def cas(
             _fsync(directory, f"review root after updating {name}")
             _hit(failpoint, "cas:installed")
             if compact:
+                assert receipt_name is not None
+                assert receipt_document is not None
                 receipt_visible_raw, receipt_visible = _read_regular(
                     directory,
-                    proof,
+                    receipt_name,
                     managed=True,
                     expected_nlinks={1},
                     sync=True,
                 )
                 receipt_visible_document = _update_receipt_document(
-                    _decode(receipt_visible_raw, proof),
+                    _decode(receipt_visible_raw, receipt_name),
+                    receipt_name,
+                    receipt_name.removeprefix(
+                        ".delivery-update-receipt-"
+                    ).removesuffix(".json"),
+                )
+                proof_visible_raw, proof_visible = _read_regular(
+                    directory,
                     proof,
-                    proof.removeprefix(".delivery-update-receipt-").removesuffix(".json"),
+                    managed=True,
+                    expected_nlinks={2},
+                    sync=True,
                 )
                 if (
                     receipt_visible_raw != canonical_bytes(receipt_visible_document)
                     or receipt_visible_document != receipt_document
-                    or installed.raw != raw
+                    or proof_visible_raw != raw
+                    or (proof_visible.st_dev, proof_visible.st_ino)
+                    != (installed.device, installed.inode)
                 ):
-                    raise LedgerError("installed compact CAS receipt does not match candidate")
-                _unlink_exact(directory, proof, receipt_visible)
+                    raise LedgerError("installed compact CAS proof does not match candidate")
+                # Keep the hard-link proof if a crash occurs between these two
+                # removals; the proof alone remains recoverable by the exact
+                # caller-supplied CAS tuple.
+                _unlink_exact(directory, receipt_name, receipt_visible)
+                _unlink_exact(directory, proof, proof_visible)
             else:
                 proof_visible = os.stat(proof, dir_fd=directory, follow_symlinks=False)
                 if (
