@@ -68,6 +68,10 @@
   same-coordinate readers; share migration barrier; unbound records inert. Report
   `Tooling issues: none` or stable keys in ignored
   `build/agent-tooling-issues.md`; never commit/publish/copy to product issues.
+- Optional SSH commit signing stays on the host; use
+  `.agents/skills/atrinik-github-governance/references/ssh-signing.md` for the
+  host/container boundary, and never copy or mount private signing keys into a
+  container.
 - On touch, refresh existing Atrinik-owned copyright terminal years and blanket holders per
   `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse follows `docs/PROVENANCE.md` and its canonical registry; rights, identity,
