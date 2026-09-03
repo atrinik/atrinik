@@ -33,30 +33,13 @@
 - Use `atrinik-multi-repo-workspace` for wrapper ownership/profiles/worktrees/
   migration/cleanup/releases/CLI/layout; add specialists and use
   `atrinik-guidance-maintenance` for audits.
-- Use `atrinik-issue-delivery` for an issue or existing PR; it stops before merge.
-  Invoke explicitly.
-- Native Windows Classic GPU preflight: follow
-  `docs/WINDOWS_GPU_PREFLIGHT.md`; reuse its smoke/qualification path and
-  separate Linux coordinator failures from native results.
-- Explicitly invoke `atrinik-program-delivery` for ordered master issues; it
-  composes leaves across merge gates and stops before merge/closure.
-- Codex delivery has two entry modes: continue an already-running session
-  inside the canonical VS Code devcontainer, or bootstrap/attach that pinned
-  Linux devcontainer from a native host. In the latter mode, host work is
-  limited to bootstrap/attach and approved Git/GitHub/commit operations; all
-  wrapper, ledger, worktree, edit, test, build, review, and validation work
-  stays inside the container.
-- Codex never launches or controls VS Code, sends VS Code URIs, or uses GUI
-  automation; do not nest/remount or trust copied/stale evidence. Reuse only
-  with exact owner/container/image/mount/worktree/ledger coordinates; reconnect
-  reruns fresh probe, worktree, ledger, and lease checks. Idle/shutdown is
-  bounded to the owner; parallel sessions need separate caches, credentials,
-  ports, and mutable state.
-- Never replace dirty primaries, remove dirty worktrees, or overwrite mutable server data;
-  preserve migration inputs.
-- Cleanup is preview-first; delivery grants none. Keep ledger transactions separate
-  from `./atrinik cleanup`; preserve dirty, detached, locked, active, referenced,
-  or uncertain targets; history fails closed.
+- Use `atrinik-issue-delivery` for an issue or existing PR; it stops before merge.; invoke explicitly.
+- Native Windows Classic GPU preflight: follow `docs/WINDOWS_GPU_PREFLIGHT.md`; keep Linux coordinator and native results separate.
+- Explicitly invoke `atrinik-program-delivery` for ordered master issues; it composes leaves across merge gates and stops before merge/closure.
+- Codex delivery has two entry modes: continue in the canonical VS Code devcontainer or bootstrap/attach the pinned Linux devcontainer from a native host; host work is limited to bootstrap/attach and approved Git/GitHub/commit operations; wrapper/ledger/worktree/edit/test/build/review/validation stay inside.
+- Codex never launches/controls VS Code, sends VS Code URIs, or uses GUI automation; do not nest/remount or trust copied/stale evidence. Reuse only exact owner/container/image/mount/worktree/ledger coordinates; reconnect reruns probe, worktree, ledger, and lease checks. Bound idle/shutdown to owner; parallel sessions need separate caches, credentials, ports, and mutable state.
+- Never replace dirty primaries/remove dirty worktrees or overwrite mutable server data; preserve migration inputs.
+- Cleanup is preview-first; delivery grants none. Keep ledger transactions separate from `./atrinik cleanup`; preserve dirty/detached/locked/active/referenced/uncertain targets; history fails closed.
 - Worktrees belong to physical checkouts; `classic`, `classic-*`, and its roles
   select one root for all five; profiles append manifest dirs.
 - Prefer `scope create`; Classic uses selectors/physical overrides.
@@ -73,30 +56,21 @@
   same-coordinate readers; share migration barrier; unbound records inert. Report
   `Tooling issues: none` or stable keys in ignored
   `build/agent-tooling-issues.md`; never commit/publish/copy to product issues.
-- Optional SSH signing stays on host; follow
-  `.agents/skills/atrinik-github-governance/references/ssh-signing.md`; never copy
-  or mount private keys in a container.
+- Optional SSH signing stays on host; follow `.agents/skills/atrinik-github-governance/references/ssh-signing.md`; never copy/mount private keys
+  into a container.
 - On touch, refresh existing Atrinik-owned copyright terminal years; blanket holders per
   `CONTRIBUTING.md`; preserve precise attribution.
-- MIT reuse follows `docs/PROVENANCE.md` and its canonical registry; rights, identity,
-  temporal, authorship, or scope uncertainty fails closed.
-- Update `supply-chain/inventory.json` when dependency ownership/validation
-  changes; keep Actions/images immutable, add no submodules, and audit a full
-  profile; only aggregate-root workflows and Dependabot are active.
-- New content/Classic issues name `content@main` and its Classic-target
-  artifact; no live 1.x branch/checkout/release label/maintenance line/
-  publication target/backport destination exists; historical evidence is
-  immutable.
-- Commits and PR titles use `type(optional-scope): concise description`; add
-  `!` only when a reviewer explicitly requests a breaking change, not auto.
-  PR bodies must be substantive rendered GitHub-Flavored Markdown with actual
-  line breaks, never literal `\n` separators: include `Summary`,
-  `Implementation / behavior`, and `Validation` sections plus applicable
-  `Limitations / follow-up`. An issue-closing line alone is insufficient;
-  preserve issue/PR references and preserve contributor-authored text
-  byte-for-byte under the delivery-owned section rules. Feed
-  multi-section bodies by file/stdin; after create/edit verify the rendered
-  remote body. Use `atrinik-github-governance` for PRs.
+- MIT reuse follows `docs/PROVENANCE.md` and its registry; rights/identity/temporal/
+  authorship/scope uncertainty fails closed.
+- Update `supply-chain/inventory.json` when dependency ownership/validation changes; keep
+  Actions/images immutable, add no submodules, audit a full profile; only aggregate-root
+  workflows and Dependabot are active.
+- New content/Classic issues name `content@main` and its Classic-target artifact; no live
+  1.x branch/checkout/release label/maintenance line/publication target/backport destination
+  exists; historical evidence is immutable.
+- Commits and PR titles use `type(optional-scope): concise description`; add `!` only when a reviewer explicitly requests a breaking change, not auto.
+  PR bodies must be substantive rendered GitHub-Flavored Markdown with actual line breaks, never literal `\n` separators; include `Summary`, `Implementation / behavior`, `Validation`, and applicable `Limitations / follow-up`.
+  An issue-closing line alone is insufficient; preserve issue/PR references and preserve contributor-authored text byte-for-byte under the delivery-owned section rules. Feed multi-section bodies by file/stdin; after create/edit verify the rendered remote body. Use `atrinik-github-governance` for PRs.
 
 ## Working agreements and commands
 
