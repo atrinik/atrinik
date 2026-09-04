@@ -97,13 +97,13 @@ _CREATE_STAGE_RE = re.compile(
 _MIGRATE_STAGE_RE = re.compile(r"^\.(?P<target>.+\.md\.ledger\.json)\.migrate\.tmp$")
 _UPDATE_STAGE_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update"
-    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127})?"
+    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g(?P<generation>[0-9]+)-"
     r"from-(?P<digest>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_RECEIPT_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update-proof"
-    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127})?"
+    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g"
     r"(?P<generation>[0-9]+)-from-(?P<digest>[0-9a-f]{64})-"
     r"d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-"
@@ -112,7 +112,8 @@ _UPDATE_RECEIPT_RE = re.compile(
 _UPDATE_OPERATION_RE = re.compile(
     r"^(?:|-refresh-target"
     r"|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}"
-    r"|-recover-scope-[a-z0-9][a-z0-9._-]{0,127})$"
+    r"|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}"
+    r"|-recover-identity)$"
 )
 _COMPACT_UPDATE_STAGE_RE = re.compile(
     r"^\.delivery-update-stage-(?P<transaction>[0-9a-f]{64})\.tmp$"
@@ -181,6 +182,7 @@ _RECLAIM_COMPLETE_STAGE_RE = re.compile(
 )
 _UNLINK_QUARANTINE = ".delivery-ledger-unlink"
 _GH_EXECUTABLE = "/usr/bin/gh"
+_GH_EXECUTABLE_CANDIDATES = (_GH_EXECUTABLE, "/usr/local/bin/gh")
 _CANONICAL_REPORT_RE = re.compile(
     r"^(?P<owner>[a-z0-9][a-z0-9._-]*)-(?P<repo>[a-z0-9][a-z0-9._-]*)-"
     r"(?P<mode>issue|pr)-(?P<number>[1-9][0-9]*)\.md$"
@@ -275,6 +277,7 @@ class Snapshot:
 _ATOMIC_BIND_TOKEN = object()
 _TARGET_REFRESH_TOKEN = object()
 _SCOPE_RECOVERY_TOKEN = object()
+_IDENTITY_RECOVERY_TOKEN = object()
 
 
 @dataclass(frozen=True)
@@ -301,6 +304,20 @@ class _ScopeRecoveryCapability:
     slot_id: str
     name: str
     before_raw: bytes
+    after_raw: bytes
+    expected_generation: int
+    expected_digest: str
+    expected_device: int
+    expected_inode: int
+
+
+@dataclass(frozen=True)
+class _IdentityRecoveryCapability:
+    """Authorize one explicit pre-bind actor identity recovery."""
+
+    token: object
+    name: str
+    before_raw: bytes | None
     after_raw: bytes
     expected_generation: int
     expected_digest: str
@@ -1190,18 +1207,31 @@ def _release_document(
     return validated
 
 
+def _trusted_gh_executable() -> str:
+    """Return the first protected gh binary from the pinned image contract."""
+
+    for candidate in _GH_EXECUTABLE_CANDIDATES:
+        try:
+            executable = os.stat(candidate, follow_symlinks=False)
+        except FileNotFoundError:
+            continue
+        except OSError as error:
+            raise LedgerError(
+                f"cannot prove GitHub state: trusted gh is unavailable: {error}"
+            ) from error
+        if (
+            not stat.S_ISREG(executable.st_mode)
+            or executable.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
+        ):
+            raise LedgerError("trusted gh executable is not a protected regular file")
+        return candidate
+    raise LedgerError("cannot prove GitHub state: trusted gh is unavailable")
+
+
 def _gh_json(arguments: Sequence[str], context: str) -> Any:
     """Run one bounded authenticated GitHub CLI observation."""
 
-    try:
-        executable = os.stat(_GH_EXECUTABLE, follow_symlinks=False)
-    except OSError as error:
-        raise LedgerError(f"cannot prove {context}: trusted gh is unavailable: {error}") from error
-    if (
-        not stat.S_ISREG(executable.st_mode)
-        or executable.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
-    ):
-        raise LedgerError("trusted gh executable is not a protected regular file")
+    executable = _trusted_gh_executable()
     environment = {
         key: os.environ[key]
         for key in (
@@ -1219,7 +1249,7 @@ def _gh_json(arguments: Sequence[str], context: str) -> Any:
     environment.update(LC_ALL="C", LANG="C", GH_PAGER="cat", PAGER="cat", NO_COLOR="1")
     try:
         process = subprocess.run(
-            [_GH_EXECUTABLE, *arguments],
+            [executable, *arguments],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -1235,6 +1265,97 @@ def _gh_json(arguments: Sequence[str], context: str) -> Any:
         detail = process.stderr.decode("utf-8", "replace").strip()
         raise LedgerError(f"cannot prove {context} through authenticated gh: {detail or process.returncode}")
     return _decode_value(process.stdout, f"{context} gh output")
+
+
+def _authenticated_actor(
+    document: Mapping[str, Any],
+    context: str = "authenticated GitHub actor",
+) -> dict[str, Any]:
+    """Capture viewer identity and target write authority in one response."""
+
+    targets = document.get("targets")
+    if not isinstance(targets, list) or not targets:
+        raise LedgerError(f"{context} requires at least one target repository")
+    variable_defs: list[str] = []
+    variables: list[tuple[str, str, str, str]] = []
+    fields = ["viewer{login id}"]
+    for index, target in enumerate(targets):
+        if not isinstance(target, dict) or not isinstance(target.get("repository"), dict):
+            raise LedgerError(f"{context} target repository is invalid")
+        repository = target["repository"]
+        owner = _string(repository.get("owner"), f"{context} target owner", OWNER_RE)
+        name = _string(repository.get("name"), f"{context} target name", REPOSITORY_RE)
+        owner_variable = f"owner{index}"
+        name_variable = f"name{index}"
+        variable_defs.extend((f"${owner_variable}:String!", f"${name_variable}:String!"))
+        variables.append((owner_variable, name_variable, owner, name))
+        fields.append(
+            f"repository{index}:repository(owner:${owner_variable},name:${name_variable})"
+            "{id viewerPermission}"
+        )
+    query = f"query({','.join(variable_defs)}){{{''.join(fields)}}}"
+    arguments: list[str] = [
+        "api",
+        "--hostname",
+        "github.com",
+        "graphql",
+        "-f",
+        f"query={query}",
+    ]
+    for owner_variable, name_variable, owner, name in variables:
+        arguments.extend(("-f", f"{owner_variable}={owner}", "-f", f"{name_variable}={name}"))
+    response = _gh_json(tuple(arguments), context)
+    if isinstance(response, dict) and {
+        "login",
+        "node_id",
+        "push_repository_node_ids",
+    }.issubset(response):
+        return _actor_identity(
+            {key: response[key] for key in ("login", "node_id", "push_repository_node_ids")},
+            f"{context} response",
+        )
+    if not isinstance(response, dict):
+        raise LedgerError(f"{context} response is not an object")
+    if response.get("errors"):
+        raise LedgerError(f"{context} returned GraphQL errors")
+    data = response.get("data")
+    if not isinstance(data, dict):
+        raise LedgerError(f"{context} response lacks GraphQL data")
+    viewer = data.get("viewer")
+    if not isinstance(viewer, dict):
+        raise LedgerError(f"{context} response lacks viewer identity")
+    push_nodes: list[str] = []
+    for index, target in enumerate(targets):
+        repository = target["repository"]
+        remote = data.get(f"repository{index}")
+        if not isinstance(remote, dict):
+            raise LedgerError(f"{context} response lacks target repository {index}")
+        remote_node = _string(
+            remote.get("id"), f"{context} target repository {index}.id", NODE_RE
+        )
+        if remote_node != repository["node_id"]:
+            raise LedgerError(f"{context} target repository identity differs from the ledger")
+        if remote.get("viewerPermission") not in {"ADMIN", "MAINTAIN", "WRITE", "PUSH"}:
+            raise LedgerError(f"{context} lacks push authority for target repository")
+        push_nodes.append(remote_node)
+    return _actor_identity(
+        {
+            "login": viewer.get("login"),
+            "node_id": viewer.get("id", viewer.get("node_id")),
+            "push_repository_node_ids": sorted(push_nodes),
+        },
+        f"{context} response",
+    )
+
+
+def _require_authenticated_actor(
+    document: Mapping[str, Any], context: str
+) -> dict[str, Any]:
+    expected = _actor_identity(document["actor"], f"{context} ledger actor")
+    observed = _authenticated_actor(document, context)
+    if observed != expected:
+        raise LedgerError(f"{context} differs from the caller-supplied ledger actor")
+    return observed
 
 
 def _prove_release_github(
@@ -5857,6 +5978,28 @@ def _sorted_node_ids(value: Any, context: str, *, allow_empty: bool = True) -> t
     return nodes
 
 
+def _actor_identity(value: Any, context: str) -> dict[str, Any]:
+    item = _exact(
+        value, {"login", "node_id", "push_repository_node_ids"}, context
+    )
+    login = _string(item["login"], f"{context}.login", LOGIN_RE)
+    if login != login.casefold():
+        raise LedgerError(f"{context}.login must be normalized lowercase")
+    node_id = _string(item["node_id"], f"{context}.node_id", NODE_RE)
+    push_repository_node_ids = list(
+        _sorted_node_ids(
+            item["push_repository_node_ids"],
+            f"{context}.push_repository_node_ids",
+            allow_empty=False,
+        )
+    )
+    return {
+        "login": login,
+        "node_id": node_id,
+        "push_repository_node_ids": push_repository_node_ids,
+    }
+
+
 def _authority(value: Any, context: str) -> tuple[Any, ...]:
     item = _exact(
         value,
@@ -6489,18 +6632,10 @@ def validate(document: Any) -> dict[str, Any]:
     mode = item["entry_mode"]
     if mode not in ENTRY_MODES:
         raise LedgerError("ledger.entry_mode must be issue or pr")
-    actor = _exact(
-        item["actor"], {"login", "node_id", "push_repository_node_ids"}, "ledger.actor"
-    )
-    login = _string(actor["login"], "ledger.actor.login", LOGIN_RE)
-    if login != login.casefold():
-        raise LedgerError("ledger.actor.login must be normalized lowercase")
-    actor_node = _string(actor["node_id"], "ledger.actor.node_id", NODE_RE)
-    push_repositories = _sorted_node_ids(
-        actor["push_repository_node_ids"],
-        "ledger.actor.push_repository_node_ids",
-        allow_empty=False,
-    )
+    actor = _actor_identity(item["actor"], "ledger.actor")
+    login = actor["login"]
+    actor_node = actor["node_id"]
+    push_repositories = tuple(actor["push_repository_node_ids"])
     authority = _authority(item["authority"], "ledger.authority")
     if authority[4] != actor_node:
         raise LedgerError("ledger authority actor does not match authenticated actor")
@@ -7843,15 +7978,8 @@ def _pr_binding_remote(
     owner = repository["owner"]
     name = repository["name"]
     full_name = f"{owner}/{name}"
-    actor = _gh_json(
-        ("api", "--hostname", "github.com", "user"),
-        "PR binding authenticated actor",
-    )
-    if not isinstance(actor, dict) or actor.get("node_id") != document["actor"]["node_id"]:
-        raise LedgerError("authenticated GitHub actor differs from PR binding authority")
-    actor_node = _string(
-        actor.get("node_id"), "PR binding authenticated actor.node_id", NODE_RE
-    )
+    actor = _require_authenticated_actor(document, "PR binding authenticated actor")
+    actor_node = actor["node_id"]
     live = _gh_json(
         (
             "api",
@@ -13452,6 +13580,7 @@ def create(
 ) -> Snapshot:
     prepared = prepare(document)
     _require_create_genesis(prepared)
+    _require_authenticated_actor(prepared, "genesis authenticated actor")
     target = canonical_name(prepared)
     raw = canonical_bytes(prepared)
     stage = f".{target}.create-{byte_digest(raw)}.tmp"
@@ -13634,6 +13763,7 @@ def _transition(
     _binding_capability: _AtomicBindingCapability | None = None,
     _target_refresh_capability: _TargetRefreshCapability | None = None,
     _scope_recovery_capability: _ScopeRecoveryCapability | None = None,
+    _identity_recovery_capability: _IdentityRecoveryCapability | None = None,
 ) -> None:
     immutable = {
         "schema_version",
@@ -13647,7 +13777,12 @@ def _transition(
         "migration",
     }
     for key in immutable:
-        if key == "authority" and _scope_recovery_capability is not None:
+        if (
+            key == "authority" and _scope_recovery_capability is not None
+        ) or (
+            key in {"actor", "authority"}
+            and _identity_recovery_capability is not None
+        ):
             continue
         if old[key] != new[key]:
             raise LedgerError(f"immutable ledger field changed: {key}")
@@ -14467,6 +14602,7 @@ def cas(
     _binding_capability: _AtomicBindingCapability | None = None,
     _target_refresh_capability: _TargetRefreshCapability | None = None,
     _scope_recovery_capability: _ScopeRecoveryCapability | None = None,
+    _identity_recovery_capability: _IdentityRecoveryCapability | None = None,
     _target_refresh_legacy: bool = False,
 ) -> Snapshot:
     name = _direct_name(name)
@@ -14479,10 +14615,36 @@ def cas(
     _integer(expected_inode, "expected_inode")
     raw = canonical_bytes(prepared)
     operation = ""
+    if _identity_recovery_capability is not None:
+        capability = _identity_recovery_capability
+        if (
+            _binding_capability is not None
+            or _target_refresh_capability is not None
+            or _scope_recovery_capability is not None
+            or not isinstance(capability, _IdentityRecoveryCapability)
+            or capability.token is not _IDENTITY_RECOVERY_TOKEN
+            or capability.name != name
+            or capability.after_raw != raw
+            or (
+                capability.expected_generation,
+                capability.expected_digest,
+                capability.expected_device,
+                capability.expected_inode,
+            )
+            != (
+                expected_generation,
+                expected_digest,
+                expected_device,
+                expected_inode,
+            )
+        ):
+            raise LedgerError("invalid internal identity-recovery capability")
+        operation = "-recover-identity"
     if _scope_recovery_capability is not None:
         capability = _scope_recovery_capability
         if (
             _binding_capability is not None
+            or _identity_recovery_capability is not None
             or _target_refresh_capability is not None
             or not isinstance(capability, _ScopeRecoveryCapability)
             or capability.token is not _SCOPE_RECOVERY_TOKEN
@@ -14513,6 +14675,7 @@ def cas(
             or not SLOT_RE.fullmatch(capability.slot_id)
             or capability.name != name
             or capability.after_raw != raw
+            or _identity_recovery_capability is not None
             or (
                 capability.expected_generation,
                 capability.expected_digest,
@@ -14532,6 +14695,7 @@ def cas(
         capability = _target_refresh_capability
         if (
             _binding_capability is not None
+            or _identity_recovery_capability is not None
             or not isinstance(capability, _TargetRefreshCapability)
             or capability.token is not _TARGET_REFRESH_TOKEN
             or capability.name != name
@@ -14727,6 +14891,13 @@ def cas(
             if _scope_recovery_capability is not None:
                 if _scope_recovery_capability.before_raw != current.raw:
                     raise LedgerError("scope-recovery predecessor bytes changed")
+            if _identity_recovery_capability is not None:
+                if _identity_recovery_capability.before_raw is None:
+                    raise LedgerError(
+                        "identity-recovery candidate is not already installed"
+                    )
+                if _identity_recovery_capability.before_raw != current.raw:
+                    raise LedgerError("identity-recovery predecessor bytes changed")
             _transition(
                 current.document,
                 prepared,
@@ -14734,6 +14905,7 @@ def cas(
                 _binding_capability=_binding_capability,
                 _target_refresh_capability=_target_refresh_capability,
                 _scope_recovery_capability=_scope_recovery_capability,
+                _identity_recovery_capability=_identity_recovery_capability,
             )
             if compact:
                 assert receipt_name is not None
@@ -15050,6 +15222,344 @@ def _scope_recovery_projection(
                 "topology": replacement["topology"],
             }
     return projection
+
+
+def _identity_recovery_authority(value: Any, context: str) -> dict[str, Any]:
+    item = _exact(
+        value,
+        {
+            "transaction",
+            "source",
+            "old_actor",
+            "new_actor",
+            "targets_sha256",
+            "artifacts_sha256",
+            "prior_authority_issued_at",
+            "candidate_sha256",
+            "authority",
+        },
+        context,
+    )
+    if item["transaction"] != "delivery-ledger-recover-prebind-identity-v1":
+        raise LedgerError(f"{context}.transaction is invalid")
+    source = _exact(
+        item["source"],
+        {"name", "ledger_id", "generation", "sha256", "device", "inode"},
+        f"{context}.source",
+    )
+    _direct_name(source["name"], f"{context}.source.name")
+    _string(source["ledger_id"], f"{context}.source.ledger_id", REFERENCE_RE)
+    _integer(source["generation"], f"{context}.source.generation", minimum=2)
+    _string(source["sha256"], f"{context}.source.sha256", SHA256_RE)
+    _integer(source["device"], f"{context}.source.device", minimum=0)
+    _integer(source["inode"], f"{context}.source.inode", minimum=1)
+    old_actor = _actor_identity(item["old_actor"], f"{context}.old_actor")
+    new_actor = _actor_identity(item["new_actor"], f"{context}.new_actor")
+    if old_actor == new_actor:
+        raise LedgerError(f"{context} must record an actor identity change")
+    targets_sha256 = _string(
+        item["targets_sha256"], f"{context}.targets_sha256", SHA256_RE
+    )
+    artifacts_sha256 = _string(
+        item["artifacts_sha256"], f"{context}.artifacts_sha256", SHA256_RE
+    )
+    prior_authority_issued_at = _string(
+        item["prior_authority_issued_at"],
+        f"{context}.prior_authority_issued_at",
+        TIMESTAMP_RE,
+    )
+    _timestamp_key(
+        prior_authority_issued_at,
+        f"{context}.prior_authority_issued_at",
+    )
+    candidate_sha256 = _string(
+        item["candidate_sha256"], f"{context}.candidate_sha256", SHA256_RE
+    )
+    _authority(item["authority"], f"{context}.authority")
+    return {
+        "transaction": item["transaction"],
+        "source": source,
+        "old_actor": old_actor,
+        "new_actor": new_actor,
+        "targets_sha256": targets_sha256,
+        "artifacts_sha256": artifacts_sha256,
+        "prior_authority_issued_at": prior_authority_issued_at,
+        "candidate_sha256": candidate_sha256,
+        "authority": item["authority"],
+    }
+
+
+def _identity_recovery_allowed(document: Mapping[str, Any]) -> dict[str, Any]:
+    issue_nodes = [
+        issue["node_id"] for issue in document["issues"]["explicit"]
+    ]
+    program = document["program"]
+    if program is not None:
+        issue_nodes.extend(
+            (
+                program["master_issue"]["node_id"],
+                program["leaf_issue"]["node_id"],
+            )
+        )
+    return {
+        "repositories": sorted(
+            {target["repository"]["node_id"] for target in document["targets"]}
+        ),
+        "issues": sorted(set(issue_nodes)),
+        "pull_requests": [],
+    }
+
+
+def _identity_recovery_coordinates(
+    document: Mapping[str, Any],
+) -> tuple[
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+]:
+    item = validate(document)
+    if item["entry_mode"] != "issue":
+        raise LedgerError("pre-bind identity recovery requires issue mode")
+    if item["selected_prs"]:
+        raise LedgerError("pre-bind identity recovery requires no selected PR")
+    if item["authority"]["allowed"]["pull_requests"]:
+        raise LedgerError("pre-bind identity recovery requires an empty PR authority")
+    pull_slots = [
+        slot for slot in item["artifacts"] if slot["kind"] == "pull_request"
+    ]
+    if len(pull_slots) != 1:
+        raise LedgerError(
+            "pre-bind identity recovery requires one planned pull-request slot"
+        )
+    pull_slot = pull_slots[0]
+    if (
+        pull_slot["state"] != "planned"
+        or pull_slot["current"] is not None
+        or pull_slot["immutable"]["node_id"] is not None
+        or pull_slot["initial_body_payload"] is None
+    ):
+        raise LedgerError(
+            "pre-bind identity recovery requires one unbound planned pull-request slot"
+        )
+    return _pr_binding_coordinates(item, pull_slot["slot_id"])
+
+
+def _prove_identity_recovery_no_prs(
+    target: Mapping[str, Any], context: str
+) -> None:
+    repository = target["repository"]
+    owner = repository["owner"]
+    name = repository["name"]
+    branch = target["head"]["branch"]
+    page = _gh_json(
+        (
+            "api",
+            "--hostname",
+            "github.com",
+            f"repos/{owner}/{name}/pulls?"
+            f"state=all&head={owner}:{branch}&per_page=100",
+        ),
+        context,
+    )
+    if not isinstance(page, list):
+        raise LedgerError(f"{context} response is not an array")
+    if len(page) > 100:
+        raise LedgerError(f"{context} response exceeds the bounded page size")
+    if page:
+        raise LedgerError(
+            f"{context} found an existing pull request for the delivery branch"
+        )
+
+
+def recover_prebind_identity(
+    root: Path | str,
+    name: str,
+    document: Mapping[str, Any],
+    recovery_raw: bytes,
+    *,
+    expected_generation: int,
+    expected_digest: str,
+    expected_device: int,
+    expected_inode: int,
+    failpoint: Failpoint = None,
+) -> Snapshot:
+    """Recover one audited actor change before the issue-created PR bind."""
+
+    name = _direct_name(name)
+    candidate = prepare(document)
+    recovery = _identity_recovery_authority(
+        _decode(recovery_raw, "pre-bind identity recovery authority"),
+        "pre-bind identity recovery authority",
+    )
+    if recovery_raw != canonical_bytes(recovery):
+        raise LedgerError("pre-bind identity recovery authority is not canonical")
+    snapshot = inspect(root, name)
+    source = recovery["source"]
+    expected_source = (
+        source["generation"],
+        source["sha256"],
+        source["device"],
+        source["inode"],
+    )
+    if (
+        expected_generation,
+        expected_digest,
+        expected_device,
+        expected_inode,
+    ) != expected_source:
+        raise LedgerError("pre-bind identity recovery source does not match CAS tuple")
+    if snapshot.name != source["name"]:
+        raise LedgerError("pre-bind identity recovery source names a different ledger")
+    candidate_raw = canonical_bytes(candidate)
+    if candidate["ledger_id"] != source["ledger_id"]:
+        raise LedgerError("pre-bind identity recovery candidate differs from source ledger")
+    resume = bool(
+        snapshot.raw == candidate_raw
+        and snapshot.document["generation"] == source["generation"] + 1
+        and snapshot.document["previous_byte_digest"] == source["sha256"]
+        and snapshot.document["history"]
+        and snapshot.document["history"][-1] == source["sha256"]
+    )
+    if not resume and (
+        snapshot.document["ledger_id"] != source["ledger_id"]
+        or not _snapshot_matches_identity(
+            snapshot,
+            source["generation"],
+            source["sha256"],
+            source["device"],
+            source["inode"],
+        )
+    ):
+        raise LedgerError("pre-bind identity recovery source snapshot is stale")
+    if byte_digest(candidate_raw) != recovery["candidate_sha256"]:
+        raise LedgerError(
+            "pre-bind identity recovery candidate digest differs from authority"
+        )
+    if candidate["actor"] != recovery["new_actor"]:
+        raise LedgerError("pre-bind identity recovery candidate actor differs from grant")
+    if candidate["authority"] != recovery["authority"]:
+        raise LedgerError(
+            "pre-bind identity recovery candidate authority differs from grant"
+        )
+    if candidate["authority"]["kind"] != "explicit-recovery":
+        raise LedgerError(
+            "pre-bind identity recovery requires explicit-recovery authority"
+        )
+    if candidate["generation"] != source["generation"] + 1:
+        raise LedgerError("pre-bind identity recovery candidate generation is invalid")
+    if candidate["previous_byte_digest"] != source["sha256"]:
+        raise LedgerError(
+            "pre-bind identity recovery candidate predecessor digest is invalid"
+        )
+    if not candidate["history"] or candidate["history"][-1] != source["sha256"]:
+        raise LedgerError(
+            "pre-bind identity recovery candidate history omits its predecessor"
+        )
+    if candidate["authority"]["actor_node_id"] != candidate["actor"]["node_id"]:
+        raise LedgerError("pre-bind identity recovery authority actor differs from candidate")
+    if candidate["authority"]["allowed"] != _identity_recovery_allowed(candidate):
+        raise LedgerError(
+            "pre-bind identity recovery authority scope differs from candidate"
+        )
+    if not _timestamp_is_after(
+        candidate["authority"]["issued_at"],
+        recovery["prior_authority_issued_at"],
+    ):
+        raise LedgerError(
+            "pre-bind identity recovery authority must postdate the prior authority"
+        )
+    expected_objective = canonical_object_digest(
+        {
+            "operation": "recover-prebind-identity",
+            "source": source,
+            "old_actor": recovery["old_actor"],
+            "new_actor": recovery["new_actor"],
+            "targets_sha256": recovery["targets_sha256"],
+            "artifacts_sha256": recovery["artifacts_sha256"],
+        }
+    )
+    if candidate["authority"]["objective_sha256"] != expected_objective:
+        raise LedgerError(
+            "pre-bind identity recovery objective does not bind its projection"
+        )
+    if not resume:
+        _identity_recovery_coordinates(snapshot.document)
+        if snapshot.document["actor"] != recovery["old_actor"]:
+            raise LedgerError(
+                "pre-bind identity recovery source actor differs from authority"
+            )
+        if (
+            snapshot.document["authority"]["issued_at"]
+            != recovery["prior_authority_issued_at"]
+        ):
+            raise LedgerError(
+                "pre-bind identity recovery prior authority timestamp differs"
+            )
+        if (
+            canonical_object_digest(snapshot.document["targets"])
+            != recovery["targets_sha256"]
+            or canonical_object_digest(snapshot.document["artifacts"])
+            != recovery["artifacts_sha256"]
+        ):
+            raise LedgerError(
+                "pre-bind identity recovery source coordinate digest differs"
+            )
+        projected = copy.deepcopy(snapshot.document)
+        projected["actor"] = copy.deepcopy(candidate["actor"])
+        projected["authority"] = copy.deepcopy(candidate["authority"])
+        projected["generation"] = candidate["generation"]
+        projected["previous_byte_digest"] = candidate["previous_byte_digest"]
+        projected["history"] = copy.deepcopy(candidate["history"])
+        if projected != candidate:
+            raise LedgerError(
+                "pre-bind identity recovery changed fields outside actor and authority"
+            )
+    if (
+        canonical_object_digest(candidate["targets"]) != recovery["targets_sha256"]
+        or canonical_object_digest(candidate["artifacts"])
+        != recovery["artifacts_sha256"]
+    ):
+        raise LedgerError(
+            "pre-bind identity recovery candidate coordinate digest differs"
+        )
+    _, pull_slot, target, _, worktree = _identity_recovery_coordinates(candidate)
+    capability = _IdentityRecoveryCapability(
+        _IDENTITY_RECOVERY_TOKEN,
+        name,
+        None if resume else snapshot.raw,
+        candidate_raw,
+        expected_generation,
+        expected_digest,
+        expected_device,
+        expected_inode,
+    )
+    with _pr_binding_live_safety(candidate, target, worktree) as prove_local:
+        def revalidate() -> None:
+            prove_local()
+            _require_authenticated_actor(
+                candidate,
+                "pre-bind identity recovery authenticated actor",
+            )
+            _prove_identity_recovery_no_prs(
+                target,
+                "pre-bind identity recovery pull requests",
+            )
+
+        revalidate()
+        return cas(
+            root,
+            name,
+            candidate,
+            expected_generation=expected_generation,
+            expected_digest=expected_digest,
+            expected_device=expected_device,
+            expected_inode=expected_inode,
+            failpoint=failpoint,
+            _precommit=revalidate,
+            _identity_recovery_capability=capability,
+        )
 
 
 def _scope_prebind_recovery_authority(value: Any, context: str) -> dict[str, Any]:
@@ -16786,6 +17296,21 @@ def parser() -> argparse.ArgumentParser:
     prebind_recovery_parser.add_argument("--expected-digest", required=True)
     prebind_recovery_parser.add_argument("--expected-device", required=True, type=int)
     prebind_recovery_parser.add_argument("--expected-inode", required=True, type=int)
+    identity_recovery_parser = commands.add_parser(
+        "recover-prebind-identity",
+        help="atomically recover one explicitly authorized pre-bind actor identity change",
+    )
+    identity_recovery_parser.add_argument("root", help="initialized review root")
+    identity_recovery_parser.add_argument("name", help="direct canonical ledger filename")
+    identity_recovery_parser.add_argument("input", help="bounded replacement ledger JSON")
+    identity_recovery_parser.add_argument(
+        "recovery", help="exact explicit-recovery authority JSON"
+    )
+    identity_recovery_parser.add_argument("--expected-generation", required=True, type=int)
+    identity_recovery_parser.add_argument("--expected-digest", required=True)
+    identity_recovery_parser.add_argument("--expected-device", required=True, type=int)
+    identity_recovery_parser.add_argument("--expected-inode", required=True, type=int)
+
     correction_parser = commands.add_parser(
         "correct-target-head",
         help="live-prove and supersede one exact nonexistent target-head typo",
@@ -17072,6 +17597,20 @@ def main(argv: Sequence[str] | None = None) -> int:
                     expected_inode=arguments.expected_inode,
                 ).json()
             )
+        elif arguments.command == "recover-prebind-identity":
+            _print(
+                recover_prebind_identity(
+                    arguments.root,
+                    arguments.name,
+                    _read_input(arguments.input),
+                    _read_bytes_input(arguments.recovery),
+                    expected_generation=arguments.expected_generation,
+                    expected_digest=arguments.expected_digest,
+                    expected_device=arguments.expected_device,
+                    expected_inode=arguments.expected_inode,
+                ).json()
+            )
+
         elif arguments.command == "correct-target-head":
             _print(
                 correct_target_head(

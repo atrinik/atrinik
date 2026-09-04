@@ -532,6 +532,17 @@ mutable active resources still block. Inventory excludes
 coordinates only after that marker is durable; a candidate stage remains
 active and blocking.
 
+Issue-mode genesis and initial PR binding are actor-gated. Before generation-1
+publication, the helper obtains viewer login/node and each target repository's
+ID and push permission in one live authenticated GitHub response, compares the
+complete tuple, and fails before local staging or remote delivery mutation on
+any mismatch. `pr-bind-cas` repeats the full tuple proof immediately before
+its CAS. A changed actor before PR binding is recoverable only through the
+explicit `recover-prebind-identity` transaction, which preserves the exact
+predecessor digest/history and target/artifact coordinates while requiring a
+new explicit-recovery authority, a safe bound worktree, live reproof, and no
+candidate PR.
+
 Generic ledger CAS cannot author target coordinates. A target-only refresh is a
 separate live transaction that pins its bound primitive/scope worktree, proves
 base/head commits and descendant lineages, computes the exact merge base, and

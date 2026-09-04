@@ -314,6 +314,11 @@ coordinate crash/retry/concurrency at every publication boundary. Tests may
 apply archive/reclaim only inside temporary test-owned review roots. Delivery
 must never invoke wrapper cleanup, and repository validation remains
 preview-only.
+Genesis and initial PR binding must prove the complete authenticated actor
+tuple (login, node ID, and push-authorized repository node IDs) in one live
+response. An actor change before binding is recoverable only through the
+audited pre-bind identity CAS with an exact predecessor and preservation of
+the delivery artifacts.
 
 For CMake/cache changes, also repeat an unchanged build, exercise
 `--force-reconfigure` and `--no-ccache`, inspect `ccache --show-stats` when the

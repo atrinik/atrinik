@@ -13,6 +13,7 @@ the ownership and recovery boundary.
 - [Create a fresh PR ledger](#create-a-fresh-pr-ledger)
 - [Provision a scope-produced worktree](#provision-a-scope-produced-worktree)
 - [Recover one exact live pre-bind topology mismatch](#recover-one-exact-live-pre-bind-topology-mismatch)
+- [Recover one exact pre-bind actor identity change](#recover-one-exact-pre-bind-actor-identity-change)
 - [Create, inspect, and update](#create-inspect-and-update)
 - [Bind a created PR](#bind-a-created-pr)
 - [Plan and recover body updates](#plan-and-recover-body-updates)
@@ -134,6 +135,7 @@ python3 scripts/delivery_ledger.py recover-prebind-scope REVIEW_ROOT LEDGER_NAME
   RECOVERY_AUTHORITY_JSON \
   --expected-generation GENERATION --expected-digest SHA256 \
   --expected-device DEVICE --expected-inode INODE
+python3 scripts/delivery_ledger.py recover-prebind-identity REVIEW_ROOT LEDGER_NAME REPLACEMENT_LEDGER_JSON RECOVERY_AUTHORITY_JSON --expected-generation GENERATION --expected-digest SHA256 --expected-device DEVICE --expected-inode INODE
 python3 scripts/delivery_ledger.py pr-create-payload REVIEW_ROOT LEDGER_NAME SLOT_ID
 python3 scripts/delivery_ledger.py body-check REVIEW_ROOT LEDGER_NAME PR_NODE_ID BODY
 python3 scripts/delivery_ledger.py body-plan REVIEW_ROOT LEDGER_NAME PR_NODE_ID BODY SECTION
@@ -173,6 +175,15 @@ and bound local worktree before its private CAS. Generic `cas` cannot perform
 this initial PR bind. An interrupted PR bind is retried with the identical
 original command and predecessor tuple so the helper can accept only its exact
 receipt.
+
+At issue-mode genesis, `create` obtains the viewer login/node and every target
+repository's ID and push permission in one authenticated GraphQL response
+pinned to `github.com`, then compares the complete `(login, node_id,
+push_repository_node_ids)` tuple with the prepared actor before any local
+staging or delivery mutation. `pr-bind-cas` repeats that complete proof
+immediately before its private CAS. A mixed login/node response, stale actor,
+missing push authority, or changed tuple fails closed; a caller-supplied tuple
+never grants authority by itself.
 
 Before any dynamic `Workspace` import or Python execution, live proof performs
 a bounded component-wise no-follow ownership/mode prevalidation of the complete
@@ -270,6 +281,13 @@ generation, previous_byte_digest, history, migration
 - `actor` has exactly `login`, `node_id`, `push_repository_node_ids`. The list
   exactly equals the nonempty target-repository set; every selected head is in
   that same-repository set.
+
+The actor tuple is live evidence, not an identity assertion supplied by the
+caller. Genesis requires one response covering the viewer login/node and every
+target's push permission; initial PR binding repeats it and compares all three
+fields. This keeps a valid login with a stale node, or a valid node with a
+different login, from authorizing a branch or PR mutation.
+
 - A repository has exactly `owner`, `name`, `node_id`. Every repeated coordinate
   must retain one node ID, and one node ID cannot alias another coordinate.
 - An issue has exactly `repository`, positive integer `number`, `node_id`.
@@ -1392,6 +1410,39 @@ occurs after the ledger rename, rerun the same command with the original
 predecessor tuple; the durable post-rename proof completes the transaction and
 the predecessor digest remains in `history`. Once that receipt is consumed, a
 newer tuple is required and an ordinary retry is rejected.
+
+## Recover one exact pre-bind actor identity change
+
+If the authenticated actor changes after genesis but before the planned
+issue-mode PR is bound, do not edit the sidecar, recreate the branch/worktree,
+or create/adopt a PR. Preserve the exact source `generation/digest/device/inode`
+tuple and the source ledger bytes. The source must still have no selected PR,
+an empty pull-request authority allowlist, exactly one planned PR slot, and one
+already-bound safe worktree for the target branch.
+
+Prepare a generation+1 candidate that changes only the actor and authority,
+apart from the required predecessor digest, history, and generation. Its
+targets and artifacts must be byte-for-byte equivalent in canonical form to
+the source. The explicit recovery authority binds the exact source identity,
+old and new complete actor tuples, canonical target/artifact digests, prior
+authority timestamp, candidate digest, and the replacement `explicit-recovery`
+authority. That authority's objective digest binds the same projection. Run:
+
+```sh
+python3 scripts/delivery_ledger.py recover-prebind-identity REVIEW_ROOT LEDGER_NAME REPLACEMENT_LEDGER_JSON RECOVERY_AUTHORITY_JSON --expected-generation GENERATION --expected-digest SHA256 --expected-device DEVICE --expected-inode INODE
+```
+
+The helper validates the exact predecessor and candidate digests, rejects
+actor/authority or coordinate drift, and proves that the recovery authority
+postdates the prior authority and allows only the target repositories/issues.
+Under the bound worktree lease it then re-proves the new authenticated actor
+tuple and live absence of every PR for the delivery branch immediately before
+the CAS and again as its precommit guard. The transaction changes no remote
+state and never creates a PR. If a crash occurs after rename, rerun the same
+command with the original predecessor tuple; the durable receipt completes
+the exact recovery, preserving the predecessor digest in `history` and every
+delivery artifact. A newer tuple is required after the receipt is consumed;
+generic `cas` cannot change actor or authority.
 
 ## Create, inspect, and update
 
