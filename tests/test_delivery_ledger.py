@@ -13911,6 +13911,42 @@ class DeliveryLedgerTests(unittest.TestCase):
         finally:
             self.authenticated_actor.start()
 
+    def test_scope_recovery_capability_cannot_change_actor(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _, bound = install_issue_bound(
+                root, self.live_base / "scope-actor-capability"
+            )
+            candidate = next_generation(bound)
+            candidate["actor"] = {
+                "login": "newactor",
+                "node_id": "U_new",
+                "push_repository_node_ids": ["R_repo"],
+            }
+            candidate["authority"] = copy.deepcopy(bound.document["authority"])
+            candidate["authority"]["actor_node_id"] = "U_new"
+            candidate = ledger.prepare(candidate)
+            capability = ledger._ScopeRecoveryCapability(
+                ledger._SCOPE_RECOVERY_TOKEN,
+                "scope",
+                bound.name,
+                bound.raw,
+                ledger.canonical_bytes(candidate),
+                bound.document["generation"],
+                bound.digest,
+                bound.device,
+                bound.inode,
+            )
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "immutable ledger field changed: actor"
+            ):
+                ledger._transition(
+                    bound.document,
+                    candidate,
+                    bound.digest,
+                    _scope_recovery_capability=capability,
+                )
+
     def test_pr_binding_reproves_full_actor_tuple_before_cas(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

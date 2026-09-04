@@ -13777,9 +13777,11 @@ def _transition(
         "migration",
     }
     for key in immutable:
-        if key in {"actor", "authority"} and (
-            _scope_recovery_capability is not None
-            or _identity_recovery_capability is not None
+        if (
+            key == "authority" and _scope_recovery_capability is not None
+        ) or (
+            key in {"actor", "authority"}
+            and _identity_recovery_capability is not None
         ):
             continue
         if old[key] != new[key]:
