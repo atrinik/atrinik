@@ -365,14 +365,14 @@ class InventoryTests(unittest.TestCase):
         self.assertIn("playtester", cmake.scope)
         self.assertNotIn("tools", cmake.scope)
         linux_image = inventory.dependencies_by_id["container/linux-build"]
-        self.assertEqual(linux_image.version, "1.3.0")
+        self.assertEqual(linux_image.version, "1.10.0")
         self.assertEqual(
             linux_image.commit,
-            "b4df04bf5b47a8f5d24e0783efd2c16c5e809f38",
+            "f51d809a2670387833476954ee6cc05692ce6c56",
         )
         self.assertEqual(
             linux_image.checksum,
-            "sha256:260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a",
+            "sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8",
         )
         github_cli = inventory.dependencies_by_id["toolchain/github-cli"]
         self.assertEqual(github_cli.owner, "devcontainer")

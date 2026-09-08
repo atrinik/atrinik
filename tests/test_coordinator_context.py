@@ -256,6 +256,18 @@ class CoordinatorContextTests(unittest.TestCase):
         self.assertFalse(result["authoritative"])
         self.assertIn("runtime-user", result["failed_checks"])
 
+    def test_stale_runtime_image_requires_owned_rebuild(self) -> None:
+        result = self._probe(environment={
+            "HOME": "/home/ubuntu",
+            "CODEX_HOME": "/home/ubuntu/.codex",
+            "DEVCONTAINER_IMAGE": "ghcr.io/atrinik/linux-build:old",
+        })
+        self.assertFalse(result["authoritative"])
+        self.assertIn("runtime-image-mismatch", result["failed_checks"])
+        self.assertIn(context.CANONICAL_IMAGE, result["next_action"])
+        self.assertIn("owned session", result["next_action"])
+        self.assertIn("preserve worktrees and state", result["next_action"])
+
     def test_pinned_config_mismatch_fails_closed(self) -> None:
         config_path = self.repository / ".devcontainer/devcontainer.json"
         config = json.loads(
