@@ -36,8 +36,8 @@ ENTRY_MODE_NATIVE_HOST = "native-host"
 ENTRY_MODE_UNKNOWN = "unknown"
 
 CANONICAL_IMAGE = (
-    "ghcr.io/atrinik/linux-build:1.3.0@sha256:"
-    "260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a"
+    "ghcr.io/atrinik/linux-build:1.10.0@sha256:"
+    "7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8"
 )
 WINDOWS_CROSS_IMAGE = (
     "ghcr.io/atrinik/windows-build:1.2.1@sha256:"
@@ -707,12 +707,21 @@ def probe(
     )
 
     if failures:
+        next_action = (
+            "Use the pinned Atrinik Linux devcontainer or the current proven "
+            "in-container session, then rerun this probe before ledger mutation."
+        )
+        if "runtime-image-mismatch" in failures:
+            next_action = (
+                f"Rebuild or attach your owned session using {CANONICAL_IMAGE}; "
+                "follow README.md's Linux image upgrades instructions, preserve "
+                "worktrees and state, and rerun this probe before ledger mutation."
+            )
         return _result(
             UNKNOWN_STATUS,
             False,
             failures,
-            "Use the pinned Atrinik Linux devcontainer or the current proven "
-            "in-container session, then rerun this probe before ledger mutation.",
+            next_action,
             "unknown-or-unsupported-context",
             entry_mode=entry_mode,
         )

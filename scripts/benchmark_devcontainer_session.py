@@ -28,8 +28,8 @@ from atrinik_workspace.model import WorkspaceError
 
 
 DEFAULT_LINUX_IMAGE = (
-    "ghcr.io/atrinik/linux-build:1.3.0@sha256:"
-    "260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a"
+    "ghcr.io/atrinik/linux-build:1.10.0@sha256:"
+    "7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8"
 )
 NAMESPACE_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,62}$")
 RUN_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,30}$")

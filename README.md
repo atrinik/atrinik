@@ -269,6 +269,56 @@ Copied or stale session markers, arbitrary containers, nested coordinators,
 and unsafe bind mounts never grant authority. Keep the `windows-cross` container for
 package/build work and host-bound validation.
 
+#### Linux image upgrades
+
+The ordinary Linux workspace now uses the Git LFS-enabled `linux-build:1.10.0`
+release from devcontainer revision
+`f51d809a2670387833476954ee6cc05692ce6c56`, published by
+[Linux run 34168767678, attempt 2](https://github.com/atrinik/devcontainer/actions/runs/34168767678/attempts/2).
+The immutable pin in `.devcontainer/devcontainer.json` is
+`ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8`.
+The registry's source/revision labels and build provenance match that producer.
+Independently pinned sound, Classic build, and Windows images retain their
+own release contracts.
+
+An existing container keeps its original image after a source update. From the
+native host, inspect the exact owned container before attaching:
+
+~~~sh
+docker inspect "$CONTAINER_ID" --format '{{.Id}} {{.Config.Image}} {{.State.Status}}'
+~~~
+
+Compare that immutable image reference with the checked-out configuration.
+A tag or a previous successful probe does not establish a match. When
+`DEVCONTAINER_IMAGE` is supplied by the terminal launcher, the coordinator
+probe also rejects a stale image and names the required pin; do not change
+that variable to disguise the running image.
+
+Preserve the exact worktree, ledger, mounts, credentials, caches and mutable
+state. Finish active operations before stopping only your owned container.
+For a human editor session, use **Dev Containers: Rebuild Container** for that
+workspace. For terminal bootstrap, pull the exact configuration pin and
+recreate only the stopped owned session using its verified mount and user
+coordinates, then attach as `ubuntu`. Do not replace another worker's
+container, remove volumes, copy a ledger, or recreate managed worktrees.
+Rerun the coordinator probe, worktree inventory and helper ownership/lease
+checks after attaching.
+
+Before initializing LFS-backed repositories in the new terminal or editor
+session, verify the image-provided filters with the fresh user configuration:
+
+~~~sh
+git lfs version
+git config --get filter.lfs.process
+git config --get filter.lfs.required
+./atrinik init
+~~~
+
+The filter process must be `git-lfs filter-process` and required must be
+`true`; no manual package installation is needed. Check materialized payloads
+after clone, checkout and linked-worktree creation. These source checks do
+not establish runtime export or media hydration, which remains separate.
+
 #### Shared host GitHub authentication
 
 Authenticate once on the host, then share its file-backed GitHub CLI config
