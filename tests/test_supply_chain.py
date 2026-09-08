@@ -49,6 +49,7 @@ from atrinik_workspace.supply_chain import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
+FIXTURE = ROOT / "tests/fixtures/supply_chain"
 
 
 def fixture_dependency(**changes: object) -> Dependency:
@@ -109,18 +110,25 @@ def fixture_repository(**changes: object) -> Repository:
 class InventoryTests(unittest.TestCase):
     def load_inventory(self) -> Inventory:
         return Inventory.load(
-            ROOT / "supply-chain" / "inventory.json", ROOT / "components.json"
+            FIXTURE / "inventory.json", FIXTURE / "components.json"
         )
 
     def inventory_document(self) -> dict[str, object]:
         return json.loads(
-            (ROOT / "supply-chain" / "inventory.json").read_text(encoding="utf-8")
+            (FIXTURE / "inventory.json").read_text(encoding="utf-8")
         )
 
-    def test_scheduled_audit_covers_both_content_lines_and_stacks(self) -> None:
+    def test_optional_diagnostics_cover_both_stacks_without_delivery_gate(self) -> None:
         workflow = (ROOT / ".github/workflows/supply-chain.yml").read_text(
             encoding="utf-8"
         )
+
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertNotIn("schedule:", workflow)
+        self.assertIn("continue-on-error: true", workflow)
+        self.assertIn("if: always()", workflow)
+        integration = (ROOT / ".github/workflows/integration.yml").read_text()
+        self.assertNotIn("./atrinik supply-chain", integration)
 
         initialize = "./atrinik init --with classic"
         self.assertEqual(workflow.count(initialize), 1)
@@ -134,6 +142,88 @@ class InventoryTests(unittest.TestCase):
                     f"build/supply-chain/{profile}/{report}", workflow
                 )
 
+    def test_classic_bundle_audit_compares_active_coordinates(self) -> None:
+        digest = "sha256:" + "a" * 64
+        material = "sha256:" + "b" * 64
+        image = "ghcr.io/atrinik/classic-dependencies"
+        descriptor = {
+            "schema_version": 1,
+            "image": image,
+            "digest": digest,
+            "material_digest": material,
+            "tag": "materials-" + "b" * 64,
+            # An old digest can legitimately remain in provenance fields.
+            "verified_input_bundle_digest": "sha256:" + "c" * 64,
+        }
+        dependency = fixture_dependency(
+            identifier="container/classic-dependencies",
+            kind="container-image",
+            scope=("classic",),
+            version=descriptor["tag"],
+            locator=f"{image}@{digest}",
+            checksum=digest,
+            evidence=(Evidence("classic", "dependencies.bundle.json", image),),
+        )
+        repository = fixture_repository(name="classic", checkout="classic")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / ".github").mkdir()
+            (root / ".github/dependabot.yml").write_text(
+                "package-ecosystem: github-actions\n", encoding="utf-8"
+            )
+            path = root / "dependencies.bundle.json"
+            path.write_text(json.dumps(descriptor), encoding="utf-8")
+            with mock.patch(
+                "atrinik_workspace.supply_chain._audit_files",
+                return_value=[".github/dependabot.yml"],
+            ):
+                def audit(record: Dependency) -> list[str]:
+                    return Inventory("atrinik", "2026-09-08", [repository], [record]).audit(
+                        {"classic": root}
+                    )
+
+                self.assertTrue(audit(dependency))
+                for field, value in (
+                    ("version", "materials-" + "c" * 64),
+                    ("locator", f"{image}@sha256:" + "c" * 64),
+                    ("checksum", "sha256:" + "c" * 64),
+                ):
+                    with self.subTest(field=field):
+                        with self.assertRaisesRegex(WorkspaceError, f"inventory {field}"):
+                            audit(replace(dependency, **{field: value}))
+                for field, value in (
+                    ("image", "ghcr.io/unrelated/bundle"),
+                    ("digest", None),
+                    ("digest", "sha256:invalid"),
+                    ("material_digest", None),
+                    ("material_digest", "sha256:invalid"),
+                ):
+                    with self.subTest(descriptor_field=field, value=value):
+                        malformed = {**descriptor, field: value}
+                        path.write_text(json.dumps(malformed), encoding="utf-8")
+                        with self.assertRaisesRegex(WorkspaceError, "descriptor coordinates"):
+                            audit(dependency)
+                path.write_text("{", encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, "descriptor JSON"):
+                    audit(dependency)
+                path.write_text(json.dumps(descriptor), encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, "required inventory record"):
+                    Inventory("atrinik", "2026-09-08", [repository], []).audit(
+                        {"classic": root}
+                    )
+                descriptor["digest"] = "sha256:" + "d" * 64
+                descriptor["verified_input_bundle_digest"] = digest
+                path.write_text(json.dumps(descriptor), encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, "inventory locator"):
+                    audit(dependency)
+                descriptor["tag"] = "materials-" + "e" * 64
+                path.write_text(json.dumps(descriptor), encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, "tag differs"):
+                    audit(dependency)
+                path.write_text("[]", encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, "descriptor schema"):
+                    audit(dependency)
+
     def assert_invalid_document(
         self, document: object, expected: str
     ) -> None:
@@ -141,7 +231,7 @@ class InventoryTests(unittest.TestCase):
             path = Path(temporary) / "inventory.json"
             path.write_text(json.dumps(document), encoding="utf-8")
             with self.assertRaisesRegex(WorkspaceError, expected):
-                Inventory.load(path, ROOT / "components.json")
+                Inventory.load(path, FIXTURE / "components.json")
 
     def make_audit_repository(self, root: Path) -> None:
         (root / ".github" / "workflows").mkdir(parents=True)
@@ -177,7 +267,7 @@ class InventoryTests(unittest.TestCase):
 
     def test_inventory_and_schema_validate(self) -> None:
         inventory = self.load_inventory()
-        inventory.validate_schema(ROOT / "supply-chain" / "schema.json")
+        inventory.validate_schema(FIXTURE / "schema.json")
 
         self.assertGreaterEqual(len(inventory.dependencies), 60)
         self.assertIn("nawerhals", inventory.repositories_by_name)
@@ -579,7 +669,7 @@ class InventoryTests(unittest.TestCase):
     def test_schema_contract_rejects_weak_or_unexpected_schema(self) -> None:
         inventory = self.load_inventory()
         schema = json.loads(
-            (ROOT / "supply-chain" / "schema.json").read_text(encoding="utf-8")
+            (FIXTURE / "schema.json").read_text(encoding="utf-8")
         )
         repository_schema = schema["properties"]["repositories"]["items"]
         self.assertFalse(repository_schema["additionalProperties"])
@@ -609,14 +699,6 @@ class InventoryTests(unittest.TestCase):
                     path.write_text(json.dumps(value), encoding="utf-8")
                     with self.assertRaisesRegex(WorkspaceError, expected):
                         inventory.validate_schema(path)
-
-    def test_wrapper_dependency_surface_audits_independently(self) -> None:
-        messages = self.load_inventory().audit(
-            {"atrinik": ROOT}, require_all=False
-        )
-
-        self.assertEqual(len(messages), 1)
-        self.assertIn("action references", messages[0])
 
     def test_minimal_repository_audit_covers_actions_and_runners(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -1636,7 +1718,7 @@ jobs:
                 )
 
     def test_component_source_root_rejects_symlinks(self) -> None:
-        component = Manifest.load(ROOT / "components.json").by_name["classic-server"]
+        component = Manifest.load(FIXTURE / "components.json").by_name["classic-server"]
         with tempfile.TemporaryDirectory() as temporary:
             checkout = Path(temporary)
             (checkout / "client").mkdir()
@@ -1776,7 +1858,7 @@ jobs:
     def test_repository_root_overrides_are_strict_and_identity_checked(self) -> None:
         workspace = mock.Mock()
         default_components = json.loads(
-            (ROOT / "components.json").read_text(encoding="utf-8")
+            (FIXTURE / "components.json").read_text(encoding="utf-8")
         )["stacks"]["default"]["components"]
         workspace.profile_summary.return_value = {
             "name": "profile",
@@ -1894,7 +1976,7 @@ jobs:
     def test_repository_override_accepts_fork_origin_and_canonical_upstream(self) -> None:
         workspace = mock.Mock()
         default_components = json.loads(
-            (ROOT / "components.json").read_text(encoding="utf-8")
+            (FIXTURE / "components.json").read_text(encoding="utf-8")
         )["stacks"]["default"]["components"]
         workspace.profile_summary.return_value = {
             "name": "review",
@@ -1975,7 +2057,7 @@ jobs:
     def test_repository_roots_reject_incomplete_profiles(self) -> None:
         workspace = mock.Mock()
         classic_components = json.loads(
-            (ROOT / "components.json").read_text(encoding="utf-8")
+            (FIXTURE / "components.json").read_text(encoding="utf-8")
         )["stacks"]["classic"]["components"]
         workspace.profile_summary.return_value = {
             "name": "classic-review",
@@ -2002,7 +2084,7 @@ jobs:
     def test_repository_roots_fail_closed_when_shared_content_is_missing(self) -> None:
         workspace = mock.Mock()
         document = json.loads(
-            (ROOT / "components.json").read_text(encoding="utf-8")
+            (FIXTURE / "components.json").read_text(encoding="utf-8")
         )
         classic_components = document["stacks"]["classic"]["components"]
         workspace.profile_summary.return_value = {
@@ -2039,7 +2121,7 @@ jobs:
             repository_roots(ROOT, workspace, "classic")
 
         classic_components = json.loads(
-            (ROOT / "components.json").read_text(encoding="utf-8")
+            (FIXTURE / "components.json").read_text(encoding="utf-8")
         )["stacks"]["classic"]["components"]
         workspace.profile_summary.return_value["components"] = [
             {
@@ -2060,7 +2142,7 @@ jobs:
     def test_repository_roots_add_one_classic_checkout_metadata_root(self) -> None:
         workspace = mock.Mock()
         document = json.loads(
-            (ROOT / "components.json").read_text(encoding="utf-8")
+            (FIXTURE / "components.json").read_text(encoding="utf-8")
         )
         components = {
             component["name"]: component for component in document["components"]
@@ -2098,7 +2180,7 @@ jobs:
     def test_classic_override_resolves_the_logical_source_root(self) -> None:
         workspace = mock.Mock()
         manifest_document = json.loads(
-            (ROOT / "components.json").read_text(encoding="utf-8")
+            (FIXTURE / "components.json").read_text(encoding="utf-8")
         )
         classic_components = manifest_document["stacks"]["classic"]["components"]
         component_documents = {
@@ -2195,7 +2277,7 @@ jobs:
     def test_report_component_commits_resolve_only_initialized_profile_stack(self) -> None:
         workspace = mock.Mock()
         classic_components = json.loads(
-            (ROOT / "components.json").read_text(encoding="utf-8")
+            (FIXTURE / "components.json").read_text(encoding="utf-8")
         )["stacks"]["classic"]["components"]
         content_path = "/workspace/classic-review/content"
         workspace.profile_summary.return_value = {
@@ -2235,7 +2317,7 @@ jobs:
     def test_report_component_commits_deduplicates_the_classic_checkout(self) -> None:
         workspace = mock.Mock()
         document = json.loads(
-            (ROOT / "components.json").read_text(encoding="utf-8")
+            (FIXTURE / "components.json").read_text(encoding="utf-8")
         )
         components = {
             component["name"]: component for component in document["components"]

@@ -1671,25 +1671,25 @@
         "atrinik"
       ],
       "required": true,
-      "version": "1.10.0",
+      "version": "1.3.0",
       "version_source": "Immutable semantic-release image tag",
       "license": "LicenseRef-Atrinik-Image-Contents",
       "source_url": "https://github.com/atrinik/devcontainer/pkgs/container/linux-build",
       "locator": "ghcr.io/atrinik/linux-build",
-      "commit": "f51d809a2670387833476954ee6cc05692ce6c56",
-      "checksum": "sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8",
+      "commit": "b4df04bf5b47a8f5d24e0783efd2c16c5e809f38",
+      "checksum": "sha256:260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a",
       "acquisition": "Dev Containers pulls the release tag and immutable manifest digest",
       "update_cadence_days": 30,
       "update_mechanism": "Weekly audit plus reviewed devcontainer release update",
       "eol_response": "Publish a supported replacement image and update the wrapper atomically",
-      "validation": "Published manifest and source provenance inspection, whole-image SBOM, fresh non-root terminal bootstrap and Git LFS filter/clone/checkout/linked-worktree payload checks, devcontainer configuration tests, and complete profile supply-chain audits",
+      "validation": "Anonymous manifest and provenance inspection, whole-image SBOM, exact non-root gh-stack smoke, devcontainer configuration tests, and complete native build",
       "disposition": "retain",
       "packages": [],
       "evidence": [
         {
           "repository": "atrinik",
           "path": ".devcontainer/devcontainer.json",
-          "contains": "ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8"
+          "contains": "ghcr.io/atrinik/linux-build:1.3.0@sha256:260658d2709e993b41148a9d8f724c2d2f7f1fd93543a139b00d139b10e7f31a"
         }
       ]
     },
@@ -4086,7 +4086,7 @@
       "update_cadence_days": 30,
       "update_mechanism": "Dependabot base-image update and exact installed-version report",
       "eol_response": "Update package names and base image together before Ubuntu support ends",
-      "validation": "Docker build, tool version probes including Git LFS, isolated Git LFS worktree/payload smoke, and complete native workspace build",
+      "validation": "Docker build, tool version probes, and complete native workspace build",
       "disposition": "isolate",
       "packages": [
         "alsa-utils",
@@ -4109,7 +4109,6 @@
         "gdb",
         "gh",
         "git",
-        "git-lfs",
         "iproute2",
         "jq",
         "libasound2-plugins",

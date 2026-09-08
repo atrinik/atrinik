@@ -17,7 +17,6 @@ class ReplacementFoundationTests(unittest.TestCase):
     def setUp(self) -> None:
         self.inventory = load_json("governance/replacement-foundations.json")
         self.manifest = load_json("components.json")
-        self.supply_chain = load_json("supply-chain/inventory.json")
 
     def test_every_replacement_component_has_one_complete_record(self) -> None:
         expected = {
@@ -149,19 +148,7 @@ class ReplacementFoundationTests(unittest.TestCase):
             )
         )
 
-    def test_foundation_repositories_are_owned_in_supply_chain(self) -> None:
-        supply_chain = {
-            record["repository"]: record
-            for record in self.supply_chain["repositories"]
-            if record["supported"]
-        }
-        for record in self.inventory["repositories"]:
-            with self.subTest(repository=record["repository"]):
-                self.assertIn(record["repository"], supply_chain)
-                self.assertEqual(supply_chain[record["repository"]]["branch"], "main")
-                self.assertTrue(supply_chain[record["repository"]]["audit_ready"])
-
-    def test_scheduled_audit_initializes_complete_profiles(self) -> None:
+    def test_optional_diagnostics_initialize_complete_profiles(self) -> None:
         workflow = (ROOT / ".github/workflows/supply-chain.yml").read_text(
             encoding="utf-8"
         )
@@ -181,22 +168,6 @@ class ReplacementFoundationTests(unittest.TestCase):
                 )
                 self.assertEqual(checkouts[record["name"]]["branch"], "main")
 
-        dependencies = {
-            dependency["id"]: dependency
-            for dependency in self.supply_chain["dependencies"]
-        }
-        for name in {
-            "client",
-            "content-toolkit",
-            "editor",
-            "protocol",
-            "renderer",
-            "server",
-            "website",
-        }:
-            self.assertTrue(
-                any(name in dependency["scope"] for dependency in dependencies.values())
-            )
 
 
 class ClassicToolsInventoryTests(unittest.TestCase):

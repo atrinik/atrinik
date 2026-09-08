@@ -55,7 +55,6 @@ python3 -m atrinik_workspace.mcp_contract validate
 ./atrinik manifest validate
 ./atrinik provenance preflight
 ./atrinik provenance validate
-./atrinik supply-chain validate
 ```
 
 The hosted workflow remains authoritative for the required `Integration

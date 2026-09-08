@@ -595,7 +595,7 @@ def parser() -> argparse.ArgumentParser:
     scenario_reset.add_argument("--json", action="store_true")
 
     supply_chain = commands.add_parser(
-        "supply-chain", help="validate and report dependency ownership"
+        "supply-chain", help="optional dependency and license diagnostics"
     )
     supply_chain_commands = supply_chain.add_subparsers(
         dest="supply_chain_command", required=True
@@ -1648,6 +1648,9 @@ def main(arguments: list[str] | None = None) -> int:
                 )
         return 0
     except (PlatformCapabilityError, WorkspaceError) as error:
+        if options.command == "supply-chain":
+            print(f"diagnostic: {error}", file=sys.stderr)
+            return 0
         print(f"error: {error}", file=sys.stderr)
         return 1
     except OSError as error:

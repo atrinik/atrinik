@@ -197,7 +197,11 @@ completely. Profile and state schemas are likewise strict: duplicate keys,
 missing fields, unknown fields, invalid names, and repository mismatches fail
 before an operation changes data.
 
-Supply-chain ownership is a wrapper-level cross-repository contract.
+Supply-chain reporting is an optional wrapper-level diagnostic facility.
+Its catalog is a historical reference, not a build or delivery contract.
+Inventory updates are never required, and findings never gate implementation,
+CI, PR readiness, or delivery. Explicit diagnostic commands print discrepancies
+without a failure exit status; operational I/O errors can still prevent a report.
 `supply-chain/inventory.json` names every active or archived organization
 repository and records each supported dependency's owner, consumers, version
 source, license, acquisition path, update cadence, EOL response, validation,
@@ -248,8 +252,8 @@ selectors as builds, then reads Git-indexed files without mutating a checkout.
 Before selecting audit-ready roots, it requires every physical checkout and
 logical component in the profile to resolve. Review-worktree overrides replace
 specific roots but never relax that completeness invariant. An unavailable
-member therefore fails the aggregate operation instead of turning it into a
-partial audit.
+member is reported as an incomplete diagnostic; it does not block delivery
+or produce a misleading complete audit.
 The audit requires immutable remote Actions and container images, updater
 hints, an owned catalog entry for every dependency input, weekly GitHub Actions
 update configuration, and no submodules. It discovers npm, Cargo, Go, Buf,

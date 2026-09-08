@@ -606,9 +606,16 @@ The benchmark defaults offline and writes sanitized evidence under ignored
 for bounds, threat coverage, capability ownership, optional live-GitHub
 measurement, and downstream consumer gates.
 
-## Dependency and supply-chain ownership
+## Optional dependency and license diagnostics
 
-`supply-chain/inventory.json` records every supported repository and the owned
+Supply-chain commands are optional inspection tools. They never gate builds,
+tests, PR readiness, or delivery, and catalog updates are never required.
+The catalog can be stale: compare reports with current component lockfiles,
+copyright notices and licenses before relying on them. Explicit `validate` and
+`audit` findings are printed as diagnostics with exit status zero; I/O failures
+remain errors. No automatic audit runs as part of integration or on a schedule.
+
+`supply-chain/inventory.json` records known repositories and the owned
 toolchains, actions, images, source archives, system libraries, optional tools,
 vendored sources, licenses, update cadences, EOL responses, and validation
 paths they consume. Repository records distinguish physical checkout, logical
@@ -660,10 +667,10 @@ workspace from silently weakening an aggregate audit. Absolute
 `--repository NAME=PATH` overrides can select review worktrees, but cannot make
 the rest of the profile optional.
 
-Generated reports remain ignored under `build/`. The scheduled organization
-audit uses `./atrinik init --with classic` to materialize the manifest-defined
+Generated reports remain ignored under `build/`. The manually requested diagnostic workflow
+uses `./atrinik init --with classic` to materialize the manifest-defined
 union of both stacks, audits their physical checkout metadata and logical
-component source roots, rejects unowned dependency inputs, movable
+component source roots, reports unowned dependency inputs, movable
 workflow/image references, and submodules, prints exact available tool
 versions, and publishes
 separate deterministic license, CycloneDX, and SPDX artifacts for each stack.

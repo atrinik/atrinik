@@ -49,8 +49,7 @@ git diff --check
 ```
 
 Run the active Codex `skill-creator` validator for changed skills. Add
-ShellCheck, actionlint, profile builds, or supply-chain audits only when
-relevant. Never claim coverage for unread checkouts.
+ShellCheck, actionlint, or builds when relevant; supply-chain is optional. Never claim coverage for unread checkouts.
 
 ## Report
 

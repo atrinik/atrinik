@@ -1143,6 +1143,32 @@ class ParserTests(unittest.TestCase):
             output.call_args_list,
         )
 
+    def test_supply_chain_findings_are_diagnostic_only(self) -> None:
+        with (
+            mock.patch("atrinik_workspace.cli.Workspace"),
+            mock.patch("atrinik_workspace.cli.Inventory.load") as load,
+            mock.patch("builtins.print") as output,
+        ):
+            load.side_effect = WorkspaceError("catalog differs from current components")
+            for command in ("validate", "audit", "report", "versions"):
+                with self.subTest(command=command):
+                    self.assertEqual(
+                        main(["supply-chain", command] + (
+                            ["--format", "licenses"] if command == "report" else []
+                        )), 0
+                    )
+            self.assertTrue(any(
+                "diagnostic: catalog differs" in str(call)
+                for call in output.call_args_list
+            ))
+            load.side_effect = None
+            inventory = mock.Mock()
+            inventory.audit.side_effect = WorkspaceError("stale image evidence")
+            load.return_value = inventory
+            with mock.patch("atrinik_workspace.cli.repository_roots", return_value={}):
+                self.assertEqual(main(["supply-chain", "audit"]), 0)
+            inventory.audit.assert_called_once()
+
     def test_supply_chain_commands_dispatch_validated_inventory(self) -> None:
         inventory = mock.Mock()
         inventory.dependencies = [object(), object()]

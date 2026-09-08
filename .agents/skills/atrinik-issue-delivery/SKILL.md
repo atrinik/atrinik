@@ -5,8 +5,8 @@ description: Deliver an Atrinik issue/PR to merge-ready handoff or manage its ex
 
 # Deliver an Atrinik issue or pull request
 
-Choose exactly one type-explicit `ENTRY_MODE`: `issue` for new issue-first work
-or `PR` for one existing pull request. Both stop before merge.
+Choose exactly one type-explicit `ENTRY_MODE`: new `issue` or existing `PR`.
+Both stop before merge.
 
 Invocation permits ordinary pushes, selected/delivery-created PR updates,
 gated readiness, one coordinate-bound selected-PR comment, and issue-mode draft
@@ -230,14 +230,15 @@ additional task authority. The session benchmark remains credential/source-free.
   validate and miss the candidate; otherwise stop. Retain a complete unreleased
   scope only while its external
   generation, raw digest, identities, absent release journal, and safety match.
-  Released scopes and other references block. Give each physical repository
-  its own worktree, branch, commits, validation, and PR in its owner. In PR mode,
+  Released scopes and other references block. Each physical repository needs
+  its own worktree, branch, commits, validation, and PR. In PR mode,
   this does not authorize a companion PR; another repository needs separate
   type-explicit delivery authority.
 
 ## Implement and publish or update PRs
 
-Implement requirements and owner tests/contracts. Commit/validate coherent
+Implement owner requirements/tests. Supply-chain diagnostics never gate work
+or require inventory updates. Commit/validate coherent
 Conventional checkpoints without rewriting published history. Reprove `origin`,
 then run `git push origin HEAD_BRANCH` in the same scrubbed selector environment;
 reject HTTP, conceal URLs/credentials, and retain credential helpers. In issue

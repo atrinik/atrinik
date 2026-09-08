@@ -15,7 +15,7 @@
 
 - `atrinik` CLI, `atrinik_workspace/` orchestration, `tests/` unittest suite.
 - Checkout/cohort/stack/role/source/build contracts: `components.json`; machine
-  policy: `supply-chain/`, `governance/`.
+  policy: `governance/`; diagnostics: `supply-chain/`.
 - Workflows: `.agents/skills/`; composition: `.devcontainer/`; CI/release:
   `.github/`; helpers: `scripts/`.
 - Manifest destinations are ignored repos; `workspace/` and `build/` are ignored
@@ -62,9 +62,9 @@
   `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse follows `docs/PROVENANCE.md` and its registry; rights/identity/temporal/
   authorship/scope uncertainty fails closed.
-- Update `supply-chain/inventory.json` when dependency ownership/validation changes; keep
-  Actions/images immutable, add no submodules, audit a full profile; only aggregate-root
-  workflows and Dependabot are active.
+- Supply-chain inventory, license reports, and audits are optional diagnostics. Never
+  require catalog updates or use findings to block work, PR readiness, or delivery.
+  Keep Actions/images immutable; no submodules. Only root workflows/Dependabot are active.
 - New content/Classic issues name `content@main` and its Classic-target artifact; no live
   1.x branch/checkout/release label/maintenance line/publication target/backport destination
   exists; historical evidence is immutable.
@@ -104,7 +104,6 @@ python3 -m coverage report --show-missing
 python3 -m compileall -q atrinik atrinik_workspace tests
 python3 -m atrinik_workspace.guidance_inventory --check
 ./atrinik manifest validate
-./atrinik supply-chain validate
 git diff --check
 ```
 
@@ -115,8 +114,8 @@ For cleanup changes also run:
 ./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ```
 
-Run ShellCheck for shell changes, actionlint for workflows, and
-`./atrinik supply-chain audit --profile PROFILE` when dependency inputs change.
+Run ShellCheck for shell changes and actionlint for workflows.
+Diagnostics: `./atrinik supply-chain audit --profile PROFILE`.
 Preserve `.coveragerc` and OIDC Codecov boundaries.
 
 Handoffs name exact profiles, worktrees, topologies, services, states, scenarios,

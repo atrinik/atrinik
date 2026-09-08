@@ -250,7 +250,9 @@ applicability; do not turn irrelevant categories into invented findings.
 - Check error paths and observability redact sensitive values without hiding
   actionable context.
 - Review dependency provenance, licenses, pins, hashes, update policy,
-  transitive risk, install scripts, Actions/images, and inventory changes.
+  transitive risk, install scripts, and Actions/images. Aggregate catalog updates
+  and audits are optional diagnostics; neither their absence nor findings block
+  delivery or readiness.
 - Check imported code/assets have complete provenance and compatible licensing.
 - Consider denial of service through size, count, recursion, expensive parsing,
   retries, API use, disk consumption, and log volume.
