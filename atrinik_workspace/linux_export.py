@@ -14,6 +14,7 @@ from pathlib import Path, PurePosixPath
 import re
 import stat
 import selectors
+import shlex
 import subprocess
 import time
 from typing import BinaryIO
@@ -429,3 +430,87 @@ def elf_dependency_report(objects: dict[str, dict[str, object]], *, entrypoint: 
             "loader_library_directories": list(library_directories),
             "symbol_versions_verified": False,
             "dynamic_plugins_verified": False, "runtime_qualified": False}
+
+
+
+def copy_payload(source_fd: int, destination_fd: int, *, sha256: str, size: int,
+                 executable: bool = False) -> dict[str, object]:
+    """Copy proven bytes to an exclusively created staging descriptor.
+
+    The source owner supplies expected bytes while holding its authenticated
+    source/build lease, and revalidates the source inventory before publication.
+    This primitive grants no provenance and never publishes. On failure, retain
+    or discard only the caller-owned staging file through its normal workflow.
+    """
+    if (not isinstance(sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", sha256) or type(size) is not int or
+            not 0 <= size <= 16 * 1024 ** 3 or type(executable) is not bool):
+        raise ExportError("export-copy: invalid expected byte record")
+    try:
+        source = os.fstat(source_fd)
+        destination = os.fstat(destination_fd)
+        if not stat.S_ISREG(source.st_mode) or source.st_size != size:
+            raise ExportError("export-copy: source size or type mismatch")
+        if (not stat.S_ISREG(destination.st_mode) or destination.st_size or
+                destination.st_nlink != 1 or destination.st_uid != os.geteuid() or
+                (source.st_dev, source.st_ino) == (destination.st_dev, destination.st_ino)):
+            raise ExportError("export-copy: exclusive empty owned staging file required")
+        if os.pread(source_fd, min(1024, size), 0).startswith(LFS_HEADER):
+            raise ExportError("export-lfs-pointer: materialized media bytes are required")
+        os.lseek(destination_fd, 0, os.SEEK_SET)
+        digest = hashlib.sha256()
+        offset = 0
+        while offset < size:
+            block = os.pread(source_fd, min(1024 * 1024, size - offset), offset)
+            if not block:
+                raise ExportError("export-copy: source truncated")
+            digest.update(block)
+            pending = memoryview(block)
+            while pending:
+                written = os.write(destination_fd, pending)
+                if written <= 0:
+                    raise ExportError("export-copy: incomplete write")
+                pending = pending[written:]
+            offset += len(block)
+        if digest.hexdigest() != sha256 or _identity(os.fstat(source_fd)) != _identity(source):
+            raise ExportError("export-copy: source bytes changed or digest mismatch")
+        os.fchmod(destination_fd, 0o755 if executable else 0o644)
+        os.fsync(destination_fd)
+        completed = os.fstat(destination_fd)
+        copied_digest = hashlib.sha256()
+        offset = 0
+        while block := os.pread(destination_fd, min(1024 * 1024, size - offset + 1), offset):
+            offset += len(block)
+            if offset > size:
+                raise ExportError("export-copy: staging size changed")
+            copied_digest.update(block)
+        if (offset != size or copied_digest.hexdigest() != sha256 or
+                _identity(os.fstat(destination_fd)) != _identity(completed)):
+            raise ExportError("export-copy: staging bytes changed")
+        return {"sha256": copied_digest.hexdigest(), "size": offset, "executable": executable}
+    except OSError as error:
+        raise ExportError("export-copy: unsafe or unavailable descriptor") from error
+
+
+def launcher_script(*, executable: str = "bin/atrinik",
+                    data_directory: str = "share/games/atrinik") -> bytes:
+    """Build a movable launcher; the producer verifies binary/media separately."""
+    binary = shlex.quote(relative_path(executable))
+    data = shlex.quote(relative_path(data_directory))
+    return ("""#!/bin/sh
+set -eu
+umask 077
+root=$(CDPATH='' cd -P -- "$(dirname -- "$0")" && pwd)
+config=${ATRINIK_CONFIG_DIR:-${XDG_STATE_HOME:-${HOME:?HOME required}/.local/state}/atrinik-client}
+case "$config" in /*) ;; *) echo 'client config directory must be absolute' >&2; exit 2 ;; esac
+config=$(realpath -m -- "$config")
+case "$config/" in "$root/"*) echo 'client state must be outside the export' >&2; exit 2 ;; esac
+mkdir -p -- "$config"
+config=$(CDPATH='' cd -P -- "$config" && pwd)
+case "$config/" in "$root/"*) echo 'client state must be outside the export' >&2; exit 2 ;; esac
+ATRINIK_CONFIG_DIR=$config
+LD_LIBRARY_PATH=$root/lib
+export ATRINIK_CONFIG_DIR LD_LIBRARY_PATH
+unset LD_PRELOAD LD_AUDIT
+cd -- "$root"/""" + data + """
+exec "$root"/""" + binary + """ "$@"
+""").encode("utf-8")

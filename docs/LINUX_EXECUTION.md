@@ -105,3 +105,22 @@ versions and qualify the exported application on each supported runtime baseline
 
 See the [GNU readelf reference](https://sourceware.org/binutils/docs/binutils/readelf.html)
 for the inspected header, program-header, dynamic and version sections.
+
+
+The independent `copy_payload` primitive accepts already-open source and exclusive
+staging descriptors, copies bounded chunks, verifies the actual written digest,
+and detects source/staging changes. It rejects Git LFS pointers and occupied
+staging files. Only the authenticated source owner can provide the expected
+record while holding its source/build lease; that owner must revalidate the
+source inventory and staged destination before atomic publication. The primitive
+never publishes or grants provenance. Failures leave the caller-owned staging
+file for that owner's recovery workflow.
+
+The launcher generator uses a relative `bin/atrinik` and
+`share/games/atrinik` layout, supplies the export's `lib` directory, and starts
+from the data directory supported by Classic's current-directory lookup.
+`ATRINIK_CONFIG_DIR` selects separate persistent state; otherwise the launcher
+uses `XDG_STATE_HOME/atrinik-client` or `HOME/.local/state/atrinik-client`.
+State inside the payload is rejected. It requires the standard Linux shell and
+coreutils, including `realpath`. Launcher fixture tests prove relocation and
+argument/state handling only; they do not replace real client or media acceptance.

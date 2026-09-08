@@ -267,6 +267,96 @@ class LinuxExportTests(unittest.TestCase):
                 with self.assertRaises(export.ExportError):
                     export.inspect_elf(stream.fileno())
 
+    def test_descriptor_copy_verifies_written_bytes_and_partial_writes(self) -> None:
+        source = self.root / "payload"
+        source.write_bytes(b"media-bytes" * 1000)
+        target = self.root / "copied"
+        expected = hashlib.sha256(source.read_bytes()).hexdigest()
+        real_write = os.write
+        with source.open("rb") as incoming, target.open("x+b") as outgoing, \
+             mock.patch.object(export.os, "write", side_effect=lambda fd, data: real_write(fd, data[:17])):
+            record = export.copy_payload(incoming.fileno(), outgoing.fileno(), sha256=expected,
+                                         size=source.stat().st_size, executable=True)
+        self.assertEqual(target.read_bytes(), source.read_bytes())
+        self.assertEqual(record["sha256"], expected)
+        self.assertEqual(target.stat().st_mode & 0o777, 0o755)
+
+    def test_descriptor_copy_rejects_pointer_bad_hash_and_existing_target(self) -> None:
+        for value, expected, occupied in [(export.LFS_HEADER, None, False), (b"actual", "0" * 64, False),
+                                           (b"actual", None, True)]:
+            with self.subTest(value=value, occupied=occupied):
+                source = self.root / "payload"
+                source.write_bytes(value)
+                target = self.root / "copied"
+                target.write_bytes(b"preserve" if occupied else b"")
+                with source.open("rb") as incoming, target.open("r+b") as outgoing:
+                    with self.assertRaises(export.ExportError):
+                        export.copy_payload(incoming.fileno(), outgoing.fileno(),
+                                            sha256=expected or hashlib.sha256(value).hexdigest(), size=len(value))
+                if occupied:
+                    self.assertEqual(target.read_bytes(), b"preserve")
+
+    def test_launcher_moves_and_keeps_state_outside_payload(self) -> None:
+        root = self.root / "original export"
+        (root / "bin").mkdir(parents=True)
+        (root / "share/games/atrinik").mkdir(parents=True)
+        binary = root / "bin/atrinik"
+        binary.write_text('#!/bin/sh\nprintf "%s\\n" "$PWD" "$ATRINIK_CONFIG_DIR" "$LD_LIBRARY_PATH" "$@"\n')
+        binary.chmod(0o755)
+        launcher = root / "launch"
+        launcher.write_bytes(export.launcher_script())
+        launcher.chmod(0o755)
+        moved = self.root / "moved export"
+        root.rename(moved)
+        config = self.root / "external state"
+        environment = dict(os.environ, ATRINIK_CONFIG_DIR=str(config))
+        result = subprocess.run([str(moved / "launch"), "argument with spaces", "--server", "endpoint"],
+                                cwd="/", env=environment, capture_output=True, text=True, check=True)
+        self.assertEqual(result.stdout.splitlines(), [str(moved / "share/games/atrinik"), str(config),
+                                                     str(moved / "lib"), "argument with spaces", "--server", "endpoint"])
+        environment["ATRINIK_CONFIG_DIR"] = str(moved / "state")
+        failed = subprocess.run([str(moved / "launch")], env=environment, capture_output=True, text=True)
+        self.assertEqual(failed.returncode, 2)
+        self.assertFalse((moved / "state").exists())
+        if shutil.which("shellcheck"):
+            subprocess.run(["shellcheck", str(moved / "launch")], check=True)
+
+    def test_descriptor_copy_rejects_source_mutation_after_successful_read(self) -> None:
+        source = self.root / "payload"
+        payload = b"a" * 2048
+        source.write_bytes(payload)
+        target = self.root / "copy"
+        original_read = os.pread
+        with source.open("rb") as incoming, source.open("r+b") as writer, target.open("x+b") as outgoing:
+            def mutate(descriptor, count, offset):
+                block = original_read(descriptor, count, offset)
+                if descriptor == incoming.fileno() and count == len(payload):
+                    os.pwrite(writer.fileno(), b"b", 0)
+                return block
+            with mock.patch.object(export.os, "pread", side_effect=mutate):
+                with self.assertRaisesRegex(export.ExportError, "source bytes changed"):
+                    export.copy_payload(incoming.fileno(), outgoing.fileno(),
+                                        sha256=hashlib.sha256(payload).hexdigest(), size=len(payload))
+        # Copied bytes alone match: the descriptor identity recheck caught drift.
+        self.assertEqual(target.read_bytes(), payload)
+
+    def test_descriptor_copy_rejects_staging_mutation_during_readback(self) -> None:
+        source = self.root / "payload"
+        payload = b"a" * 2048
+        source.write_bytes(payload)
+        target = self.root / "copy"
+        original_read = os.pread
+        with source.open("rb") as incoming, target.open("x+b") as outgoing:
+            def mutate(descriptor, count, offset):
+                block = original_read(descriptor, count, offset)
+                if descriptor == outgoing.fileno() and offset == 0:
+                    os.pwrite(descriptor, b"b", 0)
+                return block
+            with mock.patch.object(export.os, "pread", side_effect=mutate):
+                with self.assertRaisesRegex(export.ExportError, "staging bytes changed"):
+                    export.copy_payload(incoming.fileno(), outgoing.fileno(),
+                                        sha256=hashlib.sha256(payload).hexdigest(), size=len(payload))
+
 
 if __name__ == "__main__":
     unittest.main()
