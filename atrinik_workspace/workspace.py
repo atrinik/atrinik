@@ -3711,12 +3711,14 @@ class Workspace:
                         }
                         if relative in pointers:
                             _pointer, lfs_oid, lfs_size = pointers[relative]
-                            if observed != lfs_size or payload_digest.hexdigest() != lfs_oid:
-                                raise _SourceGenerationCorrupt(
-                                    f"immutable Git LFS payload is corrupt: {display}"
-                                )
-                            actual_oid = expected[relative][2]
-                            proof.update(git_blob_oid=actual_oid.decode(), lfs_oid=lfs_oid)
+                            if observed == lfs_size and payload_digest.hexdigest() == lfs_oid:
+                                actual_oid = expected[relative][2]
+                                proof.update(git_blob_oid=actual_oid.decode(), lfs_oid=lfs_oid)
+                            else:
+                                actual_oid = b"lfs-mismatch:" + payload_digest.hexdigest().encode()
+                            # A mismatch remains a mismatching Git blob until
+                            # both inventories and visible roots are proven.
+                            # Uncertainty must never authorize quarantine.
                         payloads[os.fsdecode(relative)] = proof
                         value = (mode, b"blob", actual_oid)
                     elif stat.S_ISLNK(status.st_mode):
@@ -3816,18 +3818,6 @@ class Workspace:
                     "immutable source generation changed between inventories: "
                     f"{source}"
                 )
-            if set(actual) != set(expected) or any(
-                actual[path][:2] != expected[path][:2]
-                or (
-                    actual[path][1] != b"tree"
-                    and actual[path][2] != expected[path][2]
-                )
-                for path in actual.keys() & expected.keys()
-            ):
-                raise _SourceGenerationCorrupt(
-                    "immutable source generation does not match its recorded "
-                    f"Git tree: {source}"
-                )
             visible_after = os.stat(
                 source.name,
                 dir_fd=parent_fd,
@@ -3846,6 +3836,18 @@ class Workspace:
             ):
                 raise WorkspaceError(
                     f"immutable source generation changed while reading: {source}"
+                )
+            if set(actual) != set(expected) or any(
+                actual[path][:2] != expected[path][:2]
+                or (
+                    actual[path][1] != b"tree"
+                    and actual[path][2] != expected[path][2]
+                )
+                for path in actual.keys() & expected.keys()
+            ):
+                raise _SourceGenerationCorrupt(
+                    "immutable source generation does not match its recorded "
+                    f"Git tree: {source}"
                 )
         except OSError as error:
             raise WorkspaceError(
@@ -4495,7 +4497,8 @@ class Workspace:
         record this observation only; they never authorize a later path reuse.
         """
 
-        Workspace._validate_source_generation_boundary(generation)
+        boundary = Workspace._validate_source_generation_boundary(generation)
+        corrupt_includes: list[str] = []
         payloads = {
             "source/" + path: proof
             for path, proof in Workspace._validate_source_generation_git_tree(
@@ -4642,21 +4645,17 @@ class Workspace:
                 actual_oid = digest.hexdigest().encode()
                 if relative in pointers:
                     _pointer, lfs_oid, lfs_size = pointers[relative]
-                    if observed != lfs_size or payload_digest.hexdigest() != lfs_oid:
-                        raise _SourceGenerationCorrupt(
-                            f"immutable Git LFS payload is corrupt: {include_path}"
-                        )
-                    actual_oid = object_id
-                    proof["lfs_oid"] = lfs_oid
+                    if observed == lfs_size and payload_digest.hexdigest() == lfs_oid:
+                        actual_oid = object_id
+                        proof["lfs_oid"] = lfs_oid
+                    else:
+                        actual_oid = b"lfs-mismatch:" + payload_digest.hexdigest().encode()
                 if (
                     observed != opened.st_size
                     or file_identity(opened) != file_identity(after)
-                    or actual_mode != mode
-                    or actual_oid != object_id
                 ):
-                    raise _SourceGenerationCorrupt(
-                        "immutable source include does not match its recorded "
-                        f"Git entry: {include_path}"
+                    raise WorkspaceError(
+                        f"immutable source include changed while reading: {include_path}"
                     )
                 visible_after = os.stat(
                     include_path.name,
@@ -4667,6 +4666,8 @@ class Workspace:
                     raise WorkspaceError(
                         f"immutable source include changed while reading: {include_path}"
                     )
+                if actual_mode != mode or actual_oid != object_id:
+                    corrupt_includes.append(include)
                 payloads[include] = proof
             except WorkspaceError:
                 raise
@@ -4679,7 +4680,15 @@ class Workspace:
                     os.close(descriptor)
                 if parent_fd is not None:
                     os.close(parent_fd)
-        Workspace._validate_source_generation_boundary(generation)
+        if Workspace._validate_source_generation_boundary(generation) != boundary:
+            raise WorkspaceError(
+                f"immutable source generation changed during closure proof: {generation}"
+            )
+        if corrupt_includes:
+            raise _SourceGenerationCorrupt(
+                "immutable source include does not match its recorded Git entry: "
+                + ", ".join(corrupt_includes)
+            )
         return payloads
 
     def _materialize_primary_source(

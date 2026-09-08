@@ -2368,7 +2368,7 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(decoded.getnframes(), 8)
             self.assertEqual(len(decoded.readframes(8)), 16)
 
-    def test_source_generation_lfs_tree_and_blob_includes(self) -> None:
+    def source_lfs_includes_fixture(self) -> tuple[Path, dict[str, bytes], Path]:
         checkout, files = self.source_lfs_fixture()
         (checkout / "code").mkdir()
         (checkout / "code/README").write_text("source subtree\n")
@@ -2382,6 +2382,10 @@ class WorkspaceTests(unittest.TestCase):
                                for row in manifest.components]
         manifest.stack("default").providers["client"] = component
         source = self.resolve_lfs_fixture()
+        return checkout, files, source
+
+    def test_source_generation_lfs_tree_and_blob_includes(self) -> None:
+        checkout, files, source = self.source_lfs_includes_fixture()
         self.assertEqual(self.resolve_lfs_fixture(), source)
         record = self.workspace._source_generation_record(source)
         proof = self.workspace._validate_source_generation_git_closure(
@@ -2392,6 +2396,58 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual((source.parent / name).read_bytes(), payload)
             self.assertEqual(proof[name]["sha256"], hashlib.sha256(payload).hexdigest())
             self.assertEqual(proof[name]["lfs_oid"], proof[name]["sha256"])
+
+    def assert_lfs_parent_swap_is_not_quarantined(self, source: Path, target: Path) -> None:
+        target.chmod(0o600)
+        target.write_bytes(b"x" * target.stat().st_size)
+        target.chmod(0o444)
+        generation = source.parent
+        parked = generation.with_name(generation.name + "-test-parent-swap")
+        target_identity = (target.stat().st_dev, target.stat().st_ino)
+        real_read = os.read
+        swapped = False
+        def swap_parent(descriptor: int, size: int) -> bytes:
+            nonlocal swapped
+            result = real_read(descriptor, size)
+            status = os.fstat(descriptor)
+            if not swapped and (status.st_dev, status.st_ino) == target_identity:
+                generation.rename(parked)
+                swapped = True
+            return result
+        try:
+            with (
+                mock.patch.object(workspace_module.os, "read", side_effect=swap_parent),
+                mock.patch.object(self.workspace, "_quarantine_source_generation") as quarantine,
+            ):
+                with self.assertRaises(WorkspaceError) as observed:
+                    self.resolve_lfs_fixture()
+                self.assertNotIsInstance(observed.exception, workspace_module._SourceGenerationCorrupt)
+                quarantine.assert_not_called()
+            self.assertTrue(swapped)
+            self.assertTrue(parked.exists())
+        finally:
+            if parked.exists():
+                parked.rename(generation)
+        self.assertTrue(generation.exists())
+
+    def test_source_generation_lfs_tree_parent_swap_preserves_uncertainty(self) -> None:
+        self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        self.assert_lfs_parent_swap_is_not_quarantined(source, source / "background/tone.wav")
+
+    def test_source_generation_lfs_blob_include_parent_swap_preserves_uncertainty(self) -> None:
+        _checkout, _files, source = self.source_lfs_includes_fixture()
+        self.assert_lfs_parent_swap_is_not_quarantined(source, source.parent / "images/pixel.png")
+
+    def test_source_generation_lfs_pointer_bytes_are_not_hydrated_payload(self) -> None:
+        checkout, files = self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        target = source / "background/tone.wav"
+        target.chmod(0o600)
+        target.write_text(command("git", "show", "HEAD:background/tone.wav", cwd=checkout) + "\n")
+        target.chmod(0o444)
+        self.assertEqual(self.resolve_lfs_fixture(), source)
+        self.assertEqual(target.read_bytes(), files["background/tone.wav"])
 
     def test_source_generation_lfs_corruption_cannot_forge_digest(self) -> None:
         _checkout, files = self.source_lfs_fixture()
