@@ -54,8 +54,26 @@ python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT plan --capaci
 python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT dispatch --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit 1 --expected /absolute/snapshot.json
 ```
 
-Save `inspect` stdout directly as the bounded expected-snapshot input; other
-mutations return `{snapshot,result}` and `init` returns `{root,snapshot}`.
+For repeated operations, save exact snapshots directly and return compact output:
+
+```sh
+# Use a private, owned 0700 directory and a NEW absolute file for each result.
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT --snapshot-output /absolute/private/step-1.json --compact inspect
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT --snapshot-output /absolute/private/step-2.json --compact dispatch --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit HEAVY_LIMIT --expected /absolute/private/step-1.json
+```
+
+The helper retains complete snapshot bytes in the private file and emits CAS
+metadata plus the actionable result. Tracking output includes only operation
+`id`, `kind`, `target` and `phase`; read the operation in the exported snapshot
+when assessing exact payloads or remote evidence. Compact output alone is never
+proof of retry safety or acceptance. It never overwrites an existing file or
+replaces live ownership checks. Keep full output when needed for diagnosis.
+`plan` and `terminal` do not return snapshots; call them without these flags.
+If a command fails or a CAS is stale, inspect into a fresh file and reconcile
+before retrying; a partial output is never authority to repeat a mutation.
+Default output remains unchanged: save `inspect` stdout directly as the bounded
+expected-snapshot input; mutations return `{snapshot,result}` and `init`
+returns `{root,snapshot}`. If using default output,
 Extract `.snapshot` without editing the authoritative file. Every mutation
 requires the current generation/digest/device/inode tuple together. Stale CAS
 means inspect and reconsider, not overwrite. Commands below share `--root` and
