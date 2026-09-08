@@ -1,7 +1,9 @@
 """Exact existing Projects-v2 Status updates; never create fields or items."""
 from __future__ import annotations
 
-from .project_coordinator import require
+import copy
+
+from .project_coordinator import acceptance_observations, occupied_attempt, require, terminal_gaps
 
 MUTATION = """mutation($project:ID!, $item:ID!, $field:ID!, $option:String!) {
   updateProjectV2ItemFieldValue(input:{projectId:$project,itemId:$item,fieldId:$field,
@@ -58,4 +60,19 @@ def observe(operation: dict, github) -> dict:
 def gate(project: dict, operation: dict, github) -> None:
     """Done reflects a live terminal issue, never just a green or ready PR."""
     if operation["payload"]["status"] == "Done":
-        require(github.observe(operation["target"], "issue")["terminal"], "Done requires live terminal issue")
+        from .project_coordinator_github import refresh
+        candidate = copy.deepcopy(project)
+        # Exclude only this operation's own planned intent from its terminal gate.
+        if operation.get("id") is not None:
+            candidate["operations"].pop(operation["id"], None)
+        refresh(candidate, github)
+        require(candidate["observations"] == project["observations"], "refresh before Done tracking")
+        target = operation["target"]
+        require(candidate["observations"][target]["terminal"], "Done requires live terminal issue")
+        if target == project["plan"]["parent"]:
+            require(not terminal_gaps(candidate), "Done requires full project acceptance")
+        else:
+            required = acceptance_observations(candidate, [target])
+            require(all(candidate["observations"][ident]["terminal"] and
+                        not occupied_attempt(candidate["nodes"][ident]) for ident in required),
+                    "Done requires the complete terminal required graph and stopped workers")

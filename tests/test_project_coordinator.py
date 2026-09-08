@@ -49,6 +49,17 @@ def race(root, expected, queue):
 
 
 class SchedulerTests(unittest.TestCase):
+    def test_parent_only_pr_drift_invalidates_integration_acceptance(self):
+        p = project()
+        gh = FakeGitHub()
+        gh.observations[p["plan"]["parent"]]["references"] = {"parent-pr": {"head": "A", "merged": False}}
+        refresh(p, gh)
+        attest(p, "integrated", "integration against parent PR A")
+        gh.observations[p["plan"]["parent"]]["references"]["parent-pr"] = {"head": "B", "merged": True}
+        refresh(p, gh)
+        self.assertTrue(any("stale acceptance" in gap for gap in terminal_gaps(p)))
+        with self.assertRaises(ProjectError):
+            prepare_operation(p, gh, "close-parent", p["plan"]["parent"], {})
     def test_attestation_cannot_retire_unknown_spawn_reservation(self):
         p = project([node(2)])
         request = reserve(p, 1, 1)[0]
@@ -598,6 +609,31 @@ class TrackingTests(unittest.TestCase):
 
 
 class ProjectStatusTests(unittest.TestCase):
+    def test_done_rejects_declared_and_undeclared_unresolved_descendants(self):
+        for declared in (False, True):
+            with self.subTest(declared=declared):
+                p = project() if declared else project([node(2)])
+                self.gh.observations["atrinik/atrinik#1"]["terminal"] = True
+                self.gh.observations["atrinik/atrinik#2"]["children"] = ["I_3"]
+                self.gh.observations["atrinik/atrinik#3"]["terminal"] = False
+                refresh(p, self.gh)
+                self.payload["status"] = "Done"
+                self.op["target"] = "atrinik/atrinik#1"
+                with self.assertRaises(ProjectError):
+                    projects.gate(p, self.op, self.gh)
+                self.op["target"] = "atrinik/atrinik#2"
+                with self.assertRaises(ProjectError):
+                    projects.gate(p, self.op, self.gh)
+
+    def test_done_accepts_fresh_complete_parent_without_counting_own_intent(self):
+        p = project()
+        self.gh.observations["atrinik/atrinik#1"]["terminal"] = True
+        refresh(p, self.gh)
+        attest(p, "integrated", "complete current integration")
+        self.payload["status"] = "Done"
+        self.op.update(target="atrinik/atrinik#1", id="status-op")
+        p["operations"]["status-op"] = {"kind": "project-status", "phase": "planned"}
+        projects.gate(p, self.op, self.gh)
     def setUp(self):
         self.payload = {"project": "P_1", "item": "ITEM_2", "field": "F_3", "option": "O_4", "status": "Review"}
         self.op = {"target": "atrinik/atrinik#2", "payload": self.payload}

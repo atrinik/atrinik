@@ -306,7 +306,8 @@ def reopen(project: dict, ident: str, attempt: str, evidence: str, heavy_limit: 
 
 def requirements_identity(project: dict) -> str:
     parent = project["observations"].get(project["plan"]["parent"], {})
-    return digest({"parent_body": parent.get("body"), "acceptance": project["plan"]["acceptance"]})
+    implementation = {key: parent.get(key) for key in ("node_id", "body", "references", "children", "dependencies")}
+    return digest({"parent_requirements": implementation, "acceptance": project["plan"]["acceptance"]})
 
 
 def acceptance_observations(project: dict, owners: list[str]) -> dict:

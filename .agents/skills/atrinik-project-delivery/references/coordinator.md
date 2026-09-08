@@ -171,6 +171,9 @@ Required contexts and app identities come from live classic protection plus
 Missing required jobs block completion. Unavailable protection data or required
 workflow/deployment/security rules without supported evidence stop automatic
 terminal decisions; no checks returned is not proof that none are required.
+Parent-only PR heads/checks/merge evidence also bind every integration criterion.
+Project Done uses the same fresh complete required graph; a parent's Done status
+additionally requires full acceptance, not only a closed issue.
 Children merged is necessary, not sufficient. Close the authorized parent only
 after these checks; otherwise provide the exact remaining closure action.
 
