@@ -433,6 +433,14 @@ class Inventory:
                 raise WorkspaceError(f"audit root is not a directory: {resolved}")
             normalized[name] = resolved
 
+        if "classic" in normalized and (
+            "container/classic-dependencies" in self.dependencies_by_id
+            or (normalized["classic"] / "dependencies.bundle.json").exists()
+        ):
+            _validate_classic_bundle_inventory(
+                normalized["classic"], self.dependencies_by_id
+            )
+
         action_dependencies = {
             dependency.locator: dependency
             for dependency in self.dependencies
@@ -1269,6 +1277,48 @@ def _source_path(value: object, context: str) -> str:
     if text == ".":
         return text
     return _relative_path(text, context)
+
+
+def _validate_classic_bundle_inventory(
+    root: Path, dependencies: dict[str, Dependency]
+) -> None:
+    """Compare active descriptor fields, not incidental matching evidence text."""
+    identifier = "container/classic-dependencies"
+    dependency = dependencies.get(identifier)
+    if dependency is None:
+        raise WorkspaceError(f"{identifier}: required inventory record is missing")
+    path = _safe_repository_path(root, "dependencies.bundle.json")
+    try:
+        descriptor = json.loads(_read_metadata(path))
+    except json.JSONDecodeError as error:
+        raise WorkspaceError(f"{identifier}: invalid bundle descriptor JSON") from error
+    if not isinstance(descriptor, dict) or descriptor.get("schema_version") != 1:
+        raise WorkspaceError(f"{identifier}: unsupported bundle descriptor schema")
+    image = descriptor.get("image")
+    digest = descriptor.get("digest")
+    material = descriptor.get("material_digest")
+    if (
+        image != "ghcr.io/atrinik/classic-dependencies"
+        or not isinstance(digest, str)
+        or CHECKSUM_PATTERN.fullmatch(digest) is None
+        or not isinstance(material, str)
+        or CHECKSUM_PATTERN.fullmatch(material) is None
+    ):
+        raise WorkspaceError(f"{identifier}: invalid bundle descriptor coordinates")
+    tag = "materials-" + material.removeprefix("sha256:")
+    if descriptor.get("tag") != tag:
+        raise WorkspaceError(f"{identifier}: descriptor tag differs from its material digest")
+    for field, actual, expected in (
+        ("kind", dependency.kind, "container-image"),
+        ("version", dependency.version, tag),
+        ("locator", dependency.locator, f"{image}@{digest}"),
+        ("checksum", dependency.checksum, digest),
+    ):
+        if actual != expected:
+            raise WorkspaceError(
+                f"{identifier}: inventory {field} differs from active "
+                f"classic/dependencies.bundle.json: expected {expected}"
+            )
 
 
 def _safe_repository_path(root: Path, relative: str) -> Path:

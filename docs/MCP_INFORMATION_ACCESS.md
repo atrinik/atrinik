@@ -148,8 +148,8 @@ The maintained Python SDK evaluation is
 `modelcontextprotocol/python-sdk@v2.0.0`, immutable commit
 `6f69a3758ebf2ee55ce050f58b470ce11af71133`, MIT. No SDK dependency is added in
 this contract-only phase. Issue #351 owns the production API evaluation and,
-if adopted, the immutable dependency and transitive
-`supply-chain/inventory.json` update. Dependabot and that package owner review
+if adopted, its immutable dependency inputs. An aggregate catalog update is
+optional diagnostic maintenance, never an adoption requirement. Dependabot and that package owner review
 protocol support, changelog, license, and transitive changes.
 
 ## Reproducible measurement

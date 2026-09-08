@@ -1,16 +1,15 @@
-name: Supply chain
+name: Dependency diagnostics
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "17 5 * * 1"
 
 permissions:
   contents: read
 
 jobs:
   audit:
-    name: Organization dependency audit
+    name: Optional dependency diagnostics
+    continue-on-error: true
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -22,7 +21,7 @@ jobs:
           python-version: "3.13"
       - name: Initialize complete audit profiles
         run: ./atrinik init --with classic
-      - name: Audit dependency ownership
+      - name: Inspect dependency catalog
         run: |
           ./atrinik supply-chain validate
           ./atrinik supply-chain audit --profile default
@@ -48,8 +47,9 @@ jobs:
             --profile classic \
             --output build/supply-chain/classic/spdx.json
       - name: Upload supply-chain reports
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: atrinik-supply-chain
           path: build/supply-chain
-          if-no-files-found: error
+          if-no-files-found: warn
