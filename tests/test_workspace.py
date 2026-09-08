@@ -7069,6 +7069,121 @@ class WorkspaceTests(unittest.TestCase):
             ["atrinik-server", "plugin_arena", "plugin_python"],
         )
 
+    def test_cold_and_warm_selective_builds_prepare_only_required_region_maps(self) -> None:
+        selected = {
+            role: self.workspace.paths.repositories / role
+            for role in ("client", "server", "protocol", "libatrinik", "sound")
+        }
+        source = selected["server"]
+        (source / "tools").mkdir(exist_ok=True)
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("fixture\n", encoding="utf-8")
+
+        def collect(root: Path, *_args: object) -> None:
+            for name in ("lib", "maps"):
+                (root / "runtime" / "content" / name).mkdir(
+                    parents=True, exist_ok=True
+                )
+
+        def resources(root: Path, *_args: object) -> None:
+            (root / "runtime" / "resources").mkdir(parents=True, exist_ok=True)
+
+        def compile_service(root: Path, service: str) -> None:
+            binary = self.workspace._classic_binary_directory(root, service)
+            binary.mkdir(parents=True, exist_ok=True)
+            if service == "client":
+                (binary / "atrinik").write_text("client\n", encoding="utf-8")
+                return
+            executable = binary / "atrinik-server"
+            executable.write_text(
+                "#!/usr/bin/env python3\n"
+                "from pathlib import Path\n"
+                "import sys\n"
+                "assets = Path(next(a.split('=', 1)[1] for a in sys.argv "
+                "if a.startswith('--assetspath=')))\n"
+                "out = assets / 'client-maps'\n"
+                "out.mkdir(parents=True)\n"
+                "(out / 'incuna_-1.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n')\n"
+                "(out / 'incuna_-1.def').write_text('pixel_size 4\\n')\n",
+                encoding="utf-8",
+            )
+            executable.chmod(0o755)
+            for name in ("libplugin_arena.so", "libplugin_python.so"):
+                (binary / name).write_text("plugin\n", encoding="utf-8")
+
+        def integrated_build(
+            root: Path, _selected: dict[str, Path], _tests: bool,
+            *, build_services: set[str], **_kwargs: object,
+        ) -> None:
+            (root / "build").mkdir(exist_ok=True)
+            self.workspace._record_classic_graph(root, {"client", "server"}, "integrated")
+            for service in build_services:
+                compile_service(root, service)
+
+        for integrated in (False, True):
+            for initial in ({"client"}, {"server"}, {"client", "server"}):
+                with self.subTest(integrated=integrated, initial=initial):
+                    key = f"cold-{integrated}-{'-'.join(sorted(initial))}"
+                    with (
+                        mock.patch.object(self.workspace, "_profile_build_key", return_value=key),
+                        mock.patch.object(self.workspace, "_refresh_build_metadata"),
+                        mock.patch.object(
+                            self.workspace, "_prepare_sound",
+                            return_value=(selected["sound"], None),
+                        ),
+                        mock.patch.object(self.workspace, "_collect_content", side_effect=collect),
+                        mock.patch.object(self.workspace, "_stage_resources", side_effect=resources),
+                        mock.patch.object(
+                            self.workspace, "_uses_integrated_classic_build",
+                            return_value=integrated,
+                        ),
+                        mock.patch.object(
+                            self.workspace, "_build_integrated_classic",
+                            side_effect=integrated_build,
+                        ),
+                        mock.patch.object(
+                            self.workspace, "_build_client",
+                            side_effect=lambda root, *_a, **_k: compile_service(root, "client"),
+                        ),
+                        mock.patch.object(
+                            self.workspace, "_build_server",
+                            side_effect=lambda root, *_a, **_k: compile_service(root, "server"),
+                        ),
+                        mock.patch.object(
+                            self.workspace, "_region_map_inputs",
+                            return_value=({"fixture": key}, True),
+                        ),
+                    ):
+                        root = self.workspace._build_resolved(
+                            "topology", "default", False, ["client", "server"], selected,
+                            build_services=initial, generate_region_maps="server" in initial,
+                        )
+                        client = self.workspace._classic_binary_directory(root, "client") / "atrinik"
+                        server = self.workspace._classic_binary_directory(root, "server") / "atrinik-server"
+                        self.assertEqual(client.exists(), "client" in initial)
+                        self.assertEqual(server.exists(), "server" in initial)
+                        maps = root / "runtime" / "client-maps"
+                        self.assertEqual(maps.exists(), "server" in initial)
+                        for services in ({"client"}, {"server"}, {"client", "server"}, {"client"}):
+                            warm = self.workspace._build_resolved(
+                                "topology", "default", False, ["client", "server"], selected,
+                                build_services=services,
+                                generate_region_maps="server" in services,
+                            )
+                            self.assertEqual(root, warm)
+                        self.workspace._validate_region_maps(maps)
+                        # A paired runtime restart may compile only the client,
+                        # but still needs to refresh stale server-owned maps.
+                        atomic_json(maps / ".atrinik-region-maps.json", {"stale": True})
+                        self.workspace._build_resolved(
+                            "topology", "default", False, ["client", "server"], selected,
+                            build_services={"client"},
+                        )
+                        self.workspace._validate_region_maps(maps)
+                        self.assertEqual(
+                            load_json(maps / ".atrinik-region-maps.json"), {"fixture": key}
+                        )
+
     def test_selective_integrated_build_forwards_service_targets(self) -> None:
         selected = {
             role: self.workspace.paths.repositories / role

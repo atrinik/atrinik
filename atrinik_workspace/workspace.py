@@ -8128,6 +8128,7 @@ class Workspace:
                 force_reconfigure=force_reconfigure,
                 use_ccache=use_ccache,
                 build_services=set(selected_services),
+                generate_region_maps="server" in selected_services,
             )
             summary = copy.deepcopy(self._build_summary)
         cache = summary.get("cache", {})
@@ -8318,6 +8319,7 @@ class Workspace:
         force_reconfigure: bool = False,
         use_ccache: bool = True,
         build_services: set[str] | None = None,
+        generate_region_maps: bool = True,
     ) -> Path:
         requested_services = set(targets).intersection(TOPOLOGY_SERVICES)
         selective_build = build_services is not None
@@ -8421,7 +8423,11 @@ class Workspace:
                     self._build_server(
                         root, selected, tests, **server_arguments
                     )
-            if "server" in targets:
+            # The paired configure closure includes server content even for a
+            # client-only dev build. Region maps execute the server worldmaker,
+            # so that build must defer them. Runtime publication keeps this
+            # dependency, including paired restarts that only rebuild a client.
+            if "server" in targets and generate_region_maps:
                 self._generate_region_maps(root, profile_name, selected)
             if "metaserver-worker" in targets:
                 self._build_worker(root, selected)
