@@ -20,6 +20,9 @@ description: Publish Atrinik PRs, govern GitHub policy, or review and explicitly
 5. Keep controls Team-plan compatible; document and review Enterprise-only
    migrations.
 
+Use [shared read-only host auth](../../../docs/COORDINATOR_AUTH.md); verify actor
+and task capabilities. Only the host changes login/scopes; API mutation gates remain.
+
 ## Optional commit-signing guidance
 
 For optional SSH commit-signing setup and the host/container boundary, read

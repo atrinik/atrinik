@@ -262,7 +262,9 @@ match. A secret-free session record may make those facts visible, but it never
 grants authority. Reconnect or crash recovery reruns the probe, exact
 worktree/ledger observation, CAS, and leases before continuing. Bound idle and
 shutdown operations to the owned session, and give parallel sessions distinct
-worktrees, leases, caches, credentials, ports, and mutable state.
+worktrees, leases, caches, ports, and mutable state. The supported read-only
+host GitHub auth mount is shared as described in
+[coordinator authentication](docs/COORDINATOR_AUTH.md).
 Copied or stale session markers, arbitrary containers, nested coordinators,
 and unsafe bind mounts never grant authority. Keep the `windows-cross` container for
 package/build work and host-bound validation.
@@ -317,6 +319,16 @@ The filter process must be `git-lfs filter-process` and required must be
 after clone, checkout and linked-worktree creation. These source checks do
 not establish runtime export or media hydration, which remains separate.
 
+#### Shared host GitHub authentication
+
+Authenticate once on the host, then share its file-backed GitHub CLI config
+read-only with trusted coordinators. The ordinary devcontainer mounts
+`$HOME/.config/gh-atrinik` at `/home/ubuntu/.config/gh` and sets `GH_CONFIG_DIR` there.
+Complete the [one-time host setup and capability preflight](docs/COORDINATOR_AUTH.md)
+before bootstrap. Native Docker coordinators use the same mount; workers never
+run login, refresh, logout or account switching against it. Existing coordinators
+keep their current mounts until their owner performs supported recovery.
+
 #### Agent-owned persistent sessions
 
 A session is one agent-owned container plus its exact, live identity; it is
@@ -364,8 +376,9 @@ immortal. Only the owner may stop an idle session, and an abandoned session
 is retained for fresh liveness and lease checks. Parallel sessions may share
 immutable image layers and read-only inputs, but must use distinct exact
 worktrees, delivery ledgers/coordinates, profiles and build roots, named
-volume namespaces, Codex homes or credentials, topology/state names, ports,
-and mutable caches.
+volume namespaces, Codex homes, topology/state names, ports, and mutable caches.
+The host GitHub auth directory is the supported shared read-only exception;
+other mutable credential stores remain private.
 
 For shutdown, finish or preserve the delivery evidence, then stop only the
 owned exact container:
@@ -378,6 +391,25 @@ docker inspect "$CONTAINER_ID" --format '{{.Id}}\t{{.State.Status}}'
 Leave exact named volumes for an authorized owner to inspect or remove after
 all holders and leases are gone. Never use docker volume prune, broad
 container cleanup, or ./atrinik cleanup --apply during delivery.
+
+### One-session project delivery
+
+Use [`atrinik-project-delivery`](.agents/skills/atrinik-project-delivery/SKILL.md)
+for multi-issue work. Copy the [complete goal launcher](docs/PROJECT_DELIVERY_GOAL.md),
+select the real parent/repository scope, and let one coordinator launch and manage
+workers. It schedules independent lanes against actual worker capacity, retains
+foreign deliveries, and routes each writing leaf through unchanged issue delivery.
+The [operator protocol](.agents/skills/atrinik-project-delivery/references/coordinator.md)
+defines commands, recovery, scoped tracking and acceptance. Legacy program delivery
+and individual issue delivery remain available; there is no implicit migration.
+
+Routine authorized local development and minor project tracking do not need
+repeated approvals. Merges, deployments, expanded scope and uncertain ownership
+remain gates. A resumed coordinator refreshes live merge evidence, updates
+dependants and verifies acceptance before authorized parent closure; GitHub child
+counts alone do not close the project. The helper schedules and journals; actual
+worker spawning and evidence assessment use the agent runtime, not a background
+daemon. Its ignored state never substitutes for a leaf ownership ledger.
 
 ### Shared local agent ledgers
 

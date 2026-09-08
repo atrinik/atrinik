@@ -29,6 +29,9 @@
     // Keep Codex state and Git identity local to the host user.
     "source=${localEnv:HOME}/.codex-atrinik,target=/home/ubuntu/.codex,type=bind",
     "source=${localEnv:HOME}/.gitconfig,target=/home/ubuntu/.gitconfig,type=bind,readonly",
+    // Host logs in once; trusted workers share this config without changing it.
+    // Complete docs/COORDINATOR_AUTH.md before creating the container.
+    "source=${localEnv:HOME}/.config/gh-atrinik,target=/home/ubuntu/.config/gh,type=bind,readonly",
     // Keep high-I/O generated workspace data in a per-container named volume.
     // initializeCommand pre-creates the nested target's writable parent.
     "source=atrinik-${devcontainerId}-build-cache,target=/workspaces/atrinik/workspace/build,type=volume,volume-nocopy",
@@ -51,6 +54,7 @@
     // Resolve WSL's D3D12/NVIDIA user-mode libraries before container libraries.
     "LD_LIBRARY_PATH": "/usr/lib/wsl/lib",
     "CODEX_HOME": "/home/ubuntu/.codex",
+    "GH_CONFIG_DIR": "/home/ubuntu/.config/gh",
     // The container identity namespaces its named build/cache volumes.
     "ATRINIK_DOCKER_VOLUME_NAMESPACE": "${devcontainerId}",
     // WSLg currently lacks zwp_text_input_v3; SDL's X11 backend supplies text events.

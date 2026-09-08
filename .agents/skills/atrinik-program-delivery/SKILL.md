@@ -46,7 +46,9 @@ master comment, child, or link.
 1. Normalize the master as `owner/repository#number`. Inspect the live issue,
    body, comments, native parent/subissue graph, linked PRs, assignees, Project
    item, releases, repository policy, and current branch tips before mutation.
-   Use the requested GitHub access path and never expose credentials.
+   Use the requested GitHub access path and never expose credentials. Share
+   [host auth read-only](../../../docs/COORDINATOR_AUTH.md); batch program-required
+   capability checks and request one host setup, not a login for every leaf.
 2. Treat hierarchy as ownership, not sequencing. Derive order only from the
    master's explicit execution plan, dependency statements, and technical
    constraints. Reject cycles, contradictory owners, repository mismatches,
