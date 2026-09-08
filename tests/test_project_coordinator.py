@@ -49,6 +49,39 @@ def race(root, expected, queue):
 
 
 class SchedulerTests(unittest.TestCase):
+    def test_replan_cannot_drop_blocked_attempt_reservation(self):
+        p = project()
+        request = reserve(p, 1, 1)[0]
+        record_worker(p, request["coordinate"], request["attempt"], "agent-1")
+        worker_result(p, request["coordinate"], request["attempt"], "blocked", "needs follow-up")
+        changed = copy.deepcopy(p["plan"])
+        changed["nodes"][0]["writes"] = ["different"]
+        before = copy.deepcopy(p)
+        with self.assertRaises(ProjectError):
+            replan(p, changed)
+        self.assertEqual(p, before)
+        self.assertEqual(schedule(p, 1, 1)["ready"], [])
+
+    def test_terminal_refresh_keeps_blocked_worker_until_recovered_result(self):
+        p = project([node(2), node(3, dependencies=[{"id": "atrinik/atrinik#2", "condition": "merged"}])])
+        gh = FakeGitHub()
+        for observation in gh.observations.values():
+            observation["terminal"] = False
+        refresh(p, gh)
+        request = reserve(p, 1, 1)[0]
+        record_worker(p, request["coordinate"], request["attempt"], "agent-1")
+        gh.observations[request["coordinate"]]["head"] = "changed"
+        refresh(p, gh)
+        gh.observations[request["coordinate"]]["terminal"] = True
+        refresh(p, gh)
+        self.assertEqual(p["nodes"][request["coordinate"]]["worker"], "agent-1")
+        self.assertEqual(schedule(p, 1, 1)["ready"], [])
+        resumed = reopen(p, request["coordinate"], request["attempt"], "same owner and merged head verified", 1)
+        worker_result(p, request["coordinate"], resumed["attempt"], "ready", "fresh merged-head validation")
+        refresh(p, gh)
+        self.assertEqual(p["nodes"][request["coordinate"]]["state"], "merged")
+        self.assertEqual(schedule(p, 1, 1)["ready"], ["atrinik/atrinik#3"])
+
     def test_completed_external_declaration_never_dispatches(self):
         p = project([node(2, external=True), node(3)])
         refresh(p, FakeGitHub())
@@ -381,6 +414,17 @@ class FakeGitHub:
 
 @unittest.skipUnless(os.name == "posix", "canonical Linux filesystem contract")
 class TrackingTests(unittest.TestCase):
+    def test_independent_same_title_child_does_not_strand_unstarted_intent(self):
+        snapshot, op = self.store.update(self.initial, lambda p:
+            prepare_operation(p, self.gh, "create-child", "atrinik/atrinik#1",
+                              {"repository": "atrinik/atrinik", "title": "New child", "body": "needed"}))
+        unrelated = [{"id": 7, "node_id": "I_new", "title": "New child", "body": "human-authored"}]
+        with patch.object(self.gh, "pages", return_value=unrelated):
+            with self.assertRaises(ProjectError):
+                apply_operation(self.store, snapshot, op["id"], self.gh)
+            retired = cancel_operation(self.store, snapshot, op["id"], self.gh)
+        self.assertEqual(retired["document"]["operations"][op["id"]]["phase"], "cancelled")
+        self.assertEqual(self.gh.writes, [])
     def test_independently_satisfied_assignment_can_retire_unstarted(self):
         snapshot, op = self.store.update(self.initial, lambda p:
             prepare_operation(p, self.gh, "assign", "atrinik/atrinik#2", {"login": "zoeyrose"}))

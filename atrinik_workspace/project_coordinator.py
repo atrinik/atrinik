@@ -204,15 +204,22 @@ def condition_met(project: dict, ident: str, condition: str) -> bool:
         all(acceptance_valid(project, a) for a in project["plan"]["acceptance"] if ident in a["owners"]))
 
 
+def occupied_attempt(state: dict) -> bool:
+    return state["state"] in {"reserved", "running"} or state["state"] == "blocked" and state["attempt"] is not None
+
+
+def occupies_resources(project: dict, node: dict) -> bool:
+    return occupied_attempt(project["nodes"][node["id"]]) or (
+        node["external"] and not project["observations"].get(node["id"], {}).get("terminal"))
+
+
 def schedule(project: dict, capacity: int, heavy_limit: int, open_workers: int = 0) -> dict:
     validate_project(project)
     require(all(type(n) is int and 0 <= n <= 256 for n in (capacity, heavy_limit, open_workers)),
             "invalid observed capacity")
     nodes = project["plan"]["nodes"]
-    active = [n for n in nodes if project["nodes"][n["id"]]["state"] in {"reserved", "running"}
-              or project["nodes"][n["id"]]["state"] == "blocked" and project["nodes"][n["id"]]["attempt"] is not None]
-    external = [n for n in nodes if n["external"] and not project["observations"].get(n["id"], {}).get("terminal")]
-    occupied = active + external
+    active = [n for n in nodes if occupied_attempt(project["nodes"][n["id"]])]
+    occupied = [n for n in nodes if occupies_resources(project, n)]
     # Observed capacity includes all open subagents, including completed but unclosed ones.
     unbound = sum(project["nodes"][n["id"]]["worker"] is None for n in active)
     bound = len(active) - unbound
@@ -286,9 +293,7 @@ def reopen(project: dict, ident: str, attempt: str, evidence: str, heavy_limit: 
     require(isinstance(evidence, str) and 0 < len(evidence) <= 8192, "live worker/leaf proof required")
     require(type(heavy_limit) is int and 0 <= heavy_limit <= 256, "invalid heavy limit")
     node = next(n for n in project["plan"]["nodes"] if n["id"] == ident)
-    others = [n for n in project["plan"]["nodes"] if n["id"] != ident and
-              (project["nodes"][n["id"]]["state"] in {"running", "reserved", "external"}
-               or project["nodes"][n["id"]]["state"] == "blocked" and project["nodes"][n["id"]]["attempt"] is not None)]
+    others = [n for n in project["plan"]["nodes"] if n["id"] != ident and occupies_resources(project, n)]
     require(not any(conflict(node, n) for n in others), "reopen resource conflict")
     require(not node["heavy"] or sum(n["heavy"] for n in others) < heavy_limit, "reopen heavy capacity")
     require(all(condition_met(project, d["id"], d["condition"]) for d in node["dependencies"]),
@@ -337,6 +342,7 @@ def replan(project: dict, plan: dict) -> None:
     for ident in current:
         if current[ident] != updated[ident]:
             require(not current[ident]["external"], "external declaration cannot be adopted or changed")
+            require(not occupied_attempt(project["nodes"][ident]), "retire occupied attempt before replanning boundaries")
             require(project["nodes"][ident]["state"] not in {"reserved", "running", "external"},
                     "cannot change active/foreign task boundaries")
             require(current[ident]["entry_mode"] == updated[ident]["entry_mode"],

@@ -7,7 +7,7 @@ import os
 import re
 import subprocess
 
-from .project_coordinator import ProjectError, coordinate, digest, require, terminal_gaps
+from .project_coordinator import ProjectError, coordinate, digest, occupied_attempt, require, terminal_gaps
 from . import project_coordinator_projects as projects
 
 MAX_PAGES = 20
@@ -129,6 +129,8 @@ def refresh(project: dict, github: GitHub) -> dict:
     observations = {n["id"]: github.observe(n["id"], n["entry_mode"]) for n in project["plan"]["nodes"]}
     parent = github.observe(project["plan"]["parent"], "issue")
     observations[project["plan"]["parent"]] = parent
+    old_parent = project["observations"].get(project["plan"]["parent"], {})
+    requirements_changed = old_parent.get("body") != parent.get("body")
     changed = [ident for ident, value in observations.items()
                if project["observations"].get(ident) != value]
     project["observations"] = observations
@@ -136,7 +138,7 @@ def refresh(project: dict, github: GitHub) -> dict:
         if ident not in project["nodes"]:
             continue
         state = project["nodes"][ident]
-        if state["state"] in {"running", "reserved"}:
+        if occupied_attempt(state):
             state.update(state="blocked", detail="remote evidence changed; reprove same worker and leaf before reopening")
         elif observations[ident]["terminal"]:
             state.update(state="merged", worker=None, attempt=None)
@@ -151,6 +153,13 @@ def refresh(project: dict, github: GitHub) -> dict:
                 state = project["nodes"][node["id"]]
                 if state["state"] in {"ready", "accepted", "running", "reserved"}:
                     state.update(state="blocked", detail="dependency changed; integration revalidation required")
+    for ident, state in project["nodes"].items():
+        if requirements_changed and state["state"] in {"ready", "accepted", "running", "reserved"}:
+            state.update(state="blocked", detail="parent requirements changed; revalidate scope and evidence")
+        elif observations[ident]["terminal"] and state["state"] in {"pending", "ready"}:
+            # A recovered worker may finish against an already-observed merge.
+            # A blocked/live attempt is never retired by a GitHub observation.
+            state.update(state="merged", worker=None, attempt=None)
     return {"changed": changed, "invalidated": sorted(stale)}
 
 
@@ -317,7 +326,7 @@ def prepare_operation(project: dict, github: GitHub, kind: str, target: str, pay
     return operation
 
 
-def observe_operation(operation: dict, github: GitHub) -> dict:
+def observe_operation(operation: dict, github: GitHub, *, creation_eligibility: bool = True) -> dict:
     kind, target = operation["kind"], operation["target"]
     if kind == "project-status":
         return projects.observe(operation, github)
@@ -331,7 +340,7 @@ def observe_operation(operation: dict, github: GitHub) -> dict:
         matches = [r for r in rows if operation["marker"] in (r.get("body") or "")]
         require(len(matches) <= 1, "duplicate coordinator marker")
         match = matches[0] if matches else None
-        if kind == "create-child":
+        if kind == "create-child" and creation_eligibility:
             require(not any("pull_request" not in row and
                             row.get("title", "").casefold() == operation["payload"]["title"].casefold()
                             and row not in matches for row in rows), "matching issue exists; creation blocked")
@@ -359,7 +368,7 @@ def cancel_operation(store, expected: dict, ident: str, github: GitHub) -> dict:
         require(github.actor() == project["actor"], "authenticated actor changed")
         op = project["operations"][ident]
         require(op["phase"] == "planned", "cannot cancel started or completed operation")
-        live = observe_operation(op, github)
+        live = observe_operation(op, github, creation_eligibility=False)
         safe_satisfaction = op["kind"] in {"assign", "project-status", "link", "dependency"}
         require(live["identity"] == op["before"]["identity"] and (live["match"] is None or safe_satisfaction),
                 "cannot prove planned operation unapplied")
