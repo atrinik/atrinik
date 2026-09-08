@@ -241,7 +241,6 @@ python3 -m atrinik_workspace.guidance_inventory --check
 python3 -m atrinik_workspace.mcp_contract validate
 ./atrinik manifest validate
 ./atrinik provenance validate
-./atrinik supply-chain validate
 git diff --check
 ~~~
 
@@ -328,6 +327,11 @@ command is installed, and preview shared-cache retention with
 For local-playtest sound staging changes, use a clean sound checkout that owns
 the public playtest-tree builder. Run the focused wrapper sound fixtures, build
 `classic-client` twice from the same Classic-derived local-playtest profile,
-inspect matching build/topology sound records, and run the complete Classic
-supply-chain audit. The generated tree remains ignored, nonpublishable local
+inspect matching build/topology sound records, and optionally inspect Classic
+dependency diagnostics. The generated tree remains ignored, nonpublishable local
 state; never attach, package, upload, or commit it.
+
+Dependency and license diagnostics (`./atrinik supply-chain ...`) are optional.
+Catalog maintenance and diagnostic findings never gate changes, PR readiness,
+or delivery. Update the catalog only when explicitly requested; use component
+lockfiles and actual source notices for current build inputs and licensing.

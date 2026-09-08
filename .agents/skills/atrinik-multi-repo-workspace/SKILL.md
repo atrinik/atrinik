@@ -143,8 +143,8 @@ rendered GitHub-Flavored Markdown with actual line breaks, never literal `\n` se
 `Summary`, `Implementation / behavior`, `Validation`, and applicable `Limitations / follow-up`;
 issue-closing line alone is insufficient. preserve contributor-authored text byte-for-byte; change
 only a delivery-owned section when authorized. Feed multi-section bodies by file/stdin; after
-create/edit verify remote body. Semantic-release owns publication; dependency changes update
-inventory and audit a profile. Follow `docs/PROVENANCE.md`; fail uncertainty.
+create/edit verify remote body. Semantic-release publishes. Supply-chain diagnostics never gate work
+or require inventory updates. Follow `docs/PROVENANCE.md`; fail uncertainty.
 
 ## Maintain guidance
 

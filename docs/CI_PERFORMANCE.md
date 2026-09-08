@@ -45,7 +45,7 @@ manifest, all per-test durations, and parallel coverage data for 14 days.
 The aggregate job fails unless all shard jobs passed, rediscovery matches every
 manifest, and the union contains every test exactly once with no duplicates.
 It then combines branch coverage once, runs compile, guidance, MCP, manifest,
-provenance, and supply-chain validation as visible steps, and performs the sole
+and provenance validation as visible steps, and performs the sole
 Codecov upload. Pull-request-scoped concurrency cancels superseded heads.
 
 ## Local parallel execution
