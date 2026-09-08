@@ -113,6 +113,30 @@ def _hash_file(stream: BinaryIO, size: int) -> str:
     return digest.hexdigest()
 
 
+def _identity(info: os.stat_result) -> tuple[int, ...]:
+    return (info.st_dev, info.st_ino, info.st_mode, info.st_size,
+            info.st_mtime_ns, info.st_ctime_ns)
+
+
+def _inventory(root_fd: int) -> tuple[set[str], dict[str, tuple[int, ...]]]:
+    files_seen: set[str] = set()
+    identities = {".": _identity(os.fstat(root_fd))}
+    for directory, dirs, files, directory_fd in os.fwalk(".", dir_fd=root_fd, follow_symlinks=False):
+        for name in dirs + files:
+            info = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+            if not (stat.S_ISREG(info.st_mode) or stat.S_ISDIR(info.st_mode)):
+                raise ExportError("export-payload: symlink or special file")
+            relative = str(Path(directory) / name)
+            identities[relative] = _identity(info)
+            if len(identities) > 2 * MAX_FILES + 1:
+                raise ExportError("export-payload: inventory limit exceeded")
+            if stat.S_ISREG(info.st_mode):
+                files_seen.add(relative)
+                if len(files_seen) > MAX_FILES + 1:
+                    raise ExportError("export-payload: inventory limit exceeded")
+    return files_seen, identities
+
+
 def verify_export(root: Path) -> dict[str, object]:
     """Verify an exact no-symlink inventory using descriptor-relative opens."""
     root_fd = -1
@@ -124,28 +148,20 @@ def verify_export(root: Path) -> dict[str, object]:
             child_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=root_fd)
             os.close(root_fd)
             root_fd = child_fd
+        observed, identities = _inventory(root_fd)
         with os.fdopen(_open_beneath(root_fd, MANIFEST_NAME), "rb") as stream:
-            if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
-                raise ExportError("export-manifest: regular file required")
+            info = os.fstat(stream.fileno())
+            if not stat.S_ISREG(info.st_mode) or _identity(info) != identities.get(MANIFEST_NAME):
+                raise ExportError("export-manifest: changed or nonregular file")
             manifest = load_manifest(stream.read(MAX_MANIFEST_BYTES + 1))
         expected = set(manifest["files"]) | {MANIFEST_NAME}
-        observed: set[str] = set()
-        for directory, dirs, files, directory_fd in os.fwalk(".", dir_fd=root_fd, follow_symlinks=False):
-            for name in dirs + files:
-                info = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
-                if not (stat.S_ISREG(info.st_mode) or stat.S_ISDIR(info.st_mode)):
-                    raise ExportError("export-payload: symlink or special file")
-                if stat.S_ISREG(info.st_mode):
-                    observed.add(str(Path(directory) / name))
-                    if len(observed) > MAX_FILES + 1:
-                        raise ExportError("export-payload: inventory limit exceeded")
         if observed != expected:
             raise ExportError("export-payload: missing or unexpected file")
         for name, record in manifest["files"].items():
             with os.fdopen(_open_beneath(root_fd, name), "rb") as stream:
                 before = os.fstat(stream.fileno())
-                if not stat.S_ISREG(before.st_mode):
-                    raise ExportError("export-payload: regular file required")
+                if not stat.S_ISREG(before.st_mode) or _identity(before) != identities.get(name):
+                    raise ExportError("export-payload: changed or nonregular file")
                 if bool(before.st_mode & 0o111) != record["executable"]:
                     raise ExportError("export-payload: executable mode mismatch")
                 if before.st_mode & (stat.S_ISUID | stat.S_ISGID):
@@ -156,6 +172,8 @@ def verify_export(root: Path) -> dict[str, object]:
                 if (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_ctime_ns) != (
                     after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns):
                     raise ExportError("export-payload: changed during verification")
+        if _inventory(root_fd) != (observed, identities):
+            raise ExportError("export-payload: inventory changed during verification")
         return manifest
     except OSError as error:
         raise ExportError("export-payload: missing or unsafe filesystem entry") from error
