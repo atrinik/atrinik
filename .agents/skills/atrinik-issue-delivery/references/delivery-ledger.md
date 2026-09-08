@@ -185,6 +185,12 @@ immediately before its private CAS. A mixed login/node response, stale actor,
 missing push authority, or changed tuple fails closed; a caller-supplied tuple
 never grants authority by itself.
 
+The supported [read-only host auth mount](../../../../docs/COORDINATOR_AUTH.md)
+at ubuntu's standard `~/.config/gh` supplies this container-local protected `gh`
+observation without a worker login. Host-supplied actor JSON is still not proof.
+The helper strips arbitrary `GH_CONFIG_DIR` overrides; retain its environment
+filtering and verify the mounted login through the live helper.
+
 Before any dynamic `Workspace` import or Python execution, live proof performs
 a bounded component-wise no-follow ownership/mode prevalidation of the complete
 importable `atrinik_workspace` source/bytecode tree. It fingerprints every
