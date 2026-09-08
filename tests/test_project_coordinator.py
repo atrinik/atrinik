@@ -49,6 +49,18 @@ def race(root, expected, queue):
 
 
 class SchedulerTests(unittest.TestCase):
+    def test_attestation_cannot_retire_unknown_spawn_reservation(self):
+        p = project([node(2)])
+        request = reserve(p, 1, 1)[0]
+        refresh(p, FakeGitHub())
+        attest(p, "integrated", "terminal source checks pass but spawn unknown")
+        self.assertEqual(p["nodes"][request["coordinate"]]["state"], "blocked")
+        self.assertEqual(p["nodes"][request["coordinate"]]["attempt"], request["attempt"])
+        self.assertTrue(terminal_gaps(p))
+        retry(p, request["coordinate"], request["attempt"], "runtime proves no start; exact leaf ownership inspected")
+        refresh(p, FakeGitHub())
+        attest(p, "integrated", "fresh terminal acceptance after reconciled runtime")
+        self.assertEqual(terminal_gaps(p), [])
     def test_replan_cannot_drop_blocked_attempt_reservation(self):
         p = project()
         request = reserve(p, 1, 1)[0]

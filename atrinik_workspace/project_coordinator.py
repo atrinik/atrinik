@@ -325,7 +325,7 @@ def attest(project: dict, ident: str, evidence: str) -> None:
     for owner in owners:
         requirements = [a for a in project["plan"]["acceptance"] if owner in a["owners"]]
         state = project["nodes"][owner]
-        revalidated = (state["state"] == "blocked" and state["worker"] is None
+        revalidated = (state["state"] == "blocked" and state["worker"] is None and not occupied_attempt(state)
                        and project["observations"][owner].get("terminal") is True)
         if (state["state"] == "merged" or revalidated) and all(acceptance_valid(project, a) for a in requirements):
             project["nodes"][owner]["state"] = "accepted"
