@@ -16,12 +16,13 @@ SKILLS_ROOT = ROOT / ".agents" / "skills"
 # Byte ceilings are model-independent regression guards. Exact tokenizer counts
 # remain PR evidence because tokenizer vocabularies and prompt wrappers change.
 MAX_ROOT_GUIDE_BYTES = 7_500
-MAX_CATALOG_BYTES = 2_000
-MAX_STARTUP_BYTES = 9_500
-MAX_MULTI_SELECTED_BYTES = 16_500
+MAX_CATALOG_BYTES = 2_250
+MAX_STARTUP_BYTES = 9_750
+MAX_MULTI_SELECTED_BYTES = 16_750
 # The delivery coordinator-context contract is intentionally kept in the
 # issue-delivery skill so Windows-hosted agents see the gate at invocation.
-MAX_ALL_SKILL_BYTES = 58_000
+# Project scheduling is a separate progressively loaded skill; retain both fallbacks.
+MAX_ALL_SKILL_BYTES = 62_500
 TOOLING_LEDGER_MAX_BYTES = 128 * 1024
 TOOLING_LEDGER_RELATIVE = Path('build/agent-tooling-issues.md')
 TOOLING_LEDGER_COLUMNS = (

@@ -1,5 +1,33 @@
 # Workspace architecture
 
+## Project delivery coordination
+
+`project_coordinator.py` owns the bounded dependency/resource scheduler;
+`project_coordinator_store.py` provides no-follow, stable-lock, generation/digest/
+device/inode CAS over ignored project state. `project_delivery.py` derives its
+root from the live canonical Linux coordinator and exposes operator transitions.
+The GitHub adapter journals an exact planned request before its single remote
+attempt and binds the observed result. Lost responses permit observation-only
+reconciliation, never automatic replay. Projects-v2 Status proof verifies the
+existing organization/project/item/issue/field/option relationship.
+
+Project authority and state are separate from schema-v1 leaf delivery ledgers.
+They cannot create, adopt, repair, migrate or bind a leaf worktree. The agent
+runtime supplies actual worker identities/capacity; the coordinator verifies
+leaf evidence before recording ready results or acceptance. Scheduling reserves
+dependency-ready, disjoint file/resource lanes, with a separate heavy-job limit.
+Foreign deliveries remain external. Replanning cannot drop known work or expand
+repository/permission authority; live merge/head changes invalidate dependent
+integration evidence. A declared acceptance criterion binds exact observed owner
+and transitive requirement evidence, not a child count. Live branch-protection
+and inherited rules determine required check contexts and app identities;
+missing or unprovable requirements block terminal decisions. No operation merges
+or deploys.
+
+See the [operator protocol](../.agents/skills/atrinik-project-delivery/references/coordinator.md)
+for resume rules, bounds and deliberately unsupported ambiguous-write recovery.
+The existing issue and legacy program engines are retained without migration.
+
 ## Ownership boundary
 
 This repository owns only orchestration code and the checkout/component
