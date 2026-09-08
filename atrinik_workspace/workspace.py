@@ -8426,7 +8426,7 @@ class Workspace:
             if "metaserver-worker" in targets:
                 self._build_worker(root, selected)
             if target in {"sound", "resources"}:
-                print(f"{target}: selected {selected[target]}")
+                print(f"{target}: selected {selected[target]}", file=sys.stderr)
             cache = self._build_summary.setdefault("cache", {})
             cache["source_views"] = (
                 "reused"
@@ -8704,7 +8704,8 @@ class Workspace:
                 ) from error
             print(
                 "sound: staged released tree "
-                f"{record['output_tree_sha256']} for {coordinates['tag']}"
+                f"{record['output_tree_sha256']} for {coordinates['tag']}",
+                file=sys.stderr,
             )
             return staged, record
         if mode != PLAYTEST_MODE:
@@ -8813,7 +8814,8 @@ class Workspace:
             ) from error
         print(
             "sound: staged local-playtest tree "
-            f"{record['output_tree_sha256']} at {output}"
+            f"{record['output_tree_sha256']} at {output}",
+            file=sys.stderr,
         )
         return output, record
 
@@ -10367,7 +10369,7 @@ class Workspace:
             self._build_summary.setdefault("cache", {}).setdefault(
                 "inputs", {}
             )["content"] = "reused"
-            print(f"content: cached {output}")
+            print(f"content: cached {output}", file=sys.stderr)
             return output
         inputs, cacheable = validated_inputs, validated_cacheable
         if output.exists() or output.is_symlink():
@@ -10435,7 +10437,7 @@ class Workspace:
         self._build_summary.setdefault("cache", {}).setdefault(
             "inputs", {}
         )["content"] = "refreshed"
-        print(f"content: collected {output}")
+        print(f"content: collected {output}", file=sys.stderr)
         return output
 
     def _stage_resources(
@@ -10476,7 +10478,7 @@ class Workspace:
             self._build_summary.setdefault("cache", {}).setdefault(
                 "inputs", {}
             )["resources"] = "reused"
-            print(f"resources: cached {output}")
+            print(f"resources: cached {output}", file=sys.stderr)
             return output
         inputs, cacheable = validated_inputs, validated_cacheable
         runtime_paths, tracked = validated_runtime_paths, validated_tracked
@@ -10570,7 +10572,7 @@ class Workspace:
         self._build_summary.setdefault("cache", {}).setdefault(
             "inputs", {}
         )["resources"] = "refreshed"
-        print(f"resources: staged {output}")
+        print(f"resources: staged {output}", file=sys.stderr)
         return output
 
     def _cmake(
@@ -11856,7 +11858,7 @@ class Workspace:
             self._build_summary.setdefault("cache", {}).setdefault(
                 "inputs", {}
             )["region-maps"] = "reused"
-            print(f"region maps: cached {output}")
+            print(f"region maps: cached {output}", file=sys.stderr)
             return output
         if output.exists() or output.is_symlink():
             managed_directory(output, self.paths.builds, "region-map-cache")
@@ -11918,7 +11920,7 @@ class Workspace:
         self._build_summary.setdefault("cache", {}).setdefault(
             "inputs", {}
         )["region-maps"] = "refreshed"
-        print(f"region maps: generated {output}")
+        print(f"region maps: generated {output}", file=sys.stderr)
         return output
 
     @staticmethod
@@ -12947,11 +12949,13 @@ class Workspace:
         view, view_hit, view_seconds = view_result
         print(
             f"worker dependencies: {'cached' if cache_hit else 'installed'} "
-            f"{key} ({install_seconds:.2f}s)"
+            f"{key} ({install_seconds:.2f}s)",
+            file=sys.stderr,
         )
         print(
             f"worker view: {'reused' if view_hit else 'prepared'} {view} "
-            f"({view_seconds:.2f}s)"
+            f"({view_seconds:.2f}s)",
+            file=sys.stderr,
         )
         self._run_worker_checks(view, environment, key, metadata)
         self._reconcile_worker_view_after_checks(source, view, key, metadata)
