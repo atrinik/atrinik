@@ -158,9 +158,19 @@ an unmerged reference, untracked native child, incomplete pagination or closed
 not-planned issue prevents automatic terminal closure. Explain incidental or
 superseded work for human resolution; do not remove evidence to turn it green.
 Every declared acceptance criterion requires current integration evidence.
+All native children and blockers at every declared depth must also be declared
+in the plan, including externally owned work. Acceptance binds transitive native
+and planned requirements, so a grandchild's head/check drift invalidates its
+ancestor's integration evidence. Undeclared required nodes block closure even
+if their issue state is closed.
 Referenced/selected PR checks and legacy statuses must be complete and passing;
 failed, pending or cancelled checks block terminal observation. Neutral/skipped
 checks need applicability evidence in acceptance, just as in leaf delivery.
+Required contexts and app identities come from live classic protection plus
+[applicable inherited branch rules](https://docs.github.com/en/rest/repos/rules#get-rules-for-a-branch).
+Missing required jobs block completion. Unavailable protection data or required
+workflow/deployment/security rules without supported evidence stop automatic
+terminal decisions; no checks returned is not proof that none are required.
 Children merged is necessary, not sufficient. Close the authorized parent only
 after these checks; otherwise provide the exact remaining closure action.
 

@@ -682,6 +682,56 @@ class CLITests(unittest.TestCase):
 
 
 class CheckObservationTests(unittest.TestCase):
+    def setUp(self):
+        # Unit checks tests never consult real branch policies or the network.
+        self.policy = patch.object(GitHub, "required_checks", return_value=[])
+        self.policy.start()
+        self.addCleanup(self.policy.stop)
+
+    def test_nested_undeclared_requirement_refuses_acceptance(self):
+        gh = GitHub()
+        child = {"number": 2, "node_id": "I_2", "state": "closed", "state_reason": "completed",
+                 "html_url": "https://github.com/atrinik/atrinik/issues/2"}
+        grandchild = {"node_id": "I_3", "state": "closed", "state_reason": "completed"}
+        with patch.object(gh, "request", return_value=child), patch.object(gh, "pages", side_effect=[[], [grandchild], []]):
+            observed = gh.observe("atrinik/atrinik#2", "issue")
+        p = project([node(2)])
+        fake = FakeGitHub()
+        fake.observations["atrinik/atrinik#2"] = observed
+        fake.observations["atrinik/atrinik#1"]["children"] = ["I_2"]
+        refresh(p, fake)
+        with self.assertRaisesRegex(ProjectError, "every native required node"):
+            attest(p, "integrated", "cannot attest without inspecting grandchild work")
+        self.assertTrue(any("undeclared native required node I_3" in gap for gap in terminal_gaps(p)))
+        with self.assertRaises(ProjectError):
+            prepare_operation(p, fake, "close-parent", "atrinik/atrinik#1", {})
+
+    def test_transitive_requirement_head_invalidates_ancestor_acceptance(self):
+        p = project()
+        p["plan"]["acceptance"][0]["owners"] = ["atrinik/atrinik#2"]
+        fake = FakeGitHub()
+        fake.observations["atrinik/atrinik#2"]["children"] = ["I_3"]
+        refresh(p, fake)
+        attest(p, "integrated", "ancestor and grandchild integration")
+        self.assertEqual(set(p["attestations"]["integrated"]["observations"]), {"atrinik/atrinik#2", "atrinik/atrinik#3"})
+        fake.observations["atrinik/atrinik#3"]["head"] = "new grandchild head"
+        refresh(p, fake)
+        self.assertTrue(any("stale acceptance" in gap for gap in terminal_gaps(p)))
+
+    def test_missing_and_wrong_app_required_jobs_fail_closed(self):
+        gh = GitHub()
+        required = [{"context": "ci", "app_id": 17}, {"context": "docs", "app_id": None}]
+        for runs in ([], [{"id": 1, "name": "ci", "app": {"id": 17}, "status": "completed", "conclusion": "success"}],
+                     [{"id": 1, "name": "ci", "app": {"id": 9}, "status": "completed", "conclusion": "success"}]):
+            with patch.object(gh, "required_checks", return_value=required), patch.object(gh, "pages", side_effect=[runs, []]):
+                result = gh.checks("atrinik/atrinik", "a" * 40, "main")
+            self.assertFalse(result["passing"])
+            self.assertTrue(result["missing"])
+
+    def test_proven_absence_of_required_checks_can_pass_empty_inventory(self):
+        with patch.object(GitHub, "pages", side_effect=[[], []]):
+            self.assertTrue(GitHub().checks("atrinik/atrinik", "a" * 40, "main")["passing"])
+
     def test_transferred_coordinate_cannot_expand_remote_scope(self):
         gh = GitHub()
         moved = {"number": 2, "html_url": "https://github.com/atrinik/foreign/issues/2"}
@@ -697,7 +747,7 @@ class CheckObservationTests(unittest.TestCase):
                 gh = GitHub()
                 issue = {"id": 1, "node_id": "I_1", "number": 1, "state": "open", "body": "parent",
                          "html_url": "https://github.com/atrinik/atrinik/issues/1"}
-                pr = {"head": {"sha": "a" * 40}, "base": {"sha": "b" * 40},
+                pr = {"head": {"sha": "a" * 40}, "base": {"sha": "b" * 40, "ref": "main"},
                       "state": "closed", "merged_at": None if scenario == "open-pr" else "date"}
                 timeline = [{"source": {"issue": {"pull_request": {}, "html_url": "https://github.com/atrinik/atrinik/pull/9"}}}]
                 timeline[0]["source"]["issue"]["pull_request"] = {"url": "present"}
@@ -721,19 +771,38 @@ class CheckObservationTests(unittest.TestCase):
                 gh = GitHub()
                 with patch.object(gh, "pages", side_effect=[
                     [{"id": 1, "status": state, "conclusion": conclusion}], []]):
-                    self.assertFalse(gh.checks("atrinik/atrinik", "a" * 40)["passing"])
+                    self.assertFalse(gh.checks("atrinik/atrinik", "a" * 40, "main")["passing"])
 
     def test_superseded_status_does_not_block_success(self):
         gh = GitHub()
         with patch.object(gh, "pages", side_effect=[[], [
             {"context": "ci", "state": "success"}, {"context": "ci", "state": "failure"}]]):
-            self.assertTrue(gh.checks("atrinik/atrinik", "a" * 40)["passing"])
+            self.assertTrue(gh.checks("atrinik/atrinik", "a" * 40, "main")["passing"])
 
     def test_collection_total_must_match_complete_scan(self):
         gh = GitHub()
         with patch.object(gh, "request", return_value={"total_count": 2, "check_runs": [{"id": 1}]}):
             with self.assertRaises(ProjectError):
                 gh.pages("repos/atrinik/atrinik/commits/sha/check-runs", "check_runs")
+
+
+class RequiredPolicyTests(unittest.TestCase):
+    def test_classic_and_inherited_rules_both_required(self):
+        gh = GitHub()
+        response = {"data": {"repository": {"ref": {"branchProtectionRule": {
+            "requiresStatusChecks": True, "requiredStatusChecks": [{"context": "classic", "app": {"databaseId": 17}}]}}}}}
+        rules = [{"type": "required_status_checks", "parameters": {"required_status_checks": [{"context": "inherited", "integration_id": 18}]}}]
+        with patch.object(gh, "request", return_value=response), patch.object(gh, "pages", return_value=rules):
+            found = gh.required_checks("atrinik/atrinik", "main")
+        self.assertEqual({(r["context"], r["app_id"]) for r in found}, {("classic", 17), ("inherited", 18)})
+
+    def test_unavailable_or_unsupported_policy_is_not_no_requirements(self):
+        gh = GitHub()
+        with patch.object(gh, "request", side_effect=ProjectError("no access")), self.assertRaises(ProjectError):
+            gh.required_checks("atrinik/atrinik", "main")
+        response = {"data": {"repository": {"ref": {"branchProtectionRule": None}}}}
+        with patch.object(gh, "request", return_value=response), patch.object(gh, "pages", return_value=[{"type": "workflows"}]), self.assertRaises(ProjectError):
+            gh.required_checks("atrinik/atrinik", "main")
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ import json
 import os
 import re
 import subprocess
+from urllib.parse import quote
 
 from .project_coordinator import ProjectError, coordinate, digest, occupied_attempt, require, terminal_gaps
 from . import project_coordinator_projects as projects
@@ -71,20 +72,60 @@ class GitHub:
                 "issue moved outside exact authorized coordinate")
         return value
 
-    def checks(self, repository: str, sha: str) -> dict:
+    def required_checks(self, repository: str, branch: str) -> list[dict]:
+        """Resolve classic protection and all active inherited branch rules."""
+        coordinate(repository + "#1")
+        require(isinstance(branch, str) and 0 < len(branch) <= 1024, "invalid check target branch")
+        owner, name = repository.split("/")
+        response = self.request("graphql", "POST", {"query":
+            "query($owner:String!, $name:String!, $ref:String!) { repository(owner:$owner,name:$name) { "
+            "ref(qualifiedName:$ref) { branchProtectionRule { requiresStatusChecks "
+            "requiredStatusChecks { context app { databaseId } } } } } }",
+            "variables": {"owner": owner, "name": name, "ref": "refs/heads/" + branch}})
+        require(not response.get("errors"), "required-check protection proof incomplete")
+        ref = response["data"]["repository"]["ref"]
+        require(ref is not None, "required-check target branch missing")
+        protection = ref["branchProtectionRule"]
+        required = []
+        if protection and protection["requiresStatusChecks"]:
+            require(isinstance(protection["requiredStatusChecks"], list), "required-check protection incomplete")
+            required.extend({"context": r["context"], "app_id": r["app"]["databaseId"] if r["app"] else None}
+                            for r in protection["requiredStatusChecks"])
+        for rule in self.pages(f"repos/{repository}/rules/branches/{quote(branch, safe='')}"):
+            require(rule["type"] not in {"workflows", "required_workflows", "required_deployments", "code_scanning"},
+                    "required workflow/deployment/security applicability needs additional supported proof")
+            if rule["type"] == "required_status_checks":
+                rows = rule["parameters"]["required_status_checks"]
+                require(isinstance(rows, list), "required-check rules incomplete")
+                required.extend({"context": r["context"], "app_id": r.get("integration_id")} for r in rows)
+        for item in required:
+            require(isinstance(item["context"], str) and bool(item["context"])
+                    and (item["app_id"] is None or type(item["app_id"]) is int), "invalid required check")
+        unique = {digest(item): item for item in required}
+        return [unique[key] for key in sorted(unique)]
+
+    def checks(self, repository: str, sha: str, branch: str) -> dict:
         require(re.fullmatch(r"[0-9a-f]{40}", sha) is not None, "invalid PR check head")
+        required = self.required_checks(repository, branch)
         root = f"repos/{repository}/commits/{sha}"
         runs = self.pages(root + "/check-runs?filter=latest", "check_runs")
         statuses = self.pages(root + "/statuses")
         latest = {}
         for status in statuses:  # GitHub returns newest status first.
             latest.setdefault(status["context"], status["state"])
+        missing = []
+        for wanted in required:
+            matched = any(r.get("name") == wanted["context"] and
+                          (wanted["app_id"] in {None, -1} or r.get("app", {}).get("id") == wanted["app_id"])
+                          for r in runs)
+            if not matched and not (wanted["app_id"] in {None, -1} and wanted["context"] in latest):
+                missing.append(wanted)
         return {"complete": True,
-                "passing": all(r["status"] == "completed" and r["conclusion"] in
+                "passing": not missing and all(r["status"] == "completed" and r["conclusion"] in
                                {"success", "neutral", "skipped"} for r in runs)
                 and all(value == "success" for value in latest.values()),
                 "runs": [{"id": r["id"], "status": r["status"], "conclusion": r["conclusion"]} for r in runs],
-                "statuses": latest}
+                "statuses": latest, "required": required, "missing": missing}
 
     def observe(self, ident: str, mode: str) -> dict:
         value = self.request(route(ident, "pulls" if mode == "PR" else "issues"))
@@ -93,7 +134,7 @@ class GitHub:
         require(value.get("html_url") == "https://github.com/" + ident.replace("#", surface),
                 "remote repository/coordinate drift")
         if mode == "PR":
-            checks = self.checks(ident.split("#")[0], value["head"]["sha"])
+            checks = self.checks(ident.split("#")[0], value["head"]["sha"], value["base"]["ref"])
             return {"node_id": value["node_id"], "complete": True,
                     "terminal": bool(value.get("merged_at")) and checks["passing"], "state": value["state"],
                     "checks": checks,
@@ -110,7 +151,7 @@ class GitHub:
                 match = re.fullmatch(r"https://github.com/([^/]+/[^/]+)/pull/([1-9][0-9]*)", url)
                 require(match is not None, "unrecognized referenced PR")
                 pr = self.request(f"repos/{match[1]}/pulls/{match[2]}")
-                checks = self.checks(match[1], pr["head"]["sha"])
+                checks = self.checks(match[1], pr["head"]["sha"], pr["base"]["ref"])
                 references[url] = {"head": pr["head"]["sha"], "base": pr["base"]["sha"],
                                    "merged": bool(pr.get("merged_at")), "state": pr["state"], "checks": checks}
         children = self.pages(route(ident) + "/sub_issues")

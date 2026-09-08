@@ -309,10 +309,34 @@ def requirements_identity(project: dict) -> str:
     return digest({"parent_body": parent.get("body"), "acceptance": project["plan"]["acceptance"]})
 
 
+def acceptance_observations(project: dict, owners: list[str]) -> dict:
+    """Bind transitive declared and native requirements, not only direct owners."""
+    by_id = {n["id"]: n for n in project["plan"]["nodes"]}
+    by_node = {value.get("node_id"): ident for ident, value in project["observations"].items()
+               if ident in by_id and value.get("node_id")}
+    pending, proofs = list(owners), {}
+    while pending:
+        ident = pending.pop()
+        if ident in proofs:
+            continue
+        observation = project["observations"].get(ident)
+        require(observation and observation.get("complete") is True, "acceptance needs complete required observations")
+        proofs[ident] = digest(observation)
+        pending.extend(d["id"] for d in by_id[ident]["dependencies"])
+        for required in observation.get("children", []) + observation.get("dependencies", []):
+            require(required in by_node, "acceptance needs every native required node declared")
+            pending.append(by_node[required])
+    return proofs
+
+
 def acceptance_valid(project: dict, item: dict) -> bool:
     proof = project["attestations"].get(item["id"])
+    try:
+        current = acceptance_observations(project, item["owners"])
+    except ProjectError:
+        return False
     return bool(proof and proof.get("requirements") == requirements_identity(project)
-                and all(proof["observations"].get(o) == digest(project["observations"].get(o)) for o in item["owners"]))
+                and proof["observations"] == current)
 
 
 def attest(project: dict, ident: str, evidence: str) -> None:
@@ -321,7 +345,7 @@ def attest(project: dict, ident: str, evidence: str) -> None:
     owners = next(a["owners"] for a in project["plan"]["acceptance"] if a["id"] == ident)
     require(all(o in project["observations"] for o in owners), "owners need fresh observations")
     project["attestations"][ident] = {"evidence": evidence, "requirements": requirements_identity(project),
-        "observations": {o: digest(project["observations"][o]) for o in owners}}
+        "observations": acceptance_observations(project, owners)}
     for owner in owners:
         requirements = [a for a in project["plan"]["acceptance"] if owner in a["owners"]]
         state = project["nodes"][owner]
@@ -372,6 +396,12 @@ def terminal_gaps(project: dict) -> list[str]:
     parent = project["observations"].get(project["plan"]["parent"], {})
     if parent.get("complete") is not True or parent.get("work_resolved") is not True:
         gaps.append("parent: incomplete observation or unresolved PRs/checks/children/dependencies")
+    known_nodes = {value.get("node_id") for ident, value in project["observations"].items()
+                   if ident in project["nodes"] and value.get("node_id")}
+    for ident, observation in project["observations"].items():
+        for required in observation.get("children", []) + observation.get("dependencies", []):
+            if required not in known_nodes:
+                gaps.append(f"{ident}: undeclared native required node {required}")
     for node in project["plan"]["nodes"]:
         ident = node["id"]
         observation = project["observations"].get(ident)

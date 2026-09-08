@@ -19,7 +19,10 @@ dependency-ready, disjoint file/resource lanes, with a separate heavy-job limit.
 Foreign deliveries remain external. Replanning cannot drop known work or expand
 repository/permission authority; live merge/head changes invalidate dependent
 integration evidence. A declared acceptance criterion binds exact observed owner
-evidence, not a child count. No operation merges or deploys.
+and transitive requirement evidence, not a child count. Live branch-protection
+and inherited rules determine required check contexts and app identities;
+missing or unprovable requirements block terminal decisions. No operation merges
+or deploys.
 
 See the [operator protocol](../.agents/skills/atrinik-project-delivery/references/coordinator.md)
 for resume rules, bounds and deliberately unsupported ambiguous-write recovery.
