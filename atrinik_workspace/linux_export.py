@@ -9,9 +9,13 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import posixpath
 from pathlib import Path, PurePosixPath
 import re
 import stat
+import selectors
+import subprocess
+import time
 from typing import BinaryIO
 
 MAX_MANIFEST_BYTES = 16 * 1024 * 1024
@@ -212,3 +216,216 @@ def verify_export(root: Path) -> dict[str, object]:
     finally:
         if root_fd >= 0:
             os.close(root_fd)
+
+
+MAX_ELF_REPORT_BYTES = 4 * 1024 * 1024
+
+
+def _readelf(descriptor: int, *, timeout: float = 15) -> str:
+    """Inspect an inherited descriptor without executing the payload."""
+    process = subprocess.Popen(
+        ["readelf", "--wide", "--file-header", "--program-headers", "--dynamic",
+         "--version-info", f"/proc/self/fd/{descriptor}"],
+        pass_fds=(descriptor,), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        env={"PATH": os.defpath, "LC_ALL": "C"})
+    output = bytearray()
+    deadline = time.monotonic() + timeout
+    try:
+        assert process.stdout is not None
+        with selectors.DefaultSelector() as selector:
+            selector.register(process.stdout, selectors.EVENT_READ)
+            while True:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise ExportError("export-elf: inspection timeout")
+                if not selector.select(remaining):
+                    raise ExportError("export-elf: inspection timeout")
+                block = os.read(process.stdout.fileno(), min(65536, MAX_ELF_REPORT_BYTES - len(output) + 1))
+                if not block:
+                    break
+                output.extend(block)
+                if len(output) > MAX_ELF_REPORT_BYTES:
+                    raise ExportError("export-elf: report size limit exceeded")
+        try:
+            result = process.wait(timeout=max(.001, deadline - time.monotonic()))
+        except subprocess.TimeoutExpired as error:
+            raise ExportError("export-elf: inspection timeout") from error
+        if result:
+            raise ExportError("export-elf: malformed or unsupported ELF")
+        try:
+            return output.decode("utf-8", errors="strict")
+        except UnicodeError as error:
+            raise ExportError("export-elf: invalid inspection output") from error
+    finally:
+        if process.poll() is None:
+            process.kill()
+        process.wait()
+        if process.stdout is not None:
+            process.stdout.close()
+
+
+def inspect_elf(descriptor: int) -> dict[str, object]:
+    """Return structural ABI facts, never provenance or runtime qualification.
+
+    The owner keeps its source lease and derives this descriptor from the verified
+    build/materialization operation. No caller hash map becomes source authority.
+    """
+    try:
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode) or before.st_size > 512 * 1024 * 1024:
+            raise ExportError("export-elf: bounded regular payload required")
+        if os.pread(descriptor, 4, 0) != b"\x7fELF":
+            raise ExportError("export-elf: ELF magic required")
+        text = _readelf(descriptor)
+        if _identity(os.fstat(descriptor)) != _identity(before):
+            raise ExportError("export-elf: payload changed during inspection")
+    except OSError as error:
+        raise ExportError("export-elf: inspection unavailable") from error
+
+    def header(name: str) -> str:
+        values = re.findall(r"^\s*" + re.escape(name) + r":\s*(.+)$", text, re.MULTILINE)
+        if len(values) != 1:
+            raise ExportError("export-elf: missing or ambiguous header")
+        return values[0].strip()
+
+    elf_class, endian, machine = header("Class"), header("Data"), header("Machine")
+    if elf_class not in ("ELF32", "ELF64") or endian not in (
+            "2's complement, little endian", "2's complement, big endian"):
+        raise ExportError("export-elf: unsupported ELF encoding")
+    kind = header("Type").split()[0]
+    if kind not in ("EXEC", "DYN"):
+        raise ExportError("export-elf: executable or shared object required")
+    needed: list[str] = []
+    soname: str | None = None
+    search_paths: list[str] = []
+    for line in text.splitlines():
+        if not re.search(r"\((?:NEEDED|SONAME|RPATH|RUNPATH)\)", line):
+            continue
+        match = re.fullmatch(r"\s*0x[0-9a-f]+\s+\((NEEDED|SONAME|RPATH|RUNPATH)\)\s+"
+                             r"(?:Shared library|Library soname|Library rpath|Library runpath): \[([^\[\]\r\n]*)\]\s*", line)
+        if match is None:
+            raise ExportError("export-elf: malformed dynamic dependency record")
+        tag, value = match.groups()
+        if tag in ("NEEDED", "SONAME"):
+            if not re.fullmatch(r"[A-Za-z0-9_+.-]+", value) or value in (".", ".."):
+                raise ExportError("export-elf: dependency must be a library basename")
+            if tag == "NEEDED":
+                if value in needed:
+                    raise ExportError("export-elf: duplicate dependency")
+                needed.append(value)
+            elif soname is not None:
+                raise ExportError("export-elf: duplicate SONAME")
+            else:
+                soname = value
+        else:
+            if search_paths:
+                raise ExportError("export-elf: ambiguous runtime search path")
+            search_paths = value.split(":")
+            if any(not item or not re.fullmatch(r"\$ORIGIN(?:/[A-Za-z0-9_.+-]+)*", item)
+                   for item in search_paths):
+                raise ExportError("export-elf: runtime search path must use explicit ORIGIN paths")
+    interpreter_lines = [line for line in text.splitlines() if "Requesting program interpreter:" in line]
+    interpreter_count = len(re.findall(r"^\s*INTERP\s", text, re.MULTILINE))
+    if len(interpreter_lines) != interpreter_count or interpreter_count > 1:
+        raise ExportError("export-elf: missing or ambiguous interpreter")
+    interpreter = None
+    if interpreter_lines:
+        match = re.fullmatch(r"\s*\[Requesting program interpreter: (/[^\[\]\s]+)\]\s*", interpreter_lines[0])
+        if match is None or ".." in Path(match[1]).parts:
+            raise ExportError("export-elf: invalid interpreter")
+        interpreter = match[1]
+    versions: dict[str, list[str]] = {}
+    counts: dict[str, int] = {}
+    in_needs = False
+    declared_count: int | None = None
+    provider: str | None = None
+    for line in text.splitlines():
+        if line.startswith("Version "):
+            in_needs = line.startswith("Version needs section ")
+            provider = None
+            if in_needs:
+                match = re.fullmatch(r"Version needs section '[^']+' contains ([0-9]+) entr(?:y|ies):", line)
+                if match is None or declared_count is not None:
+                    raise ExportError("export-elf: malformed version-needs section")
+                declared_count = int(match[1])
+            continue
+        if not in_needs or not line.strip():
+            continue
+        if re.fullmatch(r"\s*Addr: 0x[0-9a-f]+\s+Offset: 0x[0-9a-f]+\s+Link: [0-9]+ \([^()]+\)", line):
+            continue
+        match = re.fullmatch(r"\s*[0-9a-fx]+: Version: [0-9]+\s+File: ([A-Za-z0-9_.+-]+)\s+Cnt: ([0-9]+)", line)
+        if match:
+            provider = match[1]
+            if provider not in needed or provider in versions:
+                raise ExportError("export-elf: version provider not uniquely required")
+            versions[provider] = []
+            counts[provider] = int(match[2])
+            continue
+        match = re.fullmatch(r"\s*[0-9a-fx]+:\s+Name: ([A-Za-z0-9_.+-]+)\s+Flags: [A-Za-z0-9_ |+-]+\s+Version: [0-9]+", line)
+        if match is None or provider is None or match[1] in versions[provider]:
+            raise ExportError("export-elf: malformed version requirement")
+        versions[provider].append(match[1])
+    if (declared_count is not None and declared_count != len(versions)) or any(
+            counts[name] != len(values) for name, values in versions.items()):
+        raise ExportError("export-elf: incomplete version requirements")
+    dynamic_version_count = re.findall(r"\(VERNEEDNUM\)\s+([0-9]+)\s*$", text, re.MULTILINE)
+    if len(dynamic_version_count) > 1 or (dynamic_version_count and int(dynamic_version_count[0]) != declared_count):
+        raise ExportError("export-elf: missing version-needs section")
+    return {"class": elf_class, "endianness": endian, "machine": machine,
+            "type": kind, "interpreter": interpreter, "needed": needed,
+            "soname": soname, "search_paths": search_paths, "required_versions": versions}
+
+
+def elf_dependency_report(objects: dict[str, dict[str, object]], *, entrypoint: str,
+                          host_libraries: frozenset[str],
+                          library_directories: tuple[str, ...] = ("lib",)) -> dict[str, object]:
+    """Resolve inspected static dependencies against explicit bundled/host sets.
+
+    This report does not cover dlopen plugins, license closure or source identity.
+    The producer must bind facts to actual copied bytes and qualify the loader.
+    """
+    if entrypoint not in objects or not objects or len(objects) > MAX_FILES:
+        raise ExportError("export-elf: missing entrypoint or excessive object inventory")
+    for directory in library_directories:
+        relative_path(directory)
+    providers: dict[str, str] = {}
+    signature = tuple(objects[entrypoint][key] for key in ("class", "endianness", "machine"))
+    for path, facts in objects.items():
+        relative_path(path)
+        if tuple(facts[key] for key in ("class", "endianness", "machine")) != signature:
+            raise ExportError("export-elf: incompatible object ABI")
+        if facts["soname"] not in (None, PurePosixPath(path).name):
+            raise ExportError("export-elf: SONAME filename alias must be materialized")
+        for alias in {PurePosixPath(path).name}:
+            if alias in providers or alias in host_libraries:
+                raise ExportError("export-elf: ambiguous library provider")
+            providers[alias] = path
+        for search in facts["search_paths"]:
+            depth = len(PurePosixPath(path).parent.parts)
+            for part in search.split("/")[1:]:
+                depth += -1 if part == ".." else 0 if part == "." else 1
+                if depth < 0:
+                    raise ExportError("export-elf: runtime search path escapes export")
+    edges: dict[str, dict[str, str]] = {}
+    for path, facts in objects.items():
+        edges[path] = {}
+        for needed in facts["needed"]:
+            if needed in providers:
+                directories = set(library_directories)
+                directories.update(posixpath.normpath(str(PurePosixPath(path).parent) +
+                                                      search[len("$ORIGIN"):])
+                                   for search in facts["search_paths"])
+                if str(PurePosixPath(providers[needed]).parent) not in directories:
+                    raise ExportError("export-elf: dependency outside explicit loader search path")
+                edges[path][needed] = providers[needed]
+            elif needed in host_libraries:
+                edges[path][needed] = "host:" + needed
+            else:
+                raise ExportError("export-elf: unresolved dependency " + needed)
+    return {"schema_version": 1, "entrypoint": entrypoint,
+            "abi": dict(zip(("class", "endianness", "machine"), signature)),
+            "interpreter": objects[entrypoint]["interpreter"], "objects": objects,
+            "dependencies": edges, "host_libraries": sorted(host_libraries),
+            "loader_library_directories": list(library_directories),
+            "symbol_versions_verified": False,
+            "dynamic_plugins_verified": False, "runtime_qualified": False}

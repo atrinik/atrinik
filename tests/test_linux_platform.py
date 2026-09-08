@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import io
+import json
 from pathlib import Path
 import socket
 import subprocess
@@ -115,6 +117,51 @@ class LinuxPlatformTests(unittest.TestCase):
         result = platform.prerequisite_report(docker=True)
         self.assertEqual(result["failures"], ["docker-daemon-access:check-daemon-and-user-permissions"])
         self.assertFalse(result["graphics_required"])
+
+    def test_desktop_cli_emits_argument_array_and_actual_identity(self) -> None:
+        with mock.patch.dict(os.environ, self.environment, clear=True), \
+             mock.patch.object(platform, "desktop_options", return_value=["--env", "DISPLAY=:7"]) as compose, \
+             mock.patch.object(platform.os, "geteuid", return_value=1245), \
+             mock.patch.object(platform.os, "getegid", return_value=2345), \
+             mock.patch("sys.stdout", new_callable=io.StringIO) as output:
+            self.assertEqual(platform.main(["--desktop", "wayland", "--gpu", "nvidia"]), 0)
+            document = json.loads(output.getvalue())
+            self.assertEqual(document["docker_arguments"], ["--user", "1245:2345", "--env", "DISPLAY=:7"])
+            self.assertFalse(document["delivery_authority"])
+            self.assertFalse(document["hardware_qualified"])
+            self.assertTrue(document["nvidia_container_toolkit_required"])
+            self.assertEqual(compose.call_args.kwargs["uid"], 1245)
+
+    def test_desktop_cli_failure_has_no_success_json(self) -> None:
+        with mock.patch.object(platform, "desktop_options", side_effect=platform.PlatformError("missing-socket")), \
+             mock.patch("sys.stdout", new_callable=io.StringIO) as output, \
+             mock.patch("sys.stderr", new_callable=io.StringIO) as errors:
+            self.assertEqual(platform.main(["--desktop", "x11", "--gpu", "nvidia"]), 2)
+            self.assertEqual(output.getvalue(), "")
+            self.assertIn("missing-socket", errors.getvalue())
+
+    def test_desktop_cli_rejects_ambiguous_combinations(self) -> None:
+        for arguments in (["--audio"], ["--desktop", "x11"],
+                          ["--desktop", "x11", "--gpu", "nvidia", "--docker"],
+                          ["--desktop", "x11", "--gpu", "nvidia", "--render-device", "/dev/dri/renderD128"]):
+            with self.subTest(arguments=arguments), mock.patch("sys.stderr", new_callable=io.StringIO):
+                with self.assertRaises(SystemExit) as raised:
+                    platform.main(arguments)
+                self.assertEqual(raised.exception.code, 2)
+
+    def test_x11_preserves_local_cookie_hostname(self) -> None:
+        authority = self.root / "authority"
+        authority.write_bytes(b"private-cookie-fixture")
+        authority.chmod(0o600)
+        with mock.patch.object(platform, "_endpoint") as endpoint, \
+             mock.patch.object(platform.Path, "lstat", return_value=mock.Mock(st_uid=os.geteuid())), \
+             mock.patch.object(platform.socket, "gethostname", return_value="actual-desktop"):
+            arguments = platform.desktop_options(display="x11", environment={"DISPLAY": ":2", "XAUTHORITY": str(authority)},
+                                                 uid=os.geteuid(), gpu="nvidia")
+        self.assertEqual(arguments[:2], ["--hostname", "actual-desktop"])
+        self.assertIn("DISPLAY=:2", arguments)
+        self.assertIn("XAUTHORITY=/run/atrinik-xauthority", arguments)
+        self.assertEqual(endpoint.call_count, 2)
 
 
 if __name__ == "__main__":

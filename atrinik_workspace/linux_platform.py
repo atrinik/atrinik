@@ -11,8 +11,10 @@ import os
 from pathlib import Path
 import re
 import shutil
+import socket
 import stat
 import subprocess
+import sys
 from typing import Mapping
 
 
@@ -72,6 +74,11 @@ def desktop_options(
         if socket_uid not in (0, uid):
             raise PlatformError("x11-socket-owner: select your local X server")
         _endpoint(endpoint, socket_uid, socket=True)
+        hostname = socket.gethostname()
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.-]{0,252}", hostname):
+            raise PlatformError("x11-hostname: unsupported local hostname")
+        # FamilyLocal Xauthority records select the hostname as well as display.
+        result += ["--hostname", hostname]
         result += _mount(endpoint, str(endpoint))
         result += _mount(source, "/run/atrinik-xauthority")
         result += ["--env", f"DISPLAY={value}", "--env", "XAUTHORITY=/run/atrinik-xauthority",
@@ -152,7 +159,37 @@ def prerequisite_report(*, docker: bool = False) -> dict[str, object]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--docker", action="store_true", help="also check Docker daemon access")
-    result = prerequisite_report(docker=parser.parse_args(argv).docker)
+    parser.add_argument("--desktop", choices=("x11", "wayland"),
+                        help="print explicit Docker desktop argument array; does not launch")
+    parser.add_argument("--gpu", choices=("mesa", "nvidia"))
+    parser.add_argument("--render-device", type=Path, action="append", default=[])
+    parser.add_argument("--audio", action="store_true")
+    options = parser.parse_args(argv)
+    if options.desktop:
+        if not sys.platform.startswith("linux"):
+            parser.error("desktop options require Linux")
+        if options.docker or not options.gpu:
+            parser.error("--desktop requires --gpu; run --docker separately")
+        if options.gpu != "mesa" and options.render_device:
+            parser.error("--render-device requires --gpu mesa")
+        try:
+            arguments = desktop_options(display=options.desktop, environment=os.environ,
+                                        uid=os.geteuid(), gpu=options.gpu,
+                                        audio=options.audio,
+                                        render_devices=tuple(options.render_device))
+        except PlatformError as error:
+            print(str(error), file=sys.stderr)
+            return 2
+        result = {"schema_version": 1,
+                  "docker_arguments": ["--user", f"{os.geteuid()}:{os.getegid()}", *arguments],
+                  "delivery_authority": False,
+                  "hardware_qualified": False,
+                  "nvidia_container_toolkit_required": options.gpu == "nvidia"}
+        print(json.dumps(result, sort_keys=True))
+        return 0
+    if options.gpu or options.render_device or options.audio:
+        parser.error("desktop capability arguments require --desktop")
+    result = prerequisite_report(docker=options.docker)
     print(json.dumps(result, sort_keys=True))
     return 0 if result["ok"] else 2
 

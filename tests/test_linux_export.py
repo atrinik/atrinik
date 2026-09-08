@@ -5,6 +5,8 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import subprocess
+import shutil
 import sys
 import unittest
 from unittest import mock
@@ -177,6 +179,93 @@ class LinuxExportTests(unittest.TestCase):
         with mock.patch.object(export, "_hash_file", side_effect=replace_parent):
             with self.assertRaisesRegex(export.ExportError, "pathname changed"):
                 export.verify_export(self.root)
+
+    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "ELF toolchain required")
+    def test_real_elf_inspection_and_explicit_dependency_closure(self) -> None:
+        source = self.root / "library.c"
+        source.write_text("int value(void) { return 0; }\n")
+        library = self.root / "libsample.so"
+        subprocess.run(["cc", "-shared", "-fPIC", "-Wl,-soname,libsample.so", "-o", str(library), str(source)], check=True)
+        source.write_text('extern int value(void); int main(void) { return value(); }\n')
+        binary = self.root / "client"
+        subprocess.run(["cc", "-o", str(binary), str(source), "-L" + str(self.root), "-lsample", "-Wl,-rpath,$ORIGIN/../lib"], check=True)
+        with binary.open("rb") as stream:
+            client = export.inspect_elf(stream.fileno())
+        with library.open("rb") as stream:
+            provider = export.inspect_elf(stream.fileno())
+        self.assertIn("libsample.so", client["needed"])
+        self.assertEqual(provider["soname"], "libsample.so")
+        self.assertTrue(client["interpreter"].startswith("/"))
+        self.assertIn("libc.so.6", client["required_versions"])
+        objects = {"bin/client": client, "lib/libsample.so": provider}
+        report = export.elf_dependency_report(objects, entrypoint="bin/client", host_libraries=frozenset({"libc.so.6"}))
+        self.assertEqual(report["dependencies"]["bin/client"]["libsample.so"], "lib/libsample.so")
+        self.assertFalse(report["runtime_qualified"])
+        self.assertFalse(report["symbol_versions_verified"])
+        with self.assertRaisesRegex(export.ExportError, "unresolved dependency"):
+            export.elf_dependency_report(objects, entrypoint="bin/client", host_libraries=frozenset())
+        with self.assertRaisesRegex(export.ExportError, "ambiguous library provider"):
+            export.elf_dependency_report(objects, entrypoint="bin/client", host_libraries=frozenset({"libc.so.6", "libsample.so"}))
+        provider["machine"] = "other"
+        with self.assertRaisesRegex(export.ExportError, "incompatible object ABI"):
+            export.elf_dependency_report(objects, entrypoint="bin/client", host_libraries=frozenset({"libc.so.6"}))
+
+    def test_elf_reports_are_bounded_and_timed_out(self) -> None:
+        real_popen = subprocess.Popen
+        for source, message in [("import sys; sys.stdout.write('x'*4096)", "size limit"),
+                                ("import time; time.sleep(10)", "timeout")]:
+            def child(*args, **kwargs):
+                return real_popen([sys.executable, "-c", source], **kwargs)
+            with self.subTest(message=message), mock.patch.object(export.subprocess, "Popen", side_effect=child), \
+                 mock.patch.object(export, "MAX_ELF_REPORT_BYTES", 1024):
+                with self.assertRaisesRegex(export.ExportError, message):
+                    export._readelf(0, timeout=.05)
+
+    def test_elf_inspection_rejects_non_elf_without_executing_it(self) -> None:
+        payload = self.root / "not-elf"
+        payload.write_text("#!/bin/sh\nexit 0\n")
+        with payload.open("rb") as stream, mock.patch.object(export, "_readelf") as inspect:
+            with self.assertRaisesRegex(export.ExportError, "ELF magic"):
+                export.inspect_elf(stream.fileno())
+            inspect.assert_not_called()
+
+    def test_elf_closure_rejects_unmaterialized_alias_and_escaping_search(self) -> None:
+        facts = {"class": "ELF64", "endianness": "little", "machine": "test",
+                 "needed": [], "soname": "libother.so", "search_paths": [], "interpreter": None}
+        with self.assertRaisesRegex(export.ExportError, "alias must be materialized"):
+            export.elf_dependency_report({"lib/libsample.so": facts}, entrypoint="lib/libsample.so", host_libraries=frozenset())
+        facts["soname"] = None
+        facts["search_paths"] = ["$ORIGIN/../../outside"]
+        with self.assertRaisesRegex(export.ExportError, "escapes export"):
+            export.elf_dependency_report({"bin/client": facts}, entrypoint="bin/client", host_libraries=frozenset())
+
+    def test_elf_extraction_rejects_truncated_or_injected_records(self) -> None:
+        payload = self.root / "elf-fixture"
+        payload.write_bytes(b"\x7fELF")
+        header = "Class: ELF64\nData: 2's complement, little endian\nMachine: fixture\nType: DYN (Shared object file)\n"
+        needed = " 0x1 (NEEDED) Shared library: [libc.so.6]\n"
+        interpreter = " INTERP 0x0\n [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]\n"
+        version = (" 0x2 (VERNEEDNUM) 1\nVersion needs section '.gnu.version_r' contains 1 entry:\n"
+                   " 000000: Version: 1 File: libc.so.6 Cnt: 1\n"
+                   " 0x0010: Name: GLIBC_2.34 Flags: none Version: 2\n")
+        golden = header + needed + interpreter + version
+        with payload.open("rb") as stream, mock.patch.object(export, "_readelf", return_value=golden):
+            self.assertEqual(export.inspect_elf(stream.fileno())["required_versions"], {"libc.so.6": ["GLIBC_2.34"]})
+        cases = [golden.replace("[libc.so.6]", "[libc.so.6]suffix]"),
+                 golden.replace("[libc.so.6]", "[libc.\nso.6]"),
+                 golden.replace("[libc.so.6]", "[libc.so.6"),
+                 golden.replace(needed, needed + needed),
+                 golden.replace("ld-linux-x86-64.so.2]", "ld-linux\n-x86-64.so.2]"),
+                 golden.replace(" [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]\n", ""),
+                 golden.replace("Name: GLIBC_2.34", "Name: GLIBC_\n2.34"),
+                 golden.replace("Cnt: 1", "Cnt: 2"),
+                 golden.replace("contains 1 entry:", "contains 2 entries:"),
+                 golden.replace(version, " 0x2 (VERNEEDNUM) 1\n")]
+        for text in cases:
+            with self.subTest(text=text), payload.open("rb") as stream, \
+                 mock.patch.object(export, "_readelf", return_value=text):
+                with self.assertRaises(export.ExportError):
+                    export.inspect_elf(stream.fileno())
 
 
 if __name__ == "__main__":
