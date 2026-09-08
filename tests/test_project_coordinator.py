@@ -682,11 +682,21 @@ class CLITests(unittest.TestCase):
 
 
 class CheckObservationTests(unittest.TestCase):
+    def test_transferred_coordinate_cannot_expand_remote_scope(self):
+        gh = GitHub()
+        moved = {"number": 2, "html_url": "https://github.com/atrinik/foreign/issues/2"}
+        with patch.object(gh, "request", return_value=moved):
+            with self.assertRaises(ProjectError):
+                gh.issue("atrinik/atrinik#2")
+            with self.assertRaises(ProjectError):
+                gh.observe("atrinik/atrinik#2", "issue")
+
     def test_parent_own_open_pr_failed_checks_and_blockers_prevent_close(self):
         for scenario in ("open-pr", "failed-checks", "open-blocker"):
             with self.subTest(scenario=scenario):
                 gh = GitHub()
-                issue = {"id": 1, "node_id": "I_1", "number": 1, "state": "open", "body": "parent"}
+                issue = {"id": 1, "node_id": "I_1", "number": 1, "state": "open", "body": "parent",
+                         "html_url": "https://github.com/atrinik/atrinik/issues/1"}
                 pr = {"head": {"sha": "a" * 40}, "base": {"sha": "b" * 40},
                       "state": "closed", "merged_at": None if scenario == "open-pr" else "date"}
                 timeline = [{"source": {"issue": {"pull_request": {}, "html_url": "https://github.com/atrinik/atrinik/pull/9"}}}]

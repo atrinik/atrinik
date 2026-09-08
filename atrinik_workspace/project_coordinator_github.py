@@ -66,7 +66,10 @@ class GitHub:
         return self.request("user")["login"]
 
     def issue(self, ident: str) -> dict:
-        return self.request(route(ident))
+        value = self.request(route(ident))
+        require(value.get("html_url") == "https://github.com/" + ident.replace("#", "/issues/"),
+                "issue moved outside exact authorized coordinate")
+        return value
 
     def checks(self, repository: str, sha: str) -> dict:
         require(re.fullmatch(r"[0-9a-f]{40}", sha) is not None, "invalid PR check head")
@@ -86,6 +89,9 @@ class GitHub:
     def observe(self, ident: str, mode: str) -> dict:
         value = self.request(route(ident, "pulls" if mode == "PR" else "issues"))
         require(value["number"] == int(ident.split("#")[1]), "remote coordinate drift")
+        surface = "/pull/" if mode == "PR" else "/issues/"
+        require(value.get("html_url") == "https://github.com/" + ident.replace("#", surface),
+                "remote repository/coordinate drift")
         if mode == "PR":
             checks = self.checks(ident.split("#")[0], value["head"]["sha"])
             return {"node_id": value["node_id"], "complete": True,
