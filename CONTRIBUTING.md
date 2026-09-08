@@ -1,5 +1,14 @@
 # Contributing
 
+For coordinated multi-issue development, use the [project launcher](docs/PROJECT_DELIVERY_GOAL.md).
+An authorized coordinator may manage its workers, ordinary development and PR
+delivery, plus explicitly scoped assignment/relationships/owned milestone comments
+and existing Project status. This does not expand individual issue-delivery
+permissions or grant merge/deployment approval. Preserve other contributors' text
+and ownership. Use one canonical closing PR per issue and non-closing parent
+references until complete acceptance; after observed merges, reconcile dependants
+and explicitly close an authorized fully accepted parent or hand off that action.
+
 Use Conventional Commits syntax for commits and pull-request titles:
 
 ~~~text

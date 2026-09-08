@@ -1,0 +1,4 @@
+interface:
+  display_name: "Atrinik Project Delivery"
+  short_description: "Coordinate parallel Atrinik issue deliveries"
+  default_prompt: "Use $atrinik-project-delivery to coordinate this authorized Atrinik project in one session. Inspect actual worker capacity, reconcile existing ownership, launch and manage independent workers using unchanged issue delivery, and converge on validated PRs and explicit acceptance. Keep tracking scoped and recoverable; do not merge or deploy without approval."

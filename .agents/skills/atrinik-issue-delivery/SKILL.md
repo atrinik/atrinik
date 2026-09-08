@@ -117,52 +117,36 @@ secret-free probe combines the pinned config with live Linux/POSIX, user,
 Codex, no-follow, mode, and mount checks; runtime markers never authorize it.
 `native-windows`, `windows-cross`, and `unknown-or-unsafe` stop delivery.
 
-There are exactly two supported Codex entry modes. If the plugin is already
-inside the canonical VS Code devcontainer, continue the current process,
-workspace, ledger root, exact worktree, leases, and warm caches. Do not invoke
-Docker or the Dev Containers CLI merely to create, attach, recreate, remount,
-or re-enter another container. If Codex starts on a native host, use Docker or
-the Dev Containers CLI only for the minimum bootstrap/attach into the pinned
-ordinary Linux devcontainer. The native host may then perform only approved
-Git/GitHub and commit operations; every coordinator, ownership, repository,
-worktree, ledger lock/CAS/lease/recovery, edit, test, build, review, and
-validation operation runs inside that container. A native-host VS Code window
-is not a substitute, and Codex must not ask it to reopen or launch a
-container.
+Use exactly two entry modes:
 
-The probe's `entry_mode` is descriptive corroboration, not authority: a
-`inside-vscode-devcontainer` signal, a `container-bootstrap` signal, a copied
-runtime marker, or a session ID cannot replace live image, filesystem,
-workspace, Codex-home, mount, and identity checks. The probe accepts a direct
-container attach when those live checks pass even if a launcher variable is
-absent, and fails closed for native hosts, unsafe bind mounts, arbitrary
-containers, nested coordinators, and stale or copied session evidence.
+- Already in a canonical VS Code devcontainer: retain the current process,
+  workspace, bound worktree, ledger, leases and caches; never bootstrap another.
+- Native host: bootstrap/attach once with Docker or the Dev Containers CLI into
+  the pinned ordinary Linux image. Thereafter the host performs only approved
+  Git/GitHub/commit operations; ownership, ledger, worktree, edit, test, build,
+  review and validation run inside the coordinator.
 
-Treat a persistent session as reusable only while its owner, pinned image,
-workspace/mount identities, and ledger/worktree coordinates still match.
-Reconnect and crash recovery rerun the probe plus fresh ledger/worktree
-observation and CAS/lease checks; idle time is bounded, and shutdown touches
-only the owned session. Parallel sessions use distinct exact worktrees,
-ledger leases, caches, credentials, ports, and mutable state. Docker commands
-explicitly required by a wrapper operation remain governed by that operation;
-this entry rule does not authorize arbitrary nesting or remounting.
-
-Codex never launches or controls VS Code, invokes `code` or `code.cmd`, sends
-VS Code URIs, or uses GUI automation. Any VS Code setup reference is
-human-facing only.
+An `entry_mode` marker, container name or copied session record is corroboration,
+not authority. Codex never launches or controls VS Code; no executable/URI or
+GUI automation, nested containers, live remounts or foreign/stale coordinates.
+Wrapper-required Docker operations retain their own operation contract.
 
 ### Reuse one owned devcontainer session
 
-Use one pinned container per scope and retain an ignored, secret-free record of
-the agent, ledger, worktree, container/mount/volume identities, lifecycle, and
-cleanup owner. It is corroboration only: the live probe, ledger/worktree CAS,
-and leases decide. Bound idle/lifetime to 30 minutes/12 hours; after a
-stop/crash preserve evidence, re-prove coordinates, and reacquire leases.
-Parallel scopes need distinct worktrees, coordinates, profiles/build roots,
-volume namespaces, credentials, ports, topology/state, and mutable caches;
-share only immutable image layers/read-only inputs. The session benchmark uses
-exact run-scoped resources for cold/warm/recovery/parallel measurements and
-never mounts source, credentials, private keys, or mutable server data.
+Retain one pinned container per scope and an ignored, secret-free record of its
+agent, ledger, worktree, image/mount/volume identities, lifecycle and cleanup owner.
+Reconnect/crash recovery re-proves the live probe, exact worktree, ledger CAS and
+leases. Bound idle/lifetime to 30 minutes/12 hours; preserve stopped evidence and
+stop only owned resources. Parallel scopes use distinct coordinates, worktrees,
+profiles/build roots, volumes, Codex homes, caches, ports and topology/state.
+
+Trusted workers share [host GitHub auth read-only](../../../docs/COORDINATOR_AUTH.md).
+The host owns login/refresh/account changes; workers verify actor and required
+repository/Project/package capabilities together before ledger genesis or resume.
+Bundle missing scopes into one host action; do not repeat pending login requests
+or ask again for a task mutation already authorized in the session. Keep
+other mutable credential stores private. Credential availability grants no
+additional task authority. The session benchmark remains credential/source-free.
 
 ### Claim only explicitly authorized issues
 

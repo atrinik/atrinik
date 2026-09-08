@@ -107,7 +107,9 @@ A persistent coordinator session belongs to one agent and exact delivery coordin
 requires matching pinned container, mounts, worktree, profile/build roots, and ledger coordinates.
 Recovery reruns probe, worktree list, ledger inventory/CAS, and leases. Bound idle/lifetime;
 preserve failure evidence; stop only the owned container. Independent sessions need distinct
-worktrees/coordinates, caches, credentials, ports, topology/state names, and mutable state.
+worktrees/coordinates, caches, ports, topology/state names, and mutable state.
+Use [shared read-only host GitHub auth](../../../docs/COORDINATOR_AUTH.md);
+verify actor/capabilities and keep other credential stores private.
 
 Verify concurrency with distinct worktrees and readiness rendezvous; keep A live through B
 release; count transitions/conflicts; timeouts bound failure, not compiler speed.

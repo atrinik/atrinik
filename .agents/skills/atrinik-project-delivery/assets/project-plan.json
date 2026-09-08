@@ -1,0 +1,12 @@
+{
+  "parent": "atrinik/atrinik#1",
+  "repositories": ["atrinik/atrinik"],
+  "nodes": [
+    {"id": "atrinik/atrinik#2", "entry_mode": "issue", "dependencies": [],
+     "reads": [], "writes": ["."], "resources": [], "heavy": false, "external": false}
+  ],
+  "acceptance": [
+    {"id": "integration", "description": "Replace with verified project acceptance", "owners": ["atrinik/atrinik#2"]}
+  ],
+  "permissions": []
+}
