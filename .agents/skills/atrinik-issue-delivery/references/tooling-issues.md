@@ -1,21 +1,10 @@
 # Local tooling-issue ledger
 
-Use this protocol whenever repository work encounters a host, tool, transport,
-or environment problem. It records environment improvements, not product
-defects or issue evidence.
-
-## Response checklist
-
-Every response that performs repository work includes one explicit status line:
-
-```text
-Tooling issues: none
-```
-
-When a problem was observed, replace `none` with its stable key(s) and a short
-current status. Update the local ledger before the response through the wrapper
-helper below. Do not omit the line because a failure was transient or worked
-around.
+Use this optional protocol only when a durable local diagnostic will help future
+work. Do not routinely inspect or update either agent ledger, and do not require
+status lines in responses. Absence, malformed content, lock contention and
+reporting errors never block implementation, validation, PR readiness or handoff.
+These diagnostic files are separate from authoritative delivery ownership ledgers.
 
 ## Ignored human-readable ledger
 
@@ -47,8 +36,8 @@ across merge and publication, and returns the new digest:
 Pass the prior helper digest for a fail-closed compare-and-swap; use
 `--expected-digest absent` when the target must still be absent. Without a
 digest, the helper merges the named row into the bytes read under its lock.
-Use `--non-blocking` only when the caller will retry after the returned
-contention diagnostic. On a stale digest or uncertain publication, reread the
+Use `--non-blocking` to avoid waiting for optional reporting; on contention,
+skip the observation or retry later if useful. On a stale digest or uncertain publication, reread the
 latest helper output before retrying. A lock coordinates one shared filesystem;
 separate filesystems need an explicit coordinator/event handoff.
 
@@ -77,14 +66,8 @@ but do not create or mutate product issues during delivery.
 
 ## Validation
 
-Run the existing guidance check when the ledger contract or file is relevant:
-
-```sh
-python3 -m atrinik_workspace.guidance_inventory --check
-```
-
-The check proves the path is ignored and untracked. If the optional file is
-absent, it passes; if present, it verifies UTF-8, bounded size, the exact table
-columns, allowed statuses, stable-key uniqueness, and rejection of secret-like
-fields/values and private host paths. It does not require local ledger bytes in a
-clean checkout or CI.
+Normal guidance checks do not inspect optional local diagnostic state. Explicit
+ledger updates still validate bounded UTF-8, schemas, stable keys, secret-like
+content and atomic publication under the existing lock. Use the guidance
+inventory's `--diagnose-ledgers` mode when troubleshooting these files; diagnostic
+findings never change the normal guidance check's exit status.

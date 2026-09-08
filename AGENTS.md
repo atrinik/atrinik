@@ -47,15 +47,12 @@
   rerun exact named create after rollback and bind via helper CAS.
 - Use wrapper paths; never reconstruct managed paths. Isolate topology/state, ports,
   client config; prefer temporary state and local scenario secrets.
-- Before repository or expensive build/package/runtime/remote-mutation work, consult
-  ignored `build/agent-process-improvements.md` when present; use
-  `./atrinik agent-ledger update` only for both ignored agent ledgers; never
-  manually edit ledgers. Report `Process improvements added: none` or
-  keys/issues; follow digest/lock/retry; handoff across separate filesystems.
+- Process/tooling ledgers are optional local diagnostics. Do not read or update
+  them routinely, require status lines, or block work/PR readiness on their
+  absence, contents, contention, or reporting failures. If useful, update only
+  through `./atrinik agent-ledger update`; never manually edit or publish them.
 - Keep completion bounded, parser-driven, and secret-free; lease in order; gate
-  same-coordinate readers; share migration barrier; unbound records inert. Report
-  `Tooling issues: none` or stable keys in ignored
-  `build/agent-tooling-issues.md`; never commit/publish/copy to product issues.
+  same-coordinate readers; share migration barrier; unbound records inert.
 - Optional SSH signing stays on host; follow `.agents/skills/atrinik-github-governance/references/ssh-signing.md`; never copy/mount private keys
   into a container.
 - On touch, refresh existing Atrinik-owned copyright terminal years; blanket holders per
