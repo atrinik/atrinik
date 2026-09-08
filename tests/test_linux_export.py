@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 from atrinik_workspace import linux_export as export
 
@@ -112,6 +113,44 @@ class LinuxExportTests(unittest.TestCase):
         (self.root / "bin/client").chmod(0o4755)
         with self.assertRaises(export.ExportError):
             export.verify_export(self.root)
+
+
+    def test_unreadable_directory_fails_instead_of_disappearing(self) -> None:
+        private = self.root / "unreadable"
+        private.mkdir()
+        private.chmod(0)
+        try:
+            with self.assertRaises(export.ExportError):
+                export.verify_export(self.root)
+        finally:
+            private.chmod(0o700)
+
+    def test_empty_directories_are_bounded(self) -> None:
+        for index in range(12):
+            (self.root / f"empty-{index}").mkdir()
+        with mock.patch.object(export, "MAX_FILES", 5):
+            with self.assertRaisesRegex(export.ExportError, "inventory limit"):
+                export.verify_export(self.root)
+
+    def test_payload_replacement_during_hashing_fails(self) -> None:
+        original = export._hash_file
+        replaced = False
+
+        def replace_after_read(stream: object, size: int) -> str:
+            nonlocal replaced
+            digest = original(stream, size)
+            if not replaced:
+                replaced = True
+                target = self.root / "lib/libapp.so"
+                replacement = self.root / "replacement"
+                replacement.write_bytes(b"library")
+                replacement.chmod(0o644)
+                replacement.replace(target)
+            return digest
+
+        with mock.patch.object(export, "_hash_file", side_effect=replace_after_read):
+            with self.assertRaises(export.ExportError):
+                export.verify_export(self.root)
 
 
 if __name__ == "__main__":

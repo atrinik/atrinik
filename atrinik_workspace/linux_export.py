@@ -121,19 +121,36 @@ def _identity(info: os.stat_result) -> tuple[int, ...]:
 def _inventory(root_fd: int) -> tuple[set[str], dict[str, tuple[int, ...]]]:
     files_seen: set[str] = set()
     identities = {".": _identity(os.fstat(root_fd))}
-    for directory, dirs, files, directory_fd in os.fwalk(".", dir_fd=root_fd, follow_symlinks=False):
-        for name in dirs + files:
-            info = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
-            if not (stat.S_ISREG(info.st_mode) or stat.S_ISDIR(info.st_mode)):
-                raise ExportError("export-payload: symlink or special file")
-            relative = str(Path(directory) / name)
-            identities[relative] = _identity(info)
-            if len(identities) > 2 * MAX_FILES + 1:
-                raise ExportError("export-payload: inventory limit exceeded")
-            if stat.S_ISREG(info.st_mode):
-                files_seen.add(relative)
-                if len(files_seen) > MAX_FILES + 1:
+
+    def visit(directory_fd: int, prefix: str, depth: int) -> None:
+        if depth > 128:
+            raise ExportError("export-payload: directory depth limit exceeded")
+        # Iterate instead of fwalk's eager directory lists; fail on unreadable
+        # directories and bound empty directories as well as payload files.
+        with os.scandir(directory_fd) as entries:
+            for entry in entries:
+                if len(identities) >= 2 * MAX_FILES + 1:
                     raise ExportError("export-payload: inventory limit exceeded")
+                name = entry.name if not prefix else prefix + "/" + entry.name
+                info = os.stat(entry.name, dir_fd=directory_fd, follow_symlinks=False)
+                identities[name] = _identity(info)
+                if stat.S_ISDIR(info.st_mode):
+                    child = os.open(entry.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                                    dir_fd=directory_fd)
+                    try:
+                        if _identity(os.fstat(child)) != identities[name]:
+                            raise ExportError("export-payload: directory changed during inventory")
+                        visit(child, name, depth + 1)
+                    finally:
+                        os.close(child)
+                elif stat.S_ISREG(info.st_mode):
+                    files_seen.add(name)
+                    if len(files_seen) > MAX_FILES + 1:
+                        raise ExportError("export-payload: inventory limit exceeded")
+                else:
+                    raise ExportError("export-payload: symlink or special file")
+
+    visit(root_fd, "", 0)
     return files_seen, identities
 
 
