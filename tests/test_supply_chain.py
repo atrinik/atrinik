@@ -134,6 +134,68 @@ class InventoryTests(unittest.TestCase):
                     f"build/supply-chain/{profile}/{report}", workflow
                 )
 
+    def test_classic_bundle_audit_compares_active_coordinates(self) -> None:
+        digest = "sha256:" + "a" * 64
+        material = "sha256:" + "b" * 64
+        image = "ghcr.io/atrinik/classic-dependencies"
+        descriptor = {
+            "schema_version": 1,
+            "image": image,
+            "digest": digest,
+            "material_digest": material,
+            "tag": "materials-" + "b" * 64,
+            # An old digest can legitimately remain in provenance fields.
+            "verified_input_bundle_digest": "sha256:" + "c" * 64,
+        }
+        dependency = fixture_dependency(
+            identifier="container/classic-dependencies",
+            kind="container-image",
+            scope=("classic",),
+            version=descriptor["tag"],
+            locator=f"{image}@{digest}",
+            checksum=digest,
+            evidence=(Evidence("classic", "dependencies.bundle.json", image),),
+        )
+        repository = fixture_repository(name="classic", checkout="classic")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / ".github").mkdir()
+            (root / ".github/dependabot.yml").write_text(
+                "package-ecosystem: github-actions\n", encoding="utf-8"
+            )
+            path = root / "dependencies.bundle.json"
+            path.write_text(json.dumps(descriptor), encoding="utf-8")
+            with mock.patch(
+                "atrinik_workspace.supply_chain._audit_files",
+                return_value=[".github/dependabot.yml"],
+            ):
+                def audit(record: Dependency) -> list[str]:
+                    return Inventory("atrinik", "2026-09-08", [repository], [record]).audit(
+                        {"classic": root}
+                    )
+
+                self.assertTrue(audit(dependency))
+                for field, value in (
+                    ("version", "materials-" + "c" * 64),
+                    ("locator", f"{image}@sha256:" + "c" * 64),
+                    ("checksum", "sha256:" + "c" * 64),
+                ):
+                    with self.subTest(field=field):
+                        with self.assertRaisesRegex(WorkspaceError, f"inventory {field}"):
+                            audit(replace(dependency, **{field: value}))
+                descriptor["digest"] = "sha256:" + "d" * 64
+                descriptor["verified_input_bundle_digest"] = digest
+                path.write_text(json.dumps(descriptor), encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, "inventory locator"):
+                    audit(dependency)
+                descriptor["tag"] = "materials-" + "e" * 64
+                path.write_text(json.dumps(descriptor), encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, "tag differs"):
+                    audit(dependency)
+                path.write_text("[]", encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, "descriptor schema"):
+                    audit(dependency)
+
     def assert_invalid_document(
         self, document: object, expected: str
     ) -> None:

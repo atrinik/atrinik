@@ -1448,13 +1448,13 @@
         "classic-server"
       ],
       "required": true,
-      "version": "materials-7e2ad179a1d95540820634792e355e2fbf3cf030b41816c3bed9923c9d0a718d",
+      "version": "materials-5d3ac9ea4b5b5fd8a34352cf39aacaab3144a91f99f2de9c15e68007496acb65",
       "version_source": "Classic dependencies.bundle.json material digest",
       "license": "LicenseRef-Atrinik-Image-Contents",
       "source_url": "https://github.com/atrinik/classic/pkgs/container/classic-dependencies",
-      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:60f13a18830552fbdbda314c9e29029323fce84eb0de1defd2a1d3610de78043",
+      "locator": "ghcr.io/atrinik/classic-dependencies@sha256:036fb758e18c7995e3869d391f75c9995e1d643ee167f4a933b1336138fbe58a",
       "commit": null,
-      "checksum": "sha256:60f13a18830552fbdbda314c9e29029323fce84eb0de1defd2a1d3610de78043",
+      "checksum": "sha256:036fb758e18c7995e3869d391f75c9995e1d643ee167f4a933b1336138fbe58a",
       "acquisition": "A trusted current-main workflow builds the deterministic OCI layout through the authoritative Classic fetcher and publishes its exact manifest digest",
       "update_cadence_days": 30,
       "update_mechanism": "Reviewed Classic lock or acquisition-contract update with a regenerated material and OCI descriptor",
@@ -1471,7 +1471,7 @@
         {
           "repository": "classic",
           "path": "dependencies.bundle.json",
-          "contains": "sha256:60f13a18830552fbdbda314c9e29029323fce84eb0de1defd2a1d3610de78043"
+          "contains": "sha256:036fb758e18c7995e3869d391f75c9995e1d643ee167f4a933b1336138fbe58a"
         },
         {
           "repository": "classic",
