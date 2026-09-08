@@ -11,7 +11,7 @@ import sys
 from .project_coordinator import (ProjectError, attest, digest, new_project, record_worker,
                                   require, replan, reopen, reserve, retry, schedule, terminal_gaps, worker_result)
 from .project_coordinator_github import GitHub, apply_operation, cancel_operation, prepare_operation, refresh
-from .project_coordinator_store import Store, open_directory, read_input
+from .project_coordinator_store import LIMIT, Store, open_directory, read_input
 
 SOURCE_ROOT = Path(__file__).resolve().parents[1]
 
@@ -131,7 +131,7 @@ def run(args, github=None):
     if args.command == "terminal":
         return {"gaps": terminal_gaps(snapshot["document"]), "note": "refresh before terminal decisions"}
     require(gh.actor() == snapshot["document"]["actor"], "authenticated actor changed")
-    expected = read_input(args.expected)
+    expected = read_input(args.expected, 2 * LIMIT)
     if args.command == "tracking" and args.action in {"apply", "reconcile", "cancel"}:
         require(bool(args.operation), "--operation required")
         if args.action == "cancel":
@@ -149,6 +149,9 @@ def run(args, github=None):
         if args.command == "worker":
             return record_worker(project, args.coordinate, args.attempt, args.id)
         if args.command == "result":
+            node = next(n for n in project["plan"]["nodes"] if n["id"] == args.coordinate)
+            require(gh.observe(args.coordinate, node["entry_mode"]) == project["observations"].get(args.coordinate),
+                    "worker head/evidence changed; refresh, reopen and obtain a current-attempt result")
             return worker_result(project, args.coordinate, args.attempt, args.state, args.evidence)
         if args.command == "refresh":
             return refresh(project, gh)

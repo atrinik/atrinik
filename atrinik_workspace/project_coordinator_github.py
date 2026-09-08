@@ -136,8 +136,10 @@ def refresh(project: dict, github: GitHub) -> dict:
         if ident not in project["nodes"]:
             continue
         state = project["nodes"][ident]
-        if observations[ident]["terminal"]:
-            state.update(state="merged", worker=None)
+        if state["state"] in {"running", "reserved"}:
+            state.update(state="blocked", detail="remote evidence changed; reprove same worker and leaf before reopening")
+        elif observations[ident]["terminal"]:
+            state.update(state="merged", worker=None, attempt=None)
         elif state["state"] in {"ready", "merged", "accepted"}:
             state.update(state="blocked", detail="remote evidence changed; refresh leaf delivery")
     # Invalidate descendants even when their own PR head has not changed.
@@ -147,7 +149,7 @@ def refresh(project: dict, github: GitHub) -> dict:
             if any(d["id"] in stale for d in node["dependencies"]):
                 stale.add(node["id"])
                 state = project["nodes"][node["id"]]
-                if state["state"] in {"ready", "accepted"}:
+                if state["state"] in {"ready", "accepted", "running", "reserved"}:
                     state.update(state="blocked", detail="dependency changed; integration revalidation required")
     return {"changed": changed, "invalidated": sorted(stale)}
 
@@ -358,7 +360,8 @@ def cancel_operation(store, expected: dict, ident: str, github: GitHub) -> dict:
         op = project["operations"][ident]
         require(op["phase"] == "planned", "cannot cancel started or completed operation")
         live = observe_operation(op, github)
-        require(live["identity"] == op["before"]["identity"] and live["match"] is None,
+        safe_satisfaction = op["kind"] in {"assign", "project-status", "link", "dependency"}
+        require(live["identity"] == op["before"]["identity"] and (live["match"] is None or safe_satisfaction),
                 "cannot prove planned operation unapplied")
         op["phase"] = "cancelled"
     snapshot, _ = store.update(expected, change)

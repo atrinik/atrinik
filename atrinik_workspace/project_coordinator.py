@@ -200,7 +200,8 @@ def conflict(a: dict, b: dict) -> bool:
 def condition_met(project: dict, ident: str, condition: str) -> bool:
     state = project["nodes"][ident]["state"]
     return state in {"ready", "merged", "accepted"} if condition == "ready" else (
-        state in {"merged", "accepted"} if condition == "merged" else state == "accepted")
+        state in {"merged", "accepted"} if condition == "merged" else state == "accepted" and
+        all(acceptance_valid(project, a) for a in project["plan"]["acceptance"] if ident in a["owners"]))
 
 
 def schedule(project: dict, capacity: int, heavy_limit: int, open_workers: int = 0) -> dict:
@@ -208,17 +209,22 @@ def schedule(project: dict, capacity: int, heavy_limit: int, open_workers: int =
     require(all(type(n) is int and 0 <= n <= 256 for n in (capacity, heavy_limit, open_workers)),
             "invalid observed capacity")
     nodes = project["plan"]["nodes"]
-    active = [n for n in nodes if project["nodes"][n["id"]]["state"] in {"reserved", "running"}]
-    occupied = active + [n for n in nodes if project["nodes"][n["id"]]["state"] == "external"]
+    active = [n for n in nodes if project["nodes"][n["id"]]["state"] in {"reserved", "running"}
+              or project["nodes"][n["id"]]["state"] == "blocked" and project["nodes"][n["id"]]["attempt"] is not None]
+    external = [n for n in nodes if n["external"] and not project["observations"].get(n["id"], {}).get("terminal")]
+    occupied = active + external
     # Observed capacity includes all open subagents, including completed but unclosed ones.
     unbound = sum(project["nodes"][n["id"]]["worker"] is None for n in active)
     bound = len(active) - unbound
     free = max(0, capacity - max(open_workers, bound) - unbound)
-    heavy = sum(n["heavy"] for n in active)
+    heavy = sum(n["heavy"] for n in occupied)
     selected, blocked = [], {}
     for node in nodes:
         ident = node["id"]
         state = project["nodes"][ident]["state"]
+        if node["external"]:
+            blocked[ident] = "external ownership"
+            continue
         if state != "pending":
             if state in {"external", "blocked", "reserved"}:
                 blocked[ident] = state
@@ -272,7 +278,7 @@ def worker_result(project: dict, ident: str, attempt: str, state: str, detail: s
     current.update(state=state, detail=detail)
 
 
-def reopen(project: dict, ident: str, attempt: str, evidence: str, heavy_limit: int) -> None:
+def reopen(project: dict, ident: str, attempt: str, evidence: str, heavy_limit: int) -> dict:
     """Resume the same live owner for fresh findings without spawning a duplicate."""
     current = project["nodes"][ident]
     require(current["state"] in {"ready", "blocked"} and current["attempt"] == attempt
@@ -281,12 +287,27 @@ def reopen(project: dict, ident: str, attempt: str, evidence: str, heavy_limit: 
     require(type(heavy_limit) is int and 0 <= heavy_limit <= 256, "invalid heavy limit")
     node = next(n for n in project["plan"]["nodes"] if n["id"] == ident)
     others = [n for n in project["plan"]["nodes"] if n["id"] != ident and
-              project["nodes"][n["id"]]["state"] in {"running", "reserved", "external"}]
+              (project["nodes"][n["id"]]["state"] in {"running", "reserved", "external"}
+               or project["nodes"][n["id"]]["state"] == "blocked" and project["nodes"][n["id"]]["attempt"] is not None)]
     require(not any(conflict(node, n) for n in others), "reopen resource conflict")
     require(not node["heavy"] or sum(n["heavy"] for n in others) < heavy_limit, "reopen heavy capacity")
     require(all(condition_met(project, d["id"], d["condition"]) for d in node["dependencies"]),
             "reopen dependency gate")
-    current.update(state="running", detail=evidence)
+    renewed = digest({"previous_attempt": attempt, "generation": project["generation"],
+                      "observations": project["observations"], "evidence": evidence})
+    current.update(state="running", detail=evidence, attempt=renewed)
+    return {"attempt": renewed, "worker": current["worker"]}
+
+
+def requirements_identity(project: dict) -> str:
+    parent = project["observations"].get(project["plan"]["parent"], {})
+    return digest({"parent_body": parent.get("body"), "acceptance": project["plan"]["acceptance"]})
+
+
+def acceptance_valid(project: dict, item: dict) -> bool:
+    proof = project["attestations"].get(item["id"])
+    return bool(proof and proof.get("requirements") == requirements_identity(project)
+                and all(proof["observations"].get(o) == digest(project["observations"].get(o)) for o in item["owners"]))
 
 
 def attest(project: dict, ident: str, evidence: str) -> None:
@@ -294,17 +315,14 @@ def attest(project: dict, ident: str, evidence: str) -> None:
     require(isinstance(evidence, str) and 0 < len(evidence) <= 8192, "acceptance evidence required")
     owners = next(a["owners"] for a in project["plan"]["acceptance"] if a["id"] == ident)
     require(all(o in project["observations"] for o in owners), "owners need fresh observations")
-    project["attestations"][ident] = {"evidence": evidence,
+    project["attestations"][ident] = {"evidence": evidence, "requirements": requirements_identity(project),
         "observations": {o: digest(project["observations"][o]) for o in owners}}
     for owner in owners:
         requirements = [a for a in project["plan"]["acceptance"] if owner in a["owners"]]
         state = project["nodes"][owner]
         revalidated = (state["state"] == "blocked" and state["worker"] is None
                        and project["observations"][owner].get("terminal") is True)
-        if (state["state"] == "merged" or revalidated) and all(
-                a["id"] in project["attestations"] and
-                project["attestations"][a["id"]]["observations"].get(owner) ==
-                digest(project["observations"][owner]) for a in requirements):
+        if (state["state"] == "merged" or revalidated) and all(acceptance_valid(project, a) for a in requirements):
             project["nodes"][owner]["state"] = "accepted"
 
 
@@ -318,6 +336,7 @@ def replan(project: dict, plan: dict) -> None:
     require(set(current) <= set(updated), "replan cannot drop known work")
     for ident in current:
         if current[ident] != updated[ident]:
+            require(not current[ident]["external"], "external declaration cannot be adopted or changed")
             require(project["nodes"][ident]["state"] not in {"reserved", "running", "external"},
                     "cannot change active/foreign task boundaries")
             require(current[ident]["entry_mode"] == updated[ident]["entry_mode"],
@@ -328,11 +347,14 @@ def replan(project: dict, plan: dict) -> None:
                                   "worker": None, "attempt": None, "detail": ""}
     project["plan"] = copy.deepcopy(plan)
     project["attestations"] = {}
+    for state in project["nodes"].values():
+        if state["state"] == "accepted":
+            state["state"] = "merged"
 
 
 def retry(project: dict, ident: str, attempt: str, evidence: str) -> None:
     current = project["nodes"][ident]
-    require(current["attempt"] == attempt and current["state"] in {"reserved", "blocked"},
+    require(current["attempt"] == attempt and current["state"] in {"reserved", "blocked", "ready"},
             "only a proven failed/blocked attempt can retry")
     require(isinstance(evidence, str) and 0 < len(evidence) <= 8192,
             "runtime stop/non-start and exact leaf ownership proof required")
@@ -354,10 +376,14 @@ def terminal_gaps(project: dict) -> list[str]:
         if project["nodes"][ident]["state"] in {"running", "reserved", "blocked", "external"}:
             gaps.append(f"{ident}: unresolved ownership/work")
     for item in project["plan"]["acceptance"]:
-        proof = project["attestations"].get(item["id"])
-        if not proof or any(proof["observations"].get(o) != digest(project["observations"].get(o))
-                            for o in item["owners"]):
+        if not acceptance_valid(project, item):
             gaps.append(f"{item['id']}: missing or stale acceptance evidence")
+    for op in project["operations"].values():
+        if op["kind"] == "create-child" and op["phase"] == "bound":
+            child = op["result"]["match"]
+            known = {project["observations"].get(n["id"], {}).get("node_id") for n in project["plan"]["nodes"]}
+            if child not in known or child not in parent.get("children", []):
+                gaps.append("created child needs tracked graph and verified native parent link")
     if any(op["phase"] not in {"bound", "cancelled"} for op in project["operations"].values()):
         gaps.append("unresolved tracking operation")
     return gaps

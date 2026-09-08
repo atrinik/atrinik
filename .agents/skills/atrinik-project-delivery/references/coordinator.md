@@ -68,9 +68,14 @@ means inspect and reconsider, not overwrite. Commands below share `--root` and
 - `retry COORD --attempt ATTEMPT --evidence TEXT`: only after runtime proof of
   non-start/stopped attempt and safe exact leaf recovery. Never abandon a live
   worker because a timeout elapsed. Unknown spawn outcomes require observation.
+  This also retires a ready worker already closed to free capacity: verify its
+  stopped runtime identity and exact leaf handoff, then reserve a replacement
+  attempt for that same delivery. It is not permission to adopt another ledger.
 - `reopen COORD --attempt ATTEMPT --evidence TEXT --heavy-limit 1`: reactivate
   the same retained live worker for findings after ready/blocked. Reprove worker,
   leaf ownership and current head first; resource/dependency gates still apply.
+  Send its newly returned attempt ID to the retained worker and accept only a
+  fresh result for that ID; queued old-head messages cannot complete it.
   After postmerge invalidation without a live worker, current terminal owner
   observations plus all fresh criterion attestations restore accepted state.
 - `refresh`: complete live graph/PR observation before scheduling after merges.
@@ -131,7 +136,10 @@ operation may use `tracking cancel` after live non-application proof, then a
 fresh plan; cancelled history remains preserved. An `in-flight` operation cannot
 cancel or repost: preserve evidence for observation or an external maintainer
 decision. No automated override exists. Keep progress comments to meaningful
-milestones, not polls. Never expose private ledger/tooling content publicly.
+milestones, not polls. Independently satisfied assignment, Project status or relationship
+intents may retire while still `planned`; issue/comment creation with an
+unexpected matching marker remains ambiguous and cannot use that exception.
+Never expose private ledger/tooling content publicly.
 
 ## Merge gates, closure and acceptance
 

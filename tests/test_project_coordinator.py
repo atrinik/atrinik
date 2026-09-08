@@ -49,6 +49,70 @@ def race(root, expected, queue):
 
 
 class SchedulerTests(unittest.TestCase):
+    def test_completed_external_declaration_never_dispatches(self):
+        p = project([node(2, external=True), node(3)])
+        refresh(p, FakeGitHub())
+        changed = copy.deepcopy(p["plan"])
+        changed["nodes"][0]["writes"] = ["changed"]
+        with self.assertRaises(ProjectError):
+            replan(p, changed)
+        p["nodes"]["atrinik/atrinik#2"]["state"] = "pending"
+        self.assertNotIn("atrinik/atrinik#2", schedule(p, 16, 1)["ready"])
+
+    def test_external_heavy_work_consumes_shared_budget(self):
+        p = project([node(2, external=True, heavy=True), node(3, heavy=True)])
+        self.assertEqual(schedule(p, 16, 1)["ready"], [])
+
+    def test_parent_requirements_change_invalidates_attestation(self):
+        p = project()
+        gh = FakeGitHub()
+        refresh(p, gh)
+        attest(p, "integrated", "verified current requirements")
+        self.assertEqual(terminal_gaps(p), [])
+        gh.observations[p["plan"]["parent"]]["body"] = "new requirements"
+        refresh(p, gh)
+        self.assertTrue(any("stale acceptance" in gap for gap in terminal_gaps(p)))
+
+    def test_replan_invalidates_accepted_dependency_gates(self):
+        p = project([node(2), node(3, dependencies=[{"id": "atrinik/atrinik#2", "condition": "accepted"}])])
+        refresh(p, FakeGitHub())
+        attest(p, "integrated", "current acceptance")
+        changed = copy.deepcopy(p["plan"])
+        changed["acceptance"][0]["description"] = "additional requirements"
+        replan(p, changed)
+        p["nodes"]["atrinik/atrinik#3"]["state"] = "pending"
+        self.assertEqual(schedule(p, 16, 1)["ready"], [])
+
+    def test_head_drift_rejects_queued_result_and_keeps_reservation(self):
+        p = project()
+        gh = FakeGitHub()
+        for observation in gh.observations.values():
+            observation["terminal"] = False
+        refresh(p, gh)
+        request = reserve(p, 1, 1)[0]
+        record_worker(p, request["coordinate"], request["attempt"], "agent-1")
+        gh.observations[request["coordinate"]]["head"] = "new"
+        refresh(p, gh)
+        with self.assertRaises(ProjectError):
+            worker_result(p, request["coordinate"], request["attempt"], "ready", "stale head proof")
+        self.assertEqual(schedule(p, 1, 1)["ready"], [])
+
+    def test_stopped_ready_worker_can_retry_exact_delivery(self):
+        p = project()
+        request = reserve(p, 1, 1)[0]
+        record_worker(p, request["coordinate"], request["attempt"], "agent-1")
+        worker_result(p, request["coordinate"], request["attempt"], "ready", "ready checkpoint")
+        retry(p, request["coordinate"], request["attempt"], "runtime proves stopped; exact leaf handoff inspected")
+        self.assertIsNone(p["nodes"][request["coordinate"]]["worker"])
+        self.assertEqual(schedule(p, 1, 1)["ready"], [request["coordinate"]])
+
+    def test_created_child_requires_graph_adoption_and_native_link(self):
+        p = project()
+        refresh(p, FakeGitHub())
+        attest(p, "integrated", "current requirements")
+        p["operations"]["test"] = {"kind": "create-child", "phase": "bound", "result": {"match": "I_new"}}
+        self.assertIn("created child needs tracked graph and verified native parent link", terminal_gaps(p))
+
     def test_unbound_reservations_add_to_observed_workers(self):
         p = project()
         reserve(p, 4, 1, 2)
@@ -62,8 +126,10 @@ class SchedulerTests(unittest.TestCase):
         request = reserve(p, 1, 1)[0]
         record_worker(p, request["coordinate"], request["attempt"], "agent-1")
         worker_result(p, request["coordinate"], request["attempt"], "ready", "head checks complete")
-        reopen(p, request["coordinate"], request["attempt"], "live owner; new reviewer finding", 1)
-        worker_result(p, request["coordinate"], request["attempt"], "ready", "fresh final diff passes")
+        renewed = reopen(p, request["coordinate"], request["attempt"], "live owner; new reviewer finding", 1)
+        with self.assertRaises(ProjectError):
+            worker_result(p, request["coordinate"], request["attempt"], "ready", "queued old result")
+        worker_result(p, request["coordinate"], renewed["attempt"], "ready", "fresh final diff passes")
         self.assertEqual(p["nodes"][request["coordinate"]]["worker"], "agent-1")
 
     def test_postmerge_revalidation_clears_blocked_terminal_owner(self):
@@ -177,6 +243,19 @@ class SchedulerTests(unittest.TestCase):
 
 @unittest.skipUnless(os.name == "posix", "canonical Linux filesystem contract")
 class StoreTests(unittest.TestCase):
+    def test_near_limit_inspect_snapshot_round_trips(self):
+        from atrinik_workspace.project_coordinator_store import LIMIT
+        p = project([node(i) for i in range(2, 258)])
+        for state in p["nodes"].values():
+            state["detail"] = "x" * 7760
+        snapshot = self.store.create(p)
+        raw = json.dumps(snapshot, indent=2).encode()
+        self.assertGreater(len(raw), LIMIT)
+        expected = self.store.root / "expected.json"
+        expected.write_bytes(raw)
+        parsed = read_input(expected, 2 * LIMIT)
+        updated, _ = self.store.update(parsed, lambda d: None)
+        self.assertEqual(updated["generation"], 2)
     def oversized_pretty_document(self):
         p = project([node(i) for i in range(2, 258)])
         for state in p["nodes"].values():
@@ -302,6 +381,14 @@ class FakeGitHub:
 
 @unittest.skipUnless(os.name == "posix", "canonical Linux filesystem contract")
 class TrackingTests(unittest.TestCase):
+    def test_independently_satisfied_assignment_can_retire_unstarted(self):
+        snapshot, op = self.store.update(self.initial, lambda p:
+            prepare_operation(p, self.gh, "assign", "atrinik/atrinik#2", {"login": "zoeyrose"}))
+        self.gh.issues["atrinik/atrinik#2"]["assignees"] = [{"login": "zoeyrose"}]
+        result = cancel_operation(self.store, snapshot, op["id"], self.gh)
+        self.assertEqual(result["document"]["operations"][op["id"]]["phase"], "cancelled")
+        self.assertEqual(self.gh.writes, [])
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.store = Store(Path(self.tmp.name))

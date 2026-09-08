@@ -24,8 +24,8 @@ def check_publication_size(document: dict) -> None:
     require(len(raw) <= LIMIT, "project exceeds persisted byte bound")
 
 
-def decode(raw: bytes):
-    require(len(raw) <= LIMIT, "project input exceeds bound")
+def decode(raw: bytes, limit: int = LIMIT):
+    require(len(raw) <= limit, "project input exceeds bound")
 
     def pairs(items):
         result = {}
@@ -41,22 +41,22 @@ def decode(raw: bytes):
         raise ProjectError("invalid bounded project JSON") from error
 
 
-def read_input(path: Path):
+def read_input(path: Path, limit: int = LIMIT):
     require(path.is_absolute(), "input path must be absolute")
     parent = open_directory(path.parent)
     try:
         fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
         try:
             st = os.fstat(fd)
-            require(stat.S_ISREG(st.st_mode) and st.st_nlink == 1 and st.st_size <= LIMIT
+            require(stat.S_ISREG(st.st_mode) and st.st_nlink == 1 and st.st_size <= limit
                     and st.st_uid == os.geteuid() and not st.st_mode & 0o022,
                     "unsafe input")
-            raw = os.read(fd, LIMIT + 1)
+            raw = os.read(fd, limit + 1)
             after = os.fstat(fd)
             require((after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns) ==
                     (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns),
                     "input changed while reading")
-            return decode(raw)
+            return decode(raw, limit)
         finally:
             os.close(fd)
     finally:
