@@ -5,7 +5,7 @@ description: Deliver an Atrinik issue/PR to merge-ready handoff or manage its ex
 
 # Deliver an Atrinik issue or pull request
 
-Choose `ENTRY_MODE=issue` for new work or `PR` for an existing pull request.
+Choose exactly one type-explicit `ENTRY_MODE`: new `issue` or existing `PR`.
 Both stop before merge.
 
 Invocation permits ordinary pushes, selected/delivery-created PR updates,
