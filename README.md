@@ -329,6 +329,25 @@ Leave exact named volumes for an authorized owner to inspect or remove after
 all holders and leases are gone. Never use docker volume prune, broad
 container cleanup, or ./atrinik cleanup --apply during delivery.
 
+### One-session project delivery
+
+Use [`atrinik-project-delivery`](.agents/skills/atrinik-project-delivery/SKILL.md)
+for multi-issue work. Copy the [complete goal launcher](docs/PROJECT_DELIVERY_GOAL.md),
+select the real parent/repository scope, and let one coordinator launch and manage
+workers. It schedules independent lanes against actual worker capacity, retains
+foreign deliveries, and routes each writing leaf through unchanged issue delivery.
+The [operator protocol](.agents/skills/atrinik-project-delivery/references/coordinator.md)
+defines commands, recovery, scoped tracking and acceptance. Legacy program delivery
+and individual issue delivery remain available; there is no implicit migration.
+
+Routine authorized local development and minor project tracking do not need
+repeated approvals. Merges, deployments, expanded scope and uncertain ownership
+remain gates. A resumed coordinator refreshes live merge evidence, updates
+dependants and verifies acceptance before authorized parent closure; GitHub child
+counts alone do not close the project. The helper schedules and journals; actual
+worker spawning and evidence assessment use the agent runtime, not a background
+daemon. Its ignored state never substitutes for a leaf ownership ledger.
+
 ### Shared local agent ledgers
 
 The ignored `build/agent-process-improvements.md` and

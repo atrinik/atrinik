@@ -33,9 +33,9 @@
 - Use `atrinik-multi-repo-workspace` for wrapper ownership/profiles/worktrees/
   migration/cleanup/releases/CLI/layout; add specialists and use
   `atrinik-guidance-maintenance` for audits.
-- Use `atrinik-issue-delivery` for an issue or existing PR; it stops before merge.; invoke explicitly.
+- Invoke `atrinik-issue-delivery` explicitly for an issue or existing PR; it stops before merge.
 - Native Windows Classic GPU preflight: follow `docs/WINDOWS_GPU_PREFLIGHT.md`; keep Linux coordinator and native results separate.
-- Explicitly invoke `atrinik-program-delivery` for ordered master issues; it composes leaves across merge gates and stops before merge/closure.
+- Use `atrinik-project-delivery` for parallel projects; legacy `atrinik-program-delivery` remains explicit-only. See `docs/PROJECT_DELIVERY_GOAL.md`.
 - Codex delivery has two entry modes: continue in the canonical VS Code devcontainer or bootstrap/attach the pinned Linux devcontainer from a native host; host work is limited to bootstrap/attach and approved Git/GitHub/commit operations; wrapper/ledger/worktree/edit/test/build/review/validation stay inside.
 - Codex never launches/controls VS Code, sends VS Code URIs, or uses GUI automation; do not nest/remount or trust copied/stale evidence. Reuse only exact owner/container/image/mount/worktree/ledger coordinates; reconnect reruns probe, worktree, ledger, and lease checks. Bound idle/shutdown to owner; parallel sessions need separate caches, credentials, ports, and mutable state.
 - Never replace dirty primaries/remove dirty worktrees or overwrite mutable server data; preserve migration inputs.
@@ -70,7 +70,7 @@
   exists; historical evidence is immutable.
 - Commits and PR titles use `type(optional-scope): concise description`; add `!` only when a reviewer explicitly requests a breaking change, not auto.
   PR bodies must be substantive rendered GitHub-Flavored Markdown with actual line breaks, never literal `\n` separators; include `Summary`, `Implementation / behavior`, `Validation`, and applicable `Limitations / follow-up`.
-  An issue-closing line alone is insufficient; preserve issue/PR references and preserve contributor-authored text byte-for-byte under the delivery-owned section rules. Feed multi-section bodies by file/stdin; after create/edit verify the rendered remote body. Use `atrinik-github-governance` for PRs.
+  An issue-closing line alone is insufficient; preserve contributor-authored text byte-for-byte outside the delivery-owned section. Feed multi-section bodies by file/stdin; after create/edit verify remote rendering. Use `atrinik-github-governance`.
 
 ## Working agreements and commands
 

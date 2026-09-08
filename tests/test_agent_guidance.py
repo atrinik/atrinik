@@ -135,7 +135,7 @@ class AgentGuidanceTests(unittest.TestCase):
 
     def test_inventory_is_complete_and_within_budget(self) -> None:
         inventory = collect_inventory()
-        self.assertEqual(inventory["summary"]["skill_count"], 10)
+        self.assertEqual(inventory["summary"]["skill_count"], 11)
         self.assertIn(
             "atrinik-guidance-maintenance",
             [skill["name"] for skill in inventory["skills"]],
@@ -590,7 +590,7 @@ class AgentGuidanceTests(unittest.TestCase):
         with redirect_stdout(stdout):
             self.assertEqual(main(["--json"]), 0)
         inventory = json.loads(stdout.getvalue())
-        self.assertEqual(inventory["summary"]["skill_count"], 10)
+        self.assertEqual(inventory["summary"]["skill_count"], 11)
         self.assertEqual(
             inventory["process_improvements"]["path"],
             "build/agent-process-improvements.md",
