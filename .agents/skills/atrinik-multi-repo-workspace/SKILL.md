@@ -104,7 +104,9 @@ state. Migration alone takes the barrier. Published runtimes retain generation/p
 port leases. Completion is bounded/read-only, secret-free, parser-driven before `Workspace`.
 
 A persistent coordinator session belongs to one agent and exact delivery coordinate. Reuse
-requires matching pinned container, mounts, worktree, profile/build roots, and ledger coordinates.
+requires matching native host/user/filesystem or pinned container/mount coordinates,
+plus exact worktree, profile/build roots, and ledger. Follow
+[the Linux execution contract](../../../docs/LINUX_EXECUTION.md).
 Recovery reruns probe, worktree list, ledger inventory/CAS, and leases. Bound idle/lifetime;
 preserve failure evidence; stop only the owned container. Independent sessions need distinct
 worktrees/coordinates, caches, ports, topology/state names, and mutable state.

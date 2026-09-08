@@ -125,7 +125,8 @@ git config --global commit.gpgsign true
 Leave `commit.gpgsign` unset and use `git commit -S` for per-commit opt-in
 if a global default is not wanted. The private key and signing configuration
 stay on the host. Native host Git is the default place to create and sign
-commits; use the Docker/devcontainer for compilation and tests. An exceptional
+commits; use a proven native Linux host or the pinned Docker/devcontainer for
+compilation/tests, following [the execution contract](docs/LINUX_EXECUTION.md). An exceptional
 container commit may forward `SSH_AUTH_SOCK` when that workflow explicitly
 supports it, but never copy or mount a private key or private `.ssh` directory.
 

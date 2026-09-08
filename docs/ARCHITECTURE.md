@@ -111,18 +111,22 @@ authorization. The probe never imports the ledger, acquires a lock, mounts or
 remounts a path, creates generated state, or changes the existing devcontainer
 definitions.
 
-Codex may reach that boundary through two entry modes: inside an already-running
-canonical VS Code devcontainer plugin session or through a native-host
-bootstrap/attach into the pinned ordinary Linux devcontainer. `entry_mode` in
-the probe's schema-2 record identifies the reported route
-(`inside-vscode-devcontainer`,
-`container-bootstrap`, `native-host`, or `unknown`) for diagnostics only; it
-does not authorize delivery. A direct Docker or Dev Containers CLI attach may
-omit launcher environment variables, while copied markers or stale session
-IDs cannot replace the live contract. Native-host work is limited to minimum
-bootstrap/attach and approved Git/GitHub/commit operations; all coordinator,
-ledger, worktree, edit, test, build, review, and validation work stays inside
-the pinned container.
+A supported native Linux host instead returns `native-linux` after the
+[direct-host contract](LINUX_EXECUTION.md) passes. It uses real passwd identity,
+private Codex state, trusted descriptor-relative filesystem traversal, supported
+distribution/systemd facts, initial UID/GID maps and the caller's procfs/mount
+identity. Environment flags never establish authority. Host administrators,
+the kernel and executing user/code are trusted; this is not PID1 executable
+attestation or guaranteed exclusion of administrator-created containers/chroots.
+An ordinary virtual machine can qualify.
+
+Codex may remain inside a canonical container, bootstrap/attach its pinned
+container, or use a proven native Linux host. Schema-2 `entry_mode` remains
+diagnostic only. Windows host work is limited to bootstrap/attach and approved
+Git/GitHub/commit operations. Existing native/container sessions reprove exact
+worktree, ledger/CAS and leases before recovery. Accepting a platform does not
+relax any delivery ownership, authentication or filesystem gate.
+An unaccepted authority change never authorizes its own implementation.
 
 ### Persistent coordinator session contract
 

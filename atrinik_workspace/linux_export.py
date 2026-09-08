@@ -154,17 +154,26 @@ def _inventory(root_fd: int) -> tuple[set[str], dict[str, tuple[int, ...]]]:
     return files_seen, identities
 
 
+def _open_root(root: Path) -> int:
+    if not root.is_absolute() or ".." in root.parts or root == Path(root.anchor):
+        raise ExportError("export-root: absolute canonical non-root directory required")
+    descriptor = os.open(root.anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        for part in root.parts[1:]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+        return descriptor
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
 def verify_export(root: Path) -> dict[str, object]:
     """Verify an exact no-symlink inventory using descriptor-relative opens."""
     root_fd = -1
     try:
-        if not root.is_absolute() or ".." in root.parts:
-            raise ExportError("export-root: absolute canonical directory required")
-        root_fd = os.open(root.anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
-        for part in root.parts[1:]:
-            child_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=root_fd)
-            os.close(root_fd)
-            root_fd = child_fd
+        root_fd = _open_root(root)
         observed, identities = _inventory(root_fd)
         with os.fdopen(_open_beneath(root_fd, MANIFEST_NAME), "rb") as stream:
             info = os.fstat(stream.fileno())
@@ -191,6 +200,12 @@ def verify_export(root: Path) -> dict[str, object]:
                     raise ExportError("export-payload: changed during verification")
         if _inventory(root_fd) != (observed, identities):
             raise ExportError("export-payload: inventory changed during verification")
+        reopened = _open_root(root)
+        try:
+            if _identity(os.fstat(reopened)) != identities["."]:
+                raise ExportError("export-root: pathname changed during verification")
+        finally:
+            os.close(reopened)
         return manifest
     except OSError as error:
         raise ExportError("export-payload: missing or unsafe filesystem entry") from error

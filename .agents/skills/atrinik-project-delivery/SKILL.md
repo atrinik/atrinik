@@ -18,7 +18,8 @@ Verify the live parent, repositories, existing children/PRs, dependency graph,
 acceptance and authorized tracking operations before initialization. Reconcile
 native relationships and prose; neither alone proves completeness.
 
-Use the supported canonical Linux coordinator. Inventory all existing leaf
+Use a live-proven canonical container or supported native Linux coordinator
+per [the execution contract](../../../docs/LINUX_EXECUTION.md). Inventory all existing leaf
 ledgers, containers and worktrees before claiming anything. Dirty candidates,
 existing PRs and foreign sessions remain external, not new implementations.
 The project record schedules work; it never grants worktree/ledger reuse.

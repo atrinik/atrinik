@@ -153,5 +153,29 @@ class LinuxExportTests(unittest.TestCase):
                 export.verify_export(self.root)
 
 
+    def test_parent_rename_cannot_validate_a_different_root_path(self) -> None:
+        parent = self.root.parent / "A"
+        parent.mkdir()
+        relocated = parent / "client"
+        self.root.rename(relocated)
+        self.root = relocated
+        original = export._hash_file
+        replaced = False
+
+        def replace_parent(stream: object, size: int) -> str:
+            nonlocal replaced
+            digest = original(stream, size)
+            if not replaced:
+                replaced = True
+                parent.rename(parent.with_name("B"))
+                parent.mkdir()
+                (parent / "client").mkdir()
+            return digest
+
+        with mock.patch.object(export, "_hash_file", side_effect=replace_parent):
+            with self.assertRaisesRegex(export.ExportError, "pathname changed"):
+                export.verify_export(self.root)
+
+
 if __name__ == "__main__":
     unittest.main()

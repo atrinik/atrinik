@@ -232,7 +232,8 @@ initializing or mutating delivery evidence:
 python3 scripts/atrinik_coordinator_context.py --json
 ~~~
 
-Continue only for `canonical-linux` with `authoritative: true`. The probe also
+Continue only for `canonical-linux` or `native-linux` with `authoritative: true`.
+The [direct native contract](docs/LINUX_EXECUTION.md) defines the latter. The probe also
 recognizes `native-windows`, `windows-cross`, and `unknown-or-unsafe` with a
 bounded next action. The probe reports an entry mode as a diagnostic, but the
 authoritative result comes only from the complete pinned identity, ownership,
@@ -240,20 +241,23 @@ workspace, ledger, Codex-home, and live-mount contract.
 
 #### Codex entry modes
 
-Delivery supports exactly two Codex entry modes:
+Delivery supports these proven Codex entry modes:
 
 - **Already inside the canonical VS Code devcontainer:** continue in the
   current plugin process, workspace, ledger root, worktree, and warm caches.
   Do not invoke Docker or the Dev Containers CLI merely to create, attach,
   recreate, remount, or re-enter another container.
-- **Native-host bootstrap:** before delivery work, enter or attach to the
+- **Supported native Linux:** use the [direct-host contract](docs/LINUX_EXECUTION.md),
+  actual passwd identity, private Codex home and a dedicated safe worktree.
+  Existing authentication, filesystem, ledger/CAS and lease gates remain intact.
+- **Windows or unsupported-host bootstrap:** before delivery work, enter or attach to the
   pinned ordinary Linux devcontainer with Docker or the Dev Containers CLI.
   The native host may perform only that minimum bootstrap/attach and approved
   Git/GitHub/commit operations. Wrapper/context, ownership, repository and
   worktree setup, ledger locks/CAS/leases/recovery, edits, tests, builds,
   review, and validation all run inside the container.
 
-In both modes, Codex must never launch or control VS Code, invoke `code` or
+In every mode, Codex must never launch or control VS Code, invoke `code` or
 `code.cmd`, send a VS Code URI, or use GUI automation. VS Code setup text in
 this README is for a human developer, not an agent handoff. A persistent
 session is reusable only while its owner, pinned image, current

@@ -10,6 +10,66 @@ arbitrary config path or weaken the helper's environment filtering.
 Authentication supplies identity and API capabilities, never authorization for
 an issue mutation, merge, release, governance change or other unrequested action.
 
+
+## Direct native Linux authentication and recovery
+
+This section applies only after the native execution contract is accepted.
+An unaccepted candidate cannot authorize its own native delivery. Container
+coordinators retain the existing read-only host mount and never switch accounts.
+
+A proven native coordinator uses the actual passwd user's standard
+`~/.config/gh` through `HOME`. The helper intentionally strips
+`GH_CONFIG_DIR`; a working override such as `gh-atrinik` is therefore not
+proof that native helper authentication works. Do not change the filter, copy
+tokens between stores, mount keyrings or introduce an authentication proxy.
+
+The host owner configures that standard private store directly. Reuse an
+existing working login; if file-backed refresh is needed, the host owner runs:
+
+```sh
+env -u GH_CONFIG_DIR -u XDG_CONFIG_HOME -u GH_TOKEN -u GITHUB_TOKEN gh auth refresh \
+  --hostname github.com --scopes project,workflow,read:packages --insecure-storage
+```
+
+If no standard login exists, the host owner instead uses `gh auth login`
+with the same hostname/scopes and `--web --insecure-storage`. This is one
+combined host action, never a worker-initiated login or a token-copy operation.
+Keep the directory user-owned/private. A keyring login may work interactively
+yet fail in the helper's protected environment; authenticated helper genesis
+or exact resume is the required final test.
+
+Use one selector-free native delivery shell for capability preflight AND
+every subsequent ledger/helper genesis or resume operation. The helper filters
+`GH_CONFIG_DIR` and `XDG_CONFIG_HOME` but retains token environment overrides;
+clearing selectors only on individual preflight commands is insufficient.
+
+```sh
+unset GH_CONFIG_DIR XDG_CONFIG_HOME GH_TOKEN GITHUB_TOKEN
+```
+
+Keep those selectors unset for the entire native delivery, then batch capability
+checks before genesis or resume:
+
+```sh
+env -u GH_CONFIG_DIR -u XDG_CONFIG_HOME -u GH_TOKEN -u GITHUB_TOKEN gh api user --jq .login
+env -u GH_CONFIG_DIR -u XDG_CONFIG_HOME -u GH_TOKEN -u GITHUB_TOKEN gh api repos/atrinik/atrinik --jq '{full_name,permissions}'
+env -u GH_CONFIG_DIR -u XDG_CONFIG_HOME -u GH_TOKEN -u GITHUB_TOKEN gh api graphql -f query='query { organization(login:"atrinik") { projectsV2(first:10) { nodes { id title } } } }'
+env -u GH_CONFIG_DIR -u XDG_CONFIG_HOME -u GH_TOKEN -u GITHUB_TOKEN gh api 'orgs/atrinik/packages/container/linux-build/versions?per_page=1' --jq '.[0].name'
+```
+
+Repeat for each affected physical repository. Keep other mutable credentials
+private; permissions grant no task authority. Do not report a scope/authentication
+error as missing permission for work already authorized.
+
+Native recovery preserves the exact host, actual passwd UID/home, private
+Codex home, native filesystem/root identities, issue/PR mode, ledger identity,
+dedicated registered worktree/branch/head, caches and mutable runtime state.
+Reconnect reruns the public context probe, complete ledger inventory, exact
+worktree/target proof, fresh CAS and ordered leases. Names, old probes and prior
+timestamps remain discovery evidence only. Never transfer a native record to a
+container or another user implicitly; container recovery retains its own exact
+image/mount coordinates and existing no-remount rule.
+
 ## One-time host setup
 
 The ordinary devcontainer uses `$HOME/.config/gh-atrinik`. If the host already
