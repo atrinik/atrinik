@@ -262,10 +262,22 @@ match. A secret-free session record may make those facts visible, but it never
 grants authority. Reconnect or crash recovery reruns the probe, exact
 worktree/ledger observation, CAS, and leases before continuing. Bound idle and
 shutdown operations to the owned session, and give parallel sessions distinct
-worktrees, leases, caches, credentials, ports, and mutable state.
+worktrees, leases, caches, ports, and mutable state. The supported read-only
+host GitHub auth mount is shared as described in
+[coordinator authentication](docs/COORDINATOR_AUTH.md).
 Copied or stale session markers, arbitrary containers, nested coordinators,
 and unsafe bind mounts never grant authority. Keep the `windows-cross` container for
 package/build work and host-bound validation.
+
+#### Shared host GitHub authentication
+
+Authenticate once on the host, then share its file-backed GitHub CLI config
+read-only with trusted coordinators. The ordinary devcontainer mounts
+`$HOME/.config/gh-atrinik` at `/home/ubuntu/.config/gh` and sets `GH_CONFIG_DIR` there.
+Complete the [one-time host setup and capability preflight](docs/COORDINATOR_AUTH.md)
+before bootstrap. Native Docker coordinators use the same mount; workers never
+run login, refresh, logout or account switching against it. Existing coordinators
+keep their current mounts until their owner performs supported recovery.
 
 #### Agent-owned persistent sessions
 
@@ -314,8 +326,9 @@ immortal. Only the owner may stop an idle session, and an abandoned session
 is retained for fresh liveness and lease checks. Parallel sessions may share
 immutable image layers and read-only inputs, but must use distinct exact
 worktrees, delivery ledgers/coordinates, profiles and build roots, named
-volume namespaces, Codex homes or credentials, topology/state names, ports,
-and mutable caches.
+volume namespaces, Codex homes, topology/state names, ports, and mutable caches.
+The host GitHub auth directory is the supported shared read-only exception;
+other mutable credential stores remain private.
 
 For shutdown, finish or preserve the delivery evidence, then stop only the
 owned exact container:

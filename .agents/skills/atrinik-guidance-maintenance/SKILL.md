@@ -19,7 +19,8 @@ not initialize, sync, clean up, launch, or mutate external state for an audit.
    `AGENTS.md` and relevant skill. Exclude generated/preserved copies below
    `workspace/` and `build/` from the authoritative inventory.
 4. Record path, owner, lines, evidence, and status: current, stale, missing,
-   duplicated, or unverifiable.
+   duplicated, or unverifiable. Include `docs/COORDINATOR_AUTH.md` and its
+   composition/skill consumers when the shared host auth contract changes.
 
 ## Correct ownership and drift
 

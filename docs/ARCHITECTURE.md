@@ -115,8 +115,16 @@ policy bounds idle time to 30 minutes and total lifetime to 12 hours; an
 active build lease prevents reclamation during work but does not make a
 session immortal. Parallel sessions may share immutable image layers and
 read-only inputs, but require distinct exact worktrees, delivery coordinates,
-profiles/build roots, named volume namespaces, credentials, ports, topology
-and state names, and mutable caches. Codex never launches or controls VS Code,
+profiles/build roots, named volume namespaces, ports, topology
+and state names, and mutable caches. Trusted sessions may share the host-owned
+GitHub CLI credential directory through the read-only bind and `GH_CONFIG_DIR`
+contract in [coordinator authentication](COORDINATOR_AUTH.md). The host alone
+changes its login, scopes and active account. Worker-private credential stores
+remain separate. Mount access does not change actor/ledger verification, grant
+issue/Project/release authority, or permit credentials in build inputs or images.
+A read-only bind prevents file changes, not use of the credential for API writes.
+Refresh/rotation requires a fresh actor and capability check before more work.
+Codex never launches or controls VS Code,
 uses its executable or URI, or uses GUI automation; launch-configuration
 instructions are for human operators.
 

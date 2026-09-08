@@ -42,6 +42,29 @@ class DevcontainerTests(unittest.TestCase):
         )
         self.assertEqual(config["containerEnv"]["SDL_VIDEODRIVER"], "x11")
 
+    def test_shared_github_auth_is_read_only_and_coordinator_only(self) -> None:
+        config = self.load_config(".devcontainer/devcontainer.json")
+        auth_dir = config["containerEnv"]["GH_CONFIG_DIR"]
+        mounts = [
+            mount.split(",")
+            for mount in config["mounts"]
+            if f"target={auth_dir}" in mount.split(",")
+        ]
+        self.assertEqual(len(mounts), 1)
+        self.assertIn("type=bind", mounts[0])
+        self.assertIn("readonly", mounts[0])
+        self.assertIn(
+            "source=${localEnv:HOME}/.config/gh-atrinik", mounts[0]
+        )
+        self.assertEqual(auth_dir, f"/home/{config['remoteUser']}/.config/gh")
+        self.assertNotEqual(auth_dir, config["containerEnv"]["CODEX_HOME"])
+        self.assertFalse(
+            {"GH_TOKEN", "GITHUB_TOKEN"} & config["containerEnv"].keys()
+        )
+        windows = self.load_config(".devcontainer/windows-cross/devcontainer.json")
+        self.assertNotIn("GH_CONFIG_DIR", windows.get("containerEnv", {}))
+        self.assertFalse(any("gh-atrinik" in mount for mount in windows["mounts"]))
+
     def test_windows_configuration_validates_component_manifest(self) -> None:
         config = self.load_config(
             ".devcontainer/windows-cross/devcontainer.json"
