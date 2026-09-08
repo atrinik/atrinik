@@ -437,6 +437,37 @@ all commands below from this repository's root.
 
 ### Development container
 
+The default [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json)
+is display-independent: no graphics device, display socket, audio endpoint,
+WSL path, host networking or nested Docker daemon is required to create it.
+The immutable Linux image currently supplies Ubuntu 26.04 userland. This is
+container toolchain evidence, not native Ubuntu/Debian desktop qualification.
+
+Select the configuration explicitly from a terminal with the Dev Containers CLI:
+
+~~~sh
+# Linux CPU-only builds, documentation and headless agent work:
+devcontainer up --workspace-folder . --config .devcontainer/devcontainer.json
+devcontainer exec --workspace-folder . --config .devcontainer/devcontainer.json bash
+
+# Windows/WSL2 with WSLg desktop resources:
+devcontainer up --workspace-folder . --config .devcontainer/windows-wslg/devcontainer.json
+devcontainer exec --workspace-folder . --config .devcontainer/windows-wslg/devcontainer.json bash
+~~~
+
+The explicit WSLg configuration retains its graphics, audio and Docker feature
+contract; the Windows cross-build role remains separate. Configuration selection
+does not grant delivery authority: rerun the coordinator probe and the exact
+worktree/ledger/lease checks in the selected session. Existing canonical
+sessions continue in place.
+
+Run `python3 -m atrinik_workspace.linux_platform` inside the selected environment
+before repository operations to check build tools and Git LFS filters without
+consulting display variables. Add `--docker` only for operations that need a
+Docker daemon. A daemon permission failure requires a Docker/user-access fix;
+adding GPU flags or display mounts cannot repair it. The headless default
+does not grant access to the host Docker socket or start a privileged daemon.
+
 For a human developer, open this wrapper repository in VS Code and choose
 **Dev Containers: Reopen in Container** to use the pinned Linux build
 environment. Codex does not perform that GUI action or ask another VS Code

@@ -40,7 +40,30 @@ class DevcontainerTests(unittest.TestCase):
             "ghcr.io/atrinik/linux-build:1.10.0@sha256:"
             "7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8",
         )
+        self.assertNotIn("SDL_VIDEODRIVER", config["containerEnv"])
+
+    def test_linux_default_has_no_graphics_or_privileged_bootstrap(self) -> None:
+        config = self.load_config(".devcontainer/devcontainer.json")
+        self.assertEqual(config["runArgs"], [])
+        self.assertEqual(config["features"], {})
+        serialized = str(config)
+        for forbidden in ("/mnt/wslg", "/dev/dxg", "--gpus", "--privileged",
+                          "seccomp=unconfined", "DISPLAY", "PULSE_SERVER"):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, serialized)
+
+    def test_wslg_is_explicit_and_preserves_its_graphics_contract(self) -> None:
+        base = self.load_config(".devcontainer/devcontainer.json")
+        config = self.load_config(".devcontainer/windows-wslg/devcontainer.json")
+        self.assertEqual(config["image"], base["image"])
+        self.assertIn("--device=/dev/dxg", config["runArgs"])
         self.assertEqual(config["containerEnv"]["SDL_VIDEODRIVER"], "x11")
+        self.assertEqual(config["containerEnv"]["PULSE_SERVER"],
+                         "unix:/mnt/wslg/PulseServer")
+        lock = self.load_config(".devcontainer/windows-wslg/devcontainer-lock.json")
+        self.assertEqual(set(config["features"]), set(lock["features"]))
+        for feature in lock["features"].values():
+            self.assertIn("@sha256:", feature["resolved"])
 
     def test_shared_github_auth_is_read_only_and_coordinator_only(self) -> None:
         config = self.load_config(".devcontainer/devcontainer.json")
