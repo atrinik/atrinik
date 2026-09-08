@@ -2405,17 +2405,26 @@ class WorkspaceTests(unittest.TestCase):
         parked = generation.with_name(generation.name + "-test-parent-swap")
         target_identity = (target.stat().st_dev, target.stat().st_ino)
         real_read = os.read
+        real_pointers = Workspace._source_generation_lfs_pointers
+        armed = False
         swapped = False
+        def classify_pointers(*args: object, **kwargs: object) -> object:
+            nonlocal armed
+            pointers = real_pointers(*args, **kwargs)
+            if pointers:
+                armed = True
+            return pointers
         def swap_parent(descriptor: int, size: int) -> bytes:
             nonlocal swapped
             result = real_read(descriptor, size)
             status = os.fstat(descriptor)
-            if not swapped and (status.st_dev, status.st_ino) == target_identity:
+            if armed and not swapped and (status.st_dev, status.st_ino) == target_identity:
                 generation.rename(parked)
                 swapped = True
             return result
         try:
             with (
+                mock.patch.object(Workspace, "_source_generation_lfs_pointers", side_effect=classify_pointers),
                 mock.patch.object(workspace_module.os, "read", side_effect=swap_parent),
                 mock.patch.object(self.workspace, "_quarantine_source_generation") as quarantine,
             ):
@@ -2423,10 +2432,11 @@ class WorkspaceTests(unittest.TestCase):
                     self.resolve_lfs_fixture()
                 self.assertNotIsInstance(observed.exception, workspace_module._SourceGenerationCorrupt)
                 quarantine.assert_not_called()
+            self.assertTrue(armed, "the injection must reach authenticated LFS classification")
             self.assertTrue(swapped)
             self.assertTrue(parked.exists())
         finally:
-            if parked.exists():
+            if parked.exists() and not generation.exists():
                 parked.rename(generation)
         self.assertTrue(generation.exists())
 
