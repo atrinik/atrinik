@@ -200,3 +200,14 @@ failure tests, guidance inventory, wrapper validation and a fresh independent
 forward-test using realistic blocked/parallel/merge-gated requests. A fixture
 pilot is not evidence that real workers delivered real project PRs. Keep live
 pilots read-only unless their specific tracking/implementation scope is authorized.
+
+## Same-owner unchanged-target reconnect
+
+A retained issue worker with unchanged current target coordinates must complete
+the issue ledger's public `revalidate-current-targets-cas` proof after
+canonical context, live selection and inventory checks. Retain its exact
+helper-returned generation/digest/device/inode. Project scheduling renewal
+does not itself prove worktree leases or transfer ownership. Generic CAS,
+stored check-reuse flags and private helper contexts grant no reconnect proof.
+Use the accepted helper only; a proposed helper change cannot authorize its
+own reconnect or another paused worker before that change is actually merged.

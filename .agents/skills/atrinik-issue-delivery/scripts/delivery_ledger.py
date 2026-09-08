@@ -97,20 +97,20 @@ _CREATE_STAGE_RE = re.compile(
 _MIGRATE_STAGE_RE = re.compile(r"^\.(?P<target>.+\.md\.ledger\.json)\.migrate\.tmp$")
 _UPDATE_STAGE_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update"
-    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
+    r"(?P<operation>-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g(?P<generation>[0-9]+)-"
     r"from-(?P<digest>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_RECEIPT_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update-proof"
-    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
+    r"(?P<operation>-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g"
     r"(?P<generation>[0-9]+)-from-(?P<digest>[0-9a-f]{64})-"
     r"d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-"
     r"to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_OPERATION_RE = re.compile(
-    r"^(?:|-refresh-target"
+    r"^(?:|-revalidate-targets|-refresh-target"
     r"|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}"
     r"|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}"
     r"|-recover-identity)$"
@@ -276,6 +276,7 @@ class Snapshot:
 
 _ATOMIC_BIND_TOKEN = object()
 _TARGET_REFRESH_TOKEN = object()
+_CURRENT_TARGETS_TOKEN = object()
 _SCOPE_RECOVERY_TOKEN = object()
 _IDENTITY_RECOVERY_TOKEN = object()
 
@@ -332,6 +333,20 @@ class _TargetRefreshCapability:
     token: object
     name: str
     before_raw: bytes | None
+    after_raw: bytes
+    expected_generation: int
+    expected_digest: str
+    expected_device: int
+    expected_inode: int
+
+
+@dataclass(frozen=True)
+class _CurrentTargetsCapability:
+    """Internal authority for an exact neutral all-target observation."""
+
+    token: object
+    name: str
+    before_raw: bytes
     after_raw: bytes
     expected_generation: int
     expected_digest: str
@@ -3227,6 +3242,7 @@ def _pinned_live_worktree(
     *,
     allowed_references: Iterable[str] = (),
     scope_record: Mapping[str, Any] | None = None,
+    _lease_plans: list[Any] | None = None,
 ) -> Iterator[_LiveWorktreeGuard]:
     """Open every precommitted root and the worktree without following links."""
 
@@ -3310,11 +3326,13 @@ def _pinned_live_worktree(
             workspace_directory=descriptors["workspace"],
             worktree_directory=descriptors["worktree"],
             scope_record=scope_record,
+            _lease_plans=_lease_plans,
         ) as authority_recheck:
             guard = _LiveWorktreeGuard(
                 request, path, descriptors, allowed, authority_recheck
             )
-            guard.prove()
+            if _lease_plans is None:
+                guard.prove()
             yield guard
     finally:
         for descriptor in reversed(tuple(descriptors.values())):
@@ -3427,6 +3445,7 @@ def _workspace_safety_lease(
     workspace_directory: int,
     worktree_directory: int,
     scope_record: Mapping[str, Any] | None = None,
+    _lease_plans: list[Any] | None = None,
 ) -> Iterator[Callable[[], None]]:
     """Use wrapper leases/reference logic to prove inactive, owned reuse."""
 
@@ -3434,6 +3453,7 @@ def _workspace_safety_lease(
     workspace_root = request["roots"]["workspace"]["path"]
     saved_environment = _enter_workspace_environment(workspace_root)
     workspace = None
+    preparation = None
     profiles_directory = None
     profiles_snapshot = None
     try:
@@ -3513,7 +3533,13 @@ def _workspace_safety_lease(
             parameter.kind is Parameter.VAR_KEYWORD
             for parameter in workspace_parameters.values()
         )
-        if supports_manifest:
+        if _lease_plans is not None:
+            prepare_workspace = getattr(module.Workspace, "_prepare_delivery_workspace", None)
+            if not callable(prepare_workspace):
+                raise LedgerError("accepted wrapper lacks current-target preparation support")
+            preparation = prepare_workspace(Path(wrapper_root), manifest=retained_manifest)
+            workspace = preparation
+        elif supports_manifest:
             workspace = module.Workspace(
                 Path(wrapper_root),
                 backfill_references=False,
@@ -3562,81 +3588,91 @@ def _workspace_safety_lease(
                 profiles_absent = True
             else:
                 raise
-        wrapper_self = (
-            request["component"] == "atrinik"
-            and request["physical_checkout"] == "atrinik"
-            and request["roots"]["primary"] == request["roots"]["wrapper"]
-        )
-        if wrapper_self:
-            checkout = None
-            admin_coordinate = workspace._wrapper_git_admin_coordinate()
+        if preparation is None:
+            wrapper_self = (
+                request["component"] == "atrinik"
+                and request["physical_checkout"] == "atrinik"
+                and request["roots"]["primary"] == request["roots"]["wrapper"]
+            )
+            if wrapper_self:
+                checkout = None
+                admin_coordinate = workspace._wrapper_git_admin_coordinate()
+            else:
+                checkout = workspace._resolve_checkout(request["component"])
+                if (
+                    checkout.name != request["physical_checkout"]
+                    or checkout.repository
+                    != f"{request['repository']['owner']}/{request['repository']['name']}"
+                    or str(workspace._primary_path(checkout))
+                    != request["roots"]["primary"]["path"]
+                ):
+                    raise LedgerError(
+                        f"{context} wrapper component/checkout/repository differs"
+                    )
+                workspace._validate_checkout(
+                    checkout, Path(request["roots"]["primary"]["path"]), trace=False
+                )
+                admin_coordinate = workspace._git_admin_coordinate(
+                    checkout, Path(request["roots"]["primary"]["path"])
+                )
+            checkout_name = request["physical_checkout"]
+            requests = [
+                workspace._lease_request(
+                    "git-admin", admin_coordinate, "shared", "delivery live proof"
+                ),
+                workspace._lease_request(
+                    "registry", "physical-references", "shared", "delivery live proof"
+                ),
+                workspace._lease_request(
+                    "source",
+                    workspace._source_coordinate(checkout_name, Path(path)),
+                    "exclusive",
+                    "delivery live proof",
+                ),
+                workspace._lease_request(
+                    "source",
+                    workspace._physical_source_coordinate(Path(path)),
+                    "exclusive",
+                    "delivery live proof",
+                ),
+            ]
+            if scope_record is not None:
+                requests.extend(
+                    (
+                        workspace._lease_request(
+                            "registry",
+                            f"scope:{scope_record['name']}",
+                            "shared",
+                            "delivery scope proof",
+                        ),
+                        workspace._lease_request(
+                            "profile",
+                            scope_record["profile"]["name"],
+                            "shared",
+                            "delivery scope proof",
+                        ),
+                        workspace._lease_request(
+                            "topology",
+                            scope_record["topology"]["name"],
+                            "shared",
+                            "delivery scope proof",
+                        ),
+                    )
+                )
         else:
-            checkout = workspace._resolve_checkout(request["component"])
-            if (
-                checkout.name != request["physical_checkout"]
-                or checkout.repository
-                != f"{request['repository']['owner']}/{request['repository']['name']}"
-                or str(workspace._primary_path(checkout))
-                != request["roots"]["primary"]["path"]
-            ):
-                raise LedgerError(
-                    f"{context} wrapper component/checkout/repository differs"
-                )
-            workspace._validate_checkout(
-                checkout, Path(request["roots"]["primary"]["path"]), trace=False
-            )
-            admin_coordinate = workspace._git_admin_coordinate(
-                checkout, Path(request["roots"]["primary"]["path"])
-            )
-        checkout_name = request["physical_checkout"]
-        requests = [
-            workspace._lease_request(
-                "git-admin", admin_coordinate, "shared", "delivery live proof"
-            ),
-            workspace._lease_request(
-                "registry", "physical-references", "shared", "delivery live proof"
-            ),
-            workspace._lease_request(
-                "source",
-                workspace._source_coordinate(checkout_name, Path(path)),
-                "exclusive",
-                "delivery live proof",
-            ),
-            workspace._lease_request(
-                "source",
-                workspace._physical_source_coordinate(Path(path)),
-                "exclusive",
-                "delivery live proof",
-            ),
-        ]
-        if scope_record is not None:
-            requests.extend(
-                (
-                    workspace._lease_request(
-                        "registry",
-                        f"scope:{scope_record['name']}",
-                        "shared",
-                        "delivery scope proof",
-                    ),
-                    workspace._lease_request(
-                        "profile",
-                        scope_record["profile"]["name"],
-                        "shared",
-                        "delivery scope proof",
-                    ),
-                    workspace._lease_request(
-                        "topology",
-                        scope_record["topology"]["name"],
-                        "shared",
-                        "delivery scope proof",
-                    ),
-                )
-            )
+            requests = preparation.plan_live_worktree(request, path, scope_record)
         try:
-            locks = workspace._resource_locks(requests, nonblocking=True)
+            if _lease_plans is None:
+                locks = workspace._resource_locks(requests, nonblocking=True)
+            else:
+                _lease_plans.append((module, preparation, tuple(requests)))
+                locks = nullcontext()
             with locks:
                 def recheck() -> None:
                     try:
+                        proof_workspace = (
+                            preparation.admitted_workspace if preparation is not None else workspace
+                        )
                         recheck_manifest()
                         if profiles_directory is None:
                             try:
@@ -3667,7 +3703,7 @@ def _workspace_safety_lease(
                                     f"{context} profile inventory authority changed"
                                 )
                         if scope_record is not None:
-                            _verify_live_scope(workspace, scope_record, context)
+                            _verify_live_scope(proof_workspace, scope_record, context)
                         reference_arguments = {
                             "profiles_directory_fd": profiles_directory,
                             "profiles_directory_absent": profiles_absent,
@@ -3682,7 +3718,7 @@ def _workspace_safety_lease(
                                 "exclude_inactive_topologies"
                             ] = True
                         references = set(
-                            workspace._source_references(
+                            proof_workspace._source_references(
                                 Path(path), **reference_arguments
                             )
                         )
@@ -3720,7 +3756,8 @@ def _workspace_safety_lease(
                             f"{context} wrapper authority recheck failed: {error}"
                         ) from error
 
-                recheck()
+                if _lease_plans is None:
+                    recheck()
                 yield recheck
         except LedgerError:
             raise
@@ -14413,7 +14450,8 @@ def _target_refresh_worktree_provenance(
 
 @contextmanager
 def _target_refresh_live_safety(
-    document: Mapping[str, Any], change: Mapping[str, Any]
+    document: Mapping[str, Any], change: Mapping[str, Any],
+    *, _lease_plans: list[Any] | None = None,
 ) -> Iterator[Callable[[], None]]:
     """Pin and prove one exact target coordinate refresh through CAS install."""
 
@@ -14432,6 +14470,7 @@ def _target_refresh_live_safety(
         "target refresh",
         allowed_references=allowed,
         scope_record=scope_record,
+        _lease_plans=_lease_plans,
     ) as guard:
         def prove() -> None:
             guard.prove()
@@ -14491,9 +14530,173 @@ def _target_refresh_live_safety(
                 raise LedgerError("target refresh merge base differs from live Git")
             guard.prove()
 
+        def isolated_prove() -> None:
+            saved = _enter_workspace_environment(request["roots"]["workspace"]["path"])
+            try:
+                prove()
+            finally:
+                _leave_workspace_environment(saved)
+
+        if _lease_plans is None:
+            isolated_prove()
+        yield isolated_prove
+
+
+
+@contextmanager
+def _current_target_leases(plans: Sequence[Any]) -> Iterator[None]:
+    """Acquire the complete union in resource-rank order, retaining all barriers."""
+
+    barriers: dict[str, Any] = {}
+    combined: dict[tuple[str, str, str], tuple[Any, Any, Any]] = {}
+    for module, preparation, requests in plans:
+        barriers.setdefault(str(preparation._lease_namespace), preparation)
+        for request in requests:
+            key = (str(preparation.lease_root(request)), request.kind, request.coordinate)
+            previous = combined.get(key)
+            if previous is None or request.mode == "exclusive":
+                combined[key] = (module, preparation, request)
+    ordered = sorted(
+        combined.items(), key=lambda row: (*row[1][2].sort_key, row[0][0])
+    )
+    with ExitStack() as stack:
+        for _, preparation in sorted(barriers.items()):
+            stack.enter_context(preparation.maintenance())
+        for (root, _, _), (module, preparation, request) in ordered:
+            stack.enter_context(
+                module.resource_locks(Path(root), [request], nonblocking=True)
+            )
+            preparation._verify_identity()
+        for _, preparation, _ in plans:
+            stack.enter_context(preparation.admitted())
+        yield
+        for _, preparation, _ in plans:
+            preparation._verify_identity()
+
+
+@contextmanager
+def _current_targets_live_safety(document: Mapping[str, Any]) -> Iterator[Callable[[], None]]:
+    """Prepare every current target, then prove under one complete lease union."""
+
+    require_reusable_artifacts(document)
+    require_reusable_resources(document)
+    changes = []
+    for target in document["targets"]:
+        matching = [
+            slot for slot in document["artifacts"]
+            if slot["current"] is not None
+            and slot["current"]["repository"] == target["repository"]
+            and slot["current"]["branch"] == target["head"]["branch"]
+        ]
+        for kind in ("branch", "worktree"):
+            if sum(slot["kind"] == kind for slot in matching) != 1:
+                raise LedgerError("current-target proof requires every bound branch/worktree")
+        if any(
+            slot["current"]["head_sha"] != target["head"]["current_sha"]
+            for slot in matching
+        ):
+            raise LedgerError("current-target artifact head is not mirrored")
+        slot = next(slot for slot in matching if slot["kind"] == "worktree")
+        changes.append({"before": target, "after": target, "worktree_slot": slot})
+    changes.sort(key=lambda change: (
+        change["worktree_slot"]["current"]["path"],
+        change["after"]["repository"]["node_id"],
+    ))
+    _require_authenticated_actor(document, "current-target revalidation")
+    plans: list[Any] = []
+    with ExitStack() as stack:
+        proofs = [
+            stack.enter_context(_target_refresh_live_safety(
+                document, change, _lease_plans=plans
+            ))
+            for change in changes
+        ]
+        try:
+            stack.enter_context(_current_target_leases(plans))
+        except Exception as error:
+            raise LedgerError(f"current-target union lease admission failed: {error}") from error
+
+        def prove() -> None:
+            for proof in proofs:
+                proof()
+            _require_authenticated_actor(document, "current-target revalidation")
+            for proof in proofs:
+                proof()
+
         prove()
         yield prove
 
+
+def _neutral_successor(document: Mapping[str, Any], digest: str) -> dict[str, Any]:
+    result = copy.deepcopy(document)
+    result["generation"] += 1
+    result["previous_byte_digest"] = digest
+    result["history"].append(digest)
+    return prepare(result)
+
+
+def revalidate_current_targets_cas(
+    root: Path | str,
+    name: str,
+    *,
+    expected_generation: int,
+    expected_digest: str,
+    expected_device: int,
+    expected_inode: int,
+    failpoint: Failpoint = None,
+) -> Snapshot:
+    """Public exact-tuple live revalidation; no caller-authored successor."""
+
+    name = _direct_name(name)
+    _integer(expected_generation, "expected_generation")
+    _string(expected_digest, "expected_digest", SHA256_RE)
+    _integer(expected_device, "expected_device", minimum=0)
+    _integer(expected_inode, "expected_inode")
+    current = inspect(root, name)
+    if _snapshot_matches_identity(
+        current, expected_generation, expected_digest, expected_device, expected_inode
+    ):
+        before = current.document
+        prepared = _neutral_successor(before, current.digest)
+    elif (
+        current.document["generation"] == expected_generation + 1
+        and current.document["previous_byte_digest"] == expected_digest
+        and current.document["history"][-1:] == [expected_digest]
+    ):
+        if expected_device not in {
+            current.device, _portable_file_device_from_inode(expected_inode)
+        }:
+            raise LedgerError("current-target retry predecessor device does not match")
+        before = copy.deepcopy(current.document)
+        before["generation"] -= 1
+        before["history"].pop()
+        before["previous_byte_digest"] = (
+            before["history"][-1] if before["history"] else None
+        )
+        before = prepare(before)
+        if byte_digest(canonical_bytes(before)) != expected_digest:
+            raise LedgerError("current-target retry predecessor bytes do not match")
+        prepared = _neutral_successor(before, expected_digest)
+        if canonical_bytes(prepared) != current.raw:
+            raise LedgerError("current-target retry is not an exact neutral successor")
+    else:
+        raise LedgerError("stale current-target generation, digest, or inode")
+    capability = _CurrentTargetsCapability(
+        _CURRENT_TARGETS_TOKEN, name, canonical_bytes(before),
+        canonical_bytes(prepared), expected_generation, expected_digest,
+        expected_device, expected_inode,
+    )
+    with _current_targets_live_safety(prepared) as prove:
+        return cas(
+            root, name, prepared,
+            expected_generation=expected_generation,
+            expected_digest=expected_digest,
+            expected_device=expected_device,
+            expected_inode=expected_inode,
+            failpoint=failpoint,
+            _precommit=prove,
+            _current_targets_capability=capability,
+        )
 
 def target_refresh_cas(
     root: Path | str,
@@ -14604,6 +14807,7 @@ def cas(
     _scope_recovery_capability: _ScopeRecoveryCapability | None = None,
     _identity_recovery_capability: _IdentityRecoveryCapability | None = None,
     _target_refresh_legacy: bool = False,
+    _current_targets_capability: _CurrentTargetsCapability | None = None,
 ) -> Snapshot:
     name = _direct_name(name)
     prepared = prepare(document)
@@ -14719,6 +14923,35 @@ def cas(
         operation = "" if _target_refresh_legacy else "-refresh-target"
     elif _target_refresh_legacy:
         raise LedgerError("target-refresh recovery mode lacks its capability")
+    if _current_targets_capability is not None:
+        capability = _current_targets_capability
+        if (
+            any(item is not None for item in (
+                _binding_capability, _target_refresh_capability,
+                _scope_recovery_capability, _identity_recovery_capability,
+            ))
+            or _target_refresh_legacy
+            or not isinstance(capability, _CurrentTargetsCapability)
+            or capability.token is not _CURRENT_TARGETS_TOKEN
+            or capability.name != name
+            or capability.after_raw != raw
+            or _precommit is None
+            or (
+                capability.expected_generation, capability.expected_digest,
+                capability.expected_device, capability.expected_inode,
+            ) != (
+                expected_generation, expected_digest, expected_device, expected_inode,
+            )
+        ):
+            raise LedgerError("invalid internal current-target revalidation capability")
+        predecessor = prepare(_decode(capability.before_raw, "current-target predecessor"))
+        if (
+            byte_digest(capability.before_raw) != expected_digest
+            or canonical_bytes(predecessor) != capability.before_raw
+            or canonical_bytes(_neutral_successor(predecessor, expected_digest)) != raw
+        ):
+            raise LedgerError("current-target capability is not an exact neutral transition")
+        operation = "-revalidate-targets"
     candidate_digest = byte_digest(raw)
     legacy_stage = (
         f".{name}.update{operation}-g{prepared['generation']}-from-{expected_digest}-"
@@ -14898,6 +15131,11 @@ def cas(
                     )
                 if _identity_recovery_capability.before_raw != current.raw:
                     raise LedgerError("identity-recovery predecessor bytes changed")
+            if (
+                _current_targets_capability is not None
+                and _current_targets_capability.before_raw != current.raw
+            ):
+                raise LedgerError("current-target predecessor bytes changed")
             _transition(
                 current.document,
                 prepared,
@@ -15108,6 +15346,7 @@ def cas(
                 # removals; the proof alone remains recoverable by the exact
                 # caller-supplied CAS tuple.
                 _unlink_exact(directory, receipt_name, receipt_visible)
+                _hit(failpoint, "cas:receipt-consumed")
                 _unlink_exact(directory, proof, proof_visible)
             else:
                 proof_visible = os.stat(proof, dir_fd=directory, follow_symlinks=False)
@@ -15117,6 +15356,7 @@ def cas(
                 ) != (installed.device, installed.inode):
                     raise LedgerError("installed CAS lost its predecessor proof")
                 _unlink_exact(directory, proof, proof_visible)
+            _hit(failpoint, "cas:proof-consumed")
             return installed
 
 
@@ -17262,6 +17502,16 @@ def parser() -> argparse.ArgumentParser:
     refresh_parser.add_argument("--expected-digest", required=True)
     refresh_parser.add_argument("--expected-device", required=True, type=int)
     refresh_parser.add_argument("--expected-inode", required=True, type=int)
+    revalidate_parser = commands.add_parser(
+        "revalidate-current-targets-cas",
+        help="live-prove all unchanged bound targets and record one neutral observation",
+    )
+    revalidate_parser.add_argument("root", help="initialized review root")
+    revalidate_parser.add_argument("name", help="direct canonical ledger filename")
+    revalidate_parser.add_argument("--expected-generation", required=True, type=int)
+    revalidate_parser.add_argument("--expected-digest", required=True)
+    revalidate_parser.add_argument("--expected-device", required=True, type=int)
+    revalidate_parser.add_argument("--expected-inode", required=True, type=int)
     scope_recovery_parser = commands.add_parser(
         "recover-released-scope",
         help="atomically recover one explicitly authorized released planned scope selector",
@@ -17567,6 +17817,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                     expected_inode=arguments.expected_inode,
                 ).json()
             )
+        elif arguments.command == "revalidate-current-targets-cas":
+            _print(revalidate_current_targets_cas(
+                arguments.root, arguments.name,
+                expected_generation=arguments.expected_generation,
+                expected_digest=arguments.expected_digest,
+                expected_device=arguments.expected_device,
+                expected_inode=arguments.expected_inode,
+            ).json())
         elif arguments.command == "recover-released-scope":
             _print(
                 recover_released_scope(

@@ -216,3 +216,15 @@ additional task authority. The session benchmark remains credential/source-free.
   this does not authorize a companion PR; another repository needs separate
   type-explicit delivery authority.
 
+
+## Revalidate unchanged bound targets on reconnect
+
+After the canonical probe, authenticated selection and complete collision
+inventory above, run the ledger protocol's public
+`revalidate-current-targets-cas` with the exact helper-returned
+generation/digest/device/inode. It derives a neutral observation while holding
+every current bound target's live guards. Preserve immutable initial requests;
+do not manufacture a commit, repeat initial binding, call private helper
+contexts, or use generic CAS/check-reuse as a substitute for live proof.
+Actual target drift still uses `target-refresh-cas`. A changed actor, dirty,
+foreign, locked, active or uncertain target blocks this operation.

@@ -12218,6 +12218,488 @@ class DeliveryLedgerTests(unittest.TestCase):
                     )
             self.assertEqual(directory_snapshot(root), before)
 
+    def current_targets_setup(
+        self, root: Path, label: str, *, distinct: bool = False
+    ) -> tuple[object, list[Path]]:
+        roots = live_roots(self.live_base / label, "client")
+        wrapper_roots = copy.deepcopy(roots)
+        wrapper_roots["primary"] = copy.deepcopy(roots["wrapper"])
+        if distinct:
+            wrapper_roots = live_roots(self.live_base / (label + "-wrapper"), "atrinik")
+        wrapper_sha = git_head(wrapper_roots)
+        client_sha = git_head(roots)
+        document = issue_ledger(number=580, issue_node="I_current_targets")
+        replace_sha(document, SHA_A, wrapper_sha)
+        wrapper_slot = next(row for row in document["artifacts"] if row["kind"] == "worktree")
+        wrapper_slot["primitive_request"]["roots"] = wrapper_roots
+        wrapper_request = wrapper_slot["primitive_request"]
+        request = scope_request(
+            component="client", checkout="client", start_sha=client_sha, roots=roots
+        )
+        child = issue_ledger()
+        child["resources"] = [scope_resource(request)]
+        child_worktree = next(row for row in child["artifacts"] if row["kind"] == "worktree")
+        child_worktree["primitive_request"] = None
+        child_worktree["immutable"]["path"] = None
+        child_worktree["producer_resource_slot"] = "scope"
+        retarget_repository(child, repository("client", "R_client"))
+        replace_sha(child, SHA_A, client_sha)
+        for slot in child["artifacts"]:
+            slot["slot_id"] = "client-" + slot["slot_id"]
+        document["targets"].extend(child["targets"])
+        document["artifacts"] = sorted(
+            document["artifacts"] + child["artifacts"], key=lambda row: row["slot_id"]
+        )
+        document["resources"] = child["resources"]
+        document["actor"]["push_repository_node_ids"] = ["R_client", "R_repo"]
+        document["authority"]["allowed"]["repositories"] = ["R_client", "R_repo"]
+        first = ledger.create(root, document)
+        listing = worktree_list_bytes(wrapper_request)
+        safety = safety_observation_bytes(
+            wrapper_request, listing, producer_kind="primitive", producer_digest=None
+        )
+        ledger.bind_worktree_cas(
+            root, first.name, "worktree", listing, safety, **cas_arguments(first)
+        )
+        current = ledger.inspect(root, first.name)
+        live_worktree_path(request)
+        shown = scope_show_bytes(request, repository_name="atrinik/client")
+        install_scope_references(request, shown)
+        listing = worktree_list_bytes(request)
+        safety = safety_observation_bytes(
+            request, listing, producer_kind="scope",
+            producer_digest=ledger.byte_digest(shown),
+            repository_value=repository("client", "R_client"),
+        )
+        ledger.bind_scope_cas(
+            root, first.name, "scope", shown, listing, safety, **cas_arguments(current)
+        )
+        current = ledger.inspect(root, first.name)
+        paths = [live_worktree_path(wrapper_request), live_worktree_path(request)]
+        for path in paths:
+            (path / "advanced.txt").write_text("committed checkpoint\n", encoding="utf-8")
+            git_run(path, "add", "advanced.txt")
+            git_run(path, "commit", "-m", "real checkpoint")
+            sha = git_run(path, "rev-parse", "HEAD").stdout.strip()
+            candidate = next_generation(current)
+            slot = next(
+                row for row in candidate["artifacts"]
+                if row["kind"] == "worktree" and row["current"]["path"] == str(path)
+            )
+            repo = slot["current"]["repository"]
+            target = next(row for row in candidate["targets"] if row["repository"] == repo)
+            target["head"]["current_sha"] = sha
+            target["head"]["lineage"].append(sha)
+            for row in candidate["artifacts"]:
+                if row["current"] is not None and row["current"]["repository"] == repo:
+                    row["current"]["head_sha"] = sha
+            current = ledger.target_refresh_cas(
+                root, current.name, candidate, **cas_arguments(current)
+            )
+        return current, paths
+
+    def test_current_targets_scope_and_wrapper_union(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, paths = self.current_targets_setup(root, "current-union")
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, next_generation(current))
+            for path in paths:
+                self.assertEqual(git_run(path, "status", "--porcelain").stdout, "")
+
+    def test_current_targets_union_order_contention_and_late_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, paths = self.current_targets_setup(root, "current-contention")
+            original_union = ledger._current_target_leases
+            before = directory_snapshot(root)
+
+            @contextmanager
+            def contended(plans):
+                module, workspace, requests = plans[-1]
+                request = next(row for row in requests if row.kind == "source")
+                with module.resource_locks(
+                    workspace.lease_root(request), [request], nonblocking=True
+                ):
+                    with original_union(plans):
+                        yield
+
+            with mock.patch.object(ledger, "_current_target_leases", side_effect=contended):
+                with self.assertRaisesRegex(ledger.LedgerError, "union lease admission"):
+                    ledger.revalidate_current_targets_cas(
+                        root, current.name, **cas_arguments(current)
+                    )
+            self.assertEqual(directory_snapshot(root), before)
+
+            dirty = paths[0] / "late-drift.txt"
+            @contextmanager
+            def late_drift(plans):
+                with original_union(plans):
+                    dirty.write_text("changed after all leases admitted\n", encoding="utf-8")
+                    yield
+
+            with mock.patch.object(ledger, "_current_target_leases", side_effect=late_drift):
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.revalidate_current_targets_cas(
+                        root, current.name, **cas_arguments(current)
+                    )
+            self.assertEqual(directory_snapshot(root), before)
+            dirty.unlink()
+            observed = []
+
+            @contextmanager
+            def observed_union(plans):
+                # Both plans share the same trusted wrapper module in this fixture.
+                modules = {id(module): module for module, _, _ in plans}
+                self.assertEqual(len(modules), 1)
+                module = next(iter(modules.values()))
+                original_locks = module.resource_locks
+                collecting = True
+                @contextmanager
+                def record(root, requests, **keywords):
+                    if collecting:
+                        observed.extend((request.sort_key, str(root), request.mode)
+                                        for request in requests)
+                    with original_locks(root, requests, **keywords) as leases:
+                        yield leases
+                with mock.patch.object(module, "resource_locks", side_effect=record):
+                    with original_union(plans):
+                        collecting = False
+                        yield
+
+            with mock.patch.object(ledger, "_current_target_leases", side_effect=observed_union):
+                result = ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current)
+                )
+            identities = [(rank, location) for rank, location, _ in observed]
+            self.assertEqual(identities, sorted(identities))
+            self.assertEqual(len(identities), len(set(identities)))
+            self.assertGreaterEqual(sum(mode == "exclusive" for _, _, mode in observed), 4)
+            self.assertEqual(result.document, next_generation(current))
+
+    def test_current_targets_actor_changed_at_precommit_refuses_publication(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, _ = self.current_targets_setup(root, "current-actor")
+            changed = False
+            def failpoint(point):
+                nonlocal changed
+                if point == "cas:proofed":
+                    changed = True
+            def actor(document, context=None):
+                result = copy.deepcopy(document["actor"])
+                if changed:
+                    result["node_id"] = "U_foreign"
+                return result
+            with mock.patch.object(ledger, "_authenticated_actor", side_effect=actor):
+                with self.assertRaisesRegex(ledger.LedgerError, "actor"):
+                    ledger.revalidate_current_targets_cas(
+                        root, current.name, **cas_arguments(current), failpoint=failpoint
+                    )
+            self.assertEqual(ledger.inspect(root, current.name).raw, current.raw)
+            self.assertEqual(ledger.inventory(root).pending, ())
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, next_generation(current))
+
+    def test_current_targets_distinct_workspace_environments(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, _ = self.current_targets_setup(root, "current-distinct", distinct=True)
+            previous = os.environ.get("ATRINIK_WORKSPACE_DIR")
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(os.environ.get("ATRINIK_WORKSPACE_DIR"), previous)
+            self.assertEqual(result.document, next_generation(current))
+
+    def test_current_targets_installed_retry_actor_and_new_tuple_refused(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, _ = self.current_targets_setup(root, "current-installed")
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current), failpoint="cas:installed"
+                )
+            installed = ledger.inspect(root, current.name)
+            before = directory_snapshot(root)
+            foreign = copy.deepcopy(current.document["actor"])
+            foreign["node_id"] = "U_foreign"
+            with mock.patch.object(ledger, "_authenticated_actor", return_value=foreign):
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.revalidate_current_targets_cas(
+                        root, current.name, **cas_arguments(current)
+                    )
+            self.assertEqual(directory_snapshot(root), before)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(installed)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.cas(
+                    root, current.name, next_generation(installed), **cas_arguments(installed)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, installed.document)
+
+    def test_current_targets_consumed_receipt_requires_fresh_observation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old, candidate, _, _, _ = target_refresh_setup(
+                self.live_base, root, "current-consumed", stale_predecessor=False
+            )
+            current = ledger.target_refresh_cas(root, old.name, candidate, **cas_arguments(old))
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current), failpoint="cas:proof-consumed"
+                )
+            installed = ledger.inspect(root, current.name)
+            self.assertEqual(ledger.inventory(root).pending, ())
+            with self.assertRaises(ledger.LedgerError):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current)
+                )
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(installed)
+            )
+            self.assertEqual(result.document, next_generation(installed))
+
+    def test_current_targets_partial_stage_and_exact_tuple_retry(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old, candidate, _, _, _ = target_refresh_setup(
+                self.live_base, root, "current-prefix", stale_predecessor=False
+            )
+            current = ledger.target_refresh_cas(root, old.name, candidate, **cas_arguments(old))
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current), failpoint="cas:staged"
+                )
+            pending = ledger.inventory(root).pending
+            stage = next(row.staging for row in pending if ".update-" in row.staging)
+            stage_path = root / stage
+            raw = stage_path.read_bytes()
+            stage_path.write_bytes(raw[:len(raw) // 2])
+            before = directory_snapshot(root)
+            for field, value in (
+                ("expected_generation", current.document["generation"] + 2),
+                ("expected_digest", "a" * 64),
+                ("expected_device", current.device + 1),
+                ("expected_inode", current.inode + 1),
+            ):
+                arguments = cas_arguments(current)
+                arguments[field] = value
+                with self.subTest(field=field), self.assertRaises(ledger.LedgerError):
+                    ledger.revalidate_current_targets_cas(root, current.name, **arguments)
+                self.assertEqual(directory_snapshot(root), before)
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, next_generation(current))
+
+    def test_current_targets_installed_scope_drift_preserves_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, paths = self.current_targets_setup(root, "current-scope-drift")
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current), failpoint="cas:installed"
+                )
+            scope = next(row for row in current.document["resources"] if row["kind"] == "scope")
+            workspace = Path(scope["request"]["roots"]["workspace"]["path"])
+            record = workspace / "scopes" / scope["request"]["name"] / "scope.json"
+            original = record.read_bytes()
+            changed = json.loads(original)
+            changed["generation"] = "2" * 32
+            record.write_bytes(json_bytes(changed))
+            before = directory_snapshot(root)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            record.write_bytes(original)
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, next_generation(current))
+
+    def test_current_targets_public_cli_has_no_candidate_argument(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old, candidate, _, _, _ = target_refresh_setup(
+                self.live_base, root, "current-cli", stale_predecessor=False
+            )
+            current = ledger.target_refresh_cas(root, old.name, candidate, **cas_arguments(old))
+            command = [
+                sys.executable, "-B", "-c", _TEST_CLI_ACTOR_BOOTSTRAP, str(SCRIPT),
+                "revalidate-current-targets-cas", str(root), current.name,
+            ]
+            for key, value in cas_arguments(current).items():
+                command.extend(("--" + key.replace("_", "-"), str(value)))
+            process = subprocess.run(command, text=True, capture_output=True, check=False)
+            self.assertEqual(process.returncode, 0, process.stderr)
+            self.assertEqual(json.loads(process.stdout)["document"], next_generation(current))
+
+    def test_current_targets_compact_installed_device_identity(self) -> None:
+        original_names_fit = ledger._names_fit
+        for point in ("cas:installed", "cas:receipt-consumed"):
+            for portable in (False, True):
+                with self.subTest(point=point, portable=portable), tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    label = "device-" + point.replace(":", "-") + str(portable).lower()
+                    old, candidate, _, _, _ = target_refresh_setup(
+                        self.live_base, root, label, stale_predecessor=False
+                    )
+                    current = ledger.target_refresh_cas(
+                        root, old.name, candidate, **cas_arguments(old)
+                    )
+                    arguments = cas_arguments(current)
+                    if portable:
+                        arguments["expected_device"] = ledger._snapshot_record_device(current)
+                    def names_fit(directory, names):
+                        if any(".update" in name for name in names):
+                            return False
+                        return original_names_fit(directory, names)
+                    with mock.patch.object(ledger, "_names_fit", side_effect=names_fit):
+                        with self.assertRaises(ledger.InjectedCrash):
+                            ledger.revalidate_current_targets_cas(
+                                root, current.name, **arguments, failpoint=point
+                            )
+                        before = directory_snapshot(root)
+                        wrong = dict(arguments)
+                        wrong["expected_device"] += 1
+                        with self.assertRaisesRegex(ledger.LedgerError, "device"):
+                            ledger.revalidate_current_targets_cas(root, current.name, **wrong)
+                        self.assertEqual(directory_snapshot(root), before)
+                        result = ledger.revalidate_current_targets_cas(
+                            root, current.name, **arguments
+                        )
+                        self.assertEqual(result.document, next_generation(current))
+                        self.assertEqual(ledger.inventory(root).pending, ())
+
+    def test_current_targets_rollout_refreshes_only_real_wrapper_base_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, _ = self.current_targets_setup(root, "current-rollout")
+            wrapper_slot = next(
+                row for row in current.document["artifacts"]
+                if row["kind"] == "worktree" and row["primitive_request"] is not None
+            )
+            primary = Path(wrapper_slot["primitive_request"]["roots"]["primary"]["path"])
+            (primary / "accepted-helper-update.txt").write_text(
+                "actual accepted wrapper main advancement\n", encoding="utf-8"
+            )
+            git_run(primary, "add", "accepted-helper-update.txt")
+            git_run(primary, "commit", "-m", "advance accepted wrapper main")
+            new_base = git_run(primary, "rev-parse", "HEAD").stdout.strip()
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(ledger.LedgerError, "base differs"):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            candidate = next_generation(current)
+            target = next(
+                row for row in candidate["targets"] if row["repository"]["name"] == "atrinik"
+            )
+            old_head = target["head"]["current_sha"]
+            target["base"]["current_sha"] = new_base
+            target["base"]["lineage"].append(new_base)
+            target["merge_base"]["current_sha"] = git_run(
+                primary, "merge-base", new_base, old_head
+            ).stdout.strip()
+            refreshed = ledger.target_refresh_cas(
+                root, current.name, candidate, **cas_arguments(current)
+            )
+            old_component = next(
+                row for row in current.document["targets"] if row["repository"]["name"] == "client"
+            )
+            new_component = next(
+                row for row in refreshed.document["targets"] if row["repository"]["name"] == "client"
+            )
+            self.assertEqual(old_component, new_component)
+            self.assertEqual(
+                next(row for row in refreshed.document["targets"]
+                     if row["repository"]["name"] == "atrinik")["head"]["current_sha"],
+                old_head,
+            )
+            self.assertEqual(current.document["artifacts"], refreshed.document["artifacts"])
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(refreshed)
+            )
+            self.assertEqual(result.document, next_generation(refreshed))
+
+    def test_current_targets_neutral_after_real_advance(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old, candidate, _, _, _ = target_refresh_setup(
+                self.live_base, root, "current-neutral", stale_predecessor=False
+            )
+            current = ledger.target_refresh_cas(
+                root, old.name, candidate, **cas_arguments(old)
+            )
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, next_generation(current))
+            self.assertEqual(ledger.inventory(root).pending, ())
+            with self.assertRaises(ledger.LedgerError):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current)
+                )
+
+    def test_current_targets_retry_reproves_dirty_worktree(self) -> None:
+        original_names_fit = ledger._names_fit
+        for index, failpoint in enumerate((
+            "cas:receipted", "cas:receipt-consumed", "cas:staged", "cas:proofed",
+            "cas:renamed", "cas:installed",
+        )):
+            with self.subTest(failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                old, candidate, _, _, live = target_refresh_setup(
+                    self.live_base, root, f"current-retry-{index}",
+                    stale_predecessor=False,
+                )
+                current = ledger.target_refresh_cas(
+                    root, old.name, candidate, **cas_arguments(old)
+                )
+                compact = failpoint in {"cas:receipted", "cas:receipt-consumed"}
+                def names_fit(directory, names):
+                    if compact and any(".update" in name for name in names):
+                        return False
+                    return original_names_fit(directory, names)
+                with mock.patch.object(ledger, "_names_fit", side_effect=names_fit):
+                    with self.assertRaises(ledger.InjectedCrash):
+                        ledger.revalidate_current_targets_cas(
+                            root, current.name, **cas_arguments(current), failpoint=failpoint
+                        )
+                    candidate = next_generation(current)
+                    before = directory_snapshot(root)
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger.cas(root, current.name, candidate, **cas_arguments(current))
+                    self.assertEqual(directory_snapshot(root), before)
+                    dirty = live / "dirty-retry.txt"
+                    dirty.write_text("uncommitted change\n", encoding="utf-8")
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger.revalidate_current_targets_cas(
+                            root, current.name, **cas_arguments(current)
+                        )
+                    self.assertEqual(directory_snapshot(root), before)
+                    dirty.unlink()
+                    result = ledger.revalidate_current_targets_cas(
+                        root, current.name, **cas_arguments(current)
+                    )
+                    self.assertEqual(result.document, candidate)
+                    self.assertEqual(ledger.inventory(root).pending, ())
+
     def test_48b_target_refresh_and_stale_merge_base_recovery_are_live_bound(
         self,
     ) -> None:

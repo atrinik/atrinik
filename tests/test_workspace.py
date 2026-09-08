@@ -16460,6 +16460,73 @@ class WorkspaceTests(unittest.TestCase):
                 ):
                     self.fail("relocated workspace acquired duplicate source lease")
 
+    def delivery_preparation_fixture(self):
+        self.workspace.close()
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Tests", cwd=self.wrapper)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=self.wrapper)
+        command("git", "add", "components.json", cwd=self.wrapper)
+        command("git", "commit", "-m", "seed delivery preparation", cwd=self.wrapper)
+        self.workspace = Workspace(self.wrapper, backfill_references=False)
+        self.workspace.close()
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_preserves_constructor_and_limits_operations(self) -> None:
+        self.delivery_preparation_fixture()
+        original = workspace_module.resource_lifetime_reader
+        with mock.patch.object(workspace_module, "resource_lifetime_reader", wraps=original) as reader:
+            normal = Workspace(self.wrapper, backfill_references=False)
+            self.assertEqual(reader.call_count, 1)
+            normal.close()
+            preparation = Workspace._prepare_delivery_workspace(
+                self.wrapper, manifest=self.workspace.manifest
+            )
+            self.addCleanup(preparation.close)
+            self.assertEqual(reader.call_count, 1)
+            self.assertFalse(hasattr(preparation, "scope_create"))
+            self.assertFalse(hasattr(preparation, "build"))
+            with self.assertRaisesRegex(WorkspaceError, "not been admitted"):
+                _ = preparation.admitted_workspace
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_does_not_wait_for_wrapper_source_writer(self) -> None:
+        self.delivery_preparation_fixture()
+        request = self.workspace._lease_request(
+            "source", self.workspace._source_coordinate("atrinik", self.wrapper),
+            "exclusive", "external wrapper writer",
+        )
+        script = (
+            "from pathlib import Path; import sys; "
+            "from atrinik_workspace.model import Manifest; "
+            "from atrinik_workspace.workspace import Workspace; "
+            "root=Path(sys.argv[1]); "
+            "plan=Workspace._prepare_delivery_workspace(root,manifest=Manifest.load(root/'components.json')); "
+            "plan.close(); print('prepared without source admission')"
+        )
+        with resource_locks(self.workspace._lease_root, [request], nonblocking=True):
+            process = subprocess.run(
+                [sys.executable, "-B", "-c", script, str(self.wrapper)],
+                cwd=Path(__file__).resolve().parents[1], text=True, capture_output=True,
+                check=False, timeout=10,
+            )
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(process.stdout.strip(), "prepared without source admission")
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_never_creates_missing_identity(self) -> None:
+        self.delivery_preparation_fixture()
+        record = self.workspace._lease_namespace.parent / "atrinik-resource-leases.identity.json"
+        retained = record.with_suffix(".retained")
+        record.rename(retained)
+        try:
+            with self.assertRaises(FileNotFoundError):
+                Workspace._prepare_delivery_workspace(
+                    self.wrapper, manifest=self.workspace.manifest
+                )
+            self.assertFalse(record.exists())
+        finally:
+            retained.rename(record)
+
     def test_wrapper_worktrees_share_common_git_lease_namespace(self) -> None:
         self.workspace.close()
         command("git", "init", "-b", "main", cwd=self.wrapper)
