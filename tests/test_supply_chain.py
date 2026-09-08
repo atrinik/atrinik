@@ -183,6 +183,26 @@ class InventoryTests(unittest.TestCase):
                     with self.subTest(field=field):
                         with self.assertRaisesRegex(WorkspaceError, f"inventory {field}"):
                             audit(replace(dependency, **{field: value}))
+                for field, value in (
+                    ("image", "ghcr.io/unrelated/bundle"),
+                    ("digest", None),
+                    ("digest", "sha256:invalid"),
+                    ("material_digest", None),
+                    ("material_digest", "sha256:invalid"),
+                ):
+                    with self.subTest(descriptor_field=field, value=value):
+                        malformed = {**descriptor, field: value}
+                        path.write_text(json.dumps(malformed), encoding="utf-8")
+                        with self.assertRaisesRegex(WorkspaceError, "descriptor coordinates"):
+                            audit(dependency)
+                path.write_text("{", encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, "descriptor JSON"):
+                    audit(dependency)
+                path.write_text(json.dumps(descriptor), encoding="utf-8")
+                with self.assertRaisesRegex(WorkspaceError, "required inventory record"):
+                    Inventory("atrinik", "2026-09-08", [repository], []).audit(
+                        {"classic": root}
+                    )
                 descriptor["digest"] = "sha256:" + "d" * 64
                 descriptor["verified_input_bundle_digest"] = digest
                 path.write_text(json.dumps(descriptor), encoding="utf-8")
