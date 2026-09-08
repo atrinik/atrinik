@@ -5,12 +5,14 @@ from pathlib import Path
 import socket
 import subprocess
 import tempfile
+import sys
 import unittest
 from unittest import mock
 
 from atrinik_workspace import linux_platform as platform
 
 
+@unittest.skipUnless(sys.platform.startswith("linux"), "Linux filesystem and desktop capabilities")
 class LinuxPlatformTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()

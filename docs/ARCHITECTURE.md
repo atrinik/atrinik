@@ -121,7 +121,7 @@ attestation or guaranteed exclusion of administrator-created containers/chroots.
 An ordinary virtual machine can qualify.
 
 Codex may remain inside a canonical container, bootstrap/attach its pinned
-container, or use a proven native Linux host. Schema-2 `entry_mode` remains
+container from a native host, or use a proven native Linux host. These entry modes preserve the canonical VS Code devcontainer option; container work stays inside it. Schema-2 `entry_mode` remains
 diagnostic only. Windows host work is limited to bootstrap/attach and approved
 Git/GitHub/commit operations. Existing native/container sessions reprove exact
 worktree, ledger/CAS and leases before recovery. Accepting a platform does not

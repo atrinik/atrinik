@@ -5,12 +5,14 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import sys
 import unittest
 from unittest import mock
 
 from atrinik_workspace import linux_export as export
 
 
+@unittest.skipUnless(sys.platform.startswith("linux"), "Linux filesystem and desktop capabilities")
 class LinuxExportTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
