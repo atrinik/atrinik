@@ -2864,6 +2864,8 @@ class WorkspaceTests(unittest.TestCase):
             "", encoding="utf-8"
         )
         (classic / "cmake" / "AtrinikVersion.cmake").write_text(
+            'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n'
+            "\n"
             "function(atrinik_resolve_version output)\n"
             "  set(${output} test-version PARENT_SCOPE)\n"
             "endfunction()\n",
@@ -2898,6 +2900,7 @@ class WorkspaceTests(unittest.TestCase):
         command("git", "remote", "add", "origin", str(origin), cwd=classic)
         command("git", "push", "-u", "origin", "main", cwd=classic)
         self.origins["classic"] = origin
+        original_head = command("git", "rev-parse", "HEAD", cwd=classic)
         original_tree = command("git", "rev-parse", "HEAD^{tree}", cwd=classic)
         (classic / "LICENSE.md").write_text(
             "replacement license\n", encoding="utf-8"
@@ -2905,7 +2908,18 @@ class WorkspaceTests(unittest.TestCase):
         command("git", "add", "LICENSE.md", cwd=classic)
         replacement_tree = command("git", "write-tree", cwd=classic)
         command("git", "replace", original_tree, replacement_tree, cwd=classic)
-        self.assertEqual(command("git", "status", "--porcelain", cwd=classic), "")
+        command("git", "config", "core.useReplaceRefs", "false", cwd=classic)
+        command(
+            "git", "--no-replace-objects", "reset", "--hard", original_head,
+            cwd=classic,
+        )
+        self.assertEqual(command("git", "replace", "-l", cwd=classic), original_tree)
+        self.assertEqual(
+            command(
+                "git", "--no-replace-objects", "status", "--porcelain", cwd=classic
+            ),
+            "",
+        )
 
         stack = self.workspace.manifest.stack("classic")
         for role in ("client", "server"):
@@ -18474,6 +18488,16 @@ class WorkspaceTests(unittest.TestCase):
             "client": self.wrapper / "client",
             "sound": self.wrapper / "sound",
         }
+        (selected["client"] / "VERSION").write_text("5.1.0\n", encoding="utf-8")
+        command("git", "add", "VERSION", cwd=selected["client"])
+        command(
+            "git", "commit", "-m", "test: add client package version",
+            cwd=selected["client"],
+        )
+        heads = {
+            role: command("git", "rev-parse", "HEAD", cwd=path)
+            for role, path in selected.items()
+        }
         resolved = {
             "client": {
                 "path": str(self.wrapper / "client"),
@@ -18482,7 +18506,7 @@ class WorkspaceTests(unittest.TestCase):
                 "repository": "atrinik/client",
                 "branch": "main",
                 "source": ".",
-                "head": "a" * 40,
+                "head": heads["client"],
                 "dirty": False,
             },
             "sound": {
@@ -18492,7 +18516,7 @@ class WorkspaceTests(unittest.TestCase):
                 "repository": "atrinik/sound",
                 "branch": "main",
                 "source": ".",
-                "head": "b" * 40,
+                "head": heads["sound"],
                 "dirty": False,
             },
         }
