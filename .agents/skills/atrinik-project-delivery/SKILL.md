@@ -13,7 +13,9 @@ explicit request. Automatic skill selection is not write authority.
 ## Establish authority and readiness
 
 Read `atrinik-multi-repo-workspace`, the live `atrinik-issue-delivery` entry,
-coordinator and ledger requirements, and [the operator protocol](references/coordinator.md).
+and [the operator protocol](references/coordinator.md). Writing leaves load the
+issue preparation/ledger procedure for their own exact coordinate; retain proven
+session handles instead of rereading unchanged procedures on each dispatch.
 Verify the live parent, repositories, existing children/PRs, dependency graph,
 acceptance and authorized tracking operations before initialization. Reconcile
 native relationships and prose; neither alone proves completeness.
@@ -40,7 +42,23 @@ edits/tests. Never share a writing worktree or credential/cache namespace.
 An existing PR needs explicit PR-mode authority; do not adopt it as new issue
 work. Reserve shared files/resources; subdivide only when ownership permits.
 Use additional read-only workers for exploration, tests and independent review;
-count them against actual capacity. Limit heavy builds separately.
+count them against actual capacity. Fill available capacity with useful ready
+work; do not impose an arbitrary low worker cap. Limit heavy builds separately
+using measured resource contention.
+
+Use compact task packets with exact ownership, base/head, paths, acceptance,
+container/ledger handles, validation commands, and granted/pending/rejected
+authorization; omit inherited conversation
+when raw task evidence suffices. Choose models per task: capable reasoning for
+architecture or security-sensitive review, an efficient coding model for bounded
+implementation/tests, and a lighter model for deterministic extraction. Preserve
+output quality and independent review; expand context or model when needed.
+Use an available capable model when a preferred model is unavailable; report the
+fallback. Every worker reads applicable mandatory instructions, including
+read-only extractors with a narrow task-source scope.
+Run waits, JSON extraction and repetitive I/O in tools/scripts. Use the operator
+protocol's snapshot output to keep CAS documents out of model messages. Process
+and tooling diagnostics never gate scheduling or require routine reporting.
 
 Route findings to the owning worker, reuse it for fixes, and keep independent
 ready lanes moving. Workers deliver through final-head validation and fresh
@@ -70,3 +88,7 @@ observations and criterion-by-criterion terminal evidence. Otherwise hand off
 the exact remaining closure action. Report delivered PRs and heads, acceptance,
 remaining gates, external owners, recovery root and next runnable lanes. Do not
 claim completion while only child counts or PR status look finished.
+
+For unchanged bound targets on reconnect, use the public
+`revalidate-current-targets-cas` exact-tuple proof in the issue-delivery
+ledger protocol; saved safety fields or generic CAS are not live lease proof.

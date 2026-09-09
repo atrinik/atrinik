@@ -410,7 +410,15 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="disable automatic C/C++ compiler caching",
     )
-    dev_build.add_argument("--json", action="store_true")
+    dev_build.add_argument(
+        "--json",
+        action="store_true",
+        help=(
+            "write one JSON document on success; progress goes to stderr; "
+            "build errors exit 1 with empty stdout and a stderr diagnostic "
+            "(interruption exits 130)"
+        ),
+    )
 
     dev_up = dev_commands.add_parser(
         "up", help="build and start a local loopback development topology"

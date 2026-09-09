@@ -2306,6 +2306,215 @@ class WorkspaceTests(unittest.TestCase):
         for checkout in ("sound", "libatrinik", "protocol"):
             self.assertEqual(states[checkout]["head"], prior_heads[checkout])
 
+    def source_lfs_fixture(self) -> tuple[Path, dict[str, bytes]]:
+        import struct
+        import wave
+        import zlib
+
+        checkout = self.workspace.paths.repositories / "client"
+        command("git", "lfs", "install", "--local", cwd=checkout)
+        (checkout / ".gitattributes").write_text(
+            "*.wav filter=lfs diff=lfs merge=lfs -text\n"
+            "*.png filter=lfs diff=lfs merge=lfs -text\n"
+        )
+        audio = io.BytesIO()
+        with wave.open(audio, "wb") as output:
+            output.setnchannels(1)
+            output.setsampwidth(2)
+            output.setframerate(8000)
+            output.writeframes(struct.pack("<8h", 0, 100, -100, 200, -200, 100, -100, 0))
+        def png_chunk(kind: bytes, data: bytes) -> bytes:
+            return (struct.pack(">I", len(data)) + kind + data
+                    + struct.pack(">I", zlib.crc32(kind + data)))
+        png = (b"\x89PNG\r\n\x1a\n"
+               + png_chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
+               + png_chunk(b"IDAT", zlib.compress(b"\0\xff\0\0"))
+               + png_chunk(b"IEND", b""))
+        files = {"background/tone.wav": audio.getvalue(), "images/pixel.png": png}
+        for name, data in files.items():
+            target = checkout / name
+            target.parent.mkdir(exist_ok=True)
+            target.write_bytes(data)
+        command("git", "add", ".gitattributes", *files, cwd=checkout)
+        command("git", "commit", "-m", "add real LFS media fixture", cwd=checkout)
+        return checkout, files
+
+    def resolve_lfs_fixture(self) -> Path:
+        with self.workspace._resolved_profile_operation(
+            "default", {"client"}, "verify LFS fixture", materialize_clean_primaries=True
+        ) as snapshot:
+            return snapshot.paths()["client"]
+
+    def test_source_generation_lfs_binary_cold_warm_and_export_proof(self) -> None:
+        import wave
+        checkout, files = self.source_lfs_fixture()
+        first = self.resolve_lfs_fixture()
+        self.assertEqual(self.resolve_lfs_fixture(), first)
+        record = self.workspace._source_generation_record(first)
+        proof = self.workspace._validate_source_generation_git_closure(
+            checkout, first.parent, record["source_tree"], record["tree"],
+            record["source_includes"],
+        )
+        for name, data in files.items():
+            self.assertEqual((first / name).read_bytes(), data)
+            pointer = command("git", "show", "HEAD:" + name, cwd=checkout)
+            self.assertTrue(pointer.startswith("version https://git-lfs.github.com/spec/v1"))
+            row = proof["source/" + name]
+            self.assertEqual(row["lfs_oid"], hashlib.sha256(data).hexdigest())
+            self.assertEqual(row["sha256"], row["lfs_oid"])
+            self.assertEqual(row["size"], len(data))
+            self.assertEqual(row["git_blob_oid"], command("git", "rev-parse", "HEAD:" + name, cwd=checkout))
+        with wave.open(str(first / "background/tone.wav"), "rb") as decoded:
+            self.assertEqual(decoded.getnframes(), 8)
+            self.assertEqual(len(decoded.readframes(8)), 16)
+
+    def source_lfs_includes_fixture(self) -> tuple[Path, dict[str, bytes], Path]:
+        checkout, files = self.source_lfs_fixture()
+        (checkout / "code").mkdir()
+        (checkout / "code/README").write_text("source subtree\n")
+        command("git", "add", "code", cwd=checkout)
+        command("git", "commit", "-m", "add source subtree", cwd=checkout)
+        manifest = self.workspace.manifest
+        component = replace(manifest.by_name["client"], source="code",
+                            source_includes=("background", "images/pixel.png"))
+        manifest.by_name["client"] = component
+        manifest.components = [component if row.name == "client" else row
+                               for row in manifest.components]
+        manifest.stack("default").providers["client"] = component
+        source = self.resolve_lfs_fixture()
+        return checkout, files, source
+
+    def test_source_generation_lfs_tree_and_blob_includes(self) -> None:
+        checkout, files, source = self.source_lfs_includes_fixture()
+        self.assertEqual(self.resolve_lfs_fixture(), source)
+        record = self.workspace._source_generation_record(source)
+        proof = self.workspace._validate_source_generation_git_closure(
+            checkout, source.parent, record["source_tree"], record["tree"],
+            record["source_includes"],
+        )
+        for name, payload in files.items():
+            self.assertEqual((source.parent / name).read_bytes(), payload)
+            self.assertEqual(proof[name]["sha256"], hashlib.sha256(payload).hexdigest())
+            self.assertEqual(proof[name]["lfs_oid"], proof[name]["sha256"])
+
+    def assert_lfs_parent_swap_is_not_quarantined(self, source: Path, target: Path) -> None:
+        target.chmod(0o600)
+        target.write_bytes(b"x" * target.stat().st_size)
+        target.chmod(0o444)
+        generation = source.parent
+        parked = generation.with_name(generation.name + "-test-parent-swap")
+        target_identity = (target.stat().st_dev, target.stat().st_ino)
+        real_read = os.read
+        real_pointers = Workspace._source_generation_lfs_pointers
+        armed = False
+        swapped = False
+        def classify_pointers(*args: object, **kwargs: object) -> object:
+            nonlocal armed
+            pointers = real_pointers(*args, **kwargs)
+            if pointers:
+                armed = True
+            return pointers
+        def swap_parent(descriptor: int, size: int) -> bytes:
+            nonlocal swapped
+            result = real_read(descriptor, size)
+            status = os.fstat(descriptor)
+            if armed and not swapped and (status.st_dev, status.st_ino) == target_identity:
+                generation.rename(parked)
+                swapped = True
+            return result
+        try:
+            with (
+                mock.patch.object(Workspace, "_source_generation_lfs_pointers", side_effect=classify_pointers),
+                mock.patch.object(workspace_module.os, "read", side_effect=swap_parent),
+                mock.patch.object(self.workspace, "_quarantine_source_generation") as quarantine,
+            ):
+                with self.assertRaises(WorkspaceError) as observed:
+                    self.resolve_lfs_fixture()
+                self.assertNotIsInstance(observed.exception, workspace_module._SourceGenerationCorrupt)
+                quarantine.assert_not_called()
+            self.assertTrue(armed, "the injection must reach authenticated LFS classification")
+            self.assertTrue(swapped)
+            self.assertTrue(parked.exists())
+        finally:
+            if parked.exists() and not generation.exists():
+                parked.rename(generation)
+        self.assertTrue(generation.exists())
+
+    def test_source_generation_lfs_tree_parent_swap_preserves_uncertainty(self) -> None:
+        self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        self.assert_lfs_parent_swap_is_not_quarantined(source, source / "background/tone.wav")
+
+    def test_source_generation_lfs_blob_include_parent_swap_preserves_uncertainty(self) -> None:
+        _checkout, _files, source = self.source_lfs_includes_fixture()
+        self.assert_lfs_parent_swap_is_not_quarantined(source, source.parent / "images/pixel.png")
+
+    def test_source_generation_lfs_pointer_bytes_are_not_hydrated_payload(self) -> None:
+        checkout, files = self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        target = source / "background/tone.wav"
+        target.chmod(0o600)
+        target.write_text(command("git", "show", "HEAD:background/tone.wav", cwd=checkout) + "\n")
+        target.chmod(0o444)
+        self.assertEqual(self.resolve_lfs_fixture(), source)
+        self.assertEqual(target.read_bytes(), files["background/tone.wav"])
+
+    def test_source_generation_lfs_corruption_cannot_forge_digest(self) -> None:
+        _checkout, files = self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        target = source / "background/tone.wav"
+        target.chmod(0o600)
+        target.write_bytes(b"x" * len(files["background/tone.wav"]))
+        target.chmod(0o444)
+        metadata = source.parent / workspace_module.SOURCE_GENERATION_METADATA
+        source.parent.chmod(0o700)
+        metadata.chmod(0o600)
+        record = load_json(metadata)
+        record["source_tree_sha256"] = _tree_digest(source, set(), bounded_symlinks=True, reject_hardlinks=True)
+        record["closure_tree_sha256"] = workspace_module._source_closure_digest(source.parent, ())
+        atomic_json(metadata, record)
+        metadata.chmod(0o444)
+        source.parent.chmod(0o500)
+        self.assertEqual(self.resolve_lfs_fixture(), source)
+        self.assertEqual(target.read_bytes(), files["background/tone.wav"])
+        self.assertTrue(any("staging-recovery_" in p.name for p in source.parent.parent.iterdir()))
+
+    def test_source_generation_lfs_missing_command_does_not_publish(self) -> None:
+        self.source_lfs_fixture()
+        real_run = subprocess.run
+        def missing_lfs(args: list[str], *rest: object, **kwargs: object):
+            if "lfs" in args and "smudge" in args:
+                raise FileNotFoundError("git-lfs")
+            return real_run(args, *rest, **kwargs)
+        with mock.patch.object(workspace_module.subprocess, "run", side_effect=missing_lfs):
+            with self.assertRaisesRegex(WorkspaceError, "install Git LFS"):
+                self.resolve_lfs_fixture()
+        container = self.workspace.paths.builds / "source-generations/client"
+        self.assertFalse(any(re.fullmatch("[0-9a-f]{64}", p.name) for p in container.iterdir()))
+
+    def test_source_generation_lfs_missing_and_corrupt_object_fail(self) -> None:
+        checkout, files = self.source_lfs_fixture()
+        data = files["background/tone.wav"]
+        oid = hashlib.sha256(data).hexdigest()
+        common = Path(command("git", "rev-parse", "--absolute-git-dir", cwd=checkout))
+        obj = common / "lfs/objects" / oid[:2] / oid[2:4] / oid
+        self.assertEqual(obj.read_bytes(), data)
+        command("git", "config", "lfs.url", "file:///missing-atrinik-lfs-fixture", cwd=checkout)
+        real_extract = self.workspace._extract_git_source_archive
+        for payload in (None, b"x" * len(data), data[:-1]):
+            with self.subTest(payload=payload):
+                obj.parent.mkdir(parents=True, exist_ok=True)
+                obj.write_bytes(data)
+                def lose_object(*args: object, **kwargs: object) -> None:
+                    real_extract(*args, **kwargs)
+                    if payload is None:
+                        obj.unlink(missing_ok=True)
+                    else:
+                        obj.write_bytes(payload)
+                with mock.patch.object(self.workspace, "_extract_git_source_archive", side_effect=lose_object):
+                    with self.assertRaisesRegex(WorkspaceError, "Git LFS payload|hydrate Git LFS"):
+                        self.resolve_lfs_fixture()
+
     def test_clean_primary_source_generation_reuses_and_recovers_corruption(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
@@ -13153,6 +13362,109 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(list(topology.iterdir()), [])
         self.assertEqual(external.read_text(encoding="utf-8"), "private\n")
 
+    def test_dev_build_json_cold_warm_and_failed_producers(self) -> None:
+        from atrinik_workspace.cli import main
+        from contextlib import redirect_stdout
+        from types import SimpleNamespace
+
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("test\n", encoding="utf-8")
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: add runtime inputs", cwd=source)
+
+        selected = self.workspace._resolve_build_profile("default", {"server", "client"})
+        key = self.workspace._profile_build_key("default", selected)
+        root = self.workspace.paths.builds / "profiles" / f"default-{key}"
+        managed_directory(root, self.workspace.paths.builds, f"profile:default:{key}")
+        binary = root / "build" / "server"
+        binary.mkdir(parents=True)
+        executable = binary / "atrinik-server"
+        executable.write_text(
+            "#!/usr/bin/env python3\n"
+            "from pathlib import Path\n"
+            "import os\n"
+            "import sys\n"
+            "binary = Path(__file__).resolve()\n"
+            "counter = binary.with_name('worldmaker-count')\n"
+            "count = int(counter.read_text()) + 1 if counter.exists() else 1\n"
+            "counter.write_text(str(count))\n"
+            "binary.with_name('worldmaker-bytecode').write_text("
+            "os.environ.get('PYTHONDONTWRITEBYTECODE', ''))\n"
+            "assets = Path(next(arg.split('=', 1)[1] for arg in sys.argv "
+            "if arg.startswith('--assetspath=')))\n"
+            "output = assets / 'client-maps'\n"
+            "output.mkdir(parents=True)\n"
+            "(output / 'incuna_-1.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n')\n"
+            "(output / 'incuna_-1.def').write_text('pixel_size 4\\n')\n",
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+        for name in ("libplugin_arena.so", "libplugin_python.so"):
+            (binary / name).write_text("test\n", encoding="utf-8")
+        def invoke() -> tuple[int, str, str]:
+            stdout = io.StringIO()
+            # A real descriptor also captures child-process diagnostics.
+            with tempfile.TemporaryFile(mode="w+") as stderr:
+                with redirect_stdout(stdout), redirect_stderr(stderr):
+                    code = main(["dev", "build", "--profile", "default", "--json"])
+                stderr.seek(0)
+                return code, stdout.getvalue(), stderr.read()
+
+        collections = 0
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            nonlocal collections
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            collections += 1
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output, arguments[arguments.index("--source-commit") + 1], "content\n"
+            )
+            return ""
+
+        # Keep actual dev_build, build orchestration and all three producers;
+        # the fixture substitutes native compilation and the Classic-only gate.
+        selected = self.workspace._resolve_build_profile("default", {"server", "client"})
+        snapshot = SimpleNamespace(paths=lambda: selected)
+        with (
+            mock.patch("atrinik_workspace.cli.Workspace", return_value=self.workspace),
+            mock.patch.object(self.workspace, "close"),
+            mock.patch.object(self.workspace, "_require_classic_contracts"),
+            mock.patch.object(
+                self.workspace, "_resolved_profile_operation",
+                side_effect=lambda *args, **kwargs: nullcontext(snapshot),
+            ),
+            mock.patch.object(self.workspace, "_build_protocol"),
+            mock.patch.object(self.workspace, "_build_library"),
+            mock.patch.object(self.workspace, "_build_client"),
+            mock.patch.object(self.workspace, "_build_server") as build_server,
+            mock.patch("atrinik_workspace.workspace.run", side_effect=collect),
+        ):
+            for cache in ("refreshed", "reused"):
+                with self.subTest(cache=cache):
+                    code, stdout, stderr = invoke()
+                    self.assertEqual(code, 0, stderr)
+                    result = json.loads(stdout)
+                    self.assertEqual(result["schema_version"], 1)
+                    self.assertEqual(result["cache"]["inputs"], {
+                        "content": cache, "resources": cache, "region-maps": cache,
+                    })
+                    for producer in ("content:", "resources:", "region maps:"):
+                        self.assertIn(producer, stderr)
+            self.assertEqual(collections, 1)
+            self.assertEqual((binary / "worldmaker-count").read_text(), "1")
+
+            build_server.side_effect = WorkspaceError("synthetic compiler failure")
+            code, stdout, stderr = invoke()
+            self.assertEqual(code, 1)
+            self.assertEqual(stdout, "")
+            self.assertIn("content: cached", stderr)
+            self.assertIn("resources: cached", stderr)
+            self.assertIn("error: synthetic compiler failure", stderr)
+
     def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:
         source = self.workspace.paths.repositories / "server"
         (source / "tools").mkdir()
@@ -16574,6 +16886,280 @@ class WorkspaceTests(unittest.TestCase):
                     alternate._lease_root, [competing], nonblocking=True
                 ):
                     self.fail("relocated workspace acquired duplicate source lease")
+
+    def delivery_preparation_request(self, component="atrinik"):
+        if component == "atrinik":
+            primary = self.wrapper
+            repository = "atrinik/atrinik"
+        else:
+            checkout = self.workspace._resolve_checkout(component)
+            primary = self.workspace._primary_path(checkout)
+            repository = checkout.repository
+        owner, name = repository.split("/")
+        def identity(path):
+            status = path.stat()
+            return {"path": str(path), "device": status.st_dev, "inode": status.st_ino}
+        return {
+            "component": component, "physical_checkout": component,
+            "repository": {"owner": owner, "name": name},
+            "roots": {"wrapper": identity(self.wrapper), "primary": identity(primary)},
+        }
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_component_admission_holds_and_releases_leases(self) -> None:
+        self.delivery_preparation_fixture()
+        normal = Workspace(self.wrapper, backfill_references=False)
+        try:
+            source = normal.create_worktree("client", "prepared", "test/prepared", None, False)
+        finally:
+            normal.close()
+        request = self.delivery_preparation_request("client")
+        preparation = Workspace._prepare_delivery_workspace(
+            self.wrapper, manifest=self.workspace.manifest
+        )
+        self.addCleanup(preparation.close)
+        scope = {"name": "prepared", "profile": {"name": "prepared"}, "topology": {"name": "scope-prepared"}}
+        leases = preparation.plan_live_worktree(request, str(source), scope)
+        target = next(row for row in leases if row.kind == "source" and row.coordinate.startswith("client:"))
+        script = (
+            "from pathlib import Path; import sys; "
+            "from atrinik_workspace.locking import LeaseRequest,resource_locks; "
+            "request=LeaseRequest('source',sys.argv[2],'exclusive','competitor','retry'); "
+            "context=resource_locks(Path(sys.argv[1]),[request],nonblocking=True); "
+            "context.__enter__(); print('acquired'); context.__exit__(None,None,None)"
+        )
+        def competitor():
+            return subprocess.run(
+                [sys.executable, "-B", "-c", script, str(preparation.lease_root(target)), target.coordinate],
+                cwd=Path(__file__).resolve().parents[1], text=True, capture_output=True,
+                check=False, timeout=10,
+            )
+        with self.assertRaisesRegex(RuntimeError, "caller failure"):
+            with preparation.maintenance():
+                with resource_locks(preparation.lease_root, leases, nonblocking=True):
+                    with preparation.admitted() as admitted:
+                        self.assertIs(preparation.admitted_workspace, admitted)
+                        self.assertEqual(preparation.paths.repository, self.wrapper)
+                        self.assertNotEqual(competitor().returncode, 0)
+                        with self.assertRaisesRegex(WorkspaceError, "already admitted"):
+                            with preparation.admitted():
+                                self.fail("nested admission succeeded")
+                        self.assertIs(preparation.admitted_workspace, admitted)
+                        raise RuntimeError("caller failure")
+        self.assertEqual(competitor().returncode, 0)
+        with self.assertRaisesRegex(WorkspaceError, "not been admitted"):
+            _ = preparation.admitted_workspace
+        with preparation.maintenance(), resource_locks(preparation.lease_root, leases, nonblocking=True):
+            with preparation.admitted() as admitted:
+                self.assertEqual(admitted.paths.repository, self.wrapper)
+        bad = dict(request, physical_checkout="server")
+        with self.assertRaisesRegex(WorkspaceError, "checkout coordinates"):
+            preparation.plan_live_worktree(bad, str(source), scope)
+        preparation.close()
+        preparation.close()
+        with self.assertRaisesRegex(WorkspaceError, "closed"):
+            preparation.plan_live_worktree(request, str(source), scope)
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_legacy_and_current_records_are_read_only(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        record = namespace.parent / "atrinik-resource-leases.identity.json"
+        current = record.read_bytes()
+        status = namespace.stat()
+        legacy = json.dumps({"schema_version": 1, "device": status.st_dev, "inode": status.st_ino}).encode()
+        for raw in (legacy, current):
+            with self.subTest(schema=json.loads(raw)["schema_version"]):
+                record.write_bytes(raw)
+                before = record.stat()
+                preparation = Workspace._prepare_delivery_workspace(
+                    self.wrapper, manifest=self.workspace.manifest
+                )
+                try:
+                    requests = preparation.plan_live_worktree(
+                        self.delivery_preparation_request(), str(self.wrapper), None
+                    )
+                    with preparation.maintenance(), resource_locks(
+                        preparation.lease_root, requests, nonblocking=True
+                    ):
+                        with preparation.admitted():
+                            self.assertEqual(preparation._lease_namespace, namespace)
+                    self.assertEqual(record.read_bytes(), raw)
+                    self.assertEqual(record.stat().st_ino, before.st_ino)
+                    self.assertEqual(record.stat().st_mtime_ns, before.st_mtime_ns)
+                finally:
+                    preparation.close()
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_directory_and_same_byte_record_replacements_refuse(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        record = namespace.parent / "atrinik-resource-leases.identity.json"
+        preparation = Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        moved = namespace.with_name(namespace.name + ".retained")
+        namespace.rename(moved)
+        namespace.mkdir(mode=0o700)
+        replacement_inode = namespace.stat().st_ino
+        try:
+            with self.assertRaises(WorkspaceError):
+                preparation._verify_identity()
+            self.assertEqual(namespace.stat().st_ino, replacement_inode)
+        finally:
+            preparation.close()
+            namespace.rmdir()
+            moved.rename(namespace)
+        preparation = Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        raw = record.read_bytes()
+        replacement = record.with_suffix(".replacement")
+        replacement.write_bytes(raw)
+        replacement.chmod(0o600)
+        replacement.replace(record)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "identity changed during proof"):
+                preparation._verify_identity()
+            self.assertEqual(record.read_bytes(), raw)
+        finally:
+            preparation.close()
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_unsafe_records_and_namespace_refuse(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        record = namespace.parent / "atrinik-resource-leases.identity.json"
+        original = record.read_bytes()
+        for raw in (b"{}", b" " * 4097):
+            with self.subTest(raw_size=len(raw)):
+                record.write_bytes(raw)
+                with self.assertRaises(WorkspaceError):
+                    Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+                self.assertEqual(record.read_bytes(), raw)
+        record.write_bytes(original)
+        record.chmod(0o644)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "record is unsafe"):
+                Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        finally:
+            record.chmod(0o600)
+        linked = record.with_suffix(".hardlink")
+        os.link(record, linked)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "record is unsafe"):
+                Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        finally:
+            linked.unlink()
+        namespace.chmod(0o755)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "namespace is unsafe"):
+                Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        finally:
+            namespace.chmod(0o700)
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_short_read_and_named_record_race_refuse(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        record = namespace.parent / "atrinik-resource-leases.identity.json"
+        original = record.read_bytes()
+        preparation = Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        self.addCleanup(preparation.close)
+        real_read = os.read
+        with mock.patch.object(workspace_module.os, "read", side_effect=lambda fd, size: real_read(fd, size)[:-1]):
+            with self.assertRaisesRegex(WorkspaceError, "read was incomplete"):
+                preparation._verify_identity()
+        self.assertEqual(record.read_bytes(), original)
+        def replaced_after_read(descriptor, size):
+            raw = real_read(descriptor, size)
+            replacement = record.with_suffix(".replacement")
+            replacement.write_bytes(original)
+            replacement.chmod(0o600)
+            replacement.replace(record)
+            return raw
+        with mock.patch.object(workspace_module.os, "read", side_effect=replaced_after_read):
+            with self.assertRaisesRegex(WorkspaceError, "record changed"):
+                preparation._verify_identity()
+        self.assertEqual(record.read_bytes(), original)
+        preparation.close()
+        preparation = Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        self.addCleanup(preparation.close)
+        real_stat = os.stat
+        def replaced_before_named_stat(path, *arguments, **keywords):
+            if path == "atrinik-resource-leases.identity.json":
+                replacement = record.with_suffix(".replacement")
+                replacement.write_bytes(original)
+                replacement.chmod(0o600)
+                replacement.replace(record)
+            return real_stat(path, *arguments, **keywords)
+        with mock.patch.object(workspace_module.os, "stat", side_effect=replaced_before_named_stat):
+            with self.assertRaisesRegex(WorkspaceError, "record was replaced"):
+                preparation._verify_identity()
+        self.assertEqual(record.read_bytes(), original)
+
+    def delivery_preparation_fixture(self):
+        self.workspace.close()
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Tests", cwd=self.wrapper)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=self.wrapper)
+        command("git", "add", "components.json", cwd=self.wrapper)
+        command("git", "commit", "-m", "seed delivery preparation", cwd=self.wrapper)
+        self.workspace = Workspace(self.wrapper, backfill_references=False)
+        self.workspace.close()
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_preserves_constructor_and_limits_operations(self) -> None:
+        self.delivery_preparation_fixture()
+        original = workspace_module.resource_lifetime_reader
+        with mock.patch.object(workspace_module, "resource_lifetime_reader", wraps=original) as reader:
+            normal = Workspace(self.wrapper, backfill_references=False)
+            self.assertEqual(reader.call_count, 1)
+            normal.close()
+            preparation = Workspace._prepare_delivery_workspace(
+                self.wrapper, manifest=self.workspace.manifest
+            )
+            self.addCleanup(preparation.close)
+            self.assertEqual(reader.call_count, 1)
+            self.assertFalse(hasattr(preparation, "scope_create"))
+            self.assertFalse(hasattr(preparation, "build"))
+            with self.assertRaisesRegex(WorkspaceError, "not been admitted"):
+                _ = preparation.admitted_workspace
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_does_not_wait_for_wrapper_source_writer(self) -> None:
+        self.delivery_preparation_fixture()
+        request = self.workspace._lease_request(
+            "source", self.workspace._source_coordinate("atrinik", self.wrapper),
+            "exclusive", "external wrapper writer",
+        )
+        script = (
+            "from pathlib import Path; import sys; "
+            "from atrinik_workspace.model import Manifest; "
+            "from atrinik_workspace.workspace import Workspace; "
+            "root=Path(sys.argv[1]); "
+            "plan=Workspace._prepare_delivery_workspace(root,manifest=Manifest.load(root/'components.json')); "
+            "plan.close(); print('prepared without source admission')"
+        )
+        with resource_locks(self.workspace._lease_root, [request], nonblocking=True):
+            process = subprocess.run(
+                [sys.executable, "-B", "-c", script, str(self.wrapper)],
+                cwd=Path(__file__).resolve().parents[1], text=True, capture_output=True,
+                check=False, timeout=10,
+            )
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(process.stdout.strip(), "prepared without source admission")
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_never_creates_missing_identity(self) -> None:
+        self.delivery_preparation_fixture()
+        record = self.workspace._lease_namespace.parent / "atrinik-resource-leases.identity.json"
+        retained = record.with_suffix(".retained")
+        record.rename(retained)
+        try:
+            with self.assertRaises(FileNotFoundError):
+                Workspace._prepare_delivery_workspace(
+                    self.wrapper, manifest=self.workspace.manifest
+                )
+            self.assertFalse(record.exists())
+        finally:
+            retained.rename(record)
 
     def test_wrapper_worktrees_share_common_git_lease_namespace(self) -> None:
         self.workspace.close()

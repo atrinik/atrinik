@@ -10,10 +10,9 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
    [repository migration](references/repository-migration.md).
 2. Resolve each physical checkout and nearest `AGENTS.md`; keep code, tests,
    packages, and releases with their physical owners.
-3. Before repository work or expensive build/package/runtime/remote-mutation, consult
-   ignored `build/agent-process-improvements.md`. Run `./atrinik agent-ledger update`;
-   never manually edit ledgers. Report `Process improvements added: none` or keys/issues;
-   follow digest/lock/retry and coordinator handoff across separate filesystems.
+3. Process/tooling diagnostics are discretionary; skip routine ledger reads,
+   writes and status lines. If recording a useful observation, use
+   `./atrinik agent-ledger update`; reporting errors never block delivery.
 
 Checkouts are ignored repositories. One `classic` worktree holds five `classic-*`
 components; stacks share `content@main`. `content-1x` and former 1.x are historical

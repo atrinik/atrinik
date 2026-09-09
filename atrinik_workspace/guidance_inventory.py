@@ -406,9 +406,6 @@ def validate_process_improvement_ledger(root: Path | None = None) -> list[str]:
 
 
 def collect_inventory() -> dict[str, object]:
-    process_errors = validate_process_improvement_ledger()
-    if process_errors:
-        raise ValueError("; ".join(process_errors))
     root_guide = file_metrics(ROOT / "AGENTS.md")
     skills = []
     for path in sorted(SKILLS_ROOT.glob("*/SKILL.md")):
@@ -431,12 +428,16 @@ def collect_inventory() -> dict[str, object]:
     if multi is None:
         raise ValueError("missing atrinik-multi-repo-workspace skill")
     startup_bytes = root_guide.bytes + catalog_bytes
+    try:
+        process_present = process_improvement_ledger_path().exists()
+    except OSError:
+        process_present = None  # Optional diagnostic state could not be observed.
 
     return {
         "root_guide": asdict(root_guide),
         "process_improvements": {
             "path": PROCESS_IMPROVEMENT_LEDGER.as_posix(),
-            "present": process_improvement_ledger_path().exists(),
+            "present": process_present,
         },
         "skills": [asdict(skill) for skill in skills],
         "summary": {
@@ -492,6 +493,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Inventory wrapper agent guidance")
     parser.add_argument("--json", action="store_true", help="emit stable JSON")
     parser.add_argument("--check", action="store_true", help="enforce byte ceilings")
+    parser.add_argument(
+        "--diagnose-ledgers",
+        action="store_true",
+        help="report optional local ledger findings without affecting exit status",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -506,12 +512,20 @@ def main(argv: list[str] | None = None) -> int:
         print(render_text(inventory))
 
     failures = budget_failures(inventory) if args.check else []
-    tooling_failures = validate_tooling_ledger(ROOT) if args.check else []
     for failure in failures:
         print(f"guidance budget failed: {failure}", file=sys.stderr)
-    for failure in tooling_failures:
-        print(f'guidance tooling ledger failed: {failure}', file=sys.stderr)
-    return 1 if failures or tooling_failures else 0
+    if args.diagnose_ledgers:
+        for label, validator in (
+            ("process", validate_process_improvement_ledger),
+            ("tooling", validate_tooling_ledger),
+        ):
+            try:
+                findings = validator(ROOT)
+            except (OSError, UnicodeError, ValueError, subprocess.TimeoutExpired):
+                findings = ["could not inspect optional ledger"]
+            for finding in findings:
+                print(f"guidance {label} ledger diagnostic: {finding}", file=sys.stderr)
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":

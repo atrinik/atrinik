@@ -414,8 +414,10 @@ daemon. Its ignored state never substitutes for a leaf ownership ledger.
 ### Shared local agent ledgers
 
 The ignored `build/agent-process-improvements.md` and
-`build/agent-tooling-issues.md` files are local, human-readable workspace state.
-Update either one only through the wrapper's schema-aware transaction:
+`build/agent-tooling-issues.md` files are optional local, human-readable diagnostics. Routine reads, updates and
+response status lines are unnecessary; malformed files or reporting contention
+never block work, validation or PR readiness. Delivery ownership ledgers remain
+authoritative and retain their gates. Update either diagnostic only through the wrapper's schema-aware transaction:
 
 ~~~sh
 ./atrinik agent-ledger update --ledger tooling-issues \
