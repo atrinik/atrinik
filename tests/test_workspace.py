@@ -9239,6 +9239,128 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(stat.S_IMODE(regular.stat().st_mode), 0o644)
         self.assertEqual(stat.S_IMODE(executable.stat().st_mode), 0o755)
 
+    def test_classic_graphs_forward_captured_owner_identity(self) -> None:
+        shutil.copy2(
+            Path(__file__).resolve().parents[1] / "components.json",
+            self.wrapper / "components.json",
+        )
+        self.workspace.close()
+        self.workspace = Workspace(self.wrapper)
+        checkout = self.wrapper / "classic"
+        selected = {}
+        for role in ("client", "server", "protocol", "libatrinik"):
+            selected[role] = checkout / role
+            selected[role].mkdir(parents=True)
+            (selected[role] / "CMakeLists.txt").write_text(
+                "project(fixture NONE)\n", encoding="utf-8"
+            )
+        (checkout / "CMakeLists.txt").write_text("project(root NONE)\n", encoding="utf-8")
+        (checkout / "cmake").mkdir()
+        (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
+            'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n', encoding="utf-8"
+        )
+        for name in ("LICENSE.md", "ATTRIBUTIONS.md"):
+            (checkout / name).write_text("test-owned fixture\n", encoding="utf-8")
+        (selected["server"] / "install_data").mkdir()
+        selected["sound"] = self.wrapper / "sound"
+        profile = self.workspace._load_profile("classic", require_file=False)
+        identity = {"version": "5.68.0", "revision": "a" * 40, "dirty": "true"}
+        states = {"classic": {
+            "path": str(checkout), "head": "a" * 40, "dirty": True,
+            "package_identity": {
+                source: dict(identity)
+                for source in (".", "client", "server", "protocol", "libatrinik")
+            },
+        }}
+        # Standalone client VERSION may differ; integrated uses the root version.
+        states["classic"]["package_identity"]["client"]["version"] = "6.7.8"
+        self.workspace._profile_snapshot = workspace_module.ProfileResolutionSnapshot(
+            "classic", "identity-test", json.dumps(profile),
+            tuple((role, str(path.resolve())) for role, path in selected.items()),
+            json.dumps(states),
+        )
+        self.addCleanup(setattr, self.workspace, "_profile_snapshot", None)
+        root = self.workspace.paths.builds / "profiles" / "identity-graphs"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        stack = self.workspace.manifest.stack("classic")
+        with mock.patch.object(self.workspace, "_cmake") as cmake:
+            self.workspace._build_protocol(root, selected, False)
+            self.workspace._build_library(root, selected, False)
+            self.workspace._build_client(
+                root, selected, False, component=stack.providers["client"]
+            )
+            self.workspace._build_server(
+                root, selected, False, component=stack.providers["server"]
+            )
+            self.workspace._build_integrated_classic(root, selected, False)
+        self.assertEqual(cmake.call_count, 5)
+        for call, version in zip(cmake.call_args_list, ("5.68.0", "5.68.0", "6.7.8", "5.68.0", "5.68.0")):
+            with self.subTest(graph=call.args[1]):
+                arguments = call.args[2]
+                self.assertIn(f"-DATRINIK_PACKAGE_VERSION={version}", arguments)
+                self.assertIn(f"-DATRINIK_SOURCE_REVISION={'a' * 40}", arguments)
+                self.assertIn("-DATRINIK_SOURCE_DIRTY=true", arguments)
+
+    def test_classic_identity_snapshot_survives_primary_advancement(self) -> None:
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", self.wrapper / "components.json")
+        self.workspace.close()
+        self.workspace = Workspace(self.wrapper)
+        checkout = self.wrapper / "classic"
+        (checkout / "protocol").mkdir(parents=True)
+        (checkout / "cmake").mkdir()
+        (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
+            'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n', encoding="utf-8"
+        )
+        (checkout / "protocol" / "CMakeLists.txt").write_text(
+            "cmake_minimum_required(VERSION 3.20)\nproject(protocol NONE)\n",
+            encoding="utf-8",
+        )
+        command("git", "init", "-b", "main", cwd=checkout)
+        command("git", "config", "user.name", "Tests", cwd=checkout)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=checkout)
+        command("git", "add", ".", cwd=checkout)
+        command("git", "commit", "-m", "fixture", cwd=checkout)
+        command("git", "tag", "v5.68.0", cwd=checkout)
+        command("git", "remote", "add", "origin", "https://github.com/atrinik/classic.git", cwd=checkout)
+        owner_head = command("git", "rev-parse", "HEAD", cwd=checkout).strip()
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Tests", cwd=self.wrapper)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=self.wrapper)
+        command("git", "add", "components.json", cwd=self.wrapper)
+        command("git", "commit", "-m", "foreign wrapper", cwd=self.wrapper)
+        command("git", "tag", "v8.34.0", cwd=self.wrapper)
+        self.workspace.close()
+        self.workspace = Workspace(self.wrapper)
+        with self.workspace._resolved_profile_operation(
+            "classic", {"protocol"}, "build protocol",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["protocol"]
+            self.assertNotEqual(source, checkout / "protocol")
+            identity = snapshot.checkout_states()["classic"]["package_identity"]["protocol"]
+            self.assertEqual(identity, {
+                "version": "5.68.0", "revision": owner_head, "dirty": "false",
+            })
+            (checkout / "protocol" / "VERSION").write_text("6.7.8\n", encoding="utf-8")
+            command("git", "add", ".", cwd=checkout)
+            command("git", "commit", "-m", "advance physical owner", cwd=checkout)
+            expected = [
+                "-DATRINIK_PACKAGE_VERSION=5.68.0",
+                f"-DATRINIK_SOURCE_REVISION={owner_head}",
+                "-DATRINIK_SOURCE_DIRTY=false",
+            ]
+            self.assertEqual(self.workspace._classic_identity_arguments(source), expected)
+            root = self.workspace.paths.builds / "profiles" / "identity-snapshot"
+            managed_directory(root, self.workspace.paths.builds, "test-profile")
+            with mock.patch.object(self.workspace, "_cmake") as cmake:
+                self.workspace._build_protocol(root, snapshot.paths(), tests=False)
+            self.assertEqual(cmake.call_args.args[2], expected)
+            view = cmake.call_args.args[0]
+            self.assertEqual(load_json(view / SOURCE_VIEW_METADATA)["source_head"], owner_head)
+            direct = self.workspace._cmake_source_identity(source)
+            self.assertEqual(direct["source_generation"]["commit"], owner_head)
+            self.assertNotIn("git", direct)
+
     def test_mutable_cmake_view_copies_sealed_generated_sources(self) -> None:
         with self.workspace._resolved_profile_operation(
             "default",

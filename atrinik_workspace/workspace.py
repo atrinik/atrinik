@@ -5666,6 +5666,24 @@ class Workspace:
                 states = self._selected_checkout_states(
                     profile, selected, include_dirty=True, include_identity=True
                 )
+                if stack.name == "classic":
+                    for role in sorted(set(selected) & {
+                        "client", "server", "protocol", "libatrinik"
+                    }):
+                        component = stack.providers[role]
+                        state = states[component.checkout_name]
+                        identities = state.setdefault("package_identity", {})
+                        if "." not in identities:
+                            identities["."] = self._classic_package_identity(
+                                state["path"], state["path"],
+                                state["head"], state["dirty"],
+                            )
+                        identities[component.source] = (
+                            self._classic_package_identity(
+                                state["path"], selected[role],
+                                state["head"], state["dirty"],
+                            )
+                        )
                 released: set[str] = set()
                 if materialize_clean_primaries:
                     (
@@ -9881,19 +9899,24 @@ class Workspace:
             SOURCE_INCLUDE_VIEW_METADATA,
         }
         copied_directories = copied_directories or set()
-        mutable_copies = self._source_generation_record(source) is not None
-        try:
-            source_head: str | None = git(
-                source, "rev-parse", "HEAD", capture=True, trace=False
-            )
-            if not isinstance(source_head, str) or len(source_head) != 40 or any(
-                character not in "0123456789abcdef" for character in source_head
-            ):
-                raise WorkspaceError(f"invalid Git HEAD for source view: {source}")
-            source_clean: bool | None = _is_clean(source, trace=False)
-        except WorkspaceError:
-            source_head = None
-            source_clean = None
+        generation = self._source_generation_record(source)
+        mutable_copies = generation is not None
+        if generation is not None:
+            source_head: str | None = generation["commit"]
+            source_clean: bool | None = True
+        else:
+            try:
+                source_head: str | None = git(
+                    source, "rev-parse", "HEAD", capture=True, trace=False
+                )
+                if not isinstance(source_head, str) or len(source_head) != 40 or any(
+                    character not in "0123456789abcdef" for character in source_head
+                ):
+                    raise WorkspaceError(f"invalid Git HEAD for source view: {source}")
+                source_clean: bool | None = _is_clean(source, trace=False)
+            except WorkspaceError:
+                source_head = None
+                source_clean = None
         expected: dict[str, dict[str, Any]] = {}
         for entry in sorted(source.iterdir(), key=lambda path: path.name):
             if entry.name in exclusions:
@@ -11679,6 +11702,13 @@ class Workspace:
         }
 
     def _cmake_source_identity(self, source: Path) -> dict[str, Any]:
+        generation = self._source_generation_record(source)
+        if generation is not None:
+            return {
+                "path": str(source.resolve()),
+                "source_generation": generation,
+                "configure_skip_safe": True,
+            }
         source_metadata = source / SOURCE_VIEW_METADATA
         marker = source / MANAGED_MARKER
         builds = self.paths.builds.resolve()
@@ -11752,11 +11782,105 @@ class Workspace:
             identity["configure_skip_safe"] = False
         return identity
 
+    @staticmethod
+    def _classic_package_identity(
+        checkout: Path, source: Path, head: str, dirty: bool
+    ) -> dict[str, str]:
+        """Capture owner metadata while its selected source lease is held."""
+
+        environment = {
+            name: value for name, value in os.environ.items()
+            if not name.startswith("GIT_")
+        }
+        command = ["git", "--no-replace-objects", "-C", str(checkout)]
+        owner = Path(run(
+            [*command, "rev-parse", "--show-toplevel"],
+            capture=True, env=environment, trace=False,
+        )).resolve()
+        if owner != checkout.resolve() or not source.resolve().is_relative_to(owner):
+            raise WorkspaceError(f"Classic source is not owned by checkout: {source}")
+        revision = run(
+            [*command, "rev-parse", "--verify", f"{head}^{{commit}}"],
+            capture=True, env=environment, trace=False,
+        )
+        if revision != head or not re.fullmatch(r"[0-9a-f]{40,64}", revision):
+            raise WorkspaceError(f"invalid Classic source revision: {head}")
+        version = os.environ.get("ATRINIK_PACKAGE_VERSION", "")
+        if not version:
+            for path in (source / "VERSION", checkout / "VERSION"):
+                if path.is_file():
+                    lines = path.read_text(encoding="utf-8").splitlines()
+                    version = lines[0] if lines else ""
+                    if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
+                        raise WorkspaceError(f"invalid Classic package version in {path}")
+                    break
+        if not version:
+            try:
+                tag = run(
+                    [*command, "describe", "--tags", "--exact-match",
+                     "--match", "v[0-9]*", head],
+                    capture=True, env=environment, trace=False,
+                )
+                version = tag.removeprefix("v")
+            except WorkspaceError as error:
+                if not isinstance(error.__cause__, subprocess.CalledProcessError):
+                    raise
+                module = checkout / "cmake" / "AtrinikVersion.cmake"
+                try:
+                    text = module.read_text(encoding="utf-8")
+                except OSError as failure:
+                    raise WorkspaceError(
+                        f"cannot read Classic development version: {module}"
+                    ) from failure
+                match = re.search(
+                    r'set\(ATRINIK_DEVELOPMENT_VERSION\s+"([0-9]+\.[0-9]+\.[0-9]+)"\)',
+                    text,
+                )
+                if match is None:
+                    raise WorkspaceError(f"invalid Classic development version: {module}")
+                version = match[1]
+        if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
+            raise WorkspaceError(f"invalid Classic package version: {version}")
+        return {
+            "version": version,
+            "revision": revision,
+            "dirty": "true" if dirty else "false",
+        }
+
+    def _classic_identity_arguments(
+        self, source: Path, *, integrated: bool = False
+    ) -> list[str]:
+        snapshot = self._profile_snapshot
+        if snapshot is None or snapshot.profile()["stack"] != "classic":
+            return []
+        stack = self.manifest.stack("classic")
+        role = next((role for role, path in snapshot.paths().items()
+                     if path == source.resolve()), None)
+        if role is None:
+            raise WorkspaceError(f"Classic source is outside captured profile: {source}")
+        component = stack.providers[role]
+        state = snapshot.checkout_states()[component.checkout_name]
+        identity = state["package_identity"]["." if integrated else component.source]
+        generation = self._source_generation_record(source)
+        if generation is not None and (
+            generation["commit"] != identity["revision"]
+            or identity["dirty"] != "false"
+        ):
+            raise WorkspaceError(f"Classic generation identity changed: {source}")
+        return [
+            f"-DATRINIK_PACKAGE_VERSION={identity['version']}",
+            f"-DATRINIK_SOURCE_REVISION={identity['revision']}",
+            f"-DATRINIK_SOURCE_DIRTY={identity['dirty']}",
+        ]
+
     def _build_protocol(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
         source = self._mutable_cmake_source_view(
             root, "protocol", selected["protocol"]
         )
-        self._cmake(source, root / "build" / "protocol", [], tests)
+        self._cmake(
+            source, root / "build" / "protocol",
+            self._classic_identity_arguments(selected["protocol"]), tests,
+        )
 
     def _mutable_cmake_source_view(
         self, root: Path, role: str, source: Path
@@ -11887,6 +12011,7 @@ class Workspace:
             "-DENABLE_WARNING_ERRORS=ON",
             "-DPACKAGE_TYPE=none",
             "-DENABLE_PYTHON_PLUGIN=ON",
+            *self._classic_identity_arguments(selected["client"], integrated=True),
         ]
         if gpu_shader is not None:
             arguments.extend(self._gpu_shader_cmake_arguments(gpu_shader))
@@ -11917,6 +12042,7 @@ class Workspace:
             [
                 "-DENABLE_WARNING_ERRORS=ON",
                 f"-DATRINIK_PROTOCOL_SOURCE_DIR={protocol}",
+                *self._classic_identity_arguments(selected["libatrinik"]),
             ],
             tests,
         )
@@ -12049,6 +12175,7 @@ class Workspace:
             "-DPACKAGE_TYPE=none",
             f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
             f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
+            *self._classic_identity_arguments(selected["client"]),
         ]
         if gpu_shader is not None:
             arguments.extend(self._gpu_shader_cmake_arguments(gpu_shader))
@@ -12130,6 +12257,7 @@ class Workspace:
             "-DPACKAGE_TYPE=none",
             f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
             f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
+            *self._classic_identity_arguments(selected["server"]),
             "-DENABLE_PYTHON_PLUGIN=ON",
         ]
         if build_targets is None:
