@@ -13038,6 +13038,109 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(list(topology.iterdir()), [])
         self.assertEqual(external.read_text(encoding="utf-8"), "private\n")
 
+    def test_dev_build_json_cold_warm_and_failed_producers(self) -> None:
+        from atrinik_workspace.cli import main
+        from contextlib import redirect_stdout
+        from types import SimpleNamespace
+
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("test\n", encoding="utf-8")
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: add runtime inputs", cwd=source)
+
+        selected = self.workspace._resolve_build_profile("default", {"server", "client"})
+        key = self.workspace._profile_build_key("default", selected)
+        root = self.workspace.paths.builds / "profiles" / f"default-{key}"
+        managed_directory(root, self.workspace.paths.builds, f"profile:default:{key}")
+        binary = root / "build" / "server"
+        binary.mkdir(parents=True)
+        executable = binary / "atrinik-server"
+        executable.write_text(
+            "#!/usr/bin/env python3\n"
+            "from pathlib import Path\n"
+            "import os\n"
+            "import sys\n"
+            "binary = Path(__file__).resolve()\n"
+            "counter = binary.with_name('worldmaker-count')\n"
+            "count = int(counter.read_text()) + 1 if counter.exists() else 1\n"
+            "counter.write_text(str(count))\n"
+            "binary.with_name('worldmaker-bytecode').write_text("
+            "os.environ.get('PYTHONDONTWRITEBYTECODE', ''))\n"
+            "assets = Path(next(arg.split('=', 1)[1] for arg in sys.argv "
+            "if arg.startswith('--assetspath=')))\n"
+            "output = assets / 'client-maps'\n"
+            "output.mkdir(parents=True)\n"
+            "(output / 'incuna_-1.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n')\n"
+            "(output / 'incuna_-1.def').write_text('pixel_size 4\\n')\n",
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+        for name in ("libplugin_arena.so", "libplugin_python.so"):
+            (binary / name).write_text("test\n", encoding="utf-8")
+        def invoke() -> tuple[int, str, str]:
+            stdout = io.StringIO()
+            # A real descriptor also captures child-process diagnostics.
+            with tempfile.TemporaryFile(mode="w+") as stderr:
+                with redirect_stdout(stdout), redirect_stderr(stderr):
+                    code = main(["dev", "build", "--profile", "default", "--json"])
+                stderr.seek(0)
+                return code, stdout.getvalue(), stderr.read()
+
+        collections = 0
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            nonlocal collections
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            collections += 1
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output, arguments[arguments.index("--source-commit") + 1], "content\n"
+            )
+            return ""
+
+        # Keep actual dev_build, build orchestration and all three producers;
+        # the fixture substitutes native compilation and the Classic-only gate.
+        selected = self.workspace._resolve_build_profile("default", {"server", "client"})
+        snapshot = SimpleNamespace(paths=lambda: selected)
+        with (
+            mock.patch("atrinik_workspace.cli.Workspace", return_value=self.workspace),
+            mock.patch.object(self.workspace, "close"),
+            mock.patch.object(self.workspace, "_require_classic_contracts"),
+            mock.patch.object(
+                self.workspace, "_resolved_profile_operation",
+                side_effect=lambda *args, **kwargs: nullcontext(snapshot),
+            ),
+            mock.patch.object(self.workspace, "_build_protocol"),
+            mock.patch.object(self.workspace, "_build_library"),
+            mock.patch.object(self.workspace, "_build_client"),
+            mock.patch.object(self.workspace, "_build_server") as build_server,
+            mock.patch("atrinik_workspace.workspace.run", side_effect=collect),
+        ):
+            for cache in ("refreshed", "reused"):
+                with self.subTest(cache=cache):
+                    code, stdout, stderr = invoke()
+                    self.assertEqual(code, 0, stderr)
+                    result = json.loads(stdout)
+                    self.assertEqual(result["schema_version"], 1)
+                    self.assertEqual(result["cache"]["inputs"], {
+                        "content": cache, "resources": cache, "region-maps": cache,
+                    })
+                    for producer in ("content:", "resources:", "region maps:"):
+                        self.assertIn(producer, stderr)
+            self.assertEqual(collections, 1)
+            self.assertEqual((binary / "worldmaker-count").read_text(), "1")
+
+            build_server.side_effect = WorkspaceError("synthetic compiler failure")
+            code, stdout, stderr = invoke()
+            self.assertEqual(code, 1)
+            self.assertEqual(stdout, "")
+            self.assertIn("content: cached", stderr)
+            self.assertIn("resources: cached", stderr)
+            self.assertIn("error: synthetic compiler failure", stderr)
+
     def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:
         source = self.workspace.paths.repositories / "server"
         (source / "tools").mkdir()

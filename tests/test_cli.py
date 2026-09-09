@@ -739,6 +739,25 @@ class ParserTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "only server and client"):
             _parse_services("worker")
 
+    def test_dev_build_json_failure_exit_contract(self) -> None:
+        for error, expected_code, diagnostic in (
+            (WorkspaceError("build failed"), 1, "error: build failed"),
+            (OSError("output unavailable"), 1, "error: output unavailable"),
+            (KeyboardInterrupt(), 130, "interrupted"),
+        ):
+            with self.subTest(error=type(error).__name__):
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with (
+                    mock.patch("atrinik_workspace.cli.Workspace") as workspace_type,
+                    mock.patch("sys.stdout", stdout),
+                    mock.patch("sys.stderr", stderr),
+                ):
+                    workspace_type.return_value.dev_build.side_effect = error
+                    code = main(["dev", "build", "--json"])
+                self.assertEqual(code, expected_code)
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertEqual(stderr.getvalue(), diagnostic + "\n")
+
     def test_dev_build_dispatches_selective_incremental_controls(self) -> None:
         summary = {
             "schema_version": 1,
