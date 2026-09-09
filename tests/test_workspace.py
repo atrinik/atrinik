@@ -9312,8 +9312,14 @@ class WorkspaceTests(unittest.TestCase):
             'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n', encoding="utf-8"
         )
         (checkout / "protocol" / "CMakeLists.txt").write_text(
-            "cmake_minimum_required(VERSION 3.20)\nproject(protocol NONE)\n",
+            "cmake_minimum_required(VERSION 3.20)\n"
+            'include("${CMAKE_CURRENT_LIST_DIR}/../cmake/AtrinikVersion.cmake")\n'
+            'project(protocol VERSION "${ATRINIK_PACKAGE_VERSION}" LANGUAGES NONE)\n',
             encoding="utf-8",
+        )
+        (checkout / "protocol" / "cmake").mkdir()
+        (checkout / "protocol" / "cmake" / "LocalConfig.cmake.in").write_text(
+            "component-local template\n", encoding="utf-8"
         )
         command("git", "init", "-b", "main", cwd=checkout)
         command("git", "config", "user.name", "Tests", cwd=checkout)
@@ -9360,6 +9366,22 @@ class WorkspaceTests(unittest.TestCase):
             direct = self.workspace._cmake_source_identity(source)
             self.assertEqual(direct["source_generation"]["commit"], owner_head)
             self.assertNotIn("git", direct)
+            self.assertEqual(
+                (view / "cmake" / "LocalConfig.cmake.in").read_text(),
+                "component-local template\n",
+            )
+            shared = view.parent / "cmake"
+            self.assertTrue((shared / "AtrinikVersion.cmake").is_file())
+            self.assertEqual(load_json(shared / SOURCE_VIEW_METADATA)["source_head"], owner_head)
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_protocol(root, snapshot.paths(), tests=False)
+            self.assertTrue(self.workspace._source_view_unchanged[str(view.resolve())])
+            self.assertTrue(self.workspace._source_view_unchanged[str(shared.resolve())])
+            if shutil.which("cmake"):
+                command(
+                    "cmake", "-S", str(view), "-B", str(root / "configure-proof"),
+                    *expected, cwd=self.wrapper,
+                )
 
     def test_mutable_cmake_view_copies_sealed_generated_sources(self) -> None:
         with self.workspace._resolved_profile_operation(

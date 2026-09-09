@@ -11924,15 +11924,34 @@ class Workspace:
     ) -> Path:
         """Copy sealed generated CMake inputs whose tests mutate local fixtures."""
 
-        if self._source_generation_record(source) is None:
+        generation = self._source_generation_record(source)
+        if generation is None:
             return source
-        return self._profile_source_view(
+        includes = generation["source_includes"]
+        namespace = role if includes else ""
+        if namespace:
+            managed_directory(
+                root / "sources" / namespace, self.paths.builds,
+                f"source-closure:{role}",
+            )
+        view = self._profile_source_view(
             root,
-            role,
+            f"{namespace}/input" if namespace else role,
             source,
             set(),
             copy_all=True,
+            preserved_entries={SOURCE_INCLUDE_VIEW_METADATA},
         )
+        if includes:
+            component = next(
+                component for component in self.manifest.components
+                if component.checkout_name == generation["checkout"]
+                and component.source == generation["source"]
+            )
+            self._prepare_component_source_includes(
+                root, component, source, view, namespace=namespace
+            )
+        return view
 
     @staticmethod
     def _uses_integrated_classic_build(
@@ -12073,8 +12092,11 @@ class Workspace:
         protocol = self._mutable_cmake_source_view(
             root, "protocol", selected["protocol"]
         )
+        library = self._mutable_cmake_source_view(
+            root, "libatrinik", selected["libatrinik"]
+        )
         self._cmake(
-            selected["libatrinik"],
+            library,
             root / "build" / "libatrinik",
             [
                 "-DENABLE_WARNING_ERRORS=ON",
@@ -12085,7 +12107,8 @@ class Workspace:
         )
 
     def _prepare_component_source_includes(
-        self, root: Path, component: Component, source: Path, consumer: Path
+        self, root: Path, component: Component, source: Path, consumer: Path,
+        *, namespace: str = "",
     ) -> None:
         if not component.source_includes:
             return
@@ -12109,7 +12132,8 @@ class Workspace:
                 ) from error
             if stat.S_ISDIR(status.st_mode):
                 include_view = self._profile_source_view(
-                    root, include, include_source, set()
+                    root, f"{namespace}/{include}" if namespace else include,
+                    include_source, set()
                 )
                 include_key = str(include_view.resolve())
                 includes_unchanged = (
@@ -12125,7 +12149,7 @@ class Workspace:
                 }
             elif stat.S_ISREG(status.st_mode):
                 destination = root.joinpath(
-                    "sources", *PurePosixPath(include).parts
+                    "sources", namespace, *PurePosixPath(include).parts
                 )
                 expected_target = str(include_source)
                 link_unchanged = (
@@ -12133,7 +12157,7 @@ class Workspace:
                     and os.readlink(destination) == expected_target
                 )
                 self._source_view_link(
-                    root / "sources",
+                    root / "sources" / namespace,
                     include,
                     include_source,
                     target_is_directory=False,
