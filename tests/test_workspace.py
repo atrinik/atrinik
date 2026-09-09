@@ -3120,6 +3120,22 @@ class WorkspaceTests(unittest.TestCase):
                 recovered_record["tree"],
                 {nested_include: nested_object},
             )
+        command("git", "config", "--unset", "core.useReplaceRefs", cwd=classic)
+        self.assertEqual(
+            command("git", "show", "HEAD:LICENSE.md", cwd=classic),
+            "replacement license",
+        )
+        self.workspace._validate_source_generation_git_closure(
+            classic,
+            server_generation,
+            recovered_record["source_tree"],
+            recovered_record["tree"],
+            recovered_record["source_includes"],
+        )
+        self.assertEqual(
+            (server_generation / "LICENSE.md").read_text(encoding="utf-8"),
+            "test license\n",
+        )
 
     def test_source_generation_reuse_recovers_coherent_missing_git_entry(self) -> None:
         def resolve() -> Path:
