@@ -12453,7 +12453,10 @@ class Workspace:
                 fence()
                 item = os.stat(name, dir_fd=input_fd, follow_symlinks=False)
                 input_entry, output_entry = input_path / name, output_path / name
-                if client and name not in {"tools", "data", "src"}:
+                # Player-view inputs must resolve within this client root:
+                # manifests/settings/snapshots in src, interface/archdef in
+                # data, texture assets, and explicit plus default UI fonts.
+                if client and name not in {"tools", "data", "src", "textures", "fonts"}:
                     if stat.S_ISLNK(item.st_mode):
                         self._validate_source_symlink(input_entry, source)
                     elif not (stat.S_ISDIR(item.st_mode) or stat.S_ISREG(item.st_mode)):

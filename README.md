@@ -1171,9 +1171,9 @@ to pinned, no-follow generation directories. CMake dependencies that run
 mutation-based tests receive writable profile-local copies; the shared generation
 itself remains sealed. The immutable Classic client uses a private
 `client-layout` containing its client view and declared sibling inputs. Its
-provenance verifier receives copied tools, data, and fixtures plus the exact
-server dependency lock captured in the same generation; it never stages that
-lock into the server build view.
+provenance verifier receives copied tools, data, fixtures, textures, and fonts
+plus the exact server dependency lock captured in the same generation; it
+never stages that lock into the server build view.
 Consequently a long-running build from a Classic feature worktree does not
 block `sync --with classic` from advancing unrelated or snapshotted clean
 primaries. Dirty sources and selected worktrees remain live inputs and retain

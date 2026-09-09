@@ -9444,6 +9444,12 @@ class WorkspaceTests(unittest.TestCase):
             path = checkout / "client" / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(name + "\n", encoding="utf-8")
+        (checkout / "client" / "textures").mkdir()
+        (checkout / "client" / "textures" / "ui.xml").write_text(
+            '<font source="../fonts/ui.ttf"/>\n', encoding="utf-8"
+        )
+        (checkout / "client" / "fonts").mkdir()
+        (checkout / "client" / "fonts" / "ui.ttf").write_bytes(b"fixture font\n")
         (checkout / "client" / "CMakeLists.txt").write_text(
             "project(client NONE)\n", encoding="utf-8"
         )
@@ -9490,32 +9496,68 @@ class WorkspaceTests(unittest.TestCase):
             self.assertTrue((generation / "server" / "dependencies.lock.json").is_file())
             self.assertFalse((generation / "server" / "undeclared-input").exists())
             immutable_tool = source / "tools" / "tool"
+            immutable_texture = source / "textures" / "ui.xml"
+            immutable_font = source / "fonts" / "ui.ttf"
             immutable_before = (immutable_tool.read_bytes(), immutable_tool.stat().st_mtime_ns)
+            immutable_assets_before = {
+                path: (path.read_bytes(), path.stat().st_mtime_ns)
+                for path in (immutable_texture, immutable_font)
+            }
             component = self.workspace.manifest.stack("classic").providers["client"]
             with mock.patch.object(self.workspace, "_cmake"):
                 self.workspace._build_client(root, selected, False, component=component)
             view = root / "sources" / "client-layout" / "client"
             lock = root / "sources" / "client-layout" / "server" / "dependencies.lock.json"
             self.assertTrue((root / "sources" / "client-layout" / MANAGED_MARKER).is_file())
-            for name in ("tools", "data", "src"):
+            for name in ("tools", "data", "src", "textures", "fonts"):
                 self.assertTrue((view / name).is_dir())
                 self.assertFalse((view / name).is_symlink())
+            self.assertEqual(
+                (view / "textures" / "ui.xml").read_text(encoding="utf-8"),
+                '<font source="../fonts/ui.ttf"/>\n',
+            )
+            self.assertEqual((view / "fonts" / "ui.ttf").read_bytes(), b"fixture font\n")
             self.assertTrue((view / "CMakeLists.txt").is_symlink())
             self.assertTrue(lock.is_file())
             self.assertFalse(lock.is_symlink())
             self.assertEqual(lock.read_text(encoding="utf-8"), '{"lock":"one"}\n')
             self.assertFalse((root / "sources" / "server").exists())
             copied_mtime = (view / "tools" / "tool").stat().st_mtime_ns
+            copied_assets_mtime = {
+                name: (view / name).stat().st_mtime_ns
+                for name in ("textures/ui.xml", "fonts/ui.ttf")
+            }
             with mock.patch.object(self.workspace, "_cmake"):
                 self.workspace._build_client(root, selected, False, component=component)
             self.assertEqual((view / "tools" / "tool").stat().st_mtime_ns, copied_mtime)
+            self.assertEqual(
+                {
+                    name: (view / name).stat().st_mtime_ns
+                    for name in ("textures/ui.xml", "fonts/ui.ttf")
+                },
+                copied_assets_mtime,
+            )
             self.assertTrue(self.workspace._source_view_unchanged[str(view)])
             (view / "tools" / "tool").write_text("tampered\n", encoding="utf-8")
+            (view / "textures" / "ui.xml").write_text("tampered\n", encoding="utf-8")
+            (view / "fonts" / "ui.ttf").write_bytes(b"tampered\n")
             with mock.patch.object(self.workspace, "_cmake"):
                 self.workspace._build_client(root, selected, False, component=component)
             self.assertEqual((view / "tools" / "tool").read_text(encoding="utf-8"), "tools/tool\n")
             self.assertEqual(
+                (view / "textures" / "ui.xml").read_text(encoding="utf-8"),
+                '<font source="../fonts/ui.ttf"/>\n',
+            )
+            self.assertEqual((view / "fonts" / "ui.ttf").read_bytes(), b"fixture font\n")
+            self.assertEqual(
                 (immutable_tool.read_bytes(), immutable_tool.stat().st_mtime_ns), immutable_before
+            )
+            self.assertEqual(
+                {
+                    path: (path.read_bytes(), path.stat().st_mtime_ns)
+                    for path in (immutable_texture, immutable_font)
+                },
+                immutable_assets_before,
             )
             server = self.workspace.manifest.stack("classic").providers["server"]
             (root / "runtime" / "content").mkdir(parents=True)
