@@ -1797,6 +1797,11 @@ class ReleasedSoundTests(unittest.TestCase):
                 (component_path / "tracked").write_text(
                     "fixture\n", encoding="utf-8"
                 )
+            cmake = classic / "cmake"
+            cmake.mkdir()
+            (cmake / "AtrinikVersion.cmake").write_text(
+                'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n', encoding="utf-8"
+            )
             heads: dict[str, str] = {}
             for checkout, path in (("classic", classic), ("sound", sound)):
                 path.mkdir(exist_ok=True)

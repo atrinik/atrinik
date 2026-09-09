@@ -86,6 +86,11 @@ class ScopeLifecycleTests(unittest.TestCase):
             (seed / component.source).mkdir(parents=True, exist_ok=True)
             (seed / component.source / ".keep").write_text("\n", encoding="utf-8")
         if checkout_name == "classic":
+            cmake = seed / "cmake"
+            cmake.mkdir()
+            (cmake / "AtrinikVersion.cmake").write_text(
+                'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n', encoding="utf-8"
+            )
             server = seed / "server"
             (server / "tools").mkdir()
             (server / "tools" / ".keep").write_text("\n", encoding="utf-8")
