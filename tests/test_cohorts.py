@@ -111,6 +111,20 @@ class CohortWorkspaceTests(unittest.TestCase):
         ).stdout.strip()
         return checkout, source, head
 
+    @staticmethod
+    def synthetic_classic_owner_git(
+        checkout: Path, *arguments: str, capture: bool = False, trace: bool = True
+    ) -> str:
+        if arguments == ("rev-parse", "HEAD"):
+            return "a" * 40
+        if arguments == (
+            "rev-parse", "--path-format=absolute", "--git-common-dir"
+        ):
+            return str(checkout)
+        if arguments == ("status", "--porcelain=v1", "--untracked-files=all"):
+            return ""
+        raise AssertionError(f"unexpected synthetic Classic Git probe: {arguments}")
+
     def test_plain_init_selects_only_default_cohort(self) -> None:
         with mock.patch.object(
             self.workspace, "_ensure_repository", return_value=self.wrapper
@@ -281,6 +295,11 @@ class CohortWorkspaceTests(unittest.TestCase):
                 "atrinik_workspace.workspace.git", return_value="a" * 40
             ),
             mock.patch("atrinik_workspace.workspace._is_clean", return_value=True),
+            mock.patch.object(
+                self.workspace,
+                "_classic_owner_git",
+                side_effect=self.synthetic_classic_owner_git,
+            ),
         ):
             default = self.workspace.topology_summary(
                 "default", "default", ["server", "client"]
@@ -516,12 +535,17 @@ class CohortWorkspaceTests(unittest.TestCase):
             ) as git,
             mock.patch(
                 "atrinik_workspace.workspace._is_clean", return_value=True
-            ) as clean,
+            ),
             mock.patch.object(
                 self.workspace,
                 "_git_common_directory",
                 return_value=self.wrapper / "classic",
             ),
+            mock.patch.object(
+                self.workspace,
+                "_classic_owner_git",
+                side_effect=self.synthetic_classic_owner_git,
+            ) as owner_git,
             mock.patch.object(
                 self.workspace,
                 "_classic_package_identity",
@@ -594,7 +618,6 @@ class CohortWorkspaceTests(unittest.TestCase):
         }
         self.assertTrue(
             {
-                self.wrapper / "classic",
                 self.wrapper / "content",
                 self.wrapper / "sound",
                 self.wrapper / "resources",
@@ -602,7 +625,17 @@ class CohortWorkspaceTests(unittest.TestCase):
             }
             <= head_roots
         )
-        self.assertGreater(clean.call_count, 0)
+        owner_git.assert_any_call(
+            self.wrapper / "classic", "rev-parse", "HEAD", capture=True, trace=False
+        )
+        owner_git.assert_any_call(
+            self.wrapper / "classic",
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=all",
+            capture=True,
+            trace=False,
+        )
 
     def test_dev_build_uses_full_paired_closure_and_selected_service_target(self) -> None:
         self.make_classic_build_profile(include_worker=False)
@@ -675,6 +708,11 @@ class CohortWorkspaceTests(unittest.TestCase):
                         self.workspace,
                         "_git_common_directory",
                         return_value=self.wrapper / "classic",
+                    ),
+                    mock.patch.object(
+                        self.workspace,
+                        "_classic_owner_git",
+                        side_effect=self.synthetic_classic_owner_git,
                     ),
                     mock.patch.object(
                         self.workspace,
@@ -833,6 +871,11 @@ class CohortWorkspaceTests(unittest.TestCase):
             mock.patch(
                 "atrinik_workspace.workspace._is_clean", return_value=True
             ),
+            mock.patch.object(
+                self.workspace,
+                "_classic_owner_git",
+                side_effect=self.synthetic_classic_owner_git,
+            ) as owner_git,
         ):
             self.workspace.set_profile(
                 "classic-review", "classic", "worktree", "review"
@@ -886,8 +929,9 @@ class CohortWorkspaceTests(unittest.TestCase):
             for call in git.call_args_list
             if call.args[1:] == ("rev-parse", "HEAD")
         }
-        self.assertTrue(
-            {worktree} <= head_roots
+        self.assertNotIn(worktree, head_roots)
+        owner_git.assert_any_call(
+            worktree, "rev-parse", "HEAD", capture=True, trace=False
         )
 
     def test_classic_component_source_rejects_symlinked_module(self) -> None:
@@ -1422,6 +1466,46 @@ class CohortWorkspaceTests(unittest.TestCase):
             identity,
             {"version": "5.68.0", "revision": head, "dirty": "false"},
         )
+
+    def test_classic_snapshot_captures_dirty_owner_despite_git_work_tree(self) -> None:
+        checkout, source, head = self.make_classic_identity_repository()
+        linked = self.root / "clean-linked-classic"
+        subprocess.run(
+            ["git", "worktree", "add", "-q", "-b", "clean-linked", str(linked), head],
+            cwd=checkout,
+            check=True,
+        )
+        (source / "source.txt").write_text("dirty owner\n", encoding="utf-8")
+        polluted_environment = os.environ | {"GIT_WORK_TREE": str(linked)}
+        ambient_status = subprocess.run(
+            ["git", "-C", str(checkout), "status", "--porcelain=v1"],
+            check=True,
+            capture_output=True,
+            env=polluted_environment,
+            text=True,
+        )
+        self.assertEqual(ambient_status.stdout, "")
+
+        with (
+            mock.patch.object(
+                self.workspace, "_selector_root", return_value=checkout
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_resolve_build_profile",
+                return_value={"client": source},
+            ),
+            mock.patch.dict(os.environ, {"GIT_WORK_TREE": str(linked)}),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "classic", {"client"}, "capture ambient Git selector"
+            ) as snapshot:
+                state = snapshot.checkout_states()["classic"]
+
+        self.assertEqual(state["head"], head)
+        self.assertTrue(state["dirty"])
+        self.assertEqual(state["package_identity"]["client"]["revision"], head)
+        self.assertEqual(state["package_identity"]["client"]["dirty"], "true")
 
     def test_classic_package_identity_rejects_invalid_or_foreign_versions(self) -> None:
         checkout, source, head = self.make_classic_identity_repository(version="invalid")

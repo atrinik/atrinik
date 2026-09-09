@@ -9786,9 +9786,10 @@ class Workspace:
             if component.checkout_name in states:
                 continue
             checkout = self._selector_root(profile, component).resolve()
+            owner_git = self._classic_owner_git if component.checkout_name == "classic" else git
             state: dict[str, Any] = {
                 "path": checkout,
-                "head": git(
+                "head": owner_git(
                     checkout,
                     "rev-parse",
                     "HEAD",
@@ -9798,7 +9799,14 @@ class Workspace:
             }
             if include_identity:
                 identity = checkout.stat()
-                git_common = self._git_common_directory(checkout, trace=False)
+                git_common = (
+                    Path(owner_git(
+                        checkout, "rev-parse", "--path-format=absolute", "--git-common-dir",
+                        capture=True, trace=False,
+                    )).resolve()
+                    if component.checkout_name == "classic"
+                    else self._git_common_directory(checkout, trace=False)
+                )
                 git_common_identity = git_common.stat()
                 state.update(
                     {
@@ -9811,7 +9819,10 @@ class Workspace:
                     }
                 )
             if include_dirty:
-                state["dirty"] = not _is_clean(checkout, trace=False)
+                state["dirty"] = bool(owner_git(
+                    checkout, "status", "--porcelain=v1", "--untracked-files=all",
+                    capture=True, trace=False,
+                ))
             states[component.checkout_name] = state
         if include_identity:
             for role in sorted(selected):
@@ -9877,6 +9888,27 @@ class Workspace:
                 )
         return targets
 
+    def _source_generation_provenance(self, source: Path) -> dict[str, Any] | None:
+        """Resolve a sealed source or declared include without ancestor Git discovery."""
+
+        generation = self._source_generation_record(source)
+        if generation is not None:
+            return generation
+        root = self.paths.builds / "source-generations"
+        try:
+            relative = source.relative_to(root)
+        except ValueError:
+            return None
+        if len(relative.parts) < 3:
+            return None
+        generation_root = root.joinpath(*relative.parts[:2])
+        generation = self._source_generation_record(generation_root / "source")
+        if generation is not None and relative.parts[2:] in {
+            PurePosixPath(include).parts for include in generation["source_includes"]
+        }:
+            return generation
+        raise WorkspaceError(f"source is outside immutable generation closure: {source}")
+
     def _profile_source_view(
         self,
         root: Path,
@@ -9899,7 +9931,7 @@ class Workspace:
             SOURCE_INCLUDE_VIEW_METADATA,
         }
         copied_directories = copied_directories or set()
-        generation = self._source_generation_record(source)
+        generation = self._source_generation_provenance(source)
         mutable_copies = generation is not None
         if generation is not None:
             source_head: str | None = generation["commit"]
@@ -11702,7 +11734,7 @@ class Workspace:
         }
 
     def _cmake_source_identity(self, source: Path) -> dict[str, Any]:
-        generation = self._source_generation_record(source)
+        generation = self._source_generation_provenance(source)
         if generation is not None:
             return {
                 "path": str(source.resolve()),
@@ -11783,26 +11815,33 @@ class Workspace:
         return identity
 
     @staticmethod
+    def _classic_owner_git(
+        checkout: Path, *arguments: str, capture: bool = False, trace: bool = True
+    ) -> str:
+        environment = {
+            name: value for name, value in os.environ.items()
+            if not name.startswith("GIT_")
+        }
+        return run(
+            ["git", "--no-replace-objects", "-C", str(checkout), *arguments],
+            capture=capture, trace=trace, env=environment,
+        )
+
+    @staticmethod
     def _classic_package_identity(
         checkout: Path, source: Path, head: str, dirty: bool
     ) -> dict[str, str]:
         """Capture owner metadata while its selected source lease is held."""
 
-        environment = {
-            name: value for name, value in os.environ.items()
-            if not name.startswith("GIT_")
-        }
-        command = ["git", "--no-replace-objects", "-C", str(checkout)]
-        owner = Path(run(
-            [*command, "rev-parse", "--show-toplevel"],
-            capture=True, env=environment, trace=False,
-        )).resolve()
+        def owner_git(*arguments: str) -> str:
+            return Workspace._classic_owner_git(
+                checkout, *arguments, capture=True, trace=False
+            )
+
+        owner = Path(owner_git("rev-parse", "--show-toplevel")).resolve()
         if owner != checkout.resolve() or not source.resolve().is_relative_to(owner):
             raise WorkspaceError(f"Classic source is not owned by checkout: {source}")
-        revision = run(
-            [*command, "rev-parse", "--verify", f"{head}^{{commit}}"],
-            capture=True, env=environment, trace=False,
-        )
+        revision = owner_git("rev-parse", "--verify", f"{head}^{{commit}}")
         if revision != head or not re.fullmatch(r"[0-9a-f]{40,64}", revision):
             raise WorkspaceError(f"invalid Classic source revision: {head}")
         version = os.environ.get("ATRINIK_PACKAGE_VERSION", "")
@@ -11816,10 +11855,8 @@ class Workspace:
                     break
         if not version:
             try:
-                tag = run(
-                    [*command, "describe", "--tags", "--exact-match",
-                     "--match", "v[0-9]*", head],
-                    capture=True, env=environment, trace=False,
+                tag = owner_git(
+                    "describe", "--tags", "--exact-match", "--match", "v[0-9]*", head
                 )
                 version = tag.removeprefix("v")
             except WorkspaceError as error:
