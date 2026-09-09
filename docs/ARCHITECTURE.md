@@ -51,8 +51,19 @@ configuration.
 generation, license, and initialization-cohort membership. A component names
 its checkout and a safe relative `source`, optional safe non-overlapping file
 or directory `source_includes`, plus provider roles, requirements, license,
-generation, and local build contract. Includes may be shared by components but
-cannot overlap a logical component source. The replacement/default and opt-in
+generation, and local build contract. Includes may be shared by components and
+may name a strict descendant of a
+peer component source in the same physical checkout. An include cannot equal
+or contain a component source, overlap its own source, or overlap another
+include in its closure. Source roots themselves remain disjoint. Both files
+and directories use the existing commit-bound, sealed closure validation;
+peer inputs are read-only dependencies, not additional component ownership.
+Build adapters must stage peer inputs in private layouts so reconciliation
+cannot modify a peer component's build view; the shared include-view helper
+rejects peer staging without such a namespace. The immutable client supplies
+this layout. Live client tools resolve inputs in their physical checkout and
+retain its source lease, without staging peer inputs into a build view. The
+replacement/default and opt-in
 classic cohorts contain physical checkout identities. The built-in `default`
 and `classic` profiles are coherent stacks of logical components rather than
 aliases for every manifest entry.

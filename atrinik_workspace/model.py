@@ -920,7 +920,6 @@ class Manifest:
             ):
                 if (
                     source_path == other_include
-                    or source_path in other_include.parents
                     or other_include in source_path.parents
                 ):
                     raise WorkspaceError(
@@ -942,7 +941,6 @@ class Manifest:
                     if (
                         include == other_source
                         or include in other_source.parents
-                        or other_source in include.parents
                     ):
                         raise WorkspaceError(
                             f"component source include overlaps a component source in "

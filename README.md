@@ -1157,8 +1157,10 @@ directly from their recorded Git blob IDs before validating the complete tree;
 then releases that primary's source lease before configure, compile, and tests.
 The manifest may give a logical component strict checkout-relative
 `source_includes` for shared sibling files or directories that its build reads
-outside the logical `source` directory. Those inputs are exported beside the
-logical source, enter the immutable generation key and authenticated closure
+outside the logical `source` directory, including narrowly declared files or
+directories below another component in the same checkout. Includes cannot
+equal or contain a component source, overlap their own source, or overlap
+each other. Those inputs are exported beside the logical source, enter the immutable generation key and authenticated closure
 digest, and are reproduced beside the component's build source view. The
 Classic client and server both declare the repository-root `cmake/` modules,
 license, and attributions this way, so their supported scoped builds retain
@@ -1167,7 +1169,11 @@ authoritative copy of each shared input. Archive publication retains its
 temporary descriptor, and extraction creates entries and applies modes relative
 to pinned, no-follow generation directories. CMake dependencies that run
 mutation-based tests receive writable profile-local copies; the shared generation
-itself remains sealed.
+itself remains sealed. The immutable Classic client uses a private
+`client-layout` containing its client view and declared sibling inputs. Its
+provenance verifier receives copied tools, data, and fixtures plus the exact
+server dependency lock captured in the same generation; it never stages that
+lock into the server build view.
 Consequently a long-running build from a Classic feature worktree does not
 block `sync --with classic` from advancing unrelated or snapshotted clean
 primaries. Dirty sources and selected worktrees remain live inputs and retain

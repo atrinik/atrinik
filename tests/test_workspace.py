@@ -59,6 +59,7 @@ from atrinik_workspace.workspace import (
     WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
     CONFIGURE_METADATA,
     RUNTIME_INPUT_METADATA,
+    SOURCE_INCLUDE_VIEW_METADATA,
     SOURCE_VIEW_METADATA,
     Workspace,
     _copy_regular_file as real_copy_regular_file,
@@ -2863,6 +2864,9 @@ class WorkspaceTests(unittest.TestCase):
         (classic / "server" / "install_data" / "bans").write_text(
             "", encoding="utf-8"
         )
+        (classic / "server" / "dependencies.lock.json").write_text(
+            "{}\n", encoding="utf-8"
+        )
         (classic / "cmake" / "AtrinikVersion.cmake").write_text(
             'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n'
             "\n"
@@ -2925,7 +2929,8 @@ class WorkspaceTests(unittest.TestCase):
         for role in ("client", "server"):
             self.assertEqual(
                 stack.providers[role].source_includes,
-                ("cmake", "LICENSE.md", "ATTRIBUTIONS.md"),
+                (("cmake", "LICENSE.md", "ATTRIBUTIONS.md", "server/dependencies.lock.json")
+                 if role == "client" else ("cmake", "LICENSE.md", "ATTRIBUTIONS.md")),
             )
 
         def prepare_runtime(root: Path, *_args: object) -> Path:
@@ -2962,15 +2967,25 @@ class WorkspaceTests(unittest.TestCase):
                         role, "classic", True, use_ccache=False
                     )
                     source_root = build_root / "sources"
-                    self.assertTrue(
-                        (source_root / "cmake" / "AtrinikVersion.cmake").is_file()
+                    closure_root = (
+                        source_root / "client-layout" if role == "client" else source_root
                     )
-                    self.assertTrue((source_root / "LICENSE.md").is_file())
+                    self.assertTrue(
+                        (closure_root / "cmake" / "AtrinikVersion.cmake").is_file()
+                    )
+                    self.assertTrue((closure_root / "LICENSE.md").is_file())
                     self.assertEqual(
-                        (source_root / "LICENSE.md").read_text(encoding="utf-8"),
+                        (closure_root / "LICENSE.md").read_text(encoding="utf-8"),
                         "test license\n",
                     )
-                    self.assertTrue((source_root / "ATTRIBUTIONS.md").is_file())
+                    self.assertTrue((closure_root / "ATTRIBUTIONS.md").is_file())
+                    if role == "client":
+                        self.assertEqual(
+                            (closure_root / "server" / "dependencies.lock.json").read_text(
+                                encoding="utf-8"
+                            ),
+                            "{}\n",
+                        )
                     if role == "server":
                         self.assertTrue(
                             (source_root / "server" / "install_data").stat().st_mode
@@ -9292,6 +9307,9 @@ class WorkspaceTests(unittest.TestCase):
         for name in ("LICENSE.md", "ATTRIBUTIONS.md"):
             (checkout / name).write_text("test-owned fixture\n", encoding="utf-8")
         (selected["server"] / "install_data").mkdir()
+        (selected["server"] / "dependencies.lock.json").write_text(
+            "{}\n", encoding="utf-8"
+        )
         selected["sound"] = self.wrapper / "sound"
         profile = self.workspace._load_profile("classic", require_file=False)
         identity = {"version": "5.68.0", "revision": "a" * 40, "dirty": "true"}
@@ -9412,6 +9430,195 @@ class WorkspaceTests(unittest.TestCase):
                     "cmake", "-S", str(view), "-B", str(root / "configure-proof"),
                     *expected, cwd=self.wrapper,
                 )
+
+    def test_immutable_client_layout_copies_declared_classic_closure_and_repairs(self) -> None:
+        shutil.copy2(
+            Path(__file__).resolve().parents[1] / "components.json",
+            self.wrapper / "components.json",
+        )
+        self.workspace.close()
+        checkout = self.wrapper / "classic"
+        for name in ("client", "server", "protocol", "libatrinik", "sound", "cmake"):
+            (checkout / name).mkdir(parents=True, exist_ok=True)
+        for name in ("tools/tool", "data/data", "src/source"):
+            path = checkout / "client" / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(name + "\n", encoding="utf-8")
+        (checkout / "client" / "CMakeLists.txt").write_text(
+            "project(client NONE)\n", encoding="utf-8"
+        )
+        (checkout / "server" / "CMakeLists.txt").write_text(
+            "project(server NONE)\n", encoding="utf-8"
+        )
+        (checkout / "server" / "install_data").mkdir()
+        (checkout / "server" / "dependencies.lock.json").write_text(
+            '{"lock":"one"}\n', encoding="utf-8"
+        )
+        (checkout / "server" / "undeclared-input").write_text(
+            "not captured\n", encoding="utf-8"
+        )
+        for name in ("protocol", "libatrinik"):
+            (checkout / name / "CMakeLists.txt").write_text(
+                f"project({name} NONE)\n", encoding="utf-8"
+            )
+        (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
+            'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n', encoding="utf-8"
+        )
+        for name in ("LICENSE.md", "ATTRIBUTIONS.md"):
+            (checkout / name).write_text("fixture\n", encoding="utf-8")
+        command("git", "init", "-b", "main", cwd=checkout)
+        command("git", "config", "user.name", "Tests", cwd=checkout)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=checkout)
+        command("git", "add", ".", cwd=checkout)
+        command("git", "commit", "-m", "classic fixture", cwd=checkout)
+        command("git", "tag", "v5.68.0", cwd=checkout)
+        command("git", "remote", "add", "origin", "https://github.com/atrinik/classic.git", cwd=checkout)
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Tests", cwd=self.wrapper)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=self.wrapper)
+        command("git", "add", "components.json", cwd=self.wrapper)
+        command("git", "commit", "-m", "wrapper fixture", cwd=self.wrapper)
+        self.workspace = Workspace(self.wrapper)
+        root = self.workspace.paths.builds / "profiles" / "client-layout"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        with self.workspace._resolved_profile_operation(
+            "classic", {"client", "server"}, "build client", materialize_clean_primaries=True,
+        ) as snapshot:
+            selected = snapshot.paths()
+            source = selected["client"]
+            generation = source.parent
+            self.assertTrue((generation / "server" / "dependencies.lock.json").is_file())
+            self.assertFalse((generation / "server" / "undeclared-input").exists())
+            immutable_tool = source / "tools" / "tool"
+            immutable_before = (immutable_tool.read_bytes(), immutable_tool.stat().st_mtime_ns)
+            component = self.workspace.manifest.stack("classic").providers["client"]
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_client(root, selected, False, component=component)
+            view = root / "sources" / "client-layout" / "client"
+            lock = root / "sources" / "client-layout" / "server" / "dependencies.lock.json"
+            self.assertTrue((root / "sources" / "client-layout" / MANAGED_MARKER).is_file())
+            for name in ("tools", "data", "src"):
+                self.assertTrue((view / name).is_dir())
+                self.assertFalse((view / name).is_symlink())
+            self.assertTrue((view / "CMakeLists.txt").is_symlink())
+            self.assertTrue(lock.is_file())
+            self.assertFalse(lock.is_symlink())
+            self.assertEqual(lock.read_text(encoding="utf-8"), '{"lock":"one"}\n')
+            self.assertFalse((root / "sources" / "server").exists())
+            copied_mtime = (view / "tools" / "tool").stat().st_mtime_ns
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_client(root, selected, False, component=component)
+            self.assertEqual((view / "tools" / "tool").stat().st_mtime_ns, copied_mtime)
+            self.assertTrue(self.workspace._source_view_unchanged[str(view)])
+            (view / "tools" / "tool").write_text("tampered\n", encoding="utf-8")
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_client(root, selected, False, component=component)
+            self.assertEqual((view / "tools" / "tool").read_text(encoding="utf-8"), "tools/tool\n")
+            self.assertEqual(
+                (immutable_tool.read_bytes(), immutable_tool.stat().st_mtime_ns), immutable_before
+            )
+            server = self.workspace.manifest.stack("classic").providers["server"]
+            (root / "runtime" / "content").mkdir(parents=True)
+            (root / "runtime" / "resources").mkdir()
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_server(root, selected, False, component=server)
+                self.workspace._build_client(root, selected, False, component=component)
+            self.assertTrue((root / "sources" / "server").is_dir())
+            self.assertTrue(self.workspace._source_view_unchanged[str(view)])
+            outside = self.root / "outside-client-layout"
+            outside.mkdir()
+            sentinel = outside / "sentinel"
+            sentinel.write_text("outside\n", encoding="utf-8")
+            layout = root / "sources" / "client-layout"
+            parked = layout.with_name("client-layout-parked")
+            real_fence = Workspace._client_layout_fence
+            swapped = False
+
+            def race_fence(path: Path, descriptor: int) -> None:
+                nonlocal swapped
+                if path == layout and not swapped:
+                    layout.rename(parked)
+                    layout.symlink_to(outside, target_is_directory=True)
+                    swapped = True
+                real_fence(path, descriptor)
+
+            with mock.patch.object(Workspace, "_client_layout_fence", side_effect=race_fence):
+                with self.assertRaisesRegex(WorkspaceError, "identity changed|unsafe"):
+                    self.workspace._build_client(root, selected, False, component=component)
+            self.assertTrue(swapped)
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "outside\n")
+
+    def test_peer_include_requires_private_namespace_and_live_client_does_not_stage_it(self) -> None:
+        self.workspace.manifest = Manifest.load(
+            Path(__file__).resolve().parents[1] / "components.json"
+        )
+        checkout = self.root / "classic-peer-input"
+        source = checkout / "client"
+        lock = checkout / "server" / "dependencies.lock.json"
+        source.mkdir(parents=True)
+        lock.parent.mkdir(parents=True)
+        lock.write_text('{"lock":"live"}\n', encoding="utf-8")
+        (checkout / "cmake").mkdir()
+        (checkout / "cmake" / "input").write_text("cmake\n", encoding="utf-8")
+        for name in ("LICENSE.md", "ATTRIBUTIONS.md"):
+            (checkout / name).write_text("fixture\n", encoding="utf-8")
+        (checkout / "server" / "declared-inputs").mkdir()
+        (checkout / "server" / "declared-inputs" / "input").write_text(
+            "directory\n", encoding="utf-8"
+        )
+        component = replace(
+            self.workspace.manifest.by_name["classic-client"],
+            source_includes=(
+                "cmake", "LICENSE.md", "ATTRIBUTIONS.md",
+                "server/dependencies.lock.json", "server/declared-inputs",
+            ),
+        )
+        root = self.workspace.paths.builds / "profiles" / "live-peer-input"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        consumer = root / "sources" / "client"
+        consumer.mkdir(parents=True)
+        sentinel = consumer / "sentinel"
+        sentinel.write_text("unchanged\n", encoding="utf-8")
+
+        with self.assertRaisesRegex(WorkspaceError, "private consumer namespace"):
+            self.workspace._prepare_component_source_includes(
+                root, component, source, consumer
+            )
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "unchanged\n")
+        self.assertFalse((root / "sources" / "server").exists())
+
+        self.workspace._prepare_component_source_includes(
+            root, component, source, consumer, live_peer_inputs=True
+        )
+        metadata = load_json(consumer / SOURCE_INCLUDE_VIEW_METADATA)
+        self.assertEqual(
+            metadata["entries"]["server/dependencies.lock.json"],
+            {"kind": "live-peer", "source": str(lock)},
+        )
+        self.assertEqual(
+            metadata["entries"]["server/declared-inputs"],
+            {"kind": "live-peer", "source": str(checkout / "server" / "declared-inputs")},
+        )
+        self.assertFalse((root / "sources" / "server").exists())
+
+        foreign = self.root / "foreign-checkout"
+        foreign.mkdir()
+        (foreign / "dependencies.lock.json").write_text(
+            '{"lock":"foreign"}\n', encoding="utf-8"
+        )
+        server = checkout / "server"
+        server.rename(checkout / "server-real")
+        server.symlink_to(foreign, target_is_directory=True)
+        unsafe_consumer = root / "sources" / "unsafe-client"
+        unsafe_consumer.mkdir()
+        unsafe_sentinel = unsafe_consumer / "sentinel"
+        unsafe_sentinel.write_text("unchanged\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "unsafe|symlink|identity"):
+            self.workspace._prepare_component_source_includes(
+                root, component, source, unsafe_consumer, live_peer_inputs=True
+            )
+        self.assertEqual(unsafe_sentinel.read_text(encoding="utf-8"), "unchanged\n")
+        self.assertFalse((root / "sources" / "server").exists())
 
     def test_mutable_cmake_view_copies_sealed_generated_sources(self) -> None:
         with self.workspace._resolved_profile_operation(
