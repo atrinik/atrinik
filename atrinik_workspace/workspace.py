@@ -3418,13 +3418,181 @@ class Workspace:
             expected[relative] = (mode, kind, object_id)
         return expected
 
+    @staticmethod
+    def _source_generation_lfs_pointers(
+        checkout: Path, entries: dict[bytes, tuple[bytes, bytes, bytes]]
+    ) -> dict[bytes, tuple[bytes, str, int]]:
+        """Resolve payload expectations from recorded Git blobs, not the checkout."""
+
+        objects = sorted({value[2] for value in entries.values()
+                          if value[0] in {b"100644", b"100755"}})
+        if not objects:
+            return {}
+
+        def batch(arguments: list[str], ids: list[bytes]) -> bytes:
+            try:
+                with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+                    return subprocess.run(
+                        ["git", "--no-replace-objects", "-C", str(checkout),
+                         "cat-file", *arguments],
+                        input=b"\n".join(ids) + b"\n", check=True,
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        timeout=60, **inheritance,
+                    ).stdout
+            except (OSError, subprocess.SubprocessError) as error:
+                raise WorkspaceError(
+                    "cannot inspect recorded Git LFS pointer objects"
+                ) from error
+
+        sizes: dict[bytes, int] = {}
+        lines = batch(["--batch-check"], objects).splitlines()
+        if len(lines) != len(objects):
+            raise WorkspaceError("invalid recorded Git blob inventory")
+        for expected, line in zip(objects, lines):
+            fields = line.split()
+            if (len(fields) != 3 or fields[0] != expected
+                    or fields[1] != b"blob" or not fields[2].isdigit()):
+                raise WorkspaceError("invalid recorded Git blob inventory")
+            sizes[expected] = int(fields[2])
+        small = [oid for oid in objects if sizes[oid] <= 1024]
+        pointers: dict[bytes, tuple[bytes, str, int]] = {}
+        for offset in range(0, len(small), 256):
+            chunk = small[offset:offset + 256]
+            data = batch(["--batch"], chunk)
+            cursor = 0
+            for oid in chunk:
+                end = data.find(b"\n", cursor)
+                header = oid + b" blob " + str(sizes[oid]).encode()
+                if end < 0 or data[cursor:end] != header:
+                    raise WorkspaceError("invalid recorded Git blob contents")
+                start = end + 1
+                payload = data[start:start + sizes[oid]]
+                cursor = start + sizes[oid] + 1
+                algorithm = hashlib.sha1 if len(oid) == 40 else hashlib.sha256
+                if (data[cursor - 1:cursor] != b"\n"
+                        or algorithm(b"blob " + str(len(payload)).encode()
+                                     + b"\0" + payload).hexdigest().encode() != oid):
+                    raise WorkspaceError("recorded Git blob identity changed")
+                if payload.startswith(b"version https://git-lfs.github.com/spec/"):
+                    match = re.fullmatch(
+                        rb"version https://git-lfs.github.com/spec/v1\n"
+                        rb"oid sha256:([0-9a-f]{64})\nsize (0|[1-9][0-9]*)\n",
+                        payload,
+                    )
+                    if match is None:
+                        raise WorkspaceError(
+                            "unsupported or malformed recorded Git LFS pointer; "
+                            "restore a canonical Git LFS v1 pointer before building"
+                        )
+                    pointers[oid] = (payload, match[1].decode(), int(match[2]))
+            if cursor != len(data):
+                raise WorkspaceError("unexpected recorded Git blob contents")
+        return {path: pointers[value[2]] for path, value in entries.items()
+                if value[0] in {b"100644", b"100755"} and value[2] in pointers}
+
+    @classmethod
+    def _hydrate_source_generation_lfs(
+        cls, checkout: Path, output: Path, object_id: str,
+        prefix: str | None, mode: bytes, kind: bytes,
+    ) -> None:
+        """Hydrate private staging only; final Git closure proof precedes sealing."""
+
+        entries = (cls._source_generation_git_entries(checkout, object_id)
+                   if kind == b"tree" else
+                   {b"": (mode, kind, object_id.encode())})
+        pointers = cls._source_generation_lfs_pointers(checkout, entries)
+        if not pointers:
+            return
+        environment = os.environ.copy()
+        environment.pop("GIT_LFS_SKIP_SMUDGE", None)
+        environment.pop("GIT_LFS_SKIP_DOWNLOAD_ERRORS", None)
+        root_fd = _open_directory_nofollow(
+            output, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW
+        )
+        try:
+            root_mount = _descriptor_mount_id(root_fd)
+            root_device = os.fstat(root_fd).st_dev
+        finally:
+            os.close(root_fd)
+        for relative, (pointer, oid, size) in pointers.items():
+            path = output
+            if prefix:
+                path = path.joinpath(*PurePosixPath(prefix).parts)
+            if relative:
+                path = path.joinpath(*PurePosixPath(os.fsdecode(relative)).parts)
+            parent_fd = _open_directory_nofollow(
+                path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW
+            )
+            descriptor: int | None = None
+            temporary_name: str | None = None
+            try:
+                before = os.stat(path.name, dir_fd=parent_fd, follow_symlinks=False)
+                if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
+                        or before.st_dev != root_device
+                        or _descriptor_mount_id(parent_fd) != root_mount):
+                    raise WorkspaceError(f"unsafe Git LFS staging file: {path}")
+                # Never truncate a name that an outside writer could swap or
+                # hard-link. Publish verified bytes through the pinned parent.
+                temporary_name = ".atrinik-lfs-" + os.urandom(16).hex()
+                descriptor = os.open(
+                    temporary_name,
+                    os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW,
+                    0o600, dir_fd=parent_fd,
+                )
+                opened = os.fstat(descriptor)
+                try:
+                    with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+                        subprocess.run(
+                            ["git", "--no-replace-objects", "-C", str(checkout),
+                             "-c", "lfs.fetchinclude=", "-c", "lfs.fetchexclude=",
+                             "lfs", "smudge"],
+                            input=pointer, stdout=descriptor, stderr=subprocess.PIPE,
+                            check=True, timeout=300, env=environment, **inheritance,
+                        )
+                except (OSError, subprocess.SubprocessError) as error:
+                    raise WorkspaceError(
+                        f"cannot hydrate Git LFS payload {os.fsdecode(relative)!r} "
+                        f"(sha256:{oid}); install Git LFS and fetch the required "
+                        "objects in the selected checkout, then retry"
+                    ) from error
+                os.lseek(descriptor, 0, os.SEEK_SET)
+                digest = hashlib.sha256()
+                observed = 0
+                while chunk := os.read(descriptor, 1024 * 1024):
+                    observed += len(chunk)
+                    digest.update(chunk)
+                after = os.fstat(descriptor)
+                visible = os.stat(path.name, dir_fd=parent_fd, follow_symlinks=False)
+                if (observed != size or after.st_size != size or digest.hexdigest() != oid
+                        or (visible.st_dev, visible.st_ino, visible.st_mode, visible.st_nlink,
+                            visible.st_size, visible.st_mtime_ns, visible.st_ctime_ns)
+                        != (before.st_dev, before.st_ino, before.st_mode, before.st_nlink,
+                            before.st_size, before.st_mtime_ns, before.st_ctime_ns)
+                        or (after.st_dev, after.st_ino) != (opened.st_dev, opened.st_ino)
+                        or after.st_nlink != 1):
+                    raise WorkspaceError(
+                        f"Git LFS payload hash/size verification failed for {path}; "
+                        "fetch the correct object in the selected checkout, then retry"
+                    )
+                os.fchmod(descriptor, stat.S_IMODE(before.st_mode))
+                os.replace(temporary_name, path.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+                temporary_name = None
+            finally:
+                if descriptor is not None:
+                    os.close(descriptor)
+                if temporary_name is not None:
+                    os.unlink(temporary_name, dir_fd=parent_fd)
+                os.close(parent_fd)
+
     @classmethod
     def _validate_source_generation_git_tree(
         cls, checkout: Path, source: Path, source_tree: str
-    ) -> None:
-        """Prove a materialized source has the recorded Git tree identity."""
+    ) -> dict[str, dict[str, Any]]:
+        """Prove Git identity and actual bytes; evidence expires with source leases."""
 
         expected = cls._source_generation_git_entries(checkout, source_tree)
+        pointers = cls._source_generation_lfs_pointers(checkout, expected)
+        payloads: dict[str, dict[str, Any]] = {}
 
         algorithm = hashlib.sha1 if len(source_tree) == 40 else hashlib.sha256
         actual: dict[bytes, tuple[bytes, bytes, bytes]] = {}
@@ -3522,9 +3690,11 @@ class Workspace:
                         digest = algorithm()
                         digest.update(f"blob {opened.st_size}\0".encode())
                         observed = 0
+                        payload_digest = hashlib.sha256()
                         while chunk := os.read(descriptor, 1024 * 1024):
                             observed += len(chunk)
                             digest.update(chunk)
+                            payload_digest.update(chunk)
                         if (
                             observed != opened.st_size
                             or changed(opened, os.fstat(descriptor))
@@ -3534,7 +3704,23 @@ class Workspace:
                                 f"reading: {display}"
                             )
                         mode = b"100755" if opened.st_mode & 0o111 else b"100644"
-                        value = (mode, b"blob", digest.hexdigest().encode())
+                        actual_oid = digest.hexdigest().encode()
+                        proof: dict[str, Any] = {
+                            "git_blob_oid": actual_oid.decode(), "mode": mode.decode(),
+                            "sha256": payload_digest.hexdigest(), "size": observed,
+                        }
+                        if relative in pointers:
+                            _pointer, lfs_oid, lfs_size = pointers[relative]
+                            if observed == lfs_size and payload_digest.hexdigest() == lfs_oid:
+                                actual_oid = expected[relative][2]
+                                proof.update(git_blob_oid=actual_oid.decode(), lfs_oid=lfs_oid)
+                            else:
+                                actual_oid = b"lfs-mismatch:" + payload_digest.hexdigest().encode()
+                            # A mismatch remains a mismatching Git blob until
+                            # both inventories and visible roots are proven.
+                            # Uncertainty must never authorize quarantine.
+                        payloads[os.fsdecode(relative)] = proof
+                        value = (mode, b"blob", actual_oid)
                     elif stat.S_ISLNK(status.st_mode):
                         target = os.fsencode(
                             os.readlink(entry_name, dir_fd=directory_fd)
@@ -3632,18 +3818,6 @@ class Workspace:
                     "immutable source generation changed between inventories: "
                     f"{source}"
                 )
-            if set(actual) != set(expected) or any(
-                actual[path][:2] != expected[path][:2]
-                or (
-                    actual[path][1] != b"tree"
-                    and actual[path][2] != expected[path][2]
-                )
-                for path in actual.keys() & expected.keys()
-            ):
-                raise _SourceGenerationCorrupt(
-                    "immutable source generation does not match its recorded "
-                    f"Git tree: {source}"
-                )
             visible_after = os.stat(
                 source.name,
                 dir_fd=parent_fd,
@@ -3663,6 +3837,18 @@ class Workspace:
                 raise WorkspaceError(
                     f"immutable source generation changed while reading: {source}"
                 )
+            if set(actual) != set(expected) or any(
+                actual[path][:2] != expected[path][:2]
+                or (
+                    actual[path][1] != b"tree"
+                    and actual[path][2] != expected[path][2]
+                )
+                for path in actual.keys() & expected.keys()
+            ):
+                raise _SourceGenerationCorrupt(
+                    "immutable source generation does not match its recorded "
+                    f"Git tree: {source}"
+                )
         except OSError as error:
             raise WorkspaceError(
                 f"cannot inspect immutable source generation {source}: {error}"
@@ -3674,6 +3860,7 @@ class Workspace:
                 os.close(parent_fd)
             if container_fd is not None:
                 os.close(container_fd)
+        return payloads
 
     @staticmethod
     def _quarantine_source_generation(
@@ -4302,13 +4489,22 @@ class Workspace:
         source_tree: str,
         root_tree: str,
         source_includes: dict[str, str],
-    ) -> None:
-        """Prove every materialized closure input has its recorded Git identity."""
+    ) -> dict[str, dict[str, Any]]:
+        """Return verified regular-file evidence relative to the generation root.
 
-        Workspace._validate_source_generation_boundary(generation)
-        Workspace._validate_source_generation_git_tree(
-            checkout, generation / "source", source_tree
-        )
+        The caller must retain its resolution/generation leases, copy through
+        stable descriptors and revalidate before publication. Returned hashes
+        record this observation only; they never authorize a later path reuse.
+        """
+
+        boundary = Workspace._validate_source_generation_boundary(generation)
+        corrupt_includes: list[str] = []
+        payloads = {
+            "source/" + path: proof
+            for path, proof in Workspace._validate_source_generation_git_tree(
+                checkout, generation / "source", source_tree
+            ).items()
+        }
         algorithm = hashlib.sha1 if len(root_tree) == 40 else hashlib.sha256
         for include, expected_object in sorted(source_includes.items()):
             try:
@@ -4374,9 +4570,12 @@ class Workspace:
                         "immutable source include does not match its recorded "
                         f"Git entry: {include_path}"
                     )
-                Workspace._validate_source_generation_git_tree(
-                    checkout, include_path, expected_object
-                )
+                payloads.update({
+                    include + "/" + path: proof
+                    for path, proof in Workspace._validate_source_generation_git_tree(
+                        checkout, include_path, expected_object
+                    ).items()
+                })
                 continue
             if (
                 not stat.S_ISREG(include_status.st_mode)
@@ -4388,6 +4587,9 @@ class Workspace:
                     f"Git entry: {include_path}"
                 )
 
+            pointers = Workspace._source_generation_lfs_pointers(
+                checkout, {relative: (mode, kind, object_id)}
+            )
             parent_fd: int | None = None
             descriptor: int | None = None
             try:
@@ -4429,20 +4631,31 @@ class Workspace:
                 digest = algorithm()
                 digest.update(f"blob {opened.st_size}\0".encode())
                 observed = 0
+                payload_digest = hashlib.sha256()
                 while chunk := os.read(descriptor, 1024 * 1024):
                     observed += len(chunk)
                     digest.update(chunk)
+                    payload_digest.update(chunk)
                 after = os.fstat(descriptor)
                 actual_mode = b"100755" if opened.st_mode & 0o111 else b"100644"
+                proof: dict[str, Any] = {
+                    "git_blob_oid": object_id.decode(), "mode": mode.decode(),
+                    "sha256": payload_digest.hexdigest(), "size": observed,
+                }
+                actual_oid = digest.hexdigest().encode()
+                if relative in pointers:
+                    _pointer, lfs_oid, lfs_size = pointers[relative]
+                    if observed == lfs_size and payload_digest.hexdigest() == lfs_oid:
+                        actual_oid = object_id
+                        proof["lfs_oid"] = lfs_oid
+                    else:
+                        actual_oid = b"lfs-mismatch:" + payload_digest.hexdigest().encode()
                 if (
                     observed != opened.st_size
                     or file_identity(opened) != file_identity(after)
-                    or actual_mode != mode
-                    or digest.hexdigest().encode() != object_id
                 ):
-                    raise _SourceGenerationCorrupt(
-                        "immutable source include does not match its recorded "
-                        f"Git entry: {include_path}"
+                    raise WorkspaceError(
+                        f"immutable source include changed while reading: {include_path}"
                     )
                 visible_after = os.stat(
                     include_path.name,
@@ -4453,6 +4666,9 @@ class Workspace:
                     raise WorkspaceError(
                         f"immutable source include changed while reading: {include_path}"
                     )
+                if actual_mode != mode or actual_oid != object_id:
+                    corrupt_includes.append(include)
+                payloads[include] = proof
             except WorkspaceError:
                 raise
             except OSError as error:
@@ -4464,7 +4680,16 @@ class Workspace:
                     os.close(descriptor)
                 if parent_fd is not None:
                     os.close(parent_fd)
-        Workspace._validate_source_generation_boundary(generation)
+        if Workspace._validate_source_generation_boundary(generation) != boundary:
+            raise WorkspaceError(
+                f"immutable source generation changed during closure proof: {generation}"
+            )
+        if corrupt_includes:
+            raise _SourceGenerationCorrupt(
+                "immutable source include does not match its recorded Git entry: "
+                + ", ".join(corrupt_includes)
+            )
+        return payloads
 
     def _materialize_primary_source(
         self,
@@ -4831,6 +5056,10 @@ class Workspace:
                     finally:
                         os.close(archive_descriptor)
                         archive_path.unlink(missing_ok=True)
+                    self._hydrate_source_generation_lfs(
+                        checkout, destination, archive_object, archive_prefix,
+                        archive_mode, archive_kind,
+                    )
                 current_checkout = checkout.stat()
                 current_source = source.stat()
                 current_git_common = self._git_common_directory(

@@ -2306,6 +2306,215 @@ class WorkspaceTests(unittest.TestCase):
         for checkout in ("sound", "libatrinik", "protocol"):
             self.assertEqual(states[checkout]["head"], prior_heads[checkout])
 
+    def source_lfs_fixture(self) -> tuple[Path, dict[str, bytes]]:
+        import struct
+        import wave
+        import zlib
+
+        checkout = self.workspace.paths.repositories / "client"
+        command("git", "lfs", "install", "--local", cwd=checkout)
+        (checkout / ".gitattributes").write_text(
+            "*.wav filter=lfs diff=lfs merge=lfs -text\n"
+            "*.png filter=lfs diff=lfs merge=lfs -text\n"
+        )
+        audio = io.BytesIO()
+        with wave.open(audio, "wb") as output:
+            output.setnchannels(1)
+            output.setsampwidth(2)
+            output.setframerate(8000)
+            output.writeframes(struct.pack("<8h", 0, 100, -100, 200, -200, 100, -100, 0))
+        def png_chunk(kind: bytes, data: bytes) -> bytes:
+            return (struct.pack(">I", len(data)) + kind + data
+                    + struct.pack(">I", zlib.crc32(kind + data)))
+        png = (b"\x89PNG\r\n\x1a\n"
+               + png_chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
+               + png_chunk(b"IDAT", zlib.compress(b"\0\xff\0\0"))
+               + png_chunk(b"IEND", b""))
+        files = {"background/tone.wav": audio.getvalue(), "images/pixel.png": png}
+        for name, data in files.items():
+            target = checkout / name
+            target.parent.mkdir(exist_ok=True)
+            target.write_bytes(data)
+        command("git", "add", ".gitattributes", *files, cwd=checkout)
+        command("git", "commit", "-m", "add real LFS media fixture", cwd=checkout)
+        return checkout, files
+
+    def resolve_lfs_fixture(self) -> Path:
+        with self.workspace._resolved_profile_operation(
+            "default", {"client"}, "verify LFS fixture", materialize_clean_primaries=True
+        ) as snapshot:
+            return snapshot.paths()["client"]
+
+    def test_source_generation_lfs_binary_cold_warm_and_export_proof(self) -> None:
+        import wave
+        checkout, files = self.source_lfs_fixture()
+        first = self.resolve_lfs_fixture()
+        self.assertEqual(self.resolve_lfs_fixture(), first)
+        record = self.workspace._source_generation_record(first)
+        proof = self.workspace._validate_source_generation_git_closure(
+            checkout, first.parent, record["source_tree"], record["tree"],
+            record["source_includes"],
+        )
+        for name, data in files.items():
+            self.assertEqual((first / name).read_bytes(), data)
+            pointer = command("git", "show", "HEAD:" + name, cwd=checkout)
+            self.assertTrue(pointer.startswith("version https://git-lfs.github.com/spec/v1"))
+            row = proof["source/" + name]
+            self.assertEqual(row["lfs_oid"], hashlib.sha256(data).hexdigest())
+            self.assertEqual(row["sha256"], row["lfs_oid"])
+            self.assertEqual(row["size"], len(data))
+            self.assertEqual(row["git_blob_oid"], command("git", "rev-parse", "HEAD:" + name, cwd=checkout))
+        with wave.open(str(first / "background/tone.wav"), "rb") as decoded:
+            self.assertEqual(decoded.getnframes(), 8)
+            self.assertEqual(len(decoded.readframes(8)), 16)
+
+    def source_lfs_includes_fixture(self) -> tuple[Path, dict[str, bytes], Path]:
+        checkout, files = self.source_lfs_fixture()
+        (checkout / "code").mkdir()
+        (checkout / "code/README").write_text("source subtree\n")
+        command("git", "add", "code", cwd=checkout)
+        command("git", "commit", "-m", "add source subtree", cwd=checkout)
+        manifest = self.workspace.manifest
+        component = replace(manifest.by_name["client"], source="code",
+                            source_includes=("background", "images/pixel.png"))
+        manifest.by_name["client"] = component
+        manifest.components = [component if row.name == "client" else row
+                               for row in manifest.components]
+        manifest.stack("default").providers["client"] = component
+        source = self.resolve_lfs_fixture()
+        return checkout, files, source
+
+    def test_source_generation_lfs_tree_and_blob_includes(self) -> None:
+        checkout, files, source = self.source_lfs_includes_fixture()
+        self.assertEqual(self.resolve_lfs_fixture(), source)
+        record = self.workspace._source_generation_record(source)
+        proof = self.workspace._validate_source_generation_git_closure(
+            checkout, source.parent, record["source_tree"], record["tree"],
+            record["source_includes"],
+        )
+        for name, payload in files.items():
+            self.assertEqual((source.parent / name).read_bytes(), payload)
+            self.assertEqual(proof[name]["sha256"], hashlib.sha256(payload).hexdigest())
+            self.assertEqual(proof[name]["lfs_oid"], proof[name]["sha256"])
+
+    def assert_lfs_parent_swap_is_not_quarantined(self, source: Path, target: Path) -> None:
+        target.chmod(0o600)
+        target.write_bytes(b"x" * target.stat().st_size)
+        target.chmod(0o444)
+        generation = source.parent
+        parked = generation.with_name(generation.name + "-test-parent-swap")
+        target_identity = (target.stat().st_dev, target.stat().st_ino)
+        real_read = os.read
+        real_pointers = Workspace._source_generation_lfs_pointers
+        armed = False
+        swapped = False
+        def classify_pointers(*args: object, **kwargs: object) -> object:
+            nonlocal armed
+            pointers = real_pointers(*args, **kwargs)
+            if pointers:
+                armed = True
+            return pointers
+        def swap_parent(descriptor: int, size: int) -> bytes:
+            nonlocal swapped
+            result = real_read(descriptor, size)
+            status = os.fstat(descriptor)
+            if armed and not swapped and (status.st_dev, status.st_ino) == target_identity:
+                generation.rename(parked)
+                swapped = True
+            return result
+        try:
+            with (
+                mock.patch.object(Workspace, "_source_generation_lfs_pointers", side_effect=classify_pointers),
+                mock.patch.object(workspace_module.os, "read", side_effect=swap_parent),
+                mock.patch.object(self.workspace, "_quarantine_source_generation") as quarantine,
+            ):
+                with self.assertRaises(WorkspaceError) as observed:
+                    self.resolve_lfs_fixture()
+                self.assertNotIsInstance(observed.exception, workspace_module._SourceGenerationCorrupt)
+                quarantine.assert_not_called()
+            self.assertTrue(armed, "the injection must reach authenticated LFS classification")
+            self.assertTrue(swapped)
+            self.assertTrue(parked.exists())
+        finally:
+            if parked.exists() and not generation.exists():
+                parked.rename(generation)
+        self.assertTrue(generation.exists())
+
+    def test_source_generation_lfs_tree_parent_swap_preserves_uncertainty(self) -> None:
+        self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        self.assert_lfs_parent_swap_is_not_quarantined(source, source / "background/tone.wav")
+
+    def test_source_generation_lfs_blob_include_parent_swap_preserves_uncertainty(self) -> None:
+        _checkout, _files, source = self.source_lfs_includes_fixture()
+        self.assert_lfs_parent_swap_is_not_quarantined(source, source.parent / "images/pixel.png")
+
+    def test_source_generation_lfs_pointer_bytes_are_not_hydrated_payload(self) -> None:
+        checkout, files = self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        target = source / "background/tone.wav"
+        target.chmod(0o600)
+        target.write_text(command("git", "show", "HEAD:background/tone.wav", cwd=checkout) + "\n")
+        target.chmod(0o444)
+        self.assertEqual(self.resolve_lfs_fixture(), source)
+        self.assertEqual(target.read_bytes(), files["background/tone.wav"])
+
+    def test_source_generation_lfs_corruption_cannot_forge_digest(self) -> None:
+        _checkout, files = self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        target = source / "background/tone.wav"
+        target.chmod(0o600)
+        target.write_bytes(b"x" * len(files["background/tone.wav"]))
+        target.chmod(0o444)
+        metadata = source.parent / workspace_module.SOURCE_GENERATION_METADATA
+        source.parent.chmod(0o700)
+        metadata.chmod(0o600)
+        record = load_json(metadata)
+        record["source_tree_sha256"] = _tree_digest(source, set(), bounded_symlinks=True, reject_hardlinks=True)
+        record["closure_tree_sha256"] = workspace_module._source_closure_digest(source.parent, ())
+        atomic_json(metadata, record)
+        metadata.chmod(0o444)
+        source.parent.chmod(0o500)
+        self.assertEqual(self.resolve_lfs_fixture(), source)
+        self.assertEqual(target.read_bytes(), files["background/tone.wav"])
+        self.assertTrue(any("staging-recovery_" in p.name for p in source.parent.parent.iterdir()))
+
+    def test_source_generation_lfs_missing_command_does_not_publish(self) -> None:
+        self.source_lfs_fixture()
+        real_run = subprocess.run
+        def missing_lfs(args: list[str], *rest: object, **kwargs: object):
+            if "lfs" in args and "smudge" in args:
+                raise FileNotFoundError("git-lfs")
+            return real_run(args, *rest, **kwargs)
+        with mock.patch.object(workspace_module.subprocess, "run", side_effect=missing_lfs):
+            with self.assertRaisesRegex(WorkspaceError, "install Git LFS"):
+                self.resolve_lfs_fixture()
+        container = self.workspace.paths.builds / "source-generations/client"
+        self.assertFalse(any(re.fullmatch("[0-9a-f]{64}", p.name) for p in container.iterdir()))
+
+    def test_source_generation_lfs_missing_and_corrupt_object_fail(self) -> None:
+        checkout, files = self.source_lfs_fixture()
+        data = files["background/tone.wav"]
+        oid = hashlib.sha256(data).hexdigest()
+        common = Path(command("git", "rev-parse", "--absolute-git-dir", cwd=checkout))
+        obj = common / "lfs/objects" / oid[:2] / oid[2:4] / oid
+        self.assertEqual(obj.read_bytes(), data)
+        command("git", "config", "lfs.url", "file:///missing-atrinik-lfs-fixture", cwd=checkout)
+        real_extract = self.workspace._extract_git_source_archive
+        for payload in (None, b"x" * len(data), data[:-1]):
+            with self.subTest(payload=payload):
+                obj.parent.mkdir(parents=True, exist_ok=True)
+                obj.write_bytes(data)
+                def lose_object(*args: object, **kwargs: object) -> None:
+                    real_extract(*args, **kwargs)
+                    if payload is None:
+                        obj.unlink(missing_ok=True)
+                    else:
+                        obj.write_bytes(payload)
+                with mock.patch.object(self.workspace, "_extract_git_source_archive", side_effect=lose_object):
+                    with self.assertRaisesRegex(WorkspaceError, "Git LFS payload|hydrate Git LFS"):
+                        self.resolve_lfs_fixture()
+
     def test_clean_primary_source_generation_reuses_and_recovers_corruption(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
