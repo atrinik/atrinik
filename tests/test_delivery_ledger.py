@@ -5017,12 +5017,31 @@ class DeliveryLedgerTests(unittest.TestCase):
                 worktree_slot["primitive_request"]["expected_head_sha"] = live_head
             return value
 
-        def install_bound(root: Path, live_base: Path) -> tuple[dict[str, object], object]:
+        def install_bound(
+            root: Path, live_base: Path, *, peer: bool = False
+        ) -> tuple[dict[str, object], object]:
             roots = live_roots(live_base, "atrinik")
             value = document(roots)
+            if peer:
+                peer_roots = live_roots(live_base / "peer", "classic")
+                companion = document(peer_roots)
+                retarget_repository(companion, repository("classic", "R_classic"))
+                for slot in companion["artifacts"]:
+                    slot["slot_id"] = "classic-" + slot["slot_id"]
+                    if slot["kind"] == "worktree":
+                        slot["primitive_request"].update(
+                            component="classic", physical_checkout="classic"
+                        )
+                value["targets"].extend(companion["targets"])
+                value["artifacts"] = sorted(
+                    value["artifacts"] + companion["artifacts"],
+                    key=lambda slot: slot["slot_id"],
+                )
+                value["actor"]["push_repository_node_ids"] = ["R_classic", "R_repo"]
+                value["authority"]["allowed"]["repositories"] = ["R_classic", "R_repo"]
             initial = ledger.create(root, value)
             worktree = next(
-                slot for slot in value["artifacts"] if slot["kind"] == "worktree"
+                slot for slot in value["artifacts"] if slot["slot_id"] == "worktree"
             )
             request = worktree["primitive_request"]
             assert request is not None
@@ -5041,6 +5060,20 @@ class DeliveryLedgerTests(unittest.TestCase):
                 safety,
                 **cas_arguments(initial),
             )
+            if peer:
+                current = ledger.inspect(root, initial.name)
+                request = next(
+                    slot["primitive_request"] for slot in value["artifacts"]
+                    if slot["slot_id"] == "classic-worktree"
+                )
+                worktree_list = worktree_list_bytes(request)
+                safety = safety_observation_bytes(
+                    request, worktree_list, producer_kind="primitive", producer_digest=None
+                )
+                ledger.bind_worktree_cas(
+                    root, current.name, "classic-worktree", worktree_list, safety,
+                    **cas_arguments(current),
+                )
             return value, ledger.inspect(root, initial.name)
 
         def live_pr(
@@ -5051,17 +5084,20 @@ class DeliveryLedgerTests(unittest.TestCase):
             draft: bool = True,
             base_branch: str | None = None,
             updated_at: str = "2026-08-14T18:00:00Z",
+            target_index: int = 0,
+            number: int = 500,
         ) -> dict[str, object]:
+            target = value["targets"][target_index]
+            repo = target["repository"]
             repository_value = {
-                "node_id": "R_repo",
-                "full_name": "atrinik/atrinik",
+                "node_id": repo["node_id"],
+                "full_name": f"{repo['owner']}/{repo['name']}",
             }
-            target = value["targets"][0]
             if head_sha is None:
                 head_sha = target["head"]["current_sha"]
             return {
-                "node_id": "P_issue_created",
-                "number": 500,
+                "node_id": "P_issue_created" if number == 500 else "P_classic_created",
+                "number": number,
                 "state": "open",
                 "draft": draft,
                 "user": {"node_id": "U_actor"},
@@ -5100,7 +5136,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 if tuple(arguments)[-1] == "user":
                     return {"node_id": "U_actor"}
                 endpoint = tuple(arguments)[-1]
-                if "/pulls/500" in endpoint:
+                if f"/pulls/{live['number']}" in endpoint:
                     return copy.deepcopy(live)
                 if "/comments?" in endpoint:
                     page = int(endpoint.rsplit("page=", 1)[1])
@@ -5155,6 +5191,46 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(repeated["classification"], "bound-match")
             self.assertEqual(bound.document["generation"], 3)
             self.assertEqual(bound.document["selected_prs"][0]["node_id"], "P_issue_created")
+
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
+            value, bound = install_bound(root, Path(live_temporary), peer=True)
+            with mock.patch.object(
+                ledger, "_gh_json", side_effect=gh_observer(
+                    live_pr(value, target_index=1, number=501)
+                ),
+            ):
+                ledger.bind_pr_cas(
+                    root, bound.name, "classic-pull-request", 501, **cas_arguments(bound)
+                )
+            predecessor = ledger.inspect(root, bound.name)
+            existing = copy.deepcopy(predecessor.document["selected_prs"])
+            before = directory_snapshot(root)
+            with mock.patch.object(
+                ledger, "_gh_json", side_effect=gh_observer(live_pr(value, body=b"wrong body")),
+            ), self.assertRaises(ledger.LedgerError):
+                ledger.bind_pr_cas(
+                    root, bound.name, "pull-request", 500, **cas_arguments(predecessor)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(live_pr(value))):
+                result = ledger.bind_pr_cas(
+                    root, bound.name, "pull-request", 500, **cas_arguments(predecessor)
+                )
+                current = ledger.inspect(root, bound.name)
+                after = directory_snapshot(root)
+                repeated = ledger.bind_pr_cas(
+                    root, bound.name, "pull-request", 500, **cas_arguments(current)
+                )
+            self.assertEqual(result["classification"], "bind-exact")
+            self.assertEqual(repeated["classification"], "bound-match")
+            self.assertEqual(directory_snapshot(root), after)
+            self.assertEqual(
+                [pull["repository"]["name"] for pull in current.document["selected_prs"]],
+                ["atrinik", "classic"],
+            )
+            self.assertEqual(current.document["selected_prs"][1:], existing)
+            self.assertEqual(current.document["authority"], predecessor.document["authority"])
 
         def reject_live_drift(label: str, *, head_sha: str | None = None, body: bytes = INITIAL_PR_BODY) -> None:
             with self.subTest(rejected=label), tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
