@@ -95,6 +95,17 @@ report requires explicit bundled providers, materialized SONAME filenames and
 host libraries, and rejects incompatible objects or escaping search paths.
 The producer must configure the reported loader library directories explicitly.
 
+Version definitions are parsed with unique names/indexes and complete auxiliary
+parent/count records. Each bundled provider must define every version name its
+resolved consumers require; a same-SONAME replacement with missing definitions
+is rejected. BASE object names are not provided symbol versions. The report
+records checked requirements and leaves host-library requirements explicitly
+unverified, because their actual providers have not been inspected.
+`provider_version_names_verified` describes only this version-name comparison.
+It does not prove that individual symbols exist with the required versions;
+`symbol_versions_verified` remains false. No version comparison establishes
+source authority or replaces qualification against the actual host loader.
+
 This report does not prove source provenance, symbol-version compatibility,
 `dlopen` plugin closure, legal notices, or actual loader/hardware operation.
 The source owner must bind it to the same copied bytes under its active lease.

@@ -210,6 +210,99 @@ class LinuxExportTests(unittest.TestCase):
         with self.assertRaisesRegex(export.ExportError, "incompatible object ABI"):
             export.elf_dependency_report(objects, entrypoint="bin/client", host_libraries=frozenset({"libc.so.6"}))
 
+    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "ELF toolchain required")
+    def test_real_provider_versions_require_the_resolved_library(self) -> None:
+        source = self.root / "provider.c"
+        source.write_text("int value(void) { return 1; }\nint extra(void) { return 2; }\n")
+        script = self.root / "versions.map"
+        script.write_text("SAMPLE_1 { global: value; local: *; }; SAMPLE_2 { global: extra; } SAMPLE_1;\n")
+        library = self.root / "libsample.so"
+        command = ["cc", "-shared", "-fPIC", "-nostdlib", "-Wl,-soname,libsample.so", "-o", str(library), str(source)]
+        subprocess.run(command + ["-Wl,--version-script=" + str(script)], check=True)
+        consumer = self.root / "consumer.c"
+        consumer.write_text("extern int value(void); int use(void) { return value(); }\n")
+        binary = self.root / "consumer.so"
+        subprocess.run(["cc", "-shared", "-fPIC", "-nostdlib", "-o", str(binary), str(consumer),
+                        "-L" + str(self.root), "-lsample"], check=True)
+        with binary.open("rb") as stream:
+            client = export.inspect_elf(stream.fileno())
+        with library.open("rb") as stream:
+            provider = export.inspect_elf(stream.fileno())
+            raw_provider = export._readelf(stream.fileno())
+        self.assertEqual(provider["defined_versions"], ["SAMPLE_1", "SAMPLE_2"])
+        self.assertEqual(client["required_versions"], {"libsample.so": ["SAMPLE_1"]})
+        objects = {"bin/consumer.so": client, "lib/libsample.so": provider}
+        report = export.elf_dependency_report(objects, entrypoint="bin/consumer.so", host_libraries=frozenset())
+        self.assertTrue(report["provider_version_names_verified"])
+        self.assertFalse(report["symbol_versions_verified"])
+        self.assertEqual(report["checked_provider_versions"], {"bin/consumer.so": {"libsample.so": ["SAMPLE_1"]}})
+        # A version node is not proof that the required individual symbol exists.
+        source.write_text("int different(void) { return 1; }\n")
+        script.write_text("SAMPLE_1 { global: different; local: *; };\n")
+        subprocess.run(command + ["-Wl,--version-script=" + str(script)], check=True)
+        with library.open("rb") as stream:
+            objects["lib/libsample.so"] = export.inspect_elf(stream.fileno())
+        report = export.elf_dependency_report(objects, entrypoint="bin/consumer.so", host_libraries=frozenset())
+        self.assertTrue(report["provider_version_names_verified"])
+        self.assertFalse(report["symbol_versions_verified"])
+        for version_script in ["SAMPLE_2 { global: different; local: *; };\n", None]:
+            if version_script:
+                script.write_text(version_script)
+            subprocess.run(command + (["-Wl,--version-script=" + str(script)] if version_script else []), check=True)
+            with library.open("rb") as stream:
+                objects["lib/libsample.so"] = export.inspect_elf(stream.fileno())
+            # An unrelated library providing the name cannot satisfy this edge.
+            unrelated = dict(provider, soname="libunrelated.so")
+            objects["lib/libunrelated.so"] = unrelated
+            with self.assertRaisesRegex(export.ExportError, "libsample.so lacks required versions SAMPLE_1"):
+                export.elf_dependency_report(objects, entrypoint="bin/consumer.so", host_libraries=frozenset())
+        corruptions = [raw_provider.replace("Parent 1: SAMPLE_1", "Parent 2: SAMPLE_1"),
+                       raw_provider.replace("Parent 1: SAMPLE_1", "Parent 1: MISSING"),
+                       raw_provider.replace("Parent 1: SAMPLE_1", "Parent 1: SAMPLE_2"),
+                       raw_provider.replace("Parent 1: SAMPLE_1", ""),
+                       raw_provider.replace("Index: 3", "Index: 2"),
+                       raw_provider.replace("Name: SAMPLE_2", "Name: SAMPLE_1"),
+                       raw_provider.replace("contains 3 entries:", "contains 4 entries:"),
+                       raw_provider.replace("Rev: 1", "Rev: 2"),
+                       raw_provider.replace("Flags: BASE", "Flags: none"),
+                       raw_provider.replace("(VERDEFNUM)", "(IGNORED)"),
+                       raw_provider.replace("Version definition section", "Version unknown section")]
+        for text in corruptions:
+            self.assertNotEqual(text, raw_provider)
+            with self.subTest(text=text), library.open("rb") as stream, \
+                 mock.patch.object(export, "_readelf", return_value=text):
+                with self.assertRaises(export.ExportError):
+                    export.inspect_elf(stream.fileno())
+
+    def test_provider_version_metadata_cannot_be_omitted_or_forged(self) -> None:
+        consumer = {"class": "ELF64", "endianness": "little", "machine": "test", "needed": ["libsample.so"],
+                    "soname": None, "search_paths": [], "interpreter": None,
+                    "required_versions": {"libsample.so": ["SAMPLE_1"]}, "defined_versions": []}
+        provider = dict(consumer, needed=[], soname="libsample.so", required_versions={}, defined_versions=["SAMPLE_1"])
+        for definitions in [None, "SAMPLE_1", ["SAMPLE_1", "SAMPLE_1"], ["SAMPLE_1", {}]]:
+            with self.subTest(definitions=definitions), self.assertRaises(export.ExportError):
+                export.elf_dependency_report({"bin/client": consumer, "lib/libsample.so": dict(provider, defined_versions=definitions)},
+                                             entrypoint="bin/client", host_libraries=frozenset())
+        for requirements in [None, {"foreign.so": ["SAMPLE_1"]}, {"libsample.so": []},
+                             {"libsample.so": ["SAMPLE_1", "SAMPLE_1"]}, {"libsample.so": [3]}]:
+            with self.subTest(requirements=requirements), self.assertRaises(export.ExportError):
+                export.elf_dependency_report({"bin/client": dict(consumer, required_versions=requirements), "lib/libsample.so": provider},
+                                             entrypoint="bin/client", host_libraries=frozenset())
+        report = export.elf_dependency_report({"bin/client": consumer}, entrypoint="bin/client", host_libraries=frozenset({"libsample.so"}))
+        self.assertFalse(report["provider_version_names_verified"])
+        self.assertEqual(report["unverified_host_versions"], {"bin/client": {"libsample.so": ["SAMPLE_1"]}})
+        self.assertEqual(report["checked_provider_versions"], {})
+
+    def test_elf_descriptor_mutation_during_inspection_is_rejected(self) -> None:
+        payload = self.root / "changed-elf"
+        payload.write_bytes(b"\x7fELF")
+        def change(descriptor):
+            payload.write_bytes(b"different payload")
+            return ""
+        with payload.open("rb") as stream, mock.patch.object(export, "_readelf", side_effect=change):
+            with self.assertRaisesRegex(export.ExportError, "changed during inspection"):
+                export.inspect_elf(stream.fileno())
+
     def test_elf_reports_are_bounded_and_timed_out(self) -> None:
         real_popen = subprocess.Popen
         for source, message in [("import sys; sys.stdout.write('x'*4096)", "size limit"),

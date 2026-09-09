@@ -265,6 +265,66 @@ def _readelf(descriptor: int, *, timeout: float = 15) -> str:
             process.stdout.close()
 
 
+def _elf_version_definitions(text: str) -> list[str]:
+    """Validate GNU version definitions, including their auxiliary parent rows."""
+    definitions: dict[str, tuple[int, list[str]]] = {}
+    indexes: set[int] = set()
+    base_names: set[str] = set()
+    declared: int | None = None
+    current: str | None = None
+    active = False
+    for line in text.splitlines():
+        if line.startswith("Version "):
+            active = line.startswith("Version definition section ")
+            current = None
+            if active:
+                match = re.fullmatch(r"Version definition section '[^']+' contains ([0-9]+) entr(?:y|ies):", line)
+                if match is None or declared is not None or int(match[1]) < 1:
+                    raise ExportError("export-elf: malformed version-definition section")
+                declared = int(match[1])
+            continue
+        if not active or not line.strip():
+            continue
+        if re.fullmatch(r"\s*Addr: 0x[0-9a-f]+\s+Offset: 0x[0-9a-f]+\s+Link: [0-9]+ \([^()]+\)", line):
+            continue
+        match = re.fullmatch(
+            r"\s*[0-9a-fx]+: Rev: 1\s+Flags: (none|BASE|WEAK)\s+Index: ([0-9]+)"
+            r"\s+Cnt: ([0-9]+)\s+Name: ([A-Za-z0-9_.+-]+)", line)
+        if match:
+            flags, index, count, name = match[1], int(match[2]), int(match[3]), match[4]
+            if (index < 1 or index >= 32768 or index in indexes or count < 1
+                    or name in definitions or (flags == "BASE") != (index == 1)):
+                raise ExportError("export-elf: invalid version definition")
+            indexes.add(index)
+            definitions[name] = (count, [])
+            if flags == "BASE":
+                if count != 1:
+                    raise ExportError("export-elf: invalid base version definition")
+                base_names.add(name)
+            current = name
+            continue
+        match = re.fullmatch(r"\s*[0-9a-fx]+: Parent ([0-9]+): ([A-Za-z0-9_.+-]+)", line)
+        if match is None or current is None:
+            raise ExportError("export-elf: malformed version-definition record")
+        count, parents = definitions[current]
+        if (int(match[1]) != len(parents) + 1 or len(parents) >= count - 1
+                or match[2] == current or match[2] in parents):
+            raise ExportError("export-elf: invalid version-definition parent")
+        parents.append(match[2])
+    for count, parents in definitions.values():
+        if len(parents) != count - 1 or any(name not in definitions or name in base_names for name in parents):
+            raise ExportError("export-elf: incomplete version-definition parents")
+    dynamic = [line for line in text.splitlines() if "(VERDEFNUM)" in line]
+    match = re.fullmatch(r"\s*0x[0-9a-f]+\s+\(VERDEFNUM\)\s+([0-9]+)\s*", dynamic[0]) if len(dynamic) == 1 else None
+    if declared is None:
+        if dynamic:
+            raise ExportError("export-elf: missing version-definition section")
+    elif (declared != len(definitions) or match is None or int(match[1]) != declared):
+        raise ExportError("export-elf: incomplete version definitions")
+    # The BASE entry names the object itself, not a provided symbol version.
+    return sorted(definitions.keys() - base_names)
+
+
 def inspect_elf(descriptor: int) -> dict[str, object]:
     """Return structural ABI facts, never provenance or runtime qualification.
 
@@ -374,7 +434,8 @@ def inspect_elf(descriptor: int) -> dict[str, object]:
         raise ExportError("export-elf: missing version-needs section")
     return {"class": elf_class, "endianness": endian, "machine": machine,
             "type": kind, "interpreter": interpreter, "needed": needed,
-            "soname": soname, "search_paths": search_paths, "required_versions": versions}
+            "soname": soname, "search_paths": search_paths, "required_versions": versions,
+            "defined_versions": _elf_version_definitions(text)}
 
 
 def elf_dependency_report(objects: dict[str, dict[str, object]], *, entrypoint: str,
@@ -423,11 +484,38 @@ def elf_dependency_report(objects: dict[str, dict[str, object]], *, entrypoint: 
                 edges[path][needed] = "host:" + needed
             else:
                 raise ExportError("export-elf: unresolved dependency " + needed)
+    checked_versions: dict[str, dict[str, list[str]]] = {}
+    unverified_host_versions: dict[str, dict[str, list[str]]] = {}
+    for path, facts in objects.items():
+        requirements = facts.get("required_versions")
+        if not isinstance(requirements, dict):
+            raise ExportError("export-elf: missing version requirements")
+        for needed, versions in requirements.items():
+            if (needed not in edges[path] or not isinstance(versions, list) or not versions
+                    or any(not isinstance(version, str) or not re.fullmatch(r"[A-Za-z0-9_.+-]+", version) for version in versions)
+                    or len(set(versions)) != len(versions)):
+                raise ExportError("export-elf: invalid provider version requirements")
+            provider_path = edges[path][needed]
+            if needed in host_libraries:
+                unverified_host_versions.setdefault(path, {})[needed] = list(versions)
+                continue
+            definitions = objects[provider_path].get("defined_versions")
+            if (not isinstance(definitions, list)
+                    or any(not isinstance(version, str) or not re.fullmatch(r"[A-Za-z0-9_.+-]+", version) for version in definitions)
+                    or len(set(definitions)) != len(definitions)):
+                raise ExportError("export-elf: missing or invalid provider version definitions")
+            missing = sorted(set(versions) - set(definitions))
+            if missing:
+                raise ExportError("export-elf: provider " + needed + " lacks required versions " + ", ".join(missing))
+            checked_versions.setdefault(path, {})[needed] = list(versions)
     return {"schema_version": 1, "entrypoint": entrypoint,
             "abi": dict(zip(("class", "endianness", "machine"), signature)),
             "interpreter": objects[entrypoint]["interpreter"], "objects": objects,
             "dependencies": edges, "host_libraries": sorted(host_libraries),
             "loader_library_directories": list(library_directories),
+            "checked_provider_versions": checked_versions,
+            "unverified_host_versions": unverified_host_versions,
+            "provider_version_names_verified": not unverified_host_versions,
             "symbol_versions_verified": False,
             "dynamic_plugins_verified": False, "runtime_qualified": False}
 
