@@ -88,3 +88,7 @@ observations and criterion-by-criterion terminal evidence. Otherwise hand off
 the exact remaining closure action. Report delivered PRs and heads, acceptance,
 remaining gates, external owners, recovery root and next runnable lanes. Do not
 claim completion while only child counts or PR status look finished.
+
+For unchanged bound targets on reconnect, use the public
+`revalidate-current-targets-cas` exact-tuple proof in the issue-delivery
+ledger protocol; saved safety fields or generic CAS are not live lease proof.

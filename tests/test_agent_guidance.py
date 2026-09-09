@@ -43,6 +43,27 @@ def read_guidance_contract(path: Path) -> str:
 
 
 class AgentGuidanceTests(unittest.TestCase):
+    def test_same_head_reconnect_uses_public_neutral_proof(self) -> None:
+        issue = ROOT / ".agents/skills/atrinik-issue-delivery"
+        project = ROOT / ".agents/skills/atrinik-project-delivery"
+        for path in (
+            issue / "SKILL.md", issue / "references/preparation.md",
+            issue / "references/delivery-ledger.md",
+            project / "SKILL.md", project / "references/coordinator.md",
+        ):
+            with self.subTest(path=path):
+                self.assertIn("revalidate-current-targets-cas", path.read_text())
+        protocol = (issue / "references/delivery-ledger.md").read_text()
+        self.assertIn("--expected-generation GENERATION --expected-digest SHA256", protocol)
+        self.assertIn("--expected-device DEVICE --expected-inode INODE", protocol)
+        self.assertIn("original four-tuple", protocol)
+        self.assertIn("fresh actor and every target", protocol)
+        self.assertIn("unmerged candidate helper", protocol)
+        command_section = protocol.split("## Use the command surface", 1)[1].split("## ", 1)[0]
+        self.assertIn("revalidate-current-targets-cas REVIEW_ROOT LEDGER_NAME", command_section)
+        self.assertIn("[Revalidate every unchanged current target]", protocol)
+
+
     def test_current_provenance_registry_is_complete(self) -> None:
         registry = " ".join(
             (ROOT / "docs/PROVENANCE.md").read_text(encoding="utf-8").split()

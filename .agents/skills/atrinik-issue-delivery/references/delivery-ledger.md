@@ -15,6 +15,7 @@ the ownership and recovery boundary.
 - [Recover one exact live pre-bind topology mismatch](#recover-one-exact-live-pre-bind-topology-mismatch)
 - [Recover one exact pre-bind actor identity change](#recover-one-exact-pre-bind-actor-identity-change)
 - [Create, inspect, and update](#create-inspect-and-update)
+- [Revalidate every unchanged current target](#revalidate-every-unchanged-current-target)
 - [Bind a created PR](#bind-a-created-pr)
 - [Plan and recover body updates](#plan-and-recover-body-updates)
 - [Plan and recover comments](#plan-and-recover-comments)
@@ -84,6 +85,9 @@ python3 scripts/delivery_ledger.py cas REVIEW_ROOT LEDGER_NAME INPUT \
   --expected-inode INODE
 python3 scripts/delivery_ledger.py target-refresh-cas \
   REVIEW_ROOT LEDGER_NAME INPUT \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-device DEVICE --expected-inode INODE
+python3 scripts/delivery_ledger.py revalidate-current-targets-cas REVIEW_ROOT LEDGER_NAME \
   --expected-generation GENERATION --expected-digest SHA256 \
   --expected-device DEVICE --expected-inode INODE
 python3 scripts/delivery_ledger.py correct-target-head \
@@ -1997,8 +2001,8 @@ stop for code-level recovery; never improvise file repair.
 | `create` stage only, including a durable short prefix | Rerun exact `create` with byte-identical candidate. It completes the deterministic stage. |
 | `create` target plus two-link stage | Rerun exact `create`; it proves identical inode/bytes and removes only the stage link. |
 | `create` target only | `inspect`; exact create retry is idempotent. Different bytes stop. |
-| CAS stage before rename, including a durable short prefix | Rerun exact `cas` with the identical coordinate-neutral replacement and original four-part expected tuple. For a tagged target-coordinate stage, rerun exact `target-refresh-cas`; it must still pass the complete live Git/worktree proof before publication. |
-| CAS target already replaced with its update proof | Rerun the same command that created the exact replacement: `cas` for a coordinate-neutral receipt or `target-refresh-cas` for a tagged target-coordinate receipt. Use the identical replacement and four-part predecessor tuple; a bounded compact transaction keeps full generation/digest/device/inode metadata in its JSON receipt and a companion hard-link proof, while the legacy transaction encodes that identity in its proof name. The helper removes only the exact retained evidence without requiring the branch to remain frozen after publication. |
+| CAS stage before rename, including a durable short prefix | Rerun exact `cas` with the identical coordinate-neutral replacement and original four-part expected tuple. For a tagged neutral revalidation stage, rerun exact `revalidate-current-targets-cas` with the original tuple and fresh all-target/actor proofs. For a tagged target-coordinate stage, rerun exact `target-refresh-cas`; it must still pass the complete live Git/worktree proof before publication. |
+| CAS target already replaced with its update proof | Rerun the same command that created the exact replacement: `cas` for a coordinate-neutral receipt or `target-refresh-cas` for a tagged target-coordinate receipt. Use the identical replacement and four-part predecessor tuple; a bounded compact transaction keeps full generation/digest/device/inode metadata in its JSON receipt and a companion hard-link proof, while the legacy transaction encodes that identity in its proof name. The helper removes only the exact retained evidence. Existing generic/target-refresh receipts do not require the branch to remain frozen after publication; a tagged `revalidate-current-targets-cas` receipt instead always requires fresh all-target/actor proofs before consumption. |
 | Atomic worktree/scope bind interrupted at either CAS boundary | Rerun the identical `worktree-bind-cas` or `scope-bind-cas` with the same retained inputs and original four-part predecessor tuple, never generic `cas`. The helper freshly reproves live state before replacement and before accepting an installed post-rename receipt; drift preserves evidence and stops. |
 | Migration operation-digest plan/snapshot/report/prepared/ledger/complete boundary | Rerun exact `migrate` with identical null-migration candidate, kind, direct source name, and original source identity/digest. A different candidate or source cannot reuse even a short planned-stage prefix. |
 | Complete migration | `inventory` and `inspect`; require source/snapshot/marker/ledger coherence and no pending stage. |
@@ -2173,3 +2177,80 @@ project policy; never shorten it merely to clear inventory pressure.
 - Never merge, close issues, force-push, apply cleanup from issue delivery, or
   treat this local state machine as additional GitHub authority. Never infer
   post-merge release/archive authority from a delivery goal or ready PR.
+
+## Revalidate every unchanged current target
+
+After the existing canonical context, authenticated actor, live issue/PR and
+complete inventory checks, a same-owner delivery may prove clean unchanged
+current targets without changing an immutable initial worktree/scope request:
+
+```sh
+python3 scripts/delivery_ledger.py revalidate-current-targets-cas REVIEW_ROOT LEDGER_NAME --expected-generation GENERATION --expected-digest SHA256 --expected-device DEVICE --expected-inode INODE
+```
+
+There is no candidate file or caller safety assertion. The helper derives only
+generation+1, predecessor digest and digest-history append; every semantic
+field, target/artifact/resource identity, actor, authority and initial producer
+request remains unchanged. Every target requires its exact bound branch and
+worktree, including a scope-produced component after legitimate advancement.
+Planned PR slots are permitted; unbound or unsafe local resources are not.
+
+The helper retains all no-follow worktree/manifest/scope descriptors, prepares
+the complete lease set, deduplicates physical coordinates with strongest modes,
+then acquires layout barriers and all resource leases in deterministic rank
+order. It proves every target only after every lease is held, and repeats all
+local proofs around fresh actor checks immediately before the neutral CAS.
+Each proof uses its own scrubbed workspace environment. Exact local head/base
+refs and recomputed merge bases must match current recorded coordinates.
+This does not fetch refs or replace the live remote selection/PR refresh.
+
+Dirty, detached, locked, active, foreign, changed-head, changed-scope,
+incomplete-inventory, actor, context or lease failures refuse publication.
+Stored `check-reuse` flags and generic `cas` do not replace this proof.
+Actual coordinate advancement continues to use `target-refresh-cas`;
+initial worktree/scope binding still proves immutable initial requests.
+Never manufacture drift, edit a ledger, use private contexts as operator
+commands, or activate an unmerged candidate helper to establish authority.
+
+The operation has a distinct `-revalidate-targets` transaction type.
+After an interrupted staged or installed update, retry this same public
+command with the original four-tuple. Generic CAS or a newer tuple cannot
+consume its pending receipt. Installed retry reconstructs the exact neutral
+predecessor and verifies its digest plus the retained original inode receipt;
+the device must match the existing portable predecessor-inode projection or
+the current pinned review filesystem device, preserving raw-device compatibility;
+fresh actor and every target's live proof are required even when successor
+bytes are already installed. Missing, partial, mismatched or changed-state
+evidence fails closed. A compact receipt already removed with its exact
+hard-link proof retained is recoverable using that original tuple.
+
+After all receipt/proof files are consumed, a lost result cannot be recovered
+with the old tuple. Inspect the current snapshot; a fresh tuple may begin a
+new, independently live-proved neutral observation. Preserve pending evidence
+on refusal; the existing CAS may safely discard its exact uninstalled stage
+when a precommit safety recheck fails. No cleanup or ownership transfer is
+authorized by this operation.
+
+### Roll out the accepted helper to an existing multi-target delivery
+
+Only after this helper and its wrapper preparation API are actually merged,
+fast-forward the accepted wrapper primary to that exact merged main commit
+using the existing canonical preparation and Git authority checks. An older
+wrapper module refuses the new preparation API; do not bypass that refusal.
+
+That real primary update can change the local main ref beyond the ledger's
+recorded wrapper base. The neutral operation correctly refuses such drift.
+First follow the existing pre-refresh readiness/body/comment gates and use
+`target-refresh-cas` for exactly the wrapper target's actual base advancement:
+append the new base SHA to its lineage and recompute its merge base, preserving
+its current head, initial anchors, initial producer request, and all other
+targets. This existing operation permits one changed target within a
+multi-target ledger. If another physical repository's base independently
+changed, refresh that target separately with its own exact proof.
+
+Then use `revalidate-current-targets-cas` with the newly returned tuple to
+prove every unchanged current target together. For the preserved wrapper plus
+Classic case, Classic's target stays unchanged through the wrapper-only base
+refresh. This ordering uses actual merged base drift; it never fabricates a
+commit, rewrites an initial request, adopts another delivery, or treats a
+project scheduling action as lease authority.

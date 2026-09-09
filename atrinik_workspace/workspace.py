@@ -2342,6 +2342,188 @@ class _SourceGenerationCorrupt(WorkspaceError):
     """A conclusive mismatch that permits exact-owned generation recovery."""
 
 
+class _DeliveryWorkspacePreparation:
+    """Read-only planning surface; operational Workspace exists only while admitted."""
+
+    def __init__(self, workspace: "Workspace"):
+        self.__workspace = workspace
+        self.__admitted = False
+        self.__closed = False
+        self.__directories: dict[Path, int] = {}
+        self.__record: bytes | None = None
+        self.__record_identity: tuple[int, int, int, int] | None = None
+        try:
+            namespace = workspace._lease_namespace
+            for path in (workspace.paths.repository, namespace.parent, namespace):
+                self.__directories[path] = _open_directory_nofollow(
+                    path, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+                )
+            status = os.fstat(self.__directories[namespace])
+            if stat.S_IMODE(status.st_mode) != 0o700 or status.st_uid != os.geteuid():
+                raise WorkspaceError("delivery preparation namespace is unsafe")
+            workspace._physical_lease_namespace_identity = (status.st_dev, status.st_ino)
+            self._verify_identity()
+        except BaseException:
+            self.close()
+            raise
+
+    @property
+    def paths(self) -> Paths:
+        return self.__workspace.paths
+
+    @property
+    def _lease_namespace(self) -> Path:
+        return self.__workspace._lease_namespace
+
+    def _verify_identity(self) -> None:
+        if self.__closed:
+            raise WorkspaceError("delivery preparation is closed")
+        for path, descriptor in self.__directories.items():
+            opened = os.fstat(descriptor)
+            current = _open_directory_nofollow(
+                path, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+            )
+            try:
+                visible = os.fstat(current)
+            finally:
+                os.close(current)
+            if not stat.S_ISDIR(visible.st_mode) or (
+                opened.st_dev, opened.st_ino
+            ) != (visible.st_dev, visible.st_ino):
+                raise WorkspaceError("delivery preparation directory identity changed")
+        namespace = self.__workspace._lease_namespace
+        parent = self.__directories[namespace.parent]
+        descriptor = os.open(
+            "atrinik-resource-leases.identity.json",
+            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=parent,
+        )
+        try:
+            status = os.fstat(descriptor)
+            if (
+                not stat.S_ISREG(status.st_mode) or status.st_nlink != 1
+                or status.st_uid != os.geteuid() or stat.S_IMODE(status.st_mode) != 0o600
+                or status.st_size > 4096
+            ):
+                raise WorkspaceError("delivery preparation identity record is unsafe")
+            raw = os.read(descriptor, 4097)
+            after = os.fstat(descriptor)
+            if len(raw) != status.st_size:
+                raise WorkspaceError("delivery preparation identity read was incomplete")
+            identity = (status.st_dev, status.st_ino, status.st_size, status.st_ctime_ns)
+            if identity != (after.st_dev, after.st_ino, after.st_size, after.st_ctime_ns):
+                raise WorkspaceError("delivery preparation identity record changed")
+            visible = os.stat(
+                "atrinik-resource-leases.identity.json", dir_fd=parent,
+                follow_symlinks=False,
+            )
+            if (visible.st_dev, visible.st_ino) != (status.st_dev, status.st_ino):
+                raise WorkspaceError("delivery preparation identity record was replaced")
+            record = json.loads(raw, object_pairs_hook=_reject_duplicate_keys)
+            namespace_status = os.fstat(self.__directories[namespace])
+            if (
+                isinstance(record, dict)
+                and set(record) == {"schema_version", "device", "inode"}
+                and record["schema_version"] == 1
+            ):
+                valid = (record["device"], record["inode"]) == (
+                    namespace_status.st_dev, namespace_status.st_ino
+                )
+            elif (
+                isinstance(record, dict)
+                and set(record) == {"schema_version", "identity"}
+                and record["schema_version"] == LEASE_NAMESPACE_IDENTITY_SCHEMA_VERSION
+            ):
+                valid = identity_matches(record["identity"], namespace_status)
+            else:
+                valid = False
+            if not valid:
+                raise WorkspaceError("delivery preparation namespace identity differs")
+            if self.__record is None:
+                self.__record, self.__record_identity = raw, identity
+            elif (raw, identity) != (self.__record, self.__record_identity):
+                raise WorkspaceError("delivery preparation identity changed during proof")
+        finally:
+            os.close(descriptor)
+
+    def plan_live_worktree(self, request, path, scope_record):
+        """Return exact read-only checkout and lease planning facts."""
+
+        self._verify_identity()
+        workspace = self.__workspace
+        wrapper_self = (
+            request["component"] == "atrinik"
+            and request["physical_checkout"] == "atrinik"
+            and request["roots"]["primary"] == request["roots"]["wrapper"]
+        )
+        if wrapper_self:
+            admin = workspace._wrapper_git_admin_coordinate()
+        else:
+            checkout = workspace._resolve_checkout(request["component"])
+            if (
+                checkout.name != request["physical_checkout"]
+                or checkout.repository != (
+                    f"{request['repository']['owner']}/{request['repository']['name']}"
+                )
+                or str(workspace._primary_path(checkout)) != request["roots"]["primary"]["path"]
+            ):
+                raise WorkspaceError("delivery preparation checkout coordinates differ")
+            workspace._validate_checkout(
+                checkout, Path(request["roots"]["primary"]["path"]), trace=False
+            )
+            admin = workspace._git_admin_coordinate(
+                checkout, Path(request["roots"]["primary"]["path"])
+            )
+        rows = [
+            ("git-admin", admin, "shared"),
+            ("registry", "physical-references", "shared"),
+            ("source", workspace._source_coordinate(request["physical_checkout"], Path(path)), "exclusive"),
+            ("source", workspace._physical_source_coordinate(Path(path)), "exclusive"),
+            ("source", workspace._source_coordinate("atrinik", workspace.paths.repository), "shared"),
+        ]
+        if scope_record is not None:
+            rows.extend((
+                ("registry", f"scope:{scope_record['name']}", "shared"),
+                ("profile", scope_record["profile"]["name"], "shared"),
+                ("topology", scope_record["topology"]["name"], "shared"),
+            ))
+        return tuple(workspace._lease_request(*row, "delivery live proof") for row in rows)
+
+    def lease_root(self, request: LeaseRequest) -> Path:
+        return self.__workspace._lease_root(request)
+
+    def maintenance(self):
+        self._verify_identity()
+        return self.__workspace.command_maintenance()
+
+    @contextmanager
+    def admitted(self):
+        """Expose operations only within the helper's retained complete lease union."""
+
+        if self.__admitted:
+            raise WorkspaceError("delivery preparation is already admitted")
+        self._verify_identity()
+        self.__admitted = True
+        try:
+            yield self.__workspace
+            self._verify_identity()
+        finally:
+            self.__admitted = False
+
+    @property
+    def admitted_workspace(self) -> "Workspace":
+        if not self.__admitted or self.__closed:
+            raise WorkspaceError("delivery workspace has not been admitted")
+        return self.__workspace
+
+    def close(self) -> None:
+        self.__admitted = False
+        self.__closed = True
+        for descriptor in reversed(tuple(self.__directories.values())):
+            os.close(descriptor)
+        self.__directories.clear()
+        self.__workspace.close()
+
+
 class Workspace:
     def __init__(
         self,
@@ -2350,18 +2532,7 @@ class Workspace:
         backfill_references: bool = True,
         manifest: Manifest | None = None,
     ):
-        self.paths = Paths.discover(repository)
-        self.manifest = (
-            manifest
-            if manifest is not None
-            else Manifest.load(self.paths.repository / "components.json")
-        )
-        self._wrapper_lease: Any = None
-        self._build_state = threading.local()
-        self._prefix_map_support: dict[
-            tuple[str, str, str | None, str | None], bool
-        ] = {}
-        self._prefix_map_support_lock = threading.Lock()
+        self._initialize_fields(repository, manifest)
         repository_identity = self.paths.repository.stat()
         common_identity = self._lease_namespace.parent.stat()
         namespace_identity = self._establish_lease_namespace_identity()
@@ -2399,6 +2570,30 @@ class Workspace:
         self._physical_lease_namespace_identity = namespace_identity
         if backfill_references:
             self._backfill_physical_references()
+
+    def _initialize_fields(self, repository: Path, manifest: Manifest | None) -> None:
+        self.paths = Paths.discover(repository)
+        self.manifest = (
+            manifest
+            if manifest is not None
+            else Manifest.load(self.paths.repository / "components.json")
+        )
+        self._wrapper_lease: Any = None
+        self._build_state = threading.local()
+        self._prefix_map_support: dict[
+            tuple[str, str, str | None, str | None], bool
+        ] = {}
+        self._prefix_map_support_lock = threading.Lock()
+
+    @classmethod
+    def _prepare_delivery_workspace(
+        cls, repository: Path, *, manifest: Manifest
+    ) -> "_DeliveryWorkspacePreparation":
+        """Prepare existing identity for a helper-owned union, without admission."""
+
+        workspace = cls.__new__(cls)
+        workspace._initialize_fields(repository, manifest)
+        return _DeliveryWorkspacePreparation(workspace)
 
     def close(self) -> None:
         """Release the command-lifetime wrapper and maintenance leases."""

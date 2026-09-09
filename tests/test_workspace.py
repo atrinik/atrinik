@@ -16772,6 +16772,280 @@ class WorkspaceTests(unittest.TestCase):
                 ):
                     self.fail("relocated workspace acquired duplicate source lease")
 
+    def delivery_preparation_request(self, component="atrinik"):
+        if component == "atrinik":
+            primary = self.wrapper
+            repository = "atrinik/atrinik"
+        else:
+            checkout = self.workspace._resolve_checkout(component)
+            primary = self.workspace._primary_path(checkout)
+            repository = checkout.repository
+        owner, name = repository.split("/")
+        def identity(path):
+            status = path.stat()
+            return {"path": str(path), "device": status.st_dev, "inode": status.st_ino}
+        return {
+            "component": component, "physical_checkout": component,
+            "repository": {"owner": owner, "name": name},
+            "roots": {"wrapper": identity(self.wrapper), "primary": identity(primary)},
+        }
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_component_admission_holds_and_releases_leases(self) -> None:
+        self.delivery_preparation_fixture()
+        normal = Workspace(self.wrapper, backfill_references=False)
+        try:
+            source = normal.create_worktree("client", "prepared", "test/prepared", None, False)
+        finally:
+            normal.close()
+        request = self.delivery_preparation_request("client")
+        preparation = Workspace._prepare_delivery_workspace(
+            self.wrapper, manifest=self.workspace.manifest
+        )
+        self.addCleanup(preparation.close)
+        scope = {"name": "prepared", "profile": {"name": "prepared"}, "topology": {"name": "scope-prepared"}}
+        leases = preparation.plan_live_worktree(request, str(source), scope)
+        target = next(row for row in leases if row.kind == "source" and row.coordinate.startswith("client:"))
+        script = (
+            "from pathlib import Path; import sys; "
+            "from atrinik_workspace.locking import LeaseRequest,resource_locks; "
+            "request=LeaseRequest('source',sys.argv[2],'exclusive','competitor','retry'); "
+            "context=resource_locks(Path(sys.argv[1]),[request],nonblocking=True); "
+            "context.__enter__(); print('acquired'); context.__exit__(None,None,None)"
+        )
+        def competitor():
+            return subprocess.run(
+                [sys.executable, "-B", "-c", script, str(preparation.lease_root(target)), target.coordinate],
+                cwd=Path(__file__).resolve().parents[1], text=True, capture_output=True,
+                check=False, timeout=10,
+            )
+        with self.assertRaisesRegex(RuntimeError, "caller failure"):
+            with preparation.maintenance():
+                with resource_locks(preparation.lease_root, leases, nonblocking=True):
+                    with preparation.admitted() as admitted:
+                        self.assertIs(preparation.admitted_workspace, admitted)
+                        self.assertEqual(preparation.paths.repository, self.wrapper)
+                        self.assertNotEqual(competitor().returncode, 0)
+                        with self.assertRaisesRegex(WorkspaceError, "already admitted"):
+                            with preparation.admitted():
+                                self.fail("nested admission succeeded")
+                        self.assertIs(preparation.admitted_workspace, admitted)
+                        raise RuntimeError("caller failure")
+        self.assertEqual(competitor().returncode, 0)
+        with self.assertRaisesRegex(WorkspaceError, "not been admitted"):
+            _ = preparation.admitted_workspace
+        with preparation.maintenance(), resource_locks(preparation.lease_root, leases, nonblocking=True):
+            with preparation.admitted() as admitted:
+                self.assertEqual(admitted.paths.repository, self.wrapper)
+        bad = dict(request, physical_checkout="server")
+        with self.assertRaisesRegex(WorkspaceError, "checkout coordinates"):
+            preparation.plan_live_worktree(bad, str(source), scope)
+        preparation.close()
+        preparation.close()
+        with self.assertRaisesRegex(WorkspaceError, "closed"):
+            preparation.plan_live_worktree(request, str(source), scope)
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_legacy_and_current_records_are_read_only(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        record = namespace.parent / "atrinik-resource-leases.identity.json"
+        current = record.read_bytes()
+        status = namespace.stat()
+        legacy = json.dumps({"schema_version": 1, "device": status.st_dev, "inode": status.st_ino}).encode()
+        for raw in (legacy, current):
+            with self.subTest(schema=json.loads(raw)["schema_version"]):
+                record.write_bytes(raw)
+                before = record.stat()
+                preparation = Workspace._prepare_delivery_workspace(
+                    self.wrapper, manifest=self.workspace.manifest
+                )
+                try:
+                    requests = preparation.plan_live_worktree(
+                        self.delivery_preparation_request(), str(self.wrapper), None
+                    )
+                    with preparation.maintenance(), resource_locks(
+                        preparation.lease_root, requests, nonblocking=True
+                    ):
+                        with preparation.admitted():
+                            self.assertEqual(preparation._lease_namespace, namespace)
+                    self.assertEqual(record.read_bytes(), raw)
+                    self.assertEqual(record.stat().st_ino, before.st_ino)
+                    self.assertEqual(record.stat().st_mtime_ns, before.st_mtime_ns)
+                finally:
+                    preparation.close()
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_directory_and_same_byte_record_replacements_refuse(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        record = namespace.parent / "atrinik-resource-leases.identity.json"
+        preparation = Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        moved = namespace.with_name(namespace.name + ".retained")
+        namespace.rename(moved)
+        namespace.mkdir(mode=0o700)
+        replacement_inode = namespace.stat().st_ino
+        try:
+            with self.assertRaises(WorkspaceError):
+                preparation._verify_identity()
+            self.assertEqual(namespace.stat().st_ino, replacement_inode)
+        finally:
+            preparation.close()
+            namespace.rmdir()
+            moved.rename(namespace)
+        preparation = Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        raw = record.read_bytes()
+        replacement = record.with_suffix(".replacement")
+        replacement.write_bytes(raw)
+        replacement.chmod(0o600)
+        replacement.replace(record)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "identity changed during proof"):
+                preparation._verify_identity()
+            self.assertEqual(record.read_bytes(), raw)
+        finally:
+            preparation.close()
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_unsafe_records_and_namespace_refuse(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        record = namespace.parent / "atrinik-resource-leases.identity.json"
+        original = record.read_bytes()
+        for raw in (b"{}", b" " * 4097):
+            with self.subTest(raw_size=len(raw)):
+                record.write_bytes(raw)
+                with self.assertRaises(WorkspaceError):
+                    Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+                self.assertEqual(record.read_bytes(), raw)
+        record.write_bytes(original)
+        record.chmod(0o644)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "record is unsafe"):
+                Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        finally:
+            record.chmod(0o600)
+        linked = record.with_suffix(".hardlink")
+        os.link(record, linked)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "record is unsafe"):
+                Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        finally:
+            linked.unlink()
+        namespace.chmod(0o755)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "namespace is unsafe"):
+                Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        finally:
+            namespace.chmod(0o700)
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_short_read_and_named_record_race_refuse(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        record = namespace.parent / "atrinik-resource-leases.identity.json"
+        original = record.read_bytes()
+        preparation = Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        self.addCleanup(preparation.close)
+        real_read = os.read
+        with mock.patch.object(workspace_module.os, "read", side_effect=lambda fd, size: real_read(fd, size)[:-1]):
+            with self.assertRaisesRegex(WorkspaceError, "read was incomplete"):
+                preparation._verify_identity()
+        self.assertEqual(record.read_bytes(), original)
+        def replaced_after_read(descriptor, size):
+            raw = real_read(descriptor, size)
+            replacement = record.with_suffix(".replacement")
+            replacement.write_bytes(original)
+            replacement.chmod(0o600)
+            replacement.replace(record)
+            return raw
+        with mock.patch.object(workspace_module.os, "read", side_effect=replaced_after_read):
+            with self.assertRaisesRegex(WorkspaceError, "record changed"):
+                preparation._verify_identity()
+        self.assertEqual(record.read_bytes(), original)
+        preparation.close()
+        preparation = Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        self.addCleanup(preparation.close)
+        real_stat = os.stat
+        def replaced_before_named_stat(path, *arguments, **keywords):
+            if path == "atrinik-resource-leases.identity.json":
+                replacement = record.with_suffix(".replacement")
+                replacement.write_bytes(original)
+                replacement.chmod(0o600)
+                replacement.replace(record)
+            return real_stat(path, *arguments, **keywords)
+        with mock.patch.object(workspace_module.os, "stat", side_effect=replaced_before_named_stat):
+            with self.assertRaisesRegex(WorkspaceError, "record was replaced"):
+                preparation._verify_identity()
+        self.assertEqual(record.read_bytes(), original)
+
+    def delivery_preparation_fixture(self):
+        self.workspace.close()
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Tests", cwd=self.wrapper)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=self.wrapper)
+        command("git", "add", "components.json", cwd=self.wrapper)
+        command("git", "commit", "-m", "seed delivery preparation", cwd=self.wrapper)
+        self.workspace = Workspace(self.wrapper, backfill_references=False)
+        self.workspace.close()
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_preserves_constructor_and_limits_operations(self) -> None:
+        self.delivery_preparation_fixture()
+        original = workspace_module.resource_lifetime_reader
+        with mock.patch.object(workspace_module, "resource_lifetime_reader", wraps=original) as reader:
+            normal = Workspace(self.wrapper, backfill_references=False)
+            self.assertEqual(reader.call_count, 1)
+            normal.close()
+            preparation = Workspace._prepare_delivery_workspace(
+                self.wrapper, manifest=self.workspace.manifest
+            )
+            self.addCleanup(preparation.close)
+            self.assertEqual(reader.call_count, 1)
+            self.assertFalse(hasattr(preparation, "scope_create"))
+            self.assertFalse(hasattr(preparation, "build"))
+            with self.assertRaisesRegex(WorkspaceError, "not been admitted"):
+                _ = preparation.admitted_workspace
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_does_not_wait_for_wrapper_source_writer(self) -> None:
+        self.delivery_preparation_fixture()
+        request = self.workspace._lease_request(
+            "source", self.workspace._source_coordinate("atrinik", self.wrapper),
+            "exclusive", "external wrapper writer",
+        )
+        script = (
+            "from pathlib import Path; import sys; "
+            "from atrinik_workspace.model import Manifest; "
+            "from atrinik_workspace.workspace import Workspace; "
+            "root=Path(sys.argv[1]); "
+            "plan=Workspace._prepare_delivery_workspace(root,manifest=Manifest.load(root/'components.json')); "
+            "plan.close(); print('prepared without source admission')"
+        )
+        with resource_locks(self.workspace._lease_root, [request], nonblocking=True):
+            process = subprocess.run(
+                [sys.executable, "-B", "-c", script, str(self.wrapper)],
+                cwd=Path(__file__).resolve().parents[1], text=True, capture_output=True,
+                check=False, timeout=10,
+            )
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(process.stdout.strip(), "prepared without source admission")
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_never_creates_missing_identity(self) -> None:
+        self.delivery_preparation_fixture()
+        record = self.workspace._lease_namespace.parent / "atrinik-resource-leases.identity.json"
+        retained = record.with_suffix(".retained")
+        record.rename(retained)
+        try:
+            with self.assertRaises(FileNotFoundError):
+                Workspace._prepare_delivery_workspace(
+                    self.wrapper, manifest=self.workspace.manifest
+                )
+            self.assertFalse(record.exists())
+        finally:
+            retained.rename(record)
+
     def test_wrapper_worktrees_share_common_git_lease_namespace(self) -> None:
         self.workspace.close()
         command("git", "init", "-b", "main", cwd=self.wrapper)
