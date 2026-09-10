@@ -9538,6 +9538,11 @@ class WorkspaceTests(unittest.TestCase):
                 copied_assets_mtime,
             )
             self.assertTrue(self.workspace._source_view_unchanged[str(view)])
+            stale_include = lock.parent / "stale-peer-input"
+            stale_include.write_text("stale\n", encoding="utf-8")
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_client(root, selected, False, component=component)
+            self.assertFalse(stale_include.exists())
             (view / "tools" / "tool").write_text("tampered\n", encoding="utf-8")
             (view / "textures" / "ui.xml").write_text("tampered\n", encoding="utf-8")
             (view / "fonts" / "ui.ttf").write_bytes(b"tampered\n")
@@ -9567,11 +9572,18 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace._build_client(root, selected, False, component=component)
             self.assertTrue((root / "sources" / "server").is_dir())
             self.assertTrue(self.workspace._source_view_unchanged[str(view)])
+            layout = root / "sources" / "client-layout"
+            ownership = layout / MANAGED_MARKER
+            original_ownership = ownership.read_text(encoding="utf-8")
+            ownership.write_text('{"purpose":"foreign"}\n', encoding="utf-8")
+            with mock.patch.object(self.workspace, "_cmake"):
+                with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
+                    self.workspace._build_client(root, selected, False, component=component)
+            ownership.write_text(original_ownership, encoding="utf-8")
             outside = self.root / "outside-client-layout"
             outside.mkdir()
             sentinel = outside / "sentinel"
             sentinel.write_text("outside\n", encoding="utf-8")
-            layout = root / "sources" / "client-layout"
             parked = layout.with_name("client-layout-parked")
             real_fence = Workspace._client_layout_fence
             swapped = False
@@ -9649,6 +9661,20 @@ class WorkspaceTests(unittest.TestCase):
             '{"lock":"foreign"}\n', encoding="utf-8"
         )
         server = checkout / "server"
+        lock.rename(server / "dependencies.lock.real")
+        lock.symlink_to(foreign / "dependencies.lock.json")
+        final_symlink_consumer = root / "sources" / "final-symlink-client"
+        final_symlink_consumer.mkdir()
+        final_sentinel = final_symlink_consumer / "sentinel"
+        final_sentinel.write_text("unchanged\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "unsafe|symlink|identity"):
+            self.workspace._prepare_component_source_includes(
+                root, component, source, final_symlink_consumer, live_peer_inputs=True
+            )
+        self.assertEqual(final_sentinel.read_text(encoding="utf-8"), "unchanged\n")
+        self.assertFalse((root / "sources" / "server").exists())
+        lock.unlink()
+        (server / "dependencies.lock.real").rename(lock)
         server.rename(checkout / "server-real")
         server.symlink_to(foreign, target_is_directory=True)
         unsafe_consumer = root / "sources" / "unsafe-client"
