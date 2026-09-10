@@ -5575,7 +5575,8 @@ class DeliveryLedgerTests(unittest.TestCase):
                 **cas_arguments(predecessor),
             )
             stale = live_pr(refreshed.document)
-            stale["base"]["sha"] = predecessor.document["targets"][0]["base"]["current_sha"]
+            stale["base"]["sha"] = predecessor.document["targets"][0]["base"]["initial_sha"]
+            self.assertNotEqual(stale["base"]["sha"], refreshed.document["targets"][0]["base"]["current_sha"])
             with mock.patch.object(
                 ledger,
                 "_gh_json",
