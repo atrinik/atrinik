@@ -8262,10 +8262,13 @@ def _pr_binding_candidate(
         slot_result if value["slot_id"] == slot_id else value
         for value in candidate["artifacts"]
     ]
-    candidate["selected_prs"] = [
-        *candidate["selected_prs"],
-        copy.deepcopy(remote["pull"]),
-    ]
+    candidate["selected_prs"] = sorted(
+        [*candidate["selected_prs"], copy.deepcopy(remote["pull"])],
+        key=lambda pull: tuple(
+            str(part).casefold()
+            for part in _pull_request(pull, "atomic PR binding selected PR")
+        ),
+    )
     return prepare(candidate)
 
 
