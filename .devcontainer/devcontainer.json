@@ -4,6 +4,7 @@
   "features": {},
   "remoteUser": "ubuntu",
   "updateRemoteUserUID": true,
+  "init": true,
   "runArgs": [],
   "initializeCommand": "install -d -m 700 \"${localWorkspaceFolder}/workspace/build\" && install -d -m 700 \"${localEnv:HOME}/.codex-atrinik\" && if [ ! -e \"${localEnv:HOME}/.gitconfig\" ]; then install -m 600 /dev/null \"${localEnv:HOME}/.gitconfig\"; fi",
   "workspaceFolder": "/workspaces/atrinik",

@@ -55,6 +55,43 @@ a proof of complete native build compatibility; run the owner-required build and
 test checks on the selected distribution.
 
 
+## Fresh headless containers and child reaping
+
+After the existing image-access and isolated-session prerequisites in README,
+select the Linux headless configuration explicitly from the host terminal:
+
+```sh
+devcontainer up --workspace-folder "$HOST_REPO" --config "$HOST_REPO/.devcontainer/devcontainer.json"
+```
+
+Use the exact container ID returned for that owned session. Before attaching,
+inspect that same container's creation setting:
+
+```sh
+docker inspect "$CONTAINER_ID" --format '{{.Id}} {{.HostConfig.Init}}'
+```
+
+The Linux configuration sets `init: true`, which makes the Dev Containers CLI
+pass Docker's `--init` option when creating a new container. Docker's small init
+process forwards signals and reaps orphaned child processes. This avoids relying
+on a long-lived shell or `sleep` as PID1 to reap adopted descendants. It does not
+replace the wrapper's ownership, supervised shutdown or final process/holder
+checks, and does not prove that all application processes have stopped.
+
+This creation setting adds no display sockets, GPU devices, audio endpoints or
+new delivery authority. Continue with the existing exact-container coordinator
+probe and terminal workflow before repository work. Configuration parsing and
+wrapper tests do not establish a fresh-container lifecycle result; record that
+smoke evidence separately on a newly reserved isolated session.
+
+An already running container retains its original creation settings. Attaching
+or restarting it does not add an init process. Preserve its exact identity,
+mounts, worktree and ledger; do not remove, recreate or remount it to apply this
+setting. A retained session without init continues under its existing bounded
+child-reaping and shutdown procedures until a separately owned fresh session is
+authorized and verified. Windows/WSLg and cross-build configuration behavior is
+unchanged by this Linux-headless setting.
+
 ## Explicit Linux desktop container capabilities
 
 On the selected Linux desktop, the standalone module prints a JSON Docker
