@@ -469,18 +469,36 @@ class LinuxExportTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(export.ExportError):
                 export.portable_metadata_report(**self.portable_arguments(docs))
 
-    def test_portable_metadata_rejects_duplicate_dynamic_features(self) -> None:
+    def test_portable_metadata_groups_distinct_dynamic_declarations(self) -> None:
+        docs = self.portable_documents()
+        features = docs["runtime-abi.json"]["objects"][0]["dlopen"]
+        # SDL emits separate x11-vulkan declarations for X11-xcb and Vulkan,
+        # with one aggregate resolved provider list. Filenames do not prove SONAMEs.
+        features[0]["feature"] = "x11-vulkan"
+        features[0]["soname"] = ["libX11-xcb.so.1"]
+        features.append({"feature": "x11-vulkan", "soname": ["libvulkan.so.1"]})
+        providers = docs["runtime-abi.json"]["objects"][0]["dlopen_providers"]
+        providers["x11-vulkan"] = providers.pop("sample")
+        result = export.portable_metadata_report(**self.portable_arguments(docs))
+        self.assertTrue(result["metadata_consistent"])
+        self.assertFalse(result["dynamic_soname_resolution_verified"])
+        # Distinct declarations can resolve to the same library; the producer
+        # preserves repeated paths when aggregating each declaration's matches.
+        providers["x11-vulkan"] *= 2
+        self.assertTrue(export.portable_metadata_report(**self.portable_arguments(docs))["metadata_consistent"])
+        features.append({"feature": "unused", "soname": ["second.so"]})
+        providers["unused"] = providers["x11-vulkan"]
+        # The excluded first declaration does not exclude a second supported one.
+        self.assertTrue(export.portable_metadata_report(**self.portable_arguments(docs))["metadata_consistent"])
+
+    def test_portable_metadata_rejects_duplicate_dynamic_declarations(self) -> None:
         for feature_index in (0, 1):
-            for conflicting in (False, True):
-                with self.subTest(feature_index=feature_index, conflicting=conflicting):
-                    docs = self.portable_documents()
-                    features = docs["runtime-abi.json"]["objects"][0]["dlopen"]
-                    duplicate = dict(features[feature_index])
-                    if conflicting:
-                        duplicate["soname"] = ["missing.so"]
-                    features.append(duplicate)
-                    with self.assertRaisesRegex(export.ExportError, "duplicate dynamic feature"):
-                        export.portable_metadata_report(**self.portable_arguments(docs))
+            with self.subTest(feature_index=feature_index):
+                docs = self.portable_documents()
+                features = docs["runtime-abi.json"]["objects"][0]["dlopen"]
+                features.append(dict(features[feature_index]))
+                with self.assertRaisesRegex(export.ExportError, "duplicate dynamic declaration"):
+                    export.portable_metadata_report(**self.portable_arguments(docs))
 
     def test_portable_metadata_requires_exact_hashes_and_consumer_commit(self) -> None:
         for change in ("hash", "missing", "extra", "tag", "consumer", "duplicate-key", "nan", "large", "installed-link"):

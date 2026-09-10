@@ -94,7 +94,14 @@ Linux/amd64 Debian 12/glibc 2.36 portable target, checks the installed contract,
 package and CPU declarations, resolves reported library/plugin edges, checks
 versioned-symbol provider records and compares source/shader coordinates.
 Duplicate, malformed, missing, disconnected or contradictory records fail.
-Unsupported dynamic features require matching explicit producer declarations.
+Distinct SONAME declarations may share a dynamic feature name, as SDL does for
+X11/Vulkan. Provider paths are aggregated by feature and can repeat when
+distinct declarations resolve to the same object; repeated identical
+declarations fail. Exclusions match exact object, feature and SONAME-list
+declarations; they do not exclude other declarations sharing that feature.
+The metadata lacks a SONAME-to-resolved-path map, so
+`dynamic_soname_resolution_verified` remains false; reported paths do not prove
+that every requested SONAME resolves.
 
 The requested Classic commit must equal both the contract's consumer commit and
 the shader source commit. The published consumer enforces this full-commit guard;

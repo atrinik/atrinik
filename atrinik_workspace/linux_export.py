@@ -231,10 +231,10 @@ def _portable_mapping(value: object, label: str) -> dict:
     return value
 
 
-def _portable_strings(value: object, label: str) -> list[str]:
+def _portable_strings(value: object, label: str, *, unique: bool = True) -> list[str]:
     if (not isinstance(value, list) or len(value) > MAX_FILES
             or any(not isinstance(item, str) or not item or any(ord(c) < 32 for c in item) for item in value)
-            or len(set(value)) != len(value)):
+            or (unique and len(set(value)) != len(value))):
         raise ExportError("portable-metadata: invalid " + label)
     return value
 
@@ -362,14 +362,17 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
     excluded = runtime.get("unsupported_dlopen_features")
     if not isinstance(excluded, list) or len(excluded) > MAX_FILES:
         raise ExportError("portable-metadata: invalid unsupported feature declarations")
-    exclusions = {}
+    exclusions = set()
     for item in excluded:
         item = _portable_mapping(item, "unsupported feature")
-        key = (_portable_path(item.get("object")), item.get("feature"))
+        sonames = _portable_strings(item.get("soname"), "unsupported feature sonames")
+        key = (_portable_path(item.get("object")), item.get("feature"), tuple(sonames))
         if (key[0] not in objects or not isinstance(key[1], str) or not key[1]
                 or key in exclusions or not isinstance(item.get("reason"), str) or not item["reason"]):
             raise ExportError("portable-metadata: invalid unsupported feature identity")
-        exclusions[key] = _portable_strings(item.get("soname"), "unsupported feature sonames")
+        if not sonames:
+            raise ExportError("portable-metadata: empty unsupported sonames")
+        exclusions.add(key)
     used_exclusions = set()
     edges = {}
     for path, row in objects.items():
@@ -396,29 +399,28 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
             raise ExportError("portable-metadata: invalid dynamic feature list")
         dynamic = _portable_mapping(row.get("dlopen_providers"), "dynamic providers")
         expected_features = set()
-        seen_features = set()
+        seen_declarations = set()
         for feature in features:
             feature = _portable_mapping(feature, "dynamic feature")
             name = feature.get("feature")
             if not isinstance(name, str) or not name:
                 raise ExportError("portable-metadata: invalid dynamic feature name")
-            if name in seen_features:
-                raise ExportError("portable-metadata: duplicate dynamic feature")
-            seen_features.add(name)
             sonames = _portable_strings(feature.get("soname"), "dynamic sonames")
             if not sonames:
                 raise ExportError("portable-metadata: empty dynamic sonames")
-            key = (path, name)
+            declaration = (name, tuple(sonames))
+            if declaration in seen_declarations:
+                raise ExportError("portable-metadata: duplicate dynamic declaration")
+            seen_declarations.add(declaration)
+            key = (path, name, tuple(sonames))
             if key in exclusions:
-                if exclusions[key] != sonames:
-                    raise ExportError("portable-metadata: unsupported feature differs")
                 used_exclusions.add(key)
             else:
                 expected_features.add(name)
         if set(dynamic) != expected_features:
             raise ExportError("portable-metadata: incomplete dynamic providers")
         for targets in dynamic.values():
-            targets = _portable_strings(targets, "dynamic provider paths")
+            targets = _portable_strings(targets, "dynamic provider paths", unique=False)
             if not targets or any(_portable_path(target) not in objects for target in targets):
                 raise ExportError("portable-metadata: unresolved dynamic provider")
             edges[path].update(targets)
@@ -468,6 +470,7 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
             "registry_provenance_verified": False, "consumer_source_proven": False,
             "runtime_payload_verified": False, "source_archives_verified": False,
             "legal_closure_verified": False, "dynamic_plugins_verified": False,
+            "dynamic_soname_resolution_verified": False,
             "symbol_versions_verified": False,
             "runtime_qualified": False}
 
