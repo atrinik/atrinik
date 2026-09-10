@@ -5119,10 +5119,22 @@ class DeliveryLedgerTests(unittest.TestCase):
                 "updated_at": updated_at,
             }
 
+        def live_base(live: dict[str, object]) -> dict[str, object]:
+            base = live["base"]
+            return {"data": {"repository": {
+                "id": base["repo"]["node_id"],
+                "nameWithOwner": base["repo"]["full_name"],
+                "ref": {"prefix": "refs/heads/", "name": base["ref"],
+                        "target": {"__typename": "Commit", "oid": base["sha"]}},
+            }}}
+
         def gh_observer(
             live: dict[str, object],
             comments: object = None,
             observed_pages: list[int] | None = None,
+            *,
+            base_responses: list[object] | None = None,
+            observed_refs: list[object] | None = None,
         ):
             if comments is None:
                 response_comments: object = {1: []}
@@ -5131,8 +5143,23 @@ class DeliveryLedgerTests(unittest.TestCase):
             else:
                 response_comments = {1: comments}
 
+            ref_reads = 0
+
             def observe(arguments: object, context: str) -> object:
-                del context
+                nonlocal ref_reads
+                if context == "PR binding live base ref":
+                    arguments = tuple(arguments)
+                    self.assertEqual(arguments[:4], ("api", "--hostname", "github.com", "graphql"))
+                    owner, name = live["base"]["repo"]["full_name"].split("/")
+                    self.assertIn(f"owner={owner}", arguments)
+                    self.assertIn(f"name={name}", arguments)
+                    self.assertIn("ref=refs/heads/main", arguments)
+                    responses = [live_base(live)] if base_responses is None else base_responses
+                    result = responses[min(ref_reads, len(responses) - 1)]
+                    ref_reads += 1
+                    if observed_refs is not None:
+                        observed_refs.append(copy.deepcopy(result))
+                    return copy.deepcopy(result)
                 if tuple(arguments)[-1] == "user":
                     return {"node_id": "U_actor"}
                 endpoint = tuple(arguments)[-1]
@@ -5213,7 +5240,11 @@ class DeliveryLedgerTests(unittest.TestCase):
                     root, bound.name, "pull-request", 500, **cas_arguments(predecessor)
                 )
             self.assertEqual(directory_snapshot(root), before)
-            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(live_pr(value))):
+            stale_snapshot = live_pr(value)
+            stale_snapshot["base"]["sha"] = SHA_A
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(
+                stale_snapshot, base_responses=[live_base(live_pr(value))]
+            )):
                 result = ledger.bind_pr_cas(
                     root, bound.name, "pull-request", 500, **cas_arguments(predecessor)
                 )
@@ -5242,7 +5273,8 @@ class DeliveryLedgerTests(unittest.TestCase):
 
                 def observe(arguments: object, context: str) -> object:
                     nonlocal reads
-                    del context
+                    if context == "PR binding live base ref":
+                        return live_base(first)
                     endpoint = tuple(arguments)[-1]
                     if endpoint == "user":
                         return {"node_id": "U_actor"}
@@ -5277,7 +5309,10 @@ class DeliveryLedgerTests(unittest.TestCase):
             with mock.patch.object(
                 ledger,
                 "_gh_json",
-                side_effect=gh_observer(live_pr(value, base_branch="develop")),
+                side_effect=gh_observer(
+                    live_pr(value, base_branch="develop"),
+                    base_responses=[live_base(live_pr(value))],
+                ),
             ), self.assertRaisesRegex(ledger.LedgerError, "base branch differs"):
                 ledger.bind_pr_cas(
                     root,
@@ -5306,7 +5341,8 @@ class DeliveryLedgerTests(unittest.TestCase):
 
             def observe_concurrent(arguments: object, context: str) -> object:
                 nonlocal pull_reads
-                del context
+                if context == "PR binding live base ref":
+                    return live_base(live_pr(value))
                 endpoint = tuple(arguments)[-1]
                 if endpoint == "user":
                     return {"node_id": "U_actor"}
@@ -5456,6 +5492,79 @@ class DeliveryLedgerTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
             root = Path(temporary)
+            value, bound = install_bound(root, Path(live_temporary))
+            live = live_pr(value)
+            good = live_base(live)
+            invalid: list[tuple[str, object]] = [
+                ("non-object", []), ("missing data", {}),
+                ("GraphQL errors", {"errors": [{"message": "unavailable"}], **good}),
+                ("missing repository", {"data": {"repository": None}}),
+            ]
+            for field, replacement in (("id", "R_wrong"), ("nameWithOwner", "foreign/atrinik"),
+                                       ("ref", None), ("ref", [])):
+                bad = copy.deepcopy(good)
+                bad["data"]["repository"][field] = replacement
+                invalid.append((f"repository {field}: {replacement}", bad))
+            for field, replacement in (("prefix", "refs/tags/"), ("name", "develop"),
+                                       ("target", None), ("target", [])):
+                bad = copy.deepcopy(good)
+                bad["data"]["repository"]["ref"][field] = replacement
+                invalid.append((f"ref {field}: {replacement}", bad))
+            for field, replacement in (("__typename", "Tag"), ("oid", "malformed"),
+                                       ("oid", SHA_B)):
+                bad = copy.deepcopy(good)
+                bad["data"]["repository"]["ref"]["target"][field] = replacement
+                invalid.append((f"target {field}: {replacement}", bad))
+            before = directory_snapshot(root)
+            for label, response in invalid:
+                with self.subTest(live_base=label), mock.patch.object(
+                    ledger, "_gh_json", side_effect=gh_observer(live, base_responses=[response])
+                ), self.assertRaises(ledger.LedgerError):
+                    ledger.bind_pr_cas(root, bound.name, "pull-request", 500, **cas_arguments(bound))
+                self.assertEqual(directory_snapshot(root), before)
+            drift = copy.deepcopy(good)
+            drift["data"]["repository"]["ref"]["target"]["oid"] = SHA_B
+            for observation in (2, 3):
+                observed: list[object] = []
+                with self.subTest(drift_observation=observation), mock.patch.object(
+                    ledger, "_gh_json", side_effect=gh_observer(
+                        live, base_responses=[good] * (observation - 1) + [drift],
+                        observed_refs=observed,
+                    )
+                ), self.assertRaisesRegex(ledger.LedgerError, "remote observation changed"):
+                    ledger.bind_pr_cas(root, bound.name, "pull-request", 500, **cas_arguments(bound))
+                self.assertEqual(len(observed), observation)
+                self.assertEqual(directory_snapshot(root), before)
+            # A stale PR snapshot remains valid across interrupted publication and
+            # exact receipt recovery; a changed live branch does not.
+            live["base"]["sha"] = SHA_A
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(
+                live, base_responses=[good]
+            )), self.assertRaises(ledger.InjectedCrash):
+                ledger.bind_pr_cas(root, bound.name, "pull-request", 500,
+                                   failpoint="cas:renamed", **cas_arguments(bound))
+            pending = directory_snapshot(root)
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(
+                live, base_responses=[drift]
+            )), self.assertRaises(ledger.LedgerError):
+                ledger.bind_pr_cas(root, bound.name, "pull-request", 500, **cas_arguments(bound))
+            self.assertEqual(directory_snapshot(root), pending)
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(
+                live, base_responses=[good]
+            )):
+                recovered = ledger.bind_pr_cas(root, bound.name, "pull-request", 500, **cas_arguments(bound))
+            self.assertEqual(recovered["classification"], "bound-match")
+            self.assertEqual(ledger.inventory(root).pending, ())
+            current = ledger.inspect(root, bound.name)
+            before = directory_snapshot(root)
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(
+                live, base_responses=[drift]
+            )), self.assertRaises(ledger.LedgerError):
+                ledger.bind_pr_cas(root, bound.name, "pull-request", 500, **cas_arguments(current))
+            self.assertEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
             predecessor, candidate, _actual_head, _base_head, _live = target_refresh_setup(
                 Path(live_temporary), root, "pr-bind-target-refresh", stale_predecessor=False
             )
@@ -5465,10 +5574,14 @@ class DeliveryLedgerTests(unittest.TestCase):
                 candidate,
                 **cas_arguments(predecessor),
             )
+            stale = live_pr(refreshed.document)
+            stale["base"]["sha"] = predecessor.document["targets"][0]["base"]["current_sha"]
             with mock.patch.object(
                 ledger,
                 "_gh_json",
-                side_effect=gh_observer(live_pr(refreshed.document)),
+                side_effect=gh_observer(
+                    stale, base_responses=[live_base(live_pr(refreshed.document))]
+                ),
             ):
                 result = ledger.bind_pr_cas(
                     root,
@@ -14517,6 +14630,14 @@ class DeliveryLedgerTests(unittest.TestCase):
             }
 
             def observe(arguments: object, _context: str) -> object:
+                if _context == "PR binding live base ref":
+                    target = value["targets"][0]
+                    return {"data": {"repository": {
+                        "id": target["repository"]["node_id"],
+                        "nameWithOwner": "atrinik/atrinik",
+                        "ref": {"name": target["base"]["branch"], "prefix": "refs/heads/",
+                                "target": {"__typename": "Commit", "oid": target["base"]["current_sha"]}},
+                    }}}
                 endpoint = tuple(arguments)[-1]
                 if "/pulls/500" in endpoint:
                     return copy.deepcopy(remote)

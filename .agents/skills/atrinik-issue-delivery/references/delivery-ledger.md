@@ -1594,7 +1594,13 @@ python3 scripts/delivery_ledger.py pr-bind-cas \
 
 `pr-bind-cas` performs the live authenticated-author, same-repository,
 unchanged-target, draft, durable-body, and complete-comment-pagination proof
-itself immediately before the ledger CAS. Ordinary external comments, such as
+itself immediately before the ledger CAS. Each remote observation independently
+resolves the authenticated live `refs/heads/<base>` and verifies the exact
+repository node/name, full branch ref and commit target against the ledger's
+current base. The PR response's stored base SHA is snapshot metadata, not the
+current branch tip; its repository/ref identity and SHA syntax remain checked.
+Initial, repeated, immediate-precommit and completed-retry observations retain
+these proofs, so live base drift still stops binding. Ordinary external comments, such as
 Codecov or reviewer comments, are classified as non-delivery state and remain
 untouched; a malformed or reserved `atrinik-delivery:comment:` marker, invalid
 page, duplicate node, or pagination that cannot reach a bounded final page

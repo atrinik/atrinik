@@ -8005,6 +8005,47 @@ def _observe_pr_binding_comments(owner: str, name: str, number: int) -> None:
     raise LedgerError("PR binding comment pagination did not reach a bounded final page")
 
 
+def _pr_binding_live_base(target: Mapping[str, Any]) -> str:
+    """Prove the current branch tip independently of the PR's base snapshot."""
+
+    repository = target["repository"]
+    branch = target["base"]["branch"]
+    qualified_ref = f"refs/heads/{branch}"
+    response = _gh_json(
+        (
+            "api", "--hostname", "github.com", "graphql",
+            "-f", "query=query($owner:String!,$name:String!,$ref:String!){"
+            "repository(owner:$owner,name:$name){id nameWithOwner "
+            "ref(qualifiedName:$ref){name prefix target{__typename oid}}}}",
+            "-f", f"owner={repository['owner']}",
+            "-f", f"name={repository['name']}",
+            "-f", f"ref={qualified_ref}",
+        ),
+        "PR binding live base ref",
+    )
+    if not isinstance(response, dict) or response.get("errors"):
+        raise LedgerError("PR binding live base ref response is invalid")
+    data = response.get("data")
+    remote = data.get("repository") if isinstance(data, dict) else None
+    if (
+        not isinstance(remote, dict)
+        or remote.get("id") != repository["node_id"]
+        or remote.get("nameWithOwner") != f"{repository['owner']}/{repository['name']}"
+    ):
+        raise LedgerError("PR binding live base ref repository differs from the exact target")
+    ref = remote.get("ref")
+    if (
+        not isinstance(ref, dict)
+        or ref.get("prefix") != "refs/heads/"
+        or ref.get("name") != branch
+    ):
+        raise LedgerError("PR binding live base ref differs from the exact target branch")
+    commit = ref.get("target")
+    if not isinstance(commit, dict) or commit.get("__typename") != "Commit":
+        raise LedgerError("PR binding live base ref target is not a commit")
+    return _string(commit.get("oid"), "PR binding live base ref SHA", COMMIT_RE)
+
+
 def _pr_binding_remote(
     document: Mapping[str, Any], target: Mapping[str, Any], pr_number: int
 ) -> dict[str, Any]:
@@ -8052,9 +8093,10 @@ def _pr_binding_remote(
         raise LedgerError("PR binding PR author differs from the authenticated actor")
     base_branch = _branch(live.get("base", {}).get("ref"), "PR binding base branch")
     head_branch = _branch(live.get("head", {}).get("ref"), "PR binding head branch")
-    base_sha = _string(
-        live.get("base", {}).get("sha"), "PR binding base head SHA", COMMIT_RE
+    base_snapshot_sha = _string(
+        live.get("base", {}).get("sha"), "PR binding base snapshot SHA", COMMIT_RE
     )
+    base_sha = _pr_binding_live_base(target)
     head_sha = _string(
         live.get("head", {}).get("sha"), "PR binding PR head SHA", COMMIT_RE
     )
@@ -8106,6 +8148,7 @@ def _pr_binding_remote(
     return {
         "pull": pull,
         "base_sha": base_sha,
+        "base_snapshot_sha": base_snapshot_sha,
         "head_sha": head_sha,
         "body_digest": digest,
     }
