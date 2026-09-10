@@ -360,6 +360,156 @@ class LinuxExportTests(unittest.TestCase):
                 with self.assertRaises(export.ExportError):
                     export.inspect_elf(stream.fileno())
 
+    def portable_documents(self) -> dict:
+        library = "/usr/local/lib/libsample.so"
+        plugin = "/usr/local/lib/provider.so"
+        obj = lambda path: {"path": path, "sha256": "1" * 64, "needed": {}, "gnu_property_present": False,
+                            "dlopen": [], "dlopen_providers": {}, "required_providers": {}, "required_symbols": []}
+        client = obj(library)
+        client["needed"] = {"provider.so": plugin}
+        client["required_symbols"] = ["sample@SAMPLE_1"]
+        client["required_providers"] = {"sample@SAMPLE_1": {"provider": "provider.so", "version_index": 2}}
+        client["dlopen"] = [{"feature": "sample", "soname": ["provider.so"]},
+                            {"feature": "unused", "soname": ["unused.so"]}]
+        client["dlopen_providers"] = {"sample": [plugin]}
+        return {
+            "contract.json": {"schema_version": 1, "platform": "linux/amd64", "target": "portable-final",
+                              "image": "ghcr.io/atrinik/classic-portable-build", "metadata_directory": "/opt/atrinik-portable",
+                              "base": {"image": "debian:bookworm-slim", "digest": "sha256:" + "2" * 64,
+                                       "apt_snapshot": "20260901T000000Z", "glibc": "2.36"},
+                              "compiler": {"cpu": "x86-64", "c_standard": 17, "cflags": "-O2 -march=x86-64 -mtune=generic",
+                                           "cxxflags": "-O2 -march=x86-64 -mtune=generic"},
+                              "consumer": {"repository": "atrinik/classic", "commit": "a" * 40,
+                                           "input_verification": "exact-source-commit-and-shader-input-sha256"},
+                              "pkg_config": {"sdl3": "3.4.2"},
+                              "runtime": {"bundled_graphics_drivers": False, "providers": [plugin],
+                                          "unsupported_dlopen_features": [{"object": library, "feature": "unused",
+                                                                            "soname": ["unused.so"], "reason": "unused fixture feature"}]}},
+            "installed.json": {"schema_version": 1, "architecture": "amd64", "glibc": "glibc 2.36",
+                               "compiler_target": "x86_64-linux-gnu", "compiler_options": " -march= x86-64\n -mtune= generic\n",
+                               "pkg_config": {"sdl3": "3.4.2"}},
+            "runtime-abi.json": {"schema_version": 1, "glibc": "2.36", "cpu": "x86-64", "roots": [library],
+                                 "objects": [client, obj(plugin)]},
+            "shader-generation.json": {"schema_version": 1, "source_commit": "a" * 40,
+                                       "source_inputs": {"client/shaders/source.hlsl": "3" * 64},
+                                       "output_manifest_sha256": "4" * 64, "expected_manifest_sha256": "4" * 64,
+                                       "tool_manifest_sha256": "5" * 64, "installer_sha256": "6" * 64},
+            "runtime-sources.json": {"source_packages": {"fixture": "1.0"}, "archives": {"fixture_1.0.dsc": "7" * 64}},
+            "debian-sources.json": [{"package": "fixture", "version": "1.0", "source": "fixture", "source_version": "1.0",
+                                     "snapshot": "20260901T000000Z", "notice_directory": "/usr/share/doc/fixture"}],
+        }
+
+    def portable_arguments(self, documents: dict) -> dict:
+        # Synthetic fixture hashes exercise relationships, not registry authority.
+        documents["installed.json"]["contract_sha256"] = hashlib.sha256(json.dumps(documents["contract.json"]).encode()).hexdigest()
+        metadata = {name: json.dumps(value).encode() for name, value in documents.items()}
+        return {"metadata": metadata, "expected_hashes": {name: hashlib.sha256(value).hexdigest() for name, value in metadata.items()},
+                "immutable_image": "ghcr.io/atrinik/classic-portable-build@sha256:" + "8" * 64,
+                "runnable_manifest": "sha256:" + "9" * 64, "consumer_commit": "a" * 40}
+
+    def test_portable_metadata_reports_only_bounded_consistency(self) -> None:
+        result = export.portable_metadata_report(**self.portable_arguments(self.portable_documents()))
+        self.assertTrue(result["metadata_consistent"])
+        self.assertEqual((result["objects"], result["source_archives"], result["shader_inputs"]), (2, 1, 1))
+        for key in ("registry_provenance_verified", "consumer_source_proven", "runtime_payload_verified",
+                    "source_archives_verified", "legal_closure_verified", "dynamic_plugins_verified",
+                    "symbol_versions_verified", "runtime_qualified"):
+            self.assertFalse(result[key])
+
+    def test_portable_metadata_rejects_cross_record_inconsistency(self) -> None:
+        changes = [
+            ("contract.json", ["schema_version"], True),
+            ("contract.json", ["target"], "ordinary-coordinator"),
+            ("contract.json", ["base", "digest"], "latest"),
+            ("contract.json", ["compiler", "cflags"], "-march=native"),
+            ("installed.json", ["compiler_options"], " -march= x86-64-v3\n -mtune= generic\n"),
+            ("installed.json", ["compiler_options"], " -march= x86-64\n -march= x86-64\n -mtune= generic\n"),
+            ("installed.json", ["pkg_config", "sdl3"], "different"),
+            ("runtime-abi.json", ["glibc"], "2.43"),
+            ("shader-generation.json", ["source_commit"], "b" * 40),
+            ("shader-generation.json", ["output_manifest_sha256"], "0" * 64),
+            ("shader-generation.json", ["source_inputs"], {"../escape": "3" * 64}),
+            ("runtime-sources.json", ["source_packages", "fixture"], "2.0"),
+            ("runtime-sources.json", ["source_packages"], {"missing": None}),
+            ("runtime-sources.json", ["archives"], {"../source.tar": "7" * 64}),
+            ("debian-sources.json", [0, "snapshot"], "different"),
+            ("debian-sources.json", [0, "notice_directory"], "/usr/share/doc/../outside"),
+            ("runtime-abi.json", ["objects", 0, "needed", "provider.so"], "/absent.so"),
+            ("runtime-abi.json", ["objects", 0, "needed"], {"../provider.so": "/usr/local/lib/provider.so"}),
+            ("runtime-abi.json", ["objects", 0, "required_providers"], {}),
+            ("runtime-abi.json", ["objects", 0, "required_providers", "sample@SAMPLE_1", "provider"], []),
+            ("runtime-abi.json", ["objects", 0, "required_providers", "sample@SAMPLE_1", "version_index"], True),
+            ("runtime-abi.json", ["objects", 0, "dlopen_providers"], {}),
+            ("runtime-abi.json", ["objects", 0, "dlopen_providers", "sample"], ["/absent.so"]),
+            ("contract.json", ["runtime", "unsupported_dlopen_features", 0, "soname"], ["wrong.so"]),
+            ("contract.json", ["runtime", "providers"], ["/absent.so"]),
+            ("contract.json", ["runtime", "bundled_graphics_drivers"], True),
+        ]
+        for name, keys, value in changes:
+            docs = self.portable_documents()
+            target = docs[name]
+            for key in keys[:-1]:
+                target = target[key]
+            target[keys[-1]] = value
+            with self.subTest(name=name, keys=keys), self.assertRaises(export.ExportError):
+                export.portable_metadata_report(**self.portable_arguments(docs))
+
+    def test_portable_metadata_rejects_duplicate_disconnected_or_ambiguous_objects(self) -> None:
+        for change in ("duplicate", "disconnected", "source-conflict", "unused-exclusion"):
+            docs = self.portable_documents()
+            if change in ("duplicate", "disconnected"):
+                row = dict(docs["runtime-abi.json"]["objects"][1])
+                if change == "disconnected":
+                    row["path"] = "/usr/local/lib/unreachable.so"
+                docs["runtime-abi.json"]["objects"].append(row)
+            elif change == "source-conflict":
+                docs["debian-sources.json"].append(dict(docs["debian-sources.json"][0], source_version="2.0"))
+            else:
+                docs["contract.json"]["runtime"]["unsupported_dlopen_features"][0]["feature"] = "unreferenced"
+            with self.subTest(change=change), self.assertRaises(export.ExportError):
+                export.portable_metadata_report(**self.portable_arguments(docs))
+
+    def test_portable_metadata_rejects_duplicate_dynamic_features(self) -> None:
+        for feature_index in (0, 1):
+            for conflicting in (False, True):
+                with self.subTest(feature_index=feature_index, conflicting=conflicting):
+                    docs = self.portable_documents()
+                    features = docs["runtime-abi.json"]["objects"][0]["dlopen"]
+                    duplicate = dict(features[feature_index])
+                    if conflicting:
+                        duplicate["soname"] = ["missing.so"]
+                    features.append(duplicate)
+                    with self.assertRaisesRegex(export.ExportError, "duplicate dynamic feature"):
+                        export.portable_metadata_report(**self.portable_arguments(docs))
+
+    def test_portable_metadata_requires_exact_hashes_and_consumer_commit(self) -> None:
+        for change in ("hash", "missing", "extra", "tag", "consumer", "duplicate-key", "nan", "large", "installed-link"):
+            args = self.portable_arguments(self.portable_documents())
+            if change == "hash":
+                args["metadata"]["contract.json"] += b" "
+            elif change == "missing":
+                args["metadata"].pop("runtime-abi.json")
+            elif change == "extra":
+                args["expected_hashes"]["unexpected.json"] = "a" * 64
+            elif change == "tag":
+                args["immutable_image"] = "ghcr.io/atrinik/classic-portable-build:latest"
+            elif change == "consumer":
+                args["consumer_commit"] = "b" * 40
+            elif change in ("duplicate-key", "nan", "installed-link"):
+                key = "installed.json"
+                value = args["metadata"][key]
+                if change == "duplicate-key":
+                    value = value.replace(b'{', b'{"schema_version":1,', 1)
+                elif change == "nan":
+                    value = value.replace(b'"schema_version": 1', b'"schema_version": NaN')
+                else:
+                    data = json.loads(value); data["contract_sha256"] = "0" * 64; value = json.dumps(data).encode()
+                args["metadata"][key] = value
+                args["expected_hashes"][key] = hashlib.sha256(value).hexdigest()
+            with self.subTest(change=change), mock.patch.object(export, "MAX_MANIFEST_BYTES", 1 if change == "large" else export.MAX_MANIFEST_BYTES):
+                with self.assertRaises(export.ExportError):
+                    export.portable_metadata_report(**args)
+
     def test_descriptor_copy_verifies_written_bytes_and_partial_writes(self) -> None:
         source = self.root / "payload"
         source.write_bytes(b"media-bytes" * 1000)

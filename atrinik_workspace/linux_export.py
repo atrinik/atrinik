@@ -219,6 +219,259 @@ def verify_export(root: Path) -> dict[str, object]:
             os.close(root_fd)
 
 
+PORTABLE_METADATA_FILES = frozenset({
+    "contract.json", "installed.json", "runtime-abi.json", "runtime-sources.json",
+    "debian-sources.json", "shader-generation.json",
+})
+
+
+def _portable_mapping(value: object, label: str) -> dict:
+    if not isinstance(value, dict) or len(value) > MAX_FILES:
+        raise ExportError("portable-metadata: invalid " + label)
+    return value
+
+
+def _portable_strings(value: object, label: str) -> list[str]:
+    if (not isinstance(value, list) or len(value) > MAX_FILES
+            or any(not isinstance(item, str) or not item or any(ord(c) < 32 for c in item) for item in value)
+            or len(set(value)) != len(value)):
+        raise ExportError("portable-metadata: invalid " + label)
+    return value
+
+
+def _portable_digest(value: object) -> str:
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value):
+        raise ExportError("portable-metadata: invalid SHA256")
+    return value
+
+
+def _portable_path(value: object) -> str:
+    if not isinstance(value, str) or not value.startswith("/"):
+        raise ExportError("portable-metadata: absolute image path required")
+    relative_path(value[1:])
+    return value
+
+
+def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dict[str, str],
+                             immutable_image: str, runnable_manifest: str,
+                             consumer_commit: str) -> dict[str, object]:
+    """Check metadata relationships against an externally verified image handoff.
+
+    The caller must obtain hashes and OCI coordinates from its authenticated
+    producer/registry proof, never from the payload being checked. This function
+    does not perform that proof, touch image paths, or qualify any runtime bytes.
+    The declared consumer must satisfy the producer's exact-commit guard; a
+    matching argument still does not prove a checkout or its source lease.
+    """
+    if (not isinstance(metadata, dict) or set(metadata) != PORTABLE_METADATA_FILES
+            or not isinstance(expected_hashes, dict) or set(expected_hashes) != PORTABLE_METADATA_FILES):
+        raise ExportError("portable-metadata: exact six-file handoff required")
+    if (not isinstance(immutable_image, str) or not re.fullmatch(
+            r"ghcr\.io/atrinik/classic-portable-build@sha256:[0-9a-f]{64}", immutable_image)
+            or not isinstance(runnable_manifest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", runnable_manifest)):
+        raise ExportError("portable-metadata: immutable OCI coordinates required")
+    if not isinstance(consumer_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", consumer_commit):
+        raise ExportError("portable-metadata: exact consumer commit required")
+    documents = {}
+    for name in sorted(PORTABLE_METADATA_FILES):
+        data = metadata[name]
+        if not isinstance(data, bytes) or len(data) > MAX_MANIFEST_BYTES:
+            raise ExportError("portable-metadata: bounded metadata bytes required")
+        if hashlib.sha256(data).hexdigest() != _portable_digest(expected_hashes[name]):
+            raise ExportError("portable-metadata: hash mismatch for " + name)
+        try:
+            documents[name] = json.loads(data, object_pairs_hook=_unique_object,
+                                         parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)))
+        except (ValueError, UnicodeError, RecursionError) as error:
+            raise ExportError("portable-metadata: invalid JSON in " + name) from error
+    contract = _portable_mapping(documents["contract.json"], "contract")
+    installed = _portable_mapping(documents["installed.json"], "installed tools")
+    abi = _portable_mapping(documents["runtime-abi.json"], "ABI report")
+    shader = _portable_mapping(documents["shader-generation.json"], "shader record")
+    for record in (contract, installed, abi, shader):
+        if type(record.get("schema_version")) is not int or record["schema_version"] != 1:
+            raise ExportError("portable-metadata: unsupported schema version")
+    if (contract.get("platform") != "linux/amd64" or contract.get("target") != "portable-final"
+            or contract.get("image") != immutable_image.split("@", 1)[0]
+            or contract.get("metadata_directory") != "/opt/atrinik-portable"):
+        raise ExportError("portable-metadata: unsupported portable target")
+    base = _portable_mapping(contract.get("base"), "base")
+    compiler = _portable_mapping(contract.get("compiler"), "compiler")
+    consumer = _portable_mapping(contract.get("consumer"), "consumer")
+    if (base.get("glibc") != "2.36" or abi.get("glibc") != base["glibc"]
+            or installed.get("glibc") != "glibc " + base["glibc"]
+            or installed.get("architecture") != "amd64"
+            or installed.get("compiler_target") != "x86_64-linux-gnu"
+            or compiler.get("cpu") != "x86-64" or abi.get("cpu") != compiler["cpu"]
+            or compiler.get("cflags") != "-O2 -march=x86-64 -mtune=generic"
+            or compiler.get("cxxflags") != compiler["cflags"]):
+        raise ExportError("portable-metadata: incompatible ABI or CPU baseline")
+    if (base.get("image") != "debian:bookworm-slim"
+            or not isinstance(base.get("digest"), str)
+            or not re.fullmatch(r"sha256:[0-9a-f]{64}", base["digest"])
+            or not isinstance(base.get("apt_snapshot"), str)
+            or not re.fullmatch(r"[0-9]{8}T[0-9]{6}Z", base["apt_snapshot"])
+            or type(compiler.get("c_standard")) is not int or compiler["c_standard"] != 17):
+        raise ExportError("portable-metadata: invalid baseline coordinates")
+    options = installed.get("compiler_options")
+    if (not isinstance(options, str)
+            or re.findall(r"^\s*-march=\s+(\S+)\s*$", options, re.MULTILINE) != ["x86-64"]
+            or re.findall(r"^\s*-mtune=\s+(\S+)\s*$", options, re.MULTILINE) != ["generic"]):
+        raise ExportError("portable-metadata: observed compiler baseline differs")
+    if installed.get("contract_sha256") != expected_hashes["contract.json"]:
+        raise ExportError("portable-metadata: installed contract hash mismatch")
+    packages = _portable_mapping(contract.get("pkg_config"), "package versions")
+    if (not packages or any(not isinstance(v, str) or not v for v in packages.values())
+            or packages != installed.get("pkg_config")):
+        raise ExportError("portable-metadata: installed package versions differ")
+    if (consumer.get("repository") != "atrinik/classic"
+            or consumer.get("commit") != consumer_commit or shader.get("source_commit") != consumer_commit
+            or consumer.get("input_verification") != "exact-source-commit-and-shader-input-sha256"):
+        raise ExportError("portable-metadata: exact consumer/source guard mismatch")
+    source_inputs = _portable_mapping(shader.get("source_inputs"), "shader inputs")
+    if not source_inputs:
+        raise ExportError("portable-metadata: missing shader inputs")
+    for name, digest in source_inputs.items():
+        relative_path(name)
+        _portable_digest(digest)
+    if (_portable_digest(shader.get("output_manifest_sha256"))
+            != _portable_digest(shader.get("expected_manifest_sha256"))):
+        raise ExportError("portable-metadata: shader manifest mismatch")
+    for name in ("tool_manifest_sha256", "installer_sha256"):
+        _portable_digest(shader.get(name))
+    runtime = _portable_mapping(contract.get("runtime"), "runtime contract")
+    if runtime.get("bundled_graphics_drivers") is not False:
+        raise ExportError("portable-metadata: host graphics drivers must remain external")
+    rows = abi.get("objects")
+    if not isinstance(rows, list) or not rows or len(rows) > MAX_FILES:
+        raise ExportError("portable-metadata: invalid ABI objects")
+    objects = {}
+    for row in rows:
+        row = _portable_mapping(row, "ABI object")
+        path = _portable_path(row.get("path"))
+        if path in objects:
+            raise ExportError("portable-metadata: duplicate ABI object")
+        _portable_digest(row.get("sha256"))
+        objects[path] = row
+    roots = _portable_strings(abi.get("roots"), "ABI roots")
+    if not roots or any(_portable_path(path) not in objects for path in roots):
+        raise ExportError("portable-metadata: missing ABI root")
+    explicit_providers = _portable_strings(runtime.get("providers"), "explicit providers")
+    if any(_portable_path(path) not in objects for path in explicit_providers):
+        raise ExportError("portable-metadata: missing explicit provider")
+    excluded = runtime.get("unsupported_dlopen_features")
+    if not isinstance(excluded, list) or len(excluded) > MAX_FILES:
+        raise ExportError("portable-metadata: invalid unsupported feature declarations")
+    exclusions = {}
+    for item in excluded:
+        item = _portable_mapping(item, "unsupported feature")
+        key = (_portable_path(item.get("object")), item.get("feature"))
+        if (key[0] not in objects or not isinstance(key[1], str) or not key[1]
+                or key in exclusions or not isinstance(item.get("reason"), str) or not item["reason"]):
+            raise ExportError("portable-metadata: invalid unsupported feature identity")
+        exclusions[key] = _portable_strings(item.get("soname"), "unsupported feature sonames")
+    used_exclusions = set()
+    edges = {}
+    for path, row in objects.items():
+        needed = _portable_mapping(row.get("needed"), "needed libraries")
+        edges[path] = set()
+        for name, target in needed.items():
+            if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9_+.-]+", name) or name in (".", ".."):
+                raise ExportError("portable-metadata: invalid library basename")
+            if _portable_path(target) not in objects:
+                raise ExportError("portable-metadata: unresolved library edge")
+            edges[path].add(target)
+        symbols = _portable_strings(row.get("required_symbols"), "required symbols")
+        providers = _portable_mapping(row.get("required_providers"), "symbol providers")
+        if set(providers) != {symbol for symbol in symbols if "@" in symbol}:
+            raise ExportError("portable-metadata: incomplete symbol-provider records")
+        for symbol, provider in providers.items():
+            provider = _portable_mapping(provider, "symbol provider")
+            if (not isinstance(provider.get("provider"), str) or provider["provider"] not in needed
+                    or type(provider.get("version_index")) is not int
+                    or not 2 <= provider["version_index"] < 32768):
+                raise ExportError("portable-metadata: invalid symbol provider")
+        features = row.get("dlopen")
+        if not isinstance(features, list) or len(features) > MAX_FILES:
+            raise ExportError("portable-metadata: invalid dynamic feature list")
+        dynamic = _portable_mapping(row.get("dlopen_providers"), "dynamic providers")
+        expected_features = set()
+        seen_features = set()
+        for feature in features:
+            feature = _portable_mapping(feature, "dynamic feature")
+            name = feature.get("feature")
+            if not isinstance(name, str) or not name:
+                raise ExportError("portable-metadata: invalid dynamic feature name")
+            if name in seen_features:
+                raise ExportError("portable-metadata: duplicate dynamic feature")
+            seen_features.add(name)
+            sonames = _portable_strings(feature.get("soname"), "dynamic sonames")
+            if not sonames:
+                raise ExportError("portable-metadata: empty dynamic sonames")
+            key = (path, name)
+            if key in exclusions:
+                if exclusions[key] != sonames:
+                    raise ExportError("portable-metadata: unsupported feature differs")
+                used_exclusions.add(key)
+            else:
+                expected_features.add(name)
+        if set(dynamic) != expected_features:
+            raise ExportError("portable-metadata: incomplete dynamic providers")
+        for targets in dynamic.values():
+            targets = _portable_strings(targets, "dynamic provider paths")
+            if not targets or any(_portable_path(target) not in objects for target in targets):
+                raise ExportError("portable-metadata: unresolved dynamic provider")
+            edges[path].update(targets)
+    if used_exclusions != set(exclusions):
+        raise ExportError("portable-metadata: unused unsupported feature declaration")
+    reachable = set()
+    pending = list(roots)
+    while pending:
+        path = pending.pop()
+        if path not in reachable:
+            reachable.add(path)
+            pending.extend(edges[path] - reachable)
+    if reachable != set(objects):
+        raise ExportError("portable-metadata: disconnected ABI objects")
+    sources = _portable_mapping(documents["runtime-sources.json"], "runtime sources")
+    source_packages = _portable_mapping(sources.get("source_packages"), "source packages")
+    archives = _portable_mapping(sources.get("archives"), "source archives")
+    if not source_packages or not archives:
+        raise ExportError("portable-metadata: missing runtime sources")
+    for name, digest in archives.items():
+        if "/" in relative_path(name):
+            raise ExportError("portable-metadata: source archive basename required")
+        _portable_digest(digest)
+    debian = documents["debian-sources.json"]
+    if not isinstance(debian, list) or not debian or len(debian) > MAX_FILES:
+        raise ExportError("portable-metadata: invalid Debian source inventory")
+    versions = {}
+    for row in debian:
+        row = _portable_mapping(row, "Debian source")
+        name, version = row.get("source"), row.get("source_version")
+        if (not isinstance(name, str) or not name or not isinstance(version, str) or not version
+                or row.get("snapshot") != base.get("apt_snapshot")):
+            raise ExportError("portable-metadata: invalid Debian source coordinate")
+        if name in versions and versions[name] != version:
+            raise ExportError("portable-metadata: conflicting Debian source version")
+        versions[name] = version
+        _portable_path(row.get("notice_directory"))
+    if any(not isinstance(version, str) or not version or versions.get(name) != version
+           for name, version in source_packages.items()):
+        raise ExportError("portable-metadata: runtime source versions differ")
+    return {"schema_version": 1, "immutable_image": immutable_image,
+            "runnable_manifest": runnable_manifest, "consumer_commit": consumer_commit,
+            "metadata_sha256": dict(expected_hashes), "platform": contract["platform"],
+            "glibc": abi["glibc"], "cpu": abi["cpu"], "objects": len(objects),
+            "runtime_source_packages": len(source_packages), "source_archives": len(archives),
+            "shader_inputs": len(source_inputs), "metadata_consistent": True,
+            "registry_provenance_verified": False, "consumer_source_proven": False,
+            "runtime_payload_verified": False, "source_archives_verified": False,
+            "legal_closure_verified": False, "dynamic_plugins_verified": False,
+            "symbol_versions_verified": False,
+            "runtime_qualified": False}
+
+
 MAX_ELF_REPORT_BYTES = 4 * 1024 * 1024
 
 

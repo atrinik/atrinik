@@ -87,6 +87,30 @@ Actual selected-renderer evidence and interactive gameplay remain required.
 
 ## Portable binary evidence
 
+`linux_export.portable_metadata_report` checks the six published portable metadata
+records against hashes and immutable OCI coordinates supplied by the caller's
+separate authenticated producer/registry verification. It accepts only the
+Linux/amd64 Debian 12/glibc 2.36 portable target, checks the installed contract,
+package and CPU declarations, resolves reported library/plugin edges, checks
+versioned-symbol provider records and compares source/shader coordinates.
+Duplicate, malformed, missing, disconnected or contradictory records fail.
+Unsupported dynamic features require matching explicit producer declarations.
+
+The requested Classic commit must equal both the contract's consumer commit and
+the shader source commit. The published consumer enforces this full-commit guard;
+identical client/shader files at a different repository commit do not satisfy it.
+A replacement producer contract requires its own review and publication.
+
+This adapter only returns `metadata_consistent`. It does not fetch an image,
+execute its tools, inspect its filesystem paths, verify registry provenance,
+prove a source checkout/lease, rehash runtime binaries/source archives, validate
+actual symbol definitions or establish legal/runtime/hardware qualification.
+Caller-provided hashes are not self-authenticating. Keep those independent proofs
+with the immutable image handoff and bind actual copied payload bytes during
+later export integration. The image remains a build input, never coordinator
+execution authority. Its X11/Vulkan client supports a Wayland desktop only via a
+separately qualified XWayland setup; no native Wayland backend is claimed here.
+
 `linux_export.inspect_elf` examines a leased, already-open regular ELF descriptor
 with bounded, time-limited GNU readelf output; it never runs the payload or ldd.
 It records class, endianness, machine, interpreter, static dependencies, runtime
