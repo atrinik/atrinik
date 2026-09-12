@@ -72,8 +72,7 @@ class CoordinatorContextTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def _write_mountinfo(self, filesystem: str = "ext4") -> None:
-        device = self.workspace.stat().st_dev
-        device_name = f"{os.major(device)}:{os.minor(device)}"
+        device_name = "0:999"  # Mount hardware numbers do not identify paths.
 
         def encode(path: Path) -> str:
             return str(path).replace("\\", "\\134").replace(" ", "\\040")

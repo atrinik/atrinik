@@ -305,19 +305,15 @@ def read_regular(root: Path, selector: str, max_bytes: int) -> bytes:
             remaining -= len(chunk)
         payload = b"".join(chunks)
         after = os.fstat(descriptor)
-        identity_before = (
-            before.st_dev,
-            before.st_ino,
+        content_before = (
             before.st_size,
             before.st_mtime_ns,
         )
-        identity_after = (
-            after.st_dev,
-            after.st_ino,
+        content_after = (
             after.st_size,
             after.st_mtime_ns,
         )
-        if identity_before != identity_after:
+        if content_before != content_after:
             raise ContractError("STALE_COORDINATE", "resource changed during inspection")
         if len(payload) > max_bytes:
             raise ContractError("LIMIT_EXCEEDED", "resource exceeds the byte limit")

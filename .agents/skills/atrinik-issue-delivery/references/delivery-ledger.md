@@ -49,7 +49,7 @@ trusted `.git` directory with one canonical commit/symbolic `HEAD`, or a trusted
 regular gitfile naming an absolute normalized non-root Git directory whose
 entire path opens no-follow to one stable trusted directory with canonical
 `HEAD`. It then creates only `build/` and `build/reviews/` when absent, fsyncs
-each publication, and returns the exact review-root path/device/inode. It is not
+each publication, and returns the exact canonical review-root path. It is not
 an arbitrary directory creator. All later root arguments name the returned
 review root.
 
@@ -80,20 +80,15 @@ python3 scripts/delivery_ledger.py inspect REVIEW_ROOT LEDGER_NAME
 python3 scripts/delivery_ledger.py create REVIEW_ROOT INPUT
 python3 scripts/delivery_ledger.py cas REVIEW_ROOT LEDGER_NAME INPUT \
   --expected-generation GENERATION \
-  --expected-digest SHA256 \
-  --expected-device DEVICE \
-  --expected-inode INODE
+  --expected-digest SHA256
 python3 scripts/delivery_ledger.py target-refresh-cas \
   REVIEW_ROOT LEDGER_NAME INPUT \
-  --expected-generation GENERATION --expected-digest SHA256 \
-  --expected-device DEVICE --expected-inode INODE
+  --expected-generation GENERATION --expected-digest SHA256
 python3 scripts/delivery_ledger.py revalidate-current-targets-cas REVIEW_ROOT LEDGER_NAME \
-  --expected-generation GENERATION --expected-digest SHA256 \
-  --expected-device DEVICE --expected-inode INODE
+  --expected-generation GENERATION --expected-digest SHA256
 python3 scripts/delivery_ledger.py correct-target-head \
   REVIEW_ROOT LEDGER_NAME EXACT_PREDECESSOR_JSON RECOVERY_AUTHORITY_JSON \
   --expected-generation GENERATION --expected-digest SHA256 \
-  --expected-device DEVICE --expected-inode INODE \
   --bad-head NONEXISTENT_SHA --actual-head LIVE_SHA \
   [--actual-merge-base LIVE_SHA]
 python3 scripts/delivery_ledger.py migrate REVIEW_ROOT SOURCE_NAME INPUT \
@@ -112,34 +107,29 @@ python3 scripts/delivery_ledger.py check-reuse REVIEW_ROOT LEDGER_NAME --kind ar
 python3 scripts/delivery_ledger.py check-reuse REVIEW_ROOT LEDGER_NAME --kind resources
 python3 scripts/delivery_ledger.py bind-check REVIEW_ROOT LEDGER_NAME SLOT_ID INPUT
 python3 scripts/delivery_ledger.py pr-bind-cas REVIEW_ROOT LEDGER_NAME SLOT_ID PR_NUMBER \
-  --expected-generation GENERATION --expected-digest SHA256 \
-  --expected-device DEVICE --expected-inode INODE
+  --expected-generation GENERATION --expected-digest SHA256
 python3 scripts/delivery_ledger.py worktree-bind REVIEW_ROOT LEDGER_NAME SLOT_ID \
   WORKTREE_LIST_JSON SAFETY_JSON [--create-output OUTPUT]
 python3 scripts/delivery_ledger.py worktree-observe REVIEW_ROOT LEDGER_NAME SLOT_ID \
   WORKTREE_LIST_JSON OBSERVED_AT [--create-output OUTPUT]
 python3 scripts/delivery_ledger.py worktree-bind-cas REVIEW_ROOT LEDGER_NAME SLOT_ID \
   WORKTREE_LIST_JSON SAFETY_JSON [--create-output OUTPUT] \
-  --expected-generation GENERATION --expected-digest SHA256 \
-  --expected-device DEVICE --expected-inode INODE
+  --expected-generation GENERATION --expected-digest SHA256
 python3 scripts/delivery_ledger.py scope-bind REVIEW_ROOT LEDGER_NAME SLOT_ID \
   SCOPE_SHOW_JSON WORKTREE_LIST_JSON SAFETY_JSON
 python3 scripts/delivery_ledger.py scope-observe REVIEW_ROOT LEDGER_NAME SLOT_ID \
   SCOPE_SHOW_JSON WORKTREE_LIST_JSON OBSERVED_AT
 python3 scripts/delivery_ledger.py scope-bind-cas REVIEW_ROOT LEDGER_NAME SLOT_ID \
   SCOPE_SHOW_JSON WORKTREE_LIST_JSON SAFETY_JSON \
-  --expected-generation GENERATION --expected-digest SHA256 \
-  --expected-device DEVICE --expected-inode INODE
+  --expected-generation GENERATION --expected-digest SHA256
 python3 scripts/delivery_ledger.py recover-released-scope REVIEW_ROOT LEDGER_NAME \
   REPLACEMENT_LEDGER_JSON RELEASED_SCOPE_SHOW_JSON RECOVERY_AUTHORITY_JSON \
-  --expected-generation GENERATION --expected-digest SHA256 \
-  --expected-device DEVICE --expected-inode INODE
+  --expected-generation GENERATION --expected-digest SHA256
 python3 scripts/delivery_ledger.py recover-prebind-scope REVIEW_ROOT LEDGER_NAME \
   REPLACEMENT_LEDGER_JSON SCOPE_SHOW_JSON WORKTREE_LIST_JSON SAFETY_JSON \
   RECOVERY_AUTHORITY_JSON \
-  --expected-generation GENERATION --expected-digest SHA256 \
-  --expected-device DEVICE --expected-inode INODE
-python3 scripts/delivery_ledger.py recover-prebind-identity REVIEW_ROOT LEDGER_NAME REPLACEMENT_LEDGER_JSON RECOVERY_AUTHORITY_JSON --expected-generation GENERATION --expected-digest SHA256 --expected-device DEVICE --expected-inode INODE
+  --expected-generation GENERATION --expected-digest SHA256
+python3 scripts/delivery_ledger.py recover-prebind-identity REVIEW_ROOT LEDGER_NAME REPLACEMENT_LEDGER_JSON RECOVERY_AUTHORITY_JSON --expected-generation GENERATION --expected-digest SHA256
 python3 scripts/delivery_ledger.py pr-create-payload REVIEW_ROOT LEDGER_NAME SLOT_ID
 python3 scripts/delivery_ledger.py body-check REVIEW_ROOT LEDGER_NAME PR_NODE_ID BODY
 python3 scripts/delivery_ledger.py body-plan REVIEW_ROOT LEDGER_NAME PR_NODE_ID BODY SECTION
@@ -156,8 +146,8 @@ python3 scripts/delivery_ledger.py reclaim-apply REVIEW_ROOT PREVIEW --plan SHA2
 
 `prepare` validates and returns a normalized document. Stored bytes are stricter:
 ASCII JSON with sorted keys, no insignificant whitespace, and one terminal
-newline. `inspect` returns `name`, `digest`, `device`, `inode`, and `document`;
-use all four identity values from the same snapshot for CAS. `inventory` first
+newline. `inspect` returns `name`, `path`, `digest`, and `document`;
+use the generation and digest from the same snapshot for CAS. `inventory` first
 validates every recognized canonical ledger, report claim, lock, transaction,
 migration marker, and staging file, then rejects overlaps or unsafe debris.
 `worktree-bind` and `scope-bind` only diagnose retained evidence; they never
@@ -167,17 +157,17 @@ safety document under pinned no-follow roots and workspace leases. Only
 before its internal CAS, constructs the sole next generation without a caller
 candidate, and returns exactly `classification`, `slot_id`, `request_sha256`,
 `result_sha256`, `path`, and installed `snapshot`
-`{name, digest, device, inode, document}`. Pass one exact four-part tuple from
-`inspect`; stale identity or changed live state stops. A pending predecessor
-receipt can be recovered only with its original predecessor tuple. A fresh
-current tuple cannot treat that receipt as an ordinary `bound-match` retry.
+`{name, path, digest, document}`. Pass one exact generation/digest pair from
+`inspect`; a stale generation/digest pair or changed live state stops. A pending predecessor
+receipt can be recovered only with its original predecessor generation/digest pair. A fresh
+current generation/digest pair cannot treat that receipt as an ordinary `bound-match` retry.
 For an issue-mode planned PR, `bind-check` is likewise diagnostic only;
 `pr-bind-cas` is the mutation boundary. It accepts the slot, PR number, and one
-fresh four-part ledger tuple, then re-fetches the authenticated actor, complete
+fresh ledger generation/digest pair, then re-fetches the authenticated actor, complete
 same-repository draft PR identity, durable body bytes, comment state, target,
 and bound local worktree before its private CAS. Generic `cas` cannot perform
 this initial PR bind. An interrupted PR bind is retried with the identical
-original command and predecessor tuple so the helper can accept only its exact
+original command and predecessor generation/digest pair so the helper can accept only its exact
 receipt.
 
 At issue-mode genesis, `create` obtains the viewer login/node and every target
@@ -198,7 +188,7 @@ filtering and verify the mounted login through the live helper.
 Before any dynamic `Workspace` import or Python execution, live proof performs
 a bounded component-wise no-follow ownership/mode prevalidation of the complete
 importable `atrinik_workspace` source/bytecode tree. It fingerprints every
-path/type/mode/device/inode and file byte, then executes only retained `.py`
+path/type/mode and file bytes, then executes only retained `.py`
 snapshot bytes under a fingerprint-specific private package name, never
 bytecode. It then recomputes the full tree and rechecks loaded source paths. It
 likewise pretrusts and rechecks managed worktree, scope, and profile ancestors
@@ -228,7 +218,7 @@ root, caps its inventory at 4096 entries and 32 MiB of JSON, and reads candidate
 that descriptor. It snapshots and rechecks the exact sorted entry names plus
 each entry's no-follow identity and, for regular JSON profiles, canonical bytes
 digest through CAS precommit. Reference discovery parses those exact retained
-bytes rather than reopening mutable names. The directory inode remains pinned throughout;
+bytes rather than reopening mutable names. The directory path remains pinned throughout;
 an initially absent directory must remain absent.
 
 On both primary and worktree checkouts, Git route proof anchors exactly one raw
@@ -475,7 +465,7 @@ A deferred primitive worktree request has exactly `component`,
 `physical_checkout`, `label`, `repository`, `branch`, `expected_head_sha`, and
 `roots`; its repository/branch equal immutable artifact intent and its head
 equals the unchanged target head. `roots` has exact `wrapper`, `workspace`, and
-`primary` path identities, each `{path, device, inode}`. The primary path is
+`primary` canonical paths, each `{path}`. The primary path is
 `WRAPPER/PHYSICAL_CHECKOUT`; workspace is the precommitted, non-root managed
 workspace directory and cannot be the wrapper or its ancestor. All three must
 still be exact live canonical directories when binding.
@@ -494,7 +484,7 @@ locked, prunable, duplicate, or ambiguous match.
 
 The decoded safety observation has exactly `schema_version`, semantic
 `observed_at`, `repository`, `component`, `physical_checkout`, `roots`, `path`,
-`path_device`, `path_inode`, `branch`, `head_sha`, `worktree_list_sha256`,
+`branch`, `head_sha`, `worktree_list_sha256`,
 `producer`, and `safety`. `producer` is exactly `{kind, result_sha256}`: kind is
 `primitive` and its digest is the optional create-output digest, or kind is
 `scope` and its digest is the raw scope-show digest. Every coordinate and digest
@@ -591,8 +581,7 @@ comment carries no pending intent.
 `migration` is null for create/migration input. A migrated installed ledger has
 exactly `kind`, `state=complete`, `source`, `snapshot`, `canonical_report`,
 `marker_name`. Kind is `legacy`, `legacy-rebind`, or `pre-schema`.
-Source/snapshot each have exact direct `name`, SHA-256, device,
-inode. The snapshot and marker names must be helper-canonical.
+Source and snapshot each have an exact direct `name`, canonical path, and SHA-256. The snapshot and marker names must be helper-canonical.
 `legacy-rebind` additionally has non-empty, case-sorted `related_sources` and
 `historical_heads` arrays of exact source identities and parsed historical
 repository/branch/commit coordinates; other migration kinds omit both fields.
@@ -686,18 +675,12 @@ input; no field is omitted.
         },
         "roots": {
           "primary": {
-            "device": 1,
-            "inode": 101,
             "path": "/workspaces/atrinik"
           },
           "workspace": {
-            "device": 1,
-            "inode": 102,
             "path": "/workspaces/atrinik/workspace"
           },
           "wrapper": {
-            "device": 1,
-            "inode": 101,
             "path": "/workspaces/atrinik"
           }
         }
@@ -828,9 +811,7 @@ python3 scripts/delivery_ledger.py worktree-bind-cas \
   "$DELIVERY_REVIEW_ROOT" "$DELIVERY_LEDGER" worktree \
   "$DELIVERY_WORKTREE_LIST" "$DELIVERY_WORKTREE_SAFETY" \
   --expected-generation "$DELIVERY_EXPECTED_GENERATION" \
-  --expected-digest "$DELIVERY_EXPECTED_DIGEST" \
-  --expected-device "$DELIVERY_EXPECTED_DEVICE" \
-  --expected-inode "$DELIVERY_EXPECTED_INODE"
+  --expected-digest "$DELIVERY_EXPECTED_DIGEST"
 ```
 
 Raw Git has no canonical wrapper create output, so omitting `--create-output`
@@ -948,18 +929,12 @@ alternate genesis shapes for an existing branch or registered worktree follow.
         },
         "roots": {
           "primary": {
-            "device": 1,
-            "inode": 103,
             "path": "/workspaces/atrinik/client"
           },
           "workspace": {
-            "device": 1,
-            "inode": 102,
             "path": "/workspaces/atrinik/workspace"
           },
           "wrapper": {
-            "device": 1,
-            "inode": 101,
             "path": "/workspaces/atrinik"
           }
         }
@@ -1132,8 +1107,6 @@ python3 scripts/delivery_ledger.py worktree-bind-cas \
   --create-output "$DELIVERY_WORKTREE_OUTPUT" \
   --expected-generation "$DELIVERY_EXPECTED_GENERATION" \
   --expected-digest "$DELIVERY_EXPECTED_DIGEST" \
-  --expected-device "$DELIVERY_EXPECTED_DEVICE" \
-  --expected-inode "$DELIVERY_EXPECTED_INODE" \
   > "$DELIVERY_WORKTREE_BINDING"
 ```
 
@@ -1235,18 +1208,12 @@ ledger's primitive worktree with this complete planned object and replace
       "profile": "default",
       "roots": {
         "primary": {
-          "device": 1,
-          "inode": 103,
           "path": "/workspaces/atrinik/client"
         },
         "workspace": {
-          "device": 1,
-          "inode": 102,
           "path": "/workspaces/atrinik/workspace"
         },
         "wrapper": {
-          "device": 1,
-          "inode": 101,
           "path": "/workspaces/atrinik"
         }
       },
@@ -1310,8 +1277,6 @@ python3 scripts/delivery_ledger.py scope-bind-cas \
   "$DELIVERY_SCOPE_SHOW" "$DELIVERY_SCOPE_WORKTREES" "$DELIVERY_SCOPE_SAFETY" \
   --expected-generation "$DELIVERY_EXPECTED_GENERATION" \
   --expected-digest "$DELIVERY_EXPECTED_DIGEST" \
-  --expected-device "$DELIVERY_EXPECTED_DEVICE" \
-  --expected-inode "$DELIVERY_EXPECTED_INODE" \
   > "$DELIVERY_SCOPE_BINDING"
 ```
 
@@ -1324,13 +1289,13 @@ and cleanup coordinates. Under pinned roots and workspace leases,
 `scope-bind-cas` revalidates the live scope, wrapper list, Git state, and exact
 `scope:NAME` plus `profile:scope-NAME` references immediately before its
 internal CAS; any topology or other reference blocks. It also proves the live
-profile file's exact retained digest/device/inode and absence of a release
+profile file's exact retained digest and canonical path and absence of a release
 journal. The creation journal is deliberately non-authoritative; cleanup
 coordinates are compared from the scope record. It rejects internal path
 reconstruction, extra rows, a released/partial result, and any request or target
 head mismatch. The helper-produced safety observation has producer kind
 `scope` and `result_sha256` equal to the raw scope-show digest. Its list digest,
-safe flags, root identities, and scope-result worktree device/inode must all
+safe flags, root identities, and scope-result worktree path must all
 match live.
 
 The atomic command admits no candidate document and returns the installed
@@ -1354,7 +1319,7 @@ and non-reusable.
 
 When a completed scope was released before binding and its retained
 `requested_components` disagrees with the planned schema-v1 selector, preserve
-the exact predecessor ledger tuple, raw `scope show` bytes, release journal,
+the exact predecessor ledger generation/digest pair, raw `scope show` bytes, release journal,
 branch/start coordinates, roots, and collision observations. Prepare a
 generation-2 candidate through the helper contract, changing only the planned
 scope resource to a fresh name/label/topology and the selector proven by the
@@ -1362,7 +1327,7 @@ released scope. Keep the physical checkout, base profile, branch, start SHA,
 and root identities unchanged.
 
 The explicit-recovery JSON binds the predecessor name/ledger ID/generation/
-digest/device/inode, all old scope coordinates plus the scope-show and release
+digest and canonical path, all old scope coordinates plus the scope-show and release
 journal digests, the replacement coordinates, the candidate digest, and an
 `explicit-recovery` authority whose objective is the canonical digest of those
 exact values. Run:
@@ -1371,8 +1336,7 @@ exact values. Run:
 python3 scripts/delivery_ledger.py recover-released-scope \
   REVIEW_ROOT LEDGER_NAME REPLACEMENT_LEDGER_JSON \
   RELEASED_SCOPE_SHOW_JSON RECOVERY_AUTHORITY_JSON \
-  --expected-generation GENERATION --expected-digest SHA256 \
-  --expected-device DEVICE --expected-inode INODE
+  --expected-generation GENERATION --expected-digest SHA256
 ```
 
 The helper proves a complete release journal and live absence of every old
@@ -1390,7 +1354,7 @@ overwrite, or hand-edit either ledger or release evidence.
 If an older helper or a crash left a planned, unbound scope request with a
 non-canonical topology while the live scope already uses `scope-<name>`, do not
 edit the ledger or delete the scope. Preserve one exact predecessor
-`generation/digest/device/inode` tuple and the raw `scope show`, complete
+generation/digest pair and the raw `scope show`, complete
 worktree-list, and helper-produced safety observation. The live scope must be
 active, complete, unreleased, and exactly owned; released, partial, ambiguous,
 changed, or unsafe evidence is rejected.
@@ -1399,7 +1363,7 @@ Prepare a generation-2 candidate with the same issue/target, scope slot,
 component, profile, physical checkout, label, branch, start commit, roots, and
 planned state. Change only the request topology to `scope-<name>` and add an
 `explicit-recovery` authority. The recovery authority must bind the exact
-predecessor tuple, all old scope coordinates, the canonical observed topology,
+predecessor generation/digest pair, all old scope coordinates, the canonical observed topology,
 the three raw evidence digests, the candidate digest, and an objective digest
 of those values. Run:
 
@@ -1407,26 +1371,24 @@ of those values. Run:
 python3 scripts/delivery_ledger.py recover-prebind-scope \
   REVIEW_ROOT LEDGER_NAME REPLACEMENT_LEDGER_JSON \
   SCOPE_SHOW_JSON WORKTREE_LIST_JSON SAFETY_JSON RECOVERY_AUTHORITY_JSON \
-  --expected-generation GENERATION --expected-digest SHA256 \
-  --expected-device DEVICE --expected-inode INODE
+  --expected-generation GENERATION --expected-digest SHA256
 ```
 
 The helper verifies the retained scope and raw evidence, pins the exact
 worktree and canonical topology directory under workspace leases, then repeats
 that proof immediately before one tagged CAS. A candidate that changes any
-field outside topology/authority, a stale tuple, release journal, existing
+field outside topology/authority, a stale generation/digest pair, release journal, existing
 ambiguous coordinate, or non-canonical observation fails closed. If a crash
 occurs after the ledger rename, rerun the same command with the original
-predecessor tuple; the durable post-rename proof completes the transaction and
+predecessor generation/digest pair; the durable post-rename proof completes the transaction and
 the predecessor digest remains in `history`. Once that receipt is consumed, a
-newer tuple is required and an ordinary retry is rejected.
+newer generation/digest pair is required and an ordinary retry is rejected.
 
 ## Recover one exact pre-bind actor identity change
 
 If the authenticated actor changes after genesis but before the planned
 issue-mode PR is bound, do not edit the sidecar, recreate the branch/worktree,
-or create/adopt a PR. Preserve the exact source `generation/digest/device/inode`
-tuple and the source ledger bytes. The source must still have no selected PR,
+or create/adopt a PR. Preserve the exact source generation/digest pair and the source ledger bytes. The source must still have no selected PR,
 an empty pull-request authority allowlist, exactly one planned PR slot, and one
 already-bound safe worktree for the target branch.
 
@@ -1439,7 +1401,7 @@ authority timestamp, candidate digest, and the replacement `explicit-recovery`
 authority. That authority's objective digest binds the same projection. Run:
 
 ```sh
-python3 scripts/delivery_ledger.py recover-prebind-identity REVIEW_ROOT LEDGER_NAME REPLACEMENT_LEDGER_JSON RECOVERY_AUTHORITY_JSON --expected-generation GENERATION --expected-digest SHA256 --expected-device DEVICE --expected-inode INODE
+python3 scripts/delivery_ledger.py recover-prebind-identity REVIEW_ROOT LEDGER_NAME REPLACEMENT_LEDGER_JSON RECOVERY_AUTHORITY_JSON --expected-generation GENERATION --expected-digest SHA256
 ```
 
 The helper validates the exact predecessor and candidate digests, rejects
@@ -1449,9 +1411,9 @@ Under the bound worktree lease it then re-proves the new authenticated actor
 tuple and live absence of every PR for the delivery branch immediately before
 the CAS and again as its precommit guard. The transaction changes no remote
 state and never creates a PR. If a crash occurs after rename, rerun the same
-command with the original predecessor tuple; the durable receipt completes
+command with the original predecessor generation/digest pair; the durable receipt completes
 the exact recovery, preserving the predecessor digest in `history` and every
-delivery artifact. A newer tuple is required after the receipt is consumed;
+delivery artifact. A newer generation/digest pair is required after the receipt is consumed;
 generic `cas` cannot change actor or authority.
 
 ## Create, inspect, and update
@@ -1476,43 +1438,39 @@ stops.
 For every update, start from one `inspect` result. Copy its document, apply one
 legal transition, increment generation, set `previous_byte_digest` to the
 returned digest, append that digest to `history`, and leave every other field
-exact. Validate the replacement, then supply all four snapshot identity values:
+exact. Validate the replacement, then supply the snapshot generation and digest:
 
 ```sh
 DELIVERY_REPLACEMENT=/tmp/atrinik-issue-419-ledger-g2.json
 DELIVERY_EXPECTED_GENERATION=1
 DELIVERY_EXPECTED_DIGEST=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-DELIVERY_EXPECTED_DEVICE=2049
-DELIVERY_EXPECTED_INODE=100001
 python3 scripts/delivery_ledger.py prepare "$DELIVERY_REPLACEMENT"
 python3 scripts/delivery_ledger.py cas \
   "$DELIVERY_REVIEW_ROOT" "$DELIVERY_LEDGER" "$DELIVERY_REPLACEMENT" \
   --expected-generation "$DELIVERY_EXPECTED_GENERATION" \
-  --expected-digest "$DELIVERY_EXPECTED_DIGEST" \
-  --expected-device "$DELIVERY_EXPECTED_DEVICE" \
-  --expected-inode "$DELIVERY_EXPECTED_INODE"
+  --expected-digest "$DELIVERY_EXPECTED_DIGEST"
 ```
 
 The values above illustrate shell shape only; copy actual values from the same
 `inspect` output. Never combine values from different observations. CAS locks,
-re-inventories, checks generation/digest/device/inode again immediately before
-atomic replace, and fsyncs. Before rename, all four expected identity values
+re-inventories, checks generation/digest again immediately before
+atomic replace, and fsyncs. Before rename, the expected generation and digest
 are mandatory concurrency guards. Target-coordinate changes additionally hold
 the live worktree/Git proof described above across this boundary. It also
 creates a durable hard-link receipt
-whose name encodes ledger, old generation/digest/device/inode, and candidate
+whose name encodes ledger, old generation/digest, and candidate
 digest before rename:
 
 ```text
-.LEDGER.update-proof-gOLDGEN-from-OLDDIGEST-dOLDDEV-iOLDINODE-to-CANDIDATE.tmp
+.LEDGER.update-proof-gOLDGEN-from-OLDDIGEST-from-OLDPATH-to-CANDIDATE.tmp
 ```
 
 If a crash leaves the replacement installed, an
-exact retry succeeds only while that exact four-part predecessor receipt is
-still a two-link inode with the installed candidate bytes; the helper then
+exact retry succeeds only while that predecessor generation/digest receipt still
+has its expected hard-link proof and the installed candidate bytes; the helper then
 removes it. A normal successful CAS removes the receipt before returning, so a
-later retry with the old tuple stops and the operator must inspect the new
-snapshot. Any receipt name, inode, bytes, tuple, or candidate mismatch stops.
+later retry with the old generation/digest pair stops and the operator must inspect the new
+snapshot. Any receipt name, canonical path, bytes, generation/digest, or candidate mismatch stops.
 
 Before reuse, live-inspect every artifact/resource and CAS its current identity,
 lifecycle, and safety. Only then run:
@@ -1587,9 +1545,7 @@ from that same snapshot:
 python3 scripts/delivery_ledger.py pr-bind-cas \
   "$DELIVERY_REVIEW_ROOT" "$DELIVERY_LEDGER" pull-request 423 \
   --expected-generation "$DELIVERY_EXPECTED_GENERATION" \
-  --expected-digest "$DELIVERY_EXPECTED_DIGEST" \
-  --expected-device "$DELIVERY_EXPECTED_DEVICE" \
-  --expected-inode "$DELIVERY_EXPECTED_INODE"
+  --expected-digest "$DELIVERY_EXPECTED_DIGEST"
 ```
 
 `pr-bind-cas` performs the live authenticated-author, same-repository,
@@ -1769,7 +1725,7 @@ one bound primitive- or active-scope-produced worktree, plus the exact bound
 delivery-created PR artifact when that
 PR already exists. The worktree must retain either its exact deferred primitive
 request or one exact `producer_resource_slot` naming a created, active scope.
-Supply the bad generation's fresh four-part CAS identity, the nonexistent SHA,
+Supply the bad generation's fresh CAS generation/digest pair, the nonexistent SHA,
 the exact live SHA, the predecessor file, and a canonical explicit-recovery
 authority/intent file. An adopted, contributor-owned, foreign, or otherwise
 changed PR artifact is never eligible for correction.
@@ -1778,7 +1734,7 @@ That file has exactly `grant` and `intent`. `grant` is a normal
 `explicit-recovery` authority whose actor and complete repository/issue/PR
 allowlists exactly equal the installed ledger's authority scope. `intent` has
 transaction `delivery-ledger-correct-target-head-intent-v1` and binds the exact
-ledger name, installed generation/digest/device/inode, predecessor digest,
+ledger name, installed generation/digest, predecessor digest,
 target repository, branch, worktree, bad and actual SHAs, plus the full ledger
 ID, mode, actor, repository identities, authorized issue identities, and PR
 allowlist. The grant's `objective_sha256` is the SHA-256 of that exact canonical
@@ -1793,7 +1749,7 @@ request and requires its repository and branch to equal the changed target. For
 a scope-produced worktree, it resolves the sole named scope resource and
 requires `created` state with an `active` lifecycle. It decodes the retained
 scope binding, revalidates the exact request/result and helper-owned observation,
-and requires the scope repository, branch, managed path, device/inode, common
+and requires the scope repository, branch, managed path, common
 Git directory, profile, topology, state policy, commands, cleanup coordinates,
 generation, and owned references to remain exact. Missing, released, ambiguous,
 stale, or mismatched scope evidence fails before publication.
@@ -1821,11 +1777,11 @@ established. This bootstrap is limited to the exact Atrinik wrapper-self
 repository/checkout/root relationship; a component worktree or an unpinned or
 dirty candidate fails closed instead of substituting candidate code.
 
-The operation permanently retains canonical predecessor bytes and a hard link to
-the exact installed erroneous ledger inode plus the full recovery grant/intent
-receipt. Before replacement, the target and erroneous snapshot must be the same
-device/inode with two links; after replacement the retained erroneous snapshot's
-device/inode must still equal the receipt's source tuple. Inventory validates
+The operation permanently retains canonical predecessor bytes and a hard-link receipt for
+the exact installed erroneous ledger plus the full recovery grant/intent
+receipt. Before replacement, the target and erroneous snapshot must retain the expected
+two-link transaction proof and identical bytes. After replacement, the erroneous
+snapshot must retain the receipt's source path, digest, and link-count evidence. Inventory validates
 those artifacts, the objective, and the correction digest continuously. A later
 ordinary CAS is valid only when its history retains the correction digest at
 the correction generation's exact index; later generations may then continue
@@ -1833,7 +1789,7 @@ normally. Rerun the identical command after any
 interruption; the failpoints are `predecessor-snapshot`, `erroneous-snapshot`,
 `staged`, `receipt`, `renamed`, and `installed`, under the
 `correct-target-head:` prefix. Missing, changed, extra, existent-bad,
-non-ancestor, wrong-repository/branch/path, stale tuple, merge-base drift, or
+non-ancestor, wrong-repository/branch/path, stale generation/digest pair, merge-base drift, or
 unrelated semantic differences stop before replacement. A completed retry
 fsyncs the review root before returning, including recovery after a crash
 immediately following the rename.
@@ -1942,7 +1898,7 @@ Always substitute both actual source SHA-256 values. The helper durably publishe
 candidate-digest-named planned stage, immutable source snapshot, canonical
 report copy for `legacy` or `legacy-rebind`, prepared marker, canonical ledger,
 and complete marker. A rebind also records and continuously verifies the related
-source's exact name, digest, device, and inode; both originals remain preserved.
+source's exact name, canonical path, and digest; both originals remain preserved.
 
 If the review root also contains an interrupted fresh canonical report such as
 `atrinik-classic-issue-329.md`, the rebind intentionally does not consume it:
@@ -2005,15 +1961,15 @@ stop for code-level recovery; never improvise file repair.
 | Operation/state | Safe recovery |
 | --- | --- |
 | `create` stage only, including a durable short prefix | Rerun exact `create` with byte-identical candidate. It completes the deterministic stage. |
-| `create` target plus two-link stage | Rerun exact `create`; it proves identical inode/bytes and removes only the stage link. |
+| `create` target plus two-link stage | Rerun exact `create`; it proves the expected two-link transaction and identical bytes, then removes only the stage link. |
 | `create` target only | `inspect`; exact create retry is idempotent. Different bytes stop. |
-| CAS stage before rename, including a durable short prefix | Rerun exact `cas` with the identical coordinate-neutral replacement and original four-part expected tuple. For a tagged neutral revalidation stage, rerun exact `revalidate-current-targets-cas` with the original tuple and fresh all-target/actor proofs. For a tagged target-coordinate stage, rerun exact `target-refresh-cas`; it must still pass the complete live Git/worktree proof before publication. |
-| CAS target already replaced with its update proof | Rerun the same command that created the exact replacement: `cas` for a coordinate-neutral receipt or `target-refresh-cas` for a tagged target-coordinate receipt. Use the identical replacement and four-part predecessor tuple; a bounded compact transaction keeps full generation/digest/device/inode metadata in its JSON receipt and a companion hard-link proof, while the legacy transaction encodes that identity in its proof name. The helper removes only the exact retained evidence. Existing generic/target-refresh receipts do not require the branch to remain frozen after publication; a tagged `revalidate-current-targets-cas` receipt instead always requires fresh all-target/actor proofs before consumption. |
-| Atomic worktree/scope bind interrupted at either CAS boundary | Rerun the identical `worktree-bind-cas` or `scope-bind-cas` with the same retained inputs and original four-part predecessor tuple, never generic `cas`. The helper freshly reproves live state before replacement and before accepting an installed post-rename receipt; drift preserves evidence and stops. |
+| CAS stage before rename, including a durable short prefix | Rerun exact `cas` with the identical coordinate-neutral replacement and original generation/digest pair. For a tagged neutral revalidation stage, rerun exact `revalidate-current-targets-cas` with the original generation/digest pair and fresh all-target/actor proofs. For a tagged target-coordinate stage, rerun exact `target-refresh-cas`; it must still pass the complete live Git/worktree proof before publication. |
+| CAS target already replaced with its update proof | Rerun the same command that created the exact replacement: `cas` for a coordinate-neutral receipt or `target-refresh-cas` for a tagged target-coordinate receipt. Use the identical replacement and predecessor generation/digest pair; a bounded compact transaction keeps full generation/digest metadata in its JSON receipt and a companion hard-link proof, while the legacy transaction encodes that identity in its proof name. The helper removes only the exact retained evidence. Existing generic/target-refresh receipts do not require the branch to remain frozen after publication; a tagged `revalidate-current-targets-cas` receipt instead always requires fresh all-target/actor proofs before consumption. |
+| Atomic worktree/scope bind interrupted at either CAS boundary | Rerun the identical `worktree-bind-cas` or `scope-bind-cas` with the same retained inputs and original predecessor generation/digest pair, never generic `cas`. The helper freshly reproves live state before replacement and before accepting an installed post-rename receipt; drift preserves evidence and stops. |
 | Migration operation-digest plan/snapshot/report/prepared/ledger/complete boundary | Rerun exact `migrate` with identical null-migration candidate, kind, direct source name, and original source identity/digest. A different candidate or source cannot reuse even a short planned-stage prefix. |
 | Complete migration | `inventory` and `inspect`; require source/snapshot/marker/ledger coherence and no pending stage. |
-| Planned PR slot after remote create uncertainty | Recover the immutable initial bytes with `pr-create-payload`, search live candidates, and use `bind-check`; for one exact match run `pr-bind-cas` with its number and a fresh tuple. Zero or a mismatch never permits another uncertain create. |
-| Planned primitive branch/worktree after an uncertain local mutation | Reinspect the exact branch and wrapper registration. For one present exact worktree, capture a fresh list, use `worktree-observe`, then run `worktree-bind-cas` with one fresh four-part tuple. Retain manifest-owner create output; omit it only for wrapper-self raw Git or genuinely unretained recovery. The atomic command reproves before CAS. An exact still-absent artifact permits only the original planned operation. Mismatch or uncertainty stops; an adopted worktree requires the branch already bound. |
+| Planned PR slot after remote create uncertainty | Recover the immutable initial bytes with `pr-create-payload`, search live candidates, and use `bind-check`; for one exact match run `pr-bind-cas` with its number and a fresh generation/digest pair. Zero or a mismatch never permits another uncertain create. |
+| Planned primitive branch/worktree after an uncertain local mutation | Reinspect the exact branch and wrapper registration. For one present exact worktree, capture a fresh list, use `worktree-observe`, then run `worktree-bind-cas` with one fresh generation/digest pair. Retain manifest-owner create output; omit it only for wrapper-self raw Git or genuinely unretained recovery. The atomic command reproves before CAS. An exact still-absent artifact permits only the original planned operation. Mismatch or uncertainty stops; an adopted worktree requires the branch already bound. |
 | Fresh issue planned scope after uncertain `scope create` | Rerun exact create. A rolled-back branch-only failure proves request/generation/roots and no coordinate conflict; drift or uncertainty stops. Observe scope bytes, then bind with fresh `scope-bind-cas`. Legacy topology mismatch uses `recover-prebind-scope`; released mismatch requires reinitialize. |
 | Body `update-planned` | Run `body-recovery` with one digest/timestamp observation. Refresh a newer exact-current observation first; apply only returned durable bytes, bind equal-or-later intended bytes, or cancel only on exact proven non-application. Other live bytes stop. |
 | Comment `planned` | Run `comment-check`; CAS unchanged digest/payload intent to in-flight before any write, or separately cancel only after exact non-application proof. |
@@ -2074,7 +2030,7 @@ The cleanup object is exactly:
 Run `release-preview`, review it, then pass its `plan_sha256` to
 `release-apply`. The crash-resumable complete marker is installed and fsynced
 before inventory excludes that ledger from overlap ownership. It retains the
-exact ledger generation/digest/device/inode and all post-merge evidence.
+exact ledger generation and digest and all post-merge evidence.
 
 Cleanup remains an independent wrapper operation. Run the recorded dry-run,
 retain its raw digest and canonical selection digest, review it, then run the
@@ -2137,13 +2093,13 @@ member removal resumable and remains inert audit evidence.
 
 `reclaim-preview` derives current UTC itself and accepts one exact archive only
 at or after `retain_until`. Apply rechecks helper time and the original
-digest/device/inode. Review the returned bound plan and
+digest and canonical path. Review the returned bound plan and
 feed the complete preview to `reclaim-apply`. Reclaim removes only that bundle;
 it never follows a path or touches a worktree/resource. Exact unlink first moves
-the inode into a private crash-recoverable quarantine whose durable intent is
+the path into a private crash-recoverable quarantine whose durable intent is
 inventory-recovered before link-count validation. Recovery restores the
 helper-owned transaction directory's traversal mode after process death before
-opening and identity-checking it. One fixed completion
+opening and validating its canonical path and metadata. One fixed completion
 checkpoint makes an exact post-unlink retry converge until the next successful
 reclaim replaces that checkpoint, so completed deliveries cannot accumulate
 one receipt apiece; unrelated absent-archive requests fail. Use a retention period required by
@@ -2155,7 +2111,7 @@ project policy; never shorten it merely to clear inventory pressure.
   ledger, release, archive, lock, stage, migration marker, snapshot, or managed
   report copy.
 - Never bypass `inventory`, ignore an unexpected entry, combine identities from
-  separate `inspect` calls, or reuse a stale CAS tuple.
+  separate `inspect` calls, or reuse a stale CAS generation/digest pair.
 - Never run fresh `create` after a delivery-owned external mutation. Use only a
   provenance-complete helper migration when justified.
 - Never use migration, a live marker, a legacy report, authorship, push access,
@@ -2191,7 +2147,7 @@ complete inventory checks, a same-owner delivery may prove clean unchanged
 current targets without changing an immutable initial worktree/scope request:
 
 ```sh
-python3 scripts/delivery_ledger.py revalidate-current-targets-cas REVIEW_ROOT LEDGER_NAME --expected-generation GENERATION --expected-digest SHA256 --expected-device DEVICE --expected-inode INODE
+python3 scripts/delivery_ledger.py revalidate-current-targets-cas REVIEW_ROOT LEDGER_NAME --expected-generation GENERATION --expected-digest SHA256
 ```
 
 There is no candidate file or caller safety assertion. The helper derives only
@@ -2220,18 +2176,17 @@ commands, or activate an unmerged candidate helper to establish authority.
 
 The operation has a distinct `-revalidate-targets` transaction type.
 After an interrupted staged or installed update, retry this same public
-command with the original four-tuple. Generic CAS or a newer tuple cannot
+command with the original generation/digest pair. Generic CAS or a newer pair cannot
 consume its pending receipt. Installed retry reconstructs the exact neutral
-predecessor and verifies its digest plus the retained original inode receipt;
-the device must match the existing portable predecessor-inode projection or
-the current pinned review filesystem device, preserving raw-device compatibility;
+predecessor and verifies its digest plus the retained original-path receipt;
+the canonical predecessor and review-root paths must still match;
 fresh actor and every target's live proof are required even when successor
 bytes are already installed. Missing, partial, mismatched or changed-state
 evidence fails closed. A compact receipt already removed with its exact
-hard-link proof retained is recoverable using that original tuple.
+hard-link proof retained is recoverable using that original generation/digest pair.
 
 After all receipt/proof files are consumed, a lost result cannot be recovered
-with the old tuple. Inspect the current snapshot; a fresh tuple may begin a
+with the old generation/digest pair. Inspect the current snapshot; a fresh generation/digest pair may begin a
 new, independently live-proved neutral observation. Preserve pending evidence
 on refusal; the existing CAS may safely discard its exact uninstalled stage
 when a precommit safety recheck fails. No cleanup or ownership transfer is
@@ -2254,7 +2209,7 @@ targets. This existing operation permits one changed target within a
 multi-target ledger. If another physical repository's base independently
 changed, refresh that target separately with its own exact proof.
 
-Then use `revalidate-current-targets-cas` with the newly returned tuple to
+Then use `revalidate-current-targets-cas` with the newly returned generation/digest pair to
 prove every unchanged current target together. For the preserved wrapper plus
 Classic case, Classic's target stays unchanged through the wrapper-only base
 refresh. This ordering uses actual merged base drift; it never fabricates a

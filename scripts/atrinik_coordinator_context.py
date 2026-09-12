@@ -78,9 +78,7 @@ class ProbeError(Exception):
 
 
 @dataclass(frozen=True)
-class MountIdentity:
-    mount_id: str
-    device: str
+class MountInfo:
     filesystem: str
 
 
@@ -276,11 +274,11 @@ def _unescape_mount_field(value: str) -> str:
     )
 
 
-def _read_mountinfo(path: Path) -> dict[str, MountIdentity]:
+def _read_mountinfo(path: Path) -> dict[str, MountInfo]:
     # /proc/1 avoids the /proc/self symlink while retaining the current mount
     # namespace.  The file is virtual and is intentionally read-only here.
     text = _read_bounded(path, MAX_MOUNTINFO_BYTES, "mountinfo")
-    mounts: dict[str, MountIdentity] = {}
+    mounts: dict[str, MountInfo] = {}
     for line in text.splitlines():
         prefix, separator, suffix = line.partition(" - ")
         if not separator:
@@ -292,17 +290,15 @@ def _read_mountinfo(path: Path) -> dict[str, MountIdentity]:
         target = _unescape_mount_field(fields[4])
         if not target.startswith("/"):
             continue
-        mounts[target] = MountIdentity(
-            mount_id=fields[0],
-            device=fields[2],
+        mounts[target] = MountInfo(
             filesystem=filesystem_fields[0].lower(),
         )
     return mounts
 
 
 def _mount_for_path(
-    path: Path, mounts: Mapping[str, MountIdentity]
-) -> MountIdentity | None:
+    path: Path, mounts: Mapping[str, MountInfo]
+) -> MountInfo | None:
     candidate = _absolute(path)
     for parent in (candidate, *candidate.parents):
         identity = mounts.get(parent.as_posix())
@@ -315,7 +311,7 @@ def _check_mount(
     path: Path,
     label: str,
     status: os.stat_result | None,
-    mounts: Mapping[str, MountIdentity],
+    mounts: Mapping[str, MountInfo],
     failures: list[str],
     *,
     require_exact: bool = False,
@@ -331,15 +327,8 @@ def _check_mount(
     except ProbeError:
         identity = None
     if identity is None:
-        failures.append(f"missing-{label}-mount-identity")
+        failures.append(f"missing-{label}-mount")
         return
-    try:
-        actual_device = f"{os.major(status.st_dev)}:{os.minor(status.st_dev)}"
-    except (AttributeError, ValueError):
-        failures.append(f"unreadable-{label}-mount-identity")
-        return
-    if actual_device != identity.device:
-        failures.append(f"mismatched-{label}-mount-identity")
     if identity.filesystem in UNSAFE_MOUNT_TYPES:
         failures.append(f"unsafe-{label}-mount")
 
@@ -638,10 +627,6 @@ def probe(
             failures.append("current-directory-outside-repository")
     except ProbeError as error:
         failures.append(str(error))
-
-    if root_status is not None and workspace_status is not None:
-        if root_status.st_dev != workspace_status.st_dev:
-            failures.append("repository-workspace-mount-mismatch")
 
     if environment.get("HOME") != CANONICAL_HOME:
         failures.append("runtime-home")

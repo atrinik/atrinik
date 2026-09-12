@@ -11,7 +11,6 @@ import re
 import secrets
 from typing import Any, TYPE_CHECKING
 
-from .filesystem_identity import pair_matches, portable_device
 from .locking import LockBusyError, exclusive_lock
 from .model import (
     AtomicJsonCommitUncertain,
@@ -20,6 +19,7 @@ from .model import (
     durable_atomic_json,
     validate_name,
 )
+from .path_identity import canonical_path, path_record
 from .workspace import load_regular_json
 
 if TYPE_CHECKING:
@@ -33,6 +33,17 @@ SCOPE_RELEASE_SCHEMA_VERSION = 1
 SCOPE_FAILURE_BOUNDARIES_ENV = "ATRINIK_SCOPE_FAIL_AFTER"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _HEX64 = re.compile(r"[0-9a-f]{64}")
+_LEGACY_IDENTITY_FIELDS = {
+    "device",
+    "inode",
+    "ctime",
+    "path_device",
+    "path_inode",
+    "spec_device",
+    "spec_inode",
+    "status_device",
+    "status_inode",
+}
 
 
 def _now() -> str:
@@ -51,6 +62,30 @@ def _file_sha256(path: Path) -> str:
         while block := stream.read(1024 * 1024):
             digest.update(block)
     return digest.hexdigest()
+
+
+def _without_legacy_identity(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {
+            key: _without_legacy_identity(item)
+            for key, item in value.items()
+            if key not in _LEGACY_IDENTITY_FIELDS
+        }
+    if isinstance(value, list):
+        return [_without_legacy_identity(item) for item in value]
+    return value
+
+
+def _path_semantics_match(value: Any, expected: dict[str, Any]) -> bool:
+    if not isinstance(value, dict) or not isinstance(value.get("path"), str):
+        return False
+    try:
+        same_path = canonical_path(value["path"]) == expected["path"]
+    except (OSError, ValueError):
+        return False
+    return same_path and (
+        "kind" not in value or value["kind"] == expected.get("kind")
+    )
 
 
 def _mapping(values: list[str], context: str) -> dict[str, str]:
@@ -566,15 +601,10 @@ class ScopeLifecycle:
         return requests
 
     @staticmethod
-    def _directory_identity(path: Path, context: str) -> dict[str, Any]:
+    def _directory_record(path: Path, context: str) -> dict[str, Any]:
         if path.is_symlink() or not path.is_dir():
             raise WorkspaceError(f"{context} is not a regular directory: {path}")
-        identity = path.stat(follow_symlinks=False)
-        return {
-            "path": str(path),
-            "device": portable_device(identity),
-            "inode": identity.st_ino,
-        }
+        return path_record(path, kind="directory")
 
     def _load_recovery_inputs(
         self, request: dict[str, Any], digest: str
@@ -679,28 +709,27 @@ class ScopeLifecycle:
                 for item in retained_repository_rows
                 if isinstance(item, dict)
             } if isinstance(identities, dict) else {}
-            expected_workspace = self._directory_identity(
+            expected_workspace = self._directory_record(
                 self.paths.workspace, "scope workspace root"
             )
-            expected_scope = self._directory_identity(root, "scope reservation root")
+            expected_scope = self._directory_record(root, "scope reservation root")
             if (
                 not isinstance(identities, dict)
-                or identities.get("workspace") != expected_workspace
-                or identities.get("scope") != expected_scope
+                or not _path_semantics_match(
+                    identities.get("workspace"), expected_workspace
+                )
+                or not _path_semantics_match(identities.get("scope"), expected_scope)
                 or not isinstance(retained_repository_rows, list)
                 or len(retained_repository_rows) != len(expected_repositories)
                 or len(retained_repositories) != len(expected_repositories)
                 or set(retained_repositories) != set(expected_repositories)
                 or any(
-                    retained_repositories[checkout].get("path")
-                    != expected_repositories[checkout]
-                    or {
-                        key: retained_repositories[checkout].get(key)
-                        for key in ("path", "device", "inode")
-                    }
-                    != self._directory_identity(
-                        Path(expected_repositories[checkout]),
-                        f"scope repository {checkout}",
+                    not _path_semantics_match(
+                        retained_repositories[checkout],
+                        self._directory_record(
+                            Path(expected_repositories[checkout]),
+                            f"scope repository {checkout}",
+                        ),
                     )
                     for checkout in expected_repositories
                 )
@@ -806,13 +835,10 @@ class ScopeLifecycle:
         if not _is_clean(destination, trace=False):
             raise WorkspaceError(f"scope recovery created a dirty worktree: {destination}")
         common = str(self.workspace._git_common_directory(destination, trace=False))
-        identity = destination.stat(follow_symlinks=False)
         row.update(
             {
                 "status": "created",
                 "common_git_dir": common,
-                "path_device": portable_device(identity),
-                "path_inode": identity.st_ino,
             }
         )
 
@@ -833,16 +859,16 @@ class ScopeLifecycle:
             "source_error": journal.get("error"),
             "source_rollback": copy.deepcopy(journal.get("rollback", [])),
             "observed_identities": {
-                "workspace": self._directory_identity(
+                "workspace": self._directory_record(
                     self.paths.workspace, "scope workspace root"
                 ),
-                "scope": self._directory_identity(
+                "scope": self._directory_record(
                     self._scope_root(name), "scope reservation root"
                 ),
                 "repositories": [
                     {
                         "checkout": row["checkout"],
-                        **self._directory_identity(
+                        **self._directory_record(
                             Path(row["primary_path"]),
                             f"scope repository {row['checkout']}",
                         ),
@@ -885,13 +911,10 @@ class ScopeLifecycle:
             self._write_journal(journal)
             self._boundary(journal, "profile-reference")
             durable_atomic_json(profile_path, profile)
-            profile_identity = profile_path.stat(follow_symlinks=False)
             journal["profile"].update(
                 {
                     "status": "created",
                     "sha256": _file_sha256(profile_path),
-                    "path_device": portable_device(profile_identity),
-                    "path_inode": profile_identity.st_ino,
                 }
             )
             self._write_journal(journal)
@@ -912,8 +935,6 @@ class ScopeLifecycle:
                         "path",
                         "primary_path",
                         "common_git_dir",
-                        "path_device",
-                        "path_inode",
                     )
                 }
                 | {"created_by_scope": True}
@@ -926,8 +947,6 @@ class ScopeLifecycle:
                 reservation["reserved_at"],
                 worktrees,
                 journal["profile"]["sha256"],
-                journal["profile"]["path_device"],
-                journal["profile"]["path_inode"],
             )
             self._validate_record(record, name)
             durable_atomic_json(self._record_path(name), record)
@@ -1000,14 +1019,14 @@ class ScopeLifecycle:
             "status": "creating",
             "updated_at": reservation["reserved_at"],
             "identities": {
-                "workspace": self._directory_identity(
+                "workspace": self._directory_record(
                     self.paths.workspace, "scope workspace root"
                 ),
-                "scope": self._directory_identity(root, "scope reservation root"),
+                "scope": self._directory_record(root, "scope reservation root"),
                 "repositories": [
                     {
                         "checkout": row["checkout"],
-                        **self._directory_identity(
+                        **self._directory_record(
                             Path(row["primary_path"]),
                             f"scope repository {row['checkout']}",
                         ),
@@ -1021,8 +1040,6 @@ class ScopeLifecycle:
                     **copy.deepcopy(row),
                     "status": "planned",
                     "common_git_dir": None,
-                    "path_device": None,
-                    "path_inode": None,
                 }
                 for row in request["worktrees"]
             ],
@@ -1030,8 +1047,6 @@ class ScopeLifecycle:
                 **request["profile"],
                 "status": "planned",
                 "sha256": None,
-                "path_device": None,
-                "path_inode": None,
             },
             "rollback": [],
             "error": None,
@@ -1059,13 +1074,10 @@ class ScopeLifecycle:
                 if git(path, "rev-parse", "HEAD", capture=True, trace=False) != row["commit"]:
                     raise WorkspaceError(f"scope worktree head changed during creation: {path}")
                 common = str(self.workspace._git_common_directory(path, trace=False))
-                identity = path.stat(follow_symlinks=False)
                 journal["worktrees"][index].update(
                     {
                         "status": "created",
                         "common_git_dir": common,
-                        "path_device": portable_device(identity),
-                        "path_inode": identity.st_ino,
                     }
                 )
                 self._write_journal(journal)
@@ -1106,13 +1118,10 @@ class ScopeLifecycle:
                 self.workspace._remove_physical_reference(profile_path)
                 raise
             profile_created = True
-            profile_identity = profile_path.stat(follow_symlinks=False)
             journal["profile"].update(
                 {
                     "status": "created",
                     "sha256": _file_sha256(profile_path),
-                    "path_device": portable_device(profile_identity),
-                    "path_inode": profile_identity.st_ino,
                 }
             )
             self._write_journal(journal)
@@ -1135,8 +1144,6 @@ class ScopeLifecycle:
                             "path",
                             "primary_path",
                             "common_git_dir",
-                            "path_device",
-                            "path_inode",
                         )
                     }
                     | {"created_by_scope": True}
@@ -1148,8 +1155,6 @@ class ScopeLifecycle:
                 reservation["reserved_at"],
                 worktrees,
                 journal["profile"]["sha256"],
-                journal["profile"]["path_device"],
-                journal["profile"]["path_inode"],
             )
             self._validate_record(record, name)
             try:
@@ -1225,13 +1230,6 @@ class ScopeLifecycle:
                     profile_path.is_file()
                     and not profile_path.is_symlink()
                     and _file_sha256(profile_path) == profile["sha256"]
-                    and pair_matches(
-                        {
-                            "device": profile["path_device"],
-                            "inode": profile["path_inode"],
-                        },
-                        profile_path.stat(follow_symlinks=False),
-                    )
                 ):
                     profile_path.unlink()
                     self.workspace._remove_physical_reference(profile_path)
@@ -1265,13 +1263,6 @@ class ScopeLifecycle:
                 exact = (
                     path.is_dir()
                     and not path.is_symlink()
-                    and pair_matches(
-                        {
-                            "device": row["path_device"],
-                            "inode": row["path_inode"],
-                        },
-                        path.stat(follow_symlinks=False),
-                    )
                     and self.workspace._git_common_directory(path, trace=False)
                     == Path(row["common_git_dir"])
                     and git(path, "rev-parse", "HEAD", capture=True, trace=False)
@@ -1313,8 +1304,6 @@ class ScopeLifecycle:
         created_at: str,
         worktrees: list[dict[str, Any]],
         profile_sha256: str,
-        profile_device: int,
-        profile_inode: int,
     ) -> dict[str, Any]:
         profile = request["profile"]["name"]
         topology = request["topology"]["name"]
@@ -1351,8 +1340,6 @@ class ScopeLifecycle:
             "profile": {
                 **request["profile"],
                 "sha256": profile_sha256,
-                "path_device": profile_device,
-                "path_inode": profile_inode,
                 "immutable": True,
             },
             "topology": request["topology"],
@@ -1445,11 +1432,13 @@ class ScopeLifecycle:
             expected_worktree = {
                 "checkout", "repository", "logical_components", "label", "branch",
                 "start_point", "commit", "tree", "path", "primary_path",
-                "common_git_dir", "path_device", "path_inode", "created_by_scope",
+                "common_git_dir", "created_by_scope",
             }
+            legacy_worktree = {"path_device", "path_inode"}
             if (
                 not isinstance(row, dict)
-                or set(row) != expected_worktree
+                or not expected_worktree.issubset(row)
+                or not set(row).issubset(expected_worktree | legacy_worktree)
                 or row.get("checkout") in seen
                 or row.get("created_by_scope") is not True
             ):
@@ -1465,8 +1454,6 @@ class ScopeLifecycle:
                 "primary_path", "common_git_dir",
             )) or not _HEX40.fullmatch(row["commit"]) or not _HEX40.fullmatch(row["tree"]):
                 raise WorkspaceError(f"scope worktree coordinates are invalid: {name}")
-            if not all(type(row.get(key)) is int and row[key] >= 0 for key in ("path_device", "path_inode")):
-                raise WorkspaceError(f"scope worktree path identity is invalid: {name}")
             expected_components = sorted(
                 component.name
                 for component in self.workspace.manifest.stacks[value["stack"]].components
@@ -1484,9 +1471,13 @@ class ScopeLifecycle:
         profile = value.get("profile")
         topology = value.get("topology")
         policy = value.get("state_policy")
-        if not isinstance(profile, dict) or set(profile) != {
-            "name", "path", "sha256", "path_device", "path_inode", "immutable",
-        }:
+        expected_profile = {"name", "path", "sha256", "immutable"}
+        legacy_profile = {"path_device", "path_inode"}
+        if (
+            not isinstance(profile, dict)
+            or not expected_profile.issubset(profile)
+            or not set(profile).issubset(expected_profile | legacy_profile)
+        ):
             raise WorkspaceError(f"scope profile record is invalid: {name}")
         if profile.get("path") != str(self.paths.profiles / f"{profile.get('name')}.json"):
             raise WorkspaceError(f"scope profile path is invalid: {name}")
@@ -1494,11 +1485,6 @@ class ScopeLifecycle:
             raise WorkspaceError(f"scope profile name is invalid: {name}")
         if profile.get("immutable") is not True or not _HEX64.fullmatch(str(profile.get("sha256"))):
             raise WorkspaceError(f"scope profile identity is invalid: {name}")
-        if not all(
-            type(profile.get(key)) is int and profile[key] >= 0
-            for key in ("path_device", "path_inode")
-        ):
-            raise WorkspaceError(f"scope profile path identity is invalid: {name}")
         if (
             not isinstance(topology, dict)
             or set(topology) != {"name", "path"}
@@ -1608,8 +1594,6 @@ class ScopeLifecycle:
             value["created_at"],
             worktrees,
             profile["sha256"],
-            profile["path_device"],
-            profile["path_inode"],
         )
         # Command maps are creation-time handoff snapshots. Compare every
         # retained entry with its current exact coordinate, but do not require
@@ -1930,22 +1914,14 @@ class ScopeLifecycle:
                 else:
                     spec_path = topology_path / "spec.json"
                     status_path = topology_path / "status.json"
-                    spec_before = spec_path.stat(follow_symlinks=False)
-                    status_before = status_path.stat(follow_symlinks=False)
                     spec_sha256 = _file_sha256(spec_path)
                     status_sha256 = _file_sha256(status_path)
                     spec = load_regular_json(spec_path, "scope topology spec")
                     persisted = load_regular_json(
                         status_path, "scope topology status"
                     )
-                    spec_after = spec_path.stat(follow_symlinks=False)
-                    status_after = status_path.stat(follow_symlinks=False)
                     records_stable = (
-                        (spec_before.st_dev, spec_before.st_ino)
-                        == (spec_after.st_dev, spec_after.st_ino)
-                        and (status_before.st_dev, status_before.st_ino)
-                        == (status_after.st_dev, status_after.st_ino)
-                        and spec_sha256 == _file_sha256(spec_path)
+                        spec_sha256 == _file_sha256(spec_path)
                         and status_sha256 == _file_sha256(status_path)
                     )
                     common = (
@@ -2102,11 +2078,7 @@ class ScopeLifecycle:
                     clean = records_match and stopped_cleanly and state_disposed
                     if clean:
                         topology_evidence = {
-                            "spec_device": portable_device(spec_after),
-                            "spec_inode": spec_after.st_ino,
                             "spec_sha256": spec_sha256,
-                            "status_device": portable_device(status_after),
-                            "status_inode": status_after.st_ino,
                             "status_sha256": status_sha256,
                         }
                     reasons = (
@@ -2202,13 +2174,10 @@ class ScopeLifecycle:
                 except (OSError, WorkspaceError):
                     reasons.append("uncertain_build_ownership")
             disposition = "protected" if reasons else "eligible"
-            identity = root.stat(follow_symlinks=False) if disposition == "eligible" else None
             items.append(
                 {
                     "kind": "build",
                     "path": str(root),
-                    "device": portable_device(identity) if identity is not None else None,
-                    "inode": identity.st_ino if identity is not None else None,
                     "metadata_sha256": metadata_sha256,
                     "marker_sha256": marker_sha256,
                     "disposition": disposition,
@@ -2223,16 +2192,6 @@ class ScopeLifecycle:
                 profile_reasons.append("replaced_profile")
             elif _file_sha256(profile_path) != record["profile"]["sha256"]:
                 profile_reasons.append("changed_profile")
-            else:
-                profile_identity = profile_path.stat(follow_symlinks=False)
-                if not pair_matches(
-                    {
-                        "device": record["profile"]["path_device"],
-                        "inode": record["profile"]["path_inode"],
-                    },
-                    profile_identity,
-                ):
-                    profile_reasons.append("replaced_profile")
             disposition = "protected" if profile_reasons else "eligible"
         else:
             disposition = "absent"
@@ -2250,15 +2209,6 @@ class ScopeLifecycle:
                     reasons.append("replaced_path")
                 else:
                     try:
-                        identity = path.stat(follow_symlinks=False)
-                        if not pair_matches(
-                            {
-                                "device": row["path_device"],
-                                "inode": row["path_inode"],
-                            },
-                            identity,
-                        ):
-                            reasons.append("replaced_path")
                         if self.workspace._git_common_directory(path, trace=False) != Path(row["common_git_dir"]):
                             reasons.append("changed_common_git_identity")
                         branch_head = git(
@@ -2396,13 +2346,7 @@ class ScopeLifecycle:
                     raise WorkspaceError(
                         "scope topology evidence changed during release"
                     )
-                identity = path.stat(follow_symlinks=False)
-                if (
-                    portable_device(identity)
-                    != topology_item.get(f"{prefix}_device")
-                    or identity.st_ino != topology_item.get(f"{prefix}_inode")
-                    or _file_sha256(path) != topology_item.get(f"{prefix}_sha256")
-                ):
+                if _file_sha256(path) != topology_item.get(f"{prefix}_sha256"):
                     raise WorkspaceError(
                         "scope topology evidence changed during release"
                     )
@@ -2440,12 +2384,18 @@ class ScopeLifecycle:
                 or _canonical_sha256(previous["plan"])
                 != previous.get("plan_sha256")
                 or not pristine
-                and previous.get("plan") != {
-                    key: plan[key]
-                    for key in ("schema_version", "scope", "generation", "items")
-                }
-                or not pristine
-                and previous.get("plan_sha256") != plan["plan_sha256"]
+                and _without_legacy_identity(previous.get("plan"))
+                != _without_legacy_identity(
+                    {
+                        key: plan[key]
+                        for key in (
+                            "schema_version",
+                            "scope",
+                            "generation",
+                            "items",
+                        )
+                    }
+                )
                 or previous.get("status") not in {"applying", "complete"}
                 or previous["completed"]
                 != expected_actions[: len(previous["completed"])]
@@ -2470,14 +2420,20 @@ class ScopeLifecycle:
                     not isinstance(previous["pending_builds"], list)
                     or any(
                         not isinstance(item, dict)
-                        or set(item)
-                        != {
+                        or not {
                             "path",
-                            "device",
-                            "inode",
                             "metadata_sha256",
                             "marker_sha256",
-                        }
+                        }.issubset(item)
+                        or not set(item).issubset(
+                            {
+                                "path",
+                                "metadata_sha256",
+                                "marker_sha256",
+                                "device",
+                                "inode",
+                            }
+                        )
                         or not isinstance(item["path"], str)
                         or Path(item["path"]).parent
                         != self.workspace.paths.builds / "profiles"
@@ -2485,12 +2441,6 @@ class ScopeLifecycle:
                             re.escape(record["profile"]["name"])
                             + r"-[0-9a-f]{64}",
                             Path(item["path"]).name,
-                        )
-                        or not all(
-                            isinstance(item[key], int)
-                            and not isinstance(item[key], bool)
-                            and item[key] >= 0
-                            for key in ("device", "inode")
                         )
                         or not all(
                             isinstance(item[key], str)
@@ -2513,7 +2463,7 @@ class ScopeLifecycle:
             previous = {}
             in_flight = None
         pending_by_path = {
-            item["path"]: item
+            item["path"]: _without_legacy_identity(item)
             for item in previous.get("pending_builds", [])
         }
         for item in plan["items"]:
@@ -2523,8 +2473,6 @@ class ScopeLifecycle:
                 key: item[key]
                 for key in (
                     "path",
-                    "device",
-                    "inode",
                     "metadata_sha256",
                     "marker_sha256",
                 )
@@ -2599,17 +2547,10 @@ class ScopeLifecycle:
             )
             begin(action)
             if resuming_removal:
-                recovery_identity = {
-                    "device": item["device"],
-                    "inode": item["inode"],
-                }
-                tombstone = _portable_tombstone_path(root, recovery_identity)
+                expected = path_record(root, kind="directory")
+                tombstone = _portable_tombstone_path(root, expected)
                 if tombstone is None and (root.exists() or root.is_symlink()):
-                    metadata = root.stat(follow_symlinks=False)
-                    tombstone = _owned_tree_tombstone_path(
-                        root,
-                        {"device": metadata.st_dev, "inode": metadata.st_ino},
-                    )
+                    tombstone = _owned_tree_tombstone_path(root, expected)
                 if (
                     root.exists()
                     or root.is_symlink()
@@ -2621,18 +2562,7 @@ class ScopeLifecycle:
                         raise WorkspaceError(
                             f"scope build removal evidence disappeared: {root}"
                         )
-                    metadata = target.stat(follow_symlinks=False)
-                    if not pair_matches(recovery_identity, metadata):
-                        raise WorkspaceError(
-                            f"scope build removal identity changed: {root}"
-                        )
-                    remove_owned_tree(
-                        root,
-                        expected_identity={
-                            "device": metadata.st_dev,
-                            "inode": metadata.st_ino,
-                        },
-                    )
+                    remove_owned_tree(root, expected_identity=expected)
                 finish(action)
                 continue
             if not root.exists() and not root.is_symlink():
@@ -2653,20 +2583,9 @@ class ScopeLifecycle:
                     f"scope build ownership changed during release: {root}"
                 )
             mark_removing(action)
-            root_metadata = root.stat(follow_symlinks=False)
-            if not pair_matches(
-                {"device": item["device"], "inode": item["inode"]},
-                root_metadata,
-            ):
-                raise WorkspaceError(
-                    f"scope build removal identity changed: {root}"
-                )
             remove_owned_tree(
                 root,
-                expected_identity={
-                    "device": root_metadata.st_dev,
-                    "inode": root_metadata.st_ino,
-                },
+                expected_identity=path_record(root, kind="directory"),
             )
             self._maybe_fail(f"release:build-tree:{root.name}")
             finish(action)
@@ -2698,13 +2617,6 @@ class ScopeLifecycle:
                     profile_path.is_symlink()
                     or not profile_path.is_file()
                     or _file_sha256(profile_path) != record["profile"]["sha256"]
-                    or not pair_matches(
-                        {
-                            "device": record["profile"]["path_device"],
-                            "inode": record["profile"]["path_inode"],
-                        },
-                        profile_path.stat(follow_symlinks=False),
-                    )
                 ):
                     raise WorkspaceError("scope profile changed during release")
                 else:
@@ -2788,16 +2700,8 @@ class ScopeLifecycle:
                 continue
             if path.is_symlink() or not path.is_dir():
                 raise WorkspaceError(f"scope worktree changed during release: {path}")
-            identity = path.stat(follow_symlinks=False)
             if (
-                not pair_matches(
-                    {
-                        "device": row["path_device"],
-                        "inode": row["path_inode"],
-                    },
-                    identity,
-                )
-                or self.workspace._git_common_directory(path, trace=False)
+                self.workspace._git_common_directory(path, trace=False)
                 != Path(row["common_git_dir"])
                 or git(path, "rev-parse", "HEAD", capture=True, trace=False)
                 != item["branch_head"]

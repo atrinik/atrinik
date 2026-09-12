@@ -440,6 +440,8 @@ class ParserTests(unittest.TestCase):
         }
         events = mock.Mock()
         output = mock.Mock()
+        output.fileno.return_value = 1
+        output.isatty.return_value = False
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             workspace = workspace_type.return_value
             workspace.cleanup.return_value = report
@@ -966,34 +968,6 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(result, 0)
         workspace_type.return_value.migrate_repositories.assert_called_once_with(
             "dry-run"
-        )
-        self.assertEqual(json.loads(output.call_args.args[0]), plan)
-
-    def test_filesystem_migration_dispatches_explicit_remount_confirmation(self) -> None:
-        plan = {
-            "migration": "filesystem-identity-migration-v1",
-            "status": "dry-run",
-            "records": [],
-            "requires_confirm_remount": False,
-        }
-        with mock.patch(
-            "atrinik_workspace.filesystem_migration.migrate_filesystem_records",
-            return_value=plan,
-        ) as migrate:
-            with mock.patch("builtins.print") as output:
-                result = main(
-                    [
-                        "migrate",
-                        "filesystem",
-                        "--apply",
-                        "--confirm-remount",
-                        "--json",
-                    ]
-                )
-
-        self.assertEqual(result, 0)
-        migrate.assert_called_once_with(
-            mock.ANY, "apply", confirm_remount=True
         )
         self.assertEqual(json.loads(output.call_args.args[0]), plan)
 

@@ -4,7 +4,7 @@
 
 `project_coordinator.py` owns the bounded dependency/resource scheduler;
 `project_coordinator_store.py` provides no-follow, stable-lock, generation/digest/
-device/inode CAS over ignored project state. `project_delivery.py` derives its
+path CAS over ignored project state. `project_delivery.py` derives its
 root from the live canonical Linux coordinator and exposes operator transitions.
 The GitHub adapter journals an exact planned request before its single remote
 attempt and binds the observed result. Lost responses permit observation-only
@@ -114,7 +114,7 @@ The wrapper-owned `scripts/atrinik_coordinator_context.py` probe is the
 delivery entry boundary. It returns `canonical-linux` only when the pinned
 ordinary devcontainer declaration, live Linux/POSIX runtime/user/Codex facts,
 repository/workspace layout, no-follow ownership and modes, and source,
-ledger, build, and Codex mount identities agree. `native-windows` is a stable
+ledger, build, and Codex configured mount paths agree. `native-windows` is a stable
 host-boundary result, `windows-cross` identifies the subordinate MXE/package
 role, and `unknown-or-unsafe` covers arbitrary, mismatched, incomplete, or
 unsafe contexts. Runtime markers are corroborating signals rather than
@@ -359,36 +359,24 @@ pinned image, Docker client/server/driver and Docker Desktop indicators,
 run-scoped resource names, timing comparisons, recovery evidence, and exact
 cleanup outcomes without mounting source, credentials, or server state.
 
-## Durable and ephemeral filesystem identity
+## Path-based filesystem coordinates
 
-The wrapper does not use one filesystem identity for every purpose. Durable
-workspace JSON, topology leases, mutable-state outputs, physical lease
-anchors, scope journals, and delivery-ledger sidecars use the versioned
-portable identity object: object kind, inode, mode, and (for regular files)
-ctime, with an optional content digest. The mount-specific `st_dev` value is
-excluded from that object. Schema-v1 `{ "device", "inode" }` pairs remain
-readable only at compatibility boundaries and are converted by the explicit
-`migrate filesystem` transaction.
+The wrapper identifies managed filesystem resources by normalized canonical
+paths. Workspace JSON, topology and state records, lease anchors, scope
+journals, delivery sidecars, and live operations do not bind authority to
+filesystem device, inode, or ctime values. New writers omit those fields.
+Readers accept fields left by older versions as inert compatibility metadata
+and ignore them when admitting, rejecting, or retrying an operation.
 
-Live operations retain the complete descriptor-derived `(st_dev, st_ino)`
-identity and mount identifier where needed for replacement, symlink, hard-link,
-and TOCTOU fencing. A portable identity does not authorize a path-only rebind;
-the live object must still pass the opened-handle check. This keeps a
-devcontainer remount from invalidating durable records without weakening live
-lease, ownership, generation, or content-integrity guarantees.
-Rename-prone lease records use a stable portable projection that omits ctime;
-their opened descriptors, generation tokens, and content checks remain
-ephemeral lifecycle fences.
-
-Filesystem migration snapshots each target before publication, records legacy
-evidence and portable pre/post identities in an atomic journal, and preserves a
-rollback identity after an undo replacement. Resume and audit accept only the
-exact before or after bytes together with their corresponding identity. Missing,
-changed, symlinked, foreign-owned, or ambiguous targets fail closed. The
-transaction covers workspace records, topology recovery records, the physical
-lease anchor, and repository-local delivery-ledger sidecars; cleanup, topology
-shutdown, scope release, and repository migration do not implicitly perform
-this rebind. The complete operator procedure and schema details are in
+Storage replacement, a devcontainer rebuild, or moving the workspace to
+another SSD therefore needs no record conversion. The former `migrate
+filesystem` command and remount journal are removed. The path contract does not
+weaken the independent checks attached to each workflow: no-follow opens,
+symlink and object-type rejection, owner and mode validation, ordinary file
+locks, canonical generation tokens, byte digests, Git coordinates, process
+ownership, leases, and lifecycle state remain authoritative. Hard-link and
+link-count checks remain transaction checks rather than resource identity.
+The operator-facing compatibility details are in
 [`docs/FILESYSTEM-IDENTITY.md`](FILESYSTEM-IDENTITY.md).
 
 ## Incremental Classic development contract
@@ -530,7 +518,7 @@ release journal remain durable evidence after release.
 Delivery target refresh has one narrower, explicit exception for source
 references: its live proof opts into the wrapper's shared
 `topology_reference_classification` after acquiring shared topology leases and
-rechecking every direct topology directory's name/device/inode inventory. Only
+rechecking every direct topology directory's name/path inventory. Only
 `inactive_topology` history may be omitted from the reference set. That
 classification requires a published stop, no active operation, unreachable or
 legacy control, released process/runtime/port/layout leases, removed temporary
@@ -653,15 +641,15 @@ It installs a bounded canonical bundle
 before unlinking the exact ledger, release, persistent lock, report, migration
 marker/snapshot/source, and embedded intent material. During a crash, the
 installed bundle is the recovery authority; replacement, link, byte, mode,
-device, or inode drift fails closed. The archive itself is inert audit history
+path replacement fails closed. The archive itself is inert audit history
 and cannot reserve active coordinates.
 
 Every archive has an explicit UTC retention horizon. Reclaim preview uses the
-helper clock and binds its name, byte digest, device, inode, and observation
+helper clock and binds its name, byte digest, canonical path, and observation
 instant after that horizon; apply rechecks time and removes only that exact
-archive. Exact inode removal first enters a crash-recoverable quarantine, and a
+archive. Exact path removal first enters a crash-recoverable quarantine, and a
 hard-crash recovery restores the helper-owned transaction traversal mode before
-reopening and identity-checking it. A fixed completion checkpoint makes an
+reopening and validating its canonical path and metadata. A fixed completion checkpoint makes an
 exact retry converge after unlink until the next reclaim replaces it, without
 accumulating one receipt per delivery.
 Neither archive nor reclaim traverses or mutates
@@ -687,12 +675,12 @@ protocol did not guarantee that every visible record was already locked.
 Profile consumers lock the profile, derive the requested operation's transitive
 provider closure, acquire only those exact sources, revalidate, and capture
 immutable profile bytes, provider selections, Git identities, paths, HEADs,
-dirtiness, and filesystem identity. A target build exports each clean primary
+dirtiness, and canonical filesystem path. A target build exports each clean primary
 component subpath from the captured Git commit into an atomic, read-only source
 generation keyed by repository, branch, checkout, commit, tree, subpath, and
 generation schema. Reuse authenticates the marker, closed metadata, and full
 tree digest, then revalidates captured checkout, source, and common-Git
-filesystem identities. Published generations contain no links or hard links to
+canonical filesystem paths. Published generations contain no links or hard links to
 mutable primary files. Every generation is revalidated after acquiring its
 shared pin and before source-lease handoff; build preparation then releases
 those primary source leases before configure/compile/test, while dirty
@@ -794,9 +782,9 @@ repository, exact path, no-follow allocated size, age and age basis,
 disposition, stable reason codes, and applicable profile/scenario/topology/
 migration/retention or merged-PR evidence. JSON retains exact integer byte
 fields; text renders compact base-1024 IEC sizes. Size accounting uses
-device/inode identity and excludes registered nested worktree roots from mixed
-container records, preventing hard links or overlapping roots from inflating
-global byte totals. Filesystem traversal or metadata ambiguity protects the
+canonical paths and excludes registered nested worktree roots from mixed
+container records, preventing overlapping roots from inflating global byte
+totals. Hard-linked entries are counted once per retained path. Filesystem traversal or metadata ambiguity protects the
 affected scope.
 
 Current-checkout worktrees are owned only as direct children of
@@ -971,8 +959,8 @@ their failure-safe control-repair path. Installed output containing the staging 
 non-relocatable.
 A missing canonical entry recovers the newest structurally valid matching
 backup under the per-key lock before falling back to a new `npm ci`.
-Cleanup ages transaction artifacts from the newer of their no-follow tree
-mtime and root ctime, then repeats inode identity, marker, age, and path checks
+Cleanup ages transaction artifacts from the newer of their no-follow tree mtime
+and root ctime, then repeats marker, age, and canonical path checks
 while holding the per-key lock through deletion.
 
 ## Classic monorepo migration
@@ -1148,7 +1136,7 @@ reused without another source copy. Any clean or dirty source edit invalidates
 both the view and dependency key because dependency lifecycle scripts remain
 enabled; package or project npm configuration edits do the same. The profile
 receives a real, revalidated copy of cached `node_modules`, never a link or
-shared inode contract, so its checks cannot mutate the shared installation.
+shared linked installation, so its checks cannot mutate the shared installation.
 View reuse excludes only Vite's profile-local `.vite` and `.vite-temp` outputs
 from the immutable dependency digest.
 Collected
@@ -1264,7 +1252,7 @@ locks. Before publication, tree digests prove the packaged maps, content
 library, and resources still match those staged profile inputs.
 
 The selected persistent state is admitted through the ordinary path and
-physical-identity leases plus a nonblocking directory lock. A live topology,
+canonical-path leases plus a nonblocking directory lock. A live topology,
 uncertain owner, incompatible implementation marker, link, special entry, or
 missing server certificate fails closed. The
 descriptor-pinned copy completes before releasing the state, so later server
@@ -1305,7 +1293,7 @@ legacy `default` behavior for human compatibility; automation can select
 Temporary initialization copies the exact selected server generation's
 validated `install_data` into a unique sibling below the marker-owned topology,
 writes topology/generation, stack/provider, server-coordinate, creation-time,
-path, device, and inode identity, validates the complete state shape, and uses
+its canonical path, validates the complete state shape, and uses
 an atomic no-replace rename to publish it. Named/default first use follows the
 same stage/validate/no-replace rule. Existing paths are never overlaid, state
 inside a server source worktree is rejected, existing symlinked paths fail
@@ -1328,27 +1316,25 @@ topology retention and are replaced on the next launch of that topology name.
 The coordinator takes an advisory exclusive lock next to the state directory
 before build/runtime preparation and holds it for the lifetime of a launched
 server. Profile builds have their own blocking lock, and server launch views are
-keyed by state path and, for existing persistent directories, by physical
-device/inode identity so alternate mounted names cannot obtain distinct
-leases. Physical state locks are flat entries in the already classified lease
-namespace, so replacing a dynamically created child directory cannot fork the
-identity coordinate. Processes started outside the coordinator do not
+keyed by the canonical state path so equivalent path spellings cannot obtain
+distinct leases. Each state uses the adjacent `<state>.lock`, so replacing a
+dynamically created child directory cannot fork the path coordinate. Processes started outside the coordinator do not
 participate in the state lock, so operators must not point those processes at
 the same state concurrently. Startup also opens the selected state directory
-without following links, verifies its recorded device/inode identity, and hands
-that descriptor and its physical-identity lease to the supervisor and guardian.
+without following links, verifies its recorded canonical path, and hands
+that descriptor and its canonical-path lease to the supervisor and guardian.
 The server consumes the pinned directory, including pre-option configuration
 reads and disposable runtime output, through its inherited descriptor even if
 an external path component is replaced after admission. Rollback removes that
 output relative to the same pinned descriptor and never follows the replaced
 lexical path. Before creating a topology-owned mutable output, startup durably
 records its generation and state identity; after creation it adds the output
-inode. A restart either adopts that evidence from a published status record or
+path. A restart either adopts that evidence from a published status record or
 completes the exact tombstone transaction before creating another generation,
 so a hard interruption cannot silently orphan the output.
 
 The current topology record and human/JSON status surfaces retain the state
-policy, owner, exact path identity, implementation, and lifecycle. A same-state
+policy, owner, exact canonical path, implementation, and lifecycle. A same-state
 conflict names the owning topology and generation when that identity is
 observable. Different named states and generation-owned temporary states use
 different exact locks and can overlap.
@@ -1419,7 +1405,7 @@ candidate and publishes its unique immutable generation lease, then releases the
 allocator before state, build, runtime-copy, supervisor-launch, or readiness
 work. Explicit nonzero ports bypass the allocator and contend only on their own
 short per-port transaction. Each mode-0600 generation record binds port,
-topology, generation, path, verified directory identity, and lease identity;
+topology, generation, path, verified directory path, and lease identity;
 descriptor-relative no-follow opens, single-link validation, and a final
 supervisor identity check reject symlink, hard-link, record-replacement, and
 generation substitution. The supervisor revalidates kernel availability before
@@ -1454,7 +1440,7 @@ retained generations fail closed.
 Topology cleanup exposes the same lifecycle classification in its JSON item
 and accepts exact topology names only when `--scope topologies` is selected.
 Preview and apply use the topology lease, revalidate the classification and
-directory identity, and preserve active, retained, malformed, linked, or
+directory path and metadata, and preserve active, retained, malformed, linked, or
 uncertain history. This is the recovery path for one abandoned agent run;
 parallel agents must use distinct topology/profile/state/port identities and
 must inspect or reclaim by exact topology name rather than broadening cleanup.
@@ -1465,21 +1451,21 @@ identity, registry absence, stopped matching topology generation, and released
 process-tree, runtime-bundle, port-reservation, and exact state leases.
 Apply repeats those checks while holding the topology operation and state
 locks. The topology root, `temporary-states` container, state, and lease are
-opened as one no-follow, same-mount descriptor chain; apply retains that chain
+opened as one no-follow descriptor chain; apply retains that chain
 through descriptor-relative rename and deletion. Registry exclusion compares
-physical directory identity as well as the canonical path. Owned deletion
+the canonical directory path. Owned deletion
 first moves each verified entry to a private
-no-replace tombstone and rechecks its inode before unlinking. Live, unreachable,
+no-replace tombstone and rechecks its canonical path and transaction metadata before unlinking. Live, unreachable,
 busy, linked, malformed, registered, retained,
 promoted, or uncertain state is protected; missing or replaced lease evidence
 fails closed and cleanup never performs an implicit `down`.
 Persistent-state runtime outputs have a separate durable pending/complete
-cleanup record. It binds every output path to its creation inode before
-deletion, renames the exact inode to a deterministic tombstone before removing
+cleanup record. It binds every output path to its creation record before
+deletion, renames the exact path to a deterministic tombstone before removing
 its contents, and lets a retry distinguish a completed removal from unresolved
 ownership evidence. A missing or arbitrarily renamed output remains pending;
 the wrapper never reacquires deletion ownership from a mutable pathname.
-Topology-record cleanup also protects an identity-derived removal tombstone.
+Topology-record cleanup also protects a generation-derived removal tombstone.
 A topology may select one service, and distinct runtime names permit concurrent
 combinations as long as their server ports and mutable state directories do not
 conflict. When replacement runtime support lands, a concurrent `classic` and

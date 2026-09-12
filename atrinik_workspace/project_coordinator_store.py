@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import stat
 
+from .path_identity import canonical_path, descriptor_path
 from .project_coordinator import ProjectError, canonical, require, validate_project
 from .workspace import durable_atomic_json_at, durable_replace_json_at
 
@@ -53,8 +54,8 @@ def read_input(path: Path, limit: int = LIMIT):
                     "unsafe input")
             raw = os.read(fd, limit + 1)
             after = os.fstat(fd)
-            require((after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns) ==
-                    (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns),
+            require((after.st_size, after.st_mtime_ns) ==
+                    (st.st_size, st.st_mtime_ns),
                     "input changed while reading")
             return decode(raw, limit)
         finally:
@@ -107,9 +108,12 @@ class Store:
                 raise ProjectError("project busy; retry after owner operation") from error
             def check():
                 current = os.stat("project.lock", dir_fd=fd, follow_symlinks=False)
-                require((current.st_dev, current.st_ino) == (ls.st_dev, ls.st_ino), "lock replaced")
+                require(stat.S_ISREG(current.st_mode)
+                        and descriptor_path(lock) == canonical_path(self.root / "project.lock"),
+                        "lock path changed")
                 root_st = self.root.stat(follow_symlinks=False)
-                require((root_st.st_dev, root_st.st_ino) == (st.st_dev, st.st_ino), "root replaced")
+                require(stat.S_ISDIR(root_st.st_mode)
+                        and descriptor_path(fd) == canonical_path(self.root), "root path changed")
             check()
             yield fd, check
             check()
@@ -128,13 +132,14 @@ class Store:
                     and st.st_size <= LIMIT, "unsafe project record")
             raw = os.read(f, LIMIT + 1)
             after = os.fstat(f)
-            require((after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns) ==
-                    (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns),
+            require((after.st_size, after.st_mtime_ns) ==
+                    (st.st_size, st.st_mtime_ns),
                     "project changed while reading")
             doc = decode(raw)
             validate_project(doc)
             return {"document": doc, "digest": hashlib.sha256(raw).hexdigest(),
-                    "device": st.st_dev, "inode": st.st_ino, "generation": doc["generation"]}
+                    "path": canonical_path(Path(descriptor_path(fd)) / "project.json"),
+                    "generation": doc["generation"]}
         finally:
             os.close(f)
 
@@ -155,7 +160,7 @@ class Store:
     def update(self, expected: dict, change) -> tuple[dict, object]:
         with self.locked() as (fd, check):
             old = self._read(fd)
-            require(all(expected.get(k) == old[k] for k in ("generation", "digest", "device", "inode")),
+            require(all(expected.get(k) == old[k] for k in ("generation", "digest", "path")),
                     "stale project CAS")
             document = decode(canonical(old["document"]))
             result = change(document)
@@ -167,7 +172,7 @@ class Store:
             check_publication_size(document)
             check()
             now = self._read(fd)
-            require(all(now[k] == old[k] for k in ("generation", "digest", "device", "inode")),
+            require(all(now[k] == old[k] for k in ("generation", "digest", "path")),
                     "project changed during transaction")
             durable_replace_json_at(fd, "project.json", document)
             return self._read(fd), result

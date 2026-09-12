@@ -35,6 +35,7 @@ from .guidance_inventory import (
     validate_process_improvement_ledger_text,
     validate_tooling_ledger_text,
 )
+from .path_identity import canonical_path, descriptor_path
 from .locking import LockBusyError, exclusive_lock
 from .model import WorkspaceError, _open_directory_nofollow
 from .platform_compat import (
@@ -306,7 +307,8 @@ def _assert_directory_identity(build: Path, directory: int) -> None:
     visible = build.stat(follow_symlinks=False)
     if (
         not stat.S_ISDIR(opened.st_mode)
-        or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+        or not stat.S_ISDIR(visible.st_mode)
+        or descriptor_path(directory) != canonical_path(build)
     ):
         raise AgentLedgerError(
             f"agent-ledger: shared build directory changed during publication: {build}"
@@ -337,7 +339,6 @@ def _read_snapshot(path: Path, directory: int | None) -> _Snapshot:
         opened_file = False
         try:
             assert_no_symlink_components(path, "agent-ledger")
-            opened_parent = path.parent.stat(follow_symlinks=False)
             with path.open("rb") as stream:
                 opened_file = True
                 opened = os.fstat(stream.fileno())
@@ -346,14 +347,12 @@ def _read_snapshot(path: Path, directory: int | None) -> _Snapshot:
                         f"agent-ledger: ledger is not a regular file: {path}"
                     )
                 data = _read_limited(stream)
+            assert_no_symlink_components(path, "agent-ledger")
             visible = path.stat(follow_symlinks=False)
             visible_parent = path.parent.stat(follow_symlinks=False)
-            identity = (opened.st_dev, opened.st_ino)
             if (
                 not stat.S_ISREG(visible.st_mode)
-                or identity != (visible.st_dev, visible.st_ino)
-                or (opened_parent.st_dev, opened_parent.st_ino)
-                != (visible_parent.st_dev, visible_parent.st_ino)
+                or not stat.S_ISDIR(visible_parent.st_mode)
                 or opened.st_size != len(data)
             ):
                 raise AgentLedgerError(
@@ -392,11 +391,9 @@ def _read_snapshot(path: Path, directory: int | None) -> _Snapshot:
         data = _read_limited(descriptor)
         visible = os.stat(path.name, dir_fd=directory, follow_symlinks=False)
         after = os.fstat(descriptor)
-        identity = (opened.st_dev, opened.st_ino)
         if (
             not stat.S_ISREG(visible.st_mode)
-            or identity != (visible.st_dev, visible.st_ino)
-            or identity != (after.st_dev, after.st_ino)
+            or descriptor_path(descriptor) != canonical_path(path)
             or after.st_size != len(data)
         ):
             raise AgentLedgerError(
@@ -639,7 +636,6 @@ def _atomic_publish(path: Path, directory: int | None, data: bytes) -> None:
         if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             assert_no_symlink_components(path.parent, "agent-ledger")
             assert_no_symlink_components(path, "agent-ledger")
-            opened_parent = path.parent.stat(follow_symlinks=False)
             descriptor = os.open(
                 path.with_name(temporary_name),
                 os.O_WRONLY | os.O_CREAT | os.O_EXCL | O_CLOEXEC | O_BINARY,
@@ -651,10 +647,7 @@ def _atomic_publish(path: Path, directory: int | None, data: bytes) -> None:
                 stream.flush()
                 flush_file(stream.fileno())
             visible_parent = path.parent.stat(follow_symlinks=False)
-            if (opened_parent.st_dev, opened_parent.st_ino) != (
-                visible_parent.st_dev,
-                visible_parent.st_ino,
-            ):
+            if not stat.S_ISDIR(visible_parent.st_mode):
                 raise AgentLedgerError(
                     "agent-ledger: shared build directory changed during publication"
                 )
@@ -667,7 +660,7 @@ def _atomic_publish(path: Path, directory: int | None, data: bytes) -> None:
                 visible = path.stat(follow_symlinks=False)
                 if (
                     not stat.S_ISREG(opened.st_mode)
-                    or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+                    or not stat.S_ISREG(visible.st_mode)
                 ):
                     raise OSError("published ledger identity changed")
                 flush_file(stream.fileno())

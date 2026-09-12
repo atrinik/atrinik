@@ -7,11 +7,9 @@ import fcntl
 import os
 from pathlib import Path
 import shutil
-import stat
 import subprocess
 import tempfile
 import threading
-import time
 import unittest
 from unittest import mock
 
@@ -22,12 +20,10 @@ from atrinik_workspace.cleanup import (
     Cleanup,
     _base_item,
     _command,
-    _exclusive_sound_producer_lease,
     _listed_usage,
     _parse_time,
     _path_relation,
     _tree_usage,
-    _sound_producer_lock_snapshot,
     _worktree_records,
     _workspace_owned,
 )
@@ -45,6 +41,7 @@ from atrinik_workspace.model import (
     managed_directory,
 )
 from atrinik_workspace.process_tree import control_socket_path, initialize_lease
+from atrinik_workspace.path_identity import canonical_path, path_record
 from atrinik_workspace.workspace import (
     WORKER_DEPENDENCY_SCHEMA_VERSION,
     Workspace,
@@ -599,7 +596,7 @@ class CleanupTests(unittest.TestCase):
                     "runtime": {
                         "mutable_state_outputs": [str(root / "output")],
                         "mutable_state_output_identities": [
-                            {"device": 1, "inode": 2}
+                            path_record(root / "output", kind="directory")
                         ],
                     },
                 },
@@ -617,11 +614,13 @@ class CleanupTests(unittest.TestCase):
         (root / "state").mkdir()
         (root / "output").mkdir()
         tombstone_output = root / "tombstone-output"
-        tombstone_identity = {"device": 3, "inode": 4}
+        tombstone_identity = path_record(
+            tombstone_output, kind="directory"
+        )
         tombstone = workspace_module._owned_tree_tombstone_path(
             tombstone_output, tombstone_identity
         )
-        tombstone.touch()
+        tombstone.mkdir()
         cases += (
             (
                 "runtime-output-tombstone",
@@ -902,7 +901,9 @@ class CleanupTests(unittest.TestCase):
         status["control"] = {
             "socket": "/wrong/control",
             "generation": "b" * 64,
-            "lease": {"device": 1, "inode": 2},
+            "lease": path_record(
+                malformed / "process-tree.lease", kind="file"
+            ),
         }
         atomic_json(malformed / "status.json", status)
         unowned = self.workspace.paths.topologies / "unowned"
@@ -1376,16 +1377,6 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["disposition"], "removed", applied)
         self.assertFalse(linked.exists())
 
-    def test_sound_producer_lease_inode_replacement_is_rejected(self) -> None:
-        sound, _cache = self.make_sound_cache()
-        lease, identity = _sound_producer_lock_snapshot(sound)
-        lease.unlink()
-        lease.write_text("atrinik-sound-playtest-builds-v1\n", encoding="utf-8")
-
-        with self.assertRaisesRegex(WorkspaceError, "changed identity"):
-            with _exclusive_sound_producer_lease(sound, identity):
-                self.fail("replacement producer lease was accepted")
-
     def add_local_submodule_to_wrapper(self) -> Path:
         source = self.root / "local-submodule"
         source.mkdir()
@@ -1607,42 +1598,40 @@ class CleanupTests(unittest.TestCase):
         self.assertIsNone(observed)
         self.assertIn("loop", error or "")
 
-    def test_text_evidence_rejects_replacement_between_read_and_lstat(self) -> None:
+    def test_text_evidence_tracks_path_and_contents(self) -> None:
         path = self.root / "worktree-pointer"
         path.write_text("gitdir: /tmp/admin\n", encoding="utf-8")
         real_identity = cleanup_module._regular_text_identity
+        calls = 0
 
-        def replace_after_read(candidate: Path) -> tuple[str, tuple[int, int, int, int]]:
+        def change_after_read(candidate: Path) -> tuple[str, tuple[str, int, str]]:
+            nonlocal calls
             value, identity = real_identity(candidate)
-            replacement = candidate.with_name("worktree-pointer-replacement")
-            replacement.write_text(value, encoding="utf-8")
-            os.replace(replacement, candidate)
+            calls += 1
+            if calls == 1:
+                candidate.write_text(
+                    "gitdir: /tmp/changed-admin\n", encoding="utf-8"
+                )
             return value, identity
 
         with mock.patch.object(
             cleanup_module,
             "_regular_text_identity",
-            side_effect=replace_after_read,
+            side_effect=change_after_read,
         ):
-            with self.assertRaisesRegex(WorkspaceError, "changed identity"):
+            with self.assertRaisesRegex(WorkspaceError, "changed contents"):
                 cleanup_module._text_evidence(path)
 
         path.write_text("gitdir: /tmp/admin\n", encoding="utf-8")
-        metadata = path.lstat()
-        expected = cleanup_module._portable_text_identity(
-            metadata, path.read_text(encoding="utf-8")
-        )
+        _, expected = cleanup_module._text_evidence(path)
+        self.assertEqual(expected["path"], canonical_path(path))
         self.assertTrue(cleanup_module._text_evidence_matches(path, expected))
-        old_observed = expected
         replacement = path.with_name("worktree-pointer-replacement")
-        replacement.write_text("gitdir: /tmp/other-admin\n", encoding="utf-8")
+        replacement.write_text("gitdir: /tmp/admin\n", encoding="utf-8")
         os.replace(replacement, path)
-        with mock.patch.object(
-            cleanup_module,
-            "_text_evidence",
-            return_value=("gitdir: /tmp/admin\n", old_observed),
-        ):
-            self.assertFalse(cleanup_module._text_evidence_matches(path, old_observed))
+        self.assertTrue(cleanup_module._text_evidence_matches(path, expected))
+        path.write_text("gitdir: /tmp/other-admin\n", encoding="utf-8")
+        self.assertFalse(cleanup_module._text_evidence_matches(path, expected))
 
     def test_github_query_wraps_process_and_response_failures(self) -> None:
         repository = "atrinik/atrinik"
@@ -1693,7 +1682,7 @@ class CleanupTests(unittest.TestCase):
             "invalid_pull_request_evidence",
         )
 
-    def test_tree_usage_is_no_follow_deduplicated_and_excludes_subtrees(self) -> None:
+    def test_tree_usage_is_no_follow_path_keyed_and_excludes_subtrees(self) -> None:
         root = self.root / "tree-usage"
         excluded = root / "excluded"
         excluded.mkdir(parents=True)
@@ -1709,13 +1698,15 @@ class CleanupTests(unittest.TestCase):
 
         sizes, observed, error = _tree_usage(root, [excluded])
 
-        artifact_key = (artifact.lstat().st_dev, artifact.lstat().st_ino)
-        excluded_key = (excluded.lstat().st_dev, excluded.lstat().st_ino)
-        outside_key = (outside.lstat().st_dev, outside.lstat().st_ino)
-        symlink_key = (symlink.lstat().st_dev, symlink.lstat().st_ino)
+        artifact_key = canonical_path(artifact)
+        hardlink_key = canonical_path(hardlink)
+        excluded_key = canonical_path(excluded)
+        outside_key = canonical_path(outside)
+        symlink_key = canonical_path(symlink)
         self.assertIsNone(error)
         self.assertIsNotNone(observed)
         self.assertIn(artifact_key, sizes)
+        self.assertIn(hardlink_key, sizes)
         self.assertIn(symlink_key, sizes)
         self.assertNotIn(excluded_key, sizes)
         self.assertNotIn(outside_key, sizes)
@@ -1723,6 +1714,7 @@ class CleanupTests(unittest.TestCase):
             _listed_usage(root, ["artifact", "hardlink", "symlink"]),
             {
                 artifact_key: artifact.lstat().st_blocks * 512,
+                hardlink_key: hardlink.lstat().st_blocks * 512,
                 symlink_key: symlink.lstat().st_blocks * 512,
             },
         )
@@ -3273,7 +3265,6 @@ class CleanupTests(unittest.TestCase):
     def test_owned_tree_recovery_rejects_cross_kind_dispatch(self) -> None:
         target = self.root / "must-remain"
         target.mkdir()
-        metadata = target.stat()
         cleanup = Cleanup(self.workspace)
 
         with self.assertRaisesRegex(
@@ -3287,10 +3278,7 @@ class CleanupTests(unittest.TestCase):
                         "path": str(target),
                     },
                     "phase": "removing",
-                    "identity": {
-                        "device": metadata.st_dev,
-                        "inode": metadata.st_ino,
-                    },
+                    "identity": path_record(target, kind="directory"),
                 },
             )
         self.assertTrue(target.is_dir())
@@ -3594,7 +3582,7 @@ class CleanupTests(unittest.TestCase):
         )
         pointer = drifted / ".git"
         pointer.write_text(pointer.read_text(encoding="utf-8") + " ", encoding="utf-8")
-        with self.assertRaisesRegex(WorkspaceError, "pointer changed identity"):
+        with self.assertRaisesRegex(WorkspaceError, "pointer changed contents"):
             self.workspace.cleanup(["worktrees"], 7, [], True)
 
     def test_linked_worktree_recovery_rejects_backlink_drift(self) -> None:
@@ -3605,7 +3593,7 @@ class CleanupTests(unittest.TestCase):
         backlink.write_text(
             backlink.read_text(encoding="utf-8") + " ", encoding="utf-8"
         )
-        with self.assertRaisesRegex(WorkspaceError, "backlink changed identity"):
+        with self.assertRaisesRegex(WorkspaceError, "backlink changed contents"):
             self.workspace.cleanup(["worktrees"], 7, [], True)
 
     def test_linked_worktree_recovery_rejects_registration_recreation(self) -> None:
@@ -4197,7 +4185,7 @@ class CleanupTests(unittest.TestCase):
             item: dict[str, object],
             older_than_days: int = 0,
             *,
-            expected_identity: dict[str, int] | None = None,
+            expected_identity: dict[str, object] | None = None,
             removal_started: object = None,
         ) -> None:
             if item["kind"] == "worker-dependencies":
@@ -4352,7 +4340,9 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(item["age_basis"], "tree-mtime-or-root-ctime")
         self.assertIn("younger_than_grace_period", item["reasons"])
 
-    def test_worker_dependency_transaction_removal_rejects_aba(self) -> None:
+    def test_worker_dependency_transaction_removal_accepts_same_path_replacement(
+        self,
+    ) -> None:
         key = "8" * 64
         root = self.workspace.paths.builds / "worker-dependencies"
         managed_directory(root, self.workspace.paths.builds, "worker-dependency-cache")
@@ -4374,7 +4364,7 @@ class CleanupTests(unittest.TestCase):
             item: dict[str, object],
             older_than_days: int = 0,
             *,
-            expected_identity: dict[str, int] | None = None,
+            expected_identity: dict[str, object] | None = None,
             removal_started: object = None,
         ) -> None:
             if item["kind"] == "worker-dependency-transaction":
@@ -4407,10 +4397,9 @@ class CleanupTests(unittest.TestCase):
             for row in applied["items"]
             if row["path"] == str(transaction)
         )
-        self.assertEqual(item["disposition"], "error")
-        self.assertEqual(item["reasons"], ["removal_failed"])
-        self.assertIn("changed before removal", item["error"])
-        self.assertTrue(transaction.exists())
+        self.assertEqual(item["disposition"], "removed")
+        self.assertEqual(item["reasons"], ["removed"])
+        self.assertFalse(transaction.exists())
 
     def test_worker_dependency_transaction_uncertainty_protects_artifacts(self) -> None:
         key = "e" * 64
@@ -5041,11 +5030,18 @@ class CleanupTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "cursor is invalid"):
             cleanup._resumable_journal(request)
 
-    def test_allocated_size_credit_deduplicates_shared_inodes(self) -> None:
+    def test_allocated_size_credit_deduplicates_shared_paths(self) -> None:
         first = _base_item("worktree", "atrinik", "atrinik/atrinik", self.root / "a")
         second = _base_item("profile-build", "atrinik", "atrinik/atrinik", self.root / "b")
-        first["_inodes"] = {(1, 1): 4096, (1, 2): 4096}
-        second["_inodes"] = {(1, 2): 4096, (1, 3): 8192}
+        shared = canonical_path(self.root / "shared")
+        first["_inodes"] = {
+            canonical_path(self.root / "first"): 4096,
+            shared: 4096,
+        }
+        second["_inodes"] = {
+            shared: 4096,
+            canonical_path(self.root / "second"): 8192,
+        }
 
         Cleanup._credit_sizes([first, second])
 
@@ -5107,47 +5103,28 @@ class CleanupTests(unittest.TestCase):
                 container, container_fd = self.workspace._temporary_state_container(
                     topology
                 )
-                container_metadata = os.fstat(container_fd)
-                container_identity = (
-                    container_metadata.st_dev,
-                    container_metadata.st_ino,
-                    cleanup_module._descriptor_mount_id(container_fd),
+                container_identity = path_record(
+                    container, kind="directory"
                 )
                 os.close(container_fd)
                 generation = f"{index:x}" * 64
                 state = container / generation
                 lock = Path(f"{state}.lock")
                 lock.touch(mode=0o600)
-                lock_metadata = lock.stat(follow_symlinks=False)
-                lease_identity = {
-                    "device": lock_metadata.st_dev,
-                    "inode": lock_metadata.st_ino,
-                }
+                lease_identity = path_record(lock, kind="file")
                 filesystem_identity = None
                 physical_path: str | None = None
                 if variant == "state":
                     state.mkdir()
-                    metadata = state.stat(follow_symlinks=False)
-                    filesystem_identity = (
-                        metadata.st_dev,
-                        metadata.st_ino,
-                        metadata.st_ctime_ns,
-                        stat.S_IFMT(metadata.st_mode),
+                    filesystem_identity = path_record(
+                        state, kind="directory"
                     )
                     physical_path = str(state)
                 elif variant.startswith("orphan-"):
-                    filesystem_identity = (
-                        lock_metadata.st_dev,
-                        lock_metadata.st_ino,
-                        lock_metadata.st_ctime_ns,
-                        stat.S_IFMT(lock_metadata.st_mode),
-                    )
+                    filesystem_identity = path_record(lock, kind="file")
                     physical_path = str(lock)
                     if variant == "orphan-tombstone":
-                        tombstone = lock.parent / (
-                            f".{lock.name}.remove-{lock_metadata.st_dev:x}-"
-                            f"{lock_metadata.st_ino:x}"
-                        )
+                        tombstone = lock.parent / f".{lock.name}.remove-pending"
                         lock.rename(tombstone)
                         physical_path = str(tombstone)
                 policy = {
@@ -5258,8 +5235,6 @@ class CleanupTests(unittest.TestCase):
             "cleanup-recovery-tamper", create=True
         )
         container, container_fd = self.workspace._temporary_state_container(topology)
-        metadata = os.fstat(container_fd)
-        mount_id = cleanup_module._descriptor_mount_id(container_fd)
         os.close(container_fd)
         generation = "a" * 64
         state = container / generation
@@ -5270,272 +5245,15 @@ class CleanupTests(unittest.TestCase):
             "generation": generation,
             "physical_path": None,
             "filesystem_identity": None,
-            "container_identity": {
-                "device": metadata.st_dev,
-                "inode": metadata.st_ino,
-                "mount_id": mount_id,
-            },
-            "lease_identity": {"device": 1, "inode": 2},
+            "container_identity": path_record(container, kind="directory"),
+            "lease_identity": path_record(
+                Path(f"{state}.lock"), kind="file"
+            ),
         }
         cleanup = Cleanup(self.workspace)
         self.assertTrue(cleanup._valid_temporary_state_recovery(action, recovery))
         recovery["generation"] = "outside"
         self.assertFalse(cleanup._valid_temporary_state_recovery(action, recovery))
-
-    def test_temporary_state_recovery_rejects_survivor_ctime_replacement(self) -> None:
-        for index, variant in enumerate(
-            ("state", "orphan-lock", "orphan-tombstone"), start=11
-        ):
-            with self.subTest(variant=variant):
-                topology = self.workspace._topology_directory(
-                    f"cleanup-recovery-aba-{index}", create=True
-                )
-                container, container_fd = self.workspace._temporary_state_container(
-                    topology
-                )
-                container_metadata = os.fstat(container_fd)
-                container_identity = (
-                    container_metadata.st_dev,
-                    container_metadata.st_ino,
-                    cleanup_module._descriptor_mount_id(container_fd),
-                )
-                os.close(container_fd)
-                generation = f"{index:x}" * 64
-                state = container / generation
-                lock = Path(f"{state}.lock")
-                lock.touch(mode=0o600)
-                lock_metadata = lock.stat(follow_symlinks=False)
-                physical = lock
-                identity = (
-                    lock_metadata.st_dev,
-                    lock_metadata.st_ino,
-                    lock_metadata.st_ctime_ns,
-                    stat.S_IFMT(lock_metadata.st_mode),
-                )
-                orphan = "lock"
-                if variant == "state":
-                    state.mkdir()
-                    state_metadata = state.stat(follow_symlinks=False)
-                    physical = state
-                    identity = (
-                        state_metadata.st_dev,
-                        state_metadata.st_ino,
-                        state_metadata.st_ctime_ns,
-                        stat.S_IFMT(state_metadata.st_mode),
-                    )
-                    orphan = None
-                elif variant == "orphan-tombstone":
-                    physical = lock.parent / (
-                        f".{lock.name}.remove-{lock_metadata.st_dev:x}-"
-                        f"{lock_metadata.st_ino:x}"
-                    )
-                    lock.rename(physical)
-                    physical_metadata = physical.stat(follow_symlinks=False)
-                    identity = (
-                        physical_metadata.st_dev,
-                        physical_metadata.st_ino,
-                        physical_metadata.st_ctime_ns,
-                        stat.S_IFMT(physical_metadata.st_mode),
-                    )
-                    orphan = "tombstone"
-                item = {
-                    "kind": "temporary-state",
-                    "path": str(state),
-                    "topology": topology.name,
-                    "generation": generation,
-                    "state_policy": {
-                        "lease_identity": {
-                            "device": lock_metadata.st_dev,
-                            "inode": lock_metadata.st_ino,
-                        }
-                    },
-                    "_identity": identity,
-                    "_physical_path": str(physical),
-                    "_lease_only": False,
-                    "_orphan_rollback_lease": orphan,
-                    "_temporary_state_container_identity": container_identity,
-                }
-                cleanup = Cleanup(self.workspace)
-                evidence = cleanup._temporary_state_recovery_evidence(item)
-                time.sleep(0.01)
-                os.chmod(physical, 0o700 if variant == "state" else 0o400)
-                os.utime(physical, ns=(1_000_000_000, 1_000_000_000))
-                os.chmod(physical, 0o755 if variant == "state" else 0o600)
-                self.assertNotEqual(
-                    physical.stat(follow_symlinks=False).st_ctime_ns,
-                    identity[2],
-                )
-                with self.assertRaisesRegex(WorkspaceError, "changed"):
-                    cleanup._recover_temporary_state(item, 0, evidence)
-
-    def test_temporary_state_recovery_rejects_reacquired_lease_replacement(
-        self,
-    ) -> None:
-        topology = self.workspace._topology_directory(
-            "cleanup-recovery-lease-gap", create=True
-        )
-        container, container_fd = self.workspace._temporary_state_container(topology)
-        container_metadata = os.fstat(container_fd)
-        container_identity = (
-            container_metadata.st_dev,
-            container_metadata.st_ino,
-            cleanup_module._descriptor_mount_id(container_fd),
-        )
-        os.close(container_fd)
-        generation = "d" * 64
-        state = container / generation
-        state.mkdir()
-        state_metadata = state.stat(follow_symlinks=False)
-        lock = Path(f"{state}.lock")
-        lock.touch(mode=0o600)
-        lock_metadata = lock.stat(follow_symlinks=False)
-        item = {
-            "kind": "temporary-state",
-            "path": str(state),
-            "topology": topology.name,
-            "generation": generation,
-            "state_policy": {
-                "lease_identity": {
-                    "device": lock_metadata.st_dev,
-                    "inode": lock_metadata.st_ino,
-                }
-            },
-            "_identity": (
-                state_metadata.st_dev,
-                state_metadata.st_ino,
-                state_metadata.st_ctime_ns,
-                stat.S_IFMT(state_metadata.st_mode),
-            ),
-            "_physical_path": str(state),
-            "_lease_only": False,
-            "_orphan_rollback_lease": None,
-            "_temporary_state_container_identity": container_identity,
-        }
-        cleanup = Cleanup(self.workspace)
-        evidence = cleanup._temporary_state_recovery_evidence(item)
-        original_remove = cleanup._remove_temporary_state
-        saved_lock = Path(f"{lock}.saved")
-
-        def replace_before_reacquire(*args: object, **kwargs: object) -> None:
-            lock.rename(saved_lock)
-            lock.touch(mode=0o600)
-            original_remove(*args, **kwargs)
-
-        with mock.patch.object(
-            cleanup,
-            "_remove_temporary_state",
-            side_effect=replace_before_reacquire,
-        ), mock.patch.object(
-            self.workspace,
-            "_commit_temporary_state_removal",
-        ) as commit, self.assertRaisesRegex(WorkspaceError, "lease identity"):
-            cleanup._recover_temporary_state(item, 0, evidence)
-        commit.assert_not_called()
-        self.assertTrue(state.is_dir())
-
-    def test_temporary_state_lease_only_recovery_binds_lease_evidence(self) -> None:
-        for index, (variant, replacement) in enumerate(
-            (
-                ("lease-only", "lease"),
-                ("lease-only", "policy"),
-                ("state", "lease"),
-                ("state", "policy"),
-            ),
-            start=21,
-        ):
-            with self.subTest(variant=variant, replacement=replacement):
-                topology = self.workspace._topology_directory(
-                    f"cleanup-recovery-lease-only-{index}", create=True
-                )
-                container, container_fd = self.workspace._temporary_state_container(
-                    topology
-                )
-                container_metadata = os.fstat(container_fd)
-                container_identity = (
-                    container_metadata.st_dev,
-                    container_metadata.st_ino,
-                    cleanup_module._descriptor_mount_id(container_fd),
-                )
-                os.close(container_fd)
-                generation = f"{index % 16:x}" * 64
-                state = container / generation
-                lock = Path(f"{state}.lock")
-                lock.touch(mode=0o600)
-                lock_metadata = lock.stat(follow_symlinks=False)
-                lease_identity = {
-                    "device": lock_metadata.st_dev,
-                    "inode": lock_metadata.st_ino,
-                }
-                filesystem_identity = None
-                physical_path = None
-                if variant == "state":
-                    state.mkdir()
-                    state_metadata = state.stat(follow_symlinks=False)
-                    filesystem_identity = (
-                        state_metadata.st_dev,
-                        state_metadata.st_ino,
-                        state_metadata.st_ctime_ns,
-                        stat.S_IFMT(state_metadata.st_mode),
-                    )
-                    physical_path = str(state)
-                item = {
-                    "kind": "temporary-state",
-                    "path": str(state),
-                    "topology": topology.name,
-                    "generation": generation,
-                    "state_policy": {"lease_identity": lease_identity},
-                    "_identity": filesystem_identity,
-                    "_physical_path": physical_path,
-                    "_lease_only": variant == "lease-only",
-                    "_orphan_rollback_lease": None,
-                    "_temporary_state_container_identity": container_identity,
-                }
-                cleanup = Cleanup(self.workspace)
-                evidence = cleanup._temporary_state_recovery_evidence(item)
-                if variant == "state":
-                    state.rmdir()
-                policy_lease_identity = (
-                    {
-                        "device": lease_identity["device"],
-                        "inode": lease_identity["inode"] + 1,
-                    }
-                    if replacement == "policy"
-                    else lease_identity
-                )
-                status = {
-                    "state_policy": {
-                        "mode": "temporary",
-                        "path": str(state),
-                        "lifecycle": "removed",
-                        "lease_identity": policy_lease_identity,
-                    }
-                }
-                original_remove = cleanup._remove_temporary_state
-                saved_lock = Path(f"{lock}.saved")
-
-                def replace_before_reacquire(
-                    *args: object, **kwargs: object
-                ) -> None:
-                    if replacement == "lease":
-                        lock.rename(saved_lock)
-                        lock.touch(mode=0o600)
-                    original_remove(*args, **kwargs)
-
-                with mock.patch.object(
-                    cleanup,
-                    "_remove_temporary_state",
-                    side_effect=replace_before_reacquire,
-                ), mock.patch.object(
-                    self.workspace, "topology_status", return_value=status
-                ), mock.patch.object(
-                    self.workspace, "_unlink_temporary_state_lock"
-                ) as unlink, mock.patch.object(
-                    self.workspace, "_finish_temporary_state_lock_tombstone"
-                ) as finish, self.assertRaisesRegex(WorkspaceError, "lease"):
-                    cleanup._recover_temporary_state(item, 0, evidence)
-                unlink.assert_not_called()
-                finish.assert_not_called()
-                self.assertTrue(lock.exists())
 
 
 if __name__ == "__main__":

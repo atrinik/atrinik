@@ -16,6 +16,7 @@ from .project_coordinator_github import GitHub, apply_operation, cancel_operatio
 from .project_coordinator_store import LIMIT, Store, open_directory, read_input
 from .workspace import durable_atomic_json_at
 from .model import WorkspaceError
+from .path_identity import canonical_path, descriptor_path
 
 SOURCE_ROOT = Path(__file__).resolve().parents[1]
 
@@ -208,12 +209,13 @@ def publish_result(args, value, fd):
     require("document" in snapshot, "command did not return a snapshot")
     current = os.fstat(fd)
     visible = args.snapshot_output.parent.stat(follow_symlinks=False)
-    require((current.st_dev, current.st_ino) == (visible.st_dev, visible.st_ino),
+    require(stat.S_ISDIR(current.st_mode) and stat.S_ISDIR(visible.st_mode)
+            and descriptor_path(fd) == canonical_path(args.snapshot_output.parent),
             "snapshot output directory replaced")
     durable_atomic_json_at(fd, args.snapshot_output.name, snapshot)
     if not args.compact:
         return value
-    metadata = {key: snapshot[key] for key in ("generation", "digest", "device", "inode")}
+    metadata = {key: snapshot[key] for key in ("generation", "digest", "path")}
     compact = {key: item for key, item in value.items() if key != "snapshot"} if "snapshot" in value else {}
     compact.update(snapshot=metadata, snapshot_output=str(args.snapshot_output))
     if args.command == "tracking":

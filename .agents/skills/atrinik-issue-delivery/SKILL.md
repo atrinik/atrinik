@@ -134,5 +134,5 @@ no cleanup authority and helper lifecycle commands never remove resources.
 It must never trigger implicitly.
 
 For unchanged bound targets on reconnect, use the public
-`revalidate-current-targets-cas` exact-tuple proof in the issue-delivery
+`revalidate-current-targets-cas` generation/digest proof in the issue-delivery
 ledger protocol; saved safety fields or generic CAS are not live lease proof.

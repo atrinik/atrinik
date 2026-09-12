@@ -82,12 +82,17 @@ class ProgramLedgerModel:
     AUTO_SCAN = object()
     CHILD_QUERY_SHA256 = hashlib.sha256(b"canonical-child-duplicate-query").hexdigest()
 
+    LEDGER_PATH = str(Path(__file__).resolve().with_name("program-ledger.json"))
+    LOCK_PATH = LEDGER_PATH + ".lock"
+
     KEYS = {
-        "generation", "self_inode", "lock", "previous_sha256", "authority", "graph",
+        "generation", "ledger_path", "lock", "previous_sha256", "authority", "graph",
         "next_graph", "comment", "create", "link", "leaf_snapshots", "observation",
     }
 
-    def __init__(self) -> None:
+    def __init__(self, ledger_path: str | None = None) -> None:
+        ledger_path = str(Path(ledger_path or self.LEDGER_PATH).resolve())
+        lock_path = ledger_path + ".lock"
         empty = {
             "phase": "none", "node": None, "prior": None,
             "created_at": None,
@@ -96,8 +101,8 @@ class ProgramLedgerModel:
         }
         self.record: dict[str, object] = {
             "generation": 0,
-            "self_inode": 101,
-            "lock": {"device": 1, "inode": 41},
+            "ledger_path": ledger_path,
+            "lock": {"path": lock_path},
             "previous_sha256": None,
             "authority": ["repo", "master", "goal", "actor"],
             "graph": ["leaf-1"],
@@ -108,8 +113,8 @@ class ProgramLedgerModel:
             "leaf_snapshots": {"leaf-1": [1, "a" * 64]},
             "observation": {"comment": None, "child": None, "parent": None},
         }
-        self.lock_inode = 41
-        self.path_lock_inode = 41
+        self.lock_path = lock_path
+        self.observed_lock_path = lock_path
         self.remote_calls = {"comment": 0, "create": 0, "link": 0}
         self.report_present = False
         self.scan_owner = object()
@@ -118,6 +123,13 @@ class ProgramLedgerModel:
         self.call_owner = object()
         self.call_sequence = 0
         self.call_registry: dict[int, tuple[object, ...]] = {}
+
+    @staticmethod
+    def path_is_valid(value: object) -> bool:
+        return (
+            isinstance(value, str) and bool(value) and "\0" not in value
+            and Path(value).is_absolute() and str(Path(value).resolve()) == value
+        )
 
     @classmethod
     def canonical(cls, value: object) -> bytes:
@@ -304,31 +316,31 @@ class ProgramLedgerModel:
 
     @classmethod
     def resume(
-        cls, record: dict[str, object] | None, lock_inode: int | None,
-        observed_inode: int | None, observed_sha256: str | None,
+        cls, record: dict[str, object] | None, lock_path: str | None,
+        observed_path: str | None, observed_sha256: str | None,
         expected_authority: list[str], expected_previous: str | None = None,
         report_present: bool = False,
         remote_calls: dict[str, int] | None = None,
     ) -> "ProgramLedgerModel":
-        if record is None or lock_inode is None:
+        if record is None or lock_path is None:
             raise StopClosed("ledger or stable lock was lost")
         if not isinstance(record, dict):
             raise StopClosed("ledger root is not an object")
         if not cls.value_is_bounded(record):
             raise StopClosed("ledger value exceeds a collection or string bound")
-        self_inode = record.get("self_inode")
+        ledger_path = record.get("ledger_path")
         lock = record.get("lock")
         if (
             set(record) != cls.KEYS
-            or type(self_inode) is not int or self_inode <= 0
-            or type(observed_inode) is not int or observed_inode <= 0
-            or observed_inode != self_inode
-            or type(lock_inode) is not int or lock_inode <= 0
-            or not isinstance(lock, dict) or set(lock) != {"device", "inode"}
-            or type(lock["device"]) is not int or lock["device"] < 0
-            or type(lock["inode"]) is not int or lock["inode"] <= 0
+            or not cls.path_is_valid(ledger_path)
+            or not cls.path_is_valid(observed_path)
+            or observed_path != ledger_path
+            or not cls.path_is_valid(lock_path)
+            or not isinstance(lock, dict) or set(lock) != {"path"}
+            or not cls.path_is_valid(lock["path"])
+            or lock["path"] != ledger_path + ".lock"
         ):
-            raise StopClosed("schema or inode corruption")
+            raise StopClosed("schema or path corruption")
         if (
             not isinstance(record["authority"], list)
             or len(record["authority"]) != 4
@@ -358,7 +370,7 @@ class ProgramLedgerModel:
             )
         ):
             raise StopClosed("ledger collection shape is corrupt")
-        if lock != {"device": 1, "inode": lock_inode}:
+        if lock != {"path": lock_path}:
             raise StopClosed("arbitration lock identity changed")
         if (
             not cls.digest_is_valid(observed_sha256)
@@ -643,10 +655,10 @@ class ProgramLedgerModel:
             or not set(record["leaf_snapshots"]).issubset(set(record["graph"]))
         ):
             raise StopClosed("leaf snapshot is outside the graph")
-        model = cls()
+        model = cls(observed_path)
         model.record = copy.deepcopy(record)
-        model.lock_inode = lock_inode
-        model.path_lock_inode = lock_inode
+        model.lock_path = lock_path
+        model.observed_lock_path = lock_path
         model.report_present = report_present
         if remote_calls is not None:
             model.remote_calls = remote_calls
@@ -654,8 +666,10 @@ class ProgramLedgerModel:
 
     def persist(
         self, mutate: object, expected_generation: int | None = None,
-        expected_digest: str | None = None, expected_lock_inode: int = 41,
+        expected_digest: str | None = None, expected_lock_path: str | None = None,
     ) -> None:
+        if expected_lock_path is None:
+            expected_lock_path = self.lock_path
         if self.call_registry:
             raise StopClosed("generation change while a call permit is outstanding")
         generation = int(self.record["generation"])
@@ -671,25 +685,24 @@ class ProgramLedgerModel:
             not self.digest_is_valid(expected_digest) or expected_digest != old_digest
         ):
             raise StopClosed("stale digest")
-        if expected_lock_inode != self.lock_inode or self.path_lock_inode != self.lock_inode:
+        if expected_lock_path != self.lock_path or self.observed_lock_path != self.lock_path:
             raise StopClosed("substituted lock")
-        if self.record["lock"] != {"device": 1, "inode": expected_lock_inode}:
+        if self.record["lock"] != {"path": expected_lock_path}:
             raise StopClosed("persisted lock identity changed")
         candidate = copy.deepcopy(self.record)
         mutate(candidate)
         candidate["previous_sha256"] = old_digest
         candidate["generation"] = generation + 1
-        candidate["self_inode"] = int(candidate["self_inode"]) + 1
         candidate_bytes = self.canonical(candidate)
         type(self).resume(
-            candidate, self.lock_inode, candidate["self_inode"],
+            candidate, self.lock_path, candidate["ledger_path"],
             hashlib.sha256(candidate_bytes).hexdigest(), expected_authority,
             expected_previous=old_digest,
         )
         self.record = candidate
 
-    def replace_lock_path(self, inode: int) -> None:
-        self.path_lock_inode = inode
+    def replace_lock_path(self, path: str) -> None:
+        self.observed_lock_path = path
 
     @classmethod
     def scan_stream(
@@ -1176,7 +1189,7 @@ class ProgramLedgerModel:
         )
         self.call_registry[permit.token] = (
             self.call_owner, tuple(self.record["authority"]), slot, generation,
-            self.lock_inode,
+            self.lock_path,
         )
         return permit
 
@@ -1190,11 +1203,11 @@ class ProgramLedgerModel:
             or permit.owner is not self.call_owner
             or registered != (
                 self.call_owner, tuple(self.record["authority"]), permit.slot,
-                permit.generation, self.lock_inode,
+                permit.generation, self.lock_path,
             )
             or permit.generation != self.record["generation"]
             or self.record[permit.slot]["phase"] != "in-flight"
-            or self.path_lock_inode != self.lock_inode
+            or self.observed_lock_path != self.lock_path
         ):
             raise StopClosed("call permit is absent, stale, or already used")
         del self.call_registry[permit.token]
@@ -1426,22 +1439,22 @@ class ProgramLedgerModelTests(unittest.TestCase):
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.fresh(True, False)
         resumed = ProgramLedgerModel.resume(
-            model.record, model.lock_inode, model.record["self_inode"],
+            model.record, model.lock_path, model.record["ledger_path"],
             model.digest(), model.record["authority"],
         )
         self.assertEqual(resumed.record, model.record)
         for args in (
-            (None, 41, 101, None, model.record["authority"]),
-            (model.record, None, 101, model.digest(), model.record["authority"]),
+            (None, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH, None, model.record["authority"]),
+            (model.record, None, ProgramLedgerModel.LEDGER_PATH, model.digest(), model.record["authority"]),
         ):
             with self.subTest(args=args):
                 with self.assertRaises(StopClosed):
                     ProgramLedgerModel.resume(*args)
 
-    def test_corrupt_lost_or_inode_substituted_ledger_stops(self) -> None:
+    def test_corrupt_lost_or_path_substituted_ledger_stops(self) -> None:
         model = ProgramLedgerModel()
         with self.assertRaises(StopClosed):
-            ProgramLedgerModel.resume(7, 41, 101, "0" * 64, model.record["authority"])
+            ProgramLedgerModel.resume(7, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH, "0" * 64, model.record["authority"])
         corrupt = copy.deepcopy(model.record)
         corrupt["unknown"] = True
         bad_phase = copy.deepcopy(model.record)
@@ -1460,29 +1473,29 @@ class ProgramLedgerModelTests(unittest.TestCase):
         bad_snapshots = copy.deepcopy(model.record)
         bad_snapshots["leaf_snapshots"] = None
         cases = (
-            (corrupt, 41, 101, model.digest(), model.record["authority"]),
-            (model.record, 41, 999, model.digest(), model.record["authority"]),
-            (model.record, 41, 101, "0" * 64, model.record["authority"]),
-            (model.record, 99, 101, model.digest(), model.record["authority"]),
-            (bad_phase, 41, 101,
+            (corrupt, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH, model.digest(), model.record["authority"]),
+            (model.record, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH + ".other", model.digest(), model.record["authority"]),
+            (model.record, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH, "0" * 64, model.record["authority"]),
+            (model.record, ProgramLedgerModel.LOCK_PATH + ".other", ProgramLedgerModel.LEDGER_PATH, model.digest(), model.record["authority"]),
+            (bad_phase, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH,
              hashlib.sha256(ProgramLedgerModel.canonical(bad_phase)).hexdigest(),
              model.record["authority"]),
-            (bad_authority, 41, 101,
+            (bad_authority, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH,
              hashlib.sha256(ProgramLedgerModel.canonical(bad_authority)).hexdigest(),
              model.record["authority"]),
-            (bad_bound, 41, 101,
+            (bad_bound, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH,
              hashlib.sha256(ProgramLedgerModel.canonical(bad_bound)).hexdigest(),
              model.record["authority"]),
-            (bad_next, 41, 101,
+            (bad_next, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH,
              hashlib.sha256(ProgramLedgerModel.canonical(bad_next)).hexdigest(),
              model.record["authority"]),
-            (bad_link, 41, 101,
+            (bad_link, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH,
              hashlib.sha256(ProgramLedgerModel.canonical(bad_link)).hexdigest(),
              model.record["authority"]),
-            (bad_graph, 41, 101,
+            (bad_graph, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH,
              hashlib.sha256(ProgramLedgerModel.canonical(bad_graph)).hexdigest(),
              model.record["authority"]),
-            (bad_snapshots, 41, 101,
+            (bad_snapshots, ProgramLedgerModel.LOCK_PATH, ProgramLedgerModel.LEDGER_PATH,
              hashlib.sha256(ProgramLedgerModel.canonical(bad_snapshots)).hexdigest(),
              model.record["authority"]),
         )
@@ -1498,7 +1511,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             malformed_authority["authority"] = authority
             with self.subTest(authority=authority), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
-                    malformed_authority, 41, malformed_authority["self_inode"],
+                    malformed_authority, ProgramLedgerModel.LOCK_PATH, malformed_authority["ledger_path"],
                     hashlib.sha256(
                         ProgramLedgerModel.canonical(malformed_authority)
                     ).hexdigest(),
@@ -1510,7 +1523,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         retry.record["comment"]["retry_observation"] = {"malformed": True}
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                retry.record, 41, retry.record["self_inode"], retry.digest(),
+                retry.record, ProgramLedgerModel.LOCK_PATH, retry.record["ledger_path"], retry.digest(),
                 retry.record["authority"],
             )
         malformed_observations: tuple[object, ...] = (
@@ -1523,34 +1536,31 @@ class ProgramLedgerModelTests(unittest.TestCase):
             corrupt_observation["observation"] = observation
             with self.subTest(observation=observation), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
-                    corrupt_observation, 41, corrupt_observation["self_inode"],
+                    corrupt_observation, ProgramLedgerModel.LOCK_PATH, corrupt_observation["ledger_path"],
                     hashlib.sha256(
                         ProgramLedgerModel.canonical(corrupt_observation)
                     ).hexdigest(),
                     corrupt_observation["authority"],
                 )
-        inode_cases: list[tuple[dict[str, object], object, object]] = []
-        for value in (True, 0):
-            corrupt_inode = copy.deepcopy(model.record)
-            corrupt_inode["self_inode"] = value
-            inode_cases.append((corrupt_inode, 41, value))
-        corrupt_device = copy.deepcopy(model.record)
-        corrupt_device["lock"]["device"] = True
-        inode_cases.append((corrupt_device, 41, 101))
-        for value in (True, 0):
+        path_cases: list[tuple[dict[str, object], object, object]] = []
+        for value in (True, 0, "", "relative.json", "/tmp/../ledger.json"):
+            corrupt_path = copy.deepcopy(model.record)
+            corrupt_path["ledger_path"] = value
+            path_cases.append((corrupt_path, model.lock_path, value))
+        for value in (True, 0, "", "relative.lock"):
             corrupt_lock = copy.deepcopy(model.record)
-            corrupt_lock["lock"]["inode"] = value
-            inode_cases.append((corrupt_lock, value, 101))
-        for corrupt_inode, live_lock, live_inode in inode_cases:
+            corrupt_lock["lock"]["path"] = value
+            path_cases.append((corrupt_lock, value, model.record["ledger_path"]))
+        for corrupt_path, live_lock, live_path in path_cases:
             with self.subTest(
-                self_inode=corrupt_inode["self_inode"], lock=corrupt_inode["lock"]
+                ledger_path=corrupt_path["ledger_path"], lock=corrupt_path["lock"]
             ), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
-                    corrupt_inode, live_lock, live_inode,
+                    corrupt_path, live_lock, live_path,
                     hashlib.sha256(
-                        ProgramLedgerModel.canonical(corrupt_inode)
+                        ProgramLedgerModel.canonical(corrupt_path)
                     ).hexdigest(),
-                    corrupt_inode["authority"],
+                    corrupt_path["authority"],
                 )
         lineage = ProgramLedgerModel()
         lineage.persist(lambda record: None)
@@ -1559,7 +1569,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             corrupt_lineage["previous_sha256"] = digest
             with self.subTest(lineage=digest), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
-                    corrupt_lineage, 41, corrupt_lineage["self_inode"],
+                    corrupt_lineage, ProgramLedgerModel.LOCK_PATH, corrupt_lineage["ledger_path"],
                     hashlib.sha256(
                         ProgramLedgerModel.canonical(corrupt_lineage)
                     ).hexdigest(),
@@ -1572,7 +1582,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             corrupt_observation["observation"]["comment"][field] = "z" * 64
             with self.subTest(observation_digest=field), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
-                    corrupt_observation, 41, corrupt_observation["self_inode"],
+                    corrupt_observation, ProgramLedgerModel.LOCK_PATH, corrupt_observation["ledger_path"],
                     hashlib.sha256(
                         ProgramLedgerModel.canonical(corrupt_observation)
                     ).hexdigest(),
@@ -1582,7 +1592,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         corrupt_snapshot["leaf_snapshots"]["leaf-1"][1] = "z" * 64
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                corrupt_snapshot, 41, corrupt_snapshot["self_inode"],
+                corrupt_snapshot, ProgramLedgerModel.LOCK_PATH, corrupt_snapshot["ledger_path"],
                 hashlib.sha256(
                     ProgramLedgerModel.canonical(corrupt_snapshot)
                 ).hexdigest(),
@@ -1628,7 +1638,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             corrupt[slot]["arm_observation"] = evidence
             with self.subTest(slot=slot), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
-                    corrupt, 41, corrupt["self_inode"],
+                    corrupt, ProgramLedgerModel.LOCK_PATH, corrupt["ledger_path"],
                     hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
                     corrupt["authority"],
                 )
@@ -1639,7 +1649,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
                     StopClosed
                 ):
                     ProgramLedgerModel.resume(
-                        empty_node, 41, empty_node["self_inode"],
+                        empty_node, ProgramLedgerModel.LOCK_PATH, empty_node["ledger_path"],
                         hashlib.sha256(
                             ProgramLedgerModel.canonical(empty_node)
                         ).hexdigest(),
@@ -1651,14 +1661,14 @@ class ProgramLedgerModelTests(unittest.TestCase):
         patch_intent.record["comment"]["node"] = ""
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                patch_intent.record, 41, patch_intent.record["self_inode"],
+                patch_intent.record, ProgramLedgerModel.LOCK_PATH, patch_intent.record["ledger_path"],
                 patch_intent.digest(), patch_intent.record["authority"],
             )
         corrupt_proof = copy.deepcopy(link.record)
         corrupt_proof["link"]["proof"] = "z" * 64
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                corrupt_proof, 41, corrupt_proof["self_inode"],
+                corrupt_proof, ProgramLedgerModel.LOCK_PATH, corrupt_proof["ledger_path"],
                 hashlib.sha256(
                     ProgramLedgerModel.canonical(corrupt_proof)
                 ).hexdigest(),
@@ -1668,7 +1678,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
     def test_filesystem_lock_is_stable_across_atomic_ledger_replace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            lock = root / "ledger.lock"
+            lock = root / "ledger.json.lock"
             ledger = root / "ledger.json"
             flags = os.O_CREAT | os.O_EXCL | os.O_RDWR | os.O_NOFOLLOW
             lock_fd = os.open(lock, flags, 0o600)
@@ -1681,42 +1691,53 @@ class ProgramLedgerModelTests(unittest.TestCase):
             self.addCleanup(os.close, competing_fd)
             with self.assertRaises(BlockingIOError):
                 fcntl.flock(competing_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            lock_inode = os.fstat(lock_fd).st_ino
+            lock_path = str(lock.resolve())
             ledger_fd = os.open(ledger, flags, 0o600)
             os.write(ledger_fd, b"old")
             os.fsync(ledger_fd)
-            old_inode = os.fstat(ledger_fd).st_ino
             os.close(ledger_fd)
             temporary = root / "ledger.tmp"
             temporary_fd = os.open(temporary, flags, 0o600)
             os.write(temporary_fd, b"new")
             os.fsync(temporary_fd)
-            new_inode = os.fstat(temporary_fd).st_ino
             os.close(temporary_fd)
-            self.assertNotEqual(old_inode, new_inode)
             with self.assertRaises(FileExistsError):
                 os.open(temporary, flags, 0o600)
             os.replace(temporary, ledger)
             directory_fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
             os.fsync(directory_fd)
             os.close(directory_fd)
-            self.assertEqual(os.stat(lock).st_ino, lock_inode)
-            self.assertEqual(os.stat(ledger).st_ino, new_inode)
+            self.assertEqual(os.readlink(f"/proc/self/fd/{lock_fd}"), lock_path)
+            self.assertEqual(ledger.read_bytes(), b"new")
+            alias = root / "ledger-alias.lock"
+            alias.symlink_to(lock)
+            with self.assertRaises(OSError):
+                os.open(alias, os.O_RDWR | os.O_NOFOLLOW)
+            model = ProgramLedgerModel(str(ledger))
+            model.persist(lambda record: None)
+            resumed = ProgramLedgerModel.resume(
+                model.record, str(lock), str(ledger), model.digest(),
+                model.record["authority"],
+            )
+            self.assertEqual(resumed.record["ledger_path"], str(ledger))
+            with self.assertRaises(BlockingIOError):
+                fcntl.flock(competing_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             replacement = root / "replacement.lock"
             replacement_fd = os.open(replacement, flags, 0o600)
             os.close(replacement_fd)
             os.replace(replacement, lock)
-            self.assertNotEqual(os.stat(lock).st_ino, lock_inode)
-            model = ProgramLedgerModel()
-            model.replace_lock_path(os.stat(lock).st_ino)
+            detached_lock_path = os.readlink(f"/proc/self/fd/{lock_fd}")
+            self.assertNotEqual(detached_lock_path, lock_path)
+            model = ProgramLedgerModel(str(ledger))
+            model.replace_lock_path(detached_lock_path)
             with self.assertRaises(StopClosed):
                 model.persist(lambda record: None)
-            model = ProgramLedgerModel()
+            model = ProgramLedgerModel(str(ledger))
             model.observe_comment()
             model.plan_comment()
             self.refresh_before_arm(model, "comment")
             permit = model.arm("comment")
-            model.replace_lock_path(os.stat(lock).st_ino)
+            model.replace_lock_path(detached_lock_path)
             with self.assertRaises(StopClosed):
                 model.execute(permit)
 
@@ -1811,7 +1832,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
     def test_mutations_require_consumed_bounded_scan_evidence(self) -> None:
         with self.assertRaises(StopClosed):
             ScanPermit(
-                object(), object(), 999, "0" * 64,
+                object(), object(), ProgramLedgerModel.LEDGER_PATH + ".other", "0" * 64,
                 {"pages": 1, "nodes": 0, "body_bytes": 0,
                  "terminal_cursor": None, "completed_at": "2026-08-14T00:00:00Z",
                  "complete": True},
@@ -1923,7 +1944,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         corrupt["graph"] = ["x" * (ProgramLedgerModel.MAX_STRING_BYTES + 1)]
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                corrupt, 41, corrupt["self_inode"],
+                corrupt, ProgramLedgerModel.LOCK_PATH, corrupt["ledger_path"],
                 hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
                 corrupt["authority"],
             )
@@ -2005,7 +2026,6 @@ class ProgramLedgerModelTests(unittest.TestCase):
         candidate["graph"] = items
         candidate["previous_sha256"] = model.digest()
         candidate["generation"] += 1
-        candidate["self_inode"] += 1
         unbounded = (
             json.dumps(
                 candidate, ensure_ascii=False, allow_nan=False, sort_keys=True,
@@ -2048,7 +2068,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             future["observation"][kind]["generation"] = future["generation"] + 1
             with self.subTest(slot=slot, defect="future"), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
-                    future, 41, future["self_inode"],
+                    future, ProgramLedgerModel.LOCK_PATH, future["ledger_path"],
                     hashlib.sha256(ProgramLedgerModel.canonical(future)).hexdigest(),
                     future["authority"],
                 )
@@ -2071,7 +2091,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
                     ]["generation"] + 1
                 with self.subTest(slot=slot, defect=defect), self.assertRaises(StopClosed):
                     ProgramLedgerModel.resume(
-                        corrupt, 41, corrupt["self_inode"],
+                        corrupt, ProgramLedgerModel.LOCK_PATH, corrupt["ledger_path"],
                         hashlib.sha256(
                             ProgramLedgerModel.canonical(corrupt)
                         ).hexdigest(),
@@ -2087,7 +2107,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 StopClosed
             ):
                 ProgramLedgerModel.resume(
-                    corrupt, 41, corrupt["self_inode"],
+                    corrupt, ProgramLedgerModel.LOCK_PATH, corrupt["ledger_path"],
                     hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
                     corrupt["authority"],
                 )
@@ -2098,7 +2118,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         corrupt_arm["create"]["arm_observation"]["query_sha256"] = "0" * 64
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                corrupt_arm, 41, corrupt_arm["self_inode"],
+                corrupt_arm, ProgramLedgerModel.LOCK_PATH, corrupt_arm["ledger_path"],
                 hashlib.sha256(ProgramLedgerModel.canonical(corrupt_arm)).hexdigest(),
                 corrupt_arm["authority"],
             )
@@ -2113,7 +2133,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         corrupt_vector["observation"]["child"]["node_ids"] = ["other-node"]
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                corrupt_vector, 41, corrupt_vector["self_inode"],
+                corrupt_vector, ProgramLedgerModel.LOCK_PATH, corrupt_vector["ledger_path"],
                 hashlib.sha256(
                     ProgramLedgerModel.canonical(corrupt_vector)
                 ).hexdigest(),
@@ -2135,7 +2155,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         )
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                corrupt_plan, 41, corrupt_plan["self_inode"],
+                corrupt_plan, ProgramLedgerModel.LOCK_PATH, corrupt_plan["ledger_path"],
                 hashlib.sha256(ProgramLedgerModel.canonical(corrupt_plan)).hexdigest(),
                 corrupt_plan["authority"],
             )
@@ -2147,7 +2167,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         )
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                corrupt_armed, 41, corrupt_armed["self_inode"],
+                corrupt_armed, ProgramLedgerModel.LOCK_PATH, corrupt_armed["ledger_path"],
                 hashlib.sha256(ProgramLedgerModel.canonical(corrupt_armed)).hexdigest(),
                 corrupt_armed["authority"],
             )
@@ -2166,7 +2186,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
             )
             with self.subTest(count=count, nodes=nodes), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
-                    corrupt_result, 41, corrupt_result["self_inode"],
+                    corrupt_result, ProgramLedgerModel.LOCK_PATH, corrupt_result["ledger_path"],
                     hashlib.sha256(
                         ProgramLedgerModel.canonical(corrupt_result)
                     ).hexdigest(),
@@ -2178,7 +2198,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         )
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                bad_geometry, 41, bad_geometry["self_inode"],
+                bad_geometry, ProgramLedgerModel.LOCK_PATH, bad_geometry["ledger_path"],
                 hashlib.sha256(
                     ProgramLedgerModel.canonical(bad_geometry)
                 ).hexdigest(),
@@ -2190,7 +2210,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         )
         with self.assertRaises(StopClosed):
             ProgramLedgerModel.resume(
-                bad_body, 41, bad_body["self_inode"],
+                bad_body, ProgramLedgerModel.LOCK_PATH, bad_body["ledger_path"],
                 hashlib.sha256(ProgramLedgerModel.canonical(bad_body)).hexdigest(),
                 bad_body["authority"],
             )
@@ -2229,7 +2249,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
                     retry["query_sha256"] = ProgramLedgerModel.CHILD_QUERY_SHA256
             with self.subTest(defect=defect), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
-                    corrupt, 41, corrupt["self_inode"],
+                    corrupt, ProgramLedgerModel.LOCK_PATH, corrupt["ledger_path"],
                     hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
                     corrupt["authority"],
                 )
@@ -2283,7 +2303,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         self.refresh_before_arm(model, "comment")
         model.execute(model.arm("comment"))
         model = ProgramLedgerModel.resume(
-            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record, ProgramLedgerModel.LOCK_PATH, model.record["ledger_path"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
         model.observe_comment(count=1)
@@ -2292,7 +2312,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         with self.assertRaises(StopClosed):
             model.finish_patch("old-body", "comment-node")
         model = ProgramLedgerModel.resume(
-            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record, ProgramLedgerModel.LOCK_PATH, model.record["ledger_path"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
         model.observe_comment(count=1)
@@ -2303,7 +2323,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         with self.assertRaises(StopClosed):
             model.execute(copied_retry)
         model = ProgramLedgerModel.resume(
-            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record, ProgramLedgerModel.LOCK_PATH, model.record["ledger_path"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
         model.observe_comment(count=1, body="intended-body")
@@ -2319,7 +2339,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         self.refresh_before_arm(applied, "comment")
         applied.execute(applied.arm("comment"))
         applied = ProgramLedgerModel.resume(
-            applied.record, 41, applied.record["self_inode"], applied.digest(),
+            applied.record, ProgramLedgerModel.LOCK_PATH, applied.record["ledger_path"], applied.digest(),
             applied.record["authority"], remote_calls=applied.remote_calls,
         )
         applied.observe_comment(count=1, body="intended-body")
@@ -2425,9 +2445,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
         self.refresh_before_arm(model, "comment")
         permit = model.arm("comment")
         with self.assertRaises(StopClosed):
-            CallPermit(object(), object(), 999, "comment", model.record["generation"])
+            CallPermit(object(), object(), ProgramLedgerModel.LEDGER_PATH + ".other", "comment", model.record["generation"])
         resumed = ProgramLedgerModel.resume(
-            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record, ProgramLedgerModel.LOCK_PATH, model.record["ledger_path"], model.digest(),
             model.record["authority"],
         )
         with self.assertRaises(StopClosed):
@@ -2552,7 +2572,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 with self.assertRaises(StopClosed):
                     model.execute(permit)
                 resumed = ProgramLedgerModel.resume(
-                    model.record, 41, model.record["self_inode"], model.digest(),
+                    model.record, ProgramLedgerModel.LOCK_PATH, model.record["ledger_path"], model.digest(),
                     model.record["authority"], remote_calls=model.remote_calls,
                 )
                 with self.assertRaises(StopClosed):
@@ -2569,7 +2589,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 permit = model.arm("comment")
                 model.execute(permit)
                 resumed = ProgramLedgerModel.resume(
-                    model.record, 41, model.record["self_inode"], model.digest(),
+                    model.record, ProgramLedgerModel.LOCK_PATH, model.record["ledger_path"], model.digest(),
                     model.record["authority"], report_present=report_present,
                     remote_calls=model.remote_calls,
                 )
@@ -2590,7 +2610,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         create = model.arm("create")
         model.execute(create)
         resumed = ProgramLedgerModel.resume(
-            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record, ProgramLedgerModel.LOCK_PATH, model.record["ledger_path"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
         resumed.classify_child(
@@ -2603,7 +2623,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         link = resumed.arm("link")
         resumed.execute(link)
         again = ProgramLedgerModel.resume(
-            resumed.record, 41, resumed.record["self_inode"], resumed.digest(),
+            resumed.record, ProgramLedgerModel.LOCK_PATH, resumed.record["ledger_path"], resumed.digest(),
             resumed.record["authority"], remote_calls=resumed.remote_calls,
         )
         again.observe_parent(
@@ -2658,9 +2678,9 @@ class ProgramLedgerModelTests(unittest.TestCase):
         model = ProgramLedgerModel()
         generation, digest = model.record["generation"], model.digest()
         model.persist(lambda record: None, generation, digest)
-        for args in ((generation, model.digest(), 41),
-                     (model.record["generation"], digest, 41),
-                     (model.record["generation"], model.digest(), 99)):
+        for args in ((generation, model.digest(), ProgramLedgerModel.LOCK_PATH),
+                     (model.record["generation"], digest, ProgramLedgerModel.LOCK_PATH),
+                     (model.record["generation"], model.digest(), ProgramLedgerModel.LOCK_PATH + ".other")):
             with self.subTest(args=args), self.assertRaises(StopClosed):
                 model.persist(lambda record: None, *args)
         model = ProgramLedgerModel()
@@ -2700,7 +2720,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         patch = model.arm("comment")
         model.execute(patch)
         model = ProgramLedgerModel.resume(
-            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record, ProgramLedgerModel.LOCK_PATH, model.record["ledger_path"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
         model.observe_comment(count=1)
@@ -2715,7 +2735,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
         self.assertEqual(model.record["next_graph"], ["leaf-1", "leaf-2"])
         model.execute(retry)
         model = ProgramLedgerModel.resume(
-            model.record, 41, model.record["self_inode"], model.digest(),
+            model.record, ProgramLedgerModel.LOCK_PATH, model.record["ledger_path"], model.digest(),
             model.record["authority"], remote_calls=model.remote_calls,
         )
         model.observe_comment(count=1, body="intended-body")
@@ -2897,7 +2917,7 @@ class ProgramLedgerModelTests(unittest.TestCase):
                 corrupt["leaf_snapshots"] = {}
             with self.subTest(graph=graph), self.assertRaises(StopClosed):
                 ProgramLedgerModel.resume(
-                    corrupt, 41, corrupt["self_inode"],
+                    corrupt, ProgramLedgerModel.LOCK_PATH, corrupt["ledger_path"],
                     hashlib.sha256(ProgramLedgerModel.canonical(corrupt)).hexdigest(),
                     corrupt["authority"],
                 )

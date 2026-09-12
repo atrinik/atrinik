@@ -11,6 +11,7 @@ import tempfile
 import unittest
 from unittest import mock
 
+from atrinik_workspace.path_identity import descriptor_path
 from atrinik_workspace.model import (
     Manifest,
     Paths,
@@ -956,24 +957,24 @@ class PathSafetyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             path = root / "first" / "second" / "value.json"
-            fsynced: set[tuple[int, int]] = set()
+            fsynced: set[str] = set()
             real_fsync = os.fsync
 
             def observe(descriptor: int) -> None:
-                identity = os.fstat(descriptor)
-                if stat.S_ISDIR(identity.st_mode):
-                    fsynced.add((identity.st_dev, identity.st_ino))
+                metadata = os.fstat(descriptor)
+                if stat.S_ISDIR(metadata.st_mode):
+                    fsynced.add(descriptor_path(descriptor))
                 real_fsync(descriptor)
 
             with mock.patch("atrinik_workspace.model.os.fsync", side_effect=observe):
                 durable_atomic_json(path, {"safe": True})
 
             self.assertIn(
-                (root.stat().st_dev, root.stat().st_ino),
+                str(root),
                 fsynced,
             )
             self.assertIn(
-                ((root / "first").stat().st_dev, (root / "first").stat().st_ino),
+                str(root / "first"),
                 fsynced,
             )
 

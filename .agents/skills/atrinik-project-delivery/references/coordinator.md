@@ -26,7 +26,7 @@ its actual file/resource reservations, until externally completed. Separate
 filesystems require the existing supported handoff; copying state is not it.
 
 The CLI derives an ignored project directory from the canonical wrapper and
-parent. Keep its returned path, actor, session authority and snapshot tuple in
+parent. Keep its returned path, actor, session authority and snapshot generation/digest pair in
 the private handoff. A second `init` cannot adopt it. Resume only the same
 authorized session or an explicit takeover after proving the old owner stopped,
 rerunning the live probe/ledger/worktree/lease checks and reconciling every
@@ -75,7 +75,7 @@ Default output remains unchanged: save `inspect` stdout directly as the bounded
 expected-snapshot input; mutations return `{snapshot,result}` and `init`
 returns `{root,snapshot}`. If using default output,
 Extract `.snapshot` without editing the authoritative file. Every mutation
-requires the current generation/digest/device/inode tuple together. Stale CAS
+requires the current generation and digest together. Stale CAS
 means inspect and reconsider, not overwrite. Commands below share `--root` and
 `--expected`; use `--help` for exact argument order:
 
@@ -206,7 +206,7 @@ pilots read-only unless their specific tracking/implementation scope is authoriz
 A retained issue worker with unchanged current target coordinates must complete
 the issue ledger's public `revalidate-current-targets-cas` proof after
 canonical context, live selection and inventory checks. Retain its exact
-helper-returned generation/digest/device/inode. Project scheduling renewal
+helper-returned generation and digest. Project scheduling renewal
 does not itself prove worktree leases or transfer ownership. Generic CAS,
 stored check-reuse flags and private helper contexts grant no reconnect proof.
 Use the accepted helper only; a proposed helper change cannot authorize its
