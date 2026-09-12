@@ -151,6 +151,25 @@ class PortablePublicationTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "provider escaped moved export"):
                 namespace["loaded_application_paths"](self.root)
 
+    @unittest.skipUnless(shutil.which("cc"), "native compiler")
+    def test_real_loader_rejects_omitted_application_library_even_without_manifest_entry(self):
+        import runpy
+        namespace = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
+        source = self.root / "consumer.c"
+        source.write_text("extern const char *zlibVersion(void); int main(void) { return !zlibVersion(); }\n")
+        binary = self.root / "consumer"
+        subprocess.run(["cc", str(source), "-o", str(binary), "-lz"], check=True, capture_output=True)
+        environment = dict(os.environ)
+        environment.pop("LD_LIBRARY_PATH", None)
+        listing = subprocess.check_output(["/lib64/ld-linux-x86-64.so.2", "--list", str(binary)],
+                                          text=True, env=environment)
+        self.assertIn("libz.so.1", listing)
+        with self.assertRaisesRegex(RuntimeError, "external application library"):
+            namespace["verify_loader_listing"](self.root, listing)
+        trace = "123: calling init: /usr/lib/x86_64-linux-gnu/libz.so.1\n"
+        with self.assertRaisesRegex(RuntimeError, "external application library"):
+            namespace["verify_loader_trace"](self.root, trace)
+
     def test_complete_source_notice_inventory_rejects_missing_corrupt_and_extra_files(self):
         source = self.root / "producer"
         source.mkdir()

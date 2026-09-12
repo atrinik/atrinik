@@ -7,6 +7,7 @@ import ctypes
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -105,20 +106,64 @@ def bind_function(library, name, result, arguments):
     return function
 
 
-def loaded_application_paths(root):
+def mapped_paths():
     paths = set()
-    application_names = {path.name for path in (root / "lib").rglob("*") if path.is_file()}
     for line in Path("/proc/self/maps").read_text().splitlines():
         value = line.split(maxsplit=5)
         if len(value) == 6 and value[5].startswith("/"):
-            path = Path(value[5])
-            if path.name in linux_portable.HOST_GLIBC:
-                continue
-            if path.name in application_names and not path.is_relative_to(root):
-                raise RuntimeError("application provider escaped moved export: " + str(path))
-            if path.is_relative_to(root):
-                paths.add(str(path.relative_to(root)))
+            paths.add(Path(value[5]))
+    return paths
+
+
+def host_glibc_path(path):
+    return (path.name in linux_portable.HOST_GLIBC and str(path.parent) in
+            {"/lib64", "/lib/x86_64-linux-gnu", "/usr/lib/x86_64-linux-gnu"})
+
+
+def loaded_application_paths(root, *, baseline=frozenset(), required_names=frozenset()):
+    paths = set()
+    for path in mapped_paths():
+        if path.is_relative_to(root):
+            paths.add(str(path.relative_to(root)))
+        elif host_glibc_path(path):
+            continue
+        elif path in baseline and path.name not in required_names:
+            # Only pre-existing Python verification-tool mappings may remain
+            # external. Even those cannot stand in for a required app provider.
+            continue
+        else:
+            raise RuntimeError("application provider escaped moved export: " + str(path))
     return sorted(paths)
+
+
+def verify_loader_listing(root, listing):
+    paths = []
+    for line in listing.splitlines():
+        value = line.strip()
+        if value.startswith("linux-vdso.so.1 "):
+            continue
+        match = re.fullmatch(r"(?:[^ /]+ => )?(/.+) \(0x[0-9a-f]+\)", value)
+        if match is None:
+            raise RuntimeError("unrecognized dynamic loader result: " + value)
+        path = Path(match[1])
+        if not path.is_relative_to(root) and not host_glibc_path(path):
+            raise RuntimeError("dynamic loader used external application library: " + str(path))
+        paths.append(str(path))
+    if not paths:
+        raise RuntimeError("dynamic loader returned no provider paths")
+    return paths
+
+
+def verify_loader_trace(root, trace):
+    paths = []
+    for value in re.findall(r"^\s*[0-9]+:\s+calling init:\s+(.+)$", trace, re.MULTILINE):
+        path = Path(value.strip())
+        if not path.is_relative_to(root) and not host_glibc_path(path):
+            raise RuntimeError("client loaded external application library: " + str(path))
+        paths.append(str(path))
+    if not paths:
+        raise RuntimeError("client loader trace missing")
+    return paths
 
 
 def verify(output, evidence):
@@ -130,6 +175,11 @@ def verify(output, evidence):
     if portable["runtime"]["source_commit"] != linux_portable.CONSUMER_COMMIT:
         raise RuntimeError("unexpected portable consumer identity")
     library_root = output / "lib"
+    baseline = mapped_paths()
+    required_names = {name for edges in portable["runtime"]["baseline_dependencies"].values()
+                      for name in edges}
+    required_names.update(row["soname"] for row in portable["runtime"]["dynamic_sonames"])
+    required_names.add("legacy.so")
     libraries = {}
     for path in sorted(library_root.iterdir()):
         if path.is_file():
@@ -201,12 +251,20 @@ def verify(output, evidence):
     providers = [provider_load(None, name) for name in (b"default", b"legacy")]
     if not all(providers):
         raise RuntimeError("relocated OpenSSL provider closure failed")
-    output_text = run([output / "atrinik", "--help"], timeout=30)
-    if not output_text.strip():
+    listing = run(["/lib64/ld-linux-x86-64.so.2", "--list", output / "bin/atrinik"], timeout=30)
+    listed_paths = verify_loader_listing(output, listing)
+    child_env = dict(os.environ)
+    child_env["LD_DEBUG"] = "libs,files"
+    child = subprocess.run([str(output / "atrinik"), "--help"], timeout=30,
+                           env=child_env, text=True, capture_output=True, check=True)
+    (evidence / "client-loader.log").write_text(child.stderr)
+    traced_paths = verify_loader_trace(output, child.stderr)
+    if not child.stdout.strip():
         raise RuntimeError("relocated executable did not produce command help")
     save(evidence / "relocation.json", {"inventory": result, "images_decoded": images,
          "fonts_loaded": fonts, "audio_decoded": decoded,
-         "application_mappings": loaded_application_paths(output),
+         "application_mappings": loaded_application_paths(output, baseline=baseline, required_names=required_names),
+         "executable_link_map": listed_paths, "executable_loader_trace": traced_paths,
          "openssl_providers": ["default", "legacy"], "executable_help": True,
          "original_source_build_paths_available": False,
          "hardware_gameplay_verified": False, "audible_playback_verified": False})

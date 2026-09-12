@@ -157,14 +157,97 @@ server endpoint through the runtime workflow. Run `--docker` separately to
 check daemon/user permission; that check says nothing about display or GPU.
 Actual selected-renderer evidence and interactive gameplay remain required.
 
-A terminal can consume the result without interpreting shell text. For example,
-a separately owned runtime bootstrap script can run the probe with
-`subprocess.run([...], check=True, capture_output=True, text=True)`, decode its
-stdout with `json.loads`, then invoke `subprocess.run(["docker", "run",
-*result["docker_arguments"], ...], check=True)`. Include explicit owned name,
-read-only client payload, separate writable config, and pinned image arguments
-in that same array. Never use `eval`, `xhost +`, privileged mode, the Docker
-socket inside the client, or automatic selection of another user's display.
+For NVIDIA client containers, the host administrator follows the official
+[NVIDIA Container Toolkit installation guide](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
+On a fresh Debian/Ubuntu Docker host, the current stable package setup is:
+
+```sh
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends ca-certificates curl gnupg2
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+  sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -fsSL https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+  sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+sudo apt-get update
+NVIDIA_CONTAINER_TOOLKIT_VERSION=1.20.0-1
+sudo apt-get install -y \
+  nvidia-container-toolkit="$NVIDIA_CONTAINER_TOOLKIT_VERSION" \
+  nvidia-container-toolkit-base="$NVIDIA_CONTAINER_TOOLKIT_VERSION" \
+  libnvidia-container-tools="$NVIDIA_CONTAINER_TOOLKIT_VERSION" \
+  libnvidia-container1="$NVIDIA_CONTAINER_TOOLKIT_VERSION"
+sudo nvidia-ctk runtime configure --runtime=docker
+```
+
+Restart Docker only after the owners of its active containers have stopped their
+work and the host administrator has selected that maintenance window:
+`sudo systemctl restart docker`. Do not restart it as a worker workaround.
+Diagnose with `nvidia-smi`, `nvidia-ctk --version`,
+`docker info --format '{{json .Runtimes}}'`, and the module's separate `--docker`
+probe. These are capability diagnostics, not selected-renderer/gameplay proof.
+Existing working Toolkit/driver installations need no reinstallation.
+
+This complete terminal launcher takes a verified exported directory, explicit
+private config directory and authenticated server tuple. Run it on the desktop
+host from the wrapper checkout. Set `GPU_KIND=mesa` and the discovered `RENDER_DEVICE`
+for Mesa, or `GPU_KIND=nvidia` for the configured NVIDIA runtime. `WITH_AUDIO=1`
+opts in to the actual Pulse socket. Use a unique owned container name:
+
+```sh
+export CLIENT_EXPORT=/absolute/path/to/verified/client
+export CLIENT_CONFIG="$HOME/.local/state/atrinik-client/container-review"
+export CLIENT_CONTAINER=atrinik-client-review
+export SERVER_HOST=127.0.0.1 SERVER_PORT=17300 SERVER_FINGERPRINT=THE_VERIFIED_64_HEX_FINGERPRINT
+export GPU_KIND=nvidia WITH_AUDIO=1
+python3 - <<'CLIENT'
+import json, os, re, subprocess
+from pathlib import Path
+payload = Path(os.environ['CLIENT_EXPORT']).resolve(strict=True)
+config = Path(os.environ['CLIENT_CONFIG']).expanduser()
+config.mkdir(parents=True, mode=0o700, exist_ok=True)
+if config.is_symlink() or config.stat().st_uid != os.getuid() or config.stat().st_mode & 0o077:
+    raise SystemExit('client config must be private and user-owned')
+port = int(os.environ['SERVER_PORT'])
+fingerprint = os.environ['SERVER_FINGERPRINT']
+host = os.environ['SERVER_HOST']
+name = os.environ['CLIENT_CONTAINER']
+if not 1 <= port <= 65535 or not re.fullmatch('[0-9a-f]{64}', fingerprint):
+    raise SystemExit('invalid authenticated endpoint')
+if not re.fullmatch('[A-Za-z0-9_.:-]+', host) or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]+', name):
+    raise SystemExit('invalid host or container name')
+probe = ['python3', '-m', 'atrinik_workspace.linux_platform', '--desktop', 'x11', '--gpu', os.environ['GPU_KIND']]
+if os.environ['GPU_KIND'] == 'mesa':
+    probe += ['--render-device', os.environ['RENDER_DEVICE']]
+if os.environ.get('WITH_AUDIO') == '1':
+    probe += ['--audio']
+result = json.loads(subprocess.run(probe, check=True, text=True, capture_output=True).stdout)
+# Host networking makes the explicitly selected same-host UDP mapping reachable;
+# it is a runtime capability, never coordinator authority.
+arguments = ['docker', 'run', '--detach', '--init', '--name', name, '--network', 'host',
+    '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges',
+    '--tmpfs', '/tmp:rw,nosuid,nodev,mode=1777',
+    *result['docker_arguments'],
+    '--mount', f'type=bind,source={payload},target=/client,readonly',
+    '--mount', f'type=bind,source={config},target=/client-state',
+    '--env', 'ATRINIK_CONFIG_DIR=/client-state', '--workdir', '/client',
+    'ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8',
+    '/client/atrinik', f'--server={host} {port} {fingerprint}', '--stun_server=off', '--nometa']
+container_id = subprocess.run(arguments, check=True, text=True, capture_output=True).stdout.strip()
+if not re.fullmatch('[0-9a-f]{64}', container_id):
+    raise SystemExit('missing exact container identity; inspect the owned name before any retry')
+print(container_id)
+CLIENT
+```
+
+Preserve the returned full ID as `CLIENT_CONTAINER_ID`. Use
+`docker logs --tail 100 "$CLIENT_CONTAINER_ID"` for diagnostics and
+`docker attach --sig-proxy=false "$CLIENT_CONTAINER_ID"` for terminal attachment;
+GUI interaction stays in the selected desktop session. Exit the game normally,
+then `docker wait "$CLIENT_CONTAINER_ID"` and inspect its stopped state. If bounded
+shutdown is required, stop only that verified owned ID with
+`docker stop --time 20 "$CLIENT_CONTAINER_ID"`. This grants no container/volume
+removal or cleanup. Never pass shell `eval`, global `xhost` access, privileged
+mode, host credentials or a Docker socket to the client.
 
 ## Portable client export
 
@@ -239,31 +322,27 @@ cannot add a Docker mapping. For a same-host desktop, the mapping is
 chosen reachable address and corresponding firewall rule. A localhost mapping
 must not be advertised as remotely reachable.
 
-The terminal bootstrap may create a private ignored configuration from the
-headless configuration before `devcontainer up`. In the already reserved fresh
-server workspace, set only the explicit port mapping:
+Use the distinct credential-free runtime configuration in an independently owned
+server checkout. It has no Codex directory, GitHub credential store, Git config,
+private key, display/audio socket or GPU mount. Its only additional mount is its
+own uniquely named build cache. Host Docker authentication may pull the pinned
+image before creation; that authentication is never mounted into the runtime.
 
 ```sh
-python3 - <<'BOOTSTRAP'
-import json
-from pathlib import Path
-source = Path('.devcontainer/devcontainer.json')
-config = json.loads(source.read_text())
-config['runArgs'] = ['--publish', '127.0.0.1:17300:17300/udp']
-target = Path('build/linux-server-devcontainer.json')
-target.parent.mkdir(mode=0o700, exist_ok=True)
-with target.open('x') as stream:
-    json.dump(config, stream, indent=2)
-BOOTSTRAP
+HOST_REPO=/absolute/path/to/the/reserved/server-checkout
 devcontainer up --workspace-folder "$HOST_REPO" \
-  --config "$HOST_REPO/build/linux-server-devcontainer.json"
+  --config "$HOST_REPO/.devcontainer/server-runtime.json"
 ```
 
-Complete the existing isolated Codex/cache/auth mount setup before bootstrap;
-this recipe does not permit sharing mutable session state. Preserve the exact
-returned container ID and prove its image, mounts and headless context before
-working inside it. An existing container keeps its creation settings and must
-not be replaced or remounted to apply this example.
+Capture the exact returned full container ID as `SERVER_CONTAINER_ID`, inspect
+its image/mounts/published UDP port, and use `docker exec --user ubuntu --workdir
+/workspaces/atrinik "$SERVER_CONTAINER_ID" ...` for the following server commands.
+This is an execution worker, not a delivery coordinator: do not run ledger or
+project helpers there or infer authority from its pinned build image. An existing
+container keeps its creation settings and must not be replaced or remounted to
+apply this configuration. Container DNS/loopback is its own namespace; the native
+desktop in this same Docker host's network namespace reaches the published host
+`127.0.0.1`, while another container requires an independently verified route.
 
 Inside that owned container, prepare and start only the server with registered
 persistent state. No client or audio device is needed:
@@ -295,7 +374,8 @@ ATRINIK_CONFIG_DIR="$HOME/.local/state/atrinik-client/linux-review" \
 ```
 
 First exercise rejection using a separately recorded tuple with one fingerprint
-hex digit changed. It must fail authenticated connection without logging in.
+hex digit changed. Require the explicit `QUIC certificate fingerprint mismatch` result and no
+successful login; a timeout alone is not rejection proof.
 Then select the verified tuple, log in interactively and record the actual
 selected Vulkan device, gameplay, and audible sound separately. An image/font
 load, PCM decode, software renderer or silent audio sink cannot replace those

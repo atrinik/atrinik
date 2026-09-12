@@ -52,6 +52,20 @@ class DevcontainerTests(unittest.TestCase):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, serialized)
 
+    def test_independent_server_runtime_has_no_coordinator_or_desktop_credentials(self) -> None:
+        config = self.load_config(".devcontainer/server-runtime.json")
+        self.assertEqual(config["image"], self.load_config(".devcontainer/devcontainer.json")["image"])
+        self.assertEqual(config["runArgs"], ["--publish", "127.0.0.1:17300:17300/udp"])
+        self.assertTrue(config["init"])
+        self.assertEqual(len(config["mounts"]), 1)
+        self.assertIn("type=volume,volume-nocopy", config["mounts"][0])
+        serialized = str(config)
+        for forbidden in (".codex", "CODEX_HOME", "GH_CONFIG_DIR", "GITHUB_TOKEN", ".gitconfig",
+                          "gh-atrinik", "DISPLAY", "PULSE_SERVER", "WAYLAND_DISPLAY",
+                          "/dev/dri", "/dev/dxg", "--gpus", "docker.sock", "--privileged"):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, serialized)
+
     def test_wslg_is_explicit_and_preserves_its_graphics_contract(self) -> None:
         base = self.load_config(".devcontainer/devcontainer.json")
         config = self.load_config(".devcontainer/windows-wslg/devcontainer.json")

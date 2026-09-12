@@ -21,6 +21,7 @@ concurrency:
 
 permissions:
   contents: read
+  packages: read
 
 jobs:
   portable:
@@ -35,6 +36,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: Authenticate the runner for the pinned build input
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Bootstrap isolated producer inputs
         run: |
           install -d -m 700 "$RUNNER_TEMP/portable-home" "$RUNNER_TEMP/portable-export" "$RUNNER_TEMP/portable-evidence"

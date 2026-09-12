@@ -1,0 +1,22 @@
+{
+  "image": "ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8",
+  "remoteUser": "ubuntu",
+  "updateRemoteUserUID": true,
+  "init": true,
+  "workspaceFolder": "/workspaces/atrinik",
+  "onCreateCommand": "owner=$(stat -c %u /workspaces/atrinik/workspace/build) && if [ \"$owner\" != \"$(id -u ubuntu)\" ]; then sudo chown -R --no-dereference ubuntu:ubuntu /workspaces/atrinik/workspace/build; fi",
+  "name": "Atrinik isolated headless server runtime",
+  "features": {},
+  "runArgs": [
+    "--publish",
+    "127.0.0.1:17300:17300/udp"
+  ],
+  "mounts": [
+    "source=atrinik-server-${devcontainerId}-build-cache,target=/workspaces/atrinik/workspace/build,type=volume,volume-nocopy"
+  ],
+  "containerEnv": {
+    "ATRINIK_DOCKER_VOLUME_NAMESPACE": "server-${devcontainerId}"
+  },
+  "initializeCommand": "install -d -m 700 \"${localWorkspaceFolder}/workspace/build\"",
+  "postCreateCommand": "./atrinik init classic-server content resources --jobs 2"
+}
