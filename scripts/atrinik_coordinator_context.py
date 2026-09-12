@@ -456,6 +456,11 @@ def _native_open(path: Path, uid: int, *, directory: bool = False) -> int:
     candidate = _absolute(path)
     descriptor = os.open(candidate.anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
+        anchor = os.fstat(descriptor)
+        if anchor.st_uid not in (0, uid) or anchor.st_mode & 0o022:
+            raise ProbeError("native-path-owner-or-mode")
+        if not stat.S_ISDIR(anchor.st_mode):
+            raise ProbeError("native-path-type")
         for index, part in enumerate(candidate.parts[1:]):
             last = index == len(candidate.parts) - 2
             flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC

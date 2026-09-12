@@ -432,13 +432,16 @@ class NativeCoordinatorTests(unittest.TestCase):
         self.environment["DEVCONTAINER"] = "true"
         self.assertIn("native-container-environment-mismatch", self.probe()["failed_checks"])
 
-    def test_caller_mountinfo_must_prove_procfs_and_live_device(self) -> None:
+    def test_caller_mountinfo_must_prove_procfs(self) -> None:
         key = str(self.proc / str(os.getpid()) / "mountinfo")
         self.inputs[key] = self.inputs[key].replace("proc proc", "ext4 proc")
         self.assertIn("native-procfs", self.probe()["failed_checks"])
+
+    def test_native_mount_coordinates_do_not_require_device_number_equivalence(self) -> None:
+        key = str(self.proc / str(os.getpid()) / "mountinfo")
         self.inputs[key] = self.inputs[key].replace(
             f"{os.major(self.root.stat().st_dev)}:{os.minor(self.root.stat().st_dev)}", "123:456")
-        self.assertFalse(self.probe()["authoritative"])
+        self.assertTrue(self.probe()["authoritative"])
 
     def test_caller_home_and_private_codex_are_required(self) -> None:
         self.environment["HOME"] = "/forged/home"
@@ -446,6 +449,20 @@ class NativeCoordinatorTests(unittest.TestCase):
         self.environment["HOME"] = str(self.home)
         self.codex.chmod(0o755)
         self.assertIn("unsafe-codex-home-mode", self.probe()["failed_checks"])
+
+    def test_descriptor_opener_rejects_unsafe_anchor_and_closes_it(self) -> None:
+        from types import SimpleNamespace
+        import stat
+        for mode, owner in ((stat.S_IFDIR | 0o777, 0),
+                            (stat.S_IFDIR | 0o755, self.uid + 1),
+                            (stat.S_IFREG | 0o644, 0)):
+            with self.subTest(mode=mode, owner=owner), \
+                 mock.patch.object(context.os, "fstat", return_value=SimpleNamespace(
+                     st_mode=mode, st_uid=owner)), \
+                 mock.patch.object(context.os, "close", wraps=os.close) as close:
+                with self.assertRaises(context.ProbeError):
+                    context._native_open(Path("/"), self.uid, directory=True)
+                close.assert_called_once()
 
     def test_descriptor_opener_checks_real_safe_paths_and_symlinks(self) -> None:
         build = ROOT / "build"

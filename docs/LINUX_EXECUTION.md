@@ -28,8 +28,8 @@ proof fail closed. A missing build/review descendant does not grant reuse:
 the existing helper creates it only through its own pinned-parent transaction.
 
 Both caller and PID1 UID/GID maps must contain the full initial identity row
-`0 0 4294967295`. Caller numeric-PID mountinfo must agree with genuine procfs
-and filesystem device identities. PID1 must report root UID and systemd; installed
+`0 0 4294967295`. Caller numeric-PID mountinfo must identify genuine procfs
+and supported filesystems at the checked paths. PID1 must report root UID and systemd; installed
 systemd and `/run/systemd/system` must be trusted, root-owned and non-writable
 by other users. WSL and container signals reject direct-native classification.
 Ordinary-user denial of PID1 executable/namespace links is not a request for
