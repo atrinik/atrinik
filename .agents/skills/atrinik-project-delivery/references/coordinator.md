@@ -113,6 +113,92 @@ If a worker's bound delivery already owns a PR, continue that exact delivery,
 not a second issue-mode claim. If additional independent PR work is needed,
 add a separately authorized type-explicit lane after collision checks.
 
+## Reserve an existing idle worker
+
+Use this operation after `retry` or an eligible `replan` leaves the same leaf
+pending with no bound worker and an exact retained attempt. It does not adopt a
+worker from another leaf or authorize copying patches, credentials or ledgers.
+Ordinary `dispatch` and same-owner `reopen` retain their existing behavior.
+
+```sh
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT --snapshot-output /absolute/private/reserved.json --compact reserve-existing atrinik/atrinik#NUMBER --worker /root/leaf --runtime-observation /absolute/private/runtime.json --heavy-limit 1 --expected /absolute/private/current.json
+```
+
+The observation is a trusted coordinator's attestation, not an authenticated
+runtime credential. This adapter uses the collaboration runtime's whole-thread
+tree: obtain a fresh complete `list_agents` response and the actual exposed
+capacity, including the root coordinator and nested/review/completed handles.
+Do not derive capacity from desired parallelism or decrement the open-worker
+count to make space. Only the root dispatcher's own direct children may be
+selected; nested workers remain with their dispatcher. Use this exact schema,
+replacing every example value with current evidence:
+
+```json
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-12T12:00:00Z",
+  "snapshot": {"generation": 7, "digest": "EXACT_SNAPSHOT_SHA256", "path": "/absolute/project/root/project.json"},
+  "project": {"parent": "atrinik/atrinik#PARENT", "authority": "EXACT_SESSION_AUTHORITY", "actor": "zoeyrose"},
+  "runtime": {
+    "namespace": "/root",
+    "capacity_domain": "whole-thread-tree",
+    "capacity": 2,
+    "complete": true,
+    "agents": [
+      {"agent_name": "/root", "agent_status": "running"},
+      {"agent_name": "/root/leaf", "agent_status": "completed"}
+    ]
+  },
+  "selection": {
+    "worker": "/root/leaf",
+    "coordinate": "atrinik/atrinik#NUMBER",
+    "entry_mode": "issue",
+    "retired_attempt": "EXACT_PENDING_NODE_ATTEMPT",
+    "evidence": "Actual runtime task history matches this leaf and retired attempt; exact leaf ledger/worktree/head checked."
+  }
+}
+```
+
+Retain the actual runtime `agent_name`/`agent_status` rows without rewriting
+statuses. The selected status must be `idle` or `completed`; the inventory
+accepts those plus `running`, and refuses unknown or interrupted states. The
+root must be present and running. `complete`, namespace, capacity, selection,
+session and leaf correlation are coordinator attestations, not fields returned
+or cryptographically verified by the runtime. The helper rejects an absent,
+duplicate or mismatched selected identity; it cannot detect a fabricated whole
+attestation. Obtain the selection evidence from actual runtime history and
+fresh leaf ownership checks; never infer ownership from a convenient name.
+
+Keep the observation in an owned regular no-follow file of at most 128 KiB.
+The CLI reads it inside the locked CAS callback, after validating the expected
+snapshot's generation, digest and canonical path. Its UTC timestamp (optionally
+1–6 fractional digits) must be no more than 60 seconds old and not in the
+future. Project actor/authority/parent and selection coordinate/entry mode/
+retired attempt must match exactly. Stale or mismatched evidence fails without
+changing the project. A worker bound to any other node, including a terminal
+node, is unavailable. A running runtime worker with an inactive project
+reservation is inconsistent and must be reconciled first. Dependencies,
+file/resource conflicts, external reservations and heavy-job limits remain
+required. Existing unbound spawn reservations still reserve future handles;
+reactivation adds no open handle and must fit the active capacity budget.
+
+The result durably binds `reserved`, the existing worker and a fresh attempt,
+including the prior attempt and canonical observation digest in its identity.
+Keep the exact returned snapshot/request. A single trusted dispatcher must
+immediately recheck actual runtime idleness, follow up that exact worker with
+that new attempt and the unchanged leaf delivery authority, and only after the
+runtime accepts the start run `worker COORD --attempt NEW_ATTEMPT --id WORKER`
+with the returned snapshot. Every resumed writing worker still re-proves its
+own issue-delivery ledger, worktree, actor and leases before edits. Runtime
+recheck/follow-up is not atomic with local CAS; no signed runtime or atomic
+activation API is available. Serialize these actions in the owning dispatcher.
+
+Busy, unknown, lost follow-up or lost output preserves the prebound reservation.
+Inspect and reconcile the actual worker/attempt before any further action;
+never automatically retry a follow-up, spawn a replacement, or release its
+resources. `retry` still requires actual non-start/stopped-runtime and exact
+leaf recovery proof. Old-attempt results cannot complete the new reservation.
+
 ## GitHub tracking journal
 
 Plan an operation before applying it:

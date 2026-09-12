@@ -11,7 +11,7 @@ import sys
 import stat
 
 from .project_coordinator import (ProjectError, attest, digest, new_project, record_worker,
-                                  require, replan, reopen, reserve, retry, schedule, terminal_gaps, worker_result)
+                                  require, replan, reopen, reserve, reserve_existing, retry, schedule, terminal_gaps, worker_result)
 from .project_coordinator_github import GitHub, apply_operation, cancel_operation, prepare_operation, refresh
 from .project_coordinator_store import LIMIT, Store, open_directory, read_input
 from .workspace import durable_atomic_json_at
@@ -82,6 +82,13 @@ def parser() -> argparse.ArgumentParser:
     reopen_cmd.add_argument("--evidence", required=True)
     reopen_cmd.add_argument("--heavy-limit", type=int, default=1)
     reopen_cmd.add_argument("--expected", type=Path, required=True)
+    existing = sub.add_parser("reserve-existing", help="reserve this delivery's verified retained idle worker")
+    existing.add_argument("coordinate")
+    existing.add_argument("--worker", required=True, help="actual retained direct-child runtime worker name")
+    existing.add_argument("--runtime-observation", required=True, type=Path,
+                          help="fresh complete runtime inventory and coordinator attestation")
+    existing.add_argument("--heavy-limit", type=int, default=1)
+    existing.add_argument("--expected", required=True, type=Path)
     for name in ("plan", "dispatch"):
         cmd = sub.add_parser(name)
         cmd.add_argument("--capacity", required=True, type=int)
@@ -153,6 +160,12 @@ def run(args, github=None):
             return retry(project, args.coordinate, args.attempt, args.evidence)
         if args.command == "reopen":
             return reopen(project, args.coordinate, args.attempt, args.evidence, args.heavy_limit)
+        if args.command == "reserve-existing":
+            # Read and check freshness only after Store has locked and accepted
+            # the exact expected snapshot. The JSON is an operator attestation.
+            return reserve_existing(project, args.coordinate, args.worker,
+                                    read_input(args.runtime_observation, 128 * 1024),
+                                    expected, args.heavy_limit)
         if args.command == "dispatch":
             return reserve(project, args.capacity, args.heavy_limit, args.open_workers)
         if args.command == "worker":

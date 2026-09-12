@@ -34,6 +34,12 @@ Inspect actual runtime worker capacity and existing open workers; a requested
 16 slots is not proof. Reserve ready disjoint lanes before spawning. Record the
 actual returned worker ID, exact entry mode/coordinate and attempt immediately.
 If spawning fails or its outcome is uncertain, reconcile before retrying.
+After a supported retry/replan, a pending node with its retired attempt may
+reserve its own retained idle direct-child worker through `reserve-existing`.
+Follow the operator protocol's fresh runtime observation and exact snapshot
+requirements. Keep the returned reservation until a live runtime recheck and
+accepted follow-up; then record the exact worker and new attempt as running.
+A lost response preserves the reservation and never authorizes another spawn.
 
 Each writing worker explicitly invokes `$atrinik-issue-delivery` for its one
 selected issue or PR. It completes the existing authenticated genesis,
