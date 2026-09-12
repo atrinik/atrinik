@@ -1,0 +1,190 @@
+from __future__ import annotations
+
+import hashlib
+import io
+import json
+from unittest import mock
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+
+from atrinik_workspace import linux_export as export
+from atrinik_workspace import linux_portable as portable
+from atrinik_workspace.model import WorkspaceError
+
+
+@unittest.skipUnless(sys.platform.startswith("linux"), "Linux portable publication")
+class PortablePublicationTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.root.chmod(0o700)
+        self.output = self.root / "client"
+        self.sources = {"atrinik/classic@main": "a" * 40}
+
+    def populate(self, publication):
+        publication.add_bytes("bin/atrinik", b"client", executable=True)
+        publication.add_bytes("lib/library", b"library")
+        publication.manifest["application_libraries"].append("lib/library")
+        publication.add_bytes("licenses/NOTICE", b"license", notice=True)
+
+    def test_complete_verified_export_moves_without_source_paths(self):
+        with portable.Publication(self.output, self.sources) as publication:
+            self.populate(publication)
+            staged = publication.path
+            result = publication.publish(lambda: None)
+        self.assertFalse(staged.exists())
+        self.assertEqual(result["files"], 3)
+        moved = self.root / "moved folder"
+        self.output.rename(moved)
+        self.assertEqual(export.verify_export(moved)["sources"], self.sources)
+
+    def test_final_source_guard_failure_does_not_publish_or_remove_staging(self):
+        with portable.Publication(self.output, self.sources) as publication:
+            self.populate(publication)
+            staged = publication.path
+            def reject():
+                raise export.ExportError("changed source")
+            with self.assertRaisesRegex(export.ExportError, "changed source"):
+                publication.publish(reject)
+        self.assertFalse(self.output.exists())
+        self.assertTrue(staged.is_dir())
+        export.verify_export(staged)
+
+    def test_concurrent_destination_is_preserved(self):
+        with portable.Publication(self.output, self.sources) as publication:
+            self.populate(publication)
+            def occupy():
+                self.output.mkdir()
+                (self.output / "keep").write_text("other output")
+            with self.assertRaisesRegex(WorkspaceError, "already exists"):
+                publication.publish(occupy)
+        self.assertEqual((self.output / "keep").read_text(), "other output")
+
+    def test_parent_swap_rejects_publication_into_detached_tree(self):
+        parent = self.root / "exports"
+        parent.mkdir(mode=0o700)
+        with portable.Publication(parent / "client", self.sources) as publication:
+            self.populate(publication)
+            def swap():
+                parent.rename(self.root / "parked")
+                parent.mkdir(mode=0o700)
+            with self.assertRaises((export.ExportError, FileNotFoundError)):
+                publication.publish(swap)
+        self.assertFalse((parent / "client").exists())
+        self.assertFalse((self.root / "parked/client").exists())
+
+    def test_staging_corruption_during_final_guard_is_rejected(self):
+        with portable.Publication(self.output, self.sources) as publication:
+            self.populate(publication)
+            def corrupt():
+                (publication.path / "bin/atrinik").write_bytes(b"wrong!")
+            with self.assertRaisesRegex(export.ExportError, "digest mismatch"):
+                publication.publish(corrupt)
+        self.assertFalse(self.output.exists())
+
+    def test_output_symlink_and_occupied_destination_are_rejected(self):
+        self.output.symlink_to(self.root, target_is_directory=True)
+        with self.assertRaisesRegex(export.ExportError, "already exists"):
+            portable.Publication(self.output, self.sources)
+        alias = self.root / "alias"
+        alias.symlink_to(self.root, target_is_directory=True)
+        with self.assertRaises(OSError):
+            portable.Publication(alias / "new", self.sources)
+
+    def test_actual_source_hash_and_special_files_are_rejected(self):
+        source = self.root / "payload"
+        source.write_bytes(b"actual")
+        with portable.Publication(self.output, self.sources) as publication:
+            with self.assertRaisesRegex(export.ExportError, "expected payload mismatch"):
+                publication.add_path("media/input", source, {"sha256": "f" * 64})
+            source.unlink()
+            os.mkfifo(source)
+            with self.assertRaisesRegex(export.ExportError, "regular file"):
+                publication.add_path("media/input", source)
+        self.assertFalse(self.output.exists())
+
+    def test_group_writable_ancestor_is_rejected(self):
+        ancestor = self.root / "shared"
+        parent = ancestor / "mine"
+        parent.mkdir(parents=True, mode=0o700)
+        ancestor.chmod(0o775)
+        with self.assertRaisesRegex(export.ExportError, "unsafe ancestor"):
+            portable.Publication(parent / "client", self.sources)
+
+    def test_hexadecimal_icu_symbol_size_is_retained_and_missing_rows_fail(self):
+        table = """Symbol table '.dynsym' contains 2 entries:
+   Num:    Value          Size Type    Bind   Vis      Ndx Name
+     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND
+     1: 0000000000002000 0x1f92d30 OBJECT GLOBAL DEFAULT 11 icudt72_dat
+"""
+        self.assertEqual(export._elf_dynamic_symbols(table)["defined"], ["icudt72_dat"])
+        with self.assertRaisesRegex(export.ExportError, "incomplete dynamic"):
+            export._elf_dynamic_symbols(table.replace("contains 2", "contains 3"))
+
+    def test_export_rejects_nonpublishable_sound_before_building(self):
+        for mode in ("source", "local-playtest"):
+            with self.subTest(mode=mode):
+                workspace = mock.Mock()
+                workspace._load_profile.return_value = {"stack": "classic", "sound_mode": mode}
+                with mock.patch.object(portable, "installed_metadata", return_value=({}, {})):
+                    with self.assertRaisesRegex(WorkspaceError, "verified released sound"):
+                        portable.export_client(workspace, "classic", self.output)
+                workspace._resolved_profile_operation.assert_not_called()
+                workspace._build_resolved.assert_not_called()
+
+    def test_cli_routes_real_build_chatter_and_errors_to_stderr(self):
+        from atrinik_workspace import cli
+        from atrinik_workspace.workspace import run
+        for fail in (False, True):
+            def noisy_export(*args):
+                run([sys.executable, "-c", "print('build diagnostic')"])
+                if fail:
+                    raise WorkspaceError("build failed")
+                return {"path": str(self.output)}
+            with self.subTest(fail=fail), tempfile.TemporaryFile(mode="w+") as errors:
+                output = io.StringIO()
+                with mock.patch.object(cli, "Workspace"), \
+                     mock.patch.object(portable, "export_client", side_effect=noisy_export), \
+                     mock.patch.object(sys, "stdout", output), \
+                     mock.patch.object(sys, "stderr", errors):
+                    status = cli.main(["linux", "export", "--output", str(self.output)])
+                self.assertEqual(status, int(fail))
+                if fail:
+                    self.assertEqual(output.getvalue(), "")
+                else:
+                    self.assertEqual(json.loads(output.getvalue()), {"path": str(self.output)})
+                errors.seek(0)
+                self.assertIn("build diagnostic", errors.read())
+
+    def test_unloaded_plugin_cannot_satisfy_client_symbol(self):
+        objects = {
+            "bin/client": {"needed": [], "symbols": {"defined": ["main"], "required": ["plugin_only"]}},
+            "lib/plugin.so": {"needed": [], "symbols": {"defined": ["plugin_only"], "required": []}},
+        }
+        with self.assertRaisesRegex(export.ExportError, "unresolved symbols in bin/client"):
+            portable.symbol_closure(objects, entrypoint="bin/client")
+
+    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    def test_real_versioned_symbol_definitions_and_missing_symbol(self):
+        source = self.root / "sample.c"
+        version = self.root / "version.map"
+        library = self.root / "libsample.so"
+        source.write_text("int sample(void) { return 7; }\n")
+        version.write_text("SAMPLE_1 { global: sample; local: *; };\n")
+        subprocess.run(["cc", "-shared", "-fPIC", str(source), "-o", str(library),
+                        "-Wl,--version-script=" + str(version)], check=True, capture_output=True)
+        with library.open("rb") as stream:
+            facts = export.inspect_elf(stream.fileno())
+        self.assertIn("sample@SAMPLE_1", facts["symbols"]["defined"])
+        self.assertIn("sample", facts["symbols"]["defined"])
+        consumer = {"needed": ["lib"], "symbols": {"defined": ["main"], "required": ["sample@SAMPLE_1"]}}
+        self.assertTrue(portable.symbol_closure({"lib": facts, "client": consumer}, entrypoint="client")["symbol_names_verified"])
+        consumer["symbols"]["required"] = ["sample@SAMPLE_2"]
+        with self.assertRaisesRegex(export.ExportError, "unresolved symbols"):
+            portable.symbol_closure({"lib": facts, "client": consumer}, entrypoint="client")

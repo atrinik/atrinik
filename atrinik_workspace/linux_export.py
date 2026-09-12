@@ -482,7 +482,7 @@ def _readelf(descriptor: int, *, timeout: float = 15) -> str:
     """Inspect an inherited descriptor without executing the payload."""
     process = subprocess.Popen(
         ["readelf", "--wide", "--file-header", "--program-headers", "--dynamic",
-         "--version-info", f"/proc/self/fd/{descriptor}"],
+         "--version-info", "--dyn-syms", f"/proc/self/fd/{descriptor}"],
         pass_fds=(descriptor,), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         env={"PATH": os.defpath, "LC_ALL": "C"})
     output = bytearray()
@@ -579,6 +579,42 @@ def _elf_version_definitions(text: str) -> list[str]:
         raise ExportError("export-elf: incomplete version definitions")
     # The BASE entry names the object itself, not a provided symbol version.
     return sorted(definitions.keys() - base_names)
+
+
+def _elf_dynamic_symbols(text: str) -> dict[str, list[str]]:
+    symbols: dict[str, list[str]] = {"defined": [], "required": []}
+    declared = None
+    observed = set()
+    active = False
+    for line in text.splitlines():
+        if line.startswith("Symbol table "):
+            active = line.startswith("Symbol table '.dynsym'")
+            if active:
+                match = re.fullmatch(r"Symbol table '.dynsym' contains ([0-9]+) entries:", line)
+                if match is None or declared is not None:
+                    raise ExportError("export-elf: malformed dynamic symbol table")
+                declared = int(match[1])
+            continue
+        if line.startswith("Version "):
+            active = False
+        if not active or not re.match(r"\s*[0-9]+:", line):
+            continue
+        match = re.fullmatch(r"\s*([0-9]+):\s+[0-9a-f]+\s+(?:[0-9]+|0x[0-9a-f]+)\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)(?:\s+(\S+)(?:\s+\([0-9]+\))?)?\s*", line)
+        if match is None or int(match[1]) in observed:
+            raise ExportError("export-elf: malformed dynamic symbol entry")
+        observed.add(int(match[1]))
+        _index, binding, visibility, section, name = match.groups()
+        if name is None or binding not in ("GLOBAL", "WEAK", "UNIQUE") or visibility not in ("DEFAULT", "PROTECTED"):
+            continue
+        if section != "UND":
+            symbols["defined"].append(name.replace("@@", "@"))
+            if "@@" in name:
+                symbols["defined"].append(name.split("@@", 1)[0])
+        elif binding != "WEAK":
+            symbols["required"].append(name)
+    if declared is not None and observed != set(range(declared)):
+        raise ExportError("export-elf: incomplete dynamic symbol table")
+    return symbols
 
 
 def inspect_elf(descriptor: int) -> dict[str, object]:
@@ -688,10 +724,11 @@ def inspect_elf(descriptor: int) -> dict[str, object]:
     dynamic_version_count = re.findall(r"\(VERNEEDNUM\)\s+([0-9]+)\s*$", text, re.MULTILINE)
     if len(dynamic_version_count) > 1 or (dynamic_version_count and int(dynamic_version_count[0]) != declared_count):
         raise ExportError("export-elf: missing version-needs section")
+    symbols = _elf_dynamic_symbols(text)
     return {"class": elf_class, "endianness": endian, "machine": machine,
             "type": kind, "interpreter": interpreter, "needed": needed,
             "soname": soname, "search_paths": search_paths, "required_versions": versions,
-            "defined_versions": _elf_version_definitions(text)}
+            "defined_versions": _elf_version_definitions(text), "symbols": symbols}
 
 
 def elf_dependency_report(objects: dict[str, dict[str, object]], *, entrypoint: str,

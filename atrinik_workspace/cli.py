@@ -350,6 +350,14 @@ def parser() -> argparse.ArgumentParser:
     ):
         mark(profile_sound.add_argument(flag, dest=destination), "none")
 
+    linux = commands.add_parser("linux", help="portable Classic client export and verification")
+    linux_commands = linux.add_subparsers(dest="linux_command", required=True)
+    linux_export = linux_commands.add_parser("export", help="build and publish from the pinned portable image")
+    mark(linux_export.add_argument("--profile", default="classic"), "profile")
+    mark(linux_export.add_argument("--output", type=Path, required=True), "directory")
+    linux_verify = linux_commands.add_parser("verify", help="verify a moved export byte inventory")
+    mark(linux_verify.add_argument("path", type=Path), "directory")
+
     path = commands.add_parser(
         "path", help="print a resolved logical-component source path"
     )
@@ -759,6 +767,7 @@ def main(arguments: list[str] | None = None) -> int:
                 "cleanup",
                 "down",
                 "logs",
+                "linux",
                 "migrate",
                 "package",
                 "ps",
@@ -1282,6 +1291,18 @@ def main(arguments: list[str] | None = None) -> int:
                             f"{row['component']}\t{row['head']}\t{status}\t"
                             f"{row['path']}"
                         )
+        elif options.command == "linux":
+            require_linux_capability("portable client export", "Linux ELF and descriptor-relative publication")
+            from .linux_export import ExportError, verify_export
+            from .linux_portable import export_client
+            try:
+                if options.linux_command == "export":
+                    result = export_client(workspace, options.profile, options.output)
+                else:
+                    result = verify_export(options.path)
+            except (ExportError, OSError) as error:
+                raise WorkspaceError(str(error)) from error
+            print(json.dumps(result, indent=2, sort_keys=True))
         elif options.command == "path":
             print(workspace.component_path(options.component, options.profile))
         elif options.command == "build":

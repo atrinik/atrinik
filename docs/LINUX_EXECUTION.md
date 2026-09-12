@@ -122,6 +122,44 @@ server endpoint through the runtime workflow. Run `--docker` separately to
 check daemon/user permission; that check says nothing about display or GPU.
 Actual selected-renderer evidence and interactive gameplay remain required.
 
+## Portable client export
+
+The public exporter runs in the exact published portable build environment,
+`ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1`.
+It is a build input, not a delivery coordinator. Its current full-commit consumer
+guard requires Classic `4998131ad2ae4c9680685fd87e2d85de1dc15fd9`.
+Use a clean Classic profile with verified released sound matching its selected
+sound source commit, and a new absolute destination
+whose parent is owned by the invoking user and not writable by other users:
+
+```sh
+mkdir -p "$HOME/.local/opt"
+chmod 700 "$HOME/.local/opt"
+./atrinik linux export --profile classic-released-audio --output "$HOME/.local/opt/atrinik-client"
+./atrinik linux verify "$HOME/.local/opt/atrinik-client"
+```
+
+Both commands emit one JSON result on success and route diagnostics to stderr.
+Export refuses an occupied destination. It verifies immutable Git/LFS source
+payloads under the existing profile/source leases, uses a separate producer-bound
+build cache, and retains the build lease through source revalidation and atomic
+publication. A failed operation preserves its private `.atrinik-export-*` staging
+for diagnosis and does not replace an existing output.
+
+The directory contains the client, materialized media, application libraries,
+OpenSSL provider, corresponding sources, producer recipes and notices. ELF
+inspection checks actual provider hashes, static dependencies, symbol/version
+providers and declared dynamic SONAMEs. The host supplies glibc 2.36 or newer,
+its loader and graphics drivers. The X11/Vulkan producer uses XWayland on a
+Wayland desktop; PulseAudio or PipeWire's Pulse service supplies audio.
+
+Move the whole directory, then run its `atrinik` launcher. It sets library and
+OpenSSL-provider paths relative to itself and keeps mutable configuration outside
+the output. Choose `ATRINIK_CONFIG_DIR` explicitly for isolated clients.
+`linux verify` checks exact bytes, modes and inventory after relocation; actual
+loader, media-decoding, connectivity and per-host qualification remain separate
+acceptance results. Hardware gameplay and audible playback need their own proof.
+
 ## Portable binary evidence
 
 `linux_export.portable_metadata_report` checks the six published portable metadata
