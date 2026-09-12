@@ -5666,6 +5666,24 @@ class Workspace:
                 states = self._selected_checkout_states(
                     profile, selected, include_dirty=True, include_identity=True
                 )
+                if stack.name == "classic":
+                    for role in sorted(set(selected) & {
+                        "client", "server", "protocol", "libatrinik"
+                    }):
+                        component = stack.providers[role]
+                        state = states[component.checkout_name]
+                        identities = state.setdefault("package_identity", {})
+                        if "." not in identities:
+                            identities["."] = self._classic_package_identity(
+                                state["path"], state["path"],
+                                state["head"], state["dirty"],
+                            )
+                        identities[component.source] = (
+                            self._classic_package_identity(
+                                state["path"], selected[role],
+                                state["head"], state["dirty"],
+                            )
+                        )
                 released: set[str] = set()
                 if materialize_clean_primaries:
                     (
@@ -9768,9 +9786,10 @@ class Workspace:
             if component.checkout_name in states:
                 continue
             checkout = self._selector_root(profile, component).resolve()
+            owner_git = self._classic_owner_git if component.checkout_name == "classic" else git
             state: dict[str, Any] = {
                 "path": checkout,
-                "head": git(
+                "head": owner_git(
                     checkout,
                     "rev-parse",
                     "HEAD",
@@ -9780,7 +9799,14 @@ class Workspace:
             }
             if include_identity:
                 identity = checkout.stat()
-                git_common = self._git_common_directory(checkout, trace=False)
+                git_common = (
+                    Path(owner_git(
+                        checkout, "rev-parse", "--path-format=absolute", "--git-common-dir",
+                        capture=True, trace=False,
+                    )).resolve()
+                    if component.checkout_name == "classic"
+                    else self._git_common_directory(checkout, trace=False)
+                )
                 git_common_identity = git_common.stat()
                 state.update(
                     {
@@ -9793,7 +9819,10 @@ class Workspace:
                     }
                 )
             if include_dirty:
-                state["dirty"] = not _is_clean(checkout, trace=False)
+                state["dirty"] = bool(owner_git(
+                    checkout, "status", "--porcelain=v1", "--untracked-files=all",
+                    capture=True, trace=False,
+                ))
             states[component.checkout_name] = state
         if include_identity:
             for role in sorted(selected):
@@ -9859,6 +9888,27 @@ class Workspace:
                 )
         return targets
 
+    def _source_generation_provenance(self, source: Path) -> dict[str, Any] | None:
+        """Resolve a sealed source or declared include without ancestor Git discovery."""
+
+        generation = self._source_generation_record(source)
+        if generation is not None:
+            return generation
+        root = self.paths.builds / "source-generations"
+        try:
+            relative = source.relative_to(root)
+        except ValueError:
+            return None
+        if len(relative.parts) < 3:
+            return None
+        generation_root = root.joinpath(*relative.parts[:2])
+        generation = self._source_generation_record(generation_root / "source")
+        if generation is not None and relative.parts[2:] in {
+            PurePosixPath(include).parts for include in generation["source_includes"]
+        }:
+            return generation
+        raise WorkspaceError(f"source is outside immutable generation closure: {source}")
+
     def _profile_source_view(
         self,
         root: Path,
@@ -9881,19 +9931,24 @@ class Workspace:
             SOURCE_INCLUDE_VIEW_METADATA,
         }
         copied_directories = copied_directories or set()
-        mutable_copies = self._source_generation_record(source) is not None
-        try:
-            source_head: str | None = git(
-                source, "rev-parse", "HEAD", capture=True, trace=False
-            )
-            if not isinstance(source_head, str) or len(source_head) != 40 or any(
-                character not in "0123456789abcdef" for character in source_head
-            ):
-                raise WorkspaceError(f"invalid Git HEAD for source view: {source}")
-            source_clean: bool | None = _is_clean(source, trace=False)
-        except WorkspaceError:
-            source_head = None
-            source_clean = None
+        generation = self._source_generation_provenance(source)
+        mutable_copies = generation is not None
+        if generation is not None:
+            source_head: str | None = generation["commit"]
+            source_clean: bool | None = True
+        else:
+            try:
+                source_head: str | None = git(
+                    source, "rev-parse", "HEAD", capture=True, trace=False
+                )
+                if not isinstance(source_head, str) or len(source_head) != 40 or any(
+                    character not in "0123456789abcdef" for character in source_head
+                ):
+                    raise WorkspaceError(f"invalid Git HEAD for source view: {source}")
+                source_clean: bool | None = _is_clean(source, trace=False)
+            except WorkspaceError:
+                source_head = None
+                source_clean = None
         expected: dict[str, dict[str, Any]] = {}
         for entry in sorted(source.iterdir(), key=lambda path: path.name):
             if entry.name in exclusions:
@@ -11679,6 +11734,13 @@ class Workspace:
         }
 
     def _cmake_source_identity(self, source: Path) -> dict[str, Any]:
+        generation = self._source_generation_provenance(source)
+        if generation is not None:
+            return {
+                "path": str(source.resolve()),
+                "source_generation": generation,
+                "configure_skip_safe": True,
+            }
         source_metadata = source / SOURCE_VIEW_METADATA
         marker = source / MANAGED_MARKER
         builds = self.paths.builds.resolve()
@@ -11752,26 +11814,144 @@ class Workspace:
             identity["configure_skip_safe"] = False
         return identity
 
+    @staticmethod
+    def _classic_owner_git(
+        checkout: Path, *arguments: str, capture: bool = False, trace: bool = True
+    ) -> str:
+        environment = {
+            name: value for name, value in os.environ.items()
+            if not name.startswith("GIT_")
+        }
+        return run(
+            ["git", "--no-replace-objects", "-C", str(checkout), *arguments],
+            capture=capture, trace=trace, env=environment,
+        )
+
+    @staticmethod
+    def _classic_package_identity(
+        checkout: Path, source: Path, head: str, dirty: bool
+    ) -> dict[str, str]:
+        """Capture owner metadata while its selected source lease is held."""
+
+        def owner_git(*arguments: str) -> str:
+            return Workspace._classic_owner_git(
+                checkout, *arguments, capture=True, trace=False
+            )
+
+        owner = Path(owner_git("rev-parse", "--show-toplevel")).resolve()
+        if owner != checkout.resolve() or not source.resolve().is_relative_to(owner):
+            raise WorkspaceError(f"Classic source is not owned by checkout: {source}")
+        revision = owner_git("rev-parse", "--verify", f"{head}^{{commit}}")
+        if revision != head or not re.fullmatch(r"[0-9a-f]{40,64}", revision):
+            raise WorkspaceError(f"invalid Classic source revision: {head}")
+        version = os.environ.get("ATRINIK_PACKAGE_VERSION", "")
+        if not version:
+            for path in (source / "VERSION", checkout / "VERSION"):
+                if path.is_file():
+                    lines = path.read_text(encoding="utf-8").splitlines()
+                    version = lines[0] if lines else ""
+                    if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
+                        raise WorkspaceError(f"invalid Classic package version in {path}")
+                    break
+        if not version:
+            try:
+                tag = owner_git(
+                    "describe", "--tags", "--exact-match", "--match", "v[0-9]*", head
+                )
+                version = tag.removeprefix("v")
+            except WorkspaceError as error:
+                if not isinstance(error.__cause__, subprocess.CalledProcessError):
+                    raise
+                module = checkout / "cmake" / "AtrinikVersion.cmake"
+                try:
+                    text = module.read_text(encoding="utf-8")
+                except OSError as failure:
+                    raise WorkspaceError(
+                        f"cannot read Classic development version: {module}"
+                    ) from failure
+                match = re.search(
+                    r'set\(ATRINIK_DEVELOPMENT_VERSION\s+"([0-9]+\.[0-9]+\.[0-9]+)"\)',
+                    text,
+                )
+                if match is None:
+                    raise WorkspaceError(f"invalid Classic development version: {module}")
+                version = match[1]
+        if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
+            raise WorkspaceError(f"invalid Classic package version: {version}")
+        return {
+            "version": version,
+            "revision": revision,
+            "dirty": "true" if dirty else "false",
+        }
+
+    def _classic_identity_arguments(
+        self, source: Path, *, integrated: bool = False
+    ) -> list[str]:
+        snapshot = self._profile_snapshot
+        if snapshot is None or snapshot.profile()["stack"] != "classic":
+            return []
+        stack = self.manifest.stack("classic")
+        role = next((role for role, path in snapshot.paths().items()
+                     if path == source.resolve()), None)
+        if role is None:
+            raise WorkspaceError(f"Classic source is outside captured profile: {source}")
+        component = stack.providers[role]
+        state = snapshot.checkout_states()[component.checkout_name]
+        identity = state["package_identity"]["." if integrated else component.source]
+        generation = self._source_generation_record(source)
+        if generation is not None and (
+            generation["commit"] != identity["revision"]
+            or identity["dirty"] != "false"
+        ):
+            raise WorkspaceError(f"Classic generation identity changed: {source}")
+        return [
+            f"-DATRINIK_PACKAGE_VERSION={identity['version']}",
+            f"-DATRINIK_SOURCE_REVISION={identity['revision']}",
+            f"-DATRINIK_SOURCE_DIRTY={identity['dirty']}",
+        ]
+
     def _build_protocol(self, root: Path, selected: dict[str, Path], tests: bool) -> None:
         source = self._mutable_cmake_source_view(
             root, "protocol", selected["protocol"]
         )
-        self._cmake(source, root / "build" / "protocol", [], tests)
+        self._cmake(
+            source, root / "build" / "protocol",
+            self._classic_identity_arguments(selected["protocol"]), tests,
+        )
 
     def _mutable_cmake_source_view(
         self, root: Path, role: str, source: Path
     ) -> Path:
         """Copy sealed generated CMake inputs whose tests mutate local fixtures."""
 
-        if self._source_generation_record(source) is None:
+        generation = self._source_generation_record(source)
+        if generation is None:
             return source
-        return self._profile_source_view(
+        includes = generation["source_includes"]
+        namespace = role if includes else ""
+        if namespace:
+            managed_directory(
+                root / "sources" / namespace, self.paths.builds,
+                f"source-closure:{role}",
+            )
+        view = self._profile_source_view(
             root,
-            role,
+            f"{namespace}/input" if namespace else role,
             source,
             set(),
             copy_all=True,
+            preserved_entries={SOURCE_INCLUDE_VIEW_METADATA},
         )
+        if includes:
+            component = next(
+                component for component in self.manifest.components
+                if component.checkout_name == generation["checkout"]
+                and component.source == generation["source"]
+            )
+            self._prepare_component_source_includes(
+                root, component, source, view, namespace=namespace
+            )
+        return view
 
     @staticmethod
     def _uses_integrated_classic_build(
@@ -11887,6 +12067,7 @@ class Workspace:
             "-DENABLE_WARNING_ERRORS=ON",
             "-DPACKAGE_TYPE=none",
             "-DENABLE_PYTHON_PLUGIN=ON",
+            *self._classic_identity_arguments(selected["client"], integrated=True),
         ]
         if gpu_shader is not None:
             arguments.extend(self._gpu_shader_cmake_arguments(gpu_shader))
@@ -11911,18 +12092,77 @@ class Workspace:
         protocol = self._mutable_cmake_source_view(
             root, "protocol", selected["protocol"]
         )
+        library = self._mutable_cmake_source_view(
+            root, "libatrinik", selected["libatrinik"]
+        )
         self._cmake(
-            selected["libatrinik"],
+            library,
             root / "build" / "libatrinik",
             [
                 "-DENABLE_WARNING_ERRORS=ON",
                 f"-DATRINIK_PROTOCOL_SOURCE_DIR={protocol}",
+                *self._classic_identity_arguments(selected["libatrinik"]),
             ],
             tests,
         )
 
+    @staticmethod
+    def _live_peer_source_record(closure_root: Path, include: str) -> dict[str, str]:
+        """Prove a live peer input stays beneath its leased physical owner."""
+
+        relative = PurePosixPath(include)
+        if (relative.is_absolute() or not relative.parts
+                or any(part in {"", ".", ".."} for part in relative.parts)
+                or relative.as_posix() != include):
+            raise WorkspaceError(f"live peer source include is unsafe: {include}")
+        include_source = closure_root.joinpath(*relative.parts)
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+        try:
+            with ExitStack() as stack:
+                root_fd = _open_directory_nofollow(closure_root, flags)
+                stack.callback(os.close, root_fd)
+                root_identity = os.fstat(root_fd)
+                mount = _descriptor_mount_id(root_fd)
+                parent = root_fd
+                bindings: list[tuple[int, str, int]] = []
+                for index, part in enumerate(relative.parts):
+                    final = index == len(relative.parts) - 1
+                    before = os.stat(part, dir_fd=parent, follow_symlinks=False)
+                    if (not stat.S_ISDIR(before.st_mode)
+                            and not (final and stat.S_ISREG(before.st_mode))):
+                        raise WorkspaceError(f"live peer source include is unsafe: {include_source}")
+                    read_flags = flags if stat.S_ISDIR(before.st_mode) else (
+                        os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK)
+                    descriptor = os.open(part, read_flags, dir_fd=parent)
+                    stack.callback(os.close, descriptor)
+                    opened = os.fstat(descriptor)
+                    if ((opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino)
+                            or opened.st_dev != root_identity.st_dev
+                            or _descriptor_mount_id(descriptor) != mount
+                            or (stat.S_ISREG(opened.st_mode) and opened.st_nlink != 1)):
+                        raise WorkspaceError(f"live peer source include identity changed: {include_source}")
+                    bindings.append((parent, part, descriptor))
+                    parent = descriptor
+                # Recheck every name against its retained descriptor before
+                # publishing provenance, including replacement of the root.
+                probe = _open_directory_nofollow(closure_root, flags)
+                stack.callback(os.close, probe)
+                visible_root = os.fstat(probe)
+                if (visible_root.st_dev, visible_root.st_ino) != (
+                        root_identity.st_dev, root_identity.st_ino):
+                    raise WorkspaceError(f"live peer source include identity changed: {include_source}")
+                for directory_fd, name, descriptor in bindings:
+                    visible = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+                    opened = os.fstat(descriptor)
+                    if (visible.st_dev, visible.st_ino) != (opened.st_dev, opened.st_ino):
+                        raise WorkspaceError(f"live peer source include identity changed: {include_source}")
+                return {"kind": "live-peer", "source": str(include_source)}
+        except OSError as error:
+            raise WorkspaceError(f"live peer source include is unsafe: {include_source}: {error}") from error
+
     def _prepare_component_source_includes(
-        self, root: Path, component: Component, source: Path, consumer: Path
+        self, root: Path, component: Component, source: Path, consumer: Path,
+        *, namespace: str = "", live_peer_inputs: bool = False,
     ) -> None:
         if not component.source_includes:
             return
@@ -11934,10 +12174,26 @@ class Workspace:
             if component.source != ".":
                 for _part in PurePosixPath(component.source).parts:
                     closure_root = closure_root.parent
+        peer_includes = {
+            include for include in component.source_includes
+            if any(
+                peer.name != component.name
+                and peer.checkout_name == component.checkout_name
+                and PurePosixPath(peer.source) in PurePosixPath(include).parents
+                for peer in self.manifest.components
+            )
+        }
+        if peer_includes and not namespace and not (live_peer_inputs and generation is None):
+            raise WorkspaceError("peer source includes require a private consumer namespace")
         records: dict[str, dict[str, Any]] = {}
         includes_unchanged = True
         for include in component.source_includes:
             include_source = closure_root.joinpath(*PurePosixPath(include).parts)
+            if include in peer_includes and live_peer_inputs and generation is None:
+                # The tools resolve their own physical source files. Prove
+                # their peer path without following any ancestor alias.
+                records[include] = self._live_peer_source_record(closure_root, include)
+                continue
             try:
                 status = include_source.lstat()
             except OSError as error:
@@ -11946,7 +12202,8 @@ class Workspace:
                 ) from error
             if stat.S_ISDIR(status.st_mode):
                 include_view = self._profile_source_view(
-                    root, include, include_source, set()
+                    root, f"{namespace}/{include}" if namespace else include,
+                    include_source, set()
                 )
                 include_key = str(include_view.resolve())
                 includes_unchanged = (
@@ -11962,7 +12219,7 @@ class Workspace:
                 }
             elif stat.S_ISREG(status.st_mode):
                 destination = root.joinpath(
-                    "sources", *PurePosixPath(include).parts
+                    "sources", namespace, *PurePosixPath(include).parts
                 )
                 expected_target = str(include_source)
                 link_unchanged = (
@@ -11970,7 +12227,7 @@ class Workspace:
                     and os.readlink(destination) == expected_target
                 )
                 self._source_view_link(
-                    root / "sources",
+                    root / "sources" / namespace,
                     include,
                     include_source,
                     target_is_directory=False,
@@ -12011,6 +12268,340 @@ class Workspace:
             and includes_unchanged
         )
 
+    @staticmethod
+    def _client_layout_fence(path: Path, descriptor: int) -> None:
+        """Prove the retained directory still occupies its no-follow pathname."""
+
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+        probe = _open_directory_nofollow(path, flags)
+        try:
+            opened, visible = os.fstat(descriptor), os.fstat(probe)
+            if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+                raise WorkspaceError(f"client source layout identity changed: {path}")
+        finally:
+            os.close(probe)
+
+    def _prepare_immutable_client_source_view(
+        self, root: Path, component: Component, source: Path, sound_root: Path
+    ) -> Path:
+        """Stage an owned Classic-shaped closure without writing a peer view.
+
+        All mutations, including reconciliation and metadata publication, use
+        retained no-follow directory descriptors. Pathname fences reject a
+        renamed/replaced ancestor; a racing replacement cannot redirect a write.
+        """
+
+        generation = self._source_generation_record(source)
+        if generation is None:
+            raise WorkspaceError("immutable client layout requires a source generation")
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+        layout = root / "sources" / "client-layout"
+        view = layout / "client"
+        purpose = "source-view:client-layout"
+        marker = {"schema_version": SCHEMA_VERSION, "purpose": purpose}
+        changed = False
+        retained: list[tuple[Path, int]] = []
+
+        def fence() -> None:
+            for path, descriptor in retained:
+                self._client_layout_fence(path, descriptor)
+
+        def visible(directory: int, name: str) -> os.stat_result | None:
+            try:
+                return os.stat(name, dir_fd=directory, follow_symlinks=False)
+            except FileNotFoundError:
+                return None
+
+        @contextmanager
+        def directory(parent: int, name: str, path: Path, *, create: bool = False,
+                      expected: os.stat_result | None = None) -> Iterator[int]:
+            nonlocal changed
+            fence()
+            before = visible(parent, name)
+            if before is None and create:
+                os.mkdir(name, 0o700, dir_fd=parent)
+                changed = True
+                before = visible(parent, name)
+            if before is None or not stat.S_ISDIR(before.st_mode):
+                raise WorkspaceError(f"client source layout directory is unsafe: {path}")
+            if expected is not None and (before.st_dev, before.st_ino) != (
+                    expected.st_dev, expected.st_ino):
+                raise WorkspaceError(f"client source layout identity changed: {path}")
+            descriptor = os.open(name, flags, dir_fd=parent)
+            try:
+                opened = os.fstat(descriptor)
+                if ((opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino)
+                        or opened.st_dev != os.fstat(parent).st_dev
+                        or _descriptor_mount_id(descriptor) != _descriptor_mount_id(parent)):
+                    raise WorkspaceError(f"client source layout identity changed: {path}")
+                retained.append((path, descriptor))
+                try:
+                    fence()
+                    yield descriptor
+                    fence()
+                finally:
+                    retained.pop()
+            finally:
+                os.close(descriptor)
+
+        def remove(parent: int, name: str, path: Path) -> None:
+            nonlocal changed
+            fence()
+            entry = visible(parent, name)
+            if entry is None:
+                return
+            if stat.S_ISDIR(entry.st_mode):
+                with directory(parent, name, path, expected=entry) as descriptor:
+                    for child in os.listdir(descriptor):
+                        remove(descriptor, child, path / child)
+                fence()
+                current = visible(parent, name)
+                if current is None or (current.st_dev, current.st_ino) != (
+                        entry.st_dev, entry.st_ino):
+                    raise WorkspaceError(f"client source layout identity changed: {path}")
+                os.rmdir(name, dir_fd=parent)
+            else:
+                os.unlink(name, dir_fd=parent)
+            changed = True
+            fence()
+
+        def file_bytes(parent: int, name: str, *, limit: int | None = None
+                       ) -> tuple[bytes, int]:
+            fence()
+            before = visible(parent, name)
+            if (before is None or not stat.S_ISREG(before.st_mode)
+                    or before.st_nlink != 1
+                    or (limit is not None and before.st_size > limit)):
+                raise WorkspaceError(f"client source layout file is unsafe: {name}")
+            descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC
+                                 | os.O_NONBLOCK, dir_fd=parent)
+            try:
+                opened = os.fstat(descriptor)
+                if (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino):
+                    raise WorkspaceError(f"client source layout file changed: {name}")
+                with os.fdopen(descriptor, "rb", closefd=False) as stream:
+                    value = stream.read()
+                after = os.fstat(descriptor)
+                current = visible(parent, name)
+                fields = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+                if (current is None or any(getattr(opened, field) != getattr(after, field)
+                        or getattr(opened, field) != getattr(current, field)
+                        for field in fields)):
+                    raise WorkspaceError(f"client source layout file changed: {name}")
+                fence()
+                return value, stat.S_IMODE(opened.st_mode)
+            finally:
+                os.close(descriptor)
+
+        def write(parent: int, name: str, path: Path, value: bytes, mode: int) -> None:
+            nonlocal changed
+            fence()
+            current = visible(parent, name)
+            if current is not None and stat.S_ISREG(current.st_mode):
+                previous, permissions = file_bytes(parent, name)
+                if previous == value and permissions == mode:
+                    return
+            elif current is not None:
+                remove(parent, name, path)
+            temporary = f".client-view-{secrets.token_hex(12)}"
+            descriptor = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                                 | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=parent)
+            try:
+                with os.fdopen(descriptor, "wb", closefd=False) as stream:
+                    stream.write(value)
+                    stream.flush()
+                fence()
+                os.fchmod(descriptor, mode)
+                os.fsync(descriptor)
+                fence()
+                os.replace(temporary, name, src_dir_fd=parent, dst_dir_fd=parent)
+                changed = True
+                fence()
+            finally:
+                os.close(descriptor)
+                try:
+                    os.unlink(temporary, dir_fd=parent)
+                except FileNotFoundError:
+                    pass
+
+        def link(parent: int, name: str, path: Path, target: str) -> None:
+            nonlocal changed
+            fence()
+            current = visible(parent, name)
+            if (current is not None and stat.S_ISLNK(current.st_mode)
+                    and os.readlink(name, dir_fd=parent) == target):
+                return
+            remove(parent, name, path)
+            fence()
+            os.symlink(target, name, dir_fd=parent)
+            changed = True
+            fence()
+
+        exclusions = {".git", "build", "sound", MANAGED_MARKER,
+                      SOURCE_VIEW_METADATA, SOURCE_INCLUDE_VIEW_METADATA}
+
+        def copy_tree(input_fd: int, output_fd: int, input_path: Path,
+                      output_path: Path, *, client: bool = False,
+                      symlink_root: Path | None = None,
+                      symlink_view: Path | None = None) -> dict[str, Any]:
+            symlink_root = symlink_root or source
+            symlink_view = symlink_view or view
+            entries: dict[str, Any] = {}
+            for name in sorted(os.listdir(input_fd)):
+                if client and name in exclusions:
+                    continue
+                fence()
+                item = os.stat(name, dir_fd=input_fd, follow_symlinks=False)
+                input_entry, output_entry = input_path / name, output_path / name
+                # Player-view inputs must resolve within this client root:
+                # manifests/settings/snapshots in src, interface/archdef in
+                # data, texture assets, and explicit plus default UI fonts.
+                if client and name not in {"tools", "data", "src", "textures", "fonts"}:
+                    if stat.S_ISLNK(item.st_mode):
+                        self._validate_source_symlink(input_entry, source)
+                    elif not (stat.S_ISDIR(item.st_mode) or stat.S_ISREG(item.st_mode)):
+                        raise WorkspaceError(f"invalid client source entry: {input_entry}")
+                    target = str(input_entry)
+                    link(output_fd, name, output_entry, target)
+                    entries[name] = {"kind": "link", "target": target}
+                elif stat.S_ISDIR(item.st_mode):
+                    existing = visible(output_fd, name)
+                    if existing is not None and not stat.S_ISDIR(existing.st_mode):
+                        remove(output_fd, name, output_entry)
+                    with directory(input_fd, name, input_entry) as incoming:
+                        with directory(output_fd, name, output_entry, create=True) as outgoing:
+                            entries[name] = {"kind": "copy", "entries": copy_tree(
+                                incoming, outgoing, input_entry, output_entry,
+                                symlink_root=symlink_root, symlink_view=symlink_view)}
+                elif stat.S_ISREG(item.st_mode):
+                    value, mode = file_bytes(input_fd, name)
+                    permissions = mode | 0o600
+                    write(output_fd, name, output_entry, value, permissions)
+                    entries[name] = {"kind": "copy", "mode": permissions,
+                                     "sha256": hashlib.sha256(value).hexdigest()}
+                elif stat.S_ISLNK(item.st_mode):
+                    target, resolved = self._copied_source_symlink_target(
+                        input_entry, output_entry, symlink_root, symlink_view, set(),
+                        exclusions if symlink_root == source else set())
+                    link(output_fd, name, output_entry, target)
+                    entries[name] = {"kind": "link", "target": target,
+                                     "resolved": resolved}
+                else:
+                    raise WorkspaceError(f"invalid client source entry: {input_entry}")
+            reserved = ({MANAGED_MARKER, SOURCE_VIEW_METADATA,
+                         SOURCE_INCLUDE_VIEW_METADATA, "sound"} if client else set())
+            for name in os.listdir(output_fd):
+                if name not in entries and name not in reserved:
+                    remove(output_fd, name, output_path / name)
+            return entries
+
+        try:
+            with ExitStack() as stack:
+                root_fd = _open_directory_nofollow(root, flags)
+                stack.callback(os.close, root_fd)
+                retained.append((root, root_fd))
+                sources_fd = stack.enter_context(directory(
+                    root_fd, "sources", root / "sources", create=True))
+                previous_layout = visible(sources_fd, "client-layout")
+                existed = previous_layout is not None
+                if not existed:
+                    fence()
+                    # Exclusive creation prevents adopting a directory that
+                    # appeared after the absence observation.
+                    os.mkdir("client-layout", 0o700, dir_fd=sources_fd)
+                    changed = True
+                    previous_layout = visible(sources_fd, "client-layout")
+                layout_fd = stack.enter_context(directory(
+                    sources_fd, "client-layout", layout, expected=previous_layout))
+                if existed:
+                    try:
+                        marker_bytes, _ = file_bytes(layout_fd, MANAGED_MARKER, limit=4096)
+                        ownership = json.loads(marker_bytes, object_pairs_hook=_reject_duplicate_keys)
+                    except (ValueError, UnicodeError) as error:
+                        raise WorkspaceError(
+                            f"client source layout ownership is invalid: {layout}"
+                        ) from error
+                    if ownership != marker:
+                        raise WorkspaceError(f"client source layout ownership is invalid: {layout}")
+                else:
+                    write(layout_fd, MANAGED_MARKER, layout / MANAGED_MARKER,
+                          (json.dumps(marker, sort_keys=True) + "\n").encode(), 0o600)
+                generation_fd = _open_directory_nofollow(source.parent, flags)
+                stack.callback(os.close, generation_fd)
+                retained.append((source.parent, generation_fd))
+                stack.callback(retained.pop)
+                source_fd = stack.enter_context(directory(generation_fd, "source", source))
+                client_fd = stack.enter_context(directory(layout_fd, "client", view, create=True))
+                entries = copy_tree(source_fd, client_fd, source, view, client=True)
+                include_entries: dict[str, Any] = {}
+                expected_roots = {"client", MANAGED_MARKER}
+                for include in component.source_includes:
+                    parts = PurePosixPath(include).parts
+                    expected_roots.add(parts[0])
+                    with ExitStack() as parents:
+                        input_fd, output_fd = generation_fd, layout_fd
+                        input_path, output_path = source.parent, layout
+                        for part in parts[:-1]:
+                            input_path, output_path = input_path / part, output_path / part
+                            input_fd = parents.enter_context(directory(input_fd, part, input_path))
+                            output_fd = parents.enter_context(directory(
+                                output_fd, part, output_path, create=True))
+                        name = parts[-1]
+                        input_path, output_path = input_path / name, output_path / name
+                        item = os.stat(name, dir_fd=input_fd, follow_symlinks=False)
+                        if stat.S_ISDIR(item.st_mode):
+                            incoming = parents.enter_context(directory(input_fd, name, input_path))
+                            outgoing = parents.enter_context(directory(
+                                output_fd, name, output_path, create=True))
+                            include_entries[include] = copy_tree(
+                                incoming, outgoing, input_path, output_path,
+                                symlink_root=input_path, symlink_view=output_path)
+                        elif stat.S_ISREG(item.st_mode):
+                            value, mode = file_bytes(input_fd, name)
+                            write(output_fd, name, output_path, value, mode | 0o600)
+                            include_entries[include] = hashlib.sha256(value).hexdigest()
+                        else:
+                            raise WorkspaceError(f"invalid client source include: {input_path}")
+                def prune_includes(parent: int, path: Path, prefixes: list[tuple[str, ...]]) -> None:
+                    children = {parts[0] for parts in prefixes}
+                    for name in os.listdir(parent):
+                        if name not in children:
+                            remove(parent, name, path / name)
+                    for name in children:
+                        tails = [parts[1:] for parts in prefixes if parts[0] == name]
+                        if all(tails):
+                            with directory(parent, name, path / name) as child:
+                                prune_includes(child, path / name, tails)
+
+                include_paths = [PurePosixPath(include).parts for include in component.source_includes]
+                for name in os.listdir(layout_fd):
+                    if name not in expected_roots:
+                        remove(layout_fd, name, layout / name)
+                for name in expected_roots - {"client", MANAGED_MARKER}:
+                    tails = [parts[1:] for parts in include_paths if parts[0] == name]
+                    if all(tails):
+                        with directory(layout_fd, name, layout / name) as child:
+                            prune_includes(child, layout / name, tails)
+                link(client_fd, "sound", view / "sound", str(sound_root))
+                metadata = {"schema_version": SOURCE_VIEW_SCHEMA_VERSION,
+                            "purpose": "source-view:client-layout/client",
+                            "source": str(source), "source_head": generation["commit"],
+                            "entries": entries}
+                include_metadata = {"schema_version": 1,
+                                    "purpose": f"source-includes:{component.name}",
+                                    "entries": include_entries}
+                for name, value in ((MANAGED_MARKER, {"schema_version": SCHEMA_VERSION,
+                                        "purpose": metadata["purpose"]}),
+                                    (SOURCE_VIEW_METADATA, metadata),
+                                    (SOURCE_INCLUDE_VIEW_METADATA, include_metadata)):
+                    write(client_fd, name, view / name,
+                          (json.dumps(value, sort_keys=True) + "\n").encode(), 0o600)
+                fence()
+            self._source_view_unchanged[str(view)] = not changed
+            return view
+        except OSError as error:
+            raise WorkspaceError(f"client source layout is unsafe: {layout}: {error}") from error
+
     def _build_client(
         self,
         root: Path,
@@ -12022,22 +12613,32 @@ class Workspace:
         build_target: str | None = None,
         gpu_shader: dict[str, Any] | None = None,
     ) -> None:
-        view = self._profile_source_view(
-            root,
-            "client",
-            selected["client"],
-            {"build", "sound"},
-            preserved_entries={"sound", SOURCE_INCLUDE_VIEW_METADATA},
+        peer_inputs = any(
+            peer.name != component.name and peer.checkout_name == component.checkout_name
+            and PurePosixPath(peer.source) in PurePosixPath(include).parents
+            for include in component.source_includes for peer in self.manifest.components
         )
-        self._prepare_component_source_includes(
-            root, component, selected["client"], view
-        )
-        self._source_view_link(
-            view,
-            "sound",
-            sound_root or selected["sound"],
-            target_is_directory=True,
-        )
+        if peer_inputs and self._source_generation_record(selected["client"]) is not None:
+            view = self._prepare_immutable_client_source_view(
+                root, component, selected["client"], sound_root or selected["sound"]
+            )
+        else:
+            view = self._profile_source_view(
+                root,
+                "client",
+                selected["client"],
+                {"build", "sound"},
+                preserved_entries={"sound", SOURCE_INCLUDE_VIEW_METADATA},
+            )
+            self._prepare_component_source_includes(
+                root, component, selected["client"], view, live_peer_inputs=True
+            )
+            self._source_view_link(
+                view,
+                "sound",
+                sound_root or selected["sound"],
+                target_is_directory=True,
+            )
         protocol = self._mutable_cmake_source_view(
             root, "protocol", selected["protocol"]
         )
@@ -12049,6 +12650,7 @@ class Workspace:
             "-DPACKAGE_TYPE=none",
             f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
             f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
+            *self._classic_identity_arguments(selected["client"]),
         ]
         if gpu_shader is not None:
             arguments.extend(self._gpu_shader_cmake_arguments(gpu_shader))
@@ -12130,6 +12732,7 @@ class Workspace:
             "-DPACKAGE_TYPE=none",
             f"-DFETCHCONTENT_SOURCE_DIR_ATRINIK_PROTOCOL={protocol}",
             f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
+            *self._classic_identity_arguments(selected["server"]),
             "-DENABLE_PYTHON_PLUGIN=ON",
         ]
         if build_targets is None:
