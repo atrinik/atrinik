@@ -166,6 +166,34 @@ def verify_loader_trace(root, trace):
     return paths
 
 
+
+def verify_client_launch(output, evidence):
+    # Shell helpers are a host launcher prerequisite, not client dependencies.
+    # Run the actual launcher without tracing, then audit only the executable
+    # with the launcher's resolved config, working directory and library paths.
+    child_env = dict(os.environ)
+    for name in ("LD_DEBUG", "LD_DEBUG_OUTPUT", "LD_PRELOAD", "LD_AUDIT"):
+        child_env.pop(name, None)
+    launched = subprocess.run([str(output / "atrinik"), "--help"], timeout=30,
+                              env=child_env, text=True, capture_output=True, check=True)
+    config = Path(child_env.get("ATRINIK_CONFIG_DIR") or
+                  str(Path(child_env.get("XDG_STATE_HOME") or
+                           str(Path(child_env["HOME"]) / ".local/state")) / "atrinik-client"))
+    config = config.resolve(strict=True)
+    if not config.is_dir() or config.is_relative_to(output):
+        raise RuntimeError("launcher configuration is not separate mutable state")
+    child_env.update(ATRINIK_CONFIG_DIR=str(config), LD_LIBRARY_PATH=str(output / "lib"),
+                     OPENSSL_MODULES=str(output / "lib/ossl-modules"), LD_DEBUG="libs,files")
+    child = subprocess.run([str(output / "bin/atrinik"), "--help"], timeout=30,
+                           cwd=output / "share/games/atrinik", env=child_env,
+                           text=True, capture_output=True, check=True)
+    (evidence / "client-loader.log").write_text(child.stderr)
+    paths = verify_loader_trace(output, child.stderr)
+    if not launched.stdout.strip() or not child.stdout.strip():
+        raise RuntimeError("relocated executable did not produce command help")
+    return paths
+
+
 def verify(output, evidence):
     require_headless()
     if Path("/workspaces/atrinik").exists() or Path("/opt/atrinik-portable").exists():
@@ -253,14 +281,7 @@ def verify(output, evidence):
         raise RuntimeError("relocated OpenSSL provider closure failed")
     listing = run(["/lib64/ld-linux-x86-64.so.2", "--list", output / "bin/atrinik"], timeout=30)
     listed_paths = verify_loader_listing(output, listing)
-    child_env = dict(os.environ)
-    child_env["LD_DEBUG"] = "libs,files"
-    child = subprocess.run([str(output / "atrinik"), "--help"], timeout=30,
-                           env=child_env, text=True, capture_output=True, check=True)
-    (evidence / "client-loader.log").write_text(child.stderr)
-    traced_paths = verify_loader_trace(output, child.stderr)
-    if not child.stdout.strip():
-        raise RuntimeError("relocated executable did not produce command help")
+    traced_paths = verify_client_launch(output, evidence)
     save(evidence / "relocation.json", {"inventory": result, "images_decoded": images,
          "fonts_loaded": fonts, "audio_decoded": decoded,
          "application_mappings": loaded_application_paths(output, baseline=baseline, required_names=required_names),

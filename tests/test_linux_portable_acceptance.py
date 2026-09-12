@@ -152,6 +152,27 @@ class PortablePublicationTests(unittest.TestCase):
                 namespace["loaded_application_paths"](self.root)
 
     @unittest.skipUnless(shutil.which("cc"), "native compiler")
+    def test_real_launcher_helpers_are_separate_from_client_loader_trace(self):
+        import runpy
+        namespace = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
+        for path in ("bin", "lib", "share/games/atrinik"):
+            (self.output / path).mkdir(parents=True)
+        source = self.root / "client.c"
+        source.write_text('#include <stdio.h>\nint main(void) { puts("client help"); return 0; }\n')
+        subprocess.run(["cc", str(source), "-o", str(self.output / "bin/atrinik")],
+                       check=True, capture_output=True)
+        launcher = self.output / "atrinik"
+        launcher.write_bytes(export.launcher_script())
+        launcher.chmod(0o755)
+        config = self.root / "private config"
+        with mock.patch.dict(os.environ, {"ATRINIK_CONFIG_DIR": str(config)}):
+            paths = namespace["verify_client_launch"](self.output, self.root)
+        self.assertTrue(config.is_dir())
+        self.assertTrue(paths)
+        self.assertFalse(any("libselinux" in path for path in paths))
+        self.assertIn("initialize program:", (self.root / "client-loader.log").read_text())
+
+    @unittest.skipUnless(shutil.which("cc"), "native compiler")
     def test_real_loader_rejects_omitted_application_library_even_without_manifest_entry(self):
         import runpy
         namespace = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
