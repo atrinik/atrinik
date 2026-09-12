@@ -146,7 +146,7 @@ replacing every example value with current evidence:
     "complete": true,
     "agents": [
       {"agent_name": "/root", "agent_status": "running"},
-      {"agent_name": "/root/leaf", "agent_status": "completed"}
+      {"agent_name": "/root/leaf", "agent_status": {"completed": "Actual retained result text"}}
     ]
   },
   "selection": {
@@ -160,9 +160,13 @@ replacing every example value with current evidence:
 ```
 
 Retain the actual runtime `agent_name`/`agent_status` rows without rewriting
-statuses. The selected status must be `idle` or `completed`; the inventory
-accepts those plus `running`, and refuses unknown or interrupted states. The
-root must be present and running. `complete`, namespace, capacity, selection,
+statuses. A completed worker has the actual tagged status object
+`{"completed": "result text"}`; selected workers accept that exact shape or
+`"idle"`. The inventory also accepts `"running"`, and refuses plain
+`"completed"`, unknown/interrupted states and malformed or ambiguous objects.
+Completion text is bounded with the input, hashed as part of the raw observation
+and never copied into the project record or returned request. The root must be
+present and running. `complete`, namespace, capacity, selection,
 session and leaf correlation are coordinator attestations, not fields returned
 or cryptographically verified by the runtime. The helper rejects an absent,
 duplicate or mismatched selected identity; it cannot detect a fabricated whole

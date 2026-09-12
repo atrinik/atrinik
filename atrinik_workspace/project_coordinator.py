@@ -325,8 +325,16 @@ def reserve_existing(project: dict, ident: str, worker: str, observation: dict,
                 and re.fullmatch(r"/root(?:/[a-z0-9_]+)*", name) is not None,
                 "invalid or foreign runtime worker identity")
         require(name not in agents, "duplicate runtime worker identity")
-        require(isinstance(status, str) and status in {"running", "idle", "completed"},
-                "unknown runtime worker state")
+        if isinstance(status, dict):
+            keys(status, {"completed"}, "completed runtime status")
+            require(isinstance(status["completed"], str) and len(status["completed"]) <= 128 * 1024,
+                    "invalid completed runtime result")
+            # Preserve the actual tagged runtime row in the observation digest;
+            # never copy its potentially private result text into project state.
+            status = "completed"
+        else:
+            require(isinstance(status, str) and status in {"running", "idle"},
+                    "unknown runtime worker state")
         agents[name] = status
     require(agents.get("/root") == "running", "runtime coordinator is missing or inactive")
     require(isinstance(worker, str) and worker in agents and PurePosixPath(worker).parent.as_posix() == "/root",

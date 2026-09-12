@@ -72,7 +72,7 @@ def runtime_observation(p, expected, capacity=17):
             "snapshot": {k: expected[k] for k in ("generation", "digest", "path")},
             "project": {"actor": p["actor"], "authority": p["authority"], "parent": p["plan"]["parent"]},
             "runtime": {"namespace": "/root", "capacity_domain": "whole-thread-tree", "capacity": capacity,
-                        "complete": True, "agents": [{"agent_name": name, "agent_status": status}
+                        "complete": True, "agents": [{"agent_name": name, "agent_status": {"completed": "Retained runtime result"} if status == "completed" else status}
                                                        for name, status in agents.items()]},
             "selection": {"worker": "/root/leaf", "coordinate": "atrinik/atrinik#2", "entry_mode": "issue",
                           "retired_attempt": p["nodes"]["atrinik/atrinik#2"]["attempt"],
@@ -108,6 +108,18 @@ class ExistingReservationTests(unittest.TestCase):
         renewed = reopen(p, result["coordinate"], result["attempt"], "same owner; reviewer finding", 1)
         self.assertNotEqual(renewed["attempt"], result["attempt"])
 
+    def test_actual_tagged_completed_rows_bind_digest_without_copying_runtime_results(self):
+        p = retired_project()
+        expected = {"generation": p["generation"], "digest": digest(p), "path": "/private/project.json"}
+        observation = runtime_observation(p, expected)
+        private_result = "private runtime completion text must remain outside persisted project"
+        for agent in observation["runtime"]["agents"][1:]:
+            agent["agent_status"] = {"completed": private_result}
+        result = self.reserve(p, observation)
+        self.assertEqual(result["runtime_observation_sha256"], digest(observation))
+        self.assertNotIn(private_result, json.dumps(p))
+        self.assertNotIn(private_result, json.dumps(result))
+
     def test_pending_requires_retired_attempt_and_no_existing_binding(self):
         for change in (lambda s: s.update(attempt=None), lambda s: s.update(worker="/root/leaf"),
                        lambda s: s.update(state="running"), lambda s: s.update(attempt="unknown")):
@@ -135,6 +147,11 @@ class ExistingReservationTests(unittest.TestCase):
             lambda o: o["runtime"]["agents"][0].update(agent_status="idle"),
             lambda o: o["runtime"]["agents"][1].update(agent_status="running"),
             lambda o: o["runtime"]["agents"][1].update(agent_status="interrupted"),
+            lambda o: o["runtime"]["agents"][1].update(agent_status="completed"),
+            lambda o: o["runtime"]["agents"][1].update(agent_status={"completed": None}),
+            lambda o: o["runtime"]["agents"][1].update(agent_status={"completed": [], "running": True}),
+            lambda o: o["runtime"]["agents"][1].update(agent_status={"errored": "unknown result"}),
+            lambda o: o["runtime"]["agents"][2].update(agent_status={"completed": 1}),
             lambda o: o["runtime"]["agents"][2].update(agent_name="/root/leaf"),
             lambda o: o["runtime"]["agents"][1].update(agent_name="/root/foreign/leaf"),
             lambda o: o["selection"].update(worker="/root/fabricated"),
