@@ -153,3 +153,6 @@ or require inventory updates. Follow `docs/PROVENANCE.md`; fail uncertainty.
 
 For wrapper or cross-repository contract changes, load `atrinik-guidance-maintenance`;
 synchronize guidance and run inventory/validation.
+
+Portable export requires verified released sound and the pinned producer;
+raw source/local-playtest sound cannot be packaged.

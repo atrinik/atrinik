@@ -1,0 +1,79 @@
+name: Linux portable acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/linux-portable.yml'
+      - '.devcontainer/**'
+      - 'atrinik_workspace/**'
+      - 'scripts/linux_portable_acceptance.py'
+      - 'scripts/atrinik_coordinator_context.py'
+      - 'tests/**'
+      - 'components.json'
+      - 'docs/LINUX_EXECUTION.md'
+
+# PR events alone avoid duplicate push/PR builds. Serialize this workflow's
+# heavyweight producer across all PRs without cancelling another owner's run.
+concurrency:
+  group: linux-portable-acceptance-ci
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  portable:
+    name: Portable client build and relocation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      PORTABLE_IMAGE: ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Bootstrap isolated producer inputs
+        run: |
+          install -d -m 700 "$RUNNER_TEMP/portable-home" "$RUNNER_TEMP/portable-export" "$RUNNER_TEMP/portable-evidence"
+          docker pull "$PORTABLE_IMAGE"
+      - name: Build the actual export without GPU display or audio access
+        run: |
+          docker run --rm --cap-drop ALL --security-opt no-new-privileges \
+            --user "$(id -u):$(id -g)" --cpus 2 --memory 10g \
+            --env HOME=/home/portable --env CMAKE_BUILD_PARALLEL_LEVEL=2 \
+            --env NO_COLOR=1 --env USER=portable \
+            --mount "type=bind,source=$GITHUB_WORKSPACE,target=/workspaces/atrinik" \
+            --mount "type=bind,source=$RUNNER_TEMP/portable-home,target=/home/portable" \
+            --mount "type=bind,source=$RUNNER_TEMP/portable-export,target=/exports" \
+            --mount "type=bind,source=$RUNNER_TEMP/portable-evidence,target=/evidence" \
+            --workdir /workspaces/atrinik "$PORTABLE_IMAGE" \
+            python3 scripts/linux_portable_acceptance.py build --output /exports/client --evidence /evidence
+      - name: Verify relocated payload with original inputs unavailable
+        run: |
+          mv "$RUNNER_TEMP/portable-export/client" "$RUNNER_TEMP/portable-export/client moved"
+          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --user "$(id -u):$(id -g)" --cpus 2 --memory 4g \
+            --tmpfs /tmp:rw,nosuid,nodev,mode=1777 --tmpfs /opt:ro --tmpfs /usr/local/lib:ro \
+            --env HOME=/tmp/portable-home --env ATRINIK_CONFIG_DIR=/tmp/client-config \
+            --env 'LD_LIBRARY_PATH=/relocated/client moved/lib' \
+            --env 'OPENSSL_MODULES=/relocated/client moved/lib/ossl-modules' \
+            --mount "type=bind,source=$RUNNER_TEMP/portable-export,target=/relocated,readonly" \
+            --mount "type=bind,source=$GITHUB_WORKSPACE/scripts/linux_portable_acceptance.py,target=/control/scripts/linux_portable_acceptance.py,readonly" \
+            --mount "type=bind,source=$GITHUB_WORKSPACE/atrinik_workspace,target=/control/atrinik_workspace,readonly" \
+            --mount "type=bind,source=$RUNNER_TEMP/portable-evidence,target=/evidence" \
+            --workdir /tmp "$PORTABLE_IMAGE" \
+            python3 /control/scripts/linux_portable_acceptance.py verify --output '/relocated/client moved' --evidence /evidence
+      - name: Retain nonpublishing export artifact
+        run: tar -C "$RUNNER_TEMP/portable-export" -cf "$RUNNER_TEMP/portable-evidence/client.tar" 'client moved'
+      - name: Upload bounded review evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: linux-portable-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/portable-evidence
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error

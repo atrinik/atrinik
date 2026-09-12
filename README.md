@@ -345,15 +345,17 @@ profile, container name and ID, pinned image digest, source mounts and live
 identities, named volumes and targets, start/last-activity times, idle
 deadline, active services, and cleanup owner.
 
-A native host bootstraps once, then keeps using the returned container. It may
-run only bootstrap/attach, exact identity inspection, and approved
-Git/GitHub/commit operations. Require one exact active container row; ambiguity
+The canonical-container entry mode bootstraps once, then keeps using the
+returned container. Its host runs only bootstrap/attach, exact identity
+inspection, and approved Git/GitHub/commit operations. Direct native Linux
+uses the separate [accepted native authority and execution contract](docs/LINUX_EXECUTION.md);
+a candidate cannot activate that authority for its own delivery. Require one exact active container row; ambiguity
 fails closed. After selecting its exact ID, run the coordinator and wrapper
 commands inside that container:
 
 ~~~sh
 HOST_REPO="$(pwd)"
-devcontainer up --workspace-folder "$HOST_REPO"
+devcontainer up --workspace-folder "$HOST_REPO" --config "$HOST_REPO/.devcontainer/devcontainer.json"
 docker ps --filter "label=devcontainer.local_folder=$HOST_REPO" \
   --format '{{.ID}}\t{{.Names}}'
 CONTAINER_ID=THE_EXACT_ID_FROM_THE_LIST
@@ -1724,19 +1726,19 @@ A saved Classic-derived profile may instead consume the publishable Classic
 compatibility runtime from an immutable `atrinik/sound` release. Released mode
 does not invoke a source builder and never falls back to `source` or
 `local-playtest`. Supply every coordinate posted by the sound release. For
-example, the published v1.4.1 Classic runtime is selected with:
+example, the published v1.0.0 Classic runtime is selected with:
 
 ~~~sh
 ./atrinik profile create classic-released-audio --from classic
 ./atrinik profile sound-mode classic-released-audio released \
   --release-repository atrinik/sound \
-  --release-tag v1.4.1 \
-  --release-product-version 1.4.1 \
-  --release-source-commit 49a169bf41568e4e3b3ac70dfaf42b1a3eabe985 \
-  --release-source-tree 92b81774820dfd55944f4d7b005c1dc344b43561 \
-  --release-asset-url https://github.com/atrinik/sound/releases/download/v1.4.1/atrinik-sound-classic-runtime-1.4.1.tar.gz \
-  --release-archive-sha256 8373868ab4632eda58ae7959909f414a10a43ce519dd1ef9e7f911d4fa208a52 \
-  --release-manifest-sha256 7961ea27069c2cd54131466394571942d486e31e1007c9d957b97cb8b0d63b56 \
+  --release-tag v1.0.0 \
+  --release-product-version 1.0.0 \
+  --release-source-commit d0561bf9ff8dc88836818dbe602a5a256c6c0e3f \
+  --release-source-tree f464de12f943f1844f8587ca1a7419f6b78b9e44 \
+  --release-asset-url https://github.com/atrinik/sound/releases/download/v1.0.0/atrinik-sound-classic-runtime-1.0.0.tar.gz \
+  --release-archive-sha256 e3f17d314b3933db9c6af3f9290c5df79375a6cc3d570ea29f225b53de362784 \
+  --release-manifest-sha256 2d7a1ba78e4f484aa0554809f72b14345c40d37cc2d46daf0416de69627f2cbb \
   --release-source-manifest-sha256 3aacd122abe16da771ac1eb6ad80c50c1c6e7ab43d555dc8772f21be24248366 \
   --release-schema-sha256 428e1312d9922ab4ec20c0ee89d93d842528db6d8cc75197c135f4d4f59066aa \
   --release-toolchain-sha256 ee842444c37df3c6784665c2dacef4ab9220f3abfc5c2daf9214fe4b40aadbf7 \
@@ -1759,6 +1761,18 @@ build key, while incomplete or mismatched caches fail closed and remain covered
 by normal preview-first build cleanup. Supply-chain audit output identifies the
 selected archive, source commit/tree, and logical tree; license, CycloneDX, and
 SPDX reports for that profile also carry the complete immutable coordinate set.
+
+## Portable Linux client
+
+[Linux execution and export](docs/LINUX_EXECUTION.md) documents native dependency
+preflight, terminal bootstrap/reconnect, explicit X11/XWayland and GPU/audio
+selection, the movable Classic client, and a separate persistent headless server.
+The public commands are `./atrinik linux export --profile NAME --output DIRECTORY`
+and `./atrinik linux verify DIRECTORY`. Export requires the pinned portable
+producer and a verified released-sound profile matching the selected source.
+Before merge, the automatic nonpublishing pull-request acceptance job is the
+actual producer route. Keep relocation/decoding, hardware gameplay, audible
+playback, Windows/WSLg, MXE and native Windows D3D12 evidence separate.
 
 ## Deterministic test scenarios
 

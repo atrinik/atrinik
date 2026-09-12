@@ -127,6 +127,70 @@ class PortablePublicationTests(unittest.TestCase):
         with self.assertRaisesRegex(export.ExportError, "incomplete dynamic"):
             export._elf_dynamic_symbols(table.replace("contains 2", "contains 3"))
 
+    def test_acceptance_driver_refuses_display_or_audio_endpoint_before_execution(self):
+        driver = Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"
+        for variable in ("DISPLAY", "WAYLAND_DISPLAY", "PULSE_SERVER", "PIPEWIRE_REMOTE"):
+            environment = dict(os.environ)
+            environment[variable] = "forbidden-endpoint"
+            code = ("import runpy; value=runpy.run_path(" + repr(str(driver)) + "); "
+                    "value['require_headless']()")
+            result = subprocess.run([sys.executable, "-c", code], env=environment,
+                                    text=True, capture_output=True, timeout=10)
+            with self.subTest(variable=variable):
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("must not receive display or audio endpoints", result.stderr)
+
+    def test_acceptance_detects_application_library_loaded_outside_export(self):
+        import runpy
+        driver = Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"
+        namespace = runpy.run_path(str(driver))
+        (self.root / "lib").mkdir()
+        (self.root / "lib/libexample.so.1").write_bytes(b"placeholder")
+        mapping = "7f000-7f100 r-xp 0000 00:00 1 /usr/lib/libexample.so.1\n"
+        with mock.patch.object(Path, "read_text", return_value=mapping):
+            with self.assertRaisesRegex(RuntimeError, "provider escaped moved export"):
+                namespace["loaded_application_paths"](self.root)
+
+    def test_complete_source_notice_inventory_rejects_missing_corrupt_and_extra_files(self):
+        source = self.root / "producer"
+        source.mkdir()
+        inputs = {"sources/mixer.tar.gz": b"mixer corresponding source",
+                  "build.py": b"build recipe", "notices/SDL_mixer.txt": b"required attribution"}
+        records = {}
+        for name, payload in inputs.items():
+            path = source / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(payload)
+            records[name] = {"sha256": hashlib.sha256(payload).hexdigest(),
+                             "size": len(payload), "executable": False}
+        expected = hashlib.sha256(json.dumps(records, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        self.assertEqual(portable.verified_tree_inventory(source, expected), records)
+        for name, payload in inputs.items():
+            for mutation in ("missing", "corrupt", "mode"):
+                path = source / name
+                with self.subTest(name=name, mutation=mutation):
+                    if mutation == "missing":
+                        path.unlink()
+                    elif mutation == "corrupt":
+                        path.write_bytes(b"invalid notice/source")
+                    else:
+                        path.chmod(0o755)
+                    with self.assertRaisesRegex(export.ExportError, "inventory mismatch"):
+                        portable.verified_tree_inventory(source, expected)
+                    path.write_bytes(payload)
+                    path.chmod(0o644)
+        (source / "extra").write_bytes(b"unrecorded")
+        with self.assertRaisesRegex(export.ExportError, "inventory mismatch"):
+            portable.verified_tree_inventory(source, expected)
+
+    def test_source_deletion_between_inventory_and_copy_is_rejected(self):
+        source = self.root / "source"
+        source.mkdir()
+        with portable.Publication(self.output, self.sources) as publication:
+            with self.assertRaisesRegex(export.ExportError, "inventory differs"):
+                portable.add_regular_tree(publication, source, "sources", expected={
+                    "missing": {"sha256": "a" * 64, "size": 10, "executable": False}})
+
     def test_export_rejects_nonpublishable_sound_before_building(self):
         for mode in ("source", "local-playtest"):
             with self.subTest(mode=mode):
@@ -169,6 +233,26 @@ class PortablePublicationTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(export.ExportError, "unresolved symbols in bin/client"):
             portable.symbol_closure(objects, entrypoint="bin/client")
+
+    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    def test_portable_executable_rejects_custom_or_missing_loader(self):
+        source = self.root / "main.c"
+        source.write_text("int main(void) { return 0; }\n")
+        for name, options in (("normal", []), ("custom", ["-Wl,--dynamic-linker=/tmp/private-loader"]),
+                              ("missing", ["-shared", "-fPIC"])):
+            target = self.root / name
+            subprocess.run(["cc", str(source), "-o", str(target), *options], check=True, capture_output=True)
+            with target.open("rb") as stream:
+                if name == "normal":
+                    self.assertEqual(portable.portable_executable(stream.fileno())["interpreter"],
+                                     "/lib64/ld-linux-x86-64.so.2")
+                else:
+                    with self.assertRaisesRegex(export.ExportError, "supported host loader"):
+                        portable.portable_executable(stream.fileno())
+        target = self.root / "normal"
+        target.chmod(0o644)
+        with target.open("rb") as stream, self.assertRaisesRegex(export.ExportError, "executable mode"):
+            portable.portable_executable(stream.fileno())
 
     @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
     def test_real_versioned_symbol_definitions_and_missing_symbol(self):

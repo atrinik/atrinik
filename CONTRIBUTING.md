@@ -346,3 +346,13 @@ Dependency and license diagnostics (`./atrinik supply-chain ...`) are optional.
 Catalog maintenance and diagnostic findings never gate changes, PR readiness,
 or delivery. Update the catalog only when explicitly requested; use component
 lockfiles and actual source notices for current build inputs and licensing.
+
+For Linux execution/export changes, run focused platform, coordinator-context,
+CLI/export and portable acceptance tests, then the complete wrapper checks.
+Actual portable export runs in the pinned producer through automatic nonpublishing
+pull-request CI with a clean Classic commit and verified released sound. Verify
+the moved output with original source/build paths unavailable. Record loader and
+media decoding separately from hardware Vulkan gameplay, authenticated QUIC,
+persistent-state restart and audible playback. Preserve distinct Windows/WSLg,
+MXE and native Windows D3D12 evidence. A candidate native authority contract cannot
+authorize its own delivery; activation follows merge and parent acceptance.

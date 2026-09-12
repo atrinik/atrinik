@@ -55,6 +55,38 @@ a proof of complete native build compatibility; run the owner-required build and
 test checks on the selected distribution.
 
 
+## Native prerequisites and terminal selection
+
+On the supported Debian/Ubuntu systemd distributions, install the native wrapper
+and source-build front-end dependencies through the distribution package manager:
+
+```sh
+sudo apt-get update
+sudo apt-get install python3 python3-venv git git-lfs cmake ninja-build pkg-config
+git lfs install --skip-repo
+python3 -m atrinik_workspace.linux_platform
+```
+
+This installs orchestration tools, not the complete Classic C library toolchain.
+Classic CMake enforces its owner-declared development-library versions; the
+qualified portable producer supplies those exact versions for export. Do not
+replace its SDL3 libraries with SDL2 or claim a source build from tool presence.
+An exported client needs no compiler or development headers. Mesa hosts need the
+distribution's `mesa-vulkan-drivers`; NVIDIA hosts need the installed proprietary
+driver's matching Vulkan ICD. Preserve a working host driver. The portable image
+contains the Vulkan loader, not graphics drivers. Native client execution does
+not require Docker; a client container additionally requires a working daemon
+and, for NVIDIA, the NVIDIA Container Toolkit.
+
+After the native authority contract is merged and accepted, use the actual
+passwd user's private home/Codex directory and the standard GitHub credential
+store described in [coordinator authentication](COORDINATOR_AUTH.md). Run the
+public coordinator probe before issue/project preparation. Reconnect to the same
+host, user, worktree and ledger; rerun live context, authenticated actor,
+complete collision inventory and the helper's target/CAS/lease proof. A saved
+success document never authorizes reconnect. During delivery of a change to this
+contract, keep the previously accepted canonical container.
+
 ## Fresh headless containers and child reaping
 
 After the existing image-access and isolated-session prerequisites in README,
@@ -99,11 +131,14 @@ argument array without launching anything. Choose the active session and a
 render node discovered on that host, for example:
 
 ```sh
-python3 -m atrinik_workspace.linux_platform --desktop wayland --gpu mesa --render-device /dev/dri/renderD128 --audio
+python3 -m atrinik_workspace.linux_platform --desktop x11 --gpu mesa --render-device /dev/dri/renderD128 --audio
 python3 -m atrinik_workspace.linux_platform --desktop x11 --gpu nvidia --audio
 ```
 
-The render-node number above is an example, not a fixed assignment. X11 requires
+The render-node number above is an example, not a fixed assignment. The portable
+client uses X11; on a Wayland desktop select its actual XWayland `DISPLAY` and
+`XAUTHORITY`. The separate `--desktop wayland` capability is only for a client
+that actually implements that backend. X11 requires
 the actual private `XAUTHORITY` file and local `DISPLAY`; Wayland requires the
 active `XDG_RUNTIME_DIR` and `WAYLAND_DISPLAY`. Audio is an explicit Pulse socket
 option, including PipeWire's Pulse compatibility service where present. The
@@ -122,15 +157,38 @@ server endpoint through the runtime workflow. Run `--docker` separately to
 check daemon/user permission; that check says nothing about display or GPU.
 Actual selected-renderer evidence and interactive gameplay remain required.
 
+A terminal can consume the result without interpreting shell text. For example,
+a separately owned runtime bootstrap script can run the probe with
+`subprocess.run([...], check=True, capture_output=True, text=True)`, decode its
+stdout with `json.loads`, then invoke `subprocess.run(["docker", "run",
+*result["docker_arguments"], ...], check=True)`. Include explicit owned name,
+read-only client payload, separate writable config, and pinned image arguments
+in that same array. Never use `eval`, `xhost +`, privileged mode, the Docker
+socket inside the client, or automatic selection of another user's display.
+
 ## Portable client export
 
 The public exporter runs in the exact published portable build environment,
 `ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1`.
-It is a build input, not a delivery coordinator. Its current full-commit consumer
+It is a build input, not a delivery coordinator. Before merge, the automatic
+`Linux portable acceptance` pull-request workflow is the supported actual
+producer route; the retained canonical container has no Docker bridge. Its
+`Portable client build and relocation` job is nonpublishing, limits the producer
+to two CPUs, and serializes heavy runs without cancelling another owner's run.
+The `linux-portable-HEAD_SHA` artifact retains the movable client, exact source
+and release identities, configure/compiler evidence and relocation results for
+seven days. Download and retain evidence needed for the delivery before expiry.
+The final runtime process has neither credentials nor original source/build
+mounts, and its network, display, GPU and audio endpoints are absent.
+
+Its current full-commit consumer
 guard requires Classic `4998131ad2ae4c9680685fd87e2d85de1dc15fd9`.
 Use a clean Classic profile with verified released sound matching its selected
 sound source commit, and a new absolute destination
-whose parent is owned by the invoking user and not writable by other users:
+whose parent is owned by the invoking user and not writable by other users.
+Create `classic-released-audio` with the exact v1.0.0 coordinates in the
+[released sound recipe](../README.md) before running these producer
+commands (the CI driver creates its own equivalent saved profile):
 
 ```sh
 mkdir -p "$HOME/.local/opt"
@@ -146,6 +204,18 @@ build cache, and retains the build lease through source revalidation and atomic
 publication. A failed operation preserves its private `.atrinik-export-*` staging
 for diagnosis and does not replace an existing output.
 
+The complete installed producer closure is bound to an independently reconstructed
+OCI overlay inventory: 299 regular files, including all eight upstream archives,
+222 Debian source archives, build recipes and notices. Three pinned aggregate
+SHA-256 values cover the producer tree, 145 Debian copyright paths and 14 common
+license texts. Each canonical JSON map uses sorted keys and compact separators;
+producer/common-license keys are relative paths and values are
+`sha256`, `size`, `executable`. Debian keys are requested absolute copyright paths
+and values additionally contain the resolved absolute path. Missing, extra,
+nonregular, changed or mode-different producer files reject publication; source
+copies must retain the exact checked inventory. Hashes change only with a newly
+qualified immutable producer, never to accept local corruption.
+
 The directory contains the client, materialized media, application libraries,
 OpenSSL provider, corresponding sources, producer recipes and notices. ELF
 inspection checks actual provider hashes, static dependencies, symbol/version
@@ -159,6 +229,96 @@ the output. Choose `ATRINIK_CONFIG_DIR` explicitly for isolated clients.
 `linux verify` checks exact bytes, modes and inventory after relocation; actual
 loader, media-decoding, connectivity and per-host qualification remain separate
 acceptance results. Hardware gameplay and audible playback need their own proof.
+
+## Independent headless server and native client
+
+Use an isolated server workspace and container, with no display/audio mounts or
+GPU device. Publish its chosen UDP port at container creation; attach/reconnect
+cannot add a Docker mapping. For a same-host desktop, the mapping is
+`--publish 127.0.0.1:17300:17300/udp`. A remote desktop requires an explicitly
+chosen reachable address and corresponding firewall rule. A localhost mapping
+must not be advertised as remotely reachable.
+
+The terminal bootstrap may create a private ignored configuration from the
+headless configuration before `devcontainer up`. In the already reserved fresh
+server workspace, set only the explicit port mapping:
+
+```sh
+python3 - <<'BOOTSTRAP'
+import json
+from pathlib import Path
+source = Path('.devcontainer/devcontainer.json')
+config = json.loads(source.read_text())
+config['runArgs'] = ['--publish', '127.0.0.1:17300:17300/udp']
+target = Path('build/linux-server-devcontainer.json')
+target.parent.mkdir(mode=0o700, exist_ok=True)
+with target.open('x') as stream:
+    json.dump(config, stream, indent=2)
+BOOTSTRAP
+devcontainer up --workspace-folder "$HOST_REPO" \
+  --config "$HOST_REPO/build/linux-server-devcontainer.json"
+```
+
+Complete the existing isolated Codex/cache/auth mount setup before bootstrap;
+this recipe does not permit sharing mutable session state. Preserve the exact
+returned container ID and prove its image, mounts and headless context before
+working inside it. An existing container keeps its creation settings and must
+not be replaced or remounted to apply this example.
+
+Inside that owned container, prepare and start only the server with registered
+persistent state. No client or audio device is needed:
+
+```sh
+./atrinik init classic-server content resources --jobs 2
+./atrinik state add linux-review
+./atrinik up --name linux-headless --profile classic \
+  --state linux-review --service server --port 17300
+./atrinik ps linux-headless --json
+./atrinik logs linux-headless server --tail 100
+```
+
+Wait for the exact topology's ready status. Hand off only `endpoint.port` and
+`endpoint.fingerprint` from its current `ps --json` result plus the reachable
+host address. The fingerprint is the 64-hex SHA-256 certificate identity; never
+copy the private QUIC key, supervisor control socket, account password or state
+files into a public artifact.
+
+Move and verify the client export on the desktop host. Use a private mutable
+configuration outside the export and pass the complete authenticated QUIC tuple
+as one argument:
+
+```sh
+install -d -m 700 "$HOME/.local/state/atrinik-client/linux-review"
+ATRINIK_CONFIG_DIR="$HOME/.local/state/atrinik-client/linux-review" \
+  /absolute/path/to/atrinik-client/atrinik \
+  --server="SERVER_HOST 17300 SERVER_FINGERPRINT" --stun_server=off --nometa
+```
+
+First exercise rejection using a separately recorded tuple with one fingerprint
+hex digit changed. It must fail authenticated connection without logging in.
+Then select the verified tuple, log in interactively and record the actual
+selected Vulkan device, gameplay, and audible sound separately. An image/font
+load, PCM decode, software renderer or silent audio sink cannot replace those
+hardware results. Do not send local scenario passwords into durable logs or
+handoff text.
+
+For persistence, create a player or make an observable gameplay change, stop the
+client, then stop the exact server through the wrapper:
+
+```sh
+./atrinik down linux-headless
+./atrinik ps linux-headless --json
+./atrinik up --name linux-headless --profile classic \
+  --state linux-review --service server --port 17300
+./atrinik ps linux-headless --json
+```
+
+Reconnect using the fresh endpoint result and verify the saved player/change.
+After final client shutdown, run `down` again and verify no live topology before
+stopping only the exact owned container. Do not signal saved PIDs, delete lease
+or control files, or use cleanup as shutdown. Keep the persistent state and
+verification evidence. Windows/WSLg, MXE and native Windows D3D12 results remain
+separate records.
 
 ## Portable binary evidence
 

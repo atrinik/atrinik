@@ -30,6 +30,14 @@ METADATA_HASHES = {
     "runtime-sources.json": "ac034c398016886d90d1f8d9601a61040bd760b9c8965c2f258818bf7fa3bf3d",
     "shader-generation.json": "24e04e4cccb84a1e374485c27d1fe250ed2aaf3033a05fa1219b13f77d406bf0",
 }
+# Complete final OCI overlay, independently reconstructed from every layer of
+# PLATFORM_MANIFEST. Canonical JSON is sorted with compact separators; source
+# records contain relative path -> sha256/size/executable. This pins omitted
+# archives/recipes/notices as well as bytes, without a caller-supplied override.
+PRODUCER_FILES_SHA256 = 'da6ee7e46cfb5b254a4811adf65a6056719114a8755f65db3605c2802c9cfc52'
+DEBIAN_NOTICES_SHA256 = '6670f1afe9d1face038ae959386c3f264a4b3f05328c493579ea359a8cd2f4e5'
+COMMON_LICENSES_SHA256 = 'cfe52936825faa1cd66a4b17ed41051f5c777c5035c8206eaad4db5b730f2bfd'
+COMMON_LICENSE_NAMES = ('Apache-2.0', 'Artistic', 'BSD', 'CC0-1.0', 'GFDL-1.2', 'GFDL-1.3', 'GPL-1', 'GPL-2', 'GPL-3', 'LGPL-2', 'LGPL-2.1', 'LGPL-3', 'MPL-1.1', 'MPL-2.0')
 # Use the host's glibc/loader so its graphics-driver modules can load against
 # their matching system libc. Application libraries and plugins are bundled.
 HOST_GLIBC = frozenset({"libc.so.6", "libm.so.6", "libpthread.so.0", "libdl.so.2",
@@ -300,13 +308,16 @@ def add_regular_tree(publication: Publication, source: Path, destination: str,
     try:
         files, identities = export._inventory(descriptor)
         copied = {}
+        if expected is not None and set(files) != set(expected):
+            raise export.ExportError("portable-source: source proof inventory differs from payload")
         for name in sorted(files):
             payload = export._open_beneath(descriptor, name)
             try:
                 record = byte_record(payload)
                 if expected is not None and (name not in expected or
                         record["sha256"] != expected[name]["sha256"] or
-                        record["size"] != expected[name]["size"]):
+                        record["size"] != expected[name]["size"] or
+                        record["executable"] != expected[name]["executable"]):
                     raise export.ExportError("portable-source: source proof disagrees with payload")
                 publication.add(destination + "/" + name, payload, record, notice=notice)
                 copied[name] = record
@@ -317,6 +328,15 @@ def add_regular_tree(publication: Publication, source: Path, destination: str,
         return copied
     finally:
         os.close(descriptor)
+
+
+def portable_executable(descriptor: int) -> dict:
+    facts = export.inspect_elf(descriptor)
+    if (facts["type"] not in {"EXEC", "DYN"} or facts["soname"] is not None or
+            facts["interpreter"] != "/lib64/ld-linux-x86-64.so.2" or
+            not byte_record(descriptor)["executable"]):
+        raise export.ExportError("portable-runtime: executable requires the supported host loader and executable mode")
+    return facts
 
 
 def add_runtime(publication: Publication, documents: dict, binary: Path) -> dict:
@@ -353,7 +373,7 @@ def add_runtime(publication: Publication, documents: dict, binary: Path) -> dict
         stack.callback(os.close, source)
         client = export._open_beneath(source, binary.name)
         stack.callback(os.close, client)
-        inspected["bin/atrinik"] = export.inspect_elf(client)
+        inspected["bin/atrinik"] = portable_executable(client)
         publication.add("bin/atrinik", client, byte_record(client))
         # Check all version providers against their actual hashed ELF bytes,
         # including the glibc baseline. Runtime still uses the host glibc.
@@ -387,8 +407,58 @@ def add_runtime(publication: Publication, documents: dict, binary: Path) -> dict
             "hardware_gameplay_verified": False, "audible_playback_verified": False}
 
 
+def inventory_digest(records: dict) -> str:
+    return hashlib.sha256(json.dumps(records, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def verified_tree_inventory(source: Path, expected_digest: str) -> dict:
+    descriptor = export._open_root(source)
+    try:
+        files, identities = export._inventory(descriptor)
+        records = {}
+        for name in sorted(files):
+            payload = export._open_beneath(descriptor, name)
+            try:
+                records[name] = byte_record(payload)
+            finally:
+                os.close(payload)
+        if export._inventory(descriptor) != (files, identities):
+            raise export.ExportError("portable-legal: source inventory changed")
+        if inventory_digest(records) != expected_digest:
+            raise export.ExportError("portable-legal: complete producer/source/notice inventory mismatch")
+        return records
+    finally:
+        os.close(descriptor)
+
+
+def verified_debian_notices(documents: dict) -> dict:
+    source_packages = documents["runtime-sources.json"]["source_packages"]
+    records = {}
+    for row in documents["debian-sources.json"]:
+        if row["source"] not in source_packages:
+            continue
+        requested = Path(row["notice_directory"]) / "copyright"
+        resolved = requested.resolve(strict=True)
+        if not resolved.is_relative_to("/usr/share/doc"):
+            raise export.ExportError("portable-legal: Debian notice escapes its boundary")
+        parent = export._open_root(resolved.parent)
+        try:
+            descriptor = export._open_beneath(parent, resolved.name)
+            try:
+                records[str(requested)] = {**byte_record(descriptor), "resolved_path": str(resolved)}
+            finally:
+                os.close(descriptor)
+        finally:
+            os.close(parent)
+    if inventory_digest(records) != DEBIAN_NOTICES_SHA256:
+        raise export.ExportError("portable-legal: complete Debian copyright inventory mismatch")
+    return records
+
+
 def add_corresponding_sources(publication: Publication, documents: dict) -> dict:
     root = Path("/opt/atrinik-portable")
+    producer_files = verified_tree_inventory(root, PRODUCER_FILES_SHA256)
+    notices = verified_debian_notices(documents)
     archives = documents["runtime-sources.json"]["archives"]
     for name, digest in archives.items():
         publication.add_path("sources/debian/" + name, root / "sources/debian" / name,
@@ -400,7 +470,7 @@ def add_corresponding_sources(publication: Publication, documents: dict) -> dict
                              {"sha256": source["sha256"]})
     # Retain the complete producer recipes, licenses, source inputs and audio
     # toolchain archives as installed, with exact output inventory hashes.
-    remaining = add_regular_tree(publication, root, "sources/portable-producer")
+    remaining = add_regular_tree(publication, root, "sources/portable-producer", expected=producer_files)
     if not any(name.startswith("notices/") for name in remaining):
         raise export.ExportError("portable-legal: producer notices missing")
     for name in remaining:
@@ -410,16 +480,30 @@ def add_corresponding_sources(publication: Publication, documents: dict) -> dict
     for row in documents["debian-sources.json"]:
         if row["source"] not in source_packages:
             continue
-        # Debian documentation may use package aliases. Resolve only inside the
-        # system documentation boundary, then copy regular materialized bytes.
-        source = Path(row["notice_directory"]).resolve(strict=True)
-        if not source.is_relative_to("/usr/share/doc"):
-            raise export.ExportError("portable-legal: Debian notice escapes its boundary")
-        copyright_file = source / "copyright"
+        requested = str(Path(row["notice_directory"]) / "copyright")
+        record = notices[requested]
         publication.add_path("licenses/debian/" + row["package"].replace(":", "_") + "/copyright",
-                             copyright_file, notice=True)
+                             Path(record["resolved_path"]), record, notice=True)
+    common_records = {}
+    for name in COMMON_LICENSE_NAMES:
+        path = Path("/usr/share/common-licenses") / name
+        parent = export._open_root(path.parent)
+        try:
+            descriptor = export._open_beneath(parent, name)
+            try:
+                common_records[name] = byte_record(descriptor)
+                publication.add("licenses/common/" + name, descriptor, common_records[name], notice=True)
+            finally:
+                os.close(descriptor)
+        finally:
+            os.close(parent)
+    if inventory_digest(common_records) != COMMON_LICENSES_SHA256:
+        raise export.ExportError("portable-legal: complete common-license inventory mismatch")
     return {"debian_source_packages": len(source_packages), "debian_archives": len(archives),
-            "producer_files": len(remaining), "sources_and_notices_materialized": True}
+            "producer_files": len(remaining), "producer_inventory_sha256": PRODUCER_FILES_SHA256,
+            "debian_notices_sha256": DEBIAN_NOTICES_SHA256,
+            "common_licenses_sha256": COMMON_LICENSES_SHA256,
+            "sources_and_notices_materialized": True}
 
 
 def export_client(workspace, profile_name: str, destination: Path) -> dict:
