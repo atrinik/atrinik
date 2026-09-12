@@ -29,7 +29,41 @@ ROOT = Path(__file__).resolve().parents[1]
 LINK = re.compile(r"\[[^]]+\]\(([^)]+)\)")
 
 
+def read_guidance_contract(path: Path) -> str:
+    """Read an entry and its explicitly linked issue-delivery contract sections."""
+    text = path.read_text(encoding="utf-8")
+    if path == ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md":
+        for name in ("preparation.md", "runtime-verification.md"):
+            relative = f"references/{name}"
+            if relative not in LINK.findall(text):
+                raise AssertionError(f"issue delivery must link {relative}")
+            reference = (path.parent / relative).read_text(encoding="utf-8")
+            text = text.replace(f"]({relative})", f"]({relative})\n{reference}\n", 1)
+    return text
+
+
 class AgentGuidanceTests(unittest.TestCase):
+    def test_same_head_reconnect_uses_public_neutral_proof(self) -> None:
+        issue = ROOT / ".agents/skills/atrinik-issue-delivery"
+        project = ROOT / ".agents/skills/atrinik-project-delivery"
+        for path in (
+            issue / "SKILL.md", issue / "references/preparation.md",
+            issue / "references/delivery-ledger.md",
+            project / "SKILL.md", project / "references/coordinator.md",
+        ):
+            with self.subTest(path=path):
+                self.assertIn("revalidate-current-targets-cas", path.read_text())
+        protocol = (issue / "references/delivery-ledger.md").read_text()
+        self.assertIn("--expected-generation GENERATION --expected-digest SHA256", protocol)
+        self.assertNotIn("--expected-inode", protocol)
+        self.assertIn("original generation/digest pair", protocol)
+        self.assertIn("fresh actor and every target", protocol)
+        self.assertIn("unmerged candidate helper", protocol)
+        command_section = protocol.split("## Use the command surface", 1)[1].split("## ", 1)[0]
+        self.assertIn("revalidate-current-targets-cas REVIEW_ROOT LEDGER_NAME", command_section)
+        self.assertIn("[Revalidate every unchanged current target]", protocol)
+
+
     def test_current_provenance_registry_is_complete(self) -> None:
         registry = " ".join(
             (ROOT / "docs/PROVENANCE.md").read_text(encoding="utf-8").split()
@@ -179,7 +213,6 @@ class AgentGuidanceTests(unittest.TestCase):
                         skill_frontmatter(path)
 
     def test_tooling_ledger_is_optional_ignored_and_secret_safe(self) -> None:
-        self.assertEqual(validate_tooling_ledger(ROOT), [])
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             subprocess.run(
@@ -335,13 +368,32 @@ class AgentGuidanceTests(unittest.TestCase):
                 ['build/agent-tooling-issues.md is not ignored'],
             )
 
-    def test_tooling_ledger_failure_is_reported(self) -> None:
+    def test_optional_ledger_diagnostics_do_not_fail_guidance_check(self) -> None:
         stderr = io.StringIO()
         with mock.patch.object(
-            guidance_inventory, 'validate_tooling_ledger', return_value=['ledger failure']
+            guidance_inventory, "validate_tooling_ledger", return_value=["ledger failure"]
+        ), mock.patch.object(
+            guidance_inventory, "validate_process_improvement_ledger",
+            return_value=["invalid process ledger"],
         ), redirect_stdout(io.StringIO()), redirect_stderr(stderr):
-            self.assertEqual(main(['--check']), 1)
-        self.assertIn('guidance tooling ledger failed: ledger failure', stderr.getvalue())
+            self.assertEqual(main(["--check", "--diagnose-ledgers"]), 0)
+        self.assertIn("guidance tooling ledger diagnostic: ledger failure", stderr.getvalue())
+        self.assertIn("guidance process ledger diagnostic: invalid process ledger", stderr.getvalue())
+
+    def test_optional_ledger_inspection_errors_are_nonblocking_and_redacted(self) -> None:
+        for exception in (OSError, UnicodeError, ValueError, subprocess.TimeoutExpired):
+            with self.subTest(exception=exception.__name__):
+                error = (exception("private detail", 5) if exception is subprocess.TimeoutExpired
+                         else exception("private detail"))
+                stderr = io.StringIO()
+                with mock.patch.object(
+                    guidance_inventory, "validate_tooling_ledger", side_effect=error
+                ), mock.patch.object(
+                    guidance_inventory, "validate_process_improvement_ledger", side_effect=error
+                ), redirect_stdout(io.StringIO()), redirect_stderr(stderr):
+                    self.assertEqual(main(["--check", "--diagnose-ledgers"]), 0)
+                self.assertEqual(stderr.getvalue().count("could not inspect optional ledger"), 2)
+                self.assertNotIn("private detail", stderr.getvalue())
 
     def test_inventory_requires_the_workspace_skill(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -560,16 +612,18 @@ class AgentGuidanceTests(unittest.TestCase):
                     " ".join(validate_process_improvement_ledger(root / "symlink")),
                 )
 
-    def test_process_improvement_inventory_fails_closed_and_script_entrypoint_runs(
-        self,
-    ) -> None:
+    def test_inventory_skips_optional_ledgers_and_script_entrypoint_runs(self) -> None:
         with mock.patch.object(
-            guidance_inventory,
-            "validate_process_improvement_ledger",
-            return_value=["invalid process ledger"],
-        ):
-            with self.assertRaisesRegex(ValueError, "invalid process ledger"):
-                collect_inventory()
+            guidance_inventory, "validate_process_improvement_ledger",
+            side_effect=AssertionError("optional process ledger was inspected"),
+        ) as process_validator, mock.patch.object(
+            guidance_inventory, "validate_tooling_ledger",
+            side_effect=AssertionError("optional tooling ledger was inspected"),
+        ) as tooling_validator, redirect_stdout(io.StringIO()):
+            collect_inventory()
+            self.assertEqual(main(["--check"]), 0)
+            process_validator.assert_not_called()
+            tooling_validator.assert_not_called()
 
         with self.assertRaises(SystemExit) as exit_info:
             with mock.patch.object(sys, "argv", ["guidance_inventory.py"]):
@@ -579,6 +633,18 @@ class AgentGuidanceTests(unittest.TestCase):
                         run_name="__main__",
                     )
         self.assertEqual(exit_info.exception.code, 0)
+
+    def test_inaccessible_optional_ledger_metadata_does_not_fail_check(self) -> None:
+        path = mock.Mock()
+        path.exists.side_effect = PermissionError("private path detail")
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with mock.patch.object(
+            guidance_inventory, "process_improvement_ledger_path", return_value=path
+        ), redirect_stdout(stdout), redirect_stderr(stderr):
+            self.assertEqual(main(["--check", "--json"]), 0)
+        self.assertIsNone(json.loads(stdout.getvalue())["process_improvements"]["present"])
+        self.assertEqual(stderr.getvalue(), "")
 
     def test_command_output_and_failures(self) -> None:
         stdout = io.StringIO()
@@ -615,28 +681,17 @@ class AgentGuidanceTests(unittest.TestCase):
             "guidance inventory failed: invalid guidance", stderr.getvalue()
         )
 
-    def test_process_improvement_contract_is_guided(self) -> None:
-        guidance = [
-            (ROOT / "AGENTS.md").read_text(encoding="utf-8"),
-            (
-                ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md"
-            ).read_text(encoding="utf-8"),
-        ]
-        normalized = [" ".join(text.split()) for text in guidance]
-        for text in normalized:
-            self.assertIn("build/agent-process-improvements.md", text)
-            self.assertIn("Process improvements added: none", text)
-            self.assertIn("./atrinik agent-ledger update", text)
-            self.assertIn("never manually edit", text)
-            self.assertIn("separate filesystems", text)
-        self.assertIn(
-            "before repository or expensive build/package/runtime/remote-mutation",
-            normalized[0].lower(),
-        )
-        self.assertIn(
-            "before repository work or expensive build/package/runtime/remote-mutation",
-            normalized[1].lower(),
-        )
+    def test_optional_process_diagnostics_are_guided(self) -> None:
+        for path in (
+            ROOT / "AGENTS.md",
+            ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md",
+        ):
+            with self.subTest(path=path):
+                text = " ".join(path.read_text(encoding="utf-8").split()).lower()
+                self.assertRegex(text, r"optional|discretionary")
+                self.assertIn("./atrinik agent-ledger update", text)
+                self.assertNotIn("process improvements added: none", text)
+                self.assertNotIn("tooling issues: none", text)
 
     def test_codex_entry_modes_are_explicit_and_vscode_is_human_only(self) -> None:
         paths = [
@@ -646,7 +701,7 @@ class AgentGuidanceTests(unittest.TestCase):
             ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md",
         ]
         guidance = {
-            path: path.read_text(encoding="utf-8") for path in paths
+            path: read_guidance_contract(path) for path in paths
         }
 
         for path in paths:
@@ -713,9 +768,7 @@ class AgentGuidanceTests(unittest.TestCase):
         architecture = (
             ROOT / "docs/ARCHITECTURE.md"
         ).read_text(encoding="utf-8")
-        delivery = (
-            ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
-        ).read_text(encoding="utf-8")
+        delivery = read_guidance_contract(ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md")
         workspace = (
             ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md"
         ).read_text(encoding="utf-8")
@@ -837,11 +890,13 @@ class AgentGuidanceTests(unittest.TestCase):
                 "references/delivery-ledger.md",
                 "references/deep-review-checklist.md",
                 "references/tooling-issues.md",
+                "references/preparation.md",
+                "references/runtime-verification.md",
                 "scripts/delivery_ledger.py",
             },
         )
 
-        body = (skill / "SKILL.md").read_text(encoding="utf-8")
+        body = read_guidance_contract(skill / "SKILL.md")
         interface = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
         report = (skill / "assets/deep-review-report.md").read_text(
             encoding="utf-8"
@@ -982,7 +1037,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "inventory REVIEW_ROOT",
             "create REVIEW_ROOT INPUT",
             "--expected-generation GENERATION",
-            "--expected-inode INODE",
+            "--expected-digest SHA256",
             "candidate-digest-named stage and no-clobber publication",
             "exclusive no-follow root lock",
             "persistent per-ledger lock",
@@ -999,7 +1054,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "null `create_output` and null producer `result_sha256`",
             "Every fresh planned worktree has null immutable path",
             "Generic `cas` cannot perform any part of an initial deferred",
-            "fresh current tuple cannot treat that receipt",
+            "fresh current generation/digest pair cannot treat that receipt",
             "complete importable `atrinik_workspace` source/bytecode tree",
             "executes only retained `.py` snapshot bytes",
             "fingerprint-specific private package name",
@@ -1008,7 +1063,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "legal live-observation CAS may refresh a bound artifact's safety",
             "git push origin HEAD_BRANCH",
             "On both primary and worktree checkouts",
-            "profile file's exact retained digest/device/inode",
+            "profile file's exact retained digest and canonical path",
             "creation journal is deliberately non-authoritative",
             "issue-mode and mode-less names reserve",
             "precommitted deferred primitive/scope managed paths",
@@ -1019,11 +1074,12 @@ class AgentGuidanceTests(unittest.TestCase):
             with self.subTest(ledger_contract=contract):
                 self.assertIn(contract, normalized_ledger)
 
-        self.assertIn("references/delivery-ledger.md", body)
+        self.assertIn("delivery-ledger.md", LINK.findall(
+            (skill / "references/preparation.md").read_text(encoding="utf-8")
+        ))
         self.assertIn("references/deep-review-checklist.md", body)
         self.assertIn("assets/deep-review-report.md", body)
         for marker in {
-            'Tooling issues: none',
             'build/agent-tooling-issues.md',
             './atrinik agent-ledger update',
             'build/.agent-ledgers.lock',
@@ -1034,7 +1090,9 @@ class AgentGuidanceTests(unittest.TestCase):
             'same mechanism and remediation recur',
             'materially different',
             'never commit, publish',
-            'does not require local ledger bytes',
+            'Normal guidance checks do not inspect optional local diagnostic state',
+            '--diagnose-ledgers',
+            'findings never change',
         }:
             with self.subTest(tooling_marker=marker):
                 self.assertIn(marker, normalized_tooling)
@@ -1142,7 +1200,7 @@ class AgentGuidanceTests(unittest.TestCase):
     def test_issue_delivery_legacy_report_recovery_is_fail_closed(self) -> None:
         skill = ROOT / ".agents/skills/atrinik-issue-delivery"
         body = " ".join(
-            (skill / "SKILL.md").read_text(encoding="utf-8").split()
+            read_guidance_contract(skill / "SKILL.md").split()
         )
         report = (skill / "assets/deep-review-report.md").read_text(
             encoding="utf-8"
@@ -1188,7 +1246,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "The helper, not Markdown, is the ownership and recovery boundary",
             "`inventory` first validates every recognized canonical ledger",
             "candidate-digest-named stage and no-clobber publication",
-            "generation/digest/device/inode again immediately before",
+            "generation/digest again immediately before",
             "Every operation inventories under an exclusive no-follow root lock",
             "Mutations also use a persistent per-ledger lock",
             "Legacy migration is issue-mode only",
@@ -1205,7 +1263,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "permanently retains canonical predecessor",
             "recorded merge base equals a fresh `git merge-base` result",
             "RECOVERY_AUTHORITY_JSON",
-            "exact installed erroneous ledger inode",
+            "hard-link receipt for the exact installed erroneous ledger",
             "`git cat-file --batch-check`",
             "history retains the correction digest",
         }:
@@ -1260,9 +1318,7 @@ class AgentGuidanceTests(unittest.TestCase):
         )
         delivery_root = ROOT / ".agents/skills/atrinik-issue-delivery"
         delivery = " ".join(
-            (delivery_root / "SKILL.md").read_text(
-                encoding="utf-8"
-            ).split()
+            read_guidance_contract(delivery_root / "SKILL.md").split()
         )
         report = (delivery_root / "assets/deep-review-report.md").read_text(
             encoding="utf-8"
@@ -1331,7 +1387,7 @@ class AgentGuidanceTests(unittest.TestCase):
             },
         )
 
-        body = (skill / "SKILL.md").read_text(encoding="utf-8")
+        body = read_guidance_contract(skill / "SKILL.md")
         interface = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
         report = (skill / "assets/program-delivery-report.md").read_text(
             encoding="utf-8"
@@ -1407,9 +1463,7 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("**Atrinik work**", body)
         self.assertIn("Prove the destination is ignored", normalized_body)
 
-        leaf_delivery = (
-            ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
-        ).read_text(encoding="utf-8")
+        leaf_delivery = read_guidance_contract(ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md")
         self.assertIn(
             "delegates only issue mode to ready live children",
             " ".join(leaf_delivery.split()),
@@ -1462,7 +1516,7 @@ class AgentGuidanceTests(unittest.TestCase):
     def test_program_master_publication_ledger_is_fail_closed(self) -> None:
         skill = ROOT / ".agents/skills/atrinik-program-delivery"
         body = " ".join(
-            (skill / "SKILL.md").read_text(encoding="utf-8").split()
+            read_guidance_contract(skill / "SKILL.md").split()
         )
         ledger = " ".join(
             (skill / "references/master-publication-ledger.md")
@@ -1488,7 +1542,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "<coordinate-sha256>.publication.lock",
             "goal-specific locks are forbidden",
             "Path replacement stops the writer",
-            "lock on the replaceable JSON inode is invalid",
+            "lock on the replaceable JSON path is invalid",
             "schema_version: 1",
             "goal_thread_id",
             "exact UTF-8 objective returned by the goal API",
@@ -1498,7 +1552,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "json.dumps(value, ensure_ascii=False",
             "<!-- atrinik-program-delivery:v1 sha256=<64 lowercase hex> -->",
             "final line of `intended_body`",
-            "record its fstat device/inode as `self`",
+            "record the canonical destination path as `self`",
             "at most 100 pages",
             "16 MiB total body bytes",
             "incomplete pagination and stops",
@@ -1543,7 +1597,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "## Leaf ledger composition",
             "Final master-comment generation / node / body digests:",
             "never authorizes publication",
-            "Stable lock path / device / inode:",
+            "Stable lock canonical path:",
             "Current / next authority and graph-rekey phase:",
             "Child create phase / intent digest / issue number / node / URL:",
             "Native link phase / intent digest / parent-child proof digest:",
@@ -1551,7 +1605,7 @@ class AgentGuidanceTests(unittest.TestCase):
             self.assertIn(marker, report)
         for marker in {
             "Master publication recovery",
-            "generation/digest/inode CAS",
+            "generation/digest CAS",
             "complete bounded comment pagination",
             "accepted-but-not-yet-visible result",
             "ledger/report loss",
@@ -1653,7 +1707,7 @@ class AgentGuidanceTests(unittest.TestCase):
             },
         )
 
-        body = (skill / "SKILL.md").read_text(encoding="utf-8")
+        body = read_guidance_contract(skill / "SKILL.md")
         interface = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
         reference = (
             skill / "references/pr-stack-review-and-merge.md"
@@ -1794,9 +1848,7 @@ class AgentGuidanceTests(unittest.TestCase):
             normalized,
         )
         self.assertIn("Keep that evidence in memory and the response", normalized)
-        issue_delivery = (
-            ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
-        ).read_text(encoding="utf-8")
+        issue_delivery = read_guidance_contract(ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md")
         program_delivery = (
             ROOT / ".agents/skills/atrinik-program-delivery/SKILL.md"
         ).read_text(encoding="utf-8")

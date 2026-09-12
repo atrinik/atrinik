@@ -208,9 +208,9 @@ def scope_request(
 ) -> dict[str, object]:
     if roots is None:
         roots = {
-            "wrapper": {"path": "/wrapper", "device": 1, "inode": 1},
-            "workspace": {"path": "/workspace-data", "device": 1, "inode": 2},
-            "primary": {"path": f"/wrapper/{checkout}", "device": 1, "inode": 3},
+            "wrapper": {"path": "/wrapper"},
+            "workspace": {"path": "/workspace-data"},
+            "primary": {"path": f"/wrapper/{checkout}"},
         }
     return {
         "name": name,
@@ -320,16 +320,12 @@ def scope_show_bytes(
         "path": worktree_path,
         "primary_path": request["roots"]["primary"]["path"],
         "common_git_dir": f"{request['roots']['primary']['path']}/.git",
-        "path_device": worktree_status.st_dev,
-        "path_inode": worktree_status.st_ino,
         "created_by_scope": True,
     }
     profile = {
         "name": profile_name,
         "path": profile_path,
         "sha256": ledger.byte_digest(profile_raw),
-        "path_device": profile_status.st_dev,
-        "path_inode": profile_status.st_ino,
         "immutable": True,
     }
     topology = {"name": topology_name, "path": topology_path}
@@ -475,8 +471,7 @@ def live_roots(
     return {
         name: {
             "path": str(path),
-            "device": path.stat().st_dev,
-            "inode": path.stat().st_ino,
+
         }
         for name, path in (
             ("wrapper", wrapper),
@@ -672,8 +667,7 @@ def linked_wrapper_roots(base: Path) -> dict[str, object]:
     return {
         name: {
             "path": str(path),
-            "device": path.stat().st_dev,
-            "inode": path.stat().st_ino,
+
         }
         for name, path in (
             ("wrapper", wrapper),
@@ -817,8 +811,6 @@ def safety_observation_bytes(
         "physical_checkout": request["physical_checkout"],
         "roots": request["roots"],
         "path": str(path),
-        "path_device": path.stat().st_dev,
-        "path_inode": path.stat().st_ino,
         "branch": request["branch"],
         "head_sha": request.get("expected_head_sha", request.get("start_sha")),
         "worktree_list_sha256": ledger.byte_digest(worktree_list),
@@ -1153,9 +1145,9 @@ def issue_ledger(
             "branch": branch,
             "expected_head_sha": SHA_A,
             "roots": {
-                "wrapper": {"path": "/wrapper", "device": 1, "inode": 1},
-                "workspace": {"path": "/workspace", "device": 1, "inode": 2},
-                "primary": {"path": "/wrapper", "device": 1, "inode": 1},
+                "wrapper": {"path": "/wrapper"},
+                "workspace": {"path": "/workspace"},
+                "primary": {"path": "/wrapper"},
             },
         }
     return document
@@ -1287,9 +1279,9 @@ def pr_ledger(
             "branch": branch,
             "expected_head_sha": SHA_A,
             "roots": {
-                "wrapper": {"path": "/wrapper", "device": 1, "inode": 1},
-                "workspace": {"path": "/workspace", "device": 1, "inode": 2},
-                "primary": {"path": "/wrapper", "device": 1, "inode": 1},
+                "wrapper": {"path": "/wrapper"},
+                "workspace": {"path": "/workspace"},
+                "primary": {"path": "/wrapper"},
             },
         }
     return document
@@ -1574,9 +1566,9 @@ def multi_target_issue_ledger() -> dict[str, object]:
         "branch": content_branch,
         "expected_head_sha": SHA_A,
         "roots": {
-            "wrapper": {"path": "/wrapper", "device": 1, "inode": 1},
-            "workspace": {"path": "/workspace", "device": 1, "inode": 2},
-            "primary": {"path": "/wrapper/content", "device": 1, "inode": 3},
+            "wrapper": {"path": "/wrapper"},
+            "workspace": {"path": "/workspace"},
+            "primary": {"path": "/wrapper/content"},
         },
     }
     document["artifacts"] = sorted(
@@ -1707,8 +1699,7 @@ def identity_recovery_material(
         "ledger_id": snapshot.document["ledger_id"],
         "generation": snapshot.document["generation"],
         "sha256": snapshot.digest,
-        "device": snapshot.device,
-        "inode": snapshot.inode,
+        "path": snapshot.path,
     }
     targets_sha256 = ledger.canonical_object_digest(snapshot.document["targets"])
     artifacts_sha256 = ledger.canonical_object_digest(snapshot.document["artifacts"])
@@ -1779,8 +1770,7 @@ def cas_arguments(snapshot: object) -> dict[str, object]:
     return {
         "expected_generation": snapshot.document["generation"],
         "expected_digest": snapshot.digest,
-        "expected_device": snapshot.device,
-        "expected_inode": snapshot.inode,
+        "expected_path": snapshot.path,
     }
 
 
@@ -1798,8 +1788,7 @@ def historical_target_cas(
         ledger.canonical_bytes(prepared),
         snapshot.document["generation"],
         snapshot.digest,
-        snapshot.device,
-        snapshot.inode,
+        snapshot.path,
     )
     return ledger.cas(
         root,
@@ -1853,8 +1842,7 @@ def head_correction_recovery(
         "installed": {
             "generation": document["generation"],
             "sha256": erroneous.digest,
-            "device": erroneous.device,
-            "inode": erroneous.inode,
+            "path": erroneous.path,
         },
         "predecessor_sha256": predecessor.digest,
         "repository": copy.deepcopy(target["repository"]),
@@ -2014,8 +2002,7 @@ def cas_issue_created_pr(
         after_raw,
         snapshot.document["generation"],
         snapshot.digest,
-        snapshot.device,
-        snapshot.inode,
+        snapshot.path,
     )
     return ledger.cas(
         root,
@@ -2081,7 +2068,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         second = live_roots(self.live_base / "seed-independent-b", "atrinik")
         first_wrapper = Path(first["wrapper"]["path"])
         second_wrapper = Path(second["wrapper"]["path"])
-        self.assertNotEqual(first_wrapper.stat().st_ino, second_wrapper.stat().st_ino)
+        self.assertNotEqual(first_wrapper, second_wrapper)
         self.assertEqual(git_head(first), git_head(second))
 
         (first_wrapper / "scenario-only.txt").write_text("first\n", encoding="utf-8")
@@ -2134,7 +2121,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(created.raw, ledger.canonical_bytes(document))
             self.assertEqual(ledger.create(root, document).digest, created.digest)
             inspected = ledger.inspect(root, created.name)
-            self.assertEqual((inspected.device, inspected.inode), (created.device, created.inode))
+            self.assertEqual(inspected.path, created.path)
             inventory = ledger.inventory(root)
             self.assertEqual([item.name for item in inventory.ledgers], [created.name])
             self.assertEqual(inventory.pending, ())
@@ -2156,7 +2143,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertEqual(resumed.document, document)
                 self.assertEqual(ledger.inventory(root).pending, ())
 
-    def test_04_cas_kill_points_stale_writers_and_inode_rechecks(self) -> None:
+    def test_04_cas_kill_points_stale_writers_and_path_rechecks(self) -> None:
         for failpoint in (
             "cas:staged",
             "cas:proofed",
@@ -2170,8 +2157,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 arguments = {
                     "expected_generation": initial.document["generation"],
                     "expected_digest": initial.digest,
-                    "expected_device": initial.device,
-                    "expected_inode": initial.inode,
+                    "expected_path": initial.path,
                 }
                 with self.assertRaises(ledger.InjectedCrash):
                     ledger.cas(
@@ -2182,15 +2168,14 @@ class DeliveryLedgerTests(unittest.TestCase):
                         **arguments,
                     )
                 if failpoint == "cas:renamed":
-                    with self.assertRaisesRegex(ledger.LedgerError, "proof|stale|tuple"):
+                    with self.assertRaisesRegex(ledger.LedgerError, "proof|stale|tuple|pending"):
                         ledger.cas(
                             root,
                             initial.name,
                             update,
                             **{
                                 **arguments,
-                                "expected_device": initial.device + 1,
-                                "expected_inode": initial.inode + 1,
+                                "expected_path": str(root / "other.md.ledger.json"),
                             },
                         )
                 current = ledger.cas(root, initial.name, update, **arguments)
@@ -2204,8 +2189,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                         other,
                         expected_generation=1,
                         expected_digest="0" * 64,
-                        expected_device=initial.device,
-                        expected_inode=initial.inode,
+                        expected_path=initial.path,
                     )
 
     def test_05_same_and_different_coordinate_concurrent_cli_writers(self) -> None:
@@ -3136,7 +3120,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(created.document["authority"]["allowed"]["issues"], [])
 
         # 7. A fork head or missing authenticated push authority is rejected
-        # before a ledger, lock, or staging inode appears.
+        # before a ledger, lock, or staging file appears.
         foreign = pr_ledger(
             426,
             pr_node="P_foreign",
@@ -3462,10 +3446,8 @@ class DeliveryLedgerTests(unittest.TestCase):
                             "1",
                             "--expected-digest",
                             initial.digest,
-                            "--expected-device",
-                            str(initial.device),
-                            "--expected-inode",
-                            str(initial.inode),
+                            "--expected-path",
+                            initial.path,
                         ],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
@@ -4123,7 +4105,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             initialized = ledger.init_root(wrapper)
             review_root = wrapper / "build/reviews"
             self.assertEqual(initialized["root"], str(review_root))
-            self.assertEqual(ledger.init_root(wrapper)["inode"], initialized["inode"])
+            self.assertEqual(ledger.init_root(wrapper)["root"], initialized["root"])
             os.chmod(review_root, 0o777)
             with self.assertRaisesRegex(ledger.LedgerError, "writable|trusted"):
                 ledger.inventory(review_root)
@@ -4397,8 +4379,8 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertEqual(receipt["expected_generation"], created.document["generation"])
                 self.assertEqual(receipt["predecessor_sha256"], created.digest)
                 self.assertEqual(
-                    receipt["device"],
-                    ledger._portable_file_device_from_inode(created.inode),
+                    receipt["path"],
+                    created.path,
                 )
                 self.assertEqual(
                     receipt["candidate_sha256"], ledger.byte_digest(ledger.canonical_bytes(candidate))
@@ -4522,7 +4504,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             )
             original = receipt_path.read_bytes()
             tampered = json.loads(original)
-            tampered["device"] += 1
+            tampered["path"] = str(root / "other.md.ledger.json")
             receipt_path.write_bytes(ledger.canonical_bytes(tampered))
             with self.assertRaisesRegex(ledger.LedgerError, "receipt"):
                 ledger.inventory(root)
@@ -4532,8 +4514,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                     root,
                     created.name,
                     candidate,
-                    expected_device=created.device + 1,
-                    expected_inode=created.inode,
+                    expected_path=str(root / "other.md.ledger.json"),
                     expected_generation=created.document["generation"],
                     expected_digest=created.digest,
                 )
@@ -4586,17 +4567,16 @@ class DeliveryLedgerTests(unittest.TestCase):
             "predecessor_sha256": "a" * 64,
             "candidate_sha256": "b" * 64,
             "candidate_size": 1,
-            "device": 1,
-            "inode": 2,
+            "path": str(Path("target.md.ledger.json").absolute()),
         }
         self.assertNotEqual(
             ledger._update_transaction_marker(operation="", **identity),
             ledger._update_transaction_marker(operation="-refresh-target", **identity),
         )
-        self.assertEqual(
+        self.assertNotEqual(
             ledger._update_transaction_marker(operation="", **identity),
             ledger._update_transaction_marker(
-                operation="", **{**identity, "device": identity["device"] + 1}
+                operation="", **{**identity, "path": identity["path"] + "-other"}
             ),
         )
 
@@ -5017,12 +4997,31 @@ class DeliveryLedgerTests(unittest.TestCase):
                 worktree_slot["primitive_request"]["expected_head_sha"] = live_head
             return value
 
-        def install_bound(root: Path, live_base: Path) -> tuple[dict[str, object], object]:
+        def install_bound(
+            root: Path, live_base: Path, *, peer: bool = False
+        ) -> tuple[dict[str, object], object]:
             roots = live_roots(live_base, "atrinik")
             value = document(roots)
+            if peer:
+                peer_roots = live_roots(live_base / "peer", "classic")
+                companion = document(peer_roots)
+                retarget_repository(companion, repository("classic", "R_classic"))
+                for slot in companion["artifacts"]:
+                    slot["slot_id"] = "classic-" + slot["slot_id"]
+                    if slot["kind"] == "worktree":
+                        slot["primitive_request"].update(
+                            component="classic", physical_checkout="classic"
+                        )
+                value["targets"].extend(companion["targets"])
+                value["artifacts"] = sorted(
+                    value["artifacts"] + companion["artifacts"],
+                    key=lambda slot: slot["slot_id"],
+                )
+                value["actor"]["push_repository_node_ids"] = ["R_classic", "R_repo"]
+                value["authority"]["allowed"]["repositories"] = ["R_classic", "R_repo"]
             initial = ledger.create(root, value)
             worktree = next(
-                slot for slot in value["artifacts"] if slot["kind"] == "worktree"
+                slot for slot in value["artifacts"] if slot["slot_id"] == "worktree"
             )
             request = worktree["primitive_request"]
             assert request is not None
@@ -5041,6 +5040,20 @@ class DeliveryLedgerTests(unittest.TestCase):
                 safety,
                 **cas_arguments(initial),
             )
+            if peer:
+                current = ledger.inspect(root, initial.name)
+                request = next(
+                    slot["primitive_request"] for slot in value["artifacts"]
+                    if slot["slot_id"] == "classic-worktree"
+                )
+                worktree_list = worktree_list_bytes(request)
+                safety = safety_observation_bytes(
+                    request, worktree_list, producer_kind="primitive", producer_digest=None
+                )
+                ledger.bind_worktree_cas(
+                    root, current.name, "classic-worktree", worktree_list, safety,
+                    **cas_arguments(current),
+                )
             return value, ledger.inspect(root, initial.name)
 
         def live_pr(
@@ -5051,17 +5064,20 @@ class DeliveryLedgerTests(unittest.TestCase):
             draft: bool = True,
             base_branch: str | None = None,
             updated_at: str = "2026-08-14T18:00:00Z",
+            target_index: int = 0,
+            number: int = 500,
         ) -> dict[str, object]:
+            target = value["targets"][target_index]
+            repo = target["repository"]
             repository_value = {
-                "node_id": "R_repo",
-                "full_name": "atrinik/atrinik",
+                "node_id": repo["node_id"],
+                "full_name": f"{repo['owner']}/{repo['name']}",
             }
-            target = value["targets"][0]
             if head_sha is None:
                 head_sha = target["head"]["current_sha"]
             return {
-                "node_id": "P_issue_created",
-                "number": 500,
+                "node_id": "P_issue_created" if number == 500 else "P_classic_created",
+                "number": number,
                 "state": "open",
                 "draft": draft,
                 "user": {"node_id": "U_actor"},
@@ -5083,10 +5099,22 @@ class DeliveryLedgerTests(unittest.TestCase):
                 "updated_at": updated_at,
             }
 
+        def live_base(live: dict[str, object]) -> dict[str, object]:
+            base = live["base"]
+            return {"data": {"repository": {
+                "id": base["repo"]["node_id"],
+                "nameWithOwner": base["repo"]["full_name"],
+                "ref": {"prefix": "refs/heads/", "name": base["ref"],
+                        "target": {"__typename": "Commit", "oid": base["sha"]}},
+            }}}
+
         def gh_observer(
             live: dict[str, object],
             comments: object = None,
             observed_pages: list[int] | None = None,
+            *,
+            base_responses: list[object] | None = None,
+            observed_refs: list[object] | None = None,
         ):
             if comments is None:
                 response_comments: object = {1: []}
@@ -5095,12 +5123,27 @@ class DeliveryLedgerTests(unittest.TestCase):
             else:
                 response_comments = {1: comments}
 
+            ref_reads = 0
+
             def observe(arguments: object, context: str) -> object:
-                del context
+                nonlocal ref_reads
+                if context == "PR binding live base ref":
+                    arguments = tuple(arguments)
+                    self.assertEqual(arguments[:4], ("api", "--hostname", "github.com", "graphql"))
+                    owner, name = live["base"]["repo"]["full_name"].split("/")
+                    self.assertIn(f"owner={owner}", arguments)
+                    self.assertIn(f"name={name}", arguments)
+                    self.assertIn("ref=refs/heads/main", arguments)
+                    responses = [live_base(live)] if base_responses is None else base_responses
+                    result = responses[min(ref_reads, len(responses) - 1)]
+                    ref_reads += 1
+                    if observed_refs is not None:
+                        observed_refs.append(copy.deepcopy(result))
+                    return copy.deepcopy(result)
                 if tuple(arguments)[-1] == "user":
                     return {"node_id": "U_actor"}
                 endpoint = tuple(arguments)[-1]
-                if "/pulls/500" in endpoint:
+                if f"/pulls/{live['number']}" in endpoint:
                     return copy.deepcopy(live)
                 if "/comments?" in endpoint:
                     page = int(endpoint.rsplit("page=", 1)[1])
@@ -5156,6 +5199,50 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(bound.document["generation"], 3)
             self.assertEqual(bound.document["selected_prs"][0]["node_id"], "P_issue_created")
 
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
+            value, bound = install_bound(root, Path(live_temporary), peer=True)
+            with mock.patch.object(
+                ledger, "_gh_json", side_effect=gh_observer(
+                    live_pr(value, target_index=1, number=501)
+                ),
+            ):
+                ledger.bind_pr_cas(
+                    root, bound.name, "classic-pull-request", 501, **cas_arguments(bound)
+                )
+            predecessor = ledger.inspect(root, bound.name)
+            existing = copy.deepcopy(predecessor.document["selected_prs"])
+            before = directory_snapshot(root)
+            with mock.patch.object(
+                ledger, "_gh_json", side_effect=gh_observer(live_pr(value, body=b"wrong body")),
+            ), self.assertRaises(ledger.LedgerError):
+                ledger.bind_pr_cas(
+                    root, bound.name, "pull-request", 500, **cas_arguments(predecessor)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            stale_snapshot = live_pr(value)
+            stale_snapshot["base"]["sha"] = SHA_A
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(
+                stale_snapshot, base_responses=[live_base(live_pr(value))]
+            )):
+                result = ledger.bind_pr_cas(
+                    root, bound.name, "pull-request", 500, **cas_arguments(predecessor)
+                )
+                current = ledger.inspect(root, bound.name)
+                after = directory_snapshot(root)
+                repeated = ledger.bind_pr_cas(
+                    root, bound.name, "pull-request", 500, **cas_arguments(current)
+                )
+            self.assertEqual(result["classification"], "bind-exact")
+            self.assertEqual(repeated["classification"], "bound-match")
+            self.assertEqual(directory_snapshot(root), after)
+            self.assertEqual(
+                [pull["repository"]["name"] for pull in current.document["selected_prs"]],
+                ["atrinik", "classic"],
+            )
+            self.assertEqual(current.document["selected_prs"][1:], existing)
+            self.assertEqual(current.document["authority"], predecessor.document["authority"])
+
         def reject_live_drift(label: str, *, head_sha: str | None = None, body: bytes = INITIAL_PR_BODY) -> None:
             with self.subTest(rejected=label), tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
                 root = Path(temporary)
@@ -5166,7 +5253,8 @@ class DeliveryLedgerTests(unittest.TestCase):
 
                 def observe(arguments: object, context: str) -> object:
                     nonlocal reads
-                    del context
+                    if context == "PR binding live base ref":
+                        return live_base(first)
                     endpoint = tuple(arguments)[-1]
                     if endpoint == "user":
                         return {"node_id": "U_actor"}
@@ -5201,7 +5289,10 @@ class DeliveryLedgerTests(unittest.TestCase):
             with mock.patch.object(
                 ledger,
                 "_gh_json",
-                side_effect=gh_observer(live_pr(value, base_branch="develop")),
+                side_effect=gh_observer(
+                    live_pr(value, base_branch="develop"),
+                    base_responses=[live_base(live_pr(value))],
+                ),
             ), self.assertRaisesRegex(ledger.LedgerError, "base branch differs"):
                 ledger.bind_pr_cas(
                     root,
@@ -5230,7 +5321,8 @@ class DeliveryLedgerTests(unittest.TestCase):
 
             def observe_concurrent(arguments: object, context: str) -> object:
                 nonlocal pull_reads
-                del context
+                if context == "PR binding live base ref":
+                    return live_base(live_pr(value))
                 endpoint = tuple(arguments)[-1]
                 if endpoint == "user":
                     return {"node_id": "U_actor"}
@@ -5380,6 +5472,79 @@ class DeliveryLedgerTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
             root = Path(temporary)
+            value, bound = install_bound(root, Path(live_temporary))
+            live = live_pr(value)
+            good = live_base(live)
+            invalid: list[tuple[str, object]] = [
+                ("non-object", []), ("missing data", {}),
+                ("GraphQL errors", {"errors": [{"message": "unavailable"}], **good}),
+                ("missing repository", {"data": {"repository": None}}),
+            ]
+            for field, replacement in (("id", "R_wrong"), ("nameWithOwner", "foreign/atrinik"),
+                                       ("ref", None), ("ref", [])):
+                bad = copy.deepcopy(good)
+                bad["data"]["repository"][field] = replacement
+                invalid.append((f"repository {field}: {replacement}", bad))
+            for field, replacement in (("prefix", "refs/tags/"), ("name", "develop"),
+                                       ("target", None), ("target", [])):
+                bad = copy.deepcopy(good)
+                bad["data"]["repository"]["ref"][field] = replacement
+                invalid.append((f"ref {field}: {replacement}", bad))
+            for field, replacement in (("__typename", "Tag"), ("oid", "malformed"),
+                                       ("oid", SHA_B)):
+                bad = copy.deepcopy(good)
+                bad["data"]["repository"]["ref"]["target"][field] = replacement
+                invalid.append((f"target {field}: {replacement}", bad))
+            before = directory_snapshot(root)
+            for label, response in invalid:
+                with self.subTest(live_base=label), mock.patch.object(
+                    ledger, "_gh_json", side_effect=gh_observer(live, base_responses=[response])
+                ), self.assertRaises(ledger.LedgerError):
+                    ledger.bind_pr_cas(root, bound.name, "pull-request", 500, **cas_arguments(bound))
+                self.assertEqual(directory_snapshot(root), before)
+            drift = copy.deepcopy(good)
+            drift["data"]["repository"]["ref"]["target"]["oid"] = SHA_B
+            for observation in (2, 3):
+                observed: list[object] = []
+                with self.subTest(drift_observation=observation), mock.patch.object(
+                    ledger, "_gh_json", side_effect=gh_observer(
+                        live, base_responses=[good] * (observation - 1) + [drift],
+                        observed_refs=observed,
+                    )
+                ), self.assertRaisesRegex(ledger.LedgerError, "remote observation changed"):
+                    ledger.bind_pr_cas(root, bound.name, "pull-request", 500, **cas_arguments(bound))
+                self.assertEqual(len(observed), observation)
+                self.assertEqual(directory_snapshot(root), before)
+            # A stale PR snapshot remains valid across interrupted publication and
+            # exact receipt recovery; a changed live branch does not.
+            live["base"]["sha"] = SHA_A
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(
+                live, base_responses=[good]
+            )), self.assertRaises(ledger.InjectedCrash):
+                ledger.bind_pr_cas(root, bound.name, "pull-request", 500,
+                                   failpoint="cas:renamed", **cas_arguments(bound))
+            pending = directory_snapshot(root)
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(
+                live, base_responses=[drift]
+            )), self.assertRaises(ledger.LedgerError):
+                ledger.bind_pr_cas(root, bound.name, "pull-request", 500, **cas_arguments(bound))
+            self.assertEqual(directory_snapshot(root), pending)
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(
+                live, base_responses=[good]
+            )):
+                recovered = ledger.bind_pr_cas(root, bound.name, "pull-request", 500, **cas_arguments(bound))
+            self.assertEqual(recovered["classification"], "bound-match")
+            self.assertEqual(ledger.inventory(root).pending, ())
+            current = ledger.inspect(root, bound.name)
+            before = directory_snapshot(root)
+            with mock.patch.object(ledger, "_gh_json", side_effect=gh_observer(
+                live, base_responses=[drift]
+            )), self.assertRaises(ledger.LedgerError):
+                ledger.bind_pr_cas(root, bound.name, "pull-request", 500, **cas_arguments(current))
+            self.assertEqual(directory_snapshot(root), before)
+
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as live_temporary:
+            root = Path(temporary)
             predecessor, candidate, _actual_head, _base_head, _live = target_refresh_setup(
                 Path(live_temporary), root, "pr-bind-target-refresh", stale_predecessor=False
             )
@@ -5389,10 +5554,15 @@ class DeliveryLedgerTests(unittest.TestCase):
                 candidate,
                 **cas_arguments(predecessor),
             )
+            stale = live_pr(refreshed.document)
+            stale["base"]["sha"] = predecessor.document["targets"][0]["base"]["initial_sha"]
+            self.assertNotEqual(stale["base"]["sha"], refreshed.document["targets"][0]["base"]["current_sha"])
             with mock.patch.object(
                 ledger,
                 "_gh_json",
-                side_effect=gh_observer(live_pr(refreshed.document)),
+                side_effect=gh_observer(
+                    stale, base_responses=[live_base(live_pr(refreshed.document))]
+                ),
             ):
                 result = ledger.bind_pr_cas(
                     root,
@@ -6294,17 +6464,10 @@ class DeliveryLedgerTests(unittest.TestCase):
         drifted_request = next(
             slot for slot in drifted["artifacts"] if slot["kind"] == "worktree"
         )["primitive_request"]
-        drifted_request["roots"]["workspace"]["inode"] += 1
-        drifted_list = worktree_list_bytes(drifted_request)
-        drifted_safety = safety_observation_bytes(
-            drifted_request,
-            drifted_list,
-            producer_kind="primitive",
-            producer_digest=ledger.byte_digest(output),
-        )
-        with self.assertRaisesRegex(ledger.LedgerError, "identity drifted"):
+        drifted_request["roots"]["workspace"]["path"] += "-other"
+        with self.assertRaises(ledger.LedgerError):
             ledger.classify_worktree_output(
-                drifted, "worktree", drifted_list, drifted_safety, output
+                drifted, "worktree", worktree_list, safety, output
             )
 
         exact = ledger.classify_worktree_output(
@@ -7874,28 +8037,9 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertEqual(ledger.inventory(root).pending, ())
 
             primary = Path(request["roots"]["primary"]["path"])
-            retained_live = os.open(
-                live,
-                os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY,
-            )
-            try:
-                retained_status = os.fstat(retained_live)
-                retained_scope = json.loads(scope_show)["worktrees"][0]
-                self.assertEqual(
-                    (retained_status.st_dev, retained_status.st_ino),
-                    (
-                        retained_scope["path_device"],
-                        retained_scope["path_inode"],
-                    ),
-                )
-                git_run(primary, "worktree", "remove", "--force", str(live))
-                git_run(primary, "worktree", "add", str(live), request["branch"])
-                self.assertNotEqual(
-                    (live.stat().st_dev, live.stat().st_ino),
-                    (retained_status.st_dev, retained_status.st_ino),
-                )
-            finally:
-                os.close(retained_live)
+            self.assertEqual(json.loads(scope_show)["worktrees"][0]["path"], str(live))
+            git_run(primary, "worktree", "remove", "--force", str(live))
+            git_run(primary, "worktree", "add", str(live), request["branch"])
             (live / "recreated.txt").write_text("recreated\n", encoding="utf-8")
             git_run(live, "add", "recreated.txt")
             git_run(live, "commit", "-m", "advance recreated scope target")
@@ -7906,14 +8050,10 @@ class DeliveryLedgerTests(unittest.TestCase):
             for slot in recreated["artifacts"]:
                 if slot["kind"] in {"branch", "worktree"}:
                     slot["current"]["head_sha"] = recreated_head
-            before = directory_snapshot(root)
-            with self.assertRaisesRegex(
-                ledger.LedgerError, "identity|observation"
-            ):
-                ledger.target_refresh_cas(
-                    root, advanced.name, recreated, **cas_arguments(advanced)
-                )
-            self.assertEqual(directory_snapshot(root), before)
+            refreshed = ledger.target_refresh_cas(
+                root, advanced.name, recreated, **cas_arguments(advanced)
+            )
+            self.assertEqual(refreshed.document["targets"][0]["head"]["current_sha"], recreated_head)
 
     def test_38_cli_fifo_and_unsafe_adopted_pr_are_zero_write(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -8623,10 +8763,8 @@ class DeliveryLedgerTests(unittest.TestCase):
                     str(initial.document["generation"]),
                     "--expected-digest",
                     initial.digest,
-                    "--expected-device",
-                    str(initial.device),
-                    "--expected-inode",
-                    str(initial.inode),
+                    "--expected-path",
+                    initial.path,
                 ],
                 text=True,
                 capture_output=True,
@@ -8718,8 +8856,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 ledger.canonical_bytes(observation),
                 expected_generation=initial.document["generation"],
                 expected_digest=initial.digest,
-                expected_device=initial.device,
-                expected_inode=initial.inode,
+                expected_path=initial.path,
             )
         self.assertEqual(result["snapshot"]["document"]["generation"], 2)
         self.assertEqual(profile_path.read_bytes(), profile_before)
@@ -9426,10 +9563,8 @@ class DeliveryLedgerTests(unittest.TestCase):
                     str(initial.document["generation"]),
                     "--expected-digest",
                     initial.digest,
-                    "--expected-device",
-                    str(initial.device),
-                    "--expected-inode",
-                    str(initial.inode),
+                    "--expected-path",
+                    initial.path,
                 ],
                 text=True,
                 capture_output=True,
@@ -9660,8 +9795,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                         "ledger_id": initial.document["ledger_id"],
                         "generation": initial.document["generation"],
                         "sha256": initial.digest,
-                        "device": initial.device,
-                        "inode": initial.inode,
+                        "path": initial.path,
                     }
                     old_scope = {
                         "name": old_request["name"],
@@ -9822,8 +9956,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                         "ledger_id": predecessor.document["ledger_id"],
                         "generation": predecessor.document["generation"],
                         "sha256": predecessor.digest,
-                        "device": predecessor.device,
-                        "inode": predecessor.inode,
+                        "path": predecessor.path,
                     }
                     scope_evidence = {
                         "name": name,
@@ -10852,8 +10985,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 "roots": {
                     name: {
                         "path": str(path),
-                        "device": path.stat().st_dev,
-                        "inode": path.stat().st_ino,
+
                     }
                     for name, path in (
                         ("wrapper", wrapper),
@@ -11863,22 +11995,19 @@ class DeliveryLedgerTests(unittest.TestCase):
             primary = Path(request["roots"]["primary"]["path"])
             git_run(primary, "worktree", "remove", "--force", str(live))
             git_run(primary, "worktree", "add", str(live), request["branch"])
-            before = directory_snapshot(root)
-            with self.assertRaisesRegex(
-                ledger.LedgerError, "identity|observation"
-            ):
-                ledger.correct_target_head(
-                    root,
-                    erroneous.name,
-                    predecessor.raw,
-                    head_correction_recovery(
-                        predecessor, erroneous, actual, incident_bad
-                    ),
-                    **cas_arguments(erroneous),
-                    bad_head=incident_bad,
-                    actual_head=actual,
-                )
-            self.assertEqual(directory_snapshot(root), before)
+            self.assertEqual(git_run(live, "rev-parse", "HEAD").stdout.strip(), actual)
+            corrected = ledger.correct_target_head(
+                root,
+                erroneous.name,
+                predecessor.raw,
+                head_correction_recovery(
+                    predecessor, erroneous, actual, incident_bad
+                ),
+                **cas_arguments(erroneous),
+                bad_head=incident_bad,
+                actual_head=actual,
+            )
+            self.assertEqual(corrected.document["targets"][0]["head"]["current_sha"], actual)
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -11963,16 +12092,9 @@ class DeliveryLedgerTests(unittest.TestCase):
                     True,
                 ),
                 (
-                    "installed-device",
+                    "installed-path",
                     lambda value: value["intent"]["installed"].__setitem__(
-                        "device", erroneous.device + 1
-                    ),
-                    True,
-                ),
-                (
-                    "installed-inode",
-                    lambda value: value["intent"]["installed"].__setitem__(
-                        "inode", erroneous.inode + 1
+                        "path", erroneous.path + "-other"
                     ),
                     True,
                 ),
@@ -12097,10 +12219,8 @@ class DeliveryLedgerTests(unittest.TestCase):
                     str(erroneous.document["generation"]),
                     "--expected-digest",
                     erroneous.digest,
-                    "--expected-device",
-                    str(erroneous.device),
-                    "--expected-inode",
-                    str(erroneous.inode),
+                    "--expected-path",
+                    erroneous.path,
                     "--bad-head",
                     bad_head,
                     "--actual-head",
@@ -12118,22 +12238,22 @@ class DeliveryLedgerTests(unittest.TestCase):
             )
             receipt_raw = receipt_path.read_bytes()
             tampered = json.loads(receipt_raw)
-            tampered["source"]["device"] += 1
+            tampered["source"]["path"] += "-other"
             receipt_path.write_bytes(ledger.canonical_bytes(tampered))
             with self.assertRaises(ledger.LedgerError):
                 ledger.inventory(root)
             receipt_path.write_bytes(receipt_raw)
             tampered = json.loads(receipt_raw)
-            tampered["source"]["inode"] += 1
-            tampered["recovery"]["intent"]["installed"]["inode"] += 1
+            tampered["source"]["path"] += "-other"
+            tampered["recovery"]["intent"]["installed"]["path"] += "-other"
             receipt_path.write_bytes(ledger.canonical_bytes(tampered))
             with self.assertRaises(ledger.LedgerError):
                 ledger.inventory(root)
             receipt_path.write_bytes(receipt_raw)
             tampered = json.loads(receipt_raw)
-            tampered["source"]["inode"] += 1
-            tampered["erroneous_snapshot"]["inode"] += 1
-            tampered["recovery"]["intent"]["installed"]["inode"] += 1
+            tampered["source"]["path"] += "-other"
+            tampered["erroneous_snapshot"]["path"] += "-other"
+            tampered["recovery"]["intent"]["installed"]["path"] += "-other"
             tampered["recovery"]["grant"]["objective_sha256"] = (
                 ledger.canonical_object_digest(tampered["recovery"]["intent"])
             )
@@ -12218,6 +12338,451 @@ class DeliveryLedgerTests(unittest.TestCase):
                     )
             self.assertEqual(directory_snapshot(root), before)
 
+    def current_targets_setup(
+        self, root: Path, label: str, *, distinct: bool = False
+    ) -> tuple[object, list[Path]]:
+        roots = live_roots(self.live_base / label, "client")
+        wrapper_roots = copy.deepcopy(roots)
+        wrapper_roots["primary"] = copy.deepcopy(roots["wrapper"])
+        if distinct:
+            wrapper_roots = live_roots(self.live_base / (label + "-wrapper"), "atrinik")
+        wrapper_sha = git_head(wrapper_roots)
+        client_sha = git_head(roots)
+        document = issue_ledger(number=580, issue_node="I_current_targets")
+        replace_sha(document, SHA_A, wrapper_sha)
+        wrapper_slot = next(row for row in document["artifacts"] if row["kind"] == "worktree")
+        wrapper_slot["primitive_request"]["roots"] = wrapper_roots
+        wrapper_request = wrapper_slot["primitive_request"]
+        request = scope_request(
+            component="client", checkout="client", start_sha=client_sha, roots=roots
+        )
+        child = issue_ledger()
+        child["resources"] = [scope_resource(request)]
+        child_worktree = next(row for row in child["artifacts"] if row["kind"] == "worktree")
+        child_worktree["primitive_request"] = None
+        child_worktree["immutable"]["path"] = None
+        child_worktree["producer_resource_slot"] = "scope"
+        retarget_repository(child, repository("client", "R_client"))
+        replace_sha(child, SHA_A, client_sha)
+        for slot in child["artifacts"]:
+            slot["slot_id"] = "client-" + slot["slot_id"]
+        document["targets"].extend(child["targets"])
+        document["artifacts"] = sorted(
+            document["artifacts"] + child["artifacts"], key=lambda row: row["slot_id"]
+        )
+        document["resources"] = child["resources"]
+        document["actor"]["push_repository_node_ids"] = ["R_client", "R_repo"]
+        document["authority"]["allowed"]["repositories"] = ["R_client", "R_repo"]
+        first = ledger.create(root, document)
+        listing = worktree_list_bytes(wrapper_request)
+        safety = safety_observation_bytes(
+            wrapper_request, listing, producer_kind="primitive", producer_digest=None
+        )
+        ledger.bind_worktree_cas(
+            root, first.name, "worktree", listing, safety, **cas_arguments(first)
+        )
+        current = ledger.inspect(root, first.name)
+        live_worktree_path(request)
+        shown = scope_show_bytes(request, repository_name="atrinik/client")
+        install_scope_references(request, shown)
+        listing = worktree_list_bytes(request)
+        safety = safety_observation_bytes(
+            request, listing, producer_kind="scope",
+            producer_digest=ledger.byte_digest(shown),
+            repository_value=repository("client", "R_client"),
+        )
+        ledger.bind_scope_cas(
+            root, first.name, "scope", shown, listing, safety, **cas_arguments(current)
+        )
+        current = ledger.inspect(root, first.name)
+        paths = [live_worktree_path(wrapper_request), live_worktree_path(request)]
+        for path in paths:
+            (path / "advanced.txt").write_text("committed checkpoint\n", encoding="utf-8")
+            git_run(path, "add", "advanced.txt")
+            git_run(path, "commit", "-m", "real checkpoint")
+            sha = git_run(path, "rev-parse", "HEAD").stdout.strip()
+            candidate = next_generation(current)
+            slot = next(
+                row for row in candidate["artifacts"]
+                if row["kind"] == "worktree" and row["current"]["path"] == str(path)
+            )
+            repo = slot["current"]["repository"]
+            target = next(row for row in candidate["targets"] if row["repository"] == repo)
+            target["head"]["current_sha"] = sha
+            target["head"]["lineage"].append(sha)
+            for row in candidate["artifacts"]:
+                if row["current"] is not None and row["current"]["repository"] == repo:
+                    row["current"]["head_sha"] = sha
+            current = ledger.target_refresh_cas(
+                root, current.name, candidate, **cas_arguments(current)
+            )
+        return current, paths
+
+    def test_current_targets_scope_and_wrapper_union(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, paths = self.current_targets_setup(root, "current-union")
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, next_generation(current))
+            for path in paths:
+                self.assertEqual(git_run(path, "status", "--porcelain").stdout, "")
+
+    def test_current_targets_union_order_contention_and_late_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, paths = self.current_targets_setup(root, "current-contention")
+            original_union = ledger._current_target_leases
+            before = directory_snapshot(root)
+
+            @contextmanager
+            def contended(plans):
+                module, workspace, requests = plans[-1]
+                request = next(row for row in requests if row.kind == "source")
+                with module.resource_locks(
+                    workspace.lease_root(request), [request], nonblocking=True
+                ):
+                    with original_union(plans):
+                        yield
+
+            with mock.patch.object(ledger, "_current_target_leases", side_effect=contended):
+                with self.assertRaisesRegex(ledger.LedgerError, "union lease admission"):
+                    ledger.revalidate_current_targets_cas(
+                        root, current.name, **cas_arguments(current)
+                    )
+            self.assertEqual(directory_snapshot(root), before)
+
+            dirty = paths[0] / "late-drift.txt"
+            @contextmanager
+            def late_drift(plans):
+                with original_union(plans):
+                    dirty.write_text("changed after all leases admitted\n", encoding="utf-8")
+                    yield
+
+            with mock.patch.object(ledger, "_current_target_leases", side_effect=late_drift):
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.revalidate_current_targets_cas(
+                        root, current.name, **cas_arguments(current)
+                    )
+            self.assertEqual(directory_snapshot(root), before)
+            dirty.unlink()
+            observed = []
+
+            @contextmanager
+            def observed_union(plans):
+                # Both plans share the same trusted wrapper module in this fixture.
+                modules = {id(module): module for module, _, _ in plans}
+                self.assertEqual(len(modules), 1)
+                module = next(iter(modules.values()))
+                original_locks = module.resource_locks
+                collecting = True
+                @contextmanager
+                def record(root, requests, **keywords):
+                    if collecting:
+                        observed.extend((request.sort_key, str(root), request.mode)
+                                        for request in requests)
+                    with original_locks(root, requests, **keywords) as leases:
+                        yield leases
+                with mock.patch.object(module, "resource_locks", side_effect=record):
+                    with original_union(plans):
+                        collecting = False
+                        yield
+
+            with mock.patch.object(ledger, "_current_target_leases", side_effect=observed_union):
+                result = ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current)
+                )
+            identities = [(rank, location) for rank, location, _ in observed]
+            self.assertEqual(identities, sorted(identities))
+            self.assertEqual(len(identities), len(set(identities)))
+            self.assertGreaterEqual(sum(mode == "exclusive" for _, _, mode in observed), 4)
+            self.assertEqual(result.document, next_generation(current))
+
+    def test_current_targets_actor_changed_at_precommit_refuses_publication(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, _ = self.current_targets_setup(root, "current-actor")
+            changed = False
+            def failpoint(point):
+                nonlocal changed
+                if point == "cas:proofed":
+                    changed = True
+            def actor(document, context=None):
+                result = copy.deepcopy(document["actor"])
+                if changed:
+                    result["node_id"] = "U_foreign"
+                return result
+            with mock.patch.object(ledger, "_authenticated_actor", side_effect=actor):
+                with self.assertRaisesRegex(ledger.LedgerError, "actor"):
+                    ledger.revalidate_current_targets_cas(
+                        root, current.name, **cas_arguments(current), failpoint=failpoint
+                    )
+            self.assertEqual(ledger.inspect(root, current.name).raw, current.raw)
+            self.assertEqual(ledger.inventory(root).pending, ())
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, next_generation(current))
+
+    def test_current_targets_distinct_workspace_environments(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, _ = self.current_targets_setup(root, "current-distinct", distinct=True)
+            previous = os.environ.get("ATRINIK_WORKSPACE_DIR")
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(os.environ.get("ATRINIK_WORKSPACE_DIR"), previous)
+            self.assertEqual(result.document, next_generation(current))
+
+    def test_current_targets_installed_retry_actor_and_new_tuple_refused(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, _ = self.current_targets_setup(root, "current-installed")
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current), failpoint="cas:installed"
+                )
+            installed = ledger.inspect(root, current.name)
+            before = directory_snapshot(root)
+            foreign = copy.deepcopy(current.document["actor"])
+            foreign["node_id"] = "U_foreign"
+            with mock.patch.object(ledger, "_authenticated_actor", return_value=foreign):
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.revalidate_current_targets_cas(
+                        root, current.name, **cas_arguments(current)
+                    )
+            self.assertEqual(directory_snapshot(root), before)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(installed)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.cas(
+                    root, current.name, next_generation(installed), **cas_arguments(installed)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, installed.document)
+
+    def test_current_targets_consumed_receipt_requires_fresh_observation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old, candidate, _, _, _ = target_refresh_setup(
+                self.live_base, root, "current-consumed", stale_predecessor=False
+            )
+            current = ledger.target_refresh_cas(root, old.name, candidate, **cas_arguments(old))
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current), failpoint="cas:proof-consumed"
+                )
+            installed = ledger.inspect(root, current.name)
+            self.assertEqual(ledger.inventory(root).pending, ())
+            with self.assertRaises(ledger.LedgerError):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current)
+                )
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(installed)
+            )
+            self.assertEqual(result.document, next_generation(installed))
+
+    def test_current_targets_partial_stage_and_exact_tuple_retry(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old, candidate, _, _, _ = target_refresh_setup(
+                self.live_base, root, "current-prefix", stale_predecessor=False
+            )
+            current = ledger.target_refresh_cas(root, old.name, candidate, **cas_arguments(old))
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current), failpoint="cas:staged"
+                )
+            pending = ledger.inventory(root).pending
+            stage = next(row.staging for row in pending if row.kind == "update")
+            stage_path = root / stage
+            raw = stage_path.read_bytes()
+            stage_path.write_bytes(raw[:len(raw) // 2])
+            before = directory_snapshot(root)
+            for field, value in (
+                ("expected_generation", current.document["generation"] + 2),
+                ("expected_digest", "a" * 64),
+                ("expected_path", current.path + "-other"),
+            ):
+                arguments = cas_arguments(current)
+                arguments[field] = value
+                with self.subTest(field=field), self.assertRaises(ledger.LedgerError):
+                    ledger.revalidate_current_targets_cas(root, current.name, **arguments)
+                self.assertEqual(directory_snapshot(root), before)
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, next_generation(current))
+
+    def test_current_targets_installed_scope_drift_preserves_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, paths = self.current_targets_setup(root, "current-scope-drift")
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current), failpoint="cas:installed"
+                )
+            scope = next(row for row in current.document["resources"] if row["kind"] == "scope")
+            workspace = Path(scope["request"]["roots"]["workspace"]["path"])
+            record = workspace / "scopes" / scope["request"]["name"] / "scope.json"
+            original = record.read_bytes()
+            changed = json.loads(original)
+            changed["generation"] = "2" * 32
+            record.write_bytes(json_bytes(changed))
+            before = directory_snapshot(root)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            record.write_bytes(original)
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, next_generation(current))
+
+    def test_current_targets_public_cli_has_no_candidate_argument(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old, candidate, _, _, _ = target_refresh_setup(
+                self.live_base, root, "current-cli", stale_predecessor=False
+            )
+            current = ledger.target_refresh_cas(root, old.name, candidate, **cas_arguments(old))
+            command = [
+                sys.executable, "-B", "-c", _TEST_CLI_ACTOR_BOOTSTRAP, str(SCRIPT),
+                "revalidate-current-targets-cas", str(root), current.name,
+            ]
+            for key, value in cas_arguments(current).items():
+                command.extend(("--" + key.replace("_", "-"), str(value)))
+            process = subprocess.run(command, text=True, capture_output=True, check=False)
+            self.assertEqual(process.returncode, 0, process.stderr)
+            self.assertEqual(json.loads(process.stdout)["document"], next_generation(current))
+
+
+    def test_current_targets_rollout_refreshes_only_real_wrapper_base_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            current, _ = self.current_targets_setup(root, "current-rollout")
+            wrapper_slot = next(
+                row for row in current.document["artifacts"]
+                if row["kind"] == "worktree" and row["primitive_request"] is not None
+            )
+            primary = Path(wrapper_slot["primitive_request"]["roots"]["primary"]["path"])
+            (primary / "accepted-helper-update.txt").write_text(
+                "actual accepted wrapper main advancement\n", encoding="utf-8"
+            )
+            git_run(primary, "add", "accepted-helper-update.txt")
+            git_run(primary, "commit", "-m", "advance accepted wrapper main")
+            new_base = git_run(primary, "rev-parse", "HEAD").stdout.strip()
+            before = directory_snapshot(root)
+            with self.assertRaisesRegex(ledger.LedgerError, "base differs"):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current)
+                )
+            self.assertEqual(directory_snapshot(root), before)
+            candidate = next_generation(current)
+            target = next(
+                row for row in candidate["targets"] if row["repository"]["name"] == "atrinik"
+            )
+            old_head = target["head"]["current_sha"]
+            target["base"]["current_sha"] = new_base
+            target["base"]["lineage"].append(new_base)
+            target["merge_base"]["current_sha"] = git_run(
+                primary, "merge-base", new_base, old_head
+            ).stdout.strip()
+            refreshed = ledger.target_refresh_cas(
+                root, current.name, candidate, **cas_arguments(current)
+            )
+            old_component = next(
+                row for row in current.document["targets"] if row["repository"]["name"] == "client"
+            )
+            new_component = next(
+                row for row in refreshed.document["targets"] if row["repository"]["name"] == "client"
+            )
+            self.assertEqual(old_component, new_component)
+            self.assertEqual(
+                next(row for row in refreshed.document["targets"]
+                     if row["repository"]["name"] == "atrinik")["head"]["current_sha"],
+                old_head,
+            )
+            self.assertEqual(current.document["artifacts"], refreshed.document["artifacts"])
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(refreshed)
+            )
+            self.assertEqual(result.document, next_generation(refreshed))
+
+    def test_current_targets_neutral_after_real_advance(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old, candidate, _, _, _ = target_refresh_setup(
+                self.live_base, root, "current-neutral", stale_predecessor=False
+            )
+            current = ledger.target_refresh_cas(
+                root, old.name, candidate, **cas_arguments(old)
+            )
+            result = ledger.revalidate_current_targets_cas(
+                root, current.name, **cas_arguments(current)
+            )
+            self.assertEqual(result.document, next_generation(current))
+            self.assertEqual(ledger.inventory(root).pending, ())
+            with self.assertRaises(ledger.LedgerError):
+                ledger.revalidate_current_targets_cas(
+                    root, current.name, **cas_arguments(current)
+                )
+
+    def test_current_targets_retry_reproves_dirty_worktree(self) -> None:
+        original_names_fit = ledger._names_fit
+        for index, failpoint in enumerate((
+            "cas:receipted", "cas:receipt-consumed", "cas:staged", "cas:proofed",
+            "cas:renamed", "cas:installed",
+        )):
+            with self.subTest(failpoint=failpoint), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                old, candidate, _, _, live = target_refresh_setup(
+                    self.live_base, root, f"current-retry-{index}",
+                    stale_predecessor=False,
+                )
+                current = ledger.target_refresh_cas(
+                    root, old.name, candidate, **cas_arguments(old)
+                )
+                compact = failpoint in {"cas:receipted", "cas:receipt-consumed"}
+                def names_fit(directory, names):
+                    if compact and any(".update" in name for name in names):
+                        return False
+                    return original_names_fit(directory, names)
+                with mock.patch.object(ledger, "_names_fit", side_effect=names_fit):
+                    with self.assertRaises(ledger.InjectedCrash):
+                        ledger.revalidate_current_targets_cas(
+                            root, current.name, **cas_arguments(current), failpoint=failpoint
+                        )
+                    candidate = next_generation(current)
+                    before = directory_snapshot(root)
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger.cas(root, current.name, candidate, **cas_arguments(current))
+                    self.assertEqual(directory_snapshot(root), before)
+                    dirty = live / "dirty-retry.txt"
+                    dirty.write_text("uncommitted change\n", encoding="utf-8")
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger.revalidate_current_targets_cas(
+                            root, current.name, **cas_arguments(current)
+                        )
+                    self.assertEqual(directory_snapshot(root), before)
+                    dirty.unlink()
+                    result = ledger.revalidate_current_targets_cas(
+                        root, current.name, **cas_arguments(current)
+                    )
+                    self.assertEqual(result.document, candidate)
+                    self.assertEqual(ledger.inventory(root).pending, ())
+
     def test_48b_target_refresh_and_stale_merge_base_recovery_are_live_bound(
         self,
     ) -> None:
@@ -12264,10 +12829,8 @@ class DeliveryLedgerTests(unittest.TestCase):
                     str(predecessor.document["generation"]),
                     "--expected-digest",
                     predecessor.digest,
-                    "--expected-device",
-                    str(predecessor.device),
-                    "--expected-inode",
-                    str(predecessor.inode),
+                    "--expected-path",
+                    predecessor.path,
                 ],
                 text=True,
                 capture_output=True,
@@ -12327,7 +12890,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                     proof = root / (
                         f".{predecessor.name}.update-proof-g"
                         f"{predecessor.document['generation']}-from-{predecessor.digest}-"
-                        f"d{predecessor.device}-i{predecessor.inode}-to-{digest}.tmp"
+                        f"d999-i999-to-{digest}.tmp"
                     )
                     os.link(stage, proof)
                 refreshed = ledger.target_refresh_cas(
@@ -12356,7 +12919,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             proof = root / (
                 f".{predecessor.name}.update-proof-g"
                 f"{predecessor.document['generation']}-from-{predecessor.digest}-"
-                f"d{predecessor.device}-i{predecessor.inode}-to-{digest}.tmp"
+                f"d999-i999-to-{digest}.tmp"
             )
             stage.write_bytes(raw)
             os.chmod(stage, 0o600)
@@ -13079,8 +13642,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                         "correct-target-head-" + "f" * 64 + ".predecessor.snapshot"
                     ),
                     "mode": 0o600,
-                    "device": 1,
-                    "inode": 1,
+                    "path": ".atrinik-atrinik-issue-999.md.ledger.json.correct-target-head-" + "f" * 64 + ".predecessor.snapshot",
                     "sha256": ledger.byte_digest(foreign_raw),
                     "raw_base64": base64.b64encode(foreign_raw).decode("ascii"),
                 }
@@ -13582,8 +14144,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             "plan_sha256": "0" * 64,
             "archive": ".atrinik-atrinik-pr-423.md.ledger.json.archive-" + "1" * 64 + ".json",
             "archive_sha256": "2" * 64,
-            "device": 1,
-            "inode": 1,
+            "path": str(Path("invalid-archive.json").absolute()),
             "observed_at": "2026-09-16T00:00:00Z",
             "state": "eligible",
         }
@@ -13934,8 +14495,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 ledger.canonical_bytes(candidate),
                 bound.document["generation"],
                 bound.digest,
-                bound.device,
-                bound.inode,
+                bound.path,
             )
             with self.assertRaisesRegex(
                 ledger.LedgerError, "immutable ledger field changed: actor"
@@ -13959,6 +14519,14 @@ class DeliveryLedgerTests(unittest.TestCase):
             }
 
             def observe(arguments: object, _context: str) -> object:
+                if _context == "PR binding live base ref":
+                    target = value["targets"][0]
+                    return {"data": {"repository": {
+                        "id": target["repository"]["node_id"],
+                        "nameWithOwner": "atrinik/atrinik",
+                        "ref": {"name": target["base"]["branch"], "prefix": "refs/heads/",
+                                "target": {"__typename": "Commit", "oid": target["base"]["current_sha"]}},
+                    }}}
                 endpoint = tuple(arguments)[-1]
                 if "/pulls/500" in endpoint:
                     return copy.deepcopy(remote)
@@ -14126,35 +14694,6 @@ class DeliveryLedgerTests(unittest.TestCase):
         self.assertIn("github.com", arguments)
         self.assertTrue(set(hostile).isdisjoint(environment))
 
-    def test_64_unlink_quarantine_never_deletes_a_raced_replacement(self) -> None:
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            target = root / "target"
-            saved = root / "expected-saved"
-            target.write_bytes(b"expected")
-            expected = target.stat(follow_symlinks=False)
-            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
-            real_rename = os.rename
-            swapped = False
-
-            def race(source: str, destination: str, **keywords: object) -> None:
-                nonlocal swapped
-                if source == "target" and not swapped:
-                    swapped = True
-                    real_rename(target, saved)
-                    target.write_bytes(b"replacement")
-                real_rename(source, destination, **keywords)
-
-            try:
-                with mock.patch.object(ledger.os, "rename", side_effect=race):
-                    with self.assertRaisesRegex(ledger.LedgerError, "wrong identity"):
-                        ledger._unlink_exact(descriptor, target.name, expected)
-            finally:
-                os.close(descriptor)
-            self.assertEqual(saved.read_bytes(), b"expected")
-            payloads = list((root / ledger._UNLINK_QUARANTINE).glob("*/payload"))
-            self.assertEqual(len(payloads), 1)
-            self.assertEqual(payloads[0].read_bytes(), b"replacement")
 
     def test_65_release_orders_local_and_wrapper_proofs_before_final_remote_sweep(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -14261,15 +14800,14 @@ class DeliveryLedgerTests(unittest.TestCase):
             target.chmod(0o600)
             expected = target.stat(follow_symlinks=False)
             token = hashlib.sha256(
-                f"{target.name}\0{expected.st_dev}\0{expected.st_ino}".encode("utf-8")
+                str(target).encode("utf-8")
             ).hexdigest()
             transaction = root / ledger._UNLINK_QUARANTINE / token
             transaction.mkdir(parents=True, mode=0o700)
             receipt = {
                 "schema_version": 1,
                 "name": target.name,
-                "device": expected.st_dev,
-                "inode": expected.st_ino,
+                "path": str(target),
             }
             receipt_path = transaction / "receipt.json"
             receipt_path.write_bytes(ledger.canonical_bytes(receipt))
@@ -14309,8 +14847,8 @@ class DeliveryLedgerTests(unittest.TestCase):
 
             try:
                 with mock.patch.object(ledger.os, "stat", side_effect=stat_then_replace):
-                    opened = ledger._open_unlink_transaction(quarantine, token)
-                    os.close(opened)
+                    with self.assertRaisesRegex(ledger.LedgerError, "transaction changed"):
+                        ledger._open_unlink_transaction(quarantine, token)
             finally:
                 os.close(quarantine)
             self.assertEqual(transaction.stat().st_mode & 0o777, 0o600)

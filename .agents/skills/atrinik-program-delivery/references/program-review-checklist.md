@@ -23,13 +23,13 @@ cannot prove alone.
 ## Master publication recovery
 
 - Is the canonical ledger ignored, schema-valid, complete, and protected by an
-  exclusive stable non-replaced lock file plus generation/digest/inode CAS and
+  exclusive stable non-replaced lock file plus generation/digest CAS and
   durable same-directory replacement?
 - Was complete bounded comment pagination performed before every decision and
   after every call, with zero markers for a first post or exactly one recorded
   actor-owned marker for a bound update?
 - Do wrong-author, malformed, duplicate, drifted, missing, partially paginated,
-  corrupt, stale-CAS, inode-substituted, and uncertain states stop before a
+  corrupt, stale-CAS, path-replaced, and uncertain states stop before a
   remote mutation?
 - Does `none -> planned -> in-flight -> bound` persist exact intended bytes,
   intended/current SHA-256 digests, marker identity, mutation kind, and remote

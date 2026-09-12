@@ -97,20 +97,20 @@ _CREATE_STAGE_RE = re.compile(
 _MIGRATE_STAGE_RE = re.compile(r"^\.(?P<target>.+\.md\.ledger\.json)\.migrate\.tmp$")
 _UPDATE_STAGE_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update"
-    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
+    r"(?P<operation>-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g(?P<generation>[0-9]+)-"
     r"from-(?P<digest>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_RECEIPT_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update-proof"
-    r"(?P<operation>-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
+    r"(?P<operation>-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g"
     r"(?P<generation>[0-9]+)-from-(?P<digest>[0-9a-f]{64})-"
-    r"d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-"
+    r"(?:d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-|path-)"
     r"to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_OPERATION_RE = re.compile(
-    r"^(?:|-refresh-target"
+    r"^(?:|-revalidate-targets|-refresh-target"
     r"|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}"
     r"|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}"
     r"|-recover-identity)$"
@@ -260,22 +260,20 @@ class Snapshot:
     document: dict[str, Any]
     raw: bytes
     digest: str
-    device: int
-    inode: int
-    record_device: int | None = None
+    path: str
 
     def json(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "digest": self.digest,
-            "device": _snapshot_record_device(self),
-            "inode": self.inode,
+            "path": self.path,
             "document": self.document,
         }
 
 
 _ATOMIC_BIND_TOKEN = object()
 _TARGET_REFRESH_TOKEN = object()
+_CURRENT_TARGETS_TOKEN = object()
 _SCOPE_RECOVERY_TOKEN = object()
 _IDENTITY_RECOVERY_TOKEN = object()
 
@@ -292,8 +290,7 @@ class _AtomicBindingCapability:
     after_raw: bytes
     expected_generation: int
     expected_digest: str
-    expected_device: int
-    expected_inode: int
+    expected_path: str
 
 
 @dataclass(frozen=True)
@@ -307,8 +304,7 @@ class _ScopeRecoveryCapability:
     after_raw: bytes
     expected_generation: int
     expected_digest: str
-    expected_device: int
-    expected_inode: int
+    expected_path: str
 
 
 @dataclass(frozen=True)
@@ -321,8 +317,7 @@ class _IdentityRecoveryCapability:
     after_raw: bytes
     expected_generation: int
     expected_digest: str
-    expected_device: int
-    expected_inode: int
+    expected_path: str
 
 
 @dataclass(frozen=True)
@@ -335,8 +330,20 @@ class _TargetRefreshCapability:
     after_raw: bytes
     expected_generation: int
     expected_digest: str
-    expected_device: int
-    expected_inode: int
+    expected_path: str
+
+
+@dataclass(frozen=True)
+class _CurrentTargetsCapability:
+    """Internal authority for an exact neutral all-target observation."""
+
+    token: object
+    name: str
+    before_raw: bytes
+    after_raw: bytes
+    expected_generation: int
+    expected_digest: str
+    expected_path: str
 
 
 @dataclass(frozen=True)
@@ -386,17 +393,14 @@ class ReleaseRecord:
     document: dict[str, Any]
     raw: bytes
     digest: str
-    device: int
-    inode: int
-    record_device: int | None = None
+    path: str
 
     def json(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "ledger_name": self.ledger_name,
             "digest": self.digest,
-            "device": self.device if self.record_device is None else self.record_device,
-            "inode": self.inode,
+            "path": self.path,
             "document": self.document,
         }
 
@@ -408,18 +412,15 @@ class ArchiveRecord:
     document: dict[str, Any]
     raw: bytes
     digest: str
-    device: int
-    inode: int
+    path: str
     status: os.stat_result
-    record_device: int | None = None
 
     def json(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "ledger_name": self.ledger_name,
             "digest": self.digest,
-            "device": self.device if self.record_device is None else self.record_device,
-            "inode": self.inode,
+            "path": self.path,
             "document": self.document,
         }
 
@@ -475,8 +476,8 @@ class _PinnedGitAuthority:
     """No-follow descriptors and immutable snapshots of Git authority inputs."""
 
     common_path: str = ""
-    directories: list[tuple[int, str, tuple[int, int], str]] | None = None
-    files: list[tuple[int, str, bytes, tuple[int, int], str]] | None = None
+    directories: list[tuple[int, str, str]] | None = None
+    files: list[tuple[int, str, bytes, str]] | None = None
     absences: list[tuple[int, str, str]] | None = None
 
     def __post_init__(self) -> None:
@@ -491,7 +492,7 @@ class _PinnedGitAuthority:
         status = _recheck_pinned_directory(descriptor, path, context)
         assert self.directories is not None
         self.directories.append(
-            (descriptor, path, (status.st_dev, status.st_ino), context)
+            (descriptor, path, context)
         )
 
     def add_file(self, directory: int, name: str, context: str) -> bytes:
@@ -499,7 +500,7 @@ class _PinnedGitAuthority:
         _require_trusted_regular(status, context)
         assert self.files is not None
         self.files.append(
-            (directory, name, raw, (status.st_dev, status.st_ino), context)
+            (directory, name, raw, context)
         )
         return raw
 
@@ -519,12 +520,12 @@ class _PinnedGitAuthority:
         assert self.directories is not None
         assert self.files is not None
         assert self.absences is not None
-        for descriptor, path, identity, context in self.directories:
-            _recheck_pinned_directory(descriptor, path, context, identity)
-        for directory, name, raw, identity, context in self.files:
+        for descriptor, path, context in self.directories:
+            _recheck_pinned_directory(descriptor, path, context)
+        for directory, name, raw, context in self.files:
             current, status = _read_regular(directory, name)
             _require_trusted_regular(status, context)
-            if current != raw or (status.st_dev, status.st_ino) != identity:
+            if current != raw:
                 raise LedgerError(f"{context} changed during live Git proof")
         for directory, name, context in self.absences:
             try:
@@ -537,7 +538,7 @@ class _PinnedGitAuthority:
 
     def close(self) -> None:
         assert self.directories is not None
-        for descriptor, _, _, _ in reversed(self.directories):
+        for descriptor, _, _ in reversed(self.directories):
             os.close(descriptor)
         self.directories.clear()
 
@@ -610,107 +611,39 @@ def byte_digest(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
-PORTABLE_FILESYSTEM_IDENTITY_SCHEMA_VERSION = 1
+def _canonical_path(path: str | os.PathLike[str]) -> str:
+    value = os.fspath(path)
+    if not isinstance(value, str) or not value or "\0" in value:
+        raise LedgerError("filesystem path is invalid")
+    return os.path.normcase(os.path.abspath(value))
 
 
-def _portable_filesystem_identity(
-    status: os.stat_result, *, content_sha256: str | None = None
-) -> dict[str, Any]:
-    """Describe a live file or directory without persisting ``st_dev``."""
-
-    if not (stat.S_ISDIR(status.st_mode) or stat.S_ISREG(status.st_mode)):
-        raise LedgerError("portable filesystem identity requires a file or directory")
-    identity: dict[str, Any] = {
-        "schema_version": PORTABLE_FILESYSTEM_IDENTITY_SCHEMA_VERSION,
-        "kind": "directory" if stat.S_ISDIR(status.st_mode) else "file",
-        "inode": status.st_ino,
-        "mode": stat.S_IFMT(status.st_mode),
-    }
-    if stat.S_ISREG(status.st_mode):
-        identity["ctime_ns"] = status.st_ctime_ns
-        if content_sha256 is not None:
-            _string(content_sha256, "portable filesystem content digest", SHA256_RE)
-            identity["sha256"] = content_sha256
-    elif content_sha256 is not None:
-        raise LedgerError("directory portable identity cannot contain a content digest")
-    return identity
+def _descriptor_path(descriptor: int) -> str:
+    """Locate an open descriptor without consulting filesystem object numbers."""
+    try:
+        path = os.readlink(f"/proc/self/fd/{descriptor}")
+    except OSError as error:
+        raise LedgerError(f"cannot locate open filesystem descriptor: {error}") from error
+    if not path.startswith("/") or path.endswith(" (deleted)"):
+        raise LedgerError("open filesystem descriptor has no live path")
+    return _canonical_path(path)
 
 
-def _portable_device(status: os.stat_result) -> int:
-    """Return the stable numeric projection retained by schema-v1 records."""
-
-    raw = json.dumps(
-        {
-            key: value
-            for key, value in _portable_filesystem_identity(status).items()
-            if key != "ctime_ns"
-        },
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode("ascii")
-    return int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
-
-
-def _portable_file_device_from_inode(inode: int) -> int:
-    """Project a retained regular-file inode without a live mount device."""
-
-    raw = json.dumps(
-        {
-            "schema_version": PORTABLE_FILESYSTEM_IDENTITY_SCHEMA_VERSION,
-            "kind": "file",
-            "inode": inode,
-            "mode": stat.S_IFREG,
-        },
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode("ascii")
-    return int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
-
-
-def _portable_pair(status: os.stat_result) -> dict[str, int]:
-    return {"device": _portable_device(status), "inode": status.st_ino}
-
-
-def _pair_matches_status(
-    value: Mapping[str, Any] | tuple[int, int], status: os.stat_result
-) -> bool:
-    """Accept old live pairs and the new portable projection during migration."""
-
-    if isinstance(value, tuple):
-        if len(value) != 2:
-            return False
-        device, inode = value
-    else:
-        if not {"device", "inode"}.issubset(value):
-            return False
-        device, inode = value["device"], value["inode"]
-    return (
-        type(device) is int
-        and device >= 0
-        and type(inode) is int
-        and inode >= 0
-        and inode == status.st_ino
-        and device in {status.st_dev, _portable_device(status)}
-    )
-
-
-def _snapshot_record_device(snapshot: Snapshot) -> int:
-    """Read the durable projection, retaining compatibility with test fixtures."""
-
-    value = getattr(snapshot, "record_device", None)
-    return snapshot.device if value is None else value
+def _record_path(value: Mapping[str, Any], context: str = "record path", fallback: str | None = None) -> str:
+    """Use explicit paths or the enclosing record's already-validated filename."""
+    path = value.get("path", value.get("name", value.get("target", fallback)))
+    if isinstance(path, str) and path.startswith("/"):
+        return _absolute_path(path, context)
+    return _direct_name(path, context)
 
 
 def _snapshot_matches_identity(
-    snapshot: Snapshot, generation: int, digest: str, device: int, inode: int
+    snapshot: Snapshot, generation: int, digest: str, path: str
 ) -> bool:
-    """Match a persisted pair while accepting pre-migration raw-device callers."""
-
     return (
         snapshot.document["generation"] == generation
         and snapshot.digest == digest
-        and snapshot.inode == inode
-        and device in {snapshot.device, _snapshot_record_device(snapshot)}
+        and (snapshot.path == path or (path == snapshot.name and "/" not in path))
     )
 
 
@@ -735,8 +668,7 @@ def _update_transaction_marker(
     predecessor_sha256: str,
     candidate_sha256: str,
     candidate_size: int,
-    device: int,
-    inode: int,
+    path: str,
 ) -> str:
     """Derive one collision-resistant, remount-stable CAS identity marker."""
 
@@ -749,11 +681,7 @@ def _update_transaction_marker(
             "predecessor_sha256": predecessor_sha256,
             "candidate_sha256": candidate_sha256,
             "candidate_size": candidate_size,
-            # A raw mount device is not remount-stable.  Use the portable file
-            # projection in the marker so filesystem migration can preserve
-            # the transaction while retaining the inode and full receipt data.
-            "device": _portable_file_device_from_inode(inode),
-            "inode": inode,
+            "path": path,
         }
     )
 
@@ -767,8 +695,7 @@ def _compact_update_transaction(
     predecessor_sha256: str,
     candidate_sha256: str,
     candidate_size: int,
-    device: int,
-    inode: int,
+    path: str,
 ) -> tuple[str, str, dict[str, Any]]:
     """Return bounded stage/proof names and their authoritative receipt."""
 
@@ -780,8 +707,7 @@ def _compact_update_transaction(
         predecessor_sha256=predecessor_sha256,
         candidate_sha256=candidate_sha256,
         candidate_size=candidate_size,
-        device=device,
-        inode=inode,
+        path=path,
     )
     stage = f".delivery-update-stage-{marker}.tmp"
     proof = f".delivery-update-proof-{marker}.tmp"
@@ -799,12 +725,7 @@ def _compact_update_transaction(
             "predecessor_sha256": predecessor_sha256,
             "candidate_sha256": candidate_sha256,
             "candidate_size": candidate_size,
-            # Compact receipts use the durable projection that filesystem
-            # migration writes back.  The caller's raw mount device remains
-            # part of the live CAS precondition, while this persisted value
-            # must remain valid after a remount.
-            "device": _portable_file_device_from_inode(inode),
-            "inode": inode,
+            "path": path,
             "staging": stage,
             "proof": proof,
             "receipt": receipt,
@@ -829,8 +750,7 @@ def _update_receipt_document(
             "predecessor_sha256",
             "candidate_sha256",
             "candidate_size",
-            "device",
-            "inode",
+            "path",
             "staging",
             "proof",
             "receipt",
@@ -872,8 +792,7 @@ def _update_receipt_document(
     )
     if candidate_size > MAX_BYTES:
         raise LedgerError(f"update receipt candidate size exceeds {MAX_BYTES}: {name}")
-    device = _integer(item["device"], f"update receipt device {name}", minimum=0)
-    inode = _integer(item["inode"], f"update receipt inode {name}")
+    path = _record_path(item, f"update receipt path {name}")
     staging = _direct_name(item["staging"], f"update receipt staging {name}")
     proof = _direct_name(item["proof"], f"update receipt proof {name}")
     receipt = _direct_name(item["receipt"], f"update receipt receipt {name}")
@@ -885,9 +804,15 @@ def _update_receipt_document(
         predecessor_sha256=predecessor,
         candidate_sha256=candidate,
         candidate_size=candidate_size,
-        device=device,
-        inode=inode,
+        path=path,
     )
+    if "path" not in item:
+        # Historical compact names included now-ignored filesystem metadata.
+        # Retain marker, content and generation checks without recomputing it.
+        expected_staging = f".delivery-update-stage-{transaction}.tmp"
+        expected_proof = f".delivery-update-proof-{transaction}.tmp"
+        expected = dict(item)
+        expected["receipt"] = f".delivery-update-receipt-{transaction}.json"
     expected_receipt = expected["receipt"]
     if (
         name != expected_receipt
@@ -925,7 +850,7 @@ def _release_name(ledger_name: str) -> str:
 def _release_ledger_identity(value: Any, context: str) -> tuple[Any, ...]:
     item = _exact(
         value,
-        {"name", "ledger_id", "generation", "sha256", "device", "inode"},
+        {"name", "ledger_id", "generation", "sha256", "path"},
         context,
     )
     name = _direct_name(item["name"], f"{context}.name")
@@ -934,9 +859,8 @@ def _release_ledger_identity(value: Any, context: str) -> tuple[Any, ...]:
     ledger_id = _string(item["ledger_id"], f"{context}.ledger_id", REFERENCE_RE)
     generation = _integer(item["generation"], f"{context}.generation")
     digest = _string(item["sha256"], f"{context}.sha256", SHA256_RE)
-    device = _integer(item["device"], f"{context}.device", minimum=0)
-    inode = _integer(item["inode"], f"{context}.inode")
-    return name, ledger_id, generation, digest, device, inode
+    path = _record_path(item, f"{context}.path")
+    return name, ledger_id, generation, digest, path
 
 
 def _release_authority(value: Any, context: str) -> tuple[Any, ...]:
@@ -1089,8 +1013,7 @@ def _release_document(
             "ledger_id": snapshot.document["ledger_id"],
             "generation": snapshot.document["generation"],
             "sha256": snapshot.digest,
-            "device": _snapshot_record_device(snapshot),
-            "inode": snapshot.inode,
+            "path": snapshot.path,
         },
         **request_copy,
     }
@@ -1437,7 +1360,8 @@ def _prove_release_git(
         opened = os.fstat(descriptor)
         visible = os.stat(path, follow_symlinks=False)
         _require_trusted_directory(opened, f"release worktree {path}")
-        if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+        _require_trusted_directory(visible, f"release worktree {path}")
+        if _descriptor_path(descriptor) != path:
             raise LedgerError("release worktree changed while opening")
         authority = _pin_checkout_git_authority(
             descriptor,
@@ -1507,7 +1431,8 @@ def _prove_release_git(
                 raise LedgerError("squash merge change differs from the recorded PR head")
         authority.recheck()
         after = os.stat(path, follow_symlinks=False)
-        if (opened.st_dev, opened.st_ino) != (after.st_dev, after.st_ino):
+        _require_trusted_directory(after, f"release worktree {path}")
+        if _descriptor_path(descriptor) != path:
             raise LedgerError("release worktree changed during proof")
     finally:
         if authority is not None:
@@ -1515,7 +1440,7 @@ def _prove_release_git(
         os.close(descriptor)
 
 
-def _release_record(name: str, raw: bytes, status: os.stat_result) -> ReleaseRecord:
+def _release_record(name: str, raw: bytes, status: os.stat_result, path: str | None = None) -> ReleaseRecord:
     document = _validate_release_document(_decode(raw, name), name)
     if raw != canonical_bytes(document):
         raise LedgerError(f"release marker bytes are noncanonical: {name}")
@@ -1528,9 +1453,7 @@ def _release_record(name: str, raw: bytes, status: os.stat_result) -> ReleaseRec
         document,
         raw,
         byte_digest(raw),
-        status.st_dev,
-        status.st_ino,
-        _portable_device(status),
+        path or name,
     )
 
 
@@ -2183,8 +2106,6 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
                     key: item.get(key)
                     for key in (
                         "path",
-                        "device",
-                        "inode",
                         "metadata_sha256",
                         "marker_sha256",
                     )
@@ -2203,7 +2124,7 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
         or journal["completed"] != expected_completed
     ):
         raise LedgerError(f"{context} scope release journal actions are invalid")
-    if journal["pending_builds"] != expected_pending_builds:
+    if _without_filesystem_metadata(journal["pending_builds"]) != expected_pending_builds:
         raise LedgerError(f"{context} scope release build intents are invalid")
     request = resource["request"]
     wrapper_root = request["roots"]["wrapper"]["path"]
@@ -2235,25 +2156,23 @@ def _archive_member(name: str, raw: bytes, status: os.stat_result) -> dict[str, 
     return {
         "name": _direct_name(name, "archive member name"),
         "mode": stat.S_IMODE(status.st_mode),
-        "device": _portable_device(status),
-        "inode": status.st_ino,
+        "path": name,
         "sha256": byte_digest(raw),
         "raw_base64": base64.b64encode(raw).decode("ascii"),
     }
 
 
-def _archive_member_bytes(value: Any, context: str) -> tuple[str, bytes, int, int, int]:
+def _archive_member_bytes(value: Any, context: str) -> tuple[str, bytes, int, str]:
     item = _exact(
         value,
-        {"name", "mode", "device", "inode", "sha256", "raw_base64"},
+        {"name", "mode", "path", "sha256", "raw_base64"},
         context,
     )
     name = _direct_name(item["name"], f"{context}.name")
     mode = _integer(item["mode"], f"{context}.mode", minimum=0)
     if mode > 0o777 or mode & 0o022:
         raise LedgerError(f"{context}.mode is unsafe")
-    device = _integer(item["device"], f"{context}.device", minimum=0)
-    inode = _integer(item["inode"], f"{context}.inode")
+    path = _record_path(item, f"{context}.path")
     digest = _string(item["sha256"], f"{context}.sha256", SHA256_RE)
     encoded = item["raw_base64"]
     if not isinstance(encoded, str) or len(encoded) > MAX_ARCHIVE_BYTES:
@@ -2264,12 +2183,12 @@ def _archive_member_bytes(value: Any, context: str) -> tuple[str, bytes, int, in
         raise LedgerError(f"{context}.raw_base64 is invalid") from error
     if base64.b64encode(raw).decode("ascii") != encoded or byte_digest(raw) != digest:
         raise LedgerError(f"{context} bytes are noncanonical or mismatched")
-    return name, raw, mode, device, inode
+    return name, raw, mode, path
 
 
 def _validate_archived_head_correction(
     snapshot: Snapshot,
-    members: Sequence[tuple[str, bytes, int, int, int]],
+    members: Sequence[tuple[str, bytes, int, str]],
     context: str,
 ) -> frozenset[str]:
     """Validate one complete correction evidence set embedded in an archive."""
@@ -2280,8 +2199,8 @@ def _validate_archived_head_correction(
         ("stage", _HEAD_CORRECTION_STAGE_RE),
         ("receipt", _HEAD_CORRECTION_RECEIPT_RE),
     )
-    evidence: dict[str, tuple[str, str, bytes, int, int, int]] = {}
-    for name, raw, mode, device, inode in members:
+    evidence: dict[str, tuple[str, str, bytes, int, str]] = {}
+    for name, raw, mode, path in members:
         matched = next(
             (
                 (kind, match)
@@ -2296,22 +2215,31 @@ def _validate_archived_head_correction(
         kind, match = matched
         if kind in evidence:
             raise LedgerError(f"{context} has duplicate correction {kind} evidence")
-        evidence[kind] = (name, match.group("source"), raw, mode, device, inode)
+        evidence[kind] = (name, match.group("source"), raw, mode, path)
     if not evidence:
         return frozenset()
     if set(evidence) != {"predecessor", "erroneous", "receipt"}:
         raise LedgerError(f"{context} has incomplete correction evidence")
-    predecessor_name, source, predecessor_raw, _mode, predecessor_device, predecessor_inode = evidence[
+    predecessor_name, source, predecessor_raw, _mode, predecessor_path = evidence[
         "predecessor"
     ]
-    erroneous_name, erroneous_source, erroneous_raw, _mode, erroneous_device, erroneous_inode = evidence[
+    erroneous_name, erroneous_source, erroneous_raw, _mode, erroneous_path = evidence[
         "erroneous"
     ]
-    receipt_name, receipt_source, receipt_raw, _mode, _device, _inode = evidence[
+    receipt_name, receipt_source, receipt_raw, _mode, _path = evidence[
         "receipt"
     ]
     if len({source, erroneous_source, receipt_source}) != 1:
         raise LedgerError(f"{context} correction source digests differ")
+    archive_root = Path(snapshot.path).parent
+    predecessor_path = str(archive_root / predecessor_path)
+    erroneous_path = str(archive_root / erroneous_path)
+
+    def anchored_identity(value: Mapping[str, Any]) -> dict[str, Any]:
+        result = dict(value)
+        if "path" in result:
+            result["path"] = str(archive_root / result["path"])
+        return result
     predecessor = validate(_decode(predecessor_raw, predecessor_name))
     erroneous = validate(_decode(erroneous_raw, erroneous_name))
     receipt = _head_correction_receipt(_decode(receipt_raw, receipt_name), receipt_name)
@@ -2320,27 +2248,21 @@ def _validate_archived_head_correction(
         or erroneous_raw != canonical_bytes(erroneous)
         or receipt_raw != canonical_bytes(receipt)
         or byte_digest(erroneous_raw) != source
-        or receipt["source"]
-        != {
+        or not _record_fields_match(anchored_identity(receipt["source"]), {
             "generation": erroneous["generation"],
             "sha256": source,
-            "device": erroneous_device,
-            "inode": erroneous_inode,
-        }
-        or receipt["predecessor_snapshot"]
-        != {
+            "path": snapshot.path,
+        })
+        or not _record_fields_match(anchored_identity(receipt["predecessor_snapshot"]), {
             "name": predecessor_name,
             "sha256": byte_digest(predecessor_raw),
-            "device": predecessor_device,
-            "inode": predecessor_inode,
-        }
-        or receipt["erroneous_snapshot"]
-        != {
+            "path": predecessor_path,
+        })
+        or not _record_fields_match(anchored_identity(receipt["erroneous_snapshot"]), {
             "name": erroneous_name,
             "sha256": source,
-            "device": erroneous_device,
-            "inode": erroneous_inode,
-        }
+            "path": erroneous_path,
+        })
     ):
         raise LedgerError(f"{context} correction member identity differs")
     corrected, metadata, _ = _head_correction_document(
@@ -2368,9 +2290,7 @@ def _validate_archived_head_correction(
         erroneous,
         erroneous_raw,
         source,
-        erroneous_device,
-        erroneous_inode,
-        erroneous_device,
+        snapshot.path,
     )
     _require_head_correction_recovery(
         receipt["recovery"],
@@ -2378,7 +2298,6 @@ def _validate_archived_head_correction(
         expected_intent,
         context,
         installed_snapshot=erroneous_snapshot,
-        allow_historical_device=True,
     )
     generation = corrected["generation"]
     current = snapshot.document
@@ -2446,8 +2365,8 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
     release_member = by_name.get(_release_name(ledger_identity[0]))
     if ledger_member is None or release_member is None:
         raise LedgerError(f"{context} lost its canonical ledger or release marker")
-    ledger_raw, _ledger_mode, ledger_device, ledger_inode = ledger_member
-    release_raw, _release_mode, release_device, release_inode = release_member
+    ledger_raw, _ledger_mode, ledger_path = ledger_member
+    release_raw, _release_mode, release_path = release_member
     if (
         byte_digest(ledger_raw) != ledger_identity[3]
         or byte_digest(release_raw) != item["release_sha256"]
@@ -2460,7 +2379,7 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
         or canonical_name(ledger_document) != ledger_identity[0]
         or ledger_document["ledger_id"] != ledger_identity[1]
         or ledger_document["generation"] != ledger_identity[2]
-        or (ledger_device, ledger_inode) != (ledger_identity[4], ledger_identity[5])
+        or Path(ledger_path).name != ledger_identity[0]
     ):
         raise LedgerError(f"{context} canonical ledger member is mismatched")
     release_document = _validate_release_document(
@@ -2474,8 +2393,6 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
         ledger_document,
         ledger_raw,
         ledger_identity[3],
-        ledger_identity[4],
-        ledger_identity[5],
         ledger_identity[4],
     )
     correction_members = _validate_archived_head_correction(
@@ -2515,9 +2432,9 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
             "cleanup",
         )
     }
-    if _release_document(
+    if not _record_fields_match(release_document, _release_document(
         archived_snapshot, release_request, live_proof=False
-    ) != release_document:
+    )):
         raise LedgerError(f"{context} release member does not bind the archived ledger")
     archived_release = ReleaseRecord(
         _release_name(ledger_identity[0]),
@@ -2525,9 +2442,7 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
         release_document,
         release_raw,
         item["release_sha256"],
-        release_device,
-        release_inode,
-        release_device,
+        release_path,
     )
     archive_request = {
         key: item[key]
@@ -2545,7 +2460,7 @@ def _validate_archive_document(value: Any, context: str) -> dict[str, Any]:
     return item
 
 
-def _archive_record(name: str, raw: bytes, status: os.stat_result) -> ArchiveRecord:
+def _archive_record(name: str, raw: bytes, status: os.stat_result, path: str | None = None) -> ArchiveRecord:
     document = _validate_archive_document(
         _decode(raw, name, limit=MAX_ARCHIVE_BYTES), name
     )
@@ -2561,24 +2476,46 @@ def _archive_record(name: str, raw: bytes, status: os.stat_result) -> ArchiveRec
         document,
         raw,
         byte_digest(raw),
-        status.st_dev,
-        status.st_ino,
+        path or name,
         status,
-        _portable_device(status),
     )
 
 
-def _archive_record_device(archive: ArchiveRecord) -> int:
-    """Read the durable archive projection, retaining old fixture compatibility."""
+def _without_filesystem_metadata(value: Any) -> Any:
+    """Ignore obsolete object-number fields without changing retained raw bytes."""
+    if isinstance(value, dict):
+        obsolete = {"device", "inode", "ctime_ns", "path_device", "path_inode", "live_path_device"}
+        return {key: _without_filesystem_metadata(item) for key, item in value.items() if key not in obsolete}
+    if isinstance(value, list):
+        return [_without_filesystem_metadata(item) for item in value]
+    return value
 
-    value = getattr(archive, "record_device", None)
-    return archive.device if value is None else value
+
+def _record_fields_match(actual: Any, expected: Any) -> bool:
+    """Compare retained record fields, using the enclosing name for legacy paths."""
+    actual = _without_filesystem_metadata(actual)
+    expected = _without_filesystem_metadata(expected)
+    if isinstance(actual, dict) and isinstance(expected, dict):
+        if "path" not in actual:
+            expected = {key: value for key, value in expected.items() if key != "path"}
+        return set(actual) == set(expected) and all(
+            _record_fields_match(actual[key], expected[key]) for key in actual
+        )
+    if isinstance(actual, list) and isinstance(expected, list):
+        return len(actual) == len(expected) and all(
+            _record_fields_match(left, right) for left, right in zip(actual, expected)
+        )
+    return actual == expected
 
 
 def _exact(value: Any, keys: set[str], context: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise LedgerError(f"{context} must be an object")
-    actual = set(value)
+    legacy = {"device", "inode", "ctime_ns", "path_device", "path_inode", "live_path_device"}
+    actual = set(value) - legacy
+    # Historical named records retain their bytes; the filename anchors them.
+    if "path" in keys and "path" not in actual and ({"name", "target"} & actual):
+        actual.add("path")
     if actual != keys:
         details: list[str] = []
         if keys - actual:
@@ -2618,28 +2555,26 @@ def _absolute_path(value: Any, context: str) -> str:
     return value
 
 
-def _path_identity(value: Any, context: str) -> tuple[str, int, int]:
-    item = _exact(value, {"path", "device", "inode"}, context)
-    return (
-        _absolute_path(item["path"], f"{context}.path"),
-        _integer(item["device"], f"{context}.device", minimum=0),
-        _integer(item["inode"], f"{context}.inode", minimum=0),
-    )
+def _path_identity(value: Any, context: str) -> str:
+    if isinstance(value, dict):
+        value = {key: item for key, item in value.items() if key not in {"device", "inode", "ctime_ns"}}
+    item = _exact(value, {"path"}, context)
+    return _absolute_path(item["path"], f"{context}.path")
 
 
 def _request_roots(
     value: Any, physical_checkout: str, context: str
-) -> tuple[tuple[str, int, int], ...]:
+) -> tuple[str, ...]:
     item = _exact(value, {"wrapper", "workspace", "primary"}, context)
     wrapper = _path_identity(item["wrapper"], f"{context}.wrapper")
     workspace = _path_identity(item["workspace"], f"{context}.workspace")
     primary = _path_identity(item["primary"], f"{context}.primary")
-    wrapper_path = Path(wrapper[0])
-    workspace_path = Path(workspace[0])
+    wrapper_path = Path(wrapper)
+    workspace_path = Path(workspace)
     if workspace_path == wrapper_path or wrapper_path.is_relative_to(workspace_path):
         raise LedgerError(f"{context}.workspace is an unsafe wrapper root/ancestor")
-    wrapper_self = physical_checkout == "atrinik" and Path(primary[0]) == wrapper_path
-    if not wrapper_self and Path(primary[0]) != wrapper_path / physical_checkout:
+    wrapper_self = physical_checkout == "atrinik" and Path(primary) == wrapper_path
+    if not wrapper_self and Path(primary) != wrapper_path / physical_checkout:
         raise LedgerError(f"{context}.primary does not match the physical checkout")
     return wrapper, workspace, primary
 
@@ -3143,23 +3078,23 @@ def _recheck_pinned_directory(
     descriptor: int,
     path: str,
     context: str,
-    expected: tuple[int, int] | None = None,
+    expected: str | None = None,
 ) -> os.stat_result:
-    """Require one open no-follow directory to remain its visible path inode."""
+    """Require one open no-follow directory to remain its visible path."""
 
     try:
         opened = os.fstat(descriptor)
         visible = os.stat(path, follow_symlinks=False)
     except OSError as error:
         raise LedgerError(f"{context} is not a live exact directory: {error}") from error
-    identity = (opened.st_dev, opened.st_ino)
+    identity = _descriptor_path(descriptor)
     _require_trusted_directory(opened, context)
     _require_trusted_directory(visible, context)
     if (
         not stat.S_ISDIR(opened.st_mode)
         or not stat.S_ISDIR(visible.st_mode)
-        or identity != (visible.st_dev, visible.st_ino)
-        or (expected is not None and not _pair_matches_status(expected, opened))
+        or identity != path
+        or (expected is not None and expected != identity)
     ):
         raise LedgerError(f"{context} live path identity drifted")
     return opened
@@ -3168,7 +3103,7 @@ def _recheck_pinned_directory(
 def _open_trusted_child_directory(
     parent: int, name: str, path: str, context: str
 ) -> int:
-    """Open one direct no-follow directory and require its visible trusted inode."""
+    """Open one direct no-follow directory and require its visible trusted path."""
 
     direct = _direct_name(name, context)
     flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
@@ -3182,7 +3117,7 @@ def _open_trusted_child_directory(
         visible = os.stat(direct, dir_fd=parent, follow_symlinks=False)
         _require_trusted_directory(opened, context)
         _require_trusted_directory(visible, context)
-        if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+        if _descriptor_path(descriptor) != path:
             raise LedgerError(f"{context} live path identity drifted")
         _recheck_pinned_directory(descriptor, path, context)
         return descriptor
@@ -3199,11 +3134,11 @@ def _recheck_live_worktree_paths(
     """Recheck every root and exact managed-path ancestor held by a live guard."""
 
     for name in ("wrapper", "workspace", "primary"):
-        root_path, device, inode = _path_identity(
+        root_path = _path_identity(
             request["roots"][name], f"live proof roots.{name}"
         )
         _recheck_pinned_directory(
-            descriptors[name], root_path, f"live proof roots.{name}", (device, inode)
+            descriptors[name], root_path, f"live proof roots.{name}", root_path
         )
     workspace = Path(request["roots"]["workspace"]["path"])
     managed = (
@@ -3227,6 +3162,7 @@ def _pinned_live_worktree(
     *,
     allowed_references: Iterable[str] = (),
     scope_record: Mapping[str, Any] | None = None,
+    _lease_plans: list[Any] | None = None,
 ) -> Iterator[_LiveWorktreeGuard]:
     """Open every precommitted root and the worktree without following links."""
 
@@ -3234,7 +3170,7 @@ def _pinned_live_worktree(
     try:
         for name in ("wrapper", "workspace", "primary"):
             identity = request["roots"][name]
-            root_path, device, inode = _path_identity(
+            root_path = _path_identity(
                 identity, f"{context}.roots.{name}"
             )
             try:
@@ -3247,7 +3183,7 @@ def _pinned_live_worktree(
                 descriptors[name],
                 root_path,
                 f"{context}.roots.{name}",
-                (device, inode),
+                root_path,
             )
         expected_path = _expected_worktree_path(request)
         if path != expected_path:
@@ -3310,11 +3246,13 @@ def _pinned_live_worktree(
             workspace_directory=descriptors["workspace"],
             worktree_directory=descriptors["worktree"],
             scope_record=scope_record,
+            _lease_plans=_lease_plans,
         ) as authority_recheck:
             guard = _LiveWorktreeGuard(
                 request, path, descriptors, allowed, authority_recheck
             )
-            guard.prove()
+            if _lease_plans is None:
+                guard.prove()
             yield guard
     finally:
         for descriptor in reversed(tuple(descriptors.values())):
@@ -3404,8 +3342,6 @@ def _profile_inventory_snapshot(
         rows.append(
             (
                 name,
-                status.st_dev,
-                status.st_ino,
                 status.st_mode,
                 status.st_nlink,
                 status.st_size,
@@ -3427,6 +3363,7 @@ def _workspace_safety_lease(
     workspace_directory: int,
     worktree_directory: int,
     scope_record: Mapping[str, Any] | None = None,
+    _lease_plans: list[Any] | None = None,
 ) -> Iterator[Callable[[], None]]:
     """Use wrapper leases/reference logic to prove inactive, owned reuse."""
 
@@ -3434,6 +3371,7 @@ def _workspace_safety_lease(
     workspace_root = request["roots"]["workspace"]["path"]
     saved_environment = _enter_workspace_environment(workspace_root)
     workspace = None
+    preparation = None
     profiles_directory = None
     profiles_snapshot = None
     try:
@@ -3443,7 +3381,6 @@ def _workspace_safety_lease(
         _require_trusted_regular(
             manifest_status, f"{context} workspace manifest authority"
         )
-        manifest_identity = (manifest_status.st_dev, manifest_status.st_ino)
 
         def recheck_manifest() -> None:
             current_raw, current_status = _read_regular(
@@ -3454,8 +3391,6 @@ def _workspace_safety_lease(
             )
             if (
                 current_raw != manifest_raw
-                or (current_status.st_dev, current_status.st_ino)
-                != manifest_identity
             ):
                 raise LedgerError(
                     f"{context} workspace manifest authority changed during live proof"
@@ -3513,7 +3448,13 @@ def _workspace_safety_lease(
             parameter.kind is Parameter.VAR_KEYWORD
             for parameter in workspace_parameters.values()
         )
-        if supports_manifest:
+        if _lease_plans is not None:
+            prepare_workspace = getattr(module.Workspace, "_prepare_delivery_workspace", None)
+            if not callable(prepare_workspace):
+                raise LedgerError("accepted wrapper lacks current-target preparation support")
+            preparation = prepare_workspace(Path(wrapper_root), manifest=retained_manifest)
+            workspace = preparation
+        elif supports_manifest:
             workspace = module.Workspace(
                 Path(wrapper_root),
                 backfill_references=False,
@@ -3562,81 +3503,91 @@ def _workspace_safety_lease(
                 profiles_absent = True
             else:
                 raise
-        wrapper_self = (
-            request["component"] == "atrinik"
-            and request["physical_checkout"] == "atrinik"
-            and request["roots"]["primary"] == request["roots"]["wrapper"]
-        )
-        if wrapper_self:
-            checkout = None
-            admin_coordinate = workspace._wrapper_git_admin_coordinate()
+        if preparation is None:
+            wrapper_self = (
+                request["component"] == "atrinik"
+                and request["physical_checkout"] == "atrinik"
+                and request["roots"]["primary"] == request["roots"]["wrapper"]
+            )
+            if wrapper_self:
+                checkout = None
+                admin_coordinate = workspace._wrapper_git_admin_coordinate()
+            else:
+                checkout = workspace._resolve_checkout(request["component"])
+                if (
+                    checkout.name != request["physical_checkout"]
+                    or checkout.repository
+                    != f"{request['repository']['owner']}/{request['repository']['name']}"
+                    or str(workspace._primary_path(checkout))
+                    != request["roots"]["primary"]["path"]
+                ):
+                    raise LedgerError(
+                        f"{context} wrapper component/checkout/repository differs"
+                    )
+                workspace._validate_checkout(
+                    checkout, Path(request["roots"]["primary"]["path"]), trace=False
+                )
+                admin_coordinate = workspace._git_admin_coordinate(
+                    checkout, Path(request["roots"]["primary"]["path"])
+                )
+            checkout_name = request["physical_checkout"]
+            requests = [
+                workspace._lease_request(
+                    "git-admin", admin_coordinate, "shared", "delivery live proof"
+                ),
+                workspace._lease_request(
+                    "registry", "physical-references", "shared", "delivery live proof"
+                ),
+                workspace._lease_request(
+                    "source",
+                    workspace._source_coordinate(checkout_name, Path(path)),
+                    "exclusive",
+                    "delivery live proof",
+                ),
+                workspace._lease_request(
+                    "source",
+                    workspace._physical_source_coordinate(Path(path)),
+                    "exclusive",
+                    "delivery live proof",
+                ),
+            ]
+            if scope_record is not None:
+                requests.extend(
+                    (
+                        workspace._lease_request(
+                            "registry",
+                            f"scope:{scope_record['name']}",
+                            "shared",
+                            "delivery scope proof",
+                        ),
+                        workspace._lease_request(
+                            "profile",
+                            scope_record["profile"]["name"],
+                            "shared",
+                            "delivery scope proof",
+                        ),
+                        workspace._lease_request(
+                            "topology",
+                            scope_record["topology"]["name"],
+                            "shared",
+                            "delivery scope proof",
+                        ),
+                    )
+                )
         else:
-            checkout = workspace._resolve_checkout(request["component"])
-            if (
-                checkout.name != request["physical_checkout"]
-                or checkout.repository
-                != f"{request['repository']['owner']}/{request['repository']['name']}"
-                or str(workspace._primary_path(checkout))
-                != request["roots"]["primary"]["path"]
-            ):
-                raise LedgerError(
-                    f"{context} wrapper component/checkout/repository differs"
-                )
-            workspace._validate_checkout(
-                checkout, Path(request["roots"]["primary"]["path"]), trace=False
-            )
-            admin_coordinate = workspace._git_admin_coordinate(
-                checkout, Path(request["roots"]["primary"]["path"])
-            )
-        checkout_name = request["physical_checkout"]
-        requests = [
-            workspace._lease_request(
-                "git-admin", admin_coordinate, "shared", "delivery live proof"
-            ),
-            workspace._lease_request(
-                "registry", "physical-references", "shared", "delivery live proof"
-            ),
-            workspace._lease_request(
-                "source",
-                workspace._source_coordinate(checkout_name, Path(path)),
-                "exclusive",
-                "delivery live proof",
-            ),
-            workspace._lease_request(
-                "source",
-                workspace._physical_source_coordinate(Path(path)),
-                "exclusive",
-                "delivery live proof",
-            ),
-        ]
-        if scope_record is not None:
-            requests.extend(
-                (
-                    workspace._lease_request(
-                        "registry",
-                        f"scope:{scope_record['name']}",
-                        "shared",
-                        "delivery scope proof",
-                    ),
-                    workspace._lease_request(
-                        "profile",
-                        scope_record["profile"]["name"],
-                        "shared",
-                        "delivery scope proof",
-                    ),
-                    workspace._lease_request(
-                        "topology",
-                        scope_record["topology"]["name"],
-                        "shared",
-                        "delivery scope proof",
-                    ),
-                )
-            )
+            requests = preparation.plan_live_worktree(request, path, scope_record)
         try:
-            locks = workspace._resource_locks(requests, nonblocking=True)
+            if _lease_plans is None:
+                locks = workspace._resource_locks(requests, nonblocking=True)
+            else:
+                _lease_plans.append((module, preparation, tuple(requests)))
+                locks = nullcontext()
             with locks:
                 def recheck() -> None:
                     try:
+                        proof_workspace = (
+                            preparation.admitted_workspace if preparation is not None else workspace
+                        )
                         recheck_manifest()
                         if profiles_directory is None:
                             try:
@@ -3667,7 +3618,7 @@ def _workspace_safety_lease(
                                     f"{context} profile inventory authority changed"
                                 )
                         if scope_record is not None:
-                            _verify_live_scope(workspace, scope_record, context)
+                            _verify_live_scope(proof_workspace, scope_record, context)
                         reference_arguments = {
                             "profiles_directory_fd": profiles_directory,
                             "profiles_directory_absent": profiles_absent,
@@ -3682,7 +3633,7 @@ def _workspace_safety_lease(
                                 "exclude_inactive_topologies"
                             ] = True
                         references = set(
-                            workspace._source_references(
+                            proof_workspace._source_references(
                                 Path(path), **reference_arguments
                             )
                         )
@@ -3720,7 +3671,8 @@ def _workspace_safety_lease(
                             f"{context} wrapper authority recheck failed: {error}"
                         ) from error
 
-                recheck()
+                if _lease_plans is None:
+                    recheck()
                 yield recheck
         except LedgerError:
             raise
@@ -3798,13 +3750,7 @@ def _verify_live_scope(
             profile_status, f"{context} scope profile {profile_path}"
         )
         if (
-            not _pair_matches_status(
-                {
-                    "device": profile.get("path_device"),
-                    "inode": profile.get("path_inode"),
-                },
-                profile_status,
-            )
+            profile.get("path") != str(profile_path)
             or byte_digest(profile_raw) != profile.get("sha256")
         ):
             raise LedgerError(
@@ -3853,8 +3799,7 @@ def _verify_live_scope(
 class _WorkspacePackageSnapshot:
     """Exact trusted source bytes and full-tree identity for one package load."""
 
-    device: int
-    inode: int
+    path: str
     fingerprint: str
     sources: tuple[tuple[str, bytes], ...]
 
@@ -3981,8 +3926,6 @@ def _prevalidate_workspace_package(package_root: Path) -> _WorkspacePackageSnaps
                 "path": relative,
                 "kind": kind,
                 "mode": status.st_mode,
-                "device": status.st_dev,
-                "inode": status.st_ino,
                 "size": len(raw),
             }
         )
@@ -4056,8 +3999,7 @@ def _prevalidate_workspace_package(package_root: Path) -> _WorkspacePackageSnaps
                 "wrapper authority package lacks required source modules"
             )
         return _WorkspacePackageSnapshot(
-            root_status.st_dev,
-            root_status.st_ino,
+            str(package_root),
             fingerprint.hexdigest(),
             tuple(sources),
         )
@@ -4169,8 +4111,7 @@ def _git_workspace_package_snapshot(
             root, str(package_root), "candidate wrapper authority package"
         )
         return _WorkspacePackageSnapshot(
-            root_status.st_dev,
-            root_status.st_ino,
+            str(package_root),
             fingerprint.hexdigest(),
             tuple(sources),
         )
@@ -4179,13 +4120,13 @@ def _git_workspace_package_snapshot(
 
 
 def _load_workspace_module(wrapper_root: str) -> Any:
-    """Load pretrusted wrapper authority under an inode-specific package."""
+    """Load pretrusted wrapper authority under a path-specific package."""
 
     package_root = Path(wrapper_root) / "atrinik_workspace"
     snapshot = _prevalidate_workspace_package(package_root)
     path_token = hashlib.sha256(wrapper_root.encode("utf-8")).hexdigest()[:16]
     identity = (
-        f"{snapshot.device:x}_{snapshot.inode:x}_{path_token}_"
+        f"{path_token}_"
         f"{snapshot.fingerprint}"
     )
     package_name = f"_atrinik_delivery_workspace_{identity}"
@@ -4202,12 +4143,10 @@ def _load_workspace_module(wrapper_root: str) -> Any:
             raise
     after = _prevalidate_workspace_package(package_root)
     if (
-        after.device,
-        after.inode,
+        after.path,
         after.fingerprint,
     ) != (
-        snapshot.device,
-        snapshot.inode,
+        snapshot.path,
         snapshot.fingerprint,
     ):
         _discard_snapshot_package(package_name)
@@ -4241,12 +4180,15 @@ def _load_workspace_module_from_git(
     """Load wrapper authority exclusively from one expected committed tree."""
 
     package_root = Path(wrapper_root) / "atrinik_workspace"
+    # Committed Git objects alone cannot reveal replacement or edits of the
+    # live package. Retain its content fingerprint across the import as well.
+    live_sources = _prevalidate_workspace_package(package_root)
     snapshot = _git_workspace_package_snapshot(
         package_root, worktree, expected_head
     )
     path_token = hashlib.sha256(wrapper_root.encode("utf-8")).hexdigest()[:16]
     package_name = (
-        f"_atrinik_delivery_workspace_git_{snapshot.device:x}_{snapshot.inode:x}_"
+        f"_atrinik_delivery_workspace_git_"
         f"{path_token}_{snapshot.fingerprint}"
     )
     workspace_name = f"{package_name}.workspace"
@@ -4261,13 +4203,19 @@ def _load_workspace_module_from_git(
             _discard_snapshot_package(package_name)
             raise
     after = _git_workspace_package_snapshot(package_root, worktree, expected_head)
+    try:
+        live_after = _prevalidate_workspace_package(package_root)
+    except (LedgerError, OSError) as error:
+        _discard_snapshot_package(package_name)
+        raise LedgerError("candidate wrapper authority Git tree changed during import") from error
+    if live_after.fingerprint != live_sources.fingerprint:
+        _discard_snapshot_package(package_name)
+        raise LedgerError("candidate wrapper authority Git tree changed during import")
     if (
-        after.device,
-        after.inode,
+        after.path,
         after.fingerprint,
     ) != (
-        snapshot.device,
-        snapshot.inode,
+        snapshot.path,
         snapshot.fingerprint,
     ):
         _discard_snapshot_package(package_name)
@@ -4641,10 +4589,7 @@ def _pin_checkout_git_authority(
                 ("worktrees", admin_object.name),
                 f"{context} common worktree registration",
             )
-            if registered is None or (
-                os.fstat(registered[0]).st_dev,
-                os.fstat(registered[0]).st_ino,
-            ) != (os.fstat(admin).st_dev, os.fstat(admin).st_ino):
+            if registered is None or _descriptor_path(registered[0]) != _descriptor_path(admin):
                 raise LedgerError(
                     f"{context} Git admin differs from its common worktree registration"
                 )
@@ -4943,11 +4888,11 @@ def _prove_live_worktree_core(
     """Recompute every Git-backed reusable-safe fact from pinned live roots."""
 
     for name in ("wrapper", "workspace", "primary"):
-        root_path, device, inode = _path_identity(
+        root_path = _path_identity(
             request["roots"][name], f"live proof roots.{name}"
         )
         _recheck_pinned_directory(
-            descriptors[name], root_path, f"live proof roots.{name}", (device, inode)
+            descriptors[name], root_path, f"live proof roots.{name}", root_path
         )
     worktree_status = _recheck_pinned_directory(
         descriptors["worktree"], path, "live proof worktree"
@@ -5093,18 +5038,15 @@ def _prove_live_worktree_core(
             primary_common_descriptor,
             expected_common,
             "live primary common Git directory",
-            (primary_common_status.st_dev, primary_common_status.st_ino),
+            expected_common,
         )
         _recheck_pinned_directory(
             worktree_common_descriptor,
             common_git_dir,
             "live worktree common Git directory",
-            (worktree_common_status.st_dev, worktree_common_status.st_ino),
+            common_git_dir,
         )
-        if (primary_common_status.st_dev, primary_common_status.st_ino) != (
-            worktree_common_status.st_dev,
-            worktree_common_status.st_ino,
-        ):
+        if _descriptor_path(primary_common_descriptor) != _descriptor_path(worktree_common_descriptor):
             raise LedgerError("live worktree common Git directory is foreign")
     except (LedgerError, OSError) as error:
         if worktree_common_descriptor is not None:
@@ -5154,13 +5096,13 @@ def _prove_live_worktree_core(
             primary_common_descriptor,
             expected_common,
             "live primary common Git directory",
-            (primary_common_status.st_dev, primary_common_status.st_ino),
+            expected_common,
         )
         _recheck_pinned_directory(
             worktree_common_descriptor,
             common_git_dir,
             "live worktree common Git directory",
-            (worktree_common_status.st_dev, worktree_common_status.st_ino),
+            common_git_dir,
         )
     finally:
         if worktree_common_descriptor is not None:
@@ -5168,9 +5110,7 @@ def _prove_live_worktree_core(
         if primary_common_descriptor is not None:
             os.close(primary_common_descriptor)
     return {
-        "path_device": _portable_device(worktree_status),
-        "path_inode": worktree_status.st_ino,
-        "live_path_device": worktree_status.st_dev,
+        "path": path,
         "common_git_dir": common_git_dir,
         "tree": tree,
         "safety": dict(SAFE_ARTIFACT_STATE),
@@ -5261,9 +5201,7 @@ def _verify_live_observation(
     item: Mapping[str, Any], proof: Mapping[str, Any], context: str
 ) -> None:
     if (
-        item["path_inode"] != proof["path_inode"]
-        or item["path_device"]
-        not in {proof["path_device"], proof.get("live_path_device")}
+        item["path"] != proof["path"]
         or item["safety"] != proof["safety"]
     ):
         raise LedgerError(f"{context} differs from helper-owned live proof")
@@ -5296,8 +5234,6 @@ def _safety_observation(
             "physical_checkout",
             "roots",
             "path",
-            "path_device",
-            "path_inode",
             "branch",
             "head_sha",
             "worktree_list_sha256",
@@ -5314,10 +5250,8 @@ def _safety_observation(
         item["repository"] != request["repository"]
         or item["component"] != request["component"]
         or item["physical_checkout"] != request["physical_checkout"]
-        or item["roots"] != request["roots"]
+        or _without_filesystem_metadata(item["roots"]) != _without_filesystem_metadata(request["roots"])
         or _absolute_path(item["path"], f"{context}.path") != path
-        or _integer(item["path_device"], f"{context}.path_device", minimum=0) < 0
-        or _integer(item["path_inode"], f"{context}.path_inode", minimum=0) < 0
         or item["branch"] != request["branch"]
         or item["head_sha"] != request["expected_head_sha"]
         or item["worktree_list_sha256"] != list_digest
@@ -5381,10 +5315,8 @@ def _live_observation_document(
         "repository": _json_object_copy(request["repository"], "live repository"),
         "component": request["component"],
         "physical_checkout": request["physical_checkout"],
-        "roots": _json_object_copy(request["roots"], "live roots"),
+        "roots": _without_filesystem_metadata(_json_object_copy(request["roots"], "live roots")),
         "path": path,
-        "path_device": proof["path_device"],
-        "path_inode": proof["path_inode"],
         "branch": request["branch"],
         "head_sha": request["expected_head_sha"],
         "worktree_list_sha256": list_digest,
@@ -5705,13 +5637,11 @@ def _artifact(value: Any, context: str) -> tuple[str, str]:
     return (slot,)
 
 
-def _source(value: Any, context: str) -> tuple[str, str, int, int]:
-    item = _exact(value, {"name", "sha256", "device", "inode"}, context)
+def _source(value: Any, context: str) -> tuple[str, str, str]:
+    item = _exact(value, {"name", "sha256", "path"}, context)
     name = _direct_name(item["name"], f"{context}.name")
     digest = _string(item["sha256"], f"{context}.sha256", SHA256_RE)
-    device = _integer(item["device"], f"{context}.device", minimum=0)
-    inode = _integer(item["inode"], f"{context}.inode")
-    return name, digest, device, inode
+    return name, digest, _record_path(item, context)
 
 
 def _head_correction_recovery(value: Any, context: str) -> dict[str, Any]:
@@ -5751,13 +5681,12 @@ def _head_correction_recovery(value: Any, context: str) -> dict[str, Any]:
     _direct_name(intent["target"], f"{context}.intent.target")
     installed = _exact(
         intent["installed"],
-        {"generation", "sha256", "device", "inode"},
+        {"generation", "sha256"} | ({"path"} if "path" in intent["installed"] else set()),
         f"{context}.intent.installed",
     )
     _integer(installed["generation"], f"{context}.intent.installed.generation", minimum=2)
     _string(installed["sha256"], f"{context}.intent.installed.sha256", SHA256_RE)
-    _integer(installed["device"], f"{context}.intent.installed.device", minimum=0)
-    _integer(installed["inode"], f"{context}.intent.installed.inode")
+    _record_path(installed, f"{context}.intent.installed", intent["target"])
     _string(intent["predecessor_sha256"], f"{context}.intent.predecessor_sha256", SHA256_RE)
     _repository(intent["repository"], f"{context}.intent.repository")
     _branch(intent["branch"], f"{context}.intent.branch")
@@ -5856,13 +5785,12 @@ def _head_correction_receipt(value: Any, context: str) -> dict[str, Any]:
     target = _direct_name(item["target"], f"{context}.target")
     source = _exact(
         item["source"],
-        {"generation", "sha256", "device", "inode"},
+        {"generation", "sha256"} | ({"path"} if "path" in item["source"] else set()),
         f"{context}.source",
     )
     source_generation = _integer(source["generation"], f"{context}.source.generation", minimum=2)
     source_digest = _string(source["sha256"], f"{context}.source.sha256", SHA256_RE)
-    _integer(source["device"], f"{context}.source.device", minimum=0)
-    _integer(source["inode"], f"{context}.source.inode")
+    _record_path(source, f"{context}.source", target)
     predecessor = _source(item["predecessor_snapshot"], f"{context}.predecessor_snapshot")
     erroneous = _source(item["erroneous_snapshot"], f"{context}.erroneous_snapshot")
     correction = _exact(
@@ -5896,7 +5824,8 @@ def _head_correction_receipt(value: Any, context: str) -> dict[str, Any]:
                 recovery["intent"]["installed"]["generation"]
                 == source["generation"]
                 and recovery["intent"]["installed"]["sha256"] == source["sha256"]
-                and recovery["intent"]["installed"]["inode"] == source["inode"]
+                and _record_path(recovery["intent"]["installed"], context, target)
+                == _record_path(source, context, target)
             )
         )
         or recovery["intent"]["predecessor_sha256"] != predecessor[1]
@@ -5923,7 +5852,7 @@ def _head_correction_receipt(value: Any, context: str) -> dict[str, Any]:
     return item
 
 
-def _related_sources(value: Any, context: str) -> tuple[tuple[str, str, int, int], ...]:
+def _related_sources(value: Any, context: str) -> tuple[tuple[str, str, str], ...]:
     if not isinstance(value, list) or not value:
         raise LedgerError(f"{context} must be a non-empty array")
     sources = tuple(
@@ -6246,8 +6175,6 @@ def _scope_show_record(
             "path",
             "primary_path",
             "common_git_dir",
-            "path_device",
-            "path_inode",
             "created_by_scope",
         },
         f"{context}.worktrees[0]",
@@ -6288,12 +6215,10 @@ def _scope_show_record(
     ):
         raise LedgerError(f"{context} primary checkout differs from requested checkout")
     _absolute_path(row["common_git_dir"], f"{context}.worktrees[0].common_git_dir")
-    for field in ("path_device", "path_inode"):
-        _integer(row[field], f"{context}.worktrees[0].{field}", minimum=0)
 
     profile = _exact(
         record["profile"],
-        {"name", "path", "sha256", "path_device", "path_inode", "immutable"},
+        {"name", "path", "sha256", "immutable"},
         f"{context}.profile",
     )
     expected_profile_name = f"scope-{request['name']}"
@@ -6308,8 +6233,6 @@ def _scope_show_record(
     ):
         raise LedgerError(f"{context} profile differs from exact scope request")
     _string(profile["sha256"], f"{context}.profile.sha256", SHA256_RE)
-    for field in ("path_device", "path_inode"):
-        _integer(profile[field], f"{context}.profile.{field}", minimum=0)
 
     topology = _exact(record["topology"], {"name", "path"}, f"{context}.topology")
     expected_topology = _canonical_scope_topology(request["name"])
@@ -6489,15 +6412,9 @@ def _scope_binding_observation(
         live_status = Path(path).stat(follow_symlinks=False)
     except OSError as error:
         raise LedgerError(f"{context} path identity cannot be rechecked") from error
-    if not _pair_matches_status(
-        {
-            "device": observation["path_device"],
-            "inode": observation["path_inode"],
-        },
-        live_status,
-    ) or not _pair_matches_status(
-        {"device": row["path_device"], "inode": row["path_inode"]},
-        live_status,
+    if (not stat.S_ISDIR(live_status.st_mode)
+        or _canonical_path(row["path"]) != _canonical_path(path)
+        or _canonical_path(observation["path"]) != _canonical_path(path)
     ):
         raise LedgerError(f"{context} path identity differs from scope result")
 
@@ -7968,6 +7885,47 @@ def _observe_pr_binding_comments(owner: str, name: str, number: int) -> None:
     raise LedgerError("PR binding comment pagination did not reach a bounded final page")
 
 
+def _pr_binding_live_base(target: Mapping[str, Any]) -> str:
+    """Prove the current branch tip independently of the PR's base snapshot."""
+
+    repository = target["repository"]
+    branch = target["base"]["branch"]
+    qualified_ref = f"refs/heads/{branch}"
+    response = _gh_json(
+        (
+            "api", "--hostname", "github.com", "graphql",
+            "-f", "query=query($owner:String!,$name:String!,$ref:String!){"
+            "repository(owner:$owner,name:$name){id nameWithOwner "
+            "ref(qualifiedName:$ref){name prefix target{__typename oid}}}}",
+            "-f", f"owner={repository['owner']}",
+            "-f", f"name={repository['name']}",
+            "-f", f"ref={qualified_ref}",
+        ),
+        "PR binding live base ref",
+    )
+    if not isinstance(response, dict) or response.get("errors"):
+        raise LedgerError("PR binding live base ref response is invalid")
+    data = response.get("data")
+    remote = data.get("repository") if isinstance(data, dict) else None
+    if (
+        not isinstance(remote, dict)
+        or remote.get("id") != repository["node_id"]
+        or remote.get("nameWithOwner") != f"{repository['owner']}/{repository['name']}"
+    ):
+        raise LedgerError("PR binding live base ref repository differs from the exact target")
+    ref = remote.get("ref")
+    if (
+        not isinstance(ref, dict)
+        or ref.get("prefix") != "refs/heads/"
+        or ref.get("name") != branch
+    ):
+        raise LedgerError("PR binding live base ref differs from the exact target branch")
+    commit = ref.get("target")
+    if not isinstance(commit, dict) or commit.get("__typename") != "Commit":
+        raise LedgerError("PR binding live base ref target is not a commit")
+    return _string(commit.get("oid"), "PR binding live base ref SHA", COMMIT_RE)
+
+
 def _pr_binding_remote(
     document: Mapping[str, Any], target: Mapping[str, Any], pr_number: int
 ) -> dict[str, Any]:
@@ -8015,9 +7973,10 @@ def _pr_binding_remote(
         raise LedgerError("PR binding PR author differs from the authenticated actor")
     base_branch = _branch(live.get("base", {}).get("ref"), "PR binding base branch")
     head_branch = _branch(live.get("head", {}).get("ref"), "PR binding head branch")
-    base_sha = _string(
-        live.get("base", {}).get("sha"), "PR binding base head SHA", COMMIT_RE
+    base_snapshot_sha = _string(
+        live.get("base", {}).get("sha"), "PR binding base snapshot SHA", COMMIT_RE
     )
+    base_sha = _pr_binding_live_base(target)
     head_sha = _string(
         live.get("head", {}).get("sha"), "PR binding PR head SHA", COMMIT_RE
     )
@@ -8069,6 +8028,7 @@ def _pr_binding_remote(
     return {
         "pull": pull,
         "base_sha": base_sha,
+        "base_snapshot_sha": base_snapshot_sha,
         "head_sha": head_sha,
         "body_digest": digest,
     }
@@ -8225,10 +8185,13 @@ def _pr_binding_candidate(
         slot_result if value["slot_id"] == slot_id else value
         for value in candidate["artifacts"]
     ]
-    candidate["selected_prs"] = [
-        *candidate["selected_prs"],
-        copy.deepcopy(remote["pull"]),
-    ]
+    candidate["selected_prs"] = sorted(
+        [*candidate["selected_prs"], copy.deepcopy(remote["pull"])],
+        key=lambda pull: tuple(
+            str(part).casefold()
+            for part in _pull_request(pull, "atomic PR binding selected PR")
+        ),
+    )
     return prepare(candidate)
 
 
@@ -8287,8 +8250,7 @@ def bind_pr_cas(
     *,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
     failpoint: Failpoint = None,
 ) -> dict[str, Any]:
     """Live-prove and atomically bind one issue-created draft PR slot."""
@@ -8317,8 +8279,7 @@ def bind_pr_cas(
                 snapshot,
                 expected_generation,
                 expected_digest,
-                expected_device,
-                expected_inode,
+                expected_path,
             )
         ):
             installed = _require_clean_bound_snapshot(root, snapshot)
@@ -8334,8 +8295,7 @@ def bind_pr_cas(
                     snapshot.raw,
                     expected_generation,
                     expected_digest,
-                    expected_device,
-                    expected_inode,
+                    expected_path,
                 )
             else:
                 candidate = _pr_binding_candidate(snapshot, slot_id, remote)
@@ -8348,8 +8308,7 @@ def bind_pr_cas(
                     canonical_bytes(candidate),
                     expected_generation,
                     expected_digest,
-                    expected_device,
-                    expected_inode,
+                    expected_path,
                 )
             installed = cas(
                 root,
@@ -8357,8 +8316,7 @@ def bind_pr_cas(
                 candidate,
                 expected_generation=expected_generation,
                 expected_digest=expected_digest,
-                expected_device=expected_device,
-                expected_inode=expected_inode,
+                expected_path=expected_path,
                 failpoint=failpoint,
                 _precommit=lambda: revalidate(remote),
                 _binding_capability=capability,
@@ -8739,8 +8697,7 @@ def _initial_binding_candidate(
     scope: bool,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
 ) -> tuple[dict[str, Any], _AtomicBindingCapability]:
     """Create one exact purpose-scoped projection and its private CAS authority."""
 
@@ -8757,8 +8714,7 @@ def _initial_binding_candidate(
         raw,
         expected_generation,
         expected_digest,
-        expected_device,
-        expected_inode,
+        expected_path,
     )
     return candidate, capability
 
@@ -8770,8 +8726,7 @@ def _binding_recovery_capability(
     scope: bool,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
 ) -> _AtomicBindingCapability:
     """Authorize only a tagged post-rename recovery of exact installed bytes."""
 
@@ -8784,8 +8739,7 @@ def _binding_recovery_capability(
         snapshot.raw,
         expected_generation,
         expected_digest,
-        expected_device,
-        expected_inode,
+        expected_path,
     )
 
 
@@ -8806,10 +8760,9 @@ def _snapshot_matches_tuple(
     snapshot: Snapshot,
     generation: int,
     digest: str,
-    device: int,
-    inode: int,
+    path: str,
 ) -> bool:
-    return _snapshot_matches_identity(snapshot, generation, digest, device, inode)
+    return _snapshot_matches_identity(snapshot, generation, digest, path)
 
 
 def _require_clean_bound_snapshot(root: Path | str, snapshot: Snapshot) -> Snapshot:
@@ -8820,8 +8773,7 @@ def _require_clean_bound_snapshot(root: Path | str, snapshot: Snapshot) -> Snaps
         current = _snapshot(directory, snapshot.name)
         if (
             current.raw != snapshot.raw
-            or current.device != snapshot.device
-            or current.inode != snapshot.inode
+            or current.path != snapshot.path
         ):
             raise LedgerError("bound-match snapshot changed during recovery check")
         pending = [
@@ -8844,8 +8796,7 @@ def bind_worktree_cas(
     *,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
     create_output_raw: bytes | None = None,
     failpoint: Failpoint = None,
 ) -> dict[str, Any]:
@@ -8906,8 +8857,7 @@ def bind_worktree_cas(
                 snapshot,
                 expected_generation,
                 expected_digest,
-                expected_device,
-                expected_inode,
+                expected_path,
             )
         ):
             installed = _require_clean_bound_snapshot(root, snapshot)
@@ -8920,8 +8870,7 @@ def bind_worktree_cas(
                     scope=False,
                     expected_generation=expected_generation,
                     expected_digest=expected_digest,
-                    expected_device=expected_device,
-                    expected_inode=expected_inode,
+                    expected_path=expected_path,
                 )
             else:
                 candidate, capability = _initial_binding_candidate(
@@ -8930,8 +8879,7 @@ def bind_worktree_cas(
                     scope=False,
                     expected_generation=expected_generation,
                     expected_digest=expected_digest,
-                    expected_device=expected_device,
-                    expected_inode=expected_inode,
+                    expected_path=expected_path,
                 )
             installed = cas(
                 root,
@@ -8939,8 +8887,7 @@ def bind_worktree_cas(
                 candidate,
                 expected_generation=expected_generation,
                 expected_digest=expected_digest,
-                expected_device=expected_device,
-                expected_inode=expected_inode,
+                expected_path=expected_path,
                 failpoint=failpoint,
                 _precommit=revalidate,
                 _binding_capability=capability,
@@ -8958,8 +8905,7 @@ def bind_scope_cas(
     *,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
     failpoint: Failpoint = None,
 ) -> dict[str, Any]:
     """Classify, re-prove, and CAS one scope/branch/worktree atomically."""
@@ -9024,8 +8970,7 @@ def bind_scope_cas(
                 snapshot,
                 expected_generation,
                 expected_digest,
-                expected_device,
-                expected_inode,
+                expected_path,
             )
         ):
             installed = _require_clean_bound_snapshot(root, snapshot)
@@ -9038,8 +8983,7 @@ def bind_scope_cas(
                     scope=True,
                     expected_generation=expected_generation,
                     expected_digest=expected_digest,
-                    expected_device=expected_device,
-                    expected_inode=expected_inode,
+                    expected_path=expected_path,
                 )
             else:
                 candidate, capability = _initial_binding_candidate(
@@ -9048,8 +8992,7 @@ def bind_scope_cas(
                     scope=True,
                     expected_generation=expected_generation,
                     expected_digest=expected_digest,
-                    expected_device=expected_device,
-                    expected_inode=expected_inode,
+                    expected_path=expected_path,
                 )
             installed = cas(
                 root,
@@ -9057,8 +9000,7 @@ def bind_scope_cas(
                 candidate,
                 expected_generation=expected_generation,
                 expected_digest=expected_digest,
-                expected_device=expected_device,
-                expected_inode=expected_inode,
+                expected_path=expected_path,
                 failpoint=failpoint,
                 _precommit=revalidate,
                 _binding_capability=capability,
@@ -9090,6 +9032,10 @@ def _direct_name(value: Any, context: str = "filename") -> str:
     return value
 
 
+def _child_path(directory: int, name: str) -> str:
+    return _canonical_path(Path(_descriptor_path(directory)) / _direct_name(name))
+
+
 def _directory_fd(path: Path) -> int:
     absolute = Path(os.path.abspath(path))
     flags = os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_DIRECTORY", 0)
@@ -9102,10 +9048,7 @@ def _directory_fd(path: Path) -> int:
             descriptor = next_descriptor
         opened = os.fstat(descriptor)
         visible = os.stat(absolute, follow_symlinks=False)
-        if not stat.S_ISDIR(opened.st_mode) or (opened.st_dev, opened.st_ino) != (
-            visible.st_dev,
-            visible.st_ino,
-        ):
+        if not stat.S_ISDIR(opened.st_mode) or _descriptor_path(descriptor) != _canonical_path(absolute) or not stat.S_ISDIR(visible.st_mode):
             raise LedgerError(f"review root is unsafe: {path}")
         return descriptor
     except BaseException:
@@ -9169,10 +9112,7 @@ def _open_lock(directory: int, name: str) -> int:
         descriptor = os.open(name, flags, dir_fd=directory)
     opened = os.fstat(descriptor)
     visible = os.stat(name, dir_fd=directory, follow_symlinks=False)
-    if not stat.S_ISREG(opened.st_mode) or (opened.st_dev, opened.st_ino) != (
-        visible.st_dev,
-        visible.st_ino,
-    ):
+    if not stat.S_ISREG(opened.st_mode) or _descriptor_path(descriptor) != _child_path(directory, name) or not stat.S_ISREG(visible.st_mode):
         os.close(descriptor)
         raise LedgerError(f"lock is unsafe: {name}")
     if (
@@ -9186,7 +9126,7 @@ def _open_lock(directory: int, name: str) -> int:
         _fsync(directory, "review root after lock creation")
     fcntl.flock(descriptor, fcntl.LOCK_EX)
     visible = os.stat(name, dir_fd=directory, follow_symlinks=False)
-    if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+    if _descriptor_path(descriptor) != _child_path(directory, name) or not stat.S_ISREG(visible.st_mode):
         os.close(descriptor)
         raise LedgerError(f"lock was replaced: {name}")
     return descriptor
@@ -9200,21 +9140,18 @@ def _locked_root(root: Path) -> Iterator[int]:
         raise LedgerError(f"cannot open review root {root}: {error}") from error
     try:
         _require_trusted_directory(os.fstat(directory), f"review root {root}")
-        # Lock the already-open no-follow directory inode itself.  Read-only
+        # Lock the already-open no-follow directory itself.  Read-only
         # inventory therefore creates no persistent lock artifact.
         fcntl.flock(directory, fcntl.LOCK_EX)
         opened = os.fstat(directory)
         _require_trusted_directory(opened, f"review root {root}")
         visible = os.stat(Path(os.path.abspath(root)), follow_symlinks=False)
-        if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+        if _descriptor_path(directory) != _canonical_path(root) or not stat.S_ISDIR(visible.st_mode):
             raise LedgerError(f"review root was replaced while locking: {root}")
         yield directory
         visible_after = os.stat(Path(os.path.abspath(root)), follow_symlinks=False)
         _require_trusted_directory(visible_after, f"review root {root}")
-        if (opened.st_dev, opened.st_ino) != (
-            visible_after.st_dev,
-            visible_after.st_ino,
-        ):
+        if _descriptor_path(directory) != _canonical_path(root):
             raise LedgerError(f"review root was replaced during operation: {root}")
     finally:
         fcntl.flock(directory, fcntl.LOCK_UN)
@@ -9270,10 +9207,7 @@ def _read_regular(
     try:
         before = os.fstat(descriptor)
         visible = os.stat(name, dir_fd=directory, follow_symlinks=False)
-        if not stat.S_ISREG(before.st_mode) or (before.st_dev, before.st_ino) != (
-            visible.st_dev,
-            visible.st_ino,
-        ):
+        if not stat.S_ISREG(before.st_mode) or _descriptor_path(descriptor) != _child_path(directory, name) or not stat.S_ISREG(visible.st_mode):
             raise LedgerError(f"file identity is unsafe: {name}")
         if managed:
             _managed_status(before, name, expected_nlinks or {1})
@@ -9289,26 +9223,23 @@ def _read_regular(
                 raise LedgerError(f"{name} exceeds {limit} bytes")
         after = os.fstat(descriptor)
         visible_after = os.stat(name, dir_fd=directory, follow_symlinks=False)
-        identity_before = (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns)
-        identity_after = (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns)
+        identity_before = (before.st_size, before.st_mtime_ns)
+        identity_after = (after.st_size, after.st_mtime_ns)
         visible_identity = (
-            visible_after.st_dev,
-            visible_after.st_ino,
             visible_after.st_size,
             visible_after.st_mtime_ns,
         )
-        if identity_before != identity_after or identity_after != visible_identity:
+        if (identity_before != identity_after or identity_after != visible_identity
+            or _descriptor_path(descriptor) != _child_path(directory, name)
+            or not stat.S_ISREG(visible_after.st_mode)
+        ):
             raise LedgerError(f"file changed while read: {name}")
         if managed:
             _managed_status(after, name, expected_nlinks or {1})
         if sync:
             os.fsync(descriptor)
             synced = os.fstat(descriptor)
-            if (synced.st_dev, synced.st_ino, synced.st_size) != (
-                after.st_dev,
-                after.st_ino,
-                after.st_size,
-            ):
+            if synced.st_size != after.st_size or _descriptor_path(descriptor) != _child_path(directory, name):
                 raise LedgerError(f"file changed while syncing: {name}")
         raw = b"".join(chunks)
         if canonical:
@@ -9338,9 +9269,7 @@ def _snapshot(directory: int, name: str) -> Snapshot:
         document,
         raw,
         byte_digest(raw),
-        status.st_dev,
-        status.st_ino,
-        _portable_device(status),
+        _child_path(directory, name),
     )
 
 
@@ -9411,7 +9340,7 @@ def _ensure_stage(
             descriptor = os.open(name, flags, dir_fd=directory)
             try:
                 opened = os.fstat(descriptor)
-                if (opened.st_dev, opened.st_ino) != (status.st_dev, status.st_ino):
+                if _descriptor_path(descriptor) != _child_path(directory, name) or not stat.S_ISREG(opened.st_mode):
                     raise LedgerError(f"staging file was replaced: {name}")
                 _managed_status(opened, name, {1})
                 view = memoryview(raw)[len(existing) :]
@@ -9451,7 +9380,7 @@ def _open_unlink_transaction(quarantine: int, token: str) -> int:
         expected = os.fstat(pinned)
         visible = os.stat(token, dir_fd=quarantine, follow_symlinks=False)
         _require_trusted_directory(expected, "unlink transaction")
-        if (expected.st_dev, expected.st_ino) != (visible.st_dev, visible.st_ino):
+        if _descriptor_path(pinned) != _child_path(quarantine, token) or not stat.S_ISDIR(visible.st_mode):
             raise LedgerError("unlink transaction changed before recovery")
         if stat.S_IMODE(expected.st_mode) != 0o700:
             os.chmod(f"/proc/self/fd/{pinned}", 0o700)
@@ -9460,7 +9389,7 @@ def _open_unlink_transaction(quarantine: int, token: str) -> int:
             os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC,
         )
         opened = os.fstat(transaction)
-        if (opened.st_dev, opened.st_ino) != (expected.st_dev, expected.st_ino):
+        if _descriptor_path(transaction) != _child_path(quarantine, token) or not stat.S_ISDIR(opened.st_mode):
             os.close(transaction)
             raise LedgerError("unlink transaction changed while opening")
         return transaction
@@ -9473,10 +9402,9 @@ def _ensure_head_correction_source_link(
     target: str,
     snapshot: str,
     raw: bytes,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
 ) -> os.stat_result:
-    """Retain the exact installed bad-generation inode before replacement."""
+    """Retain the exact installed bad-generation bytes before replacement."""
 
     if not _exists(directory, snapshot):
         try:
@@ -9489,7 +9417,7 @@ def _ensure_head_correction_source_link(
             )
         except OSError as error:
             raise LedgerError(
-                f"cannot retain exact head-correction source inode: {error}"
+                f"cannot retain exact head-correction source bytes: {error}"
             ) from error
         _fsync(directory, f"review root after retaining {snapshot}")
     existing, status = _read_regular(
@@ -9508,38 +9436,27 @@ def _ensure_head_correction_source_link(
     if (
         existing != raw
         or target_raw != raw
-        or not _pair_matches_status(
-            {"device": expected_device, "inode": expected_inode}, status
-        )
-        or not _pair_matches_status(
-            {"device": expected_device, "inode": expected_inode}, target_status
-        )
+        or expected_path not in {target, _child_path(directory, target)}
     ):
-        raise LedgerError("head-correction source hard link differs from exact CAS inode")
+        raise LedgerError("head-correction source hard link differs from exact CAS bytes")
     return status
 
 
 def _unlink_exact(
     directory: int,
     name: str,
-    expected: os.stat_result,
+    expected: os.stat_result | None,
     *,
-    durable_device: int | None = None,
+    expected_path: str | None = None,
+    transaction_token: str | None = None,
 ) -> None:
-    """Atomically quarantine the named inode before irreversible removal."""
+    """Atomically quarantine the exact named path before removal."""
 
-    durable_device = (
-        _portable_device(expected) if durable_device is None else durable_device
-    )
-    token = hashlib.sha256(
-        f"{name}\0{durable_device}\0{expected.st_ino}".encode("utf-8")
-    ).hexdigest()
-    receipt_document = {
-        "schema_version": 1,
-        "name": name,
-        "device": durable_device,
-        "inode": expected.st_ino,
-    }
+    path = _child_path(directory, name)
+    if expected_path is not None and expected_path not in {name, path}:
+        raise LedgerError(f"unlink source path differs: {name}")
+    token = transaction_token or hashlib.sha256(path.encode("utf-8")).hexdigest()
+    receipt_document = {"schema_version": 1, "name": name, "path": path}
     receipt_raw = canonical_bytes(receipt_document)
     try:
         os.mkdir(_UNLINK_QUARANTINE, 0o700, dir_fd=directory)
@@ -9563,13 +9480,16 @@ def _unlink_exact(
             existing_receipt, _ = _read_regular(
                 transaction, "receipt.json", managed=True, expected_nlinks={1}
             )
-            if existing_receipt != receipt_raw:
+            saved = _exact(_decode(existing_receipt, "unlink receipt"),
+                           {"schema_version", "name", "path"}, "unlink receipt")
+            if (saved["schema_version"] != 1 or saved["name"] != name
+                or _record_path(saved, "unlink receipt") not in {name, path}):
                 raise LedgerError(f"unlink transaction identity changed: {name}")
         else:
             _write_exclusive(transaction, "receipt.json", receipt_raw)
             _fsync(transaction, "unlink transaction after recording intent")
         # Keep traversal and mutation rights through the pinned descriptor but
-        # withhold directory listing while the exact inode is quarantined.
+        # withhold directory listing while the exact named file is quarantined.
         os.fchmod(transaction, stat.S_IWUSR | stat.S_IXUSR)
         try:
             payload = os.stat("payload", dir_fd=transaction, follow_symlinks=False)
@@ -9588,8 +9508,9 @@ def _unlink_exact(
                 _fsync(quarantine, "unlink quarantine after recovering transaction")
                 _fsync(directory, f"review root after recovering removal of {name}")
                 return
-            if not _pair_matches_status(
-                {"device": durable_device, "inode": expected.st_ino}, visible
+            if (not stat.S_ISREG(visible.st_mode)
+                or visible.st_uid != os.geteuid()
+                or (expected is not None and stat.S_IMODE(visible.st_mode) != stat.S_IMODE(expected.st_mode))
             ):
                 raise LedgerError(f"staging file was replaced: {name}")
             os.rename(
@@ -9608,8 +9529,9 @@ def _unlink_exact(
                 pass
             else:
                 raise LedgerError(f"unlink transaction and source both exist: {name}")
-        if not _pair_matches_status(
-            {"device": durable_device, "inode": expected.st_ino}, payload
+        if (not stat.S_ISREG(payload.st_mode)
+            or payload.st_uid != os.geteuid()
+            or (expected is not None and stat.S_IMODE(payload.st_mode) != stat.S_IMODE(expected.st_mode))
         ):
             raise LedgerError(f"quarantined file has the wrong identity: {name}")
         os.unlink("payload", dir_fd=transaction)
@@ -9661,11 +9583,8 @@ def _recover_unlink_quarantine(directory: int) -> None:
                     token, dir_fd=quarantine, follow_symlinks=False
                 )
                 _require_trusted_directory(opened_transaction, "unlink transaction")
-                if (
-                    (opened_transaction.st_dev, opened_transaction.st_ino)
-                    != (visible_transaction.st_dev, visible_transaction.st_ino)
-                    or (opened_transaction.st_dev, opened_transaction.st_ino)
-                    != (token_status.st_dev, token_status.st_ino)
+                if (_descriptor_path(transaction) != _child_path(quarantine, token)
+                    or not stat.S_ISDIR(visible_transaction.st_mode)
                 ):
                     raise LedgerError("unlink transaction changed during recovery")
                 entries = set(os.listdir(transaction))
@@ -9682,20 +9601,17 @@ def _recover_unlink_quarantine(directory: int) -> None:
                 )
                 receipt = _exact(
                     _decode(raw, "unlink receipt"),
-                    {"schema_version", "name", "device", "inode"},
+                    {"schema_version", "name", "path"},
                     "unlink receipt",
                 )
                 name = _direct_name(receipt["name"], "unlink receipt name")
-                device = _integer(receipt["device"], "unlink receipt device", minimum=0)
-                inode = _integer(receipt["inode"], "unlink receipt inode", minimum=1)
-                expected_token = hashlib.sha256(
-                    f"{name}\0{device}\0{inode}".encode("utf-8")
-                ).hexdigest()
-                if receipt["schema_version"] != 1 or token != expected_token:
+                path = _child_path(directory, name)
+                if (_record_path(receipt, "unlink receipt") not in {name, path}
+                    or receipt["schema_version"] != 1):
                     raise LedgerError("unlink receipt identity is invalid")
-                expected = os.stat_result(
-                    (stat.S_IFREG | 0o600, inode, device, 1, 0, 0, 0, 0, 0, 0)
-                )
+                if "path" in receipt and token != hashlib.sha256(path.encode("utf-8")).hexdigest():
+                    raise LedgerError("unlink receipt token is invalid")
+                expected = None
                 has_payload = "payload" in entries
             finally:
                 if transaction != -1:
@@ -9708,12 +9624,11 @@ def _recover_unlink_quarantine(directory: int) -> None:
                         directory,
                         name,
                         expected,
-                        durable_device=device,
+                        expected_path=path,
+                        transaction_token=token,
                     )
                     continue
-                if not _pair_matches_status(
-                    {"device": device, "inode": inode}, visible
-                ):
+                if not stat.S_ISREG(visible.st_mode) or visible.st_uid != os.geteuid():
                     raise LedgerError(f"unlink recovery source identity changed: {name}")
                 # Intent was durable but the target was never quarantined. Do
                 # not let an inventory scan turn a forgeable same-UID receipt
@@ -9727,7 +9642,7 @@ def _recover_unlink_quarantine(directory: int) -> None:
                 os.rmdir(token, dir_fd=quarantine)
                 _fsync(quarantine, "unlink quarantine after aborting pre-commit intent")
                 continue
-            _unlink_exact(directory, name, expected, durable_device=device)
+            _unlink_exact(directory, name, expected, expected_path=path, transaction_token=token)
         _fsync(directory, "review root after unlink recovery")
     finally:
         os.close(quarantine)
@@ -9748,8 +9663,6 @@ def _discard_exact_cas_pending(
         if (
             stage_raw != raw
             or proof_raw != raw
-            or (stage_status.st_dev, stage_status.st_ino)
-            != (proof_status.st_dev, proof_status.st_ino)
         ):
             return False
         _unlink_exact(directory, proof, proof_status)
@@ -9800,8 +9713,6 @@ def _discard_exact_compact_update_pending(
             )
             if (
                 proof_raw != raw
-                or (proof_status.st_dev, proof_status.st_ino)
-                != (stage_status.st_dev, stage_status.st_ino)
                 or stage_status.st_nlink != 2
             ):
                 return False
@@ -10081,7 +9992,7 @@ def _reject_overlaps(
             prior = owners.get((kind, key))
             if prior is not None and prior.name != snapshot.name:
                 # An operation may present the exact already-installed target twice
-                # (committed plus its crash-recovery staging inode), but no other
+                # (committed plus its crash-recovery staging file), but no other
                 # cross-ledger overlap is resumable.
                 if allow_name is not None and {prior.name, snapshot.name} == {allow_name}:
                     continue
@@ -10483,45 +10394,29 @@ def _require_head_correction_recovery(
     context: str,
     *,
     installed_snapshot: Snapshot | None = None,
-    allow_historical_device: bool = False,
+    allow_historical_path: bool = False,
 ) -> None:
     actual_intent = recovery["intent"]
-    if actual_intent != expected_intent:
-        compatible = False
-        if installed_snapshot is not None:
-            actual_installed = actual_intent.get("installed")
-            expected_installed = expected_intent.get("installed")
-            if isinstance(actual_installed, dict) and isinstance(expected_installed, dict):
-                normalized_actual = dict(actual_installed)
-                normalized_actual["device"] = expected_installed.get("device")
-                normalized_intent = dict(actual_intent)
-                normalized_intent["installed"] = normalized_actual
-                compatible = (
-                    normalized_intent == expected_intent
-                    and _snapshot_matches_identity(
-                        installed_snapshot,
-                        actual_installed.get("generation"),
-                        actual_installed.get("sha256"),
-                        actual_installed.get("device"),
-                        actual_installed.get("inode"),
-                    )
-                )
-        if allow_historical_device:
-            actual_installed = actual_intent.get("installed")
-            expected_installed = expected_intent.get("installed")
-            if (
-                isinstance(actual_installed, dict)
-                and isinstance(expected_installed, dict)
-                and type(actual_installed.get("device")) is int
-                and actual_installed["device"] >= 0
-            ):
-                normalized_actual = dict(actual_installed)
-                normalized_actual["device"] = expected_installed.get("device")
-                normalized_intent = dict(actual_intent)
-                normalized_intent["installed"] = normalized_actual
-                compatible = normalized_intent == expected_intent
-        if not compatible:
-            raise LedgerError(f"{context} does not authorize the exact correction intent")
+    actual_installed = actual_intent["installed"]
+    expected_installed = expected_intent["installed"]
+    target = expected_intent["target"]
+    expected_path = _record_path(expected_installed, context, target)
+    actual_path = _record_path(actual_installed, context, target)
+    if actual_path == target:
+        actual_path = expected_path
+    actual_semantic = {key: value for key, value in actual_intent.items() if key != "installed"}
+    expected_semantic = {key: value for key, value in expected_intent.items() if key != "installed"}
+    if (actual_semantic != expected_semantic
+        or actual_installed["generation"] != expected_installed["generation"]
+        or actual_installed["sha256"] != expected_installed["sha256"]
+        or actual_path != expected_path
+    ):
+        raise LedgerError(f"{context} does not authorize the exact correction intent")
+    if installed_snapshot is not None and (
+        installed_snapshot.digest != actual_installed["sha256"]
+        or installed_snapshot.document["generation"] != actual_installed["generation"]
+    ):
+        raise LedgerError(f"{context} installed correction bytes differ")
     grant = recovery["grant"]
     if (
         grant["actor_node_id"] != document["actor"]["node_id"]
@@ -10704,6 +10599,29 @@ def _head_correction_document(
 
 def _inventory_locked(directory: int) -> Inventory:
     _recover_unlink_quarantine(directory)
+    directory_path = Path(_descriptor_path(directory))
+
+    def entry_path(name: str) -> str:
+        return _canonical_path(directory_path / name)
+
+    def record_matches_path(value: Mapping[str, Any], name: str) -> bool:
+        return _record_path(value, f"inventory record for {name}", name) in {
+            name,
+            entry_path(name),
+        }
+
+    def source_identity(value: Mapping[str, Any]) -> tuple[str, str, str]:
+        name, digest, path = _source(value, "inventory migration source")
+        return name, digest, entry_path(path)
+
+    def related_identities(value: Any) -> tuple[tuple[str, str, str], ...] | None:
+        if value is None:
+            return None
+        return tuple(
+            (name, digest, entry_path(path))
+            for name, digest, path in _related_sources(value, "inventory related sources")
+        )
+
     names: list[str] = []
     with os.scandir(directory) as entries:
         for entry in entries:
@@ -10738,7 +10656,6 @@ def _inventory_locked(directory: int) -> Inventory:
     ] = {}
     compact_ledger_locks: set[str] = set()
     inventory_bytes = 0
-    counted_inodes: set[tuple[int, int]] = set()
     for name in names:
         folded = name.casefold()
         if folded.endswith(LEDGER_SUFFIX) and not name.endswith(LEDGER_SUFFIX):
@@ -10767,10 +10684,7 @@ def _inventory_locked(directory: int) -> Inventory:
             status = os.stat(name, dir_fd=directory, follow_symlinks=False)
             if not stat.S_ISREG(status.st_mode):
                 raise LedgerError(f"delivery entry is not a regular file: {name}")
-            identity = (status.st_dev, status.st_ino)
-            if identity not in counted_inodes:
-                counted_inodes.add(identity)
-                inventory_bytes += status.st_size
+            inventory_bytes += status.st_size
             if inventory_bytes > MAX_INVENTORY_BYTES:
                 raise LedgerError(
                     f"delivery inventory exceeds {MAX_INVENTORY_BYTES} bytes"
@@ -10805,7 +10719,7 @@ def _inventory_locked(directory: int) -> Inventory:
                 limit=MAX_ARCHIVE_BYTES,
             )
             managed_stats[name] = status
-            archive = _archive_record(name, raw, status)
+            archive = _archive_record(name, raw, status, entry_path(name))
             if (
                 archive.ledger_name != archive_match.group("target")
                 or archive.document["ledger"]["sha256"] != archive_match.group("ledger")
@@ -10884,7 +10798,7 @@ def _inventory_locked(directory: int) -> Inventory:
                 directory, name, managed=True, expected_nlinks={1, 2}
             )
             managed_stats[name] = status
-            release = _release_record(name, raw, status)
+            release = _release_record(name, raw, status, entry_path(name))
             if release.ledger_name != release_match.group("target"):
                 raise LedgerError(f"release marker target mismatch: {name}")
             releases.append(release)
@@ -10900,7 +10814,10 @@ def _inventory_locked(directory: int) -> Inventory:
             )
             try:
                 release = _release_record(
-                    _release_name(release_stage_match.group("target")), raw, status
+                    _release_name(release_stage_match.group("target")),
+                    raw,
+                    status,
+                    entry_path(name),
                 )
             except LedgerError:
                 continue
@@ -11124,9 +11041,7 @@ def _inventory_locked(directory: int) -> Inventory:
                     document,
                     raw,
                     byte_digest(raw),
-                    status.st_dev,
-                    status.st_ino,
-                    _portable_device(status),
+                    entry_path(name),
                 )
             )
             continue
@@ -11177,9 +11092,7 @@ def _inventory_locked(directory: int) -> Inventory:
                         document,
                         raw,
                         byte_digest(raw),
-                        status.st_dev,
-                        status.st_ino,
-                        _portable_device(status),
+                        entry_path(name),
                     )
                 )
                 break
@@ -11221,11 +11134,7 @@ def _inventory_locked(directory: int) -> Inventory:
                 raise LedgerError(f"compact update proof is noncanonical: {proof_name}")
             target = canonical_name(proof_document)
             installed = committed_by_name.get(target)
-            if installed is None or (
-                installed.raw != proof_raw
-                or (installed.device, installed.inode)
-                != (proof_status.st_dev, proof_status.st_ino)
-            ):
+            if installed is None or installed.raw != proof_raw:
                 raise LedgerError(
                     f"compact update proof lacks its installed target: {proof_name}"
                 )
@@ -11244,11 +11153,7 @@ def _inventory_locked(directory: int) -> Inventory:
                 )
             if proof_entry is not None:
                 proof_name, proof_raw, proof_status = proof_entry
-                if receipt["proof"] != proof_name or (
-                    proof_raw != stage_raw
-                    or (proof_status.st_dev, proof_status.st_ino)
-                    != (stage_status.st_dev, stage_status.st_ino)
-                ):
+                if receipt["proof"] != proof_name or proof_raw != stage_raw:
                     raise LedgerError(
                         f"compact update proof does not match its stage: {proof_name}"
                     )
@@ -11264,19 +11169,13 @@ def _inventory_locked(directory: int) -> Inventory:
                     document,
                     stage_raw,
                     byte_digest(stage_raw),
-                    stage_status.st_dev,
-                    stage_status.st_ino,
-                    _portable_device(stage_status),
+                    entry_path(stage_name),
                 )
             )
             continue
         if proof_entry is not None:
             proof_name, proof_raw, proof_status = proof_entry
-            if receipt["proof"] != proof_name or (
-                installed.raw != proof_raw
-                or (installed.device, installed.inode)
-                != (proof_status.st_dev, proof_status.st_ino)
-            ):
+            if receipt["proof"] != proof_name or installed.raw != proof_raw:
                 raise LedgerError(
                     f"compact update proof lacks its installed target: {proof_name}"
                 )
@@ -11290,8 +11189,7 @@ def _inventory_locked(directory: int) -> Inventory:
             installed,
             receipt["expected_generation"],
             receipt["predecessor_sha256"],
-            receipt["device"],
-            receipt["inode"],
+            _record_path(receipt, "compact update receipt", target),
         ):
             raise LedgerError(
                 f"compact update receipt target identity is invalid: {receipt_name}"
@@ -11366,14 +11264,11 @@ def _inventory_locked(directory: int) -> Inventory:
                     erroneous_raw != canonical_bytes(erroneous)
                     or byte_digest(erroneous_raw) != source_digest
                     or current.raw != erroneous_raw
-                    or (erroneous_status.st_dev, erroneous_status.st_ino)
-                    != (current.device, current.inode)
                     or not _snapshot_matches_identity(
                         current,
                         current.document["generation"],
                         current.digest,
-                        receipt["source"]["device"],
-                        receipt["source"]["inode"],
+                        _record_path(receipt["source"], "head-correction source", target),
                     )
                 ):
                     raise LedgerError(f"head-correction source identity changed: {target}")
@@ -11412,9 +11307,7 @@ def _inventory_locked(directory: int) -> Inventory:
             erroneous,
             erroneous_raw,
             source_digest,
-            erroneous_status.st_dev,
-            erroneous_status.st_ino,
-            _portable_device(erroneous_status),
+            entry_path(erroneous_name),
         )
         if erroneous_raw != canonical_bytes(erroneous) or byte_digest(erroneous_raw) != source_digest:
             raise LedgerError(f"head-correction erroneous snapshot mismatch: {target}")
@@ -11470,144 +11363,84 @@ def _inventory_locked(directory: int) -> Inventory:
             or receipt.get("actual_merge_base")
             != metadata.get("actual_merge_base")
             or receipt["authority_sha256"] != metadata["authority_sha256"]
-            or receipt["predecessor_snapshot"] != {
-                "name": predecessor_name,
-                "sha256": byte_digest(predecessor_raw),
-                "device": _portable_device(predecessor_status),
-                "inode": predecessor_status.st_ino,
-            }
-            or receipt["erroneous_snapshot"] != {
-                "name": erroneous_name,
-                "sha256": source_digest,
-                "device": _portable_device(erroneous_status),
-                "inode": erroneous_status.st_ino,
-            }
-            or not _pair_matches_status(receipt["source"], erroneous_status)
+            or receipt["predecessor_snapshot"]["name"] != predecessor_name
+            or receipt["predecessor_snapshot"]["sha256"] != byte_digest(predecessor_raw)
+            or not record_matches_path(receipt["predecessor_snapshot"], predecessor_name)
+            or receipt["erroneous_snapshot"]["name"] != erroneous_name
+            or receipt["erroneous_snapshot"]["sha256"] != source_digest
+            or not record_matches_path(receipt["erroneous_snapshot"], erroneous_name)
+            or not record_matches_path(receipt["source"], target)
             or "stage" in entries
         ):
             raise LedgerError(f"completed head correction evidence mismatch: {target}")
         completed_head_corrections.add(target)
-    inode_names: dict[tuple[int, int], list[str]] = {}
-    for managed_name, status in managed_stats.items():
-        inode_names.setdefault((status.st_dev, status.st_ino), []).append(managed_name)
+    # Publication proofs relate known names and identical bytes.  Files copied
+    # to the same paths retain these proofs without filesystem allocation IDs.
+    modeled_pairs: dict[str, set[str]] = {}
+
+    def model_pair(first: str, second: str) -> None:
+        modeled_pairs.setdefault(first, set()).add(second)
+        modeled_pairs.setdefault(second, set()).add(first)
+
+    update_stages: dict[tuple[str, str, str, str, str], str] = {}
+    for managed_name in managed_stats:
+        match = _UPDATE_STAGE_RE.fullmatch(managed_name)
+        if match is not None:
+            update_stages[tuple(match.group(key) for key in (
+                "target", "generation", "digest", "candidate", "operation"
+            ))] = managed_name
+        for pattern in (
+            _CREATE_STAGE_RE, _MIGRATE_STAGE_RE, _RELEASE_STAGE_RE, _ARCHIVE_STAGE_RE
+        ):
+            match = pattern.fullmatch(managed_name)
+            if match is not None:
+                target = match.group("target")
+                if pattern is _RELEASE_STAGE_RE:
+                    target = _release_name(target)
+                elif pattern is _ARCHIVE_STAGE_RE:
+                    target = f".{target}.archive-{match.group('ledger')}.json"
+                model_pair(managed_name, target)
+        match = _MARKER_PLAN_STAGE_RE.fullmatch(managed_name)
+        if match is not None:
+            model_pair(managed_name, match.group("marker"))
+        match = _HEAD_CORRECTION_ERRONEOUS_RE.fullmatch(managed_name)
+        if match is not None:
+            model_pair(managed_name, match.group("target"))
+    for managed_name in managed_stats:
+        match = _UPDATE_RECEIPT_RE.fullmatch(managed_name)
+        if match is not None:
+            model_pair(managed_name, match.group("target"))
+            stage_name = update_stages.get((
+                match.group("target"), str(int(match.group("generation")) + 1),
+                match.group("digest"), match.group("candidate"), match.group("operation"),
+            ))
+            if stage_name is not None:
+                model_pair(managed_name, stage_name)
+    for transaction, (proof_name, proof_raw, _proof_status) in compact_update_proofs.items():
+        proof_document = validate(_decode(proof_raw, proof_name))
+        if proof_raw != canonical_bytes(proof_document):
+            raise LedgerError(f"compact update proof is noncanonical: {proof_name}")
+        model_pair(proof_name, canonical_name(proof_document))
+        stage_entry = compact_update_stages.get(transaction)
+        if stage_entry is not None:
+            model_pair(proof_name, stage_entry[0])
+    proof_bytes: dict[str, bytes] = {}
+
+    def managed_bytes(name: str) -> bytes:
+        if name not in proof_bytes:
+            proof_bytes[name], _ = _read_regular(
+                directory, name, managed=True, expected_nlinks={1, 2},
+                limit=MAX_ARCHIVE_BYTES,
+            )
+        return proof_bytes[name]
+
     for managed_name, status in managed_stats.items():
         if status.st_nlink == 1:
             continue
-        linked_names = sorted(inode_names[(status.st_dev, status.st_ino)])
-        allowed_pair = False
-        if len(linked_names) == 2:
-            first, second = linked_names
-            for pattern in (
-                _CREATE_STAGE_RE,
-                _MIGRATE_STAGE_RE,
-                _RELEASE_STAGE_RE,
-                _ARCHIVE_STAGE_RE,
-            ):
-                match = pattern.fullmatch(first)
-                if match is not None and second == (
-                    _release_name(match.group("target"))
-                    if pattern is _RELEASE_STAGE_RE
-                    else (
-                        f".{match.group('target')}.archive-{match.group('ledger')}.json"
-                        if pattern is _ARCHIVE_STAGE_RE
-                        else match.group("target")
-                    )
-                ):
-                    allowed_pair = True
-                match = pattern.fullmatch(second)
-                if match is not None and first == (
-                    _release_name(match.group("target"))
-                    if pattern is _RELEASE_STAGE_RE
-                    else (
-                        f".{match.group('target')}.archive-{match.group('ledger')}.json"
-                        if pattern is _ARCHIVE_STAGE_RE
-                        else match.group("target")
-                    )
-                ):
-                    allowed_pair = True
-            plan_name = next(
-                (value for value in linked_names if _MARKER_PLAN_STAGE_RE.fullmatch(value)),
-                None,
-            )
-            if plan_name is not None:
-                plan_match = _MARKER_PLAN_STAGE_RE.fullmatch(plan_name)
-                other = linked_names[0] if linked_names[1] == plan_name else linked_names[1]
-                allowed_pair = other == plan_match.group("marker")
-            proof_name = next(
-                (value for value in linked_names if _UPDATE_RECEIPT_RE.fullmatch(value)),
-                None,
-            )
-            if proof_name is not None:
-                proof_match = _UPDATE_RECEIPT_RE.fullmatch(proof_name)
-                other = linked_names[0] if linked_names[1] == proof_name else linked_names[1]
-                stage_match = _UPDATE_STAGE_RE.fullmatch(other)
-                allowed_pair = other == proof_match.group("target") or (
-                    stage_match is not None
-                    and stage_match.group("target") == proof_match.group("target")
-                    and stage_match.group("generation")
-                    == str(int(proof_match.group("generation")) + 1)
-                    and stage_match.group("digest") == proof_match.group("digest")
-                    and stage_match.group("candidate")
-                    == proof_match.group("candidate")
-                    and stage_match.group("operation")
-                    == proof_match.group("operation")
-                )
-            compact_proof_name = next(
-                (
-                    value
-                    for value in linked_names
-                    if _COMPACT_UPDATE_PROOF_RE.fullmatch(value)
-                ),
-                None,
-            )
-            if compact_proof_name is not None:
-                compact_proof_match = _COMPACT_UPDATE_PROOF_RE.fullmatch(
-                    compact_proof_name
-                )
-                assert compact_proof_match is not None
-                other = (
-                    linked_names[0]
-                    if linked_names[1] == compact_proof_name
-                    else linked_names[1]
-                )
-                compact_proof = compact_update_proofs.get(
-                    compact_proof_match.group("transaction")
-                )
-                proof_target = None
-                if compact_proof is not None:
-                    proof_document = validate(
-                        _decode(compact_proof[1], compact_proof[0])
-                    )
-                    if compact_proof[1] != canonical_bytes(proof_document):
-                        raise LedgerError(
-                            f"compact update proof is noncanonical: {compact_proof_name}"
-                        )
-                    proof_target = canonical_name(proof_document)
-                stage_match = _COMPACT_UPDATE_STAGE_RE.fullmatch(other)
-                allowed_pair = (
-                    stage_match is not None
-                    and stage_match.group("transaction")
-                    == compact_proof_match.group("transaction")
-                ) or other == proof_target
-            erroneous_name = next(
-                (
-                    value
-                    for value in linked_names
-                    if _HEAD_CORRECTION_ERRONEOUS_RE.fullmatch(value)
-                ),
-                None,
-            )
-            if erroneous_name is not None:
-                erroneous_match = _HEAD_CORRECTION_ERRONEOUS_RE.fullmatch(
-                    erroneous_name
-                )
-                other = (
-                    linked_names[0]
-                    if linked_names[1] == erroneous_name
-                    else linked_names[1]
-                )
-                allowed_pair = other == erroneous_match.group("target")
-        if not allowed_pair:
+        if not any(
+            other in managed_stats and managed_bytes(managed_name) == managed_bytes(other)
+            for other in modeled_pairs.get(managed_name, ())
+        ):
             raise LedgerError(f"managed file has an unmodeled hard link: {managed_name}")
     for marker_name, (
         _plan_name,
@@ -11620,28 +11453,25 @@ def _inventory_locked(directory: int) -> Inventory:
         installed = markers.get(destination)
         if installed is None:
             continue
-        marker_status = managed_stats[marker_name]
         if (
             planned is None
             or installed["state"] != "planned"
             or byte_digest(canonical_bytes(installed)) != operation_digest
             or planned != installed
             or planned_raw != canonical_bytes(installed)
-            or (planned_status.st_dev, planned_status.st_ino)
-            != (marker_status.st_dev, marker_status.st_ino)
         ):
             raise LedgerError(f"migration plan staging/install mismatch: {destination}")
     archived_targets = {archive.ledger_name for archive in archives}
     for destination, marker in markers.items():
         if destination in archived_targets:
             continue
-        source_name, source_digest, source_device, source_inode = _source(
+        source_name, source_digest, source_path = _source(
             marker["source"], "migration marker source"
         )
         snapshot_name = marker["snapshot_name"]
         snapshot_entry = snapshots.get(destination)
         source_raw, source_status = _read_regular(directory, source_name)
-        for related_name, related_digest, related_device, related_inode in (
+        for related_name, related_digest, related_path in (
             _related_sources(
                 marker["related_sources"], "migration marker related sources"
             )
@@ -11651,9 +11481,7 @@ def _inventory_locked(directory: int) -> Inventory:
             related_raw, related_status = _read_regular(directory, related_name)
             if (
                 byte_digest(related_raw) != related_digest
-                or not _pair_matches_status(
-                    {"device": related_device, "inode": related_inode}, related_status
-                )
+                or related_path not in {related_name, entry_path(related_name)}
             ):
                 raise LedgerError(f"migration related source changed: {related_name}")
         canonical_report = marker["canonical_report"]
@@ -11663,9 +11491,7 @@ def _inventory_locked(directory: int) -> Inventory:
         ):
             if (
                 byte_digest(source_raw) != source_digest
-                or not _pair_matches_status(
-                    {"device": source_device, "inode": source_inode}, source_status
-                )
+                or source_path not in {source_name, entry_path(source_name)}
             ):
                 raise LedgerError(f"migration source changed: {source_name}")
         snapshot_raw: bytes | None = None
@@ -11682,14 +11508,12 @@ def _inventory_locked(directory: int) -> Inventory:
         if marker["state"] != "planned":
             if snapshot_raw is None:
                 raise LedgerError(f"migration snapshot disappeared: {snapshot_name}")
-            _, snapshot_digest, snapshot_device, snapshot_inode = _source(
+            _, snapshot_digest, snapshot_path = _source(
                 marker["snapshot"], "migration marker snapshot"
             )
             if (
                 byte_digest(snapshot_raw) != snapshot_digest
-                or not _pair_matches_status(
-                    {"device": snapshot_device, "inode": snapshot_inode}, snapshot_status
-                )
+                or snapshot_path not in {snapshot_name, entry_path(snapshot_name)}
             ):
                 raise LedgerError(f"migration snapshot changed: {snapshot_name}")
         try:
@@ -11780,10 +11604,11 @@ def _inventory_locked(directory: int) -> Inventory:
             raise LedgerError(f"migrated ledger candidate digest mismatch: {snapshot.name}")
         if (
             marker["kind"] != migration["kind"]
-            or marker["source"] != migration["source"]
-            or marker.get("related_sources") != migration.get("related_sources")
+            or source_identity(marker["source"]) != source_identity(migration["source"])
+            or related_identities(marker.get("related_sources"))
+            != related_identities(migration.get("related_sources"))
             or marker.get("historical_heads") != migration.get("historical_heads")
-            or marker["snapshot"] != migration["snapshot"]
+            or source_identity(marker["snapshot"]) != source_identity(migration["snapshot"])
             or marker["canonical_report"] != migration["canonical_report"]
             or migration["marker_name"] != f".{snapshot.name}.migration.json"
         ):
@@ -11821,8 +11646,7 @@ def _inventory_locked(directory: int) -> Inventory:
             identity["ledger_id"] != snapshot.document["ledger_id"]
             or identity["generation"] != snapshot.document["generation"]
             or identity["sha256"] != snapshot.digest
-            or identity["device"] != _snapshot_record_device(snapshot)
-            or identity["inode"] != snapshot.inode
+            or not record_matches_path(identity, snapshot.name)
         ):
             raise LedgerError(f"release marker is stale for {release.ledger_name}")
         request = {
@@ -11836,7 +11660,10 @@ def _inventory_locked(directory: int) -> Inventory:
                 "cleanup",
             )
         }
-        if _release_document(snapshot, request, live_proof=False) != release.document:
+        expected_release = _release_document(snapshot, request, live_proof=False)
+        # The ledger identity was checked above; old filesystem metadata is inert.
+        expected_release["ledger"] = identity
+        if expected_release != release.document:
             raise LedgerError(f"release marker does not match {release.ledger_name}")
         releases_by_ledger[release.ledger_name] = release
     archive_by_ledger: dict[str, ArchiveRecord] = {}
@@ -11865,9 +11692,7 @@ def _inventory_locked(directory: int) -> Inventory:
                 _decode(ledger_raw, f"archive {archive.name} ledger"),
                 ledger_raw,
                 archive.document["ledger"]["sha256"],
-                archive.document["ledger"]["device"],
-                archive.document["ledger"]["inode"],
-                archive.document["ledger"]["device"],
+                entry_path(archive.ledger_name),
             )
         )
     all_by_identity = {
@@ -12210,7 +12035,7 @@ def _check_candidate_inventory(
         current, candidate, allowed_sources=allowed_legacy_sources
     )
     target = canonical_name(candidate)
-    proposed = Snapshot(target, dict(candidate), raw, byte_digest(raw), 0, 0)
+    proposed = Snapshot(target, dict(candidate), raw, byte_digest(raw), target)
     historical_keys = frozenset(
         (snapshot.name, snapshot.digest) for snapshot in current.historical_ledgers
     )
@@ -12334,19 +12159,13 @@ def _require_recognizable_wrapper(directory: int, wrapper: Path) -> None:
         try:
             opened = os.fstat(git_directory)
             visible = os.stat(gitdir, follow_symlinks=False)
-            if (opened.st_dev, opened.st_ino) != (
-                visible.st_dev,
-                visible.st_ino,
-            ):
+            if _descriptor_path(git_directory) != _canonical_path(gitdir):
                 raise LedgerError("wrapper .git gitdir changed during validation")
             _require_trusted_directory(opened, f"wrapper .git gitdir {gitdir}")
             _require_trusted_directory(visible, f"wrapper .git gitdir {gitdir}")
             _require_canonical_git_head(git_directory, f"wrapper .git gitdir {gitdir}")
             rechecked = os.stat(gitdir, follow_symlinks=False)
-            if (opened.st_dev, opened.st_ino) != (
-                rechecked.st_dev,
-                rechecked.st_ino,
-            ):
+            if _descriptor_path(git_directory) != _canonical_path(gitdir):
                 raise LedgerError("wrapper .git gitdir changed during validation")
         finally:
             os.close(git_directory)
@@ -12360,7 +12179,7 @@ def _require_recognizable_wrapper(directory: int, wrapper: Path) -> None:
     try:
         opened = os.fstat(git_directory)
         visible = os.stat(".git", dir_fd=directory, follow_symlinks=False)
-        if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+        if _descriptor_path(git_directory) != _child_path(directory, ".git") or not stat.S_ISDIR(visible.st_mode):
             raise LedgerError("wrapper .git directory changed during validation")
         _require_trusted_directory(opened, f"{wrapper}/.git")
         _require_canonical_git_head(git_directory, f"{wrapper}/.git")
@@ -12411,10 +12230,7 @@ def init_root(wrapper_root: Path | str) -> dict[str, Any]:
                 ) from error
             opened = os.fstat(child)
             visible = os.stat(component, dir_fd=descriptor, follow_symlinks=False)
-            if not stat.S_ISDIR(opened.st_mode) or (opened.st_dev, opened.st_ino) != (
-                visible.st_dev,
-                visible.st_ino,
-            ):
+            if not stat.S_ISDIR(opened.st_mode) or _descriptor_path(child) != _canonical_path(current_path / component) or not stat.S_ISDIR(visible.st_mode):
                 os.close(child)
                 raise LedgerError(f"initialized directory component is unsafe: {component}")
             _require_trusted_directory(
@@ -12425,21 +12241,13 @@ def init_root(wrapper_root: Path | str) -> dict[str, Any]:
             current_path /= component
         status = os.fstat(descriptor)
         wrapper_visible = os.stat(wrapper, follow_symlinks=False)
-        if (wrapper_status.st_dev, wrapper_status.st_ino) != (
-            wrapper_visible.st_dev,
-            wrapper_visible.st_ino,
-        ):
+        if not stat.S_ISDIR(wrapper_visible.st_mode):
             raise LedgerError("wrapper root changed during initialization")
         review_visible = os.stat(current_path, follow_symlinks=False)
-        if (status.st_dev, status.st_ino) != (
-            review_visible.st_dev,
-            review_visible.st_ino,
-        ):
+        if _descriptor_path(descriptor) != _canonical_path(current_path) or not stat.S_ISDIR(review_visible.st_mode):
             raise LedgerError("initialized review root identity changed")
         return {
             "root": str(current_path),
-            "device": _portable_device(status),
-            "inode": status.st_ino,
         }
     finally:
         os.close(descriptor)
@@ -12599,6 +12407,53 @@ def _release_live_safety(
         yield guards
 
 
+def _terminal_documents_match(
+    directory: int, actual: Mapping[str, Any], expected: Mapping[str, Any]
+) -> bool:
+    """Compare terminal evidence with named paths anchored to the locked root."""
+
+    root = Path(_descriptor_path(directory))
+
+    def anchored(document: Mapping[str, Any]) -> dict[str, Any]:
+        result = dict(document)
+        records = [dict(document["ledger"])]
+        result["ledger"] = records[0]
+        if "members" in document:
+            members = [dict(member) for member in document["members"]]
+            result["members"] = members
+            records.extend(members)
+        for record in records:
+            if "path" in record:
+                record["path"] = str(root / record["path"])
+        return result
+
+    return _record_fields_match(anchored(actual), anchored(expected))
+
+
+def _retained_terminal_candidate(
+    directory: int,
+    stage: str,
+    expected: Mapping[str, Any],
+    digest: str,
+    *,
+    archive: bool = False,
+) -> tuple[dict[str, Any], bytes, str]:
+    """Validate the original preview bytes before reusing a historical digest."""
+
+    limit = MAX_ARCHIVE_BYTES if archive else MAX_BYTES
+    raw, _status = _read_regular(
+        directory, stage, managed=True, expected_nlinks={1, 2}, limit=limit
+    )
+    document = _decode(raw, stage, limit=limit)
+    validator = _validate_archive_document if archive else _validate_release_document
+    validator(document, stage)
+    if raw != canonical_bytes(document) or byte_digest(raw) != digest:
+        raise LedgerError(f"retained terminal candidate digest differs: {stage}")
+    if not _terminal_documents_match(directory, document, expected):
+        raise LedgerError(f"retained terminal candidate evidence differs: {stage}")
+    return document, raw, digest
+
+
 def release_preview(
     root: Path | str, name: str, request: Mapping[str, Any]
 ) -> dict[str, Any]:
@@ -12617,8 +12472,10 @@ def release_preview(
         document, raw, plan = _release_plan(
             snapshot, request, live_proof=existing is None
         )
-        if existing is not None and existing.raw != raw:
-            raise LedgerError(f"ledger already has a different terminal release: {target}")
+        if existing is not None:
+            if not _terminal_documents_match(directory, existing.document, document):
+                raise LedgerError(f"ledger already has a different terminal release: {target}")
+            document, raw, plan = existing.document, existing.raw, existing.digest
         return {
             "mode": "preview",
             "plan_sha256": plan,
@@ -12650,6 +12507,16 @@ def release_apply(
         document, raw, candidate = _release_plan(
             snapshot, request, live_proof=existing is None
         )
+        if existing is not None:
+            if not _terminal_documents_match(directory, existing.document, document):
+                raise LedgerError(f"ledger already has a different terminal release: {target}")
+            document, raw, candidate = existing.document, existing.raw, existing.digest
+        elif candidate != plan_sha256:
+            retained_stage = f".{target}.release-{plan_sha256}.tmp"
+            if _exists(directory, retained_stage):
+                document, raw, candidate = _retained_terminal_candidate(
+                    directory, retained_stage, document, plan_sha256
+                )
         if candidate != plan_sha256:
             raise LedgerError("release plan digest is stale or unrelated")
         stage = f".{target}.release-{candidate}.tmp"
@@ -12682,22 +12549,17 @@ def release_apply(
         if (
             current_snapshot.digest != snapshot.digest
             or current_snapshot.document["generation"] != snapshot.document["generation"]
-            or (current_snapshot.device, current_snapshot.inode)
-            != (snapshot.device, snapshot.inode)
+            or current_snapshot.path != snapshot.path
         ):
             raise LedgerError("release ledger tuple changed before installation")
         # Staging is a deliberate crash boundary. Repeat every live Git proof
         # after it so an external worktree mutation cannot ride an older proof
         # into the terminal marker.
         with _release_live_safety(current_snapshot.document) as guards:
-            rechecked_document, rechecked_raw, rechecked_candidate = _release_plan(
+            rechecked_document, _rechecked_raw, _rechecked_candidate = _release_plan(
                 current_snapshot, request, live_proof=True
             )
-            if (
-                rechecked_document != document
-                or rechecked_raw != raw
-                or rechecked_candidate != candidate
-            ):
+            if not _terminal_documents_match(directory, document, rechecked_document):
                 raise LedgerError("release evidence changed before installation")
             for guard in guards:
                 guard.prove()
@@ -12716,10 +12578,7 @@ def release_apply(
         marker_raw, marker_status = _read_regular(
             directory, marker_name, managed=True, expected_nlinks={2}
         )
-        if marker_raw != raw or (marker_status.st_dev, marker_status.st_ino) != (
-            stage_status.st_dev,
-            stage_status.st_ino,
-        ):
+        if marker_raw != raw:
             raise LedgerError("installed release marker differs from its staged candidate")
         _unlink_exact(directory, stage, stage_status)
         _hit(failpoint, "release:cleaned")
@@ -13138,7 +12997,7 @@ def _finish_archive_members(
     directory: int, archive: ArchiveRecord, *, failpoint: Failpoint = None
 ) -> None:
     for index, member in enumerate(archive.document["members"]):
-        name, raw, mode, device, inode = _archive_member_bytes(
+        name, raw, mode, path = _archive_member_bytes(
             member, f"archive member[{index}]"
         )
         try:
@@ -13152,9 +13011,7 @@ def _finish_archive_members(
         if (
             current_raw != raw
             or stat.S_IMODE(status.st_mode) != mode
-            or not _pair_matches_status(
-                {"device": device, "inode": inode}, status
-            )
+            or path not in {name, _child_path(directory, name)}
         ):
             raise LedgerError(f"archive member changed before removal: {name}")
         _unlink_exact(directory, name, status)
@@ -13172,7 +13029,7 @@ def _archive_snapshot(archive: ArchiveRecord) -> Snapshot:
     ledger_members = [member for member in members if member[0] == identity[0]]
     if len(ledger_members) != 1:
         raise LedgerError("installed archive lost its canonical ledger member")
-    name, raw, _mode, device, inode = ledger_members[0]
+    name, raw, _mode, path = ledger_members[0]
     document = _decode(raw, "installed archive ledger member")
     validate(document)
     if raw != canonical_bytes(document) or byte_digest(raw) != identity[3]:
@@ -13182,16 +13039,14 @@ def _archive_snapshot(archive: ArchiveRecord) -> Snapshot:
         document,
         raw,
         identity[3],
-        device,
-        inode,
-        device,
+        _canonical_path(Path(archive.path).parent / path),
     )
 
 
 def _require_archive_members_absent(directory: int, archive: ArchiveRecord) -> None:
     remaining: list[str] = []
     for index, member in enumerate(archive.document["members"]):
-        name, _raw, _mode, _device, _inode = _archive_member_bytes(
+        name, _raw, _mode, _path = _archive_member_bytes(
             member, f"reclaim archive member[{index}]"
         )
         if _exists(directory, name):
@@ -13233,6 +13088,15 @@ def archive_apply(
                 _document, raw, candidate, archive_name = _archive_plan_locked(
                     directory, snapshot, release, request
                 )
+                if candidate != plan_sha256:
+                    retained_stage = (
+                        f".{target}.archive-{snapshot.digest}-to-{plan_sha256}.tmp"
+                    )
+                    if _exists(directory, retained_stage):
+                        _document, raw, candidate = _retained_terminal_candidate(
+                            directory, retained_stage, _document, plan_sha256,
+                            archive=True,
+                        )
                 if candidate != plan_sha256:
                     raise LedgerError("archive plan digest is stale or unrelated")
                 stage = (
@@ -13277,12 +13141,9 @@ def archive_apply(
                     expected_nlinks={2},
                     limit=MAX_ARCHIVE_BYTES,
                 )
-                if archive_raw != raw or (archive_status.st_dev, archive_status.st_ino) != (
-                    stage_status.st_dev,
-                    stage_status.st_ino,
-                ):
+                if archive_raw != raw:
                     raise LedgerError("installed archive differs from its staged candidate")
-                archived = _archive_record(archive_name, archive_raw, archive_status)
+                archived = _archive_record(archive_name, archive_raw, archive_status, _child_path(directory, archive_name))
                 _finish_archive_members(directory, archived, failpoint=failpoint)
         else:
             if archived.digest != plan_sha256:
@@ -13329,19 +13190,16 @@ def _validate_reclaim_preview(value: Any) -> dict[str, Any]:
             "plan_sha256",
             "archive",
             "archive_sha256",
-            "device",
-            "inode",
             "observed_at",
             "state",
-        },
+        } | ({"path"} if isinstance(value, dict) and "path" in value else set()),
         "reclaim preview",
     )
     if item["mode"] != "preview" or item["state"] != "eligible":
         raise LedgerError("reclaim apply requires an eligible preview")
     archive = _direct_name(item["archive"], "reclaim archive")
     digest = _string(item["archive_sha256"], "reclaim archive digest", SHA256_RE)
-    device = _integer(item["device"], "reclaim archive device", minimum=0)
-    inode = _integer(item["inode"], "reclaim archive inode")
+    path = _record_path(item, "reclaim archive", archive)
     observed = _string(item["observed_at"], "reclaim observed_at", TIMESTAMP_RE)
     _timestamp_key(observed, "reclaim observed_at")
     plan = _string(item["plan_sha256"], "reclaim plan digest", SHA256_RE)
@@ -13350,12 +13208,11 @@ def _validate_reclaim_preview(value: Any) -> dict[str, Any]:
             "operation": "reclaim",
             "archive": archive,
             "sha256": digest,
-            "device": device,
-            "inode": inode,
+            "path": path,
             "observed_at": observed,
         }
     )
-    if plan != expected:
+    if "path" in item and plan != expected:
         raise LedgerError("reclaim preview plan is malformed or unrelated")
     return item
 
@@ -13379,8 +13236,7 @@ def reclaim_preview(root: Path | str, name: str) -> dict[str, Any]:
                 "operation": "reclaim",
                 "archive": archive.name,
                 "sha256": archive.digest,
-                "device": _archive_record_device(archive),
-                "inode": archive.inode,
+                "path": archive.path,
                 "observed_at": observed,
             }
         )
@@ -13389,8 +13245,7 @@ def reclaim_preview(root: Path | str, name: str) -> dict[str, Any]:
             "plan_sha256": plan,
             "archive": archive.name,
             "archive_sha256": archive.digest,
-            "device": _archive_record_device(archive),
-            "inode": archive.inode,
+            "path": archive.path,
             "observed_at": observed,
             "state": "eligible",
         }
@@ -13492,9 +13347,7 @@ def reclaim_apply(
             )
             if receipt_raw != preview_raw:
                 raise LedgerError("reclaim receipt differs from the exact preview")
-            expected_archive = os.stat_result(
-                (stat.S_IFREG | 0o600, item["inode"], item["device"], 1, 0, 0, 0, 0, 0, 0)
-            )
+            expected_archive = None
             try:
                 _unlink_exact(directory, archive_name, expected_archive)
             except FileNotFoundError:
@@ -13526,16 +13379,14 @@ def reclaim_apply(
                 "operation": "reclaim",
                 "archive": archive.name,
                 "sha256": archive.digest,
-                "device": _archive_record_device(archive),
-                "inode": archive.inode,
+                "path": archive.path,
                 "observed_at": item["observed_at"],
             }
         )
         if (
-            expected != plan
+            ("path" in item and expected != plan)
             or item["archive_sha256"] != archive.digest
-            or item["device"] != _archive_record_device(archive)
-            or item["inode"] != archive.inode
+            or _record_path(item, "reclaim archive", archive_name) not in {archive_name, archive.path}
         ):
             raise LedgerError("reclaim archive tuple or plan changed")
         now = _utc_now()
@@ -13631,9 +13482,7 @@ def create(
                 prepared,
                 raw,
                 byte_digest(raw),
-                stage_status.st_dev,
-                stage_status.st_ino,
-                _portable_device(stage_status),
+                _child_path(directory, target),
             )
             _reject_overlaps([*current.ledgers, staged_snapshot])
             try:
@@ -13646,11 +13495,8 @@ def create(
                 )
             except FileExistsError as error:
                 raise LedgerError(f"ledger destination appeared: {target}") from error
-            installed = os.stat(target, dir_fd=directory, follow_symlinks=False)
-            if (installed.st_dev, installed.st_ino) != (
-                stage_status.st_dev,
-                stage_status.st_ino,
-            ):
+            installed_raw, installed = _read_regular(directory, target, managed=True, expected_nlinks={2})
+            if installed_raw != raw:
                 raise LedgerError(f"no-clobber install identity mismatch: {target}")
             _hit(failpoint, "create:linked")
             _fsync(directory, f"review root after installing {target}")
@@ -14413,7 +14259,8 @@ def _target_refresh_worktree_provenance(
 
 @contextmanager
 def _target_refresh_live_safety(
-    document: Mapping[str, Any], change: Mapping[str, Any]
+    document: Mapping[str, Any], change: Mapping[str, Any],
+    *, _lease_plans: list[Any] | None = None,
 ) -> Iterator[Callable[[], None]]:
     """Pin and prove one exact target coordinate refresh through CAS install."""
 
@@ -14432,6 +14279,7 @@ def _target_refresh_live_safety(
         "target refresh",
         allowed_references=allowed,
         scope_record=scope_record,
+        _lease_plans=_lease_plans,
     ) as guard:
         def prove() -> None:
             guard.prove()
@@ -14491,9 +14339,170 @@ def _target_refresh_live_safety(
                 raise LedgerError("target refresh merge base differs from live Git")
             guard.prove()
 
+        def isolated_prove() -> None:
+            saved = _enter_workspace_environment(request["roots"]["workspace"]["path"])
+            try:
+                prove()
+            finally:
+                _leave_workspace_environment(saved)
+
+        if _lease_plans is None:
+            isolated_prove()
+        yield isolated_prove
+
+
+
+@contextmanager
+def _current_target_leases(plans: Sequence[Any]) -> Iterator[None]:
+    """Acquire the complete union in resource-rank order, retaining all barriers."""
+
+    barriers: dict[str, Any] = {}
+    combined: dict[tuple[str, str, str], tuple[Any, Any, Any]] = {}
+    for module, preparation, requests in plans:
+        barriers.setdefault(str(preparation._lease_namespace), preparation)
+        for request in requests:
+            key = (str(preparation.lease_root(request)), request.kind, request.coordinate)
+            previous = combined.get(key)
+            if previous is None or request.mode == "exclusive":
+                combined[key] = (module, preparation, request)
+    ordered = sorted(
+        combined.items(), key=lambda row: (*row[1][2].sort_key, row[0][0])
+    )
+    with ExitStack() as stack:
+        for _, preparation in sorted(barriers.items()):
+            stack.enter_context(preparation.maintenance())
+        for (root, _, _), (module, preparation, request) in ordered:
+            stack.enter_context(
+                module.resource_locks(Path(root), [request], nonblocking=True)
+            )
+            preparation._verify_identity()
+        for _, preparation, _ in plans:
+            stack.enter_context(preparation.admitted())
+        yield
+        for _, preparation, _ in plans:
+            preparation._verify_identity()
+
+
+@contextmanager
+def _current_targets_live_safety(document: Mapping[str, Any]) -> Iterator[Callable[[], None]]:
+    """Prepare every current target, then prove under one complete lease union."""
+
+    require_reusable_artifacts(document)
+    require_reusable_resources(document)
+    changes = []
+    for target in document["targets"]:
+        matching = [
+            slot for slot in document["artifacts"]
+            if slot["current"] is not None
+            and slot["current"]["repository"] == target["repository"]
+            and slot["current"]["branch"] == target["head"]["branch"]
+        ]
+        for kind in ("branch", "worktree"):
+            if sum(slot["kind"] == kind for slot in matching) != 1:
+                raise LedgerError("current-target proof requires every bound branch/worktree")
+        if any(
+            slot["current"]["head_sha"] != target["head"]["current_sha"]
+            for slot in matching
+        ):
+            raise LedgerError("current-target artifact head is not mirrored")
+        slot = next(slot for slot in matching if slot["kind"] == "worktree")
+        changes.append({"before": target, "after": target, "worktree_slot": slot})
+    changes.sort(key=lambda change: (
+        change["worktree_slot"]["current"]["path"],
+        change["after"]["repository"]["node_id"],
+    ))
+    _require_authenticated_actor(document, "current-target revalidation")
+    plans: list[Any] = []
+    with ExitStack() as stack:
+        proofs = [
+            stack.enter_context(_target_refresh_live_safety(
+                document, change, _lease_plans=plans
+            ))
+            for change in changes
+        ]
+        try:
+            stack.enter_context(_current_target_leases(plans))
+        except Exception as error:
+            raise LedgerError(f"current-target union lease admission failed: {error}") from error
+
+        def prove() -> None:
+            for proof in proofs:
+                proof()
+            _require_authenticated_actor(document, "current-target revalidation")
+            for proof in proofs:
+                proof()
+
         prove()
         yield prove
 
+
+def _neutral_successor(document: Mapping[str, Any], digest: str) -> dict[str, Any]:
+    result = copy.deepcopy(document)
+    result["generation"] += 1
+    result["previous_byte_digest"] = digest
+    result["history"].append(digest)
+    return prepare(result)
+
+
+def revalidate_current_targets_cas(
+    root: Path | str,
+    name: str,
+    *,
+    expected_generation: int,
+    expected_digest: str,
+    expected_path: str,
+    failpoint: Failpoint = None,
+) -> Snapshot:
+    """Public exact-tuple live revalidation; no caller-authored successor."""
+
+    name = _direct_name(name)
+    _integer(expected_generation, "expected_generation")
+    _string(expected_digest, "expected_digest", SHA256_RE)
+    _absolute_path(expected_path, "expected_path")
+    current = inspect(root, name)
+    if _snapshot_matches_identity(
+        current, expected_generation, expected_digest, expected_path
+    ):
+        before = current.document
+        prepared = _neutral_successor(before, current.digest)
+    elif (
+        current.document["generation"] == expected_generation + 1
+        and current.document["previous_byte_digest"] == expected_digest
+        and current.document["history"][-1:] == [expected_digest]
+    ):
+        if not _snapshot_matches_identity(
+            current, current.document["generation"], current.digest, expected_path
+        ):
+            raise LedgerError("current-target retry predecessor path does not match")
+        before = copy.deepcopy(current.document)
+        before["generation"] -= 1
+        before["history"].pop()
+        before["previous_byte_digest"] = (
+            before["history"][-1] if before["history"] else None
+        )
+        before = prepare(before)
+        if byte_digest(canonical_bytes(before)) != expected_digest:
+            raise LedgerError("current-target retry predecessor bytes do not match")
+        prepared = _neutral_successor(before, expected_digest)
+        if canonical_bytes(prepared) != current.raw:
+            raise LedgerError("current-target retry is not an exact neutral successor")
+    else:
+        raise LedgerError("stale current-target generation, digest, or path")
+    capability = _CurrentTargetsCapability(
+        _CURRENT_TARGETS_TOKEN, name, canonical_bytes(before),
+        canonical_bytes(prepared), expected_generation, expected_digest,
+        expected_path,
+    )
+    with _current_targets_live_safety(prepared) as prove:
+        return cas(
+            root, name, prepared,
+            expected_generation=expected_generation,
+            expected_digest=expected_digest,
+            expected_path=expected_path,
+            failpoint=failpoint,
+            _precommit=prove,
+            _current_targets_capability=capability,
+        )
 
 def target_refresh_cas(
     root: Path | str,
@@ -14502,8 +14511,7 @@ def target_refresh_cas(
     *,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
     failpoint: Failpoint = None,
 ) -> Snapshot:
     """Live-prove and atomically install one target-only coordinate refresh."""
@@ -14515,20 +14523,23 @@ def target_refresh_cas(
     expected = (
         expected_generation,
         expected_digest,
-        expected_device,
-        expected_inode,
+        expected_path,
     )
     candidate_digest = byte_digest(raw)
-    legacy_names = {
-        f".{name}.update-g{prepared['generation']}-from-{expected_digest}-"
-        f"to-{candidate_digest}.tmp",
-        f".{name}.update-proof-g{expected_generation}-from-{expected_digest}-"
-        f"d{expected_device}-i{expected_inode}-to-{candidate_digest}.tmp",
-    }
-    legacy_pending = any(
-        item.target == name and item.staging in legacy_names
-        for item in inventory(root).pending
-    )
+    legacy_pending = False
+    for pending in inventory(root).pending:
+        match = (
+            _UPDATE_STAGE_RE.fullmatch(pending.staging)
+            or _UPDATE_RECEIPT_RE.fullmatch(pending.staging)
+        )
+        if (
+            pending.target == name
+            and match is not None
+            and (match.group("operation") or "") == ""
+            and match.group("digest") == expected_digest
+            and match.group("candidate") == candidate_digest
+        ):
+            legacy_pending = True
     if current.raw == raw and prepared["generation"] == expected_generation + 1:
         if legacy_pending:
             raise LedgerError(
@@ -14548,8 +14559,7 @@ def target_refresh_cas(
             prepared,
             expected_generation=expected_generation,
             expected_digest=expected_digest,
-            expected_device=expected_device,
-            expected_inode=expected_inode,
+            expected_path=expected_path,
             failpoint=failpoint,
             _target_refresh_capability=capability,
             _target_refresh_legacy=legacy_pending,
@@ -14557,13 +14567,12 @@ def target_refresh_cas(
     if (
         current.document["generation"],
         current.digest,
-        _snapshot_record_device(current),
-        current.inode,
+        current.path,
     ) != expected:
         if not _snapshot_matches_identity(
-            current, expected_generation, expected_digest, expected_device, expected_inode
+            current, expected_generation, expected_digest, expected_path
         ):
-            raise LedgerError("stale target-refresh generation, digest, or inode")
+            raise LedgerError("stale target-refresh generation, digest, or path")
     change = _target_refresh_change(current.document, prepared, current.digest)
     capability = _TargetRefreshCapability(
         _TARGET_REFRESH_TOKEN,
@@ -14579,8 +14588,7 @@ def target_refresh_cas(
             prepared,
             expected_generation=expected_generation,
             expected_digest=expected_digest,
-            expected_device=expected_device,
-            expected_inode=expected_inode,
+            expected_path=expected_path,
             failpoint=failpoint,
             _precommit=recheck,
             _target_refresh_capability=capability,
@@ -14595,8 +14603,7 @@ def cas(
     *,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
     failpoint: Failpoint = None,
     _precommit: Callable[[], None] | None = None,
     _binding_capability: _AtomicBindingCapability | None = None,
@@ -14604,6 +14611,7 @@ def cas(
     _scope_recovery_capability: _ScopeRecoveryCapability | None = None,
     _identity_recovery_capability: _IdentityRecoveryCapability | None = None,
     _target_refresh_legacy: bool = False,
+    _current_targets_capability: _CurrentTargetsCapability | None = None,
 ) -> Snapshot:
     name = _direct_name(name)
     prepared = prepare(document)
@@ -14611,8 +14619,7 @@ def cas(
         raise LedgerError("CAS replacement has a different canonical filename")
     _integer(expected_generation, "expected_generation")
     _string(expected_digest, "expected_digest", SHA256_RE)
-    _integer(expected_device, "expected_device", minimum=0)
-    _integer(expected_inode, "expected_inode")
+    _absolute_path(expected_path, "expected_path")
     raw = canonical_bytes(prepared)
     operation = ""
     if _identity_recovery_capability is not None:
@@ -14628,14 +14635,12 @@ def cas(
             or (
                 capability.expected_generation,
                 capability.expected_digest,
-                capability.expected_device,
-                capability.expected_inode,
+                capability.expected_path,
             )
             != (
                 expected_generation,
                 expected_digest,
-                expected_device,
-                expected_inode,
+                expected_path,
             )
         ):
             raise LedgerError("invalid internal identity-recovery capability")
@@ -14654,14 +14659,12 @@ def cas(
             or (
                 capability.expected_generation,
                 capability.expected_digest,
-                capability.expected_device,
-                capability.expected_inode,
+                capability.expected_path,
             )
             != (
                 expected_generation,
                 expected_digest,
-                expected_device,
-                expected_inode,
+                expected_path,
             )
         ):
             raise LedgerError("invalid internal scope-recovery capability")
@@ -14679,14 +14682,12 @@ def cas(
             or (
                 capability.expected_generation,
                 capability.expected_digest,
-                capability.expected_device,
-                capability.expected_inode,
+                capability.expected_path,
             )
             != (
                 expected_generation,
                 expected_digest,
-                expected_device,
-                expected_inode,
+                expected_path,
             )
         ):
             raise LedgerError("invalid internal atomic-binding capability")
@@ -14703,14 +14704,12 @@ def cas(
             or (
                 capability.expected_generation,
                 capability.expected_digest,
-                capability.expected_device,
-                capability.expected_inode,
+                capability.expected_path,
             )
             != (
                 expected_generation,
                 expected_digest,
-                expected_device,
-                expected_inode,
+                expected_path,
             )
         ):
             raise LedgerError("invalid internal target-refresh capability")
@@ -14719,6 +14718,35 @@ def cas(
         operation = "" if _target_refresh_legacy else "-refresh-target"
     elif _target_refresh_legacy:
         raise LedgerError("target-refresh recovery mode lacks its capability")
+    if _current_targets_capability is not None:
+        capability = _current_targets_capability
+        if (
+            any(item is not None for item in (
+                _binding_capability, _target_refresh_capability,
+                _scope_recovery_capability, _identity_recovery_capability,
+            ))
+            or _target_refresh_legacy
+            or not isinstance(capability, _CurrentTargetsCapability)
+            or capability.token is not _CURRENT_TARGETS_TOKEN
+            or capability.name != name
+            or capability.after_raw != raw
+            or _precommit is None
+            or (
+                capability.expected_generation, capability.expected_digest,
+                capability.expected_path,
+            ) != (
+                expected_generation, expected_digest, expected_path,
+            )
+        ):
+            raise LedgerError("invalid internal current-target revalidation capability")
+        predecessor = prepare(_decode(capability.before_raw, "current-target predecessor"))
+        if (
+            byte_digest(capability.before_raw) != expected_digest
+            or canonical_bytes(predecessor) != capability.before_raw
+            or canonical_bytes(_neutral_successor(predecessor, expected_digest)) != raw
+        ):
+            raise LedgerError("current-target capability is not an exact neutral transition")
+        operation = "-revalidate-targets"
     candidate_digest = byte_digest(raw)
     legacy_stage = (
         f".{name}.update{operation}-g{prepared['generation']}-from-{expected_digest}-"
@@ -14726,11 +14754,11 @@ def cas(
     )
     legacy_proof = (
         f".{name}.update-proof{operation}-g{expected_generation}-from-{expected_digest}-"
-        f"d{expected_device}-i{expected_inode}-to-{candidate_digest}.tmp"
+        f"path-to-{candidate_digest}.tmp"
     )
     with _locked_root(Path(root)) as directory:
         lock_name = _ledger_lock_name(directory, name)
-        compact = not _names_fit(directory, (name, legacy_stage, legacy_proof, lock_name))
+        compact = True
         receipt_document: dict[str, Any] | None = None
         receipt_name: str | None = None
         if compact:
@@ -14742,14 +14770,72 @@ def cas(
                 predecessor_sha256=expected_digest,
                 candidate_sha256=candidate_digest,
                 candidate_size=len(raw),
-                device=expected_device,
-                inode=expected_inode,
+                path=expected_path,
             )
             receipt_name = receipt_document["receipt"]
             receipt_raw = canonical_bytes(receipt_document)
         else:
             stage, proof = legacy_stage, legacy_proof
             receipt_raw = None
+        # Retained transactions are anchored by their ledger coordinate and
+        # content history.  Old filesystem metadata is not part of admission.
+        initial_inventory = _inventory_locked(directory)
+        matching_receipts: list[dict[str, Any]] = []
+        legacy_proofs: list[str] = []
+        retained_legacy_stage = False
+        for pending in initial_inventory.pending:
+            if pending.target != name:
+                continue
+            receipt_match = _COMPACT_UPDATE_RECEIPT_RE.fullmatch(pending.staging)
+            if receipt_match is not None:
+                retained_raw, _ = _read_regular(
+                    directory, pending.staging, managed=True, expected_nlinks={1}
+                )
+                retained = _update_receipt_document(
+                    _decode(retained_raw, pending.staging), pending.staging,
+                    receipt_match.group("transaction"),
+                )
+                if (
+                    retained["operation"] == operation
+                    and retained["target"] == name
+                    and retained["generation"] == prepared["generation"]
+                    and retained["expected_generation"] == expected_generation
+                    and retained["predecessor_sha256"] == expected_digest
+                    and retained["candidate_sha256"] == candidate_digest
+                    and retained["candidate_size"] == len(raw)
+                    and _canonical_path(Path(_descriptor_path(directory)) / _record_path(retained))
+                    == _canonical_path(Path(root) / expected_path)
+                ):
+                    matching_receipts.append(retained)
+                continue
+            match = _UPDATE_RECEIPT_RE.fullmatch(pending.staging)
+            if match is not None and (
+                (match.group("operation") or "") == operation
+                and int(match.group("generation")) == expected_generation
+                and match.group("digest") == expected_digest
+                and match.group("candidate") == candidate_digest
+            ):
+                legacy_proofs.append(pending.staging)
+            if pending.staging == legacy_stage:
+                retained_legacy_stage = True
+        if len(matching_receipts) > 1 or len(legacy_proofs) > 1:
+            raise LedgerError("CAS has ambiguous retained predecessor evidence")
+        if matching_receipts:
+            receipt_document = matching_receipts[0]
+            receipt_name = receipt_document["receipt"]
+            receipt_raw = canonical_bytes(receipt_document)
+            stage, proof = receipt_document["staging"], receipt_document["proof"]
+        elif retained_legacy_stage or legacy_proofs:
+            compact = False
+            stage = legacy_stage
+            proof = legacy_proofs[0] if legacy_proofs else legacy_proof
+            receipt_name = None
+            receipt_document = None
+            receipt_raw = None
+        # Without a receipt, only the exact computed transaction name proves
+        # the operation.  Matching candidate bytes alone cannot distinguish a
+        # protected live revalidation from ordinary CAS and must not authorize
+        # consumption of another operation's retained proof.
         allowed_pending = {
             ("update", name, stage),
             ("update-proof", name, proof),
@@ -14760,7 +14846,6 @@ def cas(
         if receipt_name is not None:
             required_names += (receipt_name,)
         _require_names_fit(directory, required_names)
-        initial_inventory = _inventory_locked(directory)
         if any(row.ledger_name == name for row in initial_inventory.releases):
             raise LedgerError("terminally released ledger cannot be updated")
         _check_candidate_inventory(
@@ -14780,6 +14865,10 @@ def cas(
                 allowed_pending=allowed_pending,
             )
             current = _snapshot(directory, name)
+            if not _snapshot_matches_identity(
+                current, current.document["generation"], current.digest, expected_path
+            ):
+                raise LedgerError("stale CAS target path")
             # Retrying after the rename is permitted only while the installed
             # candidate retains the exact durable predecessor-tuple evidence.
             if (
@@ -14811,10 +14900,7 @@ def cas(
                         expected_nlinks={2},
                         sync=True,
                     )
-                    if proof_existing_raw != raw or (
-                        proof_status.st_dev,
-                        proof_status.st_ino,
-                    ) != (current.device, current.inode):
+                    if proof_existing_raw != raw:
                         raise LedgerError("compact CAS proof does not match installed bytes")
                     receipt_status = None
                     if receipt_exists:
@@ -14852,10 +14938,7 @@ def cas(
                     expected_nlinks={2},
                     sync=True,
                 )
-                if proof_raw != raw or (
-                    proof_status.st_dev,
-                    proof_status.st_ino,
-                ) != (current.device, current.inode):
+                if proof_raw != raw:
                     raise LedgerError("post-rename CAS proof does not match installed bytes")
                 if _precommit is not None:
                     _precommit()
@@ -14869,11 +14952,10 @@ def cas(
                     current,
                     expected_generation,
                     expected_digest,
-                    expected_device,
-                    expected_inode,
+                    expected_path,
                 )
             ):
-                raise LedgerError("stale CAS generation, digest, or inode")
+                raise LedgerError("stale CAS generation, digest, or path")
             if _binding_capability is not None:
                 if _binding_capability.before_raw is None:
                     raise LedgerError(
@@ -14898,6 +14980,11 @@ def cas(
                     )
                 if _identity_recovery_capability.before_raw != current.raw:
                     raise LedgerError("identity-recovery predecessor bytes changed")
+            if (
+                _current_targets_capability is not None
+                and _current_targets_capability.before_raw != current.raw
+            ):
+                raise LedgerError("current-target predecessor bytes changed")
             _transition(
                 current.document,
                 prepared,
@@ -14955,10 +15042,7 @@ def cas(
                         managed=True,
                         expected_nlinks={2},
                     )
-                    if proof_raw != raw or (
-                        proof_status.st_dev,
-                        proof_status.st_ino,
-                    ) != (stage_status.st_dev, stage_status.st_ino):
+                    if proof_raw != raw:
                         raise LedgerError("compact CAS proof differs from staging")
                 else:
                     if stage_status.st_nlink != 1:
@@ -14971,14 +15055,10 @@ def cas(
                         follow_symlinks=False,
                     )
                     _fsync(directory, f"review root after proving update of {name}")
-                    proof_status = os.stat(
-                        proof, dir_fd=directory, follow_symlinks=False
+                    proof_raw, proof_status = _read_regular(
+                        directory, proof, managed=True, expected_nlinks={2}, sync=True
                     )
-                    if (
-                        proof_status.st_nlink != 2
-                        or (proof_status.st_dev, proof_status.st_ino)
-                        != (stage_status.st_dev, stage_status.st_ino)
-                    ):
+                    if proof_raw != raw:
                         raise LedgerError("compact CAS predecessor proof link mismatch")
             elif _exists(directory, proof):
                 proof_raw, proof_status = _read_regular(
@@ -14987,10 +15067,7 @@ def cas(
                     managed=True,
                     expected_nlinks={2},
                 )
-                if proof_raw != raw or (
-                    proof_status.st_dev,
-                    proof_status.st_ino,
-                ) != (stage_status.st_dev, stage_status.st_ino):
+                if proof_raw != raw:
                     raise LedgerError("CAS predecessor proof differs from staging")
             else:
                 os.link(
@@ -15001,17 +15078,13 @@ def cas(
                     follow_symlinks=False,
                 )
                 _fsync(directory, f"review root after proving update of {name}")
-                proof_status = os.stat(
-                    proof, dir_fd=directory, follow_symlinks=False
+                proof_raw, proof_status = _read_regular(
+                    directory, proof, managed=True, expected_nlinks={2}, sync=True
                 )
-                if (
-                    proof_status.st_nlink != 2
-                    or (proof_status.st_dev, proof_status.st_ino)
-                    != (stage_status.st_dev, stage_status.st_ino)
-                ):
+                if proof_raw != raw:
                     raise LedgerError("CAS predecessor proof link mismatch")
             _hit(failpoint, "cas:proofed")
-            # Recheck the expected inode/generation/digest immediately before
+            # Recheck the expected path/generation/digest immediately before
             # the atomic replacement.  The protocol requires all writers to
             # hold these locks; an uncooperative external writer remains outside
             # that protocol and is not claimed safe here.
@@ -15023,8 +15096,7 @@ def cas(
                     rechecked,
                     expected_generation,
                     expected_digest,
-                    expected_device,
-                    expected_inode,
+                    expected_path,
                 )
             ):
                 raise LedgerError("CAS target changed after staging")
@@ -15035,10 +15107,7 @@ def cas(
                 expected_nlinks={2},
                 sync=True,
             )
-            if staged_raw != raw or (staged_visible.st_dev, staged_visible.st_ino) != (
-                stage_status.st_dev,
-                stage_status.st_ino,
-            ):
+            if staged_raw != raw:
                 raise LedgerError("CAS staging changed before rename")
             if _precommit is not None:
                 try:
@@ -15100,23 +15169,22 @@ def cas(
                     receipt_visible_raw != canonical_bytes(receipt_visible_document)
                     or receipt_visible_document != receipt_document
                     or proof_visible_raw != raw
-                    or (proof_visible.st_dev, proof_visible.st_ino)
-                    != (installed.device, installed.inode)
                 ):
                     raise LedgerError("installed compact CAS proof does not match candidate")
                 # Keep the hard-link proof if a crash occurs between these two
                 # removals; the proof alone remains recoverable by the exact
                 # caller-supplied CAS tuple.
                 _unlink_exact(directory, receipt_name, receipt_visible)
+                _hit(failpoint, "cas:receipt-consumed")
                 _unlink_exact(directory, proof, proof_visible)
             else:
-                proof_visible = os.stat(proof, dir_fd=directory, follow_symlinks=False)
-                if (
-                    proof_visible.st_dev,
-                    proof_visible.st_ino,
-                ) != (installed.device, installed.inode):
+                proof_visible_raw, proof_visible = _read_regular(
+                    directory, proof, managed=True, expected_nlinks={2}, sync=True
+                )
+                if proof_visible_raw != installed.raw:
                     raise LedgerError("installed CAS lost its predecessor proof")
                 _unlink_exact(directory, proof, proof_visible)
+            _hit(failpoint, "cas:proof-consumed")
             return installed
 
 
@@ -15147,15 +15215,14 @@ def _scope_recovery_authority(value: Any, context: str) -> dict[str, Any]:
         raise LedgerError(f"{context}.transaction is invalid")
     source = _exact(
         item["source"],
-        {"name", "ledger_id", "generation", "sha256", "device", "inode"},
+        {"name", "ledger_id", "generation", "sha256", "path"},
         f"{context}.source",
     )
     _direct_name(source["name"], f"{context}.source.name")
     _string(source["ledger_id"], f"{context}.source.ledger_id", REFERENCE_RE)
     _integer(source["generation"], f"{context}.source.generation", minimum=1)
     _string(source["sha256"], f"{context}.source.sha256", SHA256_RE)
-    _integer(source["device"], f"{context}.source.device", minimum=0)
-    _integer(source["inode"], f"{context}.source.inode", minimum=1)
+    _record_path(source, f"{context}.source.path")
     old_scope = _exact(
         item["old_scope"],
         {
@@ -15244,15 +15311,14 @@ def _identity_recovery_authority(value: Any, context: str) -> dict[str, Any]:
         raise LedgerError(f"{context}.transaction is invalid")
     source = _exact(
         item["source"],
-        {"name", "ledger_id", "generation", "sha256", "device", "inode"},
+        {"name", "ledger_id", "generation", "sha256", "path"},
         f"{context}.source",
     )
     _direct_name(source["name"], f"{context}.source.name")
     _string(source["ledger_id"], f"{context}.source.ledger_id", REFERENCE_RE)
     _integer(source["generation"], f"{context}.source.generation", minimum=2)
     _string(source["sha256"], f"{context}.source.sha256", SHA256_RE)
-    _integer(source["device"], f"{context}.source.device", minimum=0)
-    _integer(source["inode"], f"{context}.source.inode", minimum=1)
+    _record_path(source, f"{context}.source.path")
     old_actor = _actor_identity(item["old_actor"], f"{context}.old_actor")
     new_actor = _actor_identity(item["new_actor"], f"{context}.new_actor")
     if old_actor == new_actor:
@@ -15381,8 +15447,7 @@ def recover_prebind_identity(
     *,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
     failpoint: Failpoint = None,
 ) -> Snapshot:
     """Recover one audited actor change before the issue-created PR bind."""
@@ -15400,14 +15465,12 @@ def recover_prebind_identity(
     expected_source = (
         source["generation"],
         source["sha256"],
-        source["device"],
-        source["inode"],
+        _canonical_path(Path(root) / _record_path(source)),
     )
     if (
         expected_generation,
         expected_digest,
-        expected_device,
-        expected_inode,
+        _canonical_path(Path(root) / expected_path),
     ) != expected_source:
         raise LedgerError("pre-bind identity recovery source does not match CAS tuple")
     if snapshot.name != source["name"]:
@@ -15428,8 +15491,7 @@ def recover_prebind_identity(
             snapshot,
             source["generation"],
             source["sha256"],
-            source["device"],
-            source["inode"],
+            _record_path(source),
         )
     ):
         raise LedgerError("pre-bind identity recovery source snapshot is stale")
@@ -15532,8 +15594,7 @@ def recover_prebind_identity(
         candidate_raw,
         expected_generation,
         expected_digest,
-        expected_device,
-        expected_inode,
+        expected_path,
     )
     with _pr_binding_live_safety(candidate, target, worktree) as prove_local:
         def revalidate() -> None:
@@ -15554,8 +15615,7 @@ def recover_prebind_identity(
             candidate,
             expected_generation=expected_generation,
             expected_digest=expected_digest,
-            expected_device=expected_device,
-            expected_inode=expected_inode,
+            expected_path=expected_path,
             failpoint=failpoint,
             _precommit=revalidate,
             _identity_recovery_capability=capability,
@@ -15579,15 +15639,14 @@ def _scope_prebind_recovery_authority(value: Any, context: str) -> dict[str, Any
         raise LedgerError(f"{context}.transaction is invalid")
     source = _exact(
         item["source"],
-        {"name", "ledger_id", "generation", "sha256", "device", "inode"},
+        {"name", "ledger_id", "generation", "sha256", "path"},
         f"{context}.source",
     )
     _direct_name(source["name"], f"{context}.source.name")
     _string(source["ledger_id"], f"{context}.source.ledger_id", REFERENCE_RE)
     _integer(source["generation"], f"{context}.source.generation", minimum=1)
     _string(source["sha256"], f"{context}.source.sha256", SHA256_RE)
-    _integer(source["device"], f"{context}.source.device", minimum=0)
-    _integer(source["inode"], f"{context}.source.inode", minimum=1)
+    _record_path(source, f"{context}.source.path")
     scope = _exact(
         item["scope"],
         {
@@ -15713,8 +15772,7 @@ def recover_released_scope(
     *,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
     failpoint: Failpoint = None,
 ) -> Snapshot:
     """Recover one explicitly authorized released planned scope selector."""
@@ -15738,8 +15796,7 @@ def recover_released_scope(
             snapshot,
             recovery["source"]["generation"],
             recovery["source"]["sha256"],
-            recovery["source"]["device"],
-            recovery["source"]["inode"],
+            _record_path(recovery["source"]),
         )
     ):
         raise LedgerError("scope recovery source snapshot is stale")
@@ -15880,8 +15937,7 @@ def recover_released_scope(
         candidate_raw,
         expected_generation,
         expected_digest,
-        expected_device,
-        expected_inode,
+        expected_path,
     )
     return cas(
         root,
@@ -15889,8 +15945,7 @@ def recover_released_scope(
         candidate,
         expected_generation=expected_generation,
         expected_digest=expected_digest,
-        expected_device=expected_device,
-        expected_inode=expected_inode,
+        expected_path=expected_path,
         failpoint=failpoint,
         _scope_recovery_capability=capability,
     )
@@ -15907,8 +15962,7 @@ def recover_prebind_scope(
     *,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
     failpoint: Failpoint = None,
 ) -> Snapshot:
     """Recover only an exact live pre-bind topology mismatch by ledger CAS."""
@@ -15926,14 +15980,12 @@ def recover_prebind_scope(
     expected_source = (
         source["generation"],
         source["sha256"],
-        source["device"],
-        source["inode"],
+        _canonical_path(Path(root) / _record_path(source)),
     )
     if (
         expected_generation,
         expected_digest,
-        expected_device,
-        expected_inode,
+        _canonical_path(Path(root) / expected_path),
     ) != expected_source:
         raise LedgerError("pre-bind scope recovery source does not match CAS tuple")
     if snapshot.name != source["name"]:
@@ -15954,8 +16006,7 @@ def recover_prebind_scope(
             snapshot,
             source["generation"],
             source["sha256"],
-            source["device"],
-            source["inode"],
+            _record_path(source),
         )
     ):
         raise LedgerError("pre-bind scope recovery source snapshot is stale")
@@ -16143,8 +16194,7 @@ def recover_prebind_scope(
         candidate_raw,
         expected_generation,
         expected_digest,
-        expected_device,
-        expected_inode,
+        expected_path,
     )
     with _pinned_live_worktree(
         worktree_request,
@@ -16175,12 +16225,36 @@ def recover_prebind_scope(
             candidate,
             expected_generation=expected_generation,
             expected_digest=expected_digest,
-            expected_device=expected_device,
-            expected_inode=expected_inode,
+            expected_path=expected_path,
             failpoint=failpoint,
             _precommit=revalidate,
             _scope_recovery_capability=capability,
         )
+
+
+
+def _head_correction_receipt_semantics(
+    receipt: Mapping[str, Any], root: Path | str
+) -> dict[str, Any]:
+    """Compare validated receipts without rewriting their historical bytes."""
+
+    result = dict(receipt)
+    source = receipt["source"]
+    result["source"] = {
+        "generation": source["generation"],
+        "sha256": source["sha256"],
+        "path": _canonical_path(Path(root) / _record_path(
+            source, "head-correction source", receipt["target"]
+        )),
+    }
+    for field in ("predecessor_snapshot", "erroneous_snapshot"):
+        record = receipt[field]
+        result[field] = {
+            "name": record["name"],
+            "sha256": record["sha256"],
+            "path": _canonical_path(Path(root) / _record_path(record)),
+        }
+    return result
 
 
 def correct_target_head(
@@ -16191,8 +16265,7 @@ def correct_target_head(
     *,
     expected_generation: int,
     expected_digest: str,
-    expected_device: int,
-    expected_inode: int,
+    expected_path: str,
     bad_head: str,
     actual_head: str,
     actual_merge_base: str | None = None,
@@ -16203,8 +16276,7 @@ def correct_target_head(
     name = _direct_name(name)
     _integer(expected_generation, "expected_generation", minimum=2)
     _string(expected_digest, "expected_digest", SHA256_RE)
-    _integer(expected_device, "expected_device", minimum=0)
-    _integer(expected_inode, "expected_inode")
+    _absolute_path(expected_path, "expected_path")
     _string(bad_head, "bad_head", COMMIT_RE)
     _string(actual_head, "actual_head", COMMIT_RE)
     if actual_merge_base is not None:
@@ -16253,9 +16325,7 @@ def correct_target_head(
             erroneous,
             erroneous_raw,
             expected_digest,
-            erroneous_status.st_dev,
-            erroneous_status.st_ino,
-            _portable_device(erroneous_status),
+            _canonical_path(Path(root) / name),
         )
     corrected, metadata, live_provenance = _head_correction_document(
         predecessor,
@@ -16274,8 +16344,7 @@ def correct_target_head(
     source_identity = {
         "generation": expected_generation,
         "sha256": expected_digest,
-        "device": _snapshot_record_device(installed_snapshot),
-        "inode": expected_inode,
+        "path": expected_path,
     }
     expected_intent = _head_correction_intent(
         erroneous,
@@ -16426,11 +16495,18 @@ def correct_target_head(
                     receipt = _head_correction_receipt(
                         _decode(receipt_raw, receipt_name), receipt_name
                     )
-                    if receipt["source"] != source_identity or (
-                        receipt["bad_head"], receipt["actual_head"]
-                    ) != (bad_head, actual_head) or receipt["predecessor_snapshot"][
-                        "sha256"
-                    ] != predecessor_digest or receipt["recovery"] != recovery:
+                    receipt_source = receipt["source"]
+                    if (
+                        receipt_source["generation"] != expected_generation
+                        or receipt_source["sha256"] != expected_digest
+                        or _canonical_path(Path(root) / _record_path(
+                            receipt_source, "head-correction source", name
+                        )) != _canonical_path(Path(root) / expected_path)
+                        or (receipt["bad_head"], receipt["actual_head"])
+                        != (bad_head, actual_head)
+                        or receipt["predecessor_snapshot"]["sha256"] != predecessor_digest
+                        or receipt["recovery"] != recovery
+                    ):
                         raise LedgerError("completed head correction has different authority")
                     _fsync(directory, f"review root while resuming correction of {name}")
                     return current
@@ -16441,12 +16517,11 @@ def correct_target_head(
                         current,
                         expected_generation,
                         expected_digest,
-                        expected_device,
-                        expected_inode,
+                        expected_path,
                     )
                     or current.raw != erroneous_raw
                 ):
-                    raise LedgerError("stale head-correction generation, digest, or inode")
+                    raise LedgerError("stale head-correction generation, digest, or path")
                 predecessor_status = _ensure_stage(
                     directory, predecessor_name, predecessor_raw, allow_prefix_resume=True
                 )
@@ -16456,8 +16531,7 @@ def correct_target_head(
                     name,
                     erroneous_name,
                     erroneous_raw,
-                    expected_device,
-                    expected_inode,
+                    expected_path,
                 )
                 _hit(failpoint, "correct-target-head:erroneous-snapshot")
                 stage_status = _ensure_stage(
@@ -16471,18 +16545,21 @@ def correct_target_head(
                         else "delivery-ledger-correct-target-head-v1"
                     ),
                     "target": name,
-                    "source": source_identity,
+                    "source": {
+                        **source_identity,
+                        "path": _record_path(
+                            recovery["intent"]["installed"], "head-correction source", name
+                        ),
+                    },
                     "predecessor_snapshot": {
                         "name": predecessor_name,
                         "sha256": predecessor_digest,
-                        "device": _portable_device(predecessor_status),
-                        "inode": predecessor_status.st_ino,
+                        "path": predecessor_name,
                     },
                     "erroneous_snapshot": {
                         "name": erroneous_name,
                         "sha256": expected_digest,
-                        "device": _portable_device(erroneous_status),
-                        "inode": erroneous_status.st_ino,
+                        "path": erroneous_name,
                     },
                     "correction": {
                         "generation": corrected["generation"],
@@ -16496,6 +16573,23 @@ def correct_target_head(
                 }
                 receipt_raw = canonical_bytes(receipt)
                 _head_correction_receipt(receipt, receipt_name)
+                if _exists(directory, receipt_name):
+                    retained_raw, _ = _read_regular(
+                        directory, receipt_name, managed=True, sync=True
+                    )
+                    # Preserve exact-prefix short-write recovery before considering
+                    # a complete historical receipt with different metadata.
+                    if not receipt_raw.startswith(retained_raw):
+                        retained = _head_correction_receipt(
+                            _decode(retained_raw, receipt_name), receipt_name
+                        )
+                        if (
+                            retained_raw != canonical_bytes(retained)
+                            or _head_correction_receipt_semantics(retained, root)
+                            != _head_correction_receipt_semantics(receipt, root)
+                        ):
+                            raise LedgerError("retained head correction has different authority or content")
+                        receipt_raw = retained_raw
                 _ensure_stage(directory, receipt_name, receipt_raw, allow_prefix_resume=True)
                 _hit(failpoint, "correct-target-head:receipt")
                 rechecked = _snapshot(directory, name)
@@ -16504,18 +16598,14 @@ def correct_target_head(
                         rechecked,
                         expected_generation,
                         expected_digest,
-                        expected_device,
-                        expected_inode,
+                        expected_path,
                     )
                 ):
                     raise LedgerError("head-correction source changed before replacement")
                 staged_raw, staged_visible = _read_regular(
                     directory, stage, managed=True, sync=True
                 )
-                if staged_raw != corrected_raw or (
-                    staged_visible.st_dev,
-                    staged_visible.st_ino,
-                ) != (stage_status.st_dev, stage_status.st_ino):
+                if staged_raw != corrected_raw:
                     raise LedgerError("head-correction stage changed before replacement")
                 prove_live()
                 os.replace(stage, name, src_dir_fd=directory, dst_dir_fd=directory)
@@ -16666,14 +16756,36 @@ def migrate(
     )
     with _locked_root(Path(root)) as directory:
         preflight_marker = None
-        if _exists(directory, marker_name):
+        preflight_marker_name = marker_name
+        if not _exists(directory, marker_name):
+            retained_plans = []
+            for retained_name in os.listdir(directory):
+                match = _MARKER_PLAN_STAGE_RE.fullmatch(retained_name)
+                if match is None or match.group("marker") != marker_name:
+                    continue
+                retained_raw, _ = _read_regular(directory, retained_name, managed=True)
+                # Prefix-only current writes retain the existing resume path.
+                try:
+                    _decode(retained_raw, retained_name)
+                except LedgerError:
+                    continue
+                retained = _marker_document(retained_raw, retained_name)
+                expected_name = f"{marker_name}.planned-{byte_digest(retained_raw)}.tmp"
+                if retained["state"] != "planned" or retained_name != expected_name:
+                    raise LedgerError("retained migration plan identity differs")
+                retained_plans.append(retained_name)
+            if len(retained_plans) > 1:
+                raise LedgerError("migration has multiple retained plans")
+            if retained_plans:
+                preflight_marker_name = retained_plans[0]
+        if _exists(directory, preflight_marker_name):
             preflight_marker_raw, _ = _read_regular(
                 directory,
-                marker_name,
+                preflight_marker_name,
                 managed=True,
                 expected_nlinks={1, 2},
             )
-            preflight_marker = _marker_document(preflight_marker_raw, marker_name)
+            preflight_marker = _marker_document(preflight_marker_raw, preflight_marker_name)
             if (
                 preflight_marker["kind"] != kind
                 or preflight_marker["candidate_digest"] != candidate_digest
@@ -16729,8 +16841,7 @@ def migrate(
                 {
                     "name": name,
                     "sha256": byte_digest(raw),
-                    "device": _portable_device(status),
-                    "inode": status.st_ino,
+                    "path": name,
                 }
                 for name, raw, status in preflight_related
             ]
@@ -16741,8 +16852,7 @@ def migrate(
                 source={
                     "name": source_name,
                     "sha256": preflight_digest,
-                    "device": _portable_device(preflight_status),
-                    "inode": preflight_status.st_ino,
+                    "path": source_name,
                 },
                 related_sources=(
                     related_identities if kind == "legacy-rebind" else None
@@ -16807,18 +16917,11 @@ def migrate(
             )
             source_raw, source_status = _read_regular(directory, source_name)
             source_digest = byte_digest(source_raw)
-            if (
-                source_raw != preflight_raw
-                or (source_status.st_dev, source_status.st_ino)
-                != (preflight_status.st_dev, preflight_status.st_ino)
-            ):
+            if source_raw != preflight_raw:
                 raise LedgerError("migration source changed after preflight")
             for related_name, related_raw, related_status in preflight_related:
                 current_raw, current_status = _read_regular(directory, related_name)
-                if current_raw != related_raw or (
-                    current_status.st_dev,
-                    current_status.st_ino,
-                ) != (related_status.st_dev, related_status.st_ino):
+                if current_raw != related_raw:
                     raise LedgerError("migration related source changed after preflight")
             marker: dict[str, Any] | None = None
             marker_status: os.stat_result | None = None
@@ -16856,10 +16959,7 @@ def migrate(
                         expected_nlinks={2},
                         sync=True,
                     )
-                    if planned_raw != marker_raw or (
-                        planned_status.st_dev,
-                        planned_status.st_ino,
-                    ) != (marker_status.st_dev, marker_status.st_ino):
+                    if planned_raw != marker_raw:
                         raise LedgerError("migration plan staging/install identity mismatch")
                     _unlink_exact(directory, marker_plan_stage, planned_status)
                     marker_raw, marker_status = _read_regular(
@@ -16883,10 +16983,7 @@ def migrate(
                     managed=True,
                     sync=True,
                 )
-                if planned_raw != marker_raw or (
-                    planned_visible.st_dev,
-                    planned_visible.st_ino,
-                ) != (plan_status.st_dev, plan_status.st_ino):
+                if planned_raw != marker_raw:
                     raise LedgerError("migration plan staging changed before publish")
                 try:
                     os.link(
@@ -16900,14 +16997,10 @@ def migrate(
                     raise LedgerError("migration plan destination appeared") from error
                 _hit(failpoint, "migration:plan-linked")
                 _fsync(directory, "review root after migration plan")
-                marker_status = os.stat(
-                    marker_name, dir_fd=directory, follow_symlinks=False
+                published_raw, marker_status = _read_regular(
+                    directory, marker_name, managed=True, expected_nlinks={2}, sync=True
                 )
-                if (
-                    marker_status.st_nlink != 2
-                    or (marker_status.st_dev, marker_status.st_ino)
-                    != (plan_status.st_dev, plan_status.st_ino)
-                ):
+                if published_raw != marker_raw:
                     raise LedgerError("migration plan no-clobber publish mismatch")
                 _unlink_exact(directory, marker_plan_stage, plan_status)
                 marker_raw, marker_status = _read_regular(
@@ -16918,14 +17011,16 @@ def migrate(
             if kind in LEGACY_MIGRATION_KINDS or marker["state"] != "complete":
                 if (
                     source_digest != source["sha256"]
-                    or not _pair_matches_status(source, source_status)
+                    or _canonical_path(Path(_descriptor_path(directory)) / _record_path(source))
+                    != _canonical_path(Path(_descriptor_path(directory)) / source_name)
                 ):
                     raise LedgerError("migration source changed before safe completion")
             for related in marker.get("related_sources", []):
                 related_raw, related_status = _read_regular(directory, related["name"])
                 if (
                     byte_digest(related_raw) != related["sha256"]
-                    or not _pair_matches_status(related, related_status)
+                    or _canonical_path(Path(_descriptor_path(directory)) / _record_path(related))
+                    != _canonical_path(Path(_descriptor_path(directory)) / related["name"])
                 ):
                     raise LedgerError("migration related source changed before completion")
             if marker["state"] == "planned":
@@ -16935,18 +17030,41 @@ def migrate(
                 snapshot_raw, snapshot_visible = _read_regular(
                     directory, snapshot_name, managed=True, sync=True
                 )
-                if (
-                    snapshot_raw != source_raw
-                    or (snapshot_visible.st_dev, snapshot_visible.st_ino)
-                    != (snapshot_status.st_dev, snapshot_status.st_ino)
-                ):
+                if snapshot_raw != source_raw:
                     raise LedgerError("immutable migration snapshot mismatch")
                 snapshot = {
                     "name": snapshot_name,
                     "sha256": byte_digest(snapshot_raw),
-                    "device": _portable_device(snapshot_visible),
-                    "inode": snapshot_visible.st_ino,
+                    "path": snapshot_name,
                 }
+                if _exists(directory, marker_prepare_stage):
+                    retained_raw, _ = _read_regular(
+                        directory, marker_prepare_stage, managed=True
+                    )
+                    try:
+                        _decode(retained_raw, marker_prepare_stage)
+                    except LedgerError:
+                        retained = None
+                    else:
+                        retained = _marker_document(retained_raw, marker_prepare_stage)
+                    if retained is not None:
+                        retained_plan = {
+                            **retained, "state": "planned", "snapshot": None,
+                            "destination_digest": None,
+                        }
+                        retained_snapshot = retained["snapshot"]
+                        if (retained["state"] != "prepared"
+                            or canonical_bytes(retained_plan) != marker_raw
+                            or retained_snapshot is None
+                            or retained_snapshot["name"] != snapshot_name
+                            or retained_snapshot["sha256"] != byte_digest(snapshot_raw)
+                            or _canonical_path(Path(_descriptor_path(directory)) / _record_path(retained_snapshot))
+                            != _child_path(directory, snapshot_name)
+                        ):
+                            raise LedgerError("retained migration preparation differs from its plan")
+                        # Preserve the validated snapshot record so its historical
+                        # bytes continue to determine the exact destination digest.
+                        snapshot = retained_snapshot
                 _hit(failpoint, "migration:snapshot")
                 if kind in LEGACY_MIGRATION_KINDS:
                     canonical_status = _ensure_stage(
@@ -16958,10 +17076,7 @@ def migrate(
                     canonical_raw, canonical_visible = _read_regular(
                         directory, canonical_report
                     )
-                    if canonical_raw != snapshot_raw or (
-                        canonical_visible.st_dev,
-                        canonical_visible.st_ino,
-                    ) != (canonical_status.st_dev, canonical_status.st_ino):
+                    if canonical_raw != snapshot_raw:
                         raise LedgerError("legacy canonical report copy mismatch")
                 else:
                     canonical_raw, _ = _read_regular(directory, canonical_report)
@@ -17006,18 +17121,12 @@ def migrate(
                 marker_recheck_raw, marker_recheck_status = _read_regular(
                     directory, marker_name, managed=True
                 )
-                if marker_recheck_raw != marker_raw or (
-                    marker_recheck_status.st_dev,
-                    marker_recheck_status.st_ino,
-                ) != (marker_status.st_dev, marker_status.st_ino):
+                if marker_recheck_raw != marker_raw:
                     raise LedgerError("migration plan changed before preparation")
                 prepared_check, prepared_visible = _read_regular(
                     directory, marker_prepare_stage, managed=True, sync=True
                 )
-                if prepared_check != prepared_marker_raw or (
-                    prepared_visible.st_dev,
-                    prepared_visible.st_ino,
-                ) != (prepare_status.st_dev, prepare_status.st_ino):
+                if prepared_check != prepared_marker_raw:
                     raise LedgerError("migration preparation staging changed")
                 os.replace(
                     marker_prepare_stage,
@@ -17035,7 +17144,8 @@ def migrate(
                 )
                 if (
                     byte_digest(snapshot_raw) != snapshot["sha256"]
-                    or not _pair_matches_status(snapshot, snapshot_visible)
+                    or _canonical_path(Path(_descriptor_path(directory)) / _record_path(snapshot))
+                    != _canonical_path(Path(_descriptor_path(directory)) / snapshot_name)
                 ):
                     raise LedgerError("immutable migration snapshot changed")
                 canonical_raw, _ = _read_regular(directory, canonical_report)
@@ -17074,13 +17184,7 @@ def migrate(
                     staged_raw, staged_status = _read_regular(
                         directory, stage, managed=True, expected_nlinks={2}
                     )
-                    target_status = os.stat(
-                        target, dir_fd=directory, follow_symlinks=False
-                    )
-                    if staged_raw != raw or (
-                        staged_status.st_dev,
-                        staged_status.st_ino,
-                    ) != (target_status.st_dev, target_status.st_ino):
+                    if staged_raw != raw:
                         raise LedgerError("migration staging/install identity mismatch")
                     _unlink_exact(directory, stage, staged_status)
             else:
@@ -17095,11 +17199,10 @@ def migrate(
                     dst_dir_fd=directory,
                     follow_symlinks=False,
                 )
-                installed_status = os.stat(target, dir_fd=directory, follow_symlinks=False)
-                if (installed_status.st_dev, installed_status.st_ino) != (
-                    stage_status.st_dev,
-                    stage_status.st_ino,
-                ):
+                installed_raw, installed_status = _read_regular(
+                    directory, target, managed=True, expected_nlinks={2}, sync=True
+                )
+                if installed_raw != raw:
                     raise LedgerError("migration no-clobber install identity mismatch")
                 _hit(failpoint, "migration:linked")
                 _fsync(directory, "review root after migration destination")
@@ -17122,18 +17225,12 @@ def migrate(
                 marker_recheck_raw, marker_recheck_status = _read_regular(
                     directory, marker_name, managed=True
                 )
-                if marker_recheck_raw != current_marker_raw or (
-                    marker_recheck_status.st_dev,
-                    marker_recheck_status.st_ino,
-                ) != (current_marker_status.st_dev, current_marker_status.st_ino):
+                if marker_recheck_raw != current_marker_raw:
                     raise LedgerError("migration marker changed before completion")
                 complete_check, complete_visible = _read_regular(
                     directory, marker_complete_stage, managed=True, sync=True
                 )
-                if complete_check != complete_raw or (
-                    complete_visible.st_dev,
-                    complete_visible.st_ino,
-                ) != (complete_status.st_dev, complete_status.st_ino):
+                if complete_check != complete_raw:
                     raise LedgerError("migration completion staging changed")
                 os.replace(
                     marker_complete_stage,
@@ -17243,14 +17340,13 @@ def parser() -> argparse.ArgumentParser:
     )
     create_parser.add_argument("root", help="initialized review root")
     create_parser.add_argument("input", help="bounded no-follow JSON file")
-    cas_parser = commands.add_parser("cas", help="generation/digest/inode CAS update")
+    cas_parser = commands.add_parser("cas", help="generation/digest/path CAS update")
     cas_parser.add_argument("root", help="initialized review root")
     cas_parser.add_argument("name", help="direct canonical ledger filename")
     cas_parser.add_argument("input", help="bounded no-follow replacement JSON file")
     cas_parser.add_argument("--expected-generation", required=True, type=int)
     cas_parser.add_argument("--expected-digest", required=True)
-    cas_parser.add_argument("--expected-device", required=True, type=int)
-    cas_parser.add_argument("--expected-inode", required=True, type=int)
+    cas_parser.add_argument("--expected-path", required=True)
     refresh_parser = commands.add_parser(
         "target-refresh-cas",
         help="live-prove one target-only coordinate refresh and apply it by CAS",
@@ -17260,8 +17356,16 @@ def parser() -> argparse.ArgumentParser:
     refresh_parser.add_argument("input", help="bounded no-follow replacement JSON file")
     refresh_parser.add_argument("--expected-generation", required=True, type=int)
     refresh_parser.add_argument("--expected-digest", required=True)
-    refresh_parser.add_argument("--expected-device", required=True, type=int)
-    refresh_parser.add_argument("--expected-inode", required=True, type=int)
+    refresh_parser.add_argument("--expected-path", required=True)
+    revalidate_parser = commands.add_parser(
+        "revalidate-current-targets-cas",
+        help="live-prove all unchanged bound targets and record one neutral observation",
+    )
+    revalidate_parser.add_argument("root", help="initialized review root")
+    revalidate_parser.add_argument("name", help="direct canonical ledger filename")
+    revalidate_parser.add_argument("--expected-generation", required=True, type=int)
+    revalidate_parser.add_argument("--expected-digest", required=True)
+    revalidate_parser.add_argument("--expected-path", required=True)
     scope_recovery_parser = commands.add_parser(
         "recover-released-scope",
         help="atomically recover one explicitly authorized released planned scope selector",
@@ -17273,8 +17377,7 @@ def parser() -> argparse.ArgumentParser:
     scope_recovery_parser.add_argument("recovery", help="exact explicit-recovery authority JSON")
     scope_recovery_parser.add_argument("--expected-generation", required=True, type=int)
     scope_recovery_parser.add_argument("--expected-digest", required=True)
-    scope_recovery_parser.add_argument("--expected-device", required=True, type=int)
-    scope_recovery_parser.add_argument("--expected-inode", required=True, type=int)
+    scope_recovery_parser.add_argument("--expected-path", required=True)
     prebind_recovery_parser = commands.add_parser(
         "recover-prebind-scope",
         help="atomically recover one explicitly authorized live pre-bind topology mismatch",
@@ -17294,8 +17397,7 @@ def parser() -> argparse.ArgumentParser:
     )
     prebind_recovery_parser.add_argument("--expected-generation", required=True, type=int)
     prebind_recovery_parser.add_argument("--expected-digest", required=True)
-    prebind_recovery_parser.add_argument("--expected-device", required=True, type=int)
-    prebind_recovery_parser.add_argument("--expected-inode", required=True, type=int)
+    prebind_recovery_parser.add_argument("--expected-path", required=True)
     identity_recovery_parser = commands.add_parser(
         "recover-prebind-identity",
         help="atomically recover one explicitly authorized pre-bind actor identity change",
@@ -17308,8 +17410,7 @@ def parser() -> argparse.ArgumentParser:
     )
     identity_recovery_parser.add_argument("--expected-generation", required=True, type=int)
     identity_recovery_parser.add_argument("--expected-digest", required=True)
-    identity_recovery_parser.add_argument("--expected-device", required=True, type=int)
-    identity_recovery_parser.add_argument("--expected-inode", required=True, type=int)
+    identity_recovery_parser.add_argument("--expected-path", required=True)
 
     correction_parser = commands.add_parser(
         "correct-target-head",
@@ -17323,8 +17424,7 @@ def parser() -> argparse.ArgumentParser:
     )
     correction_parser.add_argument("--expected-generation", required=True, type=int)
     correction_parser.add_argument("--expected-digest", required=True)
-    correction_parser.add_argument("--expected-device", required=True, type=int)
-    correction_parser.add_argument("--expected-inode", required=True, type=int)
+    correction_parser.add_argument("--expected-path", required=True)
     correction_parser.add_argument("--bad-head", required=True)
     correction_parser.add_argument("--actual-head", required=True)
     correction_parser.add_argument(
@@ -17408,8 +17508,7 @@ def parser() -> argparse.ArgumentParser:
     pr_bind_cas_parser.add_argument("pr_number", type=int, help="remote pull-request number")
     pr_bind_cas_parser.add_argument("--expected-generation", required=True, type=int)
     pr_bind_cas_parser.add_argument("--expected-digest", required=True)
-    pr_bind_cas_parser.add_argument("--expected-device", required=True, type=int)
-    pr_bind_cas_parser.add_argument("--expected-inode", required=True, type=int)
+    pr_bind_cas_parser.add_argument("--expected-path", required=True)
     worktree_bind_parser = commands.add_parser(
         "worktree-bind", help="classify retained fresh wrapper worktree evidence"
     )
@@ -17447,8 +17546,7 @@ def parser() -> argparse.ArgumentParser:
     )
     worktree_cas_parser.add_argument("--expected-generation", required=True, type=int)
     worktree_cas_parser.add_argument("--expected-digest", required=True)
-    worktree_cas_parser.add_argument("--expected-device", required=True, type=int)
-    worktree_cas_parser.add_argument("--expected-inode", required=True, type=int)
+    worktree_cas_parser.add_argument("--expected-path", required=True)
     scope_bind_parser = commands.add_parser(
         "scope-bind", help="classify retained scope-show schema-v1 JSON"
     )
@@ -17478,8 +17576,7 @@ def parser() -> argparse.ArgumentParser:
     scope_cas_parser.add_argument("safety", help="helper-produced bounded safety JSON")
     scope_cas_parser.add_argument("--expected-generation", required=True, type=int)
     scope_cas_parser.add_argument("--expected-digest", required=True)
-    scope_cas_parser.add_argument("--expected-device", required=True, type=int)
-    scope_cas_parser.add_argument("--expected-inode", required=True, type=int)
+    scope_cas_parser.add_argument("--expected-path", required=True)
     comment_parser = commands.add_parser(
         "comment-check", help="classify a fully paginated marked-comment inventory"
     )
@@ -17551,8 +17648,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     _read_input(arguments.input),
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,
-                    expected_device=arguments.expected_device,
-                    expected_inode=arguments.expected_inode,
+                    expected_path=arguments.expected_path,
                 ).json()
             )
         elif arguments.command == "target-refresh-cas":
@@ -17563,10 +17659,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                     _read_input(arguments.input),
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,
-                    expected_device=arguments.expected_device,
-                    expected_inode=arguments.expected_inode,
+                    expected_path=arguments.expected_path,
                 ).json()
             )
+        elif arguments.command == "revalidate-current-targets-cas":
+            _print(revalidate_current_targets_cas(
+                arguments.root, arguments.name,
+                expected_generation=arguments.expected_generation,
+                expected_digest=arguments.expected_digest,
+                expected_path=arguments.expected_path,
+            ).json())
         elif arguments.command == "recover-released-scope":
             _print(
                 recover_released_scope(
@@ -17577,8 +17679,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     _read_bytes_input(arguments.recovery),
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,
-                    expected_device=arguments.expected_device,
-                    expected_inode=arguments.expected_inode,
+                    expected_path=arguments.expected_path,
                 ).json()
             )
         elif arguments.command == "recover-prebind-scope":
@@ -17593,8 +17694,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     _read_bytes_input(arguments.recovery),
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,
-                    expected_device=arguments.expected_device,
-                    expected_inode=arguments.expected_inode,
+                    expected_path=arguments.expected_path,
                 ).json()
             )
         elif arguments.command == "recover-prebind-identity":
@@ -17606,8 +17706,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     _read_bytes_input(arguments.recovery),
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,
-                    expected_device=arguments.expected_device,
-                    expected_inode=arguments.expected_inode,
+                    expected_path=arguments.expected_path,
                 ).json()
             )
 
@@ -17620,8 +17719,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     _read_bytes_input(arguments.recovery),
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,
-                    expected_device=arguments.expected_device,
-                    expected_inode=arguments.expected_inode,
+                    expected_path=arguments.expected_path,
                     bad_head=arguments.bad_head,
                     actual_head=arguments.actual_head,
                     actual_merge_base=arguments.actual_merge_base,
@@ -17738,8 +17836,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     arguments.pr_number,
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,
-                    expected_device=arguments.expected_device,
-                    expected_inode=arguments.expected_inode,
+                    expected_path=arguments.expected_path,
                 )
             )
         elif arguments.command == "worktree-bind":
@@ -17782,8 +17879,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     _read_bytes_input(arguments.safety),
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,
-                    expected_device=arguments.expected_device,
-                    expected_inode=arguments.expected_inode,
+                    expected_path=arguments.expected_path,
                     create_output_raw=(
                         None
                         if arguments.create_output is None
@@ -17824,8 +17920,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     _read_bytes_input(arguments.safety),
                     expected_generation=arguments.expected_generation,
                     expected_digest=arguments.expected_digest,
-                    expected_device=arguments.expected_device,
-                    expected_inode=arguments.expected_inode,
+                    expected_path=arguments.expected_path,
                 )
             )
         else:

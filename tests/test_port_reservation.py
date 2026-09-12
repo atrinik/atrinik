@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import socket
+import shutil
 from types import SimpleNamespace
 import tempfile
 import threading
@@ -41,15 +42,11 @@ class PortReservationTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.topologies = Path(self.temporary.name) / "topologies"
-        self.topologies.mkdir()
+        self.topologies.mkdir(mode=0o700)
         self.workspace = object.__new__(Workspace)
         self.workspace.paths = SimpleNamespace(topologies=self.topologies)
         self.workspace._physical_lease_namespace = self.topologies
-        identity = self.topologies.stat()
-        self.workspace._physical_lease_namespace_identity = (
-            identity.st_dev,
-            identity.st_ino,
-        )
+        self.workspace._physical_lease_namespace_identity = str(self.topologies)
 
     @staticmethod
     def free_port() -> int:
@@ -84,8 +81,8 @@ class PortReservationTests(unittest.TestCase):
             ("generation", {**valid, "generation": "not-a-generation"}),
             ("path", {**valid, "path": "relative.lease"}),
             ("owner path", {**valid, "path": "/tmp/wrong.lease"}),
-            ("directory", {**valid, "directory": {"device": True, "inode": 2}}),
-            ("lease", {**valid, "lease": {"device": 3}}),
+            ("directory", {**valid, "directory": {"path": "/wrong"}}),
+            ("lease", {**valid, "lease": {"path": "/wrong"}}),
             ("token", {**valid, "token": "not-a-token"}),
         ]
         for description, record in malformed:
@@ -94,6 +91,15 @@ class PortReservationTests(unittest.TestCase):
                     validate_record(record)
         with self.assertRaisesRegex(PortReservationError, "expected lease"):
             validate_record(valid, expected_path=Path("/tmp/unexpected.lease"))
+
+    def test_legacy_metadata_does_not_change_path_owner(self) -> None:
+        record = self.valid_record()
+        copied = {
+            **record,
+            "directory": {"device": 999, "inode": 111, "ctime_ns": 222},
+            "lease": {"device": 333, "inode": 444},
+        }
+        self.assertEqual(validate_record(record), validate_record(copied))
 
     def test_record_decoding_rejects_oversize_duplicate_and_invalid_json(self) -> None:
         path = Path(str(self.valid_record()["path"]))
@@ -169,17 +175,17 @@ class PortReservationTests(unittest.TestCase):
         with self.assertRaisesRegex(PortReservationError, "directory is invalid"):
             open_directory(self.topologies)
 
-    def test_directory_rejects_replaced_expected_root_identity(self) -> None:
-        identity = self.topologies.stat()
-        expected = (identity.st_dev, identity.st_ino)
+    def test_directory_accepts_same_path_after_copy_and_rejects_other_path(self) -> None:
         detached = self.topologies.with_name("detached-topologies")
         self.topologies.rename(detached)
         self.topologies.mkdir()
-
+        transaction, directory_fd, _, _ = open_transaction(
+            self.topologies, 17300, root_path=self.topologies
+        )
+        os.close(transaction)
+        os.close(directory_fd)
         with self.assertRaisesRegex(PortReservationError, "root was replaced"):
-            open_transaction(
-                self.topologies, 17300, root_identity=expected
-            )
+            open_transaction(self.topologies, 17300, root_path=detached)
 
     def test_lock_list_and_read_errors_fail_closed(self) -> None:
         with (
@@ -547,6 +553,25 @@ class PortReservationTests(unittest.TestCase):
             os.close(transaction)
             os.close(directory_fd)
 
+    def test_copied_lease_retains_path_and_creation_token(self) -> None:
+        directory_fd, directory, identity = open_directory(self.topologies)
+        descriptor, record = create_lease(
+            directory_fd, directory, identity,
+            port=17383, topology="copied-owner", generation="6" * 64,
+        )
+        os.close(descriptor)
+        os.close(directory_fd)
+        path = Path(record["path"])
+        copied = path.with_suffix(".copy")
+        shutil.copy2(path, copied)
+        copied.replace(path)
+        self.assertFalse(reservation_locked(record))
+        replacement = os.open(path, os.O_RDWR | os.O_CLOEXEC)
+        try:
+            self.assertEqual(validate_held(replacement, record), record)
+        finally:
+            os.close(replacement)
+
     def test_creation_token_rejects_identity_matching_replacement(self) -> None:
         directory_fd, directory, identity = open_directory(self.topologies)
         descriptor, record = create_lease(
@@ -563,11 +588,7 @@ class PortReservationTests(unittest.TestCase):
         path.chmod(0o600)
         replacement = os.open(path, os.O_RDWR | os.O_CLOEXEC)
         forged = dict(record)
-        replacement_metadata = os.fstat(replacement)
-        forged["lease"] = {
-            "device": replacement_metadata.st_dev,
-            "inode": replacement_metadata.st_ino,
-        }
+        forged["lease"] = {"path": str(path)}
         payload = (json.dumps(forged, indent=2, sort_keys=True) + "\n").encode()
         os.ftruncate(replacement, 0)
         os.write(replacement, payload)

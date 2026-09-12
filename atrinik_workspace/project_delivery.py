@@ -2,16 +2,21 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
+import stat
 
 from .project_coordinator import (ProjectError, attest, digest, new_project, record_worker,
-                                  require, replan, reopen, reserve, retry, schedule, terminal_gaps, worker_result)
+                                  require, replan, reopen, reserve, reserve_existing, retry, schedule, terminal_gaps, worker_result)
 from .project_coordinator_github import GitHub, apply_operation, cancel_operation, prepare_operation, refresh
 from .project_coordinator_store import LIMIT, Store, open_directory, read_input
+from .workspace import durable_atomic_json_at
+from .model import WorkspaceError
+from .path_identity import canonical_path, descriptor_path
 
 SOURCE_ROOT = Path(__file__).resolve().parents[1]
 
@@ -55,6 +60,10 @@ def initialize_root(wrapper: Path, parent: str) -> Path:
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", type=Path, help="exact helper-returned project root")
+    p.add_argument("--snapshot-output", type=Path,
+                   help="save full returned snapshot to a new absolute file in an owned private directory")
+    p.add_argument("--compact", action="store_true",
+                   help="omit document from stdout; requires --snapshot-output (full snapshot retained there)")
     sub = p.add_subparsers(dest="command", required=True)
     init = sub.add_parser("init")
     init.add_argument("--plan", required=True, type=Path)
@@ -74,6 +83,13 @@ def parser() -> argparse.ArgumentParser:
     reopen_cmd.add_argument("--evidence", required=True)
     reopen_cmd.add_argument("--heavy-limit", type=int, default=1)
     reopen_cmd.add_argument("--expected", type=Path, required=True)
+    existing = sub.add_parser("reserve-existing", help="reserve this delivery's verified retained idle worker")
+    existing.add_argument("coordinate")
+    existing.add_argument("--worker", required=True, help="actual retained direct-child runtime worker name")
+    existing.add_argument("--runtime-observation", required=True, type=Path,
+                          help="fresh complete runtime inventory and coordinator attestation")
+    existing.add_argument("--heavy-limit", type=int, default=1)
+    existing.add_argument("--expected", required=True, type=Path)
     for name in ("plan", "dispatch"):
         cmd = sub.add_parser(name)
         cmd.add_argument("--capacity", required=True, type=int)
@@ -145,6 +161,12 @@ def run(args, github=None):
             return retry(project, args.coordinate, args.attempt, args.evidence)
         if args.command == "reopen":
             return reopen(project, args.coordinate, args.attempt, args.evidence, args.heavy_limit)
+        if args.command == "reserve-existing":
+            # Read and check freshness only after Store has locked and accepted
+            # the exact expected snapshot. The JSON is an operator attestation.
+            return reserve_existing(project, args.coordinate, args.worker,
+                                    read_input(args.runtime_observation, 128 * 1024),
+                                    expected, args.heavy_limit)
         if args.command == "dispatch":
             return reserve(project, args.capacity, args.heavy_limit, args.open_workers)
         if args.command == "worker":
@@ -166,13 +188,71 @@ def run(args, github=None):
     return {"snapshot": installed, "result": result}
 
 
+@contextmanager
+def snapshot_destination(args):
+    """Preflight caller output before executing; never replace existing files."""
+    path = args.snapshot_output
+    require(not args.compact or path is not None, "--compact requires --snapshot-output")
+    if path is None:
+        yield None
+        return
+    require(args.command not in {"plan", "terminal"}, "command does not return a snapshot")
+    require(path.is_absolute() and path.name not in {"", ".", ".."},
+            "snapshot output must be an absolute file path")
+    fd = open_directory(path.parent)
+    try:
+        st = os.fstat(fd)
+        require(st.st_uid == os.geteuid() and stat.S_IMODE(st.st_mode) == 0o700,
+                "snapshot output directory must be owned mode 0700")
+        try:
+            os.stat(path.name, dir_fd=fd, follow_symlinks=False)
+        except FileNotFoundError:
+            pass
+        else:
+            raise ProjectError("snapshot output already exists; choose a fresh file")
+        yield fd
+    finally:
+        os.close(fd)
+
+
+def publish_result(args, value, fd):
+    """Export the exact returned snapshot, without a second state inspection."""
+    if fd is None:
+        return value
+    snapshot = value.get("snapshot", value)
+    require("document" in snapshot, "command did not return a snapshot")
+    current = os.fstat(fd)
+    visible = args.snapshot_output.parent.stat(follow_symlinks=False)
+    require(stat.S_ISDIR(current.st_mode) and stat.S_ISDIR(visible.st_mode)
+            and descriptor_path(fd) == canonical_path(args.snapshot_output.parent),
+            "snapshot output directory replaced")
+    durable_atomic_json_at(fd, args.snapshot_output.name, snapshot)
+    if not args.compact:
+        return value
+    metadata = {key: snapshot[key] for key in ("generation", "digest", "path")}
+    compact = {key: item for key, item in value.items() if key != "snapshot"} if "snapshot" in value else {}
+    compact.update(snapshot=metadata, snapshot_output=str(args.snapshot_output))
+    if args.command == "tracking":
+        operation = (value["result"] if args.action == "plan"
+                     else snapshot["document"]["operations"][args.operation])
+        compact["result"] = {key: operation[key] for key in ("id", "kind", "target", "phase")}
+    return compact
+
+
 def main(argv=None) -> int:
     args = parser().parse_args(argv)
+    completed = False
     try:
-        print(json.dumps(run(args), indent=2, sort_keys=True))
+        with snapshot_destination(args) as fd:
+            value = run(args)
+            completed = True
+            print(json.dumps(publish_result(args, value, fd), indent=2, sort_keys=True))
         return 0
-    except (ProjectError, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
+    except (ProjectError, WorkspaceError, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
         print(f"project-delivery: {error}", file=sys.stderr)
+        if completed and args.snapshot_output is not None:
+            print("project-delivery: command completed but output publication failed; "
+                  "inspect a fresh snapshot and reconcile before any retry", file=sys.stderr)
         return 2
 
 

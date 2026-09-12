@@ -375,13 +375,7 @@ class RepositoryMigrationTests(unittest.TestCase):
 
         result = self.migration().execute("apply")
 
-        archive = (
-            self.workspace
-            / "archive"
-            / "classic-migration"
-            / "repositories"
-            / "client"
-        )
+        archive = Path(result["sources"][0]["archive"])
         self.assertEqual(result["status"], "applied")
         self.assertFalse(source.exists())
         self.assertTrue(archive.is_dir())
@@ -895,13 +889,7 @@ class RepositoryMigrationTests(unittest.TestCase):
 
         result = self.migration().execute("apply")
 
-        archive = (
-            self.workspace
-            / "archive"
-            / "classic-migration"
-            / "repositories"
-            / "legacy-client"
-        )
+        archive = Path(result["sources"][0]["archive"])
         self.assertEqual(result["status"], "applied")
         self.assertTrue(replacement.is_dir())
         self.assertFalse(source.exists())
@@ -1346,7 +1334,8 @@ class RepositoryMigrationTests(unittest.TestCase):
                             )
                         if case == "archive":
                             conflict = (
-                                workspace
+                                wrapper
+                                / "workspace"
                                 / "archive"
                                 / "classic-migration"
                                 / "repositories"
@@ -1438,6 +1427,38 @@ class RepositoryMigrationTests(unittest.TestCase):
         audit = self.migration().execute("audit")
         self.assertEqual(audit["status"], "complete", audit)
 
+    def test_pending_journal_accepts_historical_configured_archive_path(
+        self,
+    ) -> None:
+        source = self.make_repository("client", "client")
+        self.make_classic({"client": source})
+        migration = self.migration()
+        inspection = migration._inspect()
+        self.assertEqual(inspection.plan["status"], "ready")
+        pending = migration._pending_value(inspection)
+        historical_archive = (
+            migration.archive_root / "repositories" / source.name
+        )
+        historical_archive.parent.mkdir(parents=True, exist_ok=True)
+        source.rename(historical_archive)
+        pending["sources"][0]["archive"] = str(historical_archive)
+        migration.pending_path.parent.mkdir(parents=True, exist_ok=True)
+        migration._durable_atomic_json(migration.pending_path, pending)
+
+        result = self.migration().execute("apply")
+
+        self.assertEqual(result["status"], "applied", result)
+        self.assertFalse(historical_archive.exists())
+        self.assertEqual(
+            Path(result["sources"][0]["archive"]),
+            self.wrapper
+            / "workspace"
+            / "archive"
+            / "classic-migration"
+            / "repositories"
+            / "client",
+        )
+
     def test_inert_content_state_build_logs_and_scenarios_are_unchanged(self) -> None:
         source = self.make_repository("client", "client")
         self.make_classic({"client": source})
@@ -1449,22 +1470,50 @@ class RepositoryMigrationTests(unittest.TestCase):
             self.paths.scenarios,
             self.paths.topologies,
         )
-        sentinels: dict[Path, tuple[bytes, tuple[int, int]]] = {}
+        sentinels: dict[Path, bytes] = {}
         for index, root in enumerate(roots):
             root.mkdir(parents=True, exist_ok=True)
             sentinel = root / f"sentinel-{index}.bin"
             sentinel.write_bytes(b"preserve\x00" + bytes([index]))
-            sentinels[sentinel] = (
-                sentinel.read_bytes(),
-                (sentinel.stat().st_dev, sentinel.stat().st_ino),
-            )
+            sentinels[sentinel] = sentinel.read_bytes()
 
         result = self.migration().execute("apply")
 
         self.assertEqual(result["status"], "applied")
-        for path, (value, identity) in sentinels.items():
+        self.assertTrue(result["inert_paths"])
+        for row in result["inert_paths"]:
+            self.assertEqual(
+                set(row), {"name", "path", "present", "status"}
+            )
+        for path, value in sentinels.items():
             self.assertEqual(path.read_bytes(), value)
-            self.assertEqual((path.stat().st_dev, path.stat().st_ino), identity)
+
+    def test_archive_destination_uses_wrapper_local_path_without_storage_identity(
+        self,
+    ) -> None:
+        migration = self.migration()
+        source = self.wrapper / "client"
+        migration.workspace = self.root / "external-workspace"
+        migration.archive_root = (
+            migration.workspace / "archive" / "classic-migration"
+        )
+
+        with mock.patch.object(
+            Path,
+            "stat",
+            side_effect=AssertionError("storage identity was inspected"),
+        ):
+            destination = migration._archive_destination(source)
+
+        self.assertEqual(
+            destination,
+            self.wrapper
+            / "workspace"
+            / "archive"
+            / "classic-migration"
+            / "repositories"
+            / "client",
+        )
 
     def test_live_topology_and_lock_refuse_without_writes(self) -> None:
         source = self.make_repository("client", "client")
@@ -1476,7 +1525,13 @@ class RepositoryMigrationTests(unittest.TestCase):
         )
         fcntl.flock(lease_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         generation = "a" * 64
-        lease = initialize_lease(lease_fd, generation)
+        initialize_lease(lease_fd, generation)
+        lease = {
+            "schema_version": 1,
+            "device": "legacy-device",
+            "inode": None,
+            "ctime_ns": -1,
+        }
         (topology / "status.json").write_text(
             json.dumps(
                 {
@@ -1509,8 +1564,13 @@ class RepositoryMigrationTests(unittest.TestCase):
         )
 
         try:
-            with mock.patch.object(
-                migration_module, "process_matches", return_value=True
+            with (
+                mock.patch.object(
+                    migration_module, "process_matches", return_value=True
+                ),
+                mock.patch.object(
+                    migration_module, "bound_lease_locked", return_value=True
+                ),
             ):
                 result = self.migration().execute("apply")
         finally:
@@ -1524,10 +1584,15 @@ class RepositoryMigrationTests(unittest.TestCase):
         descriptor = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
         with os.fdopen(descriptor, "a+") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            with mock.patch.object(
-                migration_module,
-                "process_matches",
-                return_value=False,
+            with (
+                mock.patch.object(
+                    migration_module,
+                    "process_matches",
+                    return_value=False,
+                ),
+                mock.patch.object(
+                    migration_module, "bound_lease_locked", return_value=False
+                ),
             ):
                 locked = self.migration().execute("apply")
         self.assertEqual(locked["status"], "refused")

@@ -10,13 +10,7 @@ import secrets
 import stat
 from typing import Any
 
-from .filesystem_identity import (
-    FilesystemIdentityError,
-    identity_matches,
-    pair_matches,
-    portable_identity,
-    validate_identity,
-)
+from .path_identity import canonical_path, descriptor_path
 from .platform_compat import fcntl
 
 
@@ -51,15 +45,6 @@ def _validate_port(port: Any) -> int:
     return port
 
 
-def _validate_identity(value: Any, description: str) -> dict[str, Any]:
-    try:
-        return validate_identity(
-            value, f"topology port reservation {description} identity"
-        )
-    except FilesystemIdentityError as error:
-        raise PortReservationError(str(error)) from error
-
-
 def validate_record(value: Any, *, expected_path: Path | None = None) -> dict[str, Any]:
     if not isinstance(value, dict) or set(value) != PORT_RESERVATION_KEYS:
         raise PortReservationError("topology port reservation record is invalid")
@@ -82,39 +67,49 @@ def validate_record(value: Any, *, expected_path: Path | None = None) -> dict[st
     reservation_path = Path(path)
     if reservation_path.name != f"{port}-{generation}.lease":
         raise PortReservationError("topology port reservation path does not match its owner")
-    if expected_path is not None and reservation_path != expected_path:
+    if expected_path is not None and canonical_path(reservation_path) != canonical_path(expected_path):
         raise PortReservationError("topology port reservation path is not the expected lease")
-    _validate_identity(value.get("directory"), "directory")
-    _validate_identity(value.get("lease"), "lease")
+    for field, expected in (("directory", reservation_path.parent), ("lease", reservation_path)):
+        evidence = value.get(field)
+        if not isinstance(evidence, dict) or (
+            "path" in evidence and evidence["path"] != canonical_path(expected)
+        ):
+            raise PortReservationError(f"topology port reservation {field} path is invalid")
     token = value.get("token")
     if not isinstance(token, str) or not GENERATION_PATTERN.fullmatch(token):
         raise PortReservationError("topology port reservation creation token is invalid")
-    return value
+    return {
+        **value,
+        "path": canonical_path(reservation_path),
+        "directory": {"path": canonical_path(reservation_path.parent)},
+        "lease": {"path": canonical_path(reservation_path)},
+    }
 
 
-def _directory_identity(metadata: os.stat_result) -> dict[str, Any]:
-    return portable_identity(metadata)
-
-
-def _validate_directory_path(directory: Path, identity: dict[str, Any]) -> None:
-    descriptor: int | None = None
+def _validate_directory_path(
+    directory: Path, identity: dict[str, Any], descriptor: int
+) -> None:
     try:
         metadata = directory.lstat()
+        held_path = descriptor_path(descriptor)
     except OSError as error:
-        if descriptor is not None:
-            os.close(descriptor)
         raise PortReservationError(
             f"cannot inspect topology port reservation directory {directory}: {error}"
         ) from error
-    if not stat.S_ISDIR(metadata.st_mode) or not identity_matches(identity, metadata):
+    if (
+        not stat.S_ISDIR(metadata.st_mode)
+        or held_path != canonical_path(directory)
+        or identity.get("path", canonical_path(directory)) != canonical_path(directory)
+    ):
         raise PortReservationError(
             f"topology port reservation directory was replaced: {directory}"
         )
 
 
 def open_directory(
-    topologies: Path, *, root_identity: tuple[int, int] | None = None
+    topologies: Path, *, root_path: str | Path | None = None
 ) -> tuple[int, Path, dict[str, Any]]:
+    topologies = Path(canonical_path(topologies))
     directory = topologies / PORT_RESERVATION_DIRECTORY
     flags = os.O_RDONLY | os.O_CLOEXEC
     if hasattr(os, "O_DIRECTORY"):
@@ -134,11 +129,10 @@ def open_directory(
         if (
             not stat.S_ISDIR(root_metadata.st_mode)
             or not stat.S_ISDIR(visible_root.st_mode)
-            or (root_metadata.st_dev, root_metadata.st_ino)
-            != (visible_root.st_dev, visible_root.st_ino)
+            or descriptor_path(root_descriptor) != canonical_path(topologies)
             or (
-                root_identity is not None
-                and (root_metadata.st_dev, root_metadata.st_ino) != root_identity
+                root_path is not None
+                and canonical_path(root_path) != canonical_path(topologies)
             )
         ):
             raise PortReservationError(
@@ -168,15 +162,14 @@ def open_directory(
         or stat.S_IMODE(metadata.st_mode) != 0o700
         or metadata.st_uid != os.geteuid()
         or not stat.S_ISDIR(path_metadata.st_mode)
-        or not identity_matches(_directory_identity(metadata), path_metadata)
-        or (visible_root.st_dev, visible_root.st_ino)
-        != (root_metadata.st_dev, root_metadata.st_ino)
+        or descriptor_path(descriptor) != canonical_path(directory)
+        or not stat.S_ISDIR(visible_root.st_mode)
     ):
         os.close(descriptor)
         raise PortReservationError(
             f"topology port reservation directory is invalid: {directory}"
         )
-    return descriptor, directory, _directory_identity(metadata)
+    return descriptor, directory, {"path": canonical_path(directory)}
 
 
 def _validate_child(
@@ -199,8 +192,8 @@ def _validate_child(
         or metadata.st_uid != os.geteuid()
         or metadata.st_nlink != 1
         or not stat.S_ISREG(path_metadata.st_mode)
-        or (path_metadata.st_dev, path_metadata.st_ino)
-        != (metadata.st_dev, metadata.st_ino)
+        or descriptor_path(descriptor)
+        != canonical_path(Path(descriptor_path(directory_descriptor)) / name)
     ):
         raise PortReservationError(
             f"topology port reservation lease identity is invalid: {name}"
@@ -277,11 +270,11 @@ def open_transaction(
     topologies: Path,
     port: int,
     *,
-    root_identity: tuple[int, int] | None = None,
-) -> tuple[int, int, Path, dict[str, int]]:
+    root_path: str | Path | None = None,
+) -> tuple[int, int, Path, dict[str, Any]]:
     port = _validate_port(port)
     directory_fd, directory, identity = open_directory(
-        topologies, root_identity=root_identity
+        topologies, root_path=root_path
     )
     try:
         descriptor = _open_child(
@@ -389,7 +382,7 @@ def create_lease(
     )
     try:
         fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        metadata = _validate_child(descriptor, directory_descriptor, staging_name)
+        _validate_child(descriptor, directory_descriptor, staging_name)
         token = secrets.token_hex(32)
         try:
             os.setxattr(descriptor, "user.atrinik.port-reservation", token.encode())
@@ -405,7 +398,7 @@ def create_lease(
                 "generation": generation,
                 "path": str(path),
                 "directory": directory_identity,
-                "lease": portable_identity(metadata, include_ctime=False),
+                "lease": {"path": canonical_path(path)},
                 "token": token,
             },
             expected_path=path,
@@ -419,10 +412,10 @@ def create_lease(
             view = view[written:]
         os.fsync(descriptor)
         _validate_child(descriptor, directory_descriptor, staging_name)
-        _validate_directory_path(directory, directory_identity)
+        _validate_directory_path(directory, directory_identity, directory_descriptor)
         _rename_no_replace(directory_descriptor, staging_name, path.name)
         _validate_child(descriptor, directory_descriptor, path.name)
-        _validate_directory_path(directory, directory_identity)
+        _validate_directory_path(directory, directory_identity, directory_descriptor)
         return descriptor, record
     except BaseException:
         os.close(descriptor)
@@ -434,23 +427,13 @@ def validate_held(descriptor: int, record: Any) -> dict[str, Any]:
     path = Path(validated["path"])
     directory_fd, directory, directory_identity = open_directory(path.parent.parent)
     try:
-        if directory != path.parent or not identity_matches(
-            validated["directory"], os.fstat(directory_fd)
-        ):
+        if canonical_path(directory) != canonical_path(path.parent):
             raise PortReservationError(
                 "topology port reservation directory was replaced"
             )
-        metadata = _validate_child(descriptor, directory_fd, path.name)
+        _validate_child(descriptor, directory_fd, path.name)
     finally:
         os.close(directory_fd)
-    identity = validated["lease"]
-    lease_matches = (
-        pair_matches(identity, metadata)
-        if set(identity) == {"device", "inode"}
-        else identity_matches(identity, metadata)
-    )
-    if not lease_matches:
-        raise PortReservationError("topology port reservation lease was replaced")
     if read_record(descriptor, path) != validated:
         raise PortReservationError("topology port reservation record changed")
     try:
@@ -471,9 +454,7 @@ def reservation_locked(record: Any) -> bool:
     path = Path(validated["path"])
     directory_fd, directory, directory_identity = open_directory(path.parent.parent)
     try:
-        if directory != path.parent or not identity_matches(
-            validated["directory"], os.fstat(directory_fd)
-        ):
+        if canonical_path(directory) != canonical_path(path.parent):
             raise PortReservationError(
                 "topology port reservation directory was replaced"
             )

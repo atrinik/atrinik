@@ -427,7 +427,7 @@ def cancel_operation(store, expected: dict, ident: str, github: GitHub) -> dict:
 def apply_operation(store, expected: dict, ident: str, github: GitHub, reconcile: bool = False) -> dict:
     """Persist in-flight before one remote write. Unknown outcomes are never replayed."""
     snapshot = store.inspect()
-    require(all(snapshot[k] == expected[k] for k in ("generation", "digest", "device", "inode")),
+    require(all(snapshot[k] == expected[k] for k in ("generation", "digest", "path")),
             "stale tracking CAS")
     project = snapshot["document"]
     require(github.actor() == project["actor"], "authenticated actor changed")

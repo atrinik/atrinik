@@ -440,6 +440,8 @@ class ParserTests(unittest.TestCase):
         }
         events = mock.Mock()
         output = mock.Mock()
+        output.fileno.return_value = 1
+        output.isatty.return_value = False
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             workspace = workspace_type.return_value
             workspace.cleanup.return_value = report
@@ -739,6 +741,25 @@ class ParserTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "only server and client"):
             _parse_services("worker")
 
+    def test_dev_build_json_failure_exit_contract(self) -> None:
+        for error, expected_code, diagnostic in (
+            (WorkspaceError("build failed"), 1, "error: build failed"),
+            (OSError("output unavailable"), 1, "error: output unavailable"),
+            (KeyboardInterrupt(), 130, "interrupted"),
+        ):
+            with self.subTest(error=type(error).__name__):
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with (
+                    mock.patch("atrinik_workspace.cli.Workspace") as workspace_type,
+                    mock.patch("sys.stdout", stdout),
+                    mock.patch("sys.stderr", stderr),
+                ):
+                    workspace_type.return_value.dev_build.side_effect = error
+                    code = main(["dev", "build", "--json"])
+                self.assertEqual(code, expected_code)
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertEqual(stderr.getvalue(), diagnostic + "\n")
+
     def test_dev_build_dispatches_selective_incremental_controls(self) -> None:
         summary = {
             "schema_version": 1,
@@ -947,34 +968,6 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(result, 0)
         workspace_type.return_value.migrate_repositories.assert_called_once_with(
             "dry-run"
-        )
-        self.assertEqual(json.loads(output.call_args.args[0]), plan)
-
-    def test_filesystem_migration_dispatches_explicit_remount_confirmation(self) -> None:
-        plan = {
-            "migration": "filesystem-identity-migration-v1",
-            "status": "dry-run",
-            "records": [],
-            "requires_confirm_remount": False,
-        }
-        with mock.patch(
-            "atrinik_workspace.filesystem_migration.migrate_filesystem_records",
-            return_value=plan,
-        ) as migrate:
-            with mock.patch("builtins.print") as output:
-                result = main(
-                    [
-                        "migrate",
-                        "filesystem",
-                        "--apply",
-                        "--confirm-remount",
-                        "--json",
-                    ]
-                )
-
-        self.assertEqual(result, 0)
-        migrate.assert_called_once_with(
-            mock.ANY, "apply", confirm_remount=True
         )
         self.assertEqual(json.loads(output.call_args.args[0]), plan)
 

@@ -75,7 +75,7 @@ applicability; do not turn irrelevant categories into invented findings.
   authority and program identity, immutable initial-PR payloads, bounded exact
   body/comment intent payloads and recovery results, optional resource slots,
   deferred primitive requests, exact root identities, retained worktree-list/
-  inode/safety/create stdout, and wrapper-self-or-recovery null output; exact
+  path/safety/create stdout, and wrapper-self-or-recovery null output; exact
   scope request and retained scope-show/list/profile evidence;
   `worktree-observe`/`scope-observe` helper-owned manifest/Git/no-follow live
   observation under leases; `worktree-bind`/`scope-bind` diagnosis only; initial
@@ -92,10 +92,10 @@ applicability; do not turn irrelevant categories into invented findings.
   source/report/snapshot/ledger/marker loss. Markdown is non-authoritative; no
   workflow may hand-roll state I/O.
 - For a helper-owned target-head typo correction, prove the exact predecessor
-  and hard-linked bad-generation inode; the exact primitive request or active
+  and hard-linked bad-generation receipt; the exact primitive request or active
   scope binding, observation, owned references, and live scope/profile/topology
   identity; canonical explicit-recovery grant whose
-  objective binds the full source tuple/correction intent and exact ledger
+  objective binds the full source path, digest, and correction intent and exact ledger
   actor/repository/issue scope, exact no-lazy-fetch batch-check `missing` result
   for the full bad OID, live repository/branch/path, predecessor ancestry, recomputed merge
   base, mirrored bound branch/worktree and optional exact bound PR, zero
@@ -201,7 +201,7 @@ applicability; do not turn irrelevant categories into invented findings.
   immutable path absent. Precommit exact wrapper/workspace/primary directory
   identities. Bind only the sole returned current path, SHA-256 of bounded raw
   successful `scope show` JSON, fresh retained wrapper worktree list, matching
-  live path/root device-inodes and safe flags, and the top-level lowercase
+  live canonical root and worktree paths and safe flags, and the top-level lowercase
   32-hex `external_generation`; keep that external value fixed while ledger
   generation/history records later observations. Extra-row, released, partial,
   cross-repository, stale-root, unsafe, or reconstructed scope results stop.
@@ -240,7 +240,7 @@ applicability; do not turn irrelevant categories into invented findings.
   importable wrapper package, source-only execution from its retained snapshot,
   and a full post-import recheck; retained optional Git-authority absences and
   common-dir/linked-gitfile identity through live proof with direct registration;
-  and live scope-profile digest/device/inode plus absent release journal proof.
+  and live scope-profile digest and canonical path plus absent release journal proof.
 - Reprove credential-safe raw/effective `origin` fetch/push routes on both
   primary and worktree immediately before explicit
   `git push origin HEAD_BRANCH`; reject HTTP/foreign routes and never expose

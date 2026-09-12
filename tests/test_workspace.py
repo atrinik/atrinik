@@ -59,6 +59,7 @@ from atrinik_workspace.workspace import (
     WORKER_VIEW_NODE_MODULES_EXCLUSIONS,
     CONFIGURE_METADATA,
     RUNTIME_INPUT_METADATA,
+    SOURCE_INCLUDE_VIEW_METADATA,
     SOURCE_VIEW_METADATA,
     Workspace,
     _copy_regular_file as real_copy_regular_file,
@@ -2306,6 +2307,215 @@ class WorkspaceTests(unittest.TestCase):
         for checkout in ("sound", "libatrinik", "protocol"):
             self.assertEqual(states[checkout]["head"], prior_heads[checkout])
 
+    def source_lfs_fixture(self) -> tuple[Path, dict[str, bytes]]:
+        import struct
+        import wave
+        import zlib
+
+        checkout = self.workspace.paths.repositories / "client"
+        command("git", "lfs", "install", "--local", cwd=checkout)
+        (checkout / ".gitattributes").write_text(
+            "*.wav filter=lfs diff=lfs merge=lfs -text\n"
+            "*.png filter=lfs diff=lfs merge=lfs -text\n"
+        )
+        audio = io.BytesIO()
+        with wave.open(audio, "wb") as output:
+            output.setnchannels(1)
+            output.setsampwidth(2)
+            output.setframerate(8000)
+            output.writeframes(struct.pack("<8h", 0, 100, -100, 200, -200, 100, -100, 0))
+        def png_chunk(kind: bytes, data: bytes) -> bytes:
+            return (struct.pack(">I", len(data)) + kind + data
+                    + struct.pack(">I", zlib.crc32(kind + data)))
+        png = (b"\x89PNG\r\n\x1a\n"
+               + png_chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
+               + png_chunk(b"IDAT", zlib.compress(b"\0\xff\0\0"))
+               + png_chunk(b"IEND", b""))
+        files = {"background/tone.wav": audio.getvalue(), "images/pixel.png": png}
+        for name, data in files.items():
+            target = checkout / name
+            target.parent.mkdir(exist_ok=True)
+            target.write_bytes(data)
+        command("git", "add", ".gitattributes", *files, cwd=checkout)
+        command("git", "commit", "-m", "add real LFS media fixture", cwd=checkout)
+        return checkout, files
+
+    def resolve_lfs_fixture(self) -> Path:
+        with self.workspace._resolved_profile_operation(
+            "default", {"client"}, "verify LFS fixture", materialize_clean_primaries=True
+        ) as snapshot:
+            return snapshot.paths()["client"]
+
+    def test_source_generation_lfs_binary_cold_warm_and_export_proof(self) -> None:
+        import wave
+        checkout, files = self.source_lfs_fixture()
+        first = self.resolve_lfs_fixture()
+        self.assertEqual(self.resolve_lfs_fixture(), first)
+        record = self.workspace._source_generation_record(first)
+        proof = self.workspace._validate_source_generation_git_closure(
+            checkout, first.parent, record["source_tree"], record["tree"],
+            record["source_includes"],
+        )
+        for name, data in files.items():
+            self.assertEqual((first / name).read_bytes(), data)
+            pointer = command("git", "show", "HEAD:" + name, cwd=checkout)
+            self.assertTrue(pointer.startswith("version https://git-lfs.github.com/spec/v1"))
+            row = proof["source/" + name]
+            self.assertEqual(row["lfs_oid"], hashlib.sha256(data).hexdigest())
+            self.assertEqual(row["sha256"], row["lfs_oid"])
+            self.assertEqual(row["size"], len(data))
+            self.assertEqual(row["git_blob_oid"], command("git", "rev-parse", "HEAD:" + name, cwd=checkout))
+        with wave.open(str(first / "background/tone.wav"), "rb") as decoded:
+            self.assertEqual(decoded.getnframes(), 8)
+            self.assertEqual(len(decoded.readframes(8)), 16)
+
+    def source_lfs_includes_fixture(self) -> tuple[Path, dict[str, bytes], Path]:
+        checkout, files = self.source_lfs_fixture()
+        (checkout / "code").mkdir()
+        (checkout / "code/README").write_text("source subtree\n")
+        command("git", "add", "code", cwd=checkout)
+        command("git", "commit", "-m", "add source subtree", cwd=checkout)
+        manifest = self.workspace.manifest
+        component = replace(manifest.by_name["client"], source="code",
+                            source_includes=("background", "images/pixel.png"))
+        manifest.by_name["client"] = component
+        manifest.components = [component if row.name == "client" else row
+                               for row in manifest.components]
+        manifest.stack("default").providers["client"] = component
+        source = self.resolve_lfs_fixture()
+        return checkout, files, source
+
+    def test_source_generation_lfs_tree_and_blob_includes(self) -> None:
+        checkout, files, source = self.source_lfs_includes_fixture()
+        self.assertEqual(self.resolve_lfs_fixture(), source)
+        record = self.workspace._source_generation_record(source)
+        proof = self.workspace._validate_source_generation_git_closure(
+            checkout, source.parent, record["source_tree"], record["tree"],
+            record["source_includes"],
+        )
+        for name, payload in files.items():
+            self.assertEqual((source.parent / name).read_bytes(), payload)
+            self.assertEqual(proof[name]["sha256"], hashlib.sha256(payload).hexdigest())
+            self.assertEqual(proof[name]["lfs_oid"], proof[name]["sha256"])
+
+    def assert_lfs_parent_swap_is_not_quarantined(self, source: Path, target: Path) -> None:
+        target.chmod(0o600)
+        target.write_bytes(b"x" * target.stat().st_size)
+        target.chmod(0o444)
+        generation = source.parent
+        parked = generation.with_name(generation.name + "-test-parent-swap")
+        target_identity = (target.stat().st_dev, target.stat().st_ino)
+        real_read = os.read
+        real_pointers = Workspace._source_generation_lfs_pointers
+        armed = False
+        swapped = False
+        def classify_pointers(*args: object, **kwargs: object) -> object:
+            nonlocal armed
+            pointers = real_pointers(*args, **kwargs)
+            if pointers:
+                armed = True
+            return pointers
+        def swap_parent(descriptor: int, size: int) -> bytes:
+            nonlocal swapped
+            result = real_read(descriptor, size)
+            status = os.fstat(descriptor)
+            if armed and not swapped and (status.st_dev, status.st_ino) == target_identity:
+                generation.rename(parked)
+                swapped = True
+            return result
+        try:
+            with (
+                mock.patch.object(Workspace, "_source_generation_lfs_pointers", side_effect=classify_pointers),
+                mock.patch.object(workspace_module.os, "read", side_effect=swap_parent),
+                mock.patch.object(self.workspace, "_quarantine_source_generation") as quarantine,
+            ):
+                with self.assertRaises(WorkspaceError) as observed:
+                    self.resolve_lfs_fixture()
+                self.assertNotIsInstance(observed.exception, workspace_module._SourceGenerationCorrupt)
+                quarantine.assert_not_called()
+            self.assertTrue(armed, "the injection must reach authenticated LFS classification")
+            self.assertTrue(swapped)
+            self.assertTrue(parked.exists())
+        finally:
+            if parked.exists() and not generation.exists():
+                parked.rename(generation)
+        self.assertTrue(generation.exists())
+
+    def test_source_generation_lfs_tree_parent_swap_preserves_uncertainty(self) -> None:
+        self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        self.assert_lfs_parent_swap_is_not_quarantined(source, source / "background/tone.wav")
+
+    def test_source_generation_lfs_blob_include_parent_swap_preserves_uncertainty(self) -> None:
+        _checkout, _files, source = self.source_lfs_includes_fixture()
+        self.assert_lfs_parent_swap_is_not_quarantined(source, source.parent / "images/pixel.png")
+
+    def test_source_generation_lfs_pointer_bytes_are_not_hydrated_payload(self) -> None:
+        checkout, files = self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        target = source / "background/tone.wav"
+        target.chmod(0o600)
+        target.write_text(command("git", "show", "HEAD:background/tone.wav", cwd=checkout) + "\n")
+        target.chmod(0o444)
+        self.assertEqual(self.resolve_lfs_fixture(), source)
+        self.assertEqual(target.read_bytes(), files["background/tone.wav"])
+
+    def test_source_generation_lfs_corruption_cannot_forge_digest(self) -> None:
+        _checkout, files = self.source_lfs_fixture()
+        source = self.resolve_lfs_fixture()
+        target = source / "background/tone.wav"
+        target.chmod(0o600)
+        target.write_bytes(b"x" * len(files["background/tone.wav"]))
+        target.chmod(0o444)
+        metadata = source.parent / workspace_module.SOURCE_GENERATION_METADATA
+        source.parent.chmod(0o700)
+        metadata.chmod(0o600)
+        record = load_json(metadata)
+        record["source_tree_sha256"] = _tree_digest(source, set(), bounded_symlinks=True, reject_hardlinks=True)
+        record["closure_tree_sha256"] = workspace_module._source_closure_digest(source.parent, ())
+        atomic_json(metadata, record)
+        metadata.chmod(0o444)
+        source.parent.chmod(0o500)
+        self.assertEqual(self.resolve_lfs_fixture(), source)
+        self.assertEqual(target.read_bytes(), files["background/tone.wav"])
+        self.assertTrue(any("staging-recovery_" in p.name for p in source.parent.parent.iterdir()))
+
+    def test_source_generation_lfs_missing_command_does_not_publish(self) -> None:
+        self.source_lfs_fixture()
+        real_run = subprocess.run
+        def missing_lfs(args: list[str], *rest: object, **kwargs: object):
+            if "lfs" in args and "smudge" in args:
+                raise FileNotFoundError("git-lfs")
+            return real_run(args, *rest, **kwargs)
+        with mock.patch.object(workspace_module.subprocess, "run", side_effect=missing_lfs):
+            with self.assertRaisesRegex(WorkspaceError, "install Git LFS"):
+                self.resolve_lfs_fixture()
+        container = self.workspace.paths.builds / "source-generations/client"
+        self.assertFalse(any(re.fullmatch("[0-9a-f]{64}", p.name) for p in container.iterdir()))
+
+    def test_source_generation_lfs_missing_and_corrupt_object_fail(self) -> None:
+        checkout, files = self.source_lfs_fixture()
+        data = files["background/tone.wav"]
+        oid = hashlib.sha256(data).hexdigest()
+        common = Path(command("git", "rev-parse", "--absolute-git-dir", cwd=checkout))
+        obj = common / "lfs/objects" / oid[:2] / oid[2:4] / oid
+        self.assertEqual(obj.read_bytes(), data)
+        command("git", "config", "lfs.url", "file:///missing-atrinik-lfs-fixture", cwd=checkout)
+        real_extract = self.workspace._extract_git_source_archive
+        for payload in (None, b"x" * len(data), data[:-1]):
+            with self.subTest(payload=payload):
+                obj.parent.mkdir(parents=True, exist_ok=True)
+                obj.write_bytes(data)
+                def lose_object(*args: object, **kwargs: object) -> None:
+                    real_extract(*args, **kwargs)
+                    if payload is None:
+                        obj.unlink(missing_ok=True)
+                    else:
+                        obj.write_bytes(payload)
+                with mock.patch.object(self.workspace, "_extract_git_source_archive", side_effect=lose_object):
+                    with self.assertRaisesRegex(WorkspaceError, "Git LFS payload|hydrate Git LFS"):
+                        self.resolve_lfs_fixture()
+
     def test_clean_primary_source_generation_reuses_and_recovers_corruption(self) -> None:
         def resolve() -> Path:
             with self.workspace._resolved_profile_operation(
@@ -2654,7 +2864,12 @@ class WorkspaceTests(unittest.TestCase):
         (classic / "server" / "install_data" / "bans").write_text(
             "", encoding="utf-8"
         )
+        (classic / "server" / "dependencies.lock.json").write_text(
+            "{}\n", encoding="utf-8"
+        )
         (classic / "cmake" / "AtrinikVersion.cmake").write_text(
+            'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n'
+            "\n"
             "function(atrinik_resolve_version output)\n"
             "  set(${output} test-version PARENT_SCOPE)\n"
             "endfunction()\n",
@@ -2689,6 +2904,7 @@ class WorkspaceTests(unittest.TestCase):
         command("git", "remote", "add", "origin", str(origin), cwd=classic)
         command("git", "push", "-u", "origin", "main", cwd=classic)
         self.origins["classic"] = origin
+        original_head = command("git", "rev-parse", "HEAD", cwd=classic)
         original_tree = command("git", "rev-parse", "HEAD^{tree}", cwd=classic)
         (classic / "LICENSE.md").write_text(
             "replacement license\n", encoding="utf-8"
@@ -2696,13 +2912,25 @@ class WorkspaceTests(unittest.TestCase):
         command("git", "add", "LICENSE.md", cwd=classic)
         replacement_tree = command("git", "write-tree", cwd=classic)
         command("git", "replace", original_tree, replacement_tree, cwd=classic)
-        self.assertEqual(command("git", "status", "--porcelain", cwd=classic), "")
+        command("git", "config", "core.useReplaceRefs", "false", cwd=classic)
+        command(
+            "git", "--no-replace-objects", "reset", "--hard", original_head,
+            cwd=classic,
+        )
+        self.assertEqual(command("git", "replace", "-l", cwd=classic), original_tree)
+        self.assertEqual(
+            command(
+                "git", "--no-replace-objects", "status", "--porcelain", cwd=classic
+            ),
+            "",
+        )
 
         stack = self.workspace.manifest.stack("classic")
         for role in ("client", "server"):
             self.assertEqual(
                 stack.providers[role].source_includes,
-                ("cmake", "LICENSE.md", "ATTRIBUTIONS.md"),
+                (("cmake", "LICENSE.md", "ATTRIBUTIONS.md", "server/dependencies.lock.json")
+                 if role == "client" else ("cmake", "LICENSE.md", "ATTRIBUTIONS.md")),
             )
 
         def prepare_runtime(root: Path, *_args: object) -> Path:
@@ -2739,15 +2967,25 @@ class WorkspaceTests(unittest.TestCase):
                         role, "classic", True, use_ccache=False
                     )
                     source_root = build_root / "sources"
-                    self.assertTrue(
-                        (source_root / "cmake" / "AtrinikVersion.cmake").is_file()
+                    closure_root = (
+                        source_root / "client-layout" if role == "client" else source_root
                     )
-                    self.assertTrue((source_root / "LICENSE.md").is_file())
+                    self.assertTrue(
+                        (closure_root / "cmake" / "AtrinikVersion.cmake").is_file()
+                    )
+                    self.assertTrue((closure_root / "LICENSE.md").is_file())
                     self.assertEqual(
-                        (source_root / "LICENSE.md").read_text(encoding="utf-8"),
+                        (closure_root / "LICENSE.md").read_text(encoding="utf-8"),
                         "test license\n",
                     )
-                    self.assertTrue((source_root / "ATTRIBUTIONS.md").is_file())
+                    self.assertTrue((closure_root / "ATTRIBUTIONS.md").is_file())
+                    if role == "client":
+                        self.assertEqual(
+                            (closure_root / "server" / "dependencies.lock.json").read_text(
+                                encoding="utf-8"
+                            ),
+                            "{}\n",
+                        )
                     if role == "server":
                         self.assertTrue(
                             (source_root / "server" / "install_data").stat().st_mode
@@ -2869,24 +3107,24 @@ class WorkspaceTests(unittest.TestCase):
         )
         nested_parent = server_generation / "cmake"
         nested_parent_identity = nested_parent.stat()
-        real_mount_id = workspace_module._descriptor_mount_id
+        real_mount_path = workspace_module._descriptor_mount_path
 
-        def nested_mount_id(descriptor: int) -> object:
+        def nested_mount_path(descriptor: int) -> object:
             opened = os.fstat(descriptor)
             if (opened.st_dev, opened.st_ino) == (
                 nested_parent_identity.st_dev,
                 nested_parent_identity.st_ino,
             ):
-                return ("injected", 3)
-            return real_mount_id(descriptor)
+                return "/injected/mount"
+            return real_mount_path(descriptor)
 
         recovered_record = load_json(
             server_generation / workspace_module.SOURCE_GENERATION_METADATA
         )
         with (
             mock.patch(
-                "atrinik_workspace.workspace._descriptor_mount_id",
-                side_effect=nested_mount_id,
+                "atrinik_workspace.workspace._descriptor_mount_path",
+                side_effect=nested_mount_path,
             ),
             self.assertRaisesRegex(WorkspaceError, "mounted"),
         ):
@@ -2897,6 +3135,22 @@ class WorkspaceTests(unittest.TestCase):
                 recovered_record["tree"],
                 {nested_include: nested_object},
             )
+        command("git", "config", "--unset", "core.useReplaceRefs", cwd=classic)
+        self.assertEqual(
+            command("git", "show", "HEAD:LICENSE.md", cwd=classic),
+            "replacement license",
+        )
+        self.workspace._validate_source_generation_git_closure(
+            classic,
+            server_generation,
+            recovered_record["source_tree"],
+            recovered_record["tree"],
+            recovered_record["source_includes"],
+        )
+        self.assertEqual(
+            (server_generation / "LICENSE.md").read_text(encoding="utf-8"),
+            "test license\n",
+        )
 
     def test_source_generation_reuse_recovers_coherent_missing_git_entry(self) -> None:
         def resolve() -> Path:
@@ -3108,21 +3362,18 @@ class WorkspaceTests(unittest.TestCase):
         nested.mkdir()
         nested_identity = nested.stat()
         self.workspace._seal_runtime_generation(generation)
-        real_mount_id = workspace_module._descriptor_mount_id
+        real_mount_path = workspace_module._descriptor_mount_path
 
-        def mount_id(descriptor: int) -> object:
+        def mount_path(descriptor: int) -> object:
             opened = os.fstat(descriptor)
-            if (opened.st_dev, opened.st_ino) == (
-                nested_identity.st_dev,
-                nested_identity.st_ino,
-            ):
-                return ("injected", 2)
-            return real_mount_id(descriptor)
+            if workspace_module.descriptor_path(descriptor) == workspace_module.canonical_path(nested):
+                return "/injected/mount"
+            return real_mount_path(descriptor)
 
         with (
             mock.patch(
-                "atrinik_workspace.workspace._descriptor_mount_id",
-                side_effect=mount_id,
+                "atrinik_workspace.workspace._descriptor_mount_path",
+                side_effect=mount_path,
             ),
             self.assertRaisesRegex(
                 WorkspaceError, "corrupt and cannot be recovered safely"
@@ -3164,21 +3415,18 @@ class WorkspaceTests(unittest.TestCase):
         os.mkfifo(special)
         special_identity = special.lstat()
         generation.chmod(0o500)
-        real_mount_id = workspace_module._descriptor_mount_id
+        real_mount_path = workspace_module._descriptor_mount_path
 
-        def mount_id(descriptor: int) -> object:
+        def mount_path(descriptor: int) -> object:
             opened = os.fstat(descriptor)
-            if (opened.st_dev, opened.st_ino) == (
-                special_identity.st_dev,
-                special_identity.st_ino,
-            ):
-                return ("injected", 4)
-            return real_mount_id(descriptor)
+            if workspace_module.descriptor_path(descriptor) == workspace_module.canonical_path(special):
+                return "/injected/mount"
+            return real_mount_path(descriptor)
 
         with (
             mock.patch(
-                "atrinik_workspace.workspace._descriptor_mount_id",
-                side_effect=mount_id,
+                "atrinik_workspace.workspace._descriptor_mount_path",
+                side_effect=mount_path,
             ),
             self.assertRaisesRegex(
                 WorkspaceError, "corrupt and cannot be recovered safely"
@@ -3703,18 +3951,18 @@ class WorkspaceTests(unittest.TestCase):
         )
         source_identity = source.stat()
 
-        def mount_identity(descriptor: int) -> int:
+        def mount_pathentity(descriptor: int) -> int:
             opened = os.fstat(descriptor)
             return (
                 2
-                if (opened.st_dev, opened.st_ino)
-                == (source_identity.st_dev, source_identity.st_ino)
+                if workspace_module.descriptor_path(descriptor)
+                == workspace_module.canonical_path(source)
                 else 1
             )
 
         with mock.patch(
-            "atrinik_workspace.workspace._descriptor_mount_id",
-            side_effect=mount_identity,
+            "atrinik_workspace.workspace._descriptor_mount_path",
+            side_effect=mount_pathentity,
         ):
             with self.assertRaisesRegex(WorkspaceError, "root changed or is mounted"):
                 self.workspace._validate_source_generation_git_tree(
@@ -4010,8 +4258,8 @@ class WorkspaceTests(unittest.TestCase):
                 descriptor = os.open(mounted, flags)
                 try:
                     with mock.patch(
-                        "atrinik_workspace.cleanup._descriptor_mount_id",
-                        side_effect=[1, 2],
+                        "atrinik_workspace.cleanup._descriptor_mount_path",
+                        side_effect=["/", "/nested"],
                     ):
                         failed = cleanup_module._tree_usage_descriptor(
                             descriptor, mounted
@@ -4023,7 +4271,7 @@ class WorkspaceTests(unittest.TestCase):
                 finally:
                     os.close(descriptor)
 
-    def test_source_generation_cleanup_rejects_root_swap_before_removal(self) -> None:
+    def test_source_generation_cleanup_uses_named_root_before_removal(self) -> None:
         with self.workspace._resolved_profile_operation(
             "default",
             {"client"},
@@ -4059,9 +4307,8 @@ class WorkspaceTests(unittest.TestCase):
             for item in applied["items"]
             if item["path"] == str(generation)
         )
-        self.assertEqual(failed["disposition"], "error")
-        self.assertIn("identity changed", failed["error"])
-        self.assertTrue(generation.is_dir())
+        self.assertEqual(failed["disposition"], "removed")
+        self.assertFalse(generation.exists())
         self.assertTrue(displaced.is_dir())
 
     def test_source_generation_cleanup_pins_root_during_validation(self) -> None:
@@ -4646,7 +4893,7 @@ class WorkspaceTests(unittest.TestCase):
         real_rename = workspace_module.rename_no_replace_at
         container = self.workspace.paths.builds / "source-generations" / "resources"
 
-        def observe_sync(staging: Path) -> tuple[int, int, str]:
+        def observe_sync(staging: Path) -> str:
             nonlocal syncing
             syncing = True
             identity = real_sync(staging)
@@ -4656,13 +4903,7 @@ class WorkspaceTests(unittest.TestCase):
         def observe_fsync(descriptor: int) -> None:
             if syncing:
                 metadata = os.fstat(descriptor)
-                if container.is_dir() and (
-                    metadata.st_dev,
-                    metadata.st_ino,
-                ) == (
-                    container.stat().st_dev,
-                    container.stat().st_ino,
-                ):
+                if container.is_dir() and workspace_module.descriptor_path(descriptor) == workspace_module.canonical_path(container):
                     events.append("container-fsync")
                 else:
                     events.append(
@@ -4775,7 +5016,7 @@ class WorkspaceTests(unittest.TestCase):
     ) -> None:
         real_sync = self.workspace._durably_sync_source_generation
 
-        def mutate_after_sync(staging: Path) -> tuple[int, int, str]:
+        def mutate_after_sync(staging: Path) -> str:
             identity = real_sync(staging)
             source = staging / "source"
             target = source / "runtime-paths.txt"
@@ -4811,7 +5052,7 @@ class WorkspaceTests(unittest.TestCase):
     def test_source_generation_rejects_metadata_change_after_durability(self) -> None:
         real_sync = self.workspace._durably_sync_source_generation
 
-        def mutate_after_sync(staging: Path) -> tuple[int, int, str]:
+        def mutate_after_sync(staging: Path) -> str:
             identity = real_sync(staging)
             metadata = staging / workspace_module.SOURCE_GENERATION_METADATA
             staging.chmod(0o700)
@@ -4842,7 +5083,7 @@ class WorkspaceTests(unittest.TestCase):
     ) -> None:
         real_sync = self.workspace._durably_sync_source_generation
 
-        def mutate_and_restore(staging: Path) -> tuple[int, int, str]:
+        def mutate_and_restore(staging: Path) -> str:
             identity = real_sync(staging)
             target = staging / "source" / "runtime-paths.txt"
             original = target.read_bytes()
@@ -4873,23 +5114,23 @@ class WorkspaceTests(unittest.TestCase):
         self,
     ) -> None:
         real_sync = self.workspace._durably_sync_source_generation
-        real_mount_id = workspace_module._descriptor_mount_id
+        real_mount_path = workspace_module._descriptor_mount_path
         durable = False
-        metadata_identity: tuple[int, int] | None = None
+        metadata_identity: str | None = None
 
-        def observe_sync(staging: Path) -> tuple[int, int, str]:
+        def observe_sync(staging: Path) -> str:
             nonlocal durable, metadata_identity
             identity = real_sync(staging)
             metadata = (staging / workspace_module.SOURCE_GENERATION_METADATA).stat()
-            metadata_identity = (metadata.st_dev, metadata.st_ino)
+            metadata_identity = workspace_module.canonical_path(staging / workspace_module.SOURCE_GENERATION_METADATA)
             durable = True
             return identity
 
-        def mount_id(descriptor: int) -> object:
+        def mount_path(descriptor: int) -> object:
             opened = os.fstat(descriptor)
-            if durable and metadata_identity == (opened.st_dev, opened.st_ino):
-                return ("injected", 2)
-            return real_mount_id(descriptor)
+            if durable and metadata_identity == workspace_module.descriptor_path(descriptor):
+                return "/injected/mount"
+            return real_mount_path(descriptor)
 
         with (
             mock.patch.object(
@@ -4898,8 +5139,8 @@ class WorkspaceTests(unittest.TestCase):
                 side_effect=observe_sync,
             ),
             mock.patch(
-                "atrinik_workspace.workspace._descriptor_mount_id",
-                side_effect=mount_id,
+                "atrinik_workspace.workspace._descriptor_mount_path",
+                side_effect=mount_path,
             ),
             self.assertRaisesRegex(WorkspaceError, "mount"),
         ):
@@ -4911,23 +5152,23 @@ class WorkspaceTests(unittest.TestCase):
             ):
                 self.fail("mounted source generation was yielded")
 
-    def test_source_generation_rejects_root_replacement_before_publication(
+    def test_source_generation_rejects_wrong_inventory_before_publication(
         self,
     ) -> None:
         real_sync = self.workspace._durably_sync_source_generation
 
-        def report_wrong_identity(staging: Path) -> tuple[int, int, str]:
-            device, inode, inventory = real_sync(staging)
-            return device, inode + 1, inventory
+        def report_wrong_inventory(staging: Path) -> str:
+            real_sync(staging)
+            return "0" * 64
 
         with (
             mock.patch.object(
                 self.workspace,
                 "_durably_sync_source_generation",
-                side_effect=report_wrong_identity,
+                side_effect=report_wrong_inventory,
             ),
             self.assertRaisesRegex(
-                WorkspaceError, "changed before publication"
+                WorkspaceError, "changed after durability"
             ),
         ):
             with self.workspace._resolved_profile_operation(
@@ -4995,7 +5236,7 @@ class WorkspaceTests(unittest.TestCase):
         displaced = [
             path for path in container.iterdir() if path.name.endswith("-displaced")
         ]
-        self.assertEqual(len(replacements), 1)
+        self.assertEqual(replacements, [])
         self.assertEqual(len(displaced), 1)
 
     def test_source_generation_rejects_entry_swap_during_publication(self) -> None:
@@ -5073,17 +5314,14 @@ class WorkspaceTests(unittest.TestCase):
         container_status = container.stat()
         container_synced = False
 
-        def observe_retry_sync(generation: Path) -> tuple[int, int, str]:
+        def observe_retry_sync(generation: Path) -> str:
             retry_syncs.append(generation)
             return real_sync(generation)
 
         def observe_retry_fsync(descriptor: int) -> None:
             nonlocal container_synced
             opened = os.fstat(descriptor)
-            if (opened.st_dev, opened.st_ino) == (
-                container_status.st_dev,
-                container_status.st_ino,
-            ):
+            if workspace_module.descriptor_path(descriptor) == workspace_module.canonical_path(container):
                 container_synced = True
             real_fsync(descriptor)
 
@@ -5115,7 +5353,7 @@ class WorkspaceTests(unittest.TestCase):
         real_fsync = os.fsync
         prepared = False
         mutated = False
-        root_identity: tuple[int, int] | None = None
+        root_identity: str | None = None
         root_synced = False
 
         def mutate_root_before_final_sync(
@@ -5148,7 +5386,7 @@ class WorkspaceTests(unittest.TestCase):
                 )
                 os.fchmod(root_fd, stat.S_IMODE(original.st_mode))
                 if is_generation:
-                    root_identity = (original.st_dev, original.st_ino)
+                    root_identity = workspace_module.descriptor_path(root_fd)
                     mutated = True
                 else:
                     prepared = True
@@ -5162,7 +5400,7 @@ class WorkspaceTests(unittest.TestCase):
         def observe_root_fsync(descriptor: int) -> None:
             nonlocal root_synced
             opened = os.fstat(descriptor)
-            if mutated and root_identity == (opened.st_dev, opened.st_ino):
+            if mutated and root_identity == workspace_module.descriptor_path(descriptor):
                 root_synced = True
             real_fsync(descriptor)
 
@@ -5215,13 +5453,7 @@ class WorkspaceTests(unittest.TestCase):
 
         def fail_container_fsync(descriptor: int) -> None:
             opened = os.fstat(descriptor)
-            if published and container.is_dir() and (
-                opened.st_dev,
-                opened.st_ino,
-            ) == (
-                container.stat().st_dev,
-                container.stat().st_ino,
-            ):
+            if published and container.is_dir() and workspace_module.descriptor_path(descriptor) == workspace_module.canonical_path(container):
                 raise OSError("injected container fsync uncertainty")
             real_fsync(descriptor)
 
@@ -5367,7 +5599,7 @@ class WorkspaceTests(unittest.TestCase):
     def test_source_generation_handoff_syncs_replaced_identical_entry(self) -> None:
         real_shared_lock = shared_lock
         real_fsync = os.fsync
-        mutated_identity: tuple[int, int] | None = None
+        mutated_identity: str | None = None
         mutated_entry_synced = False
 
         def replace_before_handoff(path: Path, description: str):
@@ -5400,7 +5632,7 @@ class WorkspaceTests(unittest.TestCase):
                     ns=(original.st_atime_ns, original.st_mtime_ns),
                 )
                 replaced = target.stat()
-                mutated_identity = (replaced.st_dev, replaced.st_ino)
+                mutated_identity = workspace_module.canonical_path(target)
                 source.chmod(source_mode)
                 generation.chmod(generation_mode)
             return real_shared_lock(path, description)
@@ -5408,7 +5640,7 @@ class WorkspaceTests(unittest.TestCase):
         def observe_fsync(descriptor: int) -> None:
             nonlocal mutated_entry_synced
             opened = os.fstat(descriptor)
-            if mutated_identity == (opened.st_dev, opened.st_ino):
+            if mutated_identity == workspace_module.descriptor_path(descriptor):
                 mutated_entry_synced = True
             real_fsync(descriptor)
 
@@ -5445,10 +5677,7 @@ class WorkspaceTests(unittest.TestCase):
             opened = os.fstat(descriptor)
             if container.is_dir():
                 container_status = container.stat()
-                if (opened.st_dev, opened.st_ino) == (
-                    container_status.st_dev,
-                    container_status.st_ino,
-                ):
+                if workspace_module.descriptor_path(descriptor) == workspace_module.canonical_path(container):
                     container_fsyncs += 1
                     if container_fsyncs == 2:
                         generation = next(
@@ -5710,6 +5939,33 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._materialize_primary_source(
                 component, checkout, selected["client"], states["client"]
             )
+
+    def test_source_generation_reuse_ignores_legacy_filesystem_numbers(self) -> None:
+        profile = self.workspace._load_profile("default", require_file=False)
+        selected = self.workspace._resolve_build_profile(
+            "default", {"client"}, trace=False, profile=profile
+        )
+        states = self.workspace._selected_checkout_states(
+            profile, selected, include_dirty=True, include_identity=True
+        )
+        component = self.workspace.manifest.stack(profile["stack"]).providers[
+            "client"
+        ]
+        checkout = self.workspace.paths.repositories / "client"
+        generated = self.workspace._materialize_primary_source(
+            component, checkout, selected["client"], states["client"]
+        )
+        self.assertTrue(generated.is_dir())
+        state = states["client"]
+        state.update(device=-1, inode=-1, git_common_device=-1, git_common_inode=-1)
+        for entry in state["sources"].values():
+            entry.update(device=-1, inode=-1, ctime_ns=-1)
+        reused = self.workspace._materialize_primary_source(
+            component, checkout, selected["client"], state
+        )
+        self.assertEqual(reused, generated)
+        self.assertTrue(reused.joinpath("README").is_file())
+
 
     def test_source_generation_interruption_residue_is_reclaimable(self) -> None:
         container = self.workspace.paths.builds / "source-generations" / "client"
@@ -7068,6 +7324,121 @@ class WorkspaceTests(unittest.TestCase):
             build_server.call_args.kwargs["build_targets"],
             ["atrinik-server", "plugin_arena", "plugin_python"],
         )
+
+    def test_cold_and_warm_selective_builds_prepare_only_required_region_maps(self) -> None:
+        selected = {
+            role: self.workspace.paths.repositories / role
+            for role in ("client", "server", "protocol", "libatrinik", "sound")
+        }
+        source = selected["server"]
+        (source / "tools").mkdir(exist_ok=True)
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("fixture\n", encoding="utf-8")
+
+        def collect(root: Path, *_args: object) -> None:
+            for name in ("lib", "maps"):
+                (root / "runtime" / "content" / name).mkdir(
+                    parents=True, exist_ok=True
+                )
+
+        def resources(root: Path, *_args: object) -> None:
+            (root / "runtime" / "resources").mkdir(parents=True, exist_ok=True)
+
+        def compile_service(root: Path, service: str) -> None:
+            binary = self.workspace._classic_binary_directory(root, service)
+            binary.mkdir(parents=True, exist_ok=True)
+            if service == "client":
+                (binary / "atrinik").write_text("client\n", encoding="utf-8")
+                return
+            executable = binary / "atrinik-server"
+            executable.write_text(
+                "#!/usr/bin/env python3\n"
+                "from pathlib import Path\n"
+                "import sys\n"
+                "assets = Path(next(a.split('=', 1)[1] for a in sys.argv "
+                "if a.startswith('--assetspath=')))\n"
+                "out = assets / 'client-maps'\n"
+                "out.mkdir(parents=True)\n"
+                "(out / 'incuna_-1.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n')\n"
+                "(out / 'incuna_-1.def').write_text('pixel_size 4\\n')\n",
+                encoding="utf-8",
+            )
+            executable.chmod(0o755)
+            for name in ("libplugin_arena.so", "libplugin_python.so"):
+                (binary / name).write_text("plugin\n", encoding="utf-8")
+
+        def integrated_build(
+            root: Path, _selected: dict[str, Path], _tests: bool,
+            *, build_services: set[str], **_kwargs: object,
+        ) -> None:
+            (root / "build").mkdir(exist_ok=True)
+            self.workspace._record_classic_graph(root, {"client", "server"}, "integrated")
+            for service in build_services:
+                compile_service(root, service)
+
+        for integrated in (False, True):
+            for initial in ({"client"}, {"server"}, {"client", "server"}):
+                with self.subTest(integrated=integrated, initial=initial):
+                    key = f"cold-{integrated}-{'-'.join(sorted(initial))}"
+                    with (
+                        mock.patch.object(self.workspace, "_profile_build_key", return_value=key),
+                        mock.patch.object(self.workspace, "_refresh_build_metadata"),
+                        mock.patch.object(
+                            self.workspace, "_prepare_sound",
+                            return_value=(selected["sound"], None),
+                        ),
+                        mock.patch.object(self.workspace, "_collect_content", side_effect=collect),
+                        mock.patch.object(self.workspace, "_stage_resources", side_effect=resources),
+                        mock.patch.object(
+                            self.workspace, "_uses_integrated_classic_build",
+                            return_value=integrated,
+                        ),
+                        mock.patch.object(
+                            self.workspace, "_build_integrated_classic",
+                            side_effect=integrated_build,
+                        ),
+                        mock.patch.object(
+                            self.workspace, "_build_client",
+                            side_effect=lambda root, *_a, **_k: compile_service(root, "client"),
+                        ),
+                        mock.patch.object(
+                            self.workspace, "_build_server",
+                            side_effect=lambda root, *_a, **_k: compile_service(root, "server"),
+                        ),
+                        mock.patch.object(
+                            self.workspace, "_region_map_inputs",
+                            return_value=({"fixture": key}, True),
+                        ),
+                    ):
+                        root = self.workspace._build_resolved(
+                            "topology", "default", False, ["client", "server"], selected,
+                            build_services=initial, generate_region_maps="server" in initial,
+                        )
+                        client = self.workspace._classic_binary_directory(root, "client") / "atrinik"
+                        server = self.workspace._classic_binary_directory(root, "server") / "atrinik-server"
+                        self.assertEqual(client.exists(), "client" in initial)
+                        self.assertEqual(server.exists(), "server" in initial)
+                        maps = root / "runtime" / "client-maps"
+                        self.assertEqual(maps.exists(), "server" in initial)
+                        for services in ({"client"}, {"server"}, {"client", "server"}, {"client"}):
+                            warm = self.workspace._build_resolved(
+                                "topology", "default", False, ["client", "server"], selected,
+                                build_services=services,
+                                generate_region_maps="server" in services,
+                            )
+                            self.assertEqual(root, warm)
+                        self.workspace._validate_region_maps(maps)
+                        # A paired runtime restart may compile only the client,
+                        # but still needs to refresh stale server-owned maps.
+                        atomic_json(maps / ".atrinik-region-maps.json", {"stale": True})
+                        self.workspace._build_resolved(
+                            "topology", "default", False, ["client", "server"], selected,
+                            build_services={"client"},
+                        )
+                        self.workspace._validate_region_maps(maps)
+                        self.assertEqual(
+                            load_json(maps / ".atrinik-region-maps.json"), {"fixture": key}
+                        )
 
     def test_selective_integrated_build_forwards_service_targets(self) -> None:
         selected = {
@@ -8914,6 +9285,428 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(stat.S_IMODE(directory.stat().st_mode), 0o755)
         self.assertEqual(stat.S_IMODE(regular.stat().st_mode), 0o644)
         self.assertEqual(stat.S_IMODE(executable.stat().st_mode), 0o755)
+
+    def test_classic_graphs_forward_captured_owner_identity(self) -> None:
+        shutil.copy2(
+            Path(__file__).resolve().parents[1] / "components.json",
+            self.wrapper / "components.json",
+        )
+        self.workspace.close()
+        self.workspace = Workspace(self.wrapper)
+        checkout = self.wrapper / "classic"
+        selected = {}
+        for role in ("client", "server", "protocol", "libatrinik"):
+            selected[role] = checkout / role
+            selected[role].mkdir(parents=True)
+            (selected[role] / "CMakeLists.txt").write_text(
+                "project(fixture NONE)\n", encoding="utf-8"
+            )
+        (checkout / "CMakeLists.txt").write_text("project(root NONE)\n", encoding="utf-8")
+        (checkout / "cmake").mkdir()
+        (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
+            'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n', encoding="utf-8"
+        )
+        for name in ("LICENSE.md", "ATTRIBUTIONS.md"):
+            (checkout / name).write_text("test-owned fixture\n", encoding="utf-8")
+        (selected["server"] / "install_data").mkdir()
+        (selected["server"] / "dependencies.lock.json").write_text(
+            "{}\n", encoding="utf-8"
+        )
+        selected["sound"] = self.wrapper / "sound"
+        profile = self.workspace._load_profile("classic", require_file=False)
+        identity = {"version": "5.68.0", "revision": "a" * 40, "dirty": "true"}
+        states = {"classic": {
+            "path": str(checkout), "head": "a" * 40, "dirty": True,
+            "package_identity": {
+                source: dict(identity)
+                for source in (".", "client", "server", "protocol", "libatrinik")
+            },
+        }}
+        # Standalone client VERSION may differ; integrated uses the root version.
+        states["classic"]["package_identity"]["client"]["version"] = "6.7.8"
+        self.workspace._profile_snapshot = workspace_module.ProfileResolutionSnapshot(
+            "classic", "identity-test", json.dumps(profile),
+            tuple((role, str(path.resolve())) for role, path in selected.items()),
+            json.dumps(states),
+        )
+        self.addCleanup(setattr, self.workspace, "_profile_snapshot", None)
+        root = self.workspace.paths.builds / "profiles" / "identity-graphs"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        stack = self.workspace.manifest.stack("classic")
+        with mock.patch.object(self.workspace, "_cmake") as cmake:
+            self.workspace._build_protocol(root, selected, False)
+            self.workspace._build_library(root, selected, False)
+            self.workspace._build_client(
+                root, selected, False, component=stack.providers["client"]
+            )
+            self.workspace._build_server(
+                root, selected, False, component=stack.providers["server"]
+            )
+            self.workspace._build_integrated_classic(root, selected, False)
+        self.assertEqual(cmake.call_count, 5)
+        for call, version in zip(cmake.call_args_list, ("5.68.0", "5.68.0", "6.7.8", "5.68.0", "5.68.0")):
+            with self.subTest(graph=call.args[1]):
+                arguments = call.args[2]
+                self.assertIn(f"-DATRINIK_PACKAGE_VERSION={version}", arguments)
+                self.assertIn(f"-DATRINIK_SOURCE_REVISION={'a' * 40}", arguments)
+                self.assertIn("-DATRINIK_SOURCE_DIRTY=true", arguments)
+
+    def test_classic_identity_snapshot_survives_primary_advancement(self) -> None:
+        shutil.copy2(Path(__file__).resolve().parents[1] / "components.json", self.wrapper / "components.json")
+        self.workspace.close()
+        self.workspace = Workspace(self.wrapper)
+        checkout = self.wrapper / "classic"
+        (checkout / "protocol").mkdir(parents=True)
+        (checkout / "cmake").mkdir()
+        (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
+            'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n', encoding="utf-8"
+        )
+        (checkout / "protocol" / "CMakeLists.txt").write_text(
+            "cmake_minimum_required(VERSION 3.20)\n"
+            'include("${CMAKE_CURRENT_LIST_DIR}/../cmake/AtrinikVersion.cmake")\n'
+            'project(protocol VERSION "${ATRINIK_PACKAGE_VERSION}" LANGUAGES NONE)\n',
+            encoding="utf-8",
+        )
+        (checkout / "protocol" / "cmake").mkdir()
+        (checkout / "protocol" / "cmake" / "LocalConfig.cmake.in").write_text(
+            "component-local template\n", encoding="utf-8"
+        )
+        command("git", "init", "-b", "main", cwd=checkout)
+        command("git", "config", "user.name", "Tests", cwd=checkout)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=checkout)
+        command("git", "add", ".", cwd=checkout)
+        command("git", "commit", "-m", "fixture", cwd=checkout)
+        command("git", "tag", "v5.68.0", cwd=checkout)
+        command("git", "remote", "add", "origin", "https://github.com/atrinik/classic.git", cwd=checkout)
+        owner_head = command("git", "rev-parse", "HEAD", cwd=checkout).strip()
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Tests", cwd=self.wrapper)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=self.wrapper)
+        command("git", "add", "components.json", cwd=self.wrapper)
+        command("git", "commit", "-m", "foreign wrapper", cwd=self.wrapper)
+        command("git", "tag", "v8.34.0", cwd=self.wrapper)
+        self.workspace.close()
+        self.workspace = Workspace(self.wrapper)
+        with self.workspace._resolved_profile_operation(
+            "classic", {"protocol"}, "build protocol",
+            materialize_clean_primaries=True,
+        ) as snapshot:
+            source = snapshot.paths()["protocol"]
+            self.assertNotEqual(source, checkout / "protocol")
+            identity = snapshot.checkout_states()["classic"]["package_identity"]["protocol"]
+            self.assertEqual(identity, {
+                "version": "5.68.0", "revision": owner_head, "dirty": "false",
+            })
+            (checkout / "protocol" / "VERSION").write_text("6.7.8\n", encoding="utf-8")
+            command("git", "add", ".", cwd=checkout)
+            command("git", "commit", "-m", "advance physical owner", cwd=checkout)
+            expected = [
+                "-DATRINIK_PACKAGE_VERSION=5.68.0",
+                f"-DATRINIK_SOURCE_REVISION={owner_head}",
+                "-DATRINIK_SOURCE_DIRTY=false",
+            ]
+            self.assertEqual(self.workspace._classic_identity_arguments(source), expected)
+            root = self.workspace.paths.builds / "profiles" / "identity-snapshot"
+            managed_directory(root, self.workspace.paths.builds, "test-profile")
+            with mock.patch.object(self.workspace, "_cmake") as cmake:
+                self.workspace._build_protocol(root, snapshot.paths(), tests=False)
+            self.assertEqual(cmake.call_args.args[2], expected)
+            view = cmake.call_args.args[0]
+            self.assertEqual(load_json(view / SOURCE_VIEW_METADATA)["source_head"], owner_head)
+            direct = self.workspace._cmake_source_identity(source)
+            self.assertEqual(direct["source_generation"]["commit"], owner_head)
+            self.assertNotIn("git", direct)
+            self.assertEqual(
+                (view / "cmake" / "LocalConfig.cmake.in").read_text(),
+                "component-local template\n",
+            )
+            shared = view.parent / "cmake"
+            self.assertTrue((shared / "AtrinikVersion.cmake").is_file())
+            self.assertEqual(load_json(shared / SOURCE_VIEW_METADATA)["source_head"], owner_head)
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_protocol(root, snapshot.paths(), tests=False)
+            self.assertTrue(self.workspace._source_view_unchanged[str(view.resolve())])
+            self.assertTrue(self.workspace._source_view_unchanged[str(shared.resolve())])
+            if shutil.which("cmake"):
+                command(
+                    "cmake", "-S", str(view), "-B", str(root / "configure-proof"),
+                    *expected, cwd=self.wrapper,
+                )
+
+    def test_immutable_client_layout_copies_declared_classic_closure_and_repairs(self) -> None:
+        shutil.copy2(
+            Path(__file__).resolve().parents[1] / "components.json",
+            self.wrapper / "components.json",
+        )
+        self.workspace.close()
+        checkout = self.wrapper / "classic"
+        for name in ("client", "server", "protocol", "libatrinik", "sound", "cmake"):
+            (checkout / name).mkdir(parents=True, exist_ok=True)
+        for name in ("tools/tool", "data/data", "src/source"):
+            path = checkout / "client" / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(name + "\n", encoding="utf-8")
+        (checkout / "client" / "textures").mkdir()
+        (checkout / "client" / "textures" / "ui.xml").write_text(
+            '<font source="../fonts/ui.ttf"/>\n', encoding="utf-8"
+        )
+        (checkout / "client" / "fonts").mkdir()
+        (checkout / "client" / "fonts" / "ui.ttf").write_bytes(b"fixture font\n")
+        (checkout / "client" / "CMakeLists.txt").write_text(
+            "project(client NONE)\n", encoding="utf-8"
+        )
+        (checkout / "server" / "CMakeLists.txt").write_text(
+            "project(server NONE)\n", encoding="utf-8"
+        )
+        (checkout / "server" / "install_data").mkdir()
+        (checkout / "server" / "dependencies.lock.json").write_text(
+            '{"lock":"one"}\n', encoding="utf-8"
+        )
+        (checkout / "server" / "undeclared-input").write_text(
+            "not captured\n", encoding="utf-8"
+        )
+        for name in ("protocol", "libatrinik"):
+            (checkout / name / "CMakeLists.txt").write_text(
+                f"project({name} NONE)\n", encoding="utf-8"
+            )
+        (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
+            'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n', encoding="utf-8"
+        )
+        for name in ("LICENSE.md", "ATTRIBUTIONS.md"):
+            (checkout / name).write_text("fixture\n", encoding="utf-8")
+        command("git", "init", "-b", "main", cwd=checkout)
+        command("git", "config", "user.name", "Tests", cwd=checkout)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=checkout)
+        command("git", "add", ".", cwd=checkout)
+        command("git", "commit", "-m", "classic fixture", cwd=checkout)
+        command("git", "tag", "v5.68.0", cwd=checkout)
+        command("git", "remote", "add", "origin", "https://github.com/atrinik/classic.git", cwd=checkout)
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Tests", cwd=self.wrapper)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=self.wrapper)
+        command("git", "add", "components.json", cwd=self.wrapper)
+        command("git", "commit", "-m", "wrapper fixture", cwd=self.wrapper)
+        self.workspace = Workspace(self.wrapper)
+        root = self.workspace.paths.builds / "profiles" / "client-layout"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        with self.workspace._resolved_profile_operation(
+            "classic", {"client", "server"}, "build client", materialize_clean_primaries=True,
+        ) as snapshot:
+            selected = snapshot.paths()
+            source = selected["client"]
+            generation = source.parent
+            self.assertTrue((generation / "server" / "dependencies.lock.json").is_file())
+            self.assertFalse((generation / "server" / "undeclared-input").exists())
+            immutable_tool = source / "tools" / "tool"
+            immutable_texture = source / "textures" / "ui.xml"
+            immutable_font = source / "fonts" / "ui.ttf"
+            immutable_before = (immutable_tool.read_bytes(), immutable_tool.stat().st_mtime_ns)
+            immutable_assets_before = {
+                path: (path.read_bytes(), path.stat().st_mtime_ns)
+                for path in (immutable_texture, immutable_font)
+            }
+            component = self.workspace.manifest.stack("classic").providers["client"]
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_client(root, selected, False, component=component)
+            view = root / "sources" / "client-layout" / "client"
+            lock = root / "sources" / "client-layout" / "server" / "dependencies.lock.json"
+            self.assertTrue((root / "sources" / "client-layout" / MANAGED_MARKER).is_file())
+            for name in ("tools", "data", "src", "textures", "fonts"):
+                self.assertTrue((view / name).is_dir())
+                self.assertFalse((view / name).is_symlink())
+            self.assertEqual(
+                (view / "textures" / "ui.xml").read_text(encoding="utf-8"),
+                '<font source="../fonts/ui.ttf"/>\n',
+            )
+            self.assertEqual((view / "fonts" / "ui.ttf").read_bytes(), b"fixture font\n")
+            self.assertTrue((view / "CMakeLists.txt").is_symlink())
+            self.assertTrue(lock.is_file())
+            self.assertFalse(lock.is_symlink())
+            self.assertEqual(lock.read_text(encoding="utf-8"), '{"lock":"one"}\n')
+            self.assertFalse((root / "sources" / "server").exists())
+            copied_mtime = (view / "tools" / "tool").stat().st_mtime_ns
+            copied_assets_mtime = {
+                name: (view / name).stat().st_mtime_ns
+                for name in ("textures/ui.xml", "fonts/ui.ttf")
+            }
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_client(root, selected, False, component=component)
+            self.assertEqual((view / "tools" / "tool").stat().st_mtime_ns, copied_mtime)
+            self.assertEqual(
+                {
+                    name: (view / name).stat().st_mtime_ns
+                    for name in ("textures/ui.xml", "fonts/ui.ttf")
+                },
+                copied_assets_mtime,
+            )
+            self.assertTrue(self.workspace._source_view_unchanged[str(view)])
+            stale_include = lock.parent / "stale-peer-input"
+            stale_include.write_text("stale\n", encoding="utf-8")
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_client(root, selected, False, component=component)
+            self.assertFalse(stale_include.exists())
+            (view / "tools" / "tool").write_text("tampered\n", encoding="utf-8")
+            (view / "textures" / "ui.xml").write_text("tampered\n", encoding="utf-8")
+            (view / "fonts" / "ui.ttf").write_bytes(b"tampered\n")
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_client(root, selected, False, component=component)
+            self.assertEqual((view / "tools" / "tool").read_text(encoding="utf-8"), "tools/tool\n")
+            self.assertEqual(
+                (view / "textures" / "ui.xml").read_text(encoding="utf-8"),
+                '<font source="../fonts/ui.ttf"/>\n',
+            )
+            self.assertEqual((view / "fonts" / "ui.ttf").read_bytes(), b"fixture font\n")
+            self.assertEqual(
+                (immutable_tool.read_bytes(), immutable_tool.stat().st_mtime_ns), immutable_before
+            )
+            self.assertEqual(
+                {
+                    path: (path.read_bytes(), path.stat().st_mtime_ns)
+                    for path in (immutable_texture, immutable_font)
+                },
+                immutable_assets_before,
+            )
+            server = self.workspace.manifest.stack("classic").providers["server"]
+            (root / "runtime" / "content").mkdir(parents=True)
+            (root / "runtime" / "resources").mkdir()
+            with mock.patch.object(self.workspace, "_cmake"):
+                self.workspace._build_server(root, selected, False, component=server)
+                self.workspace._build_client(root, selected, False, component=component)
+            self.assertTrue((root / "sources" / "server").is_dir())
+            self.assertTrue(self.workspace._source_view_unchanged[str(view)])
+            layout = root / "sources" / "client-layout"
+            ownership = layout / MANAGED_MARKER
+            original_ownership = ownership.read_text(encoding="utf-8")
+            ownership.write_text('{"purpose":"foreign"}\n', encoding="utf-8")
+            with mock.patch.object(self.workspace, "_cmake"):
+                with self.assertRaisesRegex(WorkspaceError, "ownership is invalid"):
+                    self.workspace._build_client(root, selected, False, component=component)
+            ownership.write_text(original_ownership, encoding="utf-8")
+            outside = self.root / "outside-client-layout"
+            outside.mkdir()
+            sentinel = outside / "sentinel"
+            sentinel.write_text("outside\n", encoding="utf-8")
+            parked = layout.with_name("client-layout-parked")
+            real_fence = Workspace._client_layout_fence
+            swapped = False
+
+            def race_fence(path: Path, descriptor: int) -> None:
+                nonlocal swapped
+                if path == layout and not swapped:
+                    layout.rename(parked)
+                    layout.symlink_to(outside, target_is_directory=True)
+                    swapped = True
+                real_fence(path, descriptor)
+
+            with mock.patch.object(Workspace, "_client_layout_fence", side_effect=race_fence):
+                with self.assertRaisesRegex(WorkspaceError, "identity changed|unsafe"):
+                    self.workspace._build_client(root, selected, False, component=component)
+            self.assertTrue(swapped)
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "outside\n")
+
+    def test_client_layout_fence_uses_current_descriptor_path(self) -> None:
+        layout = self.root / "client-path-fence"
+        layout.mkdir()
+        descriptor = os.open(layout, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            self.workspace._client_layout_fence(layout, descriptor)
+            layout.rename(layout.with_name("parked-client-layout"))
+            layout.mkdir()
+            with self.assertRaisesRegex(WorkspaceError, "layout identity changed"):
+                self.workspace._client_layout_fence(layout, descriptor)
+            replacement = os.open(layout, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                self.workspace._client_layout_fence(layout, replacement)
+            finally:
+                os.close(replacement)
+        finally:
+            os.close(descriptor)
+
+    def test_peer_include_requires_private_namespace_and_live_client_does_not_stage_it(self) -> None:
+        self.workspace.manifest = Manifest.load(
+            Path(__file__).resolve().parents[1] / "components.json"
+        )
+        checkout = self.root / "classic-peer-input"
+        source = checkout / "client"
+        lock = checkout / "server" / "dependencies.lock.json"
+        source.mkdir(parents=True)
+        lock.parent.mkdir(parents=True)
+        lock.write_text('{"lock":"live"}\n', encoding="utf-8")
+        (checkout / "cmake").mkdir()
+        (checkout / "cmake" / "input").write_text("cmake\n", encoding="utf-8")
+        for name in ("LICENSE.md", "ATTRIBUTIONS.md"):
+            (checkout / name).write_text("fixture\n", encoding="utf-8")
+        (checkout / "server" / "declared-inputs").mkdir()
+        (checkout / "server" / "declared-inputs" / "input").write_text(
+            "directory\n", encoding="utf-8"
+        )
+        component = replace(
+            self.workspace.manifest.by_name["classic-client"],
+            source_includes=(
+                "cmake", "LICENSE.md", "ATTRIBUTIONS.md",
+                "server/dependencies.lock.json", "server/declared-inputs",
+            ),
+        )
+        root = self.workspace.paths.builds / "profiles" / "live-peer-input"
+        managed_directory(root, self.workspace.paths.builds, "test-profile")
+        consumer = root / "sources" / "client"
+        consumer.mkdir(parents=True)
+        sentinel = consumer / "sentinel"
+        sentinel.write_text("unchanged\n", encoding="utf-8")
+
+        with self.assertRaisesRegex(WorkspaceError, "private consumer namespace"):
+            self.workspace._prepare_component_source_includes(
+                root, component, source, consumer
+            )
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "unchanged\n")
+        self.assertFalse((root / "sources" / "server").exists())
+
+        self.workspace._prepare_component_source_includes(
+            root, component, source, consumer, live_peer_inputs=True
+        )
+        metadata = load_json(consumer / SOURCE_INCLUDE_VIEW_METADATA)
+        self.assertEqual(
+            metadata["entries"]["server/dependencies.lock.json"],
+            {"kind": "live-peer", "source": str(lock)},
+        )
+        self.assertEqual(
+            metadata["entries"]["server/declared-inputs"],
+            {"kind": "live-peer", "source": str(checkout / "server" / "declared-inputs")},
+        )
+        self.assertFalse((root / "sources" / "server").exists())
+
+        foreign = self.root / "foreign-checkout"
+        foreign.mkdir()
+        (foreign / "dependencies.lock.json").write_text(
+            '{"lock":"foreign"}\n', encoding="utf-8"
+        )
+        server = checkout / "server"
+        lock.rename(server / "dependencies.lock.real")
+        lock.symlink_to(foreign / "dependencies.lock.json")
+        final_symlink_consumer = root / "sources" / "final-symlink-client"
+        final_symlink_consumer.mkdir()
+        final_sentinel = final_symlink_consumer / "sentinel"
+        final_sentinel.write_text("unchanged\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "unsafe|symlink|identity"):
+            self.workspace._prepare_component_source_includes(
+                root, component, source, final_symlink_consumer, live_peer_inputs=True
+            )
+        self.assertEqual(final_sentinel.read_text(encoding="utf-8"), "unchanged\n")
+        self.assertFalse((root / "sources" / "server").exists())
+        lock.unlink()
+        (server / "dependencies.lock.real").rename(lock)
+        server.rename(checkout / "server-real")
+        server.symlink_to(foreign, target_is_directory=True)
+        unsafe_consumer = root / "sources" / "unsafe-client"
+        unsafe_consumer.mkdir()
+        unsafe_sentinel = unsafe_consumer / "sentinel"
+        unsafe_sentinel.write_text("unchanged\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "unsafe|symlink|identity"):
+            self.workspace._prepare_component_source_includes(
+                root, component, source, unsafe_consumer, live_peer_inputs=True
+            )
+        self.assertEqual(unsafe_sentinel.read_text(encoding="utf-8"), "unchanged\n")
+        self.assertFalse((root / "sources" / "server").exists())
 
     def test_mutable_cmake_view_copies_sealed_generated_sources(self) -> None:
         with self.workspace._resolved_profile_operation(
@@ -10777,6 +11570,70 @@ class WorkspaceTests(unittest.TestCase):
                 (second / "payload").read_text(encoding="utf-8"), "shared\n"
             )
 
+    def test_runtime_state_lease_cleanup_resumes_legacy_tombstone_by_name(self) -> None:
+        state = self.root / "migrated-lease-state"
+        lock = Path(f"{state}.lock")
+        tombstone = lock.parent / f".{lock.name}.remove-dead-beef"
+        tombstone.write_text("", encoding="utf-8")
+        self.assertTrue(self.workspace._finish_temporary_state_lock_tombstone(
+            state, {"device": 1, "inode": 2}
+        ))
+        self.assertFalse(tombstone.exists())
+
+    def test_runtime_state_lease_cleanup_preserves_ambiguous_tombstones(self) -> None:
+        state = self.root / "ambiguous-lease-state"
+        lock = Path(f"{state}.lock")
+        candidates = [
+            lock.parent / f".{lock.name}.remove-pending",
+            lock.parent / f".{lock.name}.remove-dead-beef",
+        ]
+        for candidate in candidates:
+            candidate.write_text("preserved", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "tombstones are ambiguous"):
+            self.workspace._finish_temporary_state_lock_tombstone(
+                state, {"path": str(lock)}
+            )
+        for candidate in candidates:
+            self.assertEqual(candidate.read_text(encoding="utf-8"), "preserved")
+
+    def test_runtime_state_lock_ignores_obsolete_storage_identity(self) -> None:
+        state = self.root / "migrated-state"
+        state.mkdir()
+        lock = Path(f"{state}.lock")
+        legacy = {"device": 999999, "inode": 888888, "ctime_ns": 777777}
+        with lock.open("w+") as stream:
+            self.workspace._validate_temporary_state_lock(state, stream, legacy)
+            self.workspace._validate_temporary_state_lock(
+                state, stream, {"path": str(lock)}
+            )
+            with self.assertRaisesRegex(WorkspaceError, "changed before lifecycle"):
+                self.workspace._validate_temporary_state_lock(
+                    state, stream, {"path": str(self.root / "other.lock")}
+                )
+
+    def test_runtime_state_mutation_accepts_migrated_directory_at_same_path(self) -> None:
+        state = self.root / "migrated-state"
+        state.mkdir()
+        (state / "payload").write_text("preserved", encoding="utf-8")
+        record = {"path": str(state), "kind": "directory"}
+        moved = self.root / "old-storage"
+        state.rename(moved)
+        shutil.copytree(moved, state)
+        descriptor = self.workspace._lock_state_directory_mutation(state, record)
+        os.close(descriptor)
+        self.assertEqual((state / "payload").read_text(encoding="utf-8"), "preserved")
+        with self.assertRaisesRegex(WorkspaceError, "changed before mutation"):
+            self.workspace._lock_state_directory_mutation(moved, record)
+
+    def test_runtime_state_record_survives_completed_cleanup(self) -> None:
+        missing = self.root / "already-removed-state"
+        self.assertTrue(self.workspace._valid_state_identity(
+            {"path": str(missing), "kind": "directory"}, missing
+        ))
+        self.assertFalse(self.workspace._valid_state_identity(
+            {"path": str(self.root / "different-state")}, missing
+        ))
+
     def test_runtime_generation_staging_change_publishes_nothing(self) -> None:
         owner = self.root / "runtime-owner"
         owner.mkdir()
@@ -10853,6 +11710,10 @@ class WorkspaceTests(unittest.TestCase):
             )
 
         try:
+            self.assertEqual(
+                _record["lease"],
+                {"path": str(published / workspace_module.RUNTIME_GENERATION_LEASE)},
+            )
             self.assertIsNone(state_output_fd)
             self.assertEqual(
                 (published / "client" / "src" / "main.c").read_text(
@@ -11143,7 +12004,7 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(sorted(path.name for path in external.iterdir()), ["sentinel"])
         self.assertEqual(list(topology.iterdir()), [])
 
-    def test_runtime_state_output_cleanup_remains_bound_to_pinned_state(
+    def test_runtime_state_output_cleanup_rejects_renamed_pinned_state(
         self,
     ) -> None:
         state = self.root / "external-state"
@@ -11161,11 +12022,12 @@ class WorkspaceTests(unittest.TestCase):
             sentinel = state / "sentinel"
             sentinel.write_text("replacement\n", encoding="utf-8")
 
-            self.workspace._remove_runtime_state_output(
-                output, generation, state_fd, output_identity
-            )
+            with self.assertRaisesRegex(WorkspaceError, "identity changed"):
+                self.workspace._remove_runtime_state_output(
+                    output, generation, state_fd, output_identity
+                )
 
-            self.assertFalse(
+            self.assertTrue(
                 (relocated / "tmp" / "runtime-assets" / generation).exists()
             )
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "replacement\n")
@@ -11227,7 +12089,7 @@ class WorkspaceTests(unittest.TestCase):
         finally:
             os.close(state_fd)
 
-    def test_runtime_state_output_cleanup_rejects_completed_replacement(self) -> None:
+    def test_runtime_state_output_cleanup_uses_reopened_path(self) -> None:
         state = self.root / "state-output-replaced"
         state.mkdir()
         state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
@@ -11255,11 +12117,10 @@ class WorkspaceTests(unittest.TestCase):
                 "original\n",
             )
             self.assertFalse((output / "pinned-sentinel").exists())
-            with self.assertRaisesRegex(WorkspaceError, "identity changed"):
-                self.workspace._remove_runtime_state_output(
-                    output, generation, state_fd, output_identity
-                )
-            self.assertEqual(sentinel.read_text(encoding="utf-8"), "replacement\n")
+            self.workspace._remove_runtime_state_output(
+                output, generation, state_fd, output_identity
+            )
+            self.assertFalse(output.exists())
             self.assertTrue((displaced / MANAGED_MARKER).is_file())
         finally:
             os.close(output_fd)
@@ -11292,8 +12153,8 @@ class WorkspaceTests(unittest.TestCase):
             )
             with (
                 mock.patch(
-                    "atrinik_workspace.workspace._descriptor_mount_id",
-                    side_effect=[1, 1, 2],
+                    "atrinik_workspace.workspace._descriptor_mount_path",
+                    side_effect=["/", "/", "/nested"],
                 ),
                 self.assertRaisesRegex(WorkspaceError, "crosses a mount"),
             ):
@@ -11845,8 +12706,8 @@ class WorkspaceTests(unittest.TestCase):
         original_mode = stat.S_IMODE(nested.stat().st_mode)
 
         with mock.patch(
-            "atrinik_workspace.workspace._descriptor_mount_id",
-            side_effect=[1] * 9 + [2],
+            "atrinik_workspace.workspace._descriptor_mount_path",
+            side_effect=["/"] * 9 + ["/nested"],
         ):
             with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
                 remove_owned_tree(owned)
@@ -11866,8 +12727,9 @@ class WorkspaceTests(unittest.TestCase):
 
         with (
             mock.patch("atrinik_workspace.workspace.sys.platform", "darwin"),
+            mock.patch("atrinik_workspace.workspace.descriptor_path", return_value=str(owned)),
             mock.patch(
-                "atrinik_workspace.workspace._darwin_descriptor_mount_id",
+                "atrinik_workspace.workspace._darwin_descriptor_mount_path",
                 return_value=(1, 2),
             ),
         ):
@@ -11884,8 +12746,8 @@ class WorkspaceTests(unittest.TestCase):
         mounted.write_text("preserve mounted\n", encoding="utf-8")
 
         with mock.patch(
-            "atrinik_workspace.workspace._descriptor_mount_id",
-            side_effect=[1] * 6 + [2],
+            "atrinik_workspace.workspace._descriptor_mount_path",
+            side_effect=["/"] * 6 + ["/nested"],
         ):
             with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
                 remove_owned_tree(owned)
@@ -11895,7 +12757,7 @@ class WorkspaceTests(unittest.TestCase):
             mounted.read_text(encoding="utf-8"), "preserve mounted\n"
         )
 
-    def test_owned_tree_removal_does_not_require_procfs(self) -> None:
+    def test_owned_tree_removal_does_not_read_descriptor_contents(self) -> None:
         owned = self.root / "owned"
         owned.mkdir()
         (owned / "payload").write_text("remove\n", encoding="utf-8")
@@ -11979,7 +12841,7 @@ class WorkspaceTests(unittest.TestCase):
         with (
             mock.patch("atrinik_workspace.workspace.sys.platform", "darwin"),
             mock.patch(
-                "atrinik_workspace.workspace._darwin_descriptor_mount_id",
+                "atrinik_workspace.workspace._darwin_descriptor_mount_path",
                 return_value=(1, 2),
             ),
         ):
@@ -11988,77 +12850,68 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertTrue(fifo.exists())
 
-    def test_mount_identity_probes_fail_closed(self) -> None:
+    def test_mount_path_probes_fail_closed(self) -> None:
+        from types import SimpleNamespace
+
         class FakeFunction:
-            def __init__(self, result: int, values: tuple[int, int] | None = None):
+            def __init__(self, result: int, value: bytes = b"/Volumes/data\0"):
                 self.result = result
-                self.values = values
+                self.value = value
 
-            def __call__(self, *arguments: object) -> int:
-                if self.values is not None:
-                    buffer = arguments[-1]._obj  # type: ignore[attr-defined]
-                    ctypes.c_int32.from_buffer(buffer, 48).value = self.values[0]
-                    ctypes.c_int32.from_buffer(buffer, 52).value = self.values[1]
-                return self.result
-
-        class FakeLibrary:
-            def __init__(self, function: FakeFunction):
-                self.fstatfs = function
-                self.statx = function
-
-        with mock.patch(
-            "atrinik_workspace.workspace.ctypes.CDLL",
-            return_value=FakeLibrary(FakeFunction(0, (7, 9))),
-        ):
-            self.assertEqual(workspace_module._darwin_descriptor_mount_id(1), (7, 9))
-
-        ctypes.set_errno(errno.EIO)
-        with mock.patch(
-            "atrinik_workspace.workspace.ctypes.CDLL",
-            return_value=FakeLibrary(FakeFunction(-1)),
-        ):
-            with self.assertRaisesRegex(WorkspaceError, "cannot inspect filesystem"):
-                workspace_module._darwin_descriptor_mount_id(1)
-
-        with mock.patch(
-            "atrinik_workspace.workspace.ctypes.CDLL", return_value=object()
-        ):
-            with self.assertRaisesRegex(WorkspaceError, "statx mount identity"):
-                workspace_module._linux_descriptor_mount_id(1)
-
-        ctypes.set_errno(errno.EIO)
-        with mock.patch(
-            "atrinik_workspace.workspace.ctypes.CDLL",
-            return_value=FakeLibrary(FakeFunction(-1)),
-        ):
-            with self.assertRaisesRegex(WorkspaceError, "cannot inspect filesystem"):
-                workspace_module._linux_descriptor_mount_id(1)
-
-        with mock.patch(
-            "atrinik_workspace.workspace.ctypes.CDLL",
-            return_value=FakeLibrary(FakeFunction(0)),
-        ):
-            with self.assertRaisesRegex(WorkspaceError, "did not return"):
-                workspace_module._linux_descriptor_mount_id(1)
-
-        class SuccessfulStatx(FakeFunction):
             def __call__(self, *arguments: object) -> int:
                 buffer = arguments[-1]._obj  # type: ignore[attr-defined]
-                ctypes.c_uint32.from_buffer(buffer, 0).value = 0x1000
-                ctypes.c_uint64.from_buffer(buffer, 144).value = 8675309
-                return 0
+                buffer[88:88 + len(self.value)] = self.value
+                return self.result
 
-        with mock.patch(
-            "atrinik_workspace.workspace.ctypes.CDLL",
-            return_value=FakeLibrary(SuccessfulStatx(0)),
+        for explicit_abi in (False, True):
+            library = SimpleNamespace(**{
+                "fstatfs64" if explicit_abi else "fstatfs": FakeFunction(0)
+            })
+            with mock.patch("atrinik_workspace.workspace.ctypes.CDLL", return_value=library):
+                self.assertEqual(workspace_module._darwin_descriptor_mount_path(1), "/Volumes/data")
+
+        ctypes.set_errno(errno.EIO)
+        for result, value, message in (
+            (-1, b"/Volumes/data\0", "cannot inspect filesystem"),
+            (0, b"relative\0", "not absolute"),
+            (0, b"x" * 1024, "not terminated"),
         ):
-            self.assertEqual(
-                workspace_module._linux_descriptor_mount_id(1), 8675309
-            )
+            with mock.patch("atrinik_workspace.workspace.ctypes.CDLL",
+                            return_value=SimpleNamespace(fstatfs=FakeFunction(result, value))):
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    workspace_module._darwin_descriptor_mount_path(1)
 
+        mountinfo = (
+            b"1 0 0:1 / / rw - ext4 ignored rw\n"
+            b"2 1 0:1 /bind /workspace rw - ext4 ignored rw\n"
+            b"3 2 0:1 /bind /workspace/nested\\040mount rw - ext4 ignored rw\n"
+            b"4 1 0:1 /bind /workspace-other rw - ext4 ignored rw\n"
+        )
+        with (
+            mock.patch("atrinik_workspace.workspace.descriptor_path", return_value="/workspace/nested mount/file"),
+            mock.patch("builtins.open", mock.mock_open(read_data=mountinfo)),
+        ):
+            self.assertEqual(workspace_module._linux_descriptor_mount_path(1), "/workspace/nested mount")
+        for path, data, message in (
+            ("/other/file", b"1 0 0:1 / /workspace rw - ext4 ignored rw\n", "no enclosing"),
+            ("/workspace/file", b"broken\n", "malformed"),
+            ("/workspace/file", b"1 0 0:1 / relative rw - ext4 ignored rw\n", "not absolute"),
+        ):
+            with (
+                mock.patch("atrinik_workspace.workspace.descriptor_path", return_value=path),
+                mock.patch("builtins.open", mock.mock_open(read_data=data)),
+                self.assertRaisesRegex(WorkspaceError, message),
+            ):
+                workspace_module._linux_descriptor_mount_path(1)
+        with (
+            mock.patch("atrinik_workspace.workspace.descriptor_path", return_value="/workspace/file"),
+            mock.patch("builtins.open", side_effect=OSError("mountinfo unavailable")),
+            self.assertRaisesRegex(WorkspaceError, "cannot inspect filesystem"),
+        ):
+            workspace_module._linux_descriptor_mount_path(1)
         with mock.patch("atrinik_workspace.workspace.sys.platform", "freebsd"):
             with self.assertRaisesRegex(WorkspaceError, "unavailable on freebsd"):
-                workspace_module._descriptor_mount_id(1)
+                workspace_module._descriptor_mount_path(1)
 
     def test_owned_tree_removal_detects_descriptor_races(self) -> None:
         invalid = self.root / "invalid-removal-root"
@@ -12072,8 +12925,8 @@ class WorkspaceTests(unittest.TestCase):
         mounted_payload.write_text("preserve\n", encoding="utf-8")
         mounted_identity = mounted_payload.lstat()
         with mock.patch(
-            "atrinik_workspace.workspace._descriptor_mount_id",
-            side_effect=[1, 2],
+            "atrinik_workspace.workspace._descriptor_mount_path",
+            side_effect=["/", "/nested"],
         ):
             with self.assertRaisesRegex(WorkspaceError, "root changed or is mounted"):
                 remove_owned_tree(mounted)
@@ -12121,7 +12974,6 @@ class WorkspaceTests(unittest.TestCase):
             with self.assertRaisesRegex(WorkspaceError, "crossed a filesystem"):
                 workspace_module._prepare_owned_tree_removal(
                     boundary_descriptor,
-                    boundary_stat.st_dev + 1,
                     1,
                     boundary,
                 )
@@ -12135,44 +12987,6 @@ class WorkspaceTests(unittest.TestCase):
             ("preserve\n", boundary_identity.st_ino),
         )
         self.assertEqual(stat.S_IMODE(boundary.stat().st_mode), boundary_mode)
-
-        def changed_device(result: os.stat_result) -> os.stat_result:
-            fields = list(result)
-            fields[2] += 1
-            return os.stat_result(fields)
-
-        for operation in (
-            workspace_module._prepare_owned_tree_removal,
-            workspace_module._remove_owned_tree_contents,
-        ):
-            root = self.root / f"device-race-{operation.__name__}"
-            root.mkdir()
-            child = root / "payload"
-            child.write_text("data\n", encoding="utf-8")
-            root.chmod(0o555)
-            root_mode = stat.S_IMODE(root.stat().st_mode)
-            descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
-            try:
-                root_stat = os.fstat(descriptor)
-                with (
-                    mock.patch(
-                        "atrinik_workspace.workspace._descriptor_mount_id",
-                        return_value=1,
-                    ),
-                    mock.patch(
-                        "atrinik_workspace.workspace._probe_owned_tree_entry_mount"
-                    ),
-                    mock.patch(
-                        "atrinik_workspace.workspace.os.stat",
-                        return_value=changed_device(child.stat()),
-                    ),
-                ):
-                    with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
-                        operation(descriptor, root_stat.st_dev, 1, root)
-            finally:
-                os.close(descriptor)
-            self.assertEqual(child.read_text(encoding="utf-8"), "data\n")
-            self.assertEqual(stat.S_IMODE(root.stat().st_mode), root_mode)
 
         real_open = os.open
         for operation in (
@@ -12202,7 +13016,7 @@ class WorkspaceTests(unittest.TestCase):
             try:
                 with (
                     mock.patch(
-                        "atrinik_workspace.workspace._descriptor_mount_id",
+                        "atrinik_workspace.workspace._descriptor_mount_path",
                         return_value=1,
                     ),
                     mock.patch(
@@ -12214,7 +13028,7 @@ class WorkspaceTests(unittest.TestCase):
                     ),
                 ):
                     with self.assertRaisesRegex(WorkspaceError, "directory changed"):
-                        operation(descriptor, root_stat.st_dev, 1, root)
+                        operation(descriptor, 1, root)
             finally:
                 os.close(descriptor)
             self.assertEqual(
@@ -12243,7 +13057,7 @@ class WorkspaceTests(unittest.TestCase):
             nested_identity = nested_payload.lstat()
             descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
             root_stat = os.fstat(descriptor)
-            mount_ids = (
+            mount_paths = (
                 [1, 2]
                 if operation is workspace_module._prepare_owned_tree_removal
                 else [2]
@@ -12251,15 +13065,15 @@ class WorkspaceTests(unittest.TestCase):
             try:
                 with (
                     mock.patch(
-                        "atrinik_workspace.workspace._descriptor_mount_id",
-                        side_effect=mount_ids,
+                        "atrinik_workspace.workspace._descriptor_mount_path",
+                        side_effect=mount_paths,
                     ),
                     mock.patch(
                         "atrinik_workspace.workspace._probe_owned_tree_entry_mount"
                     ),
                 ):
                     with self.assertRaisesRegex(WorkspaceError, "encountered a mount"):
-                        operation(descriptor, root_stat.st_dev, 1, root)
+                        operation(descriptor, 1, root)
             finally:
                 os.close(descriptor)
             self.assertEqual(
@@ -12314,7 +13128,7 @@ class WorkspaceTests(unittest.TestCase):
                 with (
                     mock.patch(target, side_effect=replacement),
                     self.assertRaisesRegex(
-                        WorkspaceError, "owned removal root identity changed"
+                        WorkspaceError, "owned removal root path changed"
                     ),
                 ):
                     remove_owned_tree(owned, expected_identity=identity)
@@ -12346,7 +13160,7 @@ class WorkspaceTests(unittest.TestCase):
         child.write_text("owned\n", encoding="utf-8")
         child_metadata = child.stat()
         child_tombstone = child_root / workspace_module._owned_tree_tombstone_name(
-            child.name, child_metadata.st_dev, child_metadata.st_ino
+            child.name
         )
         child.rename(child_tombstone)
         remove_owned_tree(
@@ -12355,22 +13169,45 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.assertFalse(child_root.exists())
 
-    def test_owned_tree_removal_rejects_unverified_tombstone(self) -> None:
-        root = self.root / "uncertain-child-tombstone"
+    def test_owned_tree_removal_accepts_storage_migration(self) -> None:
+        root = self.root / "migrated-tree"
         root.mkdir()
-        original = root / "payload"
-        original.write_text("owned\n", encoding="utf-8")
-        metadata = original.stat()
-        tombstone = root / workspace_module._owned_tree_tombstone_name(
-            original.name, metadata.st_dev, metadata.st_ino
-        )
-        original.rename(self.root / "preserved-original")
-        tombstone.write_text("must survive\n", encoding="utf-8")
-        with self.assertRaisesRegex(WorkspaceError, "uncertain tombstone"):
+        (root / "payload").write_text("owned\n", encoding="utf-8")
+        # Legacy filesystem metadata is no longer used to identify this path.
+        remove_owned_tree(root, expected_identity={"device": 999, "inode": 888})
+        self.assertFalse(root.exists())
+
+    def test_owned_tree_removal_uses_parent_descriptor_path(self) -> None:
+        root = self.root / "descriptor-tree"
+        root.mkdir()
+        (root / "payload").write_text("owned\n", encoding="utf-8")
+        descriptor = os.open(root.parent, os.O_RDONLY | os.O_DIRECTORY)
+        try:
             remove_owned_tree(
-                root, expected_identity=self.workspace._state_identity(root)
+                Path(f"/proc/self/fd/{descriptor}") / root.name,
+                expected_identity={"path": str(root), "kind": "directory"},
+                parent_directory_fd=descriptor,
             )
-        self.assertEqual(tombstone.read_text(encoding="utf-8"), "must survive\n")
+        finally:
+            os.close(descriptor)
+        self.assertFalse(root.exists())
+
+    def test_owned_tree_removal_rejects_wrong_path_record(self) -> None:
+        root = self.root / "path-bound-tree"
+        root.mkdir()
+        payload = root / "payload"
+        payload.write_text("preserve\n", encoding="utf-8")
+        with self.assertRaisesRegex(WorkspaceError, "root path changed"):
+            remove_owned_tree(root, expected_identity={"path": str(self.root / "other")})
+        self.assertEqual(payload.read_text(encoding="utf-8"), "preserve\n")
+
+    def test_owned_tree_removal_rejects_ambiguous_legacy_tombstones(self) -> None:
+        root = self.root / "legacy-tree"
+        prefix = workspace_module._owned_tree_tombstone_name(root.name)
+        for suffix in ("-1-2", "-3-4"):
+            (root.parent / (prefix + suffix)).mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "ambiguous"):
+            remove_owned_tree(root, expected_identity={"path": str(root)})
 
     def test_owned_tree_removal_rechecks_links_after_tombstoning(self) -> None:
         root = self.root / "linked-after-tombstone"
@@ -13037,6 +13874,109 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(list(topology.iterdir()), [])
         self.assertEqual(external.read_text(encoding="utf-8"), "private\n")
+
+    def test_dev_build_json_cold_warm_and_failed_producers(self) -> None:
+        from atrinik_workspace.cli import main
+        from contextlib import redirect_stdout
+        from types import SimpleNamespace
+
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / name).write_text("test\n", encoding="utf-8")
+        command("git", "add", ".", cwd=source)
+        command("git", "commit", "-m", "test: add runtime inputs", cwd=source)
+
+        selected = self.workspace._resolve_build_profile("default", {"server", "client"})
+        key = self.workspace._profile_build_key("default", selected)
+        root = self.workspace.paths.builds / "profiles" / f"default-{key}"
+        managed_directory(root, self.workspace.paths.builds, f"profile:default:{key}")
+        binary = root / "build" / "server"
+        binary.mkdir(parents=True)
+        executable = binary / "atrinik-server"
+        executable.write_text(
+            "#!/usr/bin/env python3\n"
+            "from pathlib import Path\n"
+            "import os\n"
+            "import sys\n"
+            "binary = Path(__file__).resolve()\n"
+            "counter = binary.with_name('worldmaker-count')\n"
+            "count = int(counter.read_text()) + 1 if counter.exists() else 1\n"
+            "counter.write_text(str(count))\n"
+            "binary.with_name('worldmaker-bytecode').write_text("
+            "os.environ.get('PYTHONDONTWRITEBYTECODE', ''))\n"
+            "assets = Path(next(arg.split('=', 1)[1] for arg in sys.argv "
+            "if arg.startswith('--assetspath=')))\n"
+            "output = assets / 'client-maps'\n"
+            "output.mkdir(parents=True)\n"
+            "(output / 'incuna_-1.png').write_bytes(b'\\x89PNG\\r\\n\\x1a\\n')\n"
+            "(output / 'incuna_-1.def').write_text('pixel_size 4\\n')\n",
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+        for name in ("libplugin_arena.so", "libplugin_python.so"):
+            (binary / name).write_text("test\n", encoding="utf-8")
+        def invoke() -> tuple[int, str, str]:
+            stdout = io.StringIO()
+            # A real descriptor also captures child-process diagnostics.
+            with tempfile.TemporaryFile(mode="w+") as stderr:
+                with redirect_stdout(stdout), redirect_stderr(stderr):
+                    code = main(["dev", "build", "--profile", "default", "--json"])
+                stderr.seek(0)
+                return code, stdout.getvalue(), stderr.read()
+
+        collections = 0
+
+        def collect(arguments: list[str], **kwargs: object) -> str:
+            nonlocal collections
+            if arguments[0] != os.sys.executable:
+                return workspace_run(arguments, **kwargs)
+            collections += 1
+            output = Path(arguments[arguments.index("--output") + 1])
+            self.make_content_candidate(
+                output, arguments[arguments.index("--source-commit") + 1], "content\n"
+            )
+            return ""
+
+        # Keep actual dev_build, build orchestration and all three producers;
+        # the fixture substitutes native compilation and the Classic-only gate.
+        selected = self.workspace._resolve_build_profile("default", {"server", "client"})
+        snapshot = SimpleNamespace(paths=lambda: selected)
+        with (
+            mock.patch("atrinik_workspace.cli.Workspace", return_value=self.workspace),
+            mock.patch.object(self.workspace, "close"),
+            mock.patch.object(self.workspace, "_require_classic_contracts"),
+            mock.patch.object(
+                self.workspace, "_resolved_profile_operation",
+                side_effect=lambda *args, **kwargs: nullcontext(snapshot),
+            ),
+            mock.patch.object(self.workspace, "_build_protocol"),
+            mock.patch.object(self.workspace, "_build_library"),
+            mock.patch.object(self.workspace, "_build_client"),
+            mock.patch.object(self.workspace, "_build_server") as build_server,
+            mock.patch("atrinik_workspace.workspace.run", side_effect=collect),
+        ):
+            for cache in ("refreshed", "reused"):
+                with self.subTest(cache=cache):
+                    code, stdout, stderr = invoke()
+                    self.assertEqual(code, 0, stderr)
+                    result = json.loads(stdout)
+                    self.assertEqual(result["schema_version"], 1)
+                    self.assertEqual(result["cache"]["inputs"], {
+                        "content": cache, "resources": cache, "region-maps": cache,
+                    })
+                    for producer in ("content:", "resources:", "region maps:"):
+                        self.assertIn(producer, stderr)
+            self.assertEqual(collections, 1)
+            self.assertEqual((binary / "worldmaker-count").read_text(), "1")
+
+            build_server.side_effect = WorkspaceError("synthetic compiler failure")
+            code, stdout, stderr = invoke()
+            self.assertEqual(code, 1)
+            self.assertEqual(stdout, "")
+            self.assertIn("content: cached", stderr)
+            self.assertIn("resources: cached", stderr)
+            self.assertIn("error: synthetic compiler failure", stderr)
 
     def test_region_maps_are_atomic_cached_and_keyed_by_clean_inputs(self) -> None:
         source = self.workspace.paths.repositories / "server"
@@ -13912,46 +14852,14 @@ class WorkspaceTests(unittest.TestCase):
 
         self.assertEqual(list(target.iterdir()), [])
 
-    def test_physical_lease_namespace_replacement_fails_closed(self) -> None:
+    def test_physical_lease_namespace_copy_preserves_path_coordinates(self) -> None:
         namespace = self.workspace._lease_namespace
         detached = namespace.with_name("detached-atrinik-resource-leases")
         namespace.rename(detached)
-        namespace.mkdir(mode=0o700)
+        shutil.copytree(detached, namespace)
         try:
-            with self.assertRaisesRegex(
-                WorkspaceError, "physical lease namespace identity changed"
-            ):
-                self.workspace.create_profile("split-brain")
-        finally:
-            shutil.rmtree(namespace)
-            detached.rename(namespace)
-
-    def test_physical_reference_rollback_rejects_namespace_replacement(self) -> None:
-        profile = self.workspace.create_profile("rollback-namespace")
-        namespace = self.workspace._lease_namespace
-        detached = namespace.with_name("detached-rollback-namespace")
-        real_open = os.open
-        replaced = False
-
-        def replace_before_open(path: object, *args: object, **kwargs: object) -> int:
-            nonlocal replaced
-            if Path(path) == namespace and not replaced:
-                replaced = True
-                namespace.rename(detached)
-                namespace.mkdir(mode=0o700)
-            return real_open(path, *args, **kwargs)
-
-        try:
-            with (
-                mock.patch(
-                    "atrinik_workspace.workspace.os.open",
-                    side_effect=replace_before_open,
-                ),
-                self.assertRaisesRegex(
-                    WorkspaceError, "physical lease namespace identity changed"
-                ),
-            ):
-                self.workspace._remove_physical_reference(profile)
+            profile = self.workspace.create_profile("copied-namespace")
+            self.assertTrue(profile.is_file())
         finally:
             shutil.rmtree(namespace)
             detached.rename(namespace)
@@ -14651,7 +15559,7 @@ class WorkspaceTests(unittest.TestCase):
         (topologies / "linked-reference").symlink_to(visible, target_is_directory=True)
         self.assertEqual(
             self.workspace._topology_reference_snapshot(),
-            ((visible.name, visible.stat().st_dev, visible.stat().st_ino),),
+            (visible.name,),
         )
 
         replaced = topologies.with_name("topologies-real")
@@ -14715,14 +15623,10 @@ class WorkspaceTests(unittest.TestCase):
                 "unverifiable",
             )
         operation_lock.unlink()
-        mismatch = mock.Mock(
-            st_mode=stat.S_IFREG,
-            st_nlink=1,
-            st_dev=operation_root.stat().st_dev,
-            st_ino=operation_root.stat().st_ino,
-        )
         operation_lock.touch(mode=0o600)
-        with mock.patch.object(workspace_module.os, "fstat", return_value=mismatch):
+        with mock.patch.object(
+            workspace_module, "descriptor_path", return_value=str(operation_root / "moved-lock")
+        ):
             self.assertEqual(
                 self.workspace._topology_operation_lock_state(operation_root),
                 "unverifiable",
@@ -16460,6 +17364,187 @@ class WorkspaceTests(unittest.TestCase):
                 ):
                     self.fail("relocated workspace acquired duplicate source lease")
 
+    def delivery_preparation_request(self, component="atrinik"):
+        if component == "atrinik":
+            primary = self.wrapper
+            repository = "atrinik/atrinik"
+        else:
+            checkout = self.workspace._resolve_checkout(component)
+            primary = self.workspace._primary_path(checkout)
+            repository = checkout.repository
+        owner, name = repository.split("/")
+        def identity(path):
+            status = path.stat()
+            return {"path": str(path), "device": status.st_dev, "inode": status.st_ino}
+        return {
+            "component": component, "physical_checkout": component,
+            "repository": {"owner": owner, "name": name},
+            "roots": {"wrapper": identity(self.wrapper), "primary": identity(primary)},
+        }
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_component_admission_holds_and_releases_leases(self) -> None:
+        self.delivery_preparation_fixture()
+        normal = Workspace(self.wrapper, backfill_references=False)
+        try:
+            source = normal.create_worktree("client", "prepared", "test/prepared", None, False)
+        finally:
+            normal.close()
+        request = self.delivery_preparation_request("client")
+        preparation = Workspace._prepare_delivery_workspace(
+            self.wrapper, manifest=self.workspace.manifest
+        )
+        self.addCleanup(preparation.close)
+        scope = {"name": "prepared", "profile": {"name": "prepared"}, "topology": {"name": "scope-prepared"}}
+        leases = preparation.plan_live_worktree(request, str(source), scope)
+        target = next(row for row in leases if row.kind == "source" and row.coordinate.startswith("client:"))
+        script = (
+            "from pathlib import Path; import sys; "
+            "from atrinik_workspace.locking import LeaseRequest,resource_locks; "
+            "request=LeaseRequest('source',sys.argv[2],'exclusive','competitor','retry'); "
+            "context=resource_locks(Path(sys.argv[1]),[request],nonblocking=True); "
+            "context.__enter__(); print('acquired'); context.__exit__(None,None,None)"
+        )
+        def competitor():
+            return subprocess.run(
+                [sys.executable, "-B", "-c", script, str(preparation.lease_root(target)), target.coordinate],
+                cwd=Path(__file__).resolve().parents[1], text=True, capture_output=True,
+                check=False, timeout=10,
+            )
+        with self.assertRaisesRegex(RuntimeError, "caller failure"):
+            with preparation.maintenance():
+                with resource_locks(preparation.lease_root, leases, nonblocking=True):
+                    with preparation.admitted() as admitted:
+                        self.assertIs(preparation.admitted_workspace, admitted)
+                        self.assertEqual(preparation.paths.repository, self.wrapper)
+                        self.assertNotEqual(competitor().returncode, 0)
+                        with self.assertRaisesRegex(WorkspaceError, "already admitted"):
+                            with preparation.admitted():
+                                self.fail("nested admission succeeded")
+                        self.assertIs(preparation.admitted_workspace, admitted)
+                        raise RuntimeError("caller failure")
+        self.assertEqual(competitor().returncode, 0)
+        with self.assertRaisesRegex(WorkspaceError, "not been admitted"):
+            _ = preparation.admitted_workspace
+        with preparation.maintenance(), resource_locks(preparation.lease_root, leases, nonblocking=True):
+            with preparation.admitted() as admitted:
+                self.assertEqual(admitted.paths.repository, self.wrapper)
+        bad = dict(request, physical_checkout="server")
+        with self.assertRaisesRegex(WorkspaceError, "checkout coordinates"):
+            preparation.plan_live_worktree(bad, str(source), scope)
+        preparation.close()
+        preparation.close()
+        with self.assertRaisesRegex(WorkspaceError, "closed"):
+            preparation.plan_live_worktree(request, str(source), scope)
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_ignores_obsolete_identity_records(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        record = namespace.parent / "atrinik-resource-leases.identity.json"
+        for raw in (b'{"schema_version":1,"device":1,"inode":2}', b"{}", b"invalid"):
+            with self.subTest(raw=raw):
+                record.write_bytes(raw)
+                preparation = Workspace._prepare_delivery_workspace(
+                    self.wrapper, manifest=self.workspace.manifest
+                )
+                try:
+                    preparation._verify_identity()
+                    self.assertEqual(record.read_bytes(), raw)
+                finally:
+                    preparation.close()
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_accepts_copied_namespace_at_same_path(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        preparation = Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        moved = namespace.with_name(namespace.name + ".retained")
+        namespace.rename(moved)
+        shutil.copytree(moved, namespace)
+        try:
+            preparation._verify_identity()
+            reopened = Workspace(self.wrapper, backfill_references=False)
+            reopened.close()
+        finally:
+            preparation.close()
+            shutil.rmtree(namespace)
+            moved.rename(namespace)
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_unsafe_namespace_refuses(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        namespace.chmod(0o755)
+        try:
+            with self.assertRaisesRegex(WorkspaceError, "namespace is unsafe"):
+                Workspace._prepare_delivery_workspace(self.wrapper, manifest=self.workspace.manifest)
+        finally:
+            namespace.chmod(0o700)
+
+    def delivery_preparation_fixture(self):
+        self.workspace.close()
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Tests", cwd=self.wrapper)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=self.wrapper)
+        command("git", "add", "components.json", cwd=self.wrapper)
+        command("git", "commit", "-m", "seed delivery preparation", cwd=self.wrapper)
+        self.workspace = Workspace(self.wrapper, backfill_references=False)
+        self.workspace.close()
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_preserves_constructor_and_limits_operations(self) -> None:
+        self.delivery_preparation_fixture()
+        original = workspace_module.resource_lifetime_reader
+        with mock.patch.object(workspace_module, "resource_lifetime_reader", wraps=original) as reader:
+            normal = Workspace(self.wrapper, backfill_references=False)
+            self.assertEqual(reader.call_count, 1)
+            normal.close()
+            preparation = Workspace._prepare_delivery_workspace(
+                self.wrapper, manifest=self.workspace.manifest
+            )
+            self.addCleanup(preparation.close)
+            self.assertEqual(reader.call_count, 1)
+            self.assertFalse(hasattr(preparation, "scope_create"))
+            self.assertFalse(hasattr(preparation, "build"))
+            with self.assertRaisesRegex(WorkspaceError, "not been admitted"):
+                _ = preparation.admitted_workspace
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_does_not_wait_for_wrapper_source_writer(self) -> None:
+        self.delivery_preparation_fixture()
+        request = self.workspace._lease_request(
+            "source", self.workspace._source_coordinate("atrinik", self.wrapper),
+            "exclusive", "external wrapper writer",
+        )
+        script = (
+            "from pathlib import Path; import sys; "
+            "from atrinik_workspace.model import Manifest; "
+            "from atrinik_workspace.workspace import Workspace; "
+            "root=Path(sys.argv[1]); "
+            "plan=Workspace._prepare_delivery_workspace(root,manifest=Manifest.load(root/'components.json')); "
+            "plan.close(); print('prepared without source admission')"
+        )
+        with resource_locks(self.workspace._lease_root, [request], nonblocking=True):
+            process = subprocess.run(
+                [sys.executable, "-B", "-c", script, str(self.wrapper)],
+                cwd=Path(__file__).resolve().parents[1], text=True, capture_output=True,
+                check=False, timeout=10,
+            )
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(process.stdout.strip(), "prepared without source admission")
+
+    @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
+    def test_delivery_preparation_never_creates_missing_identity(self) -> None:
+        self.delivery_preparation_fixture()
+        record = self.workspace._lease_namespace.parent / "atrinik-resource-leases.identity.json"
+        self.assertFalse(record.exists())
+        preparation = Workspace._prepare_delivery_workspace(
+            self.wrapper, manifest=self.workspace.manifest
+        )
+        preparation.close()
+        self.assertFalse(record.exists())
+
     def test_wrapper_worktrees_share_common_git_lease_namespace(self) -> None:
         self.workspace.close()
         command("git", "init", "-b", "main", cwd=self.wrapper)
@@ -16519,10 +17604,9 @@ class WorkspaceTests(unittest.TestCase):
         namespace.rename(detached)
         namespace.mkdir(mode=0o700)
         try:
-            with self.assertRaisesRegex(
-                WorkspaceError, "physical lease namespace identity changed"
-            ):
-                Workspace(linked_root)
+            reopened = Workspace(linked_root)
+            self.assertEqual(reopened._lease_namespace, namespace)
+            reopened.close()
         finally:
             shutil.rmtree(namespace)
             detached.rename(namespace)
@@ -17629,6 +18713,16 @@ class WorkspaceTests(unittest.TestCase):
             "client": self.wrapper / "client",
             "sound": self.wrapper / "sound",
         }
+        (selected["client"] / "VERSION").write_text("5.1.0\n", encoding="utf-8")
+        command("git", "add", "VERSION", cwd=selected["client"])
+        command(
+            "git", "commit", "-m", "test: add client package version",
+            cwd=selected["client"],
+        )
+        heads = {
+            role: command("git", "rev-parse", "HEAD", cwd=path)
+            for role, path in selected.items()
+        }
         resolved = {
             "client": {
                 "path": str(self.wrapper / "client"),
@@ -17637,7 +18731,7 @@ class WorkspaceTests(unittest.TestCase):
                 "repository": "atrinik/client",
                 "branch": "main",
                 "source": ".",
-                "head": "a" * 40,
+                "head": heads["client"],
                 "dirty": False,
             },
             "sound": {
@@ -17647,7 +18741,7 @@ class WorkspaceTests(unittest.TestCase):
                 "repository": "atrinik/sound",
                 "branch": "main",
                 "source": ".",
-                "head": "b" * 40,
+                "head": heads["sound"],
                 "dirty": False,
             },
         }
@@ -18239,15 +19333,11 @@ class WorkspaceTests(unittest.TestCase):
             client_log.read_text(),
         )
         state = self.workspace._state_location("default")
-        identity = self.workspace._state_identity(state)
         with self.assertRaisesRegex(WorkspaceError, "already in use"):
             with exclusive_lock(
-                self.workspace._lease_namespace
-                / f"state-identity-{identity['device']}-{identity['inode']}.lock",
-                "live physical state",
-                nonblocking=True,
+                Path(f"{state}.lock"), "live state path", nonblocking=True,
             ):
-                self.fail("supervisor released the physical state lease")
+                self.fail("supervisor released the state path lease")
         second_state = self.workspace.state_add("second", None)
         source_lock = resource_lock_path(
             self.workspace._lease_namespace,
@@ -19364,55 +20454,32 @@ class WorkspaceTests(unittest.TestCase):
         replaced_item = next(
             item for item in replaced_lease["items"] if item["path"] == str(state)
         )
-        self.assertEqual(replaced_item["disposition"], "protected")
-        self.assertIn(
-            "state_lease_identity_mismatch", replaced_item["reasons"]
-        )
+        self.assertEqual(replaced_item["disposition"], "eligible")
         state_lock.unlink()
         saved_state_lock.rename(state_lock)
-        registered_alias = self.root / "registered-physical-alias"
-        registered_alias.mkdir()
-        real_state_identity = self.workspace._state_identity
-
-        def alias_identity(path: Path) -> dict[str, int]:
-            if path == registered_alias:
-                return crashed["state_policy"]["identity"]
-            return real_state_identity(path)
-
-        with (
-            mock.patch.object(
-                self.workspace,
-                "_load_states",
-                return_value={"registered-alias": str(registered_alias)},
-            ),
-            mock.patch.object(
-                self.workspace,
-                "_state_identity",
-                side_effect=alias_identity,
-            ),
+        with mock.patch.object(
+            self.workspace, "_load_states", return_value={"registered-path": str(state)}
         ):
-            aliased = self.workspace.cleanup(
-                ["temporary-states"], 0, [], False
-            )
+            aliased = self.workspace.cleanup(["temporary-states"], 0, [], False)
         aliased_item = next(
             item for item in aliased["items"] if item["path"] == str(state)
         )
         self.assertEqual(aliased_item["disposition"], "protected")
         self.assertIn("registered_state", aliased_item["reasons"])
-        real_mount_id = cleanup_module._descriptor_mount_id
+        real_mount_path = cleanup_module._descriptor_mount_path
 
-        def simulated_root_mount_id(
+        def simulated_root_mount_path(
             descriptor: int,
         ) -> int | tuple[int, int]:
             target = Path(os.readlink(f"/proc/self/fd/{descriptor}"))
             if target == state:
                 return 999999997
-            return real_mount_id(descriptor)
+            return real_mount_path(descriptor)
 
         with mock.patch.object(
             cleanup_module,
-            "_descriptor_mount_id",
-            side_effect=simulated_root_mount_id,
+            "_descriptor_mount_path",
+            side_effect=simulated_root_mount_path,
         ):
             root_mount_preview = self.workspace.cleanup(
                 ["temporary-states"], 0, [], False
@@ -19431,8 +20498,8 @@ class WorkspaceTests(unittest.TestCase):
             with (
                 mock.patch.object(
                     workspace_module,
-                    "_descriptor_mount_id",
-                    side_effect=simulated_root_mount_id,
+                    "_descriptor_mount_path",
+                    side_effect=simulated_root_mount_path,
                 ),
                 self.assertRaisesRegex(WorkspaceError, "root.*mount"),
             ):
@@ -19442,16 +20509,16 @@ class WorkspaceTests(unittest.TestCase):
         finally:
             os.close(state_fd)
 
-        def simulated_mount_id(descriptor: int) -> int | tuple[int, int]:
+        def simulated_mount_path(descriptor: int) -> int | tuple[int, int]:
             target = Path(os.readlink(f"/proc/self/fd/{descriptor}"))
             if target == state / "keys":
                 return 999999999
-            return real_mount_id(descriptor)
+            return real_mount_path(descriptor)
 
         with mock.patch.object(
             cleanup_module,
-            "_descriptor_mount_id",
-            side_effect=simulated_mount_id,
+            "_descriptor_mount_path",
+            side_effect=simulated_mount_path,
         ):
             mounted_preview = self.workspace.cleanup(
                 ["temporary-states"], 0, [], False
@@ -19464,18 +20531,18 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(mounted_item["disposition"], "protected")
         self.assertIn("filesystem_traversal_error", mounted_item["reasons"])
 
-        def simulated_file_mount_id(
+        def simulated_file_mount_path(
             descriptor: int,
         ) -> int | tuple[int, int]:
             target = Path(os.readlink(f"/proc/self/fd/{descriptor}"))
             if target == state / "motd":
                 return 999999998
-            return real_mount_id(descriptor)
+            return real_mount_path(descriptor)
 
         with mock.patch.object(
             cleanup_module,
-            "_descriptor_mount_id",
-            side_effect=simulated_file_mount_id,
+            "_descriptor_mount_path",
+            side_effect=simulated_file_mount_path,
         ):
             mounted_file_preview = self.workspace.cleanup(
                 ["temporary-states"], 0, [], False
@@ -19494,8 +20561,8 @@ class WorkspaceTests(unittest.TestCase):
             with (
                 mock.patch.object(
                     workspace_module,
-                    "_descriptor_mount_id",
-                    side_effect=simulated_file_mount_id,
+                    "_descriptor_mount_path",
+                    side_effect=simulated_file_mount_path,
                 ),
                 self.assertRaisesRegex(WorkspaceError, "crossed a mount"),
             ):
@@ -20306,23 +21373,31 @@ class WorkspaceTests(unittest.TestCase):
                 with self.workspace._topology_state_lock(state):
                     self.fail("replacement lock must not grant state ownership")
 
-    def test_physical_state_aliases_share_one_exclusive_lease(self) -> None:
-        first = self.root / "state-alias-first"
-        second = self.root / "state-alias-second"
+    def test_distinct_state_paths_have_independent_leases(self) -> None:
+        first = self.root / "state-first"
+        second = self.root / "state-second"
         first.mkdir()
         second.mkdir()
-        shared_identity = {"device": 41, "inode": 73}
-        with (
-            mock.patch.object(
-                self.workspace, "_state_identity", return_value=shared_identity
-            ),
-            self.workspace._topology_state_lock(first),
-            self.assertRaisesRegex(WorkspaceError, "exact owner cannot be confirmed"),
-        ):
+        with self.workspace._topology_state_lock(first):
             with self.workspace._topology_state_lock(second):
-                self.fail("physical aliases must not receive distinct leases")
+                self.assertNotEqual(
+                    self.workspace._state_identity(first),
+                    self.workspace._state_identity(second),
+                )
 
-    def test_open_state_directory_retains_inode_bound_lease(self) -> None:
+    def test_state_path_record_survives_storage_replacement(self) -> None:
+        state = self.root / "migrated-state"
+        state.mkdir()
+        identity = self.workspace._state_identity(state)
+        self.assertEqual(identity, {"path": str(state), "kind": "directory"})
+        state.rename(self.root / "old-storage-state")
+        state.mkdir()
+        self.assertTrue(self.workspace._state_identity_matches(state, identity))
+        self.assertFalse(self.workspace._state_identity_matches(
+            self.root / "old-storage-state", identity
+        ))
+
+    def test_open_state_directory_retains_directory_lock(self) -> None:
         server = self.workspace.paths.repositories / "server"
         state = self.workspace.state_path("default", server)
         first = self.workspace._open_validated_state_directory(
@@ -20409,48 +21484,17 @@ class WorkspaceTests(unittest.TestCase):
         finally:
             os.close(directory_fd)
 
-    def test_physical_state_alias_conflict_reports_live_owner(self) -> None:
-        first = self.root / "owner-alias"
-        second = self.root / "contender-alias"
-        first.mkdir()
-        second.mkdir()
-        shared_identity = {"device": 51, "inode": 83}
-        status = {
-            "name": "alias-owner",
-            "state": str(first),
-            "control": {"generation": "d" * 64},
-            "observation": {"process_tree_lease": "retained"},
-            "state_policy": {"identity": shared_identity},
-        }
-        with (
-            mock.patch.object(
-                self.workspace, "_state_identity", return_value=shared_identity
-            ),
-            self.workspace._topology_state_lock(first),
-            mock.patch.object(
-                self.workspace, "topology_statuses", return_value=[status]
-            ),
-            self.assertRaisesRegex(
-                WorkspaceError, "owned by topology alias-owner generation"
-            ),
-        ):
-            with self.workspace._topology_state_lock(second):
-                self.fail("physical alias conflict must report its live owner")
-
-    def test_state_lease_rejects_identity_change_after_path_lock(self) -> None:
+    def test_state_lease_retains_path_after_storage_replacement(self) -> None:
         state = self.root / "state-before-lock"
         state.mkdir()
-        original_identity = self.workspace._state_identity(state)
+        identity = self.workspace._state_identity(state)
         with self.workspace._topology_state_lock(state) as lease:
-            self.assertEqual(lease.physical_identity, original_identity)
             state.rename(self.root / "state-after-lock")
             state.mkdir()
-            with self.assertRaisesRegex(
-                WorkspaceError, "state identity changed"
-            ):
-                lease.bind(self.workspace._state_identity(state))
+            lease.bind(self.workspace._state_identity(state))
+            self.assertEqual(self.workspace._state_identity(state), identity)
 
-    def test_temporary_lifecycle_rejects_replaced_state_lock(self) -> None:
+    def test_temporary_lifecycle_accepts_reopened_state_lock(self) -> None:
         state = self.root / "temporary-lock-aba"
         state.mkdir()
         lock = Path(f"{state}.lock")
@@ -20461,12 +21505,9 @@ class WorkspaceTests(unittest.TestCase):
             lock.unlink()
             lock.touch(mode=0o600)
             with exclusive_lock(lock, "replacement temporary state") as replacement:
-                with self.assertRaisesRegex(
-                    WorkspaceError, "lease changed before lifecycle mutation"
-                ):
-                    self.workspace._validate_temporary_state_lock(
-                        state, replacement, identity
-                    )
+                self.workspace._validate_temporary_state_lock(
+                    state, replacement, identity
+                )
 
     def test_temporary_state_publication_interruption_leaves_no_partial_state(self) -> None:
         topology = self.workspace._topology_directory("interrupted", create=True)
@@ -20626,7 +21667,7 @@ class WorkspaceTests(unittest.TestCase):
             }
 
         _, state, policy = fixture("clone-identity", "a" * 64)
-        bad_identity = {**policy, "identity": {"device": 0, "inode": 0}}
+        bad_identity = {**policy, "identity": {"path": str(self.root / "wrong-state")}}
         with self.assertRaisesRegex(WorkspaceError, "identity changed"):
             self.workspace._clone_temporary_state(
                 state.parent.parent,
@@ -20709,7 +21750,7 @@ class WorkspaceTests(unittest.TestCase):
                 "atrinik_workspace.workspace.shutil.copytree",
                 side_effect=replace_container,
             ),
-            self.assertRaisesRegex(WorkspaceError, "identity changed"),
+            self.assertRaisesRegex(WorkspaceError, "(?:path|root|staging|identity) changed"),
         ):
             self.workspace._create_temporary_state(
                 topology,
@@ -20728,9 +21769,8 @@ class WorkspaceTests(unittest.TestCase):
             (replacement / "sentinel").read_text(encoding="utf-8"),
             "preserve\n",
         )
-        self.assertEqual(
-            {path.name for path in displaced.iterdir()}, {MANAGED_MARKER}
-        )
+        self.assertTrue((displaced / MANAGED_MARKER).is_file())
+        self.assertTrue(any(path.name.startswith(f".{generation}.") for path in displaced.iterdir()))
 
     def test_temporary_state_staging_rollback_rejects_replacement(self) -> None:
         topology = self.workspace._topology_directory(
@@ -20765,7 +21805,7 @@ class WorkspaceTests(unittest.TestCase):
                 "atrinik_workspace.workspace._tree_digest",
                 side_effect=replace_staging,
             ),
-            self.assertRaisesRegex(WorkspaceError, "identity changed"),
+            self.assertRaisesRegex(WorkspaceError, "(?:path|root|staging|identity) changed"),
         ):
             self.workspace._create_temporary_state(
                 topology,
@@ -20780,15 +21820,10 @@ class WorkspaceTests(unittest.TestCase):
                 },
                 self.scenario_resolved_fixture()["server"],
             )
-        replacement = next(
-            path
+        self.assertFalse(any(
+            path.name.startswith(f".{generation}.")
             for path in (topology / "temporary-states").iterdir()
-            if path.name.startswith(f".{generation}.")
-        )
-        self.assertEqual(
-            (replacement / "sentinel").read_text(encoding="utf-8"),
-            "preserve\n",
-        )
+        ))
         self.assertTrue(displaced.is_dir())
 
     def test_temporary_state_staging_rejects_hardlinks(self) -> None:
@@ -21005,7 +22040,7 @@ class WorkspaceTests(unittest.TestCase):
                 state,
                 state_lease,
                 policy["identity"],
-                {"device": metadata.st_dev, "inode": metadata.st_ino},
+                {"path": str(lock)},
                 implementation=policy["implementation"],
             )
         self.assertFalse(state.exists())
@@ -21046,7 +22081,7 @@ class WorkspaceTests(unittest.TestCase):
                     state,
                     state_lease,
                     policy["identity"],
-                    {"device": metadata.st_dev, "inode": metadata.st_ino},
+                    {"path": str(lock)},
                     implementation=policy["implementation"],
                 )
         self.assertFalse(state.exists())
@@ -21078,8 +22113,8 @@ class WorkspaceTests(unittest.TestCase):
         container_marker.write_bytes(container_payload)
         with (
             mock.patch(
-                "atrinik_workspace.cleanup._descriptor_mount_id",
-                side_effect=[1, 2],
+                "atrinik_workspace.cleanup._descriptor_mount_path",
+                side_effect=["/", "/nested"],
             ),
             self.assertRaisesRegex(WorkspaceError, "crossed a mount"),
         ):
@@ -21097,10 +22132,7 @@ class WorkspaceTests(unittest.TestCase):
         with exclusive_lock(lock, "recreated orphan rollback lease"):
             pass
         lock_metadata = lock.stat(follow_symlinks=False)
-        lock_tombstone = lock.parent / (
-            f".{lock.name}.remove-{lock_metadata.st_dev:x}-"
-            f"{lock_metadata.st_ino:x}"
-        )
+        lock_tombstone = lock.parent / f".{lock.name}.remove-pending"
         lock.rename(lock_tombstone)
         tombstone_preview = self.workspace.cleanup(
             ["temporary-states"], 0, [], False
@@ -21138,16 +22170,6 @@ class WorkspaceTests(unittest.TestCase):
             cleanup._orphan_temporary_state_lease_item(
                 topology, lock, 0, tombstone=True
             )
-
-        invalid_tombstone = container / f".{lock.name}.remove-0-0"
-        invalid_tombstone.write_text("invalid\n", encoding="utf-8")
-        invalid_item = cleanup._orphan_temporary_state_lease_item(
-            topology, invalid_tombstone, 0, tombstone=True
-        )
-        self.assertIn(
-            "invalid_orphan_temporary_state_lease", invalid_item["reasons"]
-        )
-        invalid_tombstone.unlink()
 
         state.mkdir()
         state_item = cleanup._orphan_temporary_state_lease_item(
@@ -21356,7 +22378,7 @@ class WorkspaceTests(unittest.TestCase):
                     state,
                     state_lease,
                     policy["identity"],
-                    {"device": metadata.st_dev, "inode": metadata.st_ino},
+                    {"path": str(lock)},
                     state_fd,
                 )
         os.close(state_fd)
@@ -21400,7 +22422,7 @@ class WorkspaceTests(unittest.TestCase):
                     state,
                     state_lease,
                     policy["identity"],
-                    {"device": metadata.st_dev, "inode": metadata.st_ino},
+                    {"path": str(lock)},
                     implementation=policy["implementation"],
                 )
         self.assertTrue(state.is_dir())
@@ -22374,7 +23396,7 @@ class WorkspaceTests(unittest.TestCase):
             )
 
         def execute_server(*_arguments: object, **_keywords: object) -> None:
-            self.assertEqual(len(_keywords["pass_fds"]), 5)
+            self.assertEqual(len(_keywords["pass_fds"]), 4)
             asset_argument = next(
                 value
                 for value in reversed(_arguments[0])
@@ -23377,3 +24399,32 @@ class WorkspaceTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class StateCreationPathMetadataTests(unittest.TestCase):
+    def test_creation_accepts_optional_identity_at_unpublished_path(self) -> None:
+        policy = {
+            "mode": "temporary", "path": "/unpublished/state/generation",
+            "owner": {"generation": "a" * 64}, "created_at": "now",
+            "implementation": {}, "profile": "classic", "server": {},
+            "name": None, "lifecycle": "disposable",
+        }
+        records = ({}, {"device": 1, "inode": 2}, {
+            "path": policy["path"], "kind": "directory",
+        })
+        for identity in records:
+            with self.subTest(identity=identity):
+                creation = dict(policy)
+                if identity:
+                    creation["identity"] = identity
+                self.assertTrue(Workspace._temporary_state_metadata_matches(
+                    policy, creation
+                ))
+        creation = {**policy, "identity": {"path": "/another/state"}}
+        self.assertFalse(Workspace._temporary_state_metadata_matches(policy, creation))
+        self.assertFalse(Workspace._temporary_state_metadata_matches(
+            policy, {**policy, "unexpected": True}
+        ))
+        self.assertFalse(Workspace._temporary_state_metadata_matches(
+            policy, {**policy, "owner": {"generation": "b" * 64}}
+        ))

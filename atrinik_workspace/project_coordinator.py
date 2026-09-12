@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+from datetime import datetime, timezone
 import hashlib
 import json
 import re
@@ -263,6 +264,124 @@ def reserve(project: dict, capacity: int, heavy_limit: int, open_workers: int = 
                          "instruction": "Use $atrinik-issue-delivery with the exact entry mode and coordinate. "
                          "Complete live ownership/ledger/worktree gates. Do not create a nested goal."})
     return requests
+
+
+def reserve_existing(project: dict, ident: str, worker: str, observation: dict,
+                     expected: dict, heavy_limit: int, *, now: datetime | None = None) -> dict:
+    """Reserve a retained idle handle using a fresh coordinator attestation.
+
+    The runtime cannot authenticate this JSON. The trusted single dispatcher
+    supplies the complete live inventory and correlates its own worker's retired
+    attempt; leaf authority remains with the issue-delivery workflow.
+    """
+    validate_project(project)
+    require(ident in project["nodes"], "unknown leaf")
+    current = project["nodes"][ident]
+    node = next(n for n in project["plan"]["nodes"] if n["id"] == ident)
+    require(not node["external"] and current["state"] == "pending"
+            and current["worker"] is None, "existing worker needs an unbound pending leaf")
+    require(isinstance(current["attempt"], str)
+            and re.fullmatch(r"[0-9a-f]{64}", current["attempt"]) is not None,
+            "existing worker needs an exact retired attempt")
+    require(type(heavy_limit) is int and 0 <= heavy_limit <= MAX_NODES, "invalid heavy limit")
+    keys(observation, {"schema_version", "observed_at", "snapshot", "project", "runtime", "selection"},
+         "runtime observation")
+    require(type(observation["schema_version"]) is int and observation["schema_version"] == 1,
+            "unsupported runtime observation schema")
+    keys(observation["snapshot"], {"generation", "digest", "path"}, "runtime snapshot")
+    require(type(observation["snapshot"]["generation"]) is int
+            and observation["snapshot"] == {k: expected[k] for k in ("generation", "digest", "path")}
+            and expected["generation"] == project["generation"], "stale runtime snapshot")
+    keys(observation["project"], {"parent", "authority", "actor"}, "runtime project")
+    require(observation["project"] == {"parent": project["plan"]["parent"],
+            "authority": project["authority"], "actor": project["actor"]}, "foreign runtime project")
+    timestamp = observation["observed_at"]
+    require(isinstance(timestamp, str) and re.fullmatch(
+        r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?Z", timestamp) is not None,
+        "invalid runtime observation time")
+    try:
+        observed = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise ProjectError("invalid runtime observation time") from error
+    age = ((now or datetime.now(timezone.utc)) - observed).total_seconds()
+    require(0 <= age <= 60, "runtime observation is stale or from the future")
+
+    runtime = observation["runtime"]
+    keys(runtime, {"namespace", "capacity_domain", "capacity", "complete", "agents"}, "runtime inventory")
+    # This adapter uses the collaboration runtime's whole-thread tree, including
+    # the root coordinator in both inventory and capacity. Nested workers belong
+    # to their own dispatcher and cannot be reassigned by this operation.
+    require(runtime["namespace"] == "/root" and runtime["capacity_domain"] == "whole-thread-tree"
+            and runtime["complete"] is True, "incomplete or foreign runtime namespace")
+    capacity = runtime["capacity"]
+    require(type(capacity) is int and 1 <= capacity <= MAX_NODES, "invalid runtime capacity")
+    require(isinstance(runtime["agents"], list) and 1 <= len(runtime["agents"]) <= capacity,
+            "runtime inventory exceeds capacity or is empty")
+    agents = {}
+    for agent in runtime["agents"]:
+        keys(agent, {"agent_name", "agent_status"}, "runtime agent")
+        name, status = agent["agent_name"], agent["agent_status"]
+        require(isinstance(name, str) and len(name) <= 256
+                and re.fullmatch(r"/root(?:/[a-z0-9_]+)*", name) is not None,
+                "invalid or foreign runtime worker identity")
+        require(name not in agents, "duplicate runtime worker identity")
+        if isinstance(status, dict):
+            keys(status, {"completed"}, "completed runtime status")
+            require(isinstance(status["completed"], str) and len(status["completed"]) <= 128 * 1024,
+                    "invalid completed runtime result")
+            # Preserve the actual tagged runtime row in the observation digest;
+            # never copy its potentially private result text into project state.
+            status = "completed"
+        else:
+            require(isinstance(status, str) and status in {"running", "idle"},
+                    "unknown runtime worker state")
+        agents[name] = status
+    require(agents.get("/root") == "running", "runtime coordinator is missing or inactive")
+    require(isinstance(worker, str) and worker in agents and PurePosixPath(worker).parent.as_posix() == "/root",
+            "selected worker is absent or not owned by this dispatcher")
+    require(agents[worker] in {"idle", "completed"}, "selected worker is active")
+    selection = observation["selection"]
+    keys(selection, {"worker", "coordinate", "entry_mode", "retired_attempt", "evidence"}, "runtime selection")
+    require(all(selection[k] == v for k, v in {
+        "worker": worker, "coordinate": ident, "entry_mode": node["entry_mode"],
+        "retired_attempt": current["attempt"]}.items()), "runtime selection does not match the retired delivery")
+    require(isinstance(selection["evidence"], str) and 0 < len(selection["evidence"].strip()) <= 4096,
+            "runtime history and exact leaf ownership evidence required")
+    require(not any(s["worker"] == worker for key, s in project["nodes"].items() if key != ident),
+            "worker already owns another node")
+
+    active = [s for s in project["nodes"].values() if occupied_attempt(s)]
+    bound = {s["worker"] for s in active if s["worker"] is not None}
+    require(bound <= agents.keys(), "occupied worker missing from runtime inventory")
+    for state in project["nodes"].values():
+        require(agents.get(state["worker"]) != "running" or occupied_attempt(state),
+                "running runtime worker has an inactive project reservation")
+    unbound = sum(s["worker"] is None for s in active)
+    # Open handles do not increase, but prior unbound spawn reservations still
+    # own future handles. Retained idle handles are not active workers.
+    require(len(agents) + unbound <= capacity, "runtime capacity already reserved for spawning")
+    running = {name for name, status in agents.items() if status == "running"}
+    require(len(running | bound | {worker}) + unbound <= capacity, "runtime active capacity exhausted")
+    occupied = [n for n in project["plan"]["nodes"] if n["id"] != ident and occupies_resources(project, n)]
+    require(all(condition_met(project, d["id"], d["condition"]) for d in node["dependencies"]),
+            "existing worker dependency gate")
+    require(not any(conflict(node, other) for other in occupied), "existing worker resource conflict")
+    require(not node["heavy"] or sum(n["heavy"] for n in occupied) < heavy_limit,
+            "existing worker heavy capacity")
+    proof = digest(observation)
+    previous = current["attempt"]
+    attempt = digest({"authority": project["authority"], "generation": project["generation"],
+                      "coordinate": ident, "entry_mode": node["entry_mode"], "worker": worker,
+                      "previous_attempt": previous, "runtime_observation_sha256": proof})
+    require(attempt != previous, "existing worker requires a fresh attempt")
+    current.update(state="reserved", worker=worker, attempt=attempt,
+                   detail=f"Existing worker observation {proof}: {selection['evidence']}")
+    return {"entry_mode": node["entry_mode"], "coordinate": ident, "worker": worker,
+            "attempt": attempt, "previous_attempt": previous, "runtime_observation_sha256": proof,
+            "reads": node["reads"], "writes": node["writes"], "resources": node["resources"],
+            "instruction": "Recheck the actual runtime worker is idle, then follow up this exact worker and attempt. "
+            "Use $atrinik-issue-delivery for this same delivery and reprove leaf ownership/ledger/worktree gates. "
+            "Record worker only after accepted start; preserve an uncertain reservation and do not spawn."}
 
 
 def record_worker(project: dict, ident: str, attempt: str, worker: str) -> None:

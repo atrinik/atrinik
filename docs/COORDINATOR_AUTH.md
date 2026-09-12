@@ -165,9 +165,9 @@ the selected directory. Keep `GH_TOKEN` and `GITHUB_TOKEN` unset in workers:
 these environment variables override the mounted login. Confirm effective
 identity rather than assuming mount presence proves authentication.
 
-Do not remount or replace an existing coordinator just to adopt this setup.
+Do not replace an existing coordinator just to adopt this setup.
 An already canonical session continues in place; its owner can adopt the mount
-at the next supported bootstrap/recovery, with fresh image/mount, worktree and
+at the next supported bootstrap/recovery, with fresh image, configured-mount-path, worktree, and
 ledger checks. Independent coordinators may share this read-only directory;
 other mutable authentication state remains private. Windows cross-build and
 runtime containers do not inherit the mount from the ordinary coordinator.

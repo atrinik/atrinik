@@ -214,7 +214,7 @@ if (Test-Path -LiteralPath $ArtifactRoot) {
 | CMake/Ninja/MSVC is missing on the host | Return to the ordinary pinned Linux devcontainer; use `windows-cross` for the Classic Windows package. |
 | The coordinator probe reports `native-windows`, `windows-cross`, or `unknown-or-unsafe` | Do not acquire delivery authority there; enter the ordinary pinned Linux devcontainer and rerun the probe. |
 | Linux SDL/display or graphical launch fails | Record a Linux-only diagnostic and use the Windows ZIP plus the existing native smoke/qualification path; do not relabel it as a Windows runtime failure. |
-| Docker cannot safely mount the source or cache | Bootstrap from the Linux/WSL2 Docker namespace, rerun the canonical probe, and preserve the unsafe path; never remount an arbitrary primary or stale session. |
+| Docker cannot safely mount the source or cache | Bootstrap from the Linux/WSL2 Docker namespace, rerun the canonical probe, and preserve the unsafe path; never substitute an arbitrary primary or stale session path. |
 | Package hash, manifest, process, or log evidence is missing | Stop, retain the exact private run directory, and repeat the matching-revision preflight with bounded redacted evidence. |
 
 Related coordination: [Docker volume/cache I/O (#538)](https://github.com/atrinik/atrinik/issues/538), [Windows package separation (#535)](https://github.com/atrinik/atrinik/issues/535), [tooling ledger (#536)](https://github.com/atrinik/atrinik/issues/536), and [native Windows GPU preflight (#539)](https://github.com/atrinik/atrinik/issues/539).
@@ -224,7 +224,7 @@ Related coordination: [Docker volume/cache I/O (#538)](https://github.com/atrini
 Native Windows is a supported host for editing, native Git and GitHub UI, and
 native D3D12 validation. It is not the authoritative coordinator for the
 issue-delivery ledger because the ledger requires Linux/POSIX locking,
-descriptor and mount identity, and durable no-follow filesystem proofs. Open
+ordinary locks, configured mount paths, and durable no-follow filesystem proofs. Open
 the ordinary pinned Linux devcontainer and run this read-only probe before
 initializing or mutating delivery evidence:
 
@@ -237,7 +237,7 @@ The [direct native contract](docs/LINUX_EXECUTION.md) defines the latter. The pr
 recognizes `native-windows`, `windows-cross`, and `unknown-or-unsafe` with a
 bounded next action. The probe reports an entry mode as a diagnostic, but the
 authoritative result comes only from the complete pinned identity, ownership,
-workspace, ledger, Codex-home, and live-mount contract.
+workspace, ledger, Codex-home, and configured-path contract.
 
 #### Codex entry modes
 
@@ -261,7 +261,7 @@ In every mode, Codex must never launch or control VS Code, invoke `code` or
 `code.cmd`, send a VS Code URI, or use GUI automation. VS Code setup text in
 this README is for a human developer, not an agent handoff. A persistent
 session is reusable only while its owner, pinned image, current
-container/mount identity, exact worktree, and delivery-ledger coordinates
+container/configured mount path, exact worktree, and delivery-ledger coordinates
 match. A secret-free session record may make those facts visible, but it never
 grants authority. Reconnect or crash recovery reruns the probe, exact
 worktree/ledger observation, CAS, and leases before continuing. Bound idle and
@@ -418,8 +418,10 @@ daemon. Its ignored state never substitutes for a leaf ownership ledger.
 ### Shared local agent ledgers
 
 The ignored `build/agent-process-improvements.md` and
-`build/agent-tooling-issues.md` files are local, human-readable workspace state.
-Update either one only through the wrapper's schema-aware transaction:
+`build/agent-tooling-issues.md` files are optional local, human-readable diagnostics. Routine reads, updates and
+response status lines are unnecessary; malformed files or reporting contention
+never block work, validation or PR readiness. Delivery ownership ledgers remain
+authoritative and retain their gates. Update either diagnostic only through the wrapper's schema-aware transaction:
 
 ~~~sh
 ./atrinik agent-ledger update --ledger tooling-issues \
@@ -546,7 +548,7 @@ temporary volumes unless `--keep-volumes` is requested.
 For delivery work on a Windows host, the ordinary configuration is the
 coordinator. Its source/worktree mount, `build/reviews` ledger root, wrapper
 workspace, and `/home/ubuntu/.codex` mount must remain Linux-native or backed
-by a trusted Docker volume with safe ownership, modes, and live mount identity.
+by a trusted Docker volume with safe ownership, modes, and configured canonical mount path.
 The wrapper probe checks those facts without creating or repairing them; the
 persistent-session and high-I/O volume topology described by #538/#543 must
 preserve the same ledger and cache boundaries.
@@ -1058,31 +1060,22 @@ stopped records, states, logs, and historical coordinates remain preserved and
 inert; this migration never deletes them. Cleanup continues to inventory those
 references and remains a separate preview-first operation.
 
-## Recovering persisted filesystem identities after a remount
+## Filesystem paths after storage migration
 
-Persisted workspace, topology, lease, and delivery-ledger records created by
-older wrapper versions may contain the host-specific filesystem device number.
-Use the explicit, checked recovery transaction after a devcontainer rebuild or
-other remount:
+Managed resources are identified by their normalized canonical paths. Moving
+the workspace storage to another SSD, rebuilding the devcontainer, or changing
+the underlying mount device does not require a migration or record rewrite
+when every managed resource retains the same canonical path. New records omit
+filesystem device, inode, and ctime fields; readers accept those fields in
+older records as ignored compatibility metadata.
 
-~~~sh
-./atrinik migrate filesystem --dry-run --json
-./atrinik migrate filesystem --apply --confirm-remount
-./atrinik migrate filesystem --audit --json
-~~~
-
-The dry run is read-only. Apply snapshots every affected record, preserves
-legacy evidence, rewrites durable identities atomically, and records portable
-pre/post identities plus rollback state in a local journal. It refuses a
-changed inode, replacement, symlink, foreign-owned target, or ambiguous
-record; never hand-edit the JSON. Live descriptor and mount fencing continues
-to use the complete ephemeral `(st_dev, st_ino)` check, while durable records
-omit `st_dev` and therefore remain valid when the same workspace is mounted
-again. Rename-prone lease records intentionally omit ctime as well; their
-opened-descriptor, generation, and content fences remain live. See
-[`docs/FILESYSTEM-IDENTITY.md`](docs/FILESYSTEM-IDENTITY.md) for the schema
-boundary and recovery guarantees. This operation is separate from
-cleanup, topology shutdown, scope release, and repository migration.
+The former `migrate filesystem` command and `--confirm-remount` workflow have
+been removed. Continue with the ordinary command for the affected resource.
+Path normalization, no-follow access, symlink and object-type rejection,
+ownership and mode checks, file locks, generations, digests, Git coordinates,
+process ownership, leases, and lifecycle validation still apply. See
+[`docs/FILESYSTEM-IDENTITY.md`](docs/FILESYSTEM-IDENTITY.md) for the complete
+contract.
 
 The current classic client command opens a graphical application. Verify that
 the devcontainer display forwarding socket is live before launching it. Use
@@ -1190,8 +1183,10 @@ directly from their recorded Git blob IDs before validating the complete tree;
 then releases that primary's source lease before configure, compile, and tests.
 The manifest may give a logical component strict checkout-relative
 `source_includes` for shared sibling files or directories that its build reads
-outside the logical `source` directory. Those inputs are exported beside the
-logical source, enter the immutable generation key and authenticated closure
+outside the logical `source` directory, including narrowly declared files or
+directories below another component in the same checkout. Includes cannot
+equal or contain a component source, overlap their own source, or overlap
+each other. Those inputs are exported beside the logical source, enter the immutable generation key and authenticated closure
 digest, and are reproduced beside the component's build source view. The
 Classic client and server both declare the repository-root `cmake/` modules,
 license, and attributions this way, so their supported scoped builds retain
@@ -1200,7 +1195,11 @@ authoritative copy of each shared input. Archive publication retains its
 temporary descriptor, and extraction creates entries and applies modes relative
 to pinned, no-follow generation directories. CMake dependencies that run
 mutation-based tests receive writable profile-local copies; the shared generation
-itself remains sealed.
+itself remains sealed. The immutable Classic client uses a private
+`client-layout` containing its client view and declared sibling inputs. Its
+provenance verifier receives copied tools, data, fixtures, textures, and fonts
+plus the exact server dependency lock captured in the same generation; it
+never stages that lock into the server build view.
 Consequently a long-running build from a Classic feature worktree does not
 block `sync --with classic` from advancing unrelated or snapshotted clean
 primaries. Dirty sources and selected worktrees remain live inputs and retain
@@ -1324,7 +1323,7 @@ and the completed-action journal update.
 If a released scope's retained `requested_components` disagrees with the
 schema-v1 planned selector, do not edit or delete the ledger, scope record, or
 release journal. Use the delivery helper's `recover-released-scope` CAS with
-the exact predecessor tuple, scope-show bytes, completed release journal, and
+the exact predecessor generation/digest pair, scope-show bytes, completed release journal, and
 explicit-recovery authority. It accepts only the two proven Classic directions
 (`classic`/`classic-client`), preserves the old name, branch, start SHA, roots,
 and evidence, proves fresh replacement collisions, and replans the corrected
@@ -1332,7 +1331,7 @@ selector under a new scope name.
 
 An older helper can instead leave a planned ledger whose live scope already
 uses the canonical topology but whose request retained another topology name.
-Preserve the exact predecessor tuple and raw `scope show`, worktree-list, and
+Preserve the exact predecessor generation/digest pair and raw `scope show`, worktree-list, and
 safety outputs. The delivery helper's `recover-prebind-scope` accepts only an
 explicit authority binding those bytes and coordinates; it CAS-updates the
 topology request alone, records the predecessor digest in history, and retries
@@ -1580,7 +1579,7 @@ reclaim eligible disposable state with the separate scope first.
 
 The explicit `temporary-states` scope inventories generation-named states
 below marker-owned topology records. An old disposable state becomes eligible
-only when its topology/generation metadata, directory identity, registry
+only when its topology/generation metadata, directory path and metadata, registry
 absence, and released exact lease all validate. Retained, promoted, live,
 unreachable, busy, linked, malformed, registered, or uncertain state remains
 protected. Apply holds the topology operation and state locks while repeating
@@ -1841,7 +1840,7 @@ a fresh generation-owned state for isolated automation, `--state NAME` selects
 an existing registered persistent state, and `--default-state` explicitly
 selects the legacy managed persistent default. Omitting all three remains
 backward compatible with `--state default`. `topology show`, `up`, and
-`ps --json` report the policy, exact owner, path identity, and lifecycle. Bounded
+`ps --json` report the policy, exact owner, canonical path, and lifecycle. Bounded
 and followed service logs begin with the same policy context so captured output
 retains the state ownership boundary.
 Temporary state is never entered in `state list`; a confirmed clean `down`
@@ -2051,7 +2050,7 @@ file and directory, compares a descriptor-pinned whole-tree identity, content,
 and mount-boundary inventory immediately before the no-replace rename, then
 flushes the containing directory; reuse verifies ownership metadata and a
 complete tree digest plus the exact recorded Git tree and the captured checkout,
-source, and common-Git filesystem identities. An incomplete generation with
+source, and common-Git canonical filesystem paths. An incomplete generation with
 exact marker ownership is atomically retained as a recovery transaction only
 after a pinned traversal excludes nested mounts, then rebuilt at its canonical
 key; uncertain ownership fails closed. Recovery
@@ -2418,7 +2417,7 @@ coordinates. Once its recorded retention period has elapsed, use the
 helper-clocked
 `reclaim-preview` and pass the complete returned preview plus its digest to
 `reclaim-apply`. Reclaim retains one fixed terminal completion checkpoint after
-its quarantined exact-inode removal; the next successful reclaim replaces that
+its quarantined exact-path removal; the next successful reclaim replaces that
 checkpoint, bounding review-root growth. These helper commands never delete worktrees, profiles,
 topologies, state, branches, or runtime resources. See the issue-delivery
 ledger reference for the strict evidence schemas and crash-recovery rules.

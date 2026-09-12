@@ -86,6 +86,11 @@ class ScopeLifecycleTests(unittest.TestCase):
             (seed / component.source).mkdir(parents=True, exist_ok=True)
             (seed / component.source / ".keep").write_text("\n", encoding="utf-8")
         if checkout_name == "classic":
+            cmake = seed / "cmake"
+            cmake.mkdir()
+            (cmake / "AtrinikVersion.cmake").write_text(
+                'set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n', encoding="utf-8"
+            )
             server = seed / "server"
             (server / "tools").mkdir()
             (server / "tools" / ".keep").write_text("\n", encoding="utf-8")
@@ -548,7 +553,7 @@ class ScopeLifecycleTests(unittest.TestCase):
             )
 
         with self.assertRaisesRegex(WorkspaceError, "regular directory"):
-            lifecycle._directory_identity(checkout / "README", "test file")
+            lifecycle._directory_record(checkout / "README", "test file")
 
         def reject(
             name: str,
@@ -615,14 +620,26 @@ class ScopeLifecycleTests(unittest.TestCase):
 
         reject("evidence-request", change_request, "request evidence")
 
-        def change_identity(
+        def add_legacy_identity(
             _root: Path, _reservation: Path, journal: Path, _request: dict[str, object]
         ) -> None:
             value = json.loads(journal.read_text(encoding="utf-8"))
-            value["identities"]["workspace"]["inode"] += 1
+            value["identities"]["workspace"].update(
+                {"device": "moved", "inode": -1, "ctime": None}
+            )
+            for row in value["worktrees"]:
+                row["status"] = "rolled-back"
             journal.write_text(json.dumps(value), encoding="utf-8")
 
-        reject("evidence-identity", change_identity, "repository or root identity")
+        _root, reservation, journal, request, digest = failed_scope(
+            "evidence-legacy-identity"
+        )
+        add_legacy_identity(_root, reservation, journal, request)
+        loaded_reservation, loaded_journal = lifecycle._load_recovery_inputs(
+            request, digest
+        )
+        self.assertEqual(loaded_reservation["request_sha256"], digest)
+        self.assertEqual(loaded_journal["request_sha256"], digest)
 
         def change_profile_status(
             _root: Path, _reservation: Path, journal: Path, _request: dict[str, object]
@@ -965,6 +982,16 @@ class ScopeLifecycleTests(unittest.TestCase):
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="schema")
         lifecycle = ScopeLifecycle(self.workspace)
+        self.assertNotIn("path_device", record["worktrees"][0])
+        self.assertNotIn("path_inode", record["worktrees"][0])
+        self.assertNotIn("path_device", record["profile"])
+        self.assertNotIn("path_inode", record["profile"])
+        journal = json.loads(
+            Path(record["cleanup"]["journal"]).read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            set(journal["identities"]["workspace"]), {"path", "kind"}
+        )
 
         def rejected(candidate: object, message: str) -> None:
             with self.assertRaisesRegex(WorkspaceError, message):
@@ -985,7 +1012,6 @@ class ScopeLifecycleTests(unittest.TestCase):
             (("worktrees", 0, "checkout"), "missing", "checkout"),
             (("worktrees", 0, "repository"), "other/repository", "repository"),
             (("worktrees", 0, "label"), "", "coordinates"),
-            (("worktrees", 0, "path_device"), -1, "path identity"),
             (("worktrees", 0, "logical_components"), [], "coverage"),
             (("worktrees", 0, "path"), "/tmp/replaced", "worktree path"),
             (("worktrees", 0, "primary_path"), "/tmp/replaced", "primary checkout"),
@@ -993,7 +1019,6 @@ class ScopeLifecycleTests(unittest.TestCase):
             (("profile", "path"), "/tmp/replaced", "profile path"),
             (("profile", "name"), "other", "profile path"),
             (("profile", "immutable"), False, "profile identity"),
-            (("profile", "path_inode"), -1, "profile path identity"),
             (("topology", "path"), "/tmp/replaced", "topology"),
             (("state_policy", "mode"), "other", "state policy"),
             (("state_policy", "name"), "unexpected", "state identity"),
@@ -1010,6 +1035,13 @@ class ScopeLifecycleTests(unittest.TestCase):
             target[path[-1]] = value  # type: ignore[index]
             with self.subTest(path=path):
                 rejected(candidate, message)
+
+        legacy = copy.deepcopy(record)
+        legacy["worktrees"][0].update(
+            {"path_device": "old-device", "path_inode": -1}
+        )
+        legacy["profile"].update({"path_device": None, "path_inode": {}})
+        lifecycle._validate_record(legacy, "schema")
 
         digest_mismatch = copy.deepcopy(record)
         digest_mismatch["base_profile"] = "classic"
@@ -2567,7 +2599,7 @@ class ScopeLifecycleTests(unittest.TestCase):
         self.assertFalse(Path(rows["client"]["path"]).exists())
         self.assertFalse(Path(rows["server"]["path"]).exists())
 
-    def test_release_refuses_identical_profile_path_replacement(self) -> None:
+    def test_release_accepts_identical_profile_content_after_filesystem_move(self) -> None:
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="replaced-profile")
         profile = Path(record["profile"]["path"])
@@ -2576,8 +2608,21 @@ class ScopeLifecycleTests(unittest.TestCase):
         profile.write_bytes(content)
         preview = self.workspace.scope_release("replaced-profile", apply=False)
         item = next(item for item in preview["items"] if item["kind"] == "profile")
-        self.assertEqual(item["disposition"], "protected")
-        self.assertIn("replaced_profile", item["reasons"])
+        self.assertEqual(item["disposition"], "eligible")
+        self.assertEqual(item["reasons"], ["scope_owned"])
+
+    def test_release_accepts_worktree_after_filesystem_move(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="moved-worktree")
+        path = Path(record["worktrees"][0]["path"])
+        moved = path.with_name("moved-worktree-source")
+        path.rename(moved)
+        shutil.copytree(moved, path, symlinks=True)
+
+        preview = self.workspace.scope_release("moved-worktree", apply=False)
+        item = next(item for item in preview["items"] if item["kind"] == "worktree")
+        self.assertEqual(item["disposition"], "eligible", item["reasons"])
+        self.assertEqual(item["reasons"], ["scope_owned_clean_exact"])
 
     def test_release_protects_live_referenced_detached_and_replaced_inputs(self) -> None:
         self.make_checkout("client")
@@ -2646,9 +2691,10 @@ class ScopeLifecycleTests(unittest.TestCase):
         path.rename(moved)
         path.mkdir()
         preview = self.workspace.scope_release("replaced", apply=False)
-        self.assertIn(
-            "replaced_path",
-            next(item for item in preview["items"] if item["kind"] == "worktree")["reasons"],
+        item = next(item for item in preview["items"] if item["kind"] == "worktree")
+        self.assertEqual(item["disposition"], "protected")
+        self.assertTrue(
+            any(reason.startswith("ambiguous_git_state:") for reason in item["reasons"])
         )
 
     def test_release_refuses_unreachable_retained_and_active_coordinates(self) -> None:

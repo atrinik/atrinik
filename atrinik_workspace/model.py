@@ -11,6 +11,7 @@ import stat
 import time
 from typing import Any, Callable, Iterable
 
+from .path_identity import canonical_path, descriptor_path
 from .platform_compat import (
     IS_WINDOWS,
     O_BINARY,
@@ -192,7 +193,7 @@ def load_json(path: Path) -> Any:
 
 
 def unlink_validated_json(path: Path, validate: Callable[[Any], None]) -> None:
-    """Validate and unlink the same no-follow JSON inode through a parent dirfd."""
+    """Validate and unlink a named no-follow JSON record through its parent dirfd."""
 
     if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
         raise WorkspaceError(
@@ -211,8 +212,8 @@ def unlink_validated_json(path: Path, validate: Callable[[Any], None]) -> None:
         parent_visible = path.parent.stat(follow_symlinks=False)
         if (
             not stat.S_ISDIR(parent_opened.st_mode)
-            or (parent_opened.st_dev, parent_opened.st_ino)
-            != (parent_visible.st_dev, parent_visible.st_ino)
+            or not stat.S_ISDIR(parent_visible.st_mode)
+            or descriptor_path(directory) != canonical_path(path.parent)
         ):
             raise WorkspaceError(f"JSON parent directory was replaced: {path.parent}")
         descriptor = os.open(path.name, file_flags, dir_fd=directory)
@@ -220,20 +221,20 @@ def unlink_validated_json(path: Path, validate: Callable[[Any], None]) -> None:
         visible = os.stat(path.name, dir_fd=directory, follow_symlinks=False)
         if (
             not stat.S_ISREG(opened.st_mode)
-            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            or not stat.S_ISREG(visible.st_mode)
+            or descriptor_path(descriptor) != canonical_path(path)
         ):
-            raise WorkspaceError(f"JSON record identity is unsafe: {path}")
+            raise WorkspaceError(f"JSON record path is unsafe: {path}")
         with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
             value = json.load(stream, object_pairs_hook=_reject_duplicate_keys)
         validate(value)
         parent_visible = path.parent.stat(follow_symlinks=False)
-        if (parent_opened.st_dev, parent_opened.st_ino) != (
-            parent_visible.st_dev,
-            parent_visible.st_ino,
-        ):
+        if (not stat.S_ISDIR(parent_visible.st_mode)
+                or descriptor_path(directory) != canonical_path(path.parent)):
             raise WorkspaceError(f"JSON parent directory was replaced: {path.parent}")
         visible = os.stat(path.name, dir_fd=directory, follow_symlinks=False)
-        if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+        if (not stat.S_ISREG(visible.st_mode)
+                or descriptor_path(descriptor) != canonical_path(path)):
             raise WorkspaceError(f"JSON record was replaced: {path}")
         os.unlink(path.name, dir_fd=directory)
         try:
@@ -279,8 +280,7 @@ def _atomic_json(path: Path, value: Any, *, durable: bool) -> None:
         visible_parent = path.parent.stat(follow_symlinks=False)
         if (
             not stat.S_ISDIR(opened_parent.st_mode)
-            or (opened_parent.st_dev, opened_parent.st_ino)
-            != (visible_parent.st_dev, visible_parent.st_ino)
+            or descriptor_path(directory) != canonical_path(path.parent)
         ):
             raise WorkspaceError(f"JSON parent directory was replaced: {path.parent}")
         descriptor = os.open(
@@ -300,10 +300,7 @@ def _atomic_json(path: Path, value: Any, *, durable: bool) -> None:
             stream.flush()
             os.fsync(stream.fileno())
         visible_parent = path.parent.stat(follow_symlinks=False)
-        if (opened_parent.st_dev, opened_parent.st_ino) != (
-            visible_parent.st_dev,
-            visible_parent.st_ino,
-        ):
+        if descriptor_path(directory) != canonical_path(path.parent):
             raise WorkspaceError(f"JSON parent directory was replaced: {path.parent}")
         os.rename(
             temporary,
@@ -372,10 +369,7 @@ def _atomic_json_windows(  # pragma: no cover - exercised by native Windows CI
             flush_file(stream.fileno())
         assert_no_symlink_components(path, "JSON")
         visible_parent = path.parent.stat(follow_symlinks=False)
-        if (opened_parent.st_dev, opened_parent.st_ino) != (
-            visible_parent.st_dev,
-            visible_parent.st_ino,
-        ):
+        if not stat.S_ISDIR(visible_parent.st_mode):
             raise WorkspaceError(f"JSON parent directory was replaced: {path.parent}")
         os.replace(temporary, path)
         replaced = True
@@ -387,11 +381,9 @@ def _atomic_json_windows(  # pragma: no cover - exercised by native Windows CI
                 if (
                     not stat.S_ISREG(opened.st_mode)
                     or not stat.S_ISREG(visible.st_mode)
-                    or (opened.st_dev, opened.st_ino)
-                    != (visible.st_dev, visible.st_ino)
                 ):
                     raise WorkspaceError(
-                        f"JSON file identity changed after replacement: {path}"
+                        f"JSON file type changed after replacement: {path}"
                     )
                 flush_file(stream.fileno())
     except BaseException as error:
@@ -920,7 +912,6 @@ class Manifest:
             ):
                 if (
                     source_path == other_include
-                    or source_path in other_include.parents
                     or other_include in source_path.parents
                 ):
                     raise WorkspaceError(
@@ -942,7 +933,6 @@ class Manifest:
                     if (
                         include == other_source
                         or include in other_source.parents
-                        or other_source in include.parents
                     ):
                         raise WorkspaceError(
                             f"component source include overlaps a component source in "
@@ -1474,8 +1464,6 @@ class Paths:
                 if (
                     not stat.S_ISREG(opened.st_mode)
                     or not stat.S_ISREG(visible.st_mode)
-                    or (opened.st_dev, opened.st_ino)
-                    != (visible.st_dev, visible.st_ino)
                 ):
                     os.close(descriptor)
                     descriptor = None
@@ -1506,8 +1494,6 @@ class Paths:
                 if (
                     not stat.S_ISREG(opened.st_mode)
                     or not stat.S_ISREG(visible.st_mode)
-                    or (opened.st_dev, opened.st_ino)
-                    != (visible.st_dev, visible.st_ino)
                 ):
                     raise WorkspaceError(
                         f"workspace ownership marker changed during open: {self.marker}"

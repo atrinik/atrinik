@@ -59,6 +59,72 @@ class CohortWorkspaceTests(unittest.TestCase):
             source = root / component.source if component.source != "." else root
             source.mkdir(parents=True, exist_ok=True)
 
+    def make_classic_identity_repository(
+        self,
+        *,
+        version: str | None = None,
+        owner_version: str | None = None,
+        cmake_version: str = "5.1.0",
+    ) -> tuple[Path, Path, str]:
+        """Create a nested Classic-like checkout with no ambient Git ancestry."""
+        foreign = self.root / "foreign-tag-8.34"
+        foreign.mkdir()
+        subprocess.run(["git", "init", "-q", "-b", "main"], cwd=foreign, check=True)
+        subprocess.run(["git", "config", "user.name", "Cohort Fixture"], cwd=foreign, check=True)
+        subprocess.run(
+            ["git", "config", "user.email", "fixture@example.invalid"],
+            cwd=foreign,
+            check=True,
+        )
+        (foreign / "foreign.txt").write_text("foreign\n", encoding="utf-8")
+        subprocess.run(["git", "add", "foreign.txt"], cwd=foreign, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "foreign"], cwd=foreign, check=True)
+        subprocess.run(["git", "tag", "8.34"], cwd=foreign, check=True)
+
+        checkout = foreign / "classic-owner"
+        checkout.mkdir()
+        subprocess.run(["git", "init", "-q", "-b", "main"], cwd=checkout, check=True)
+        subprocess.run(["git", "config", "user.name", "Cohort Fixture"], cwd=checkout, check=True)
+        subprocess.run(
+            ["git", "config", "user.email", "fixture@example.invalid"],
+            cwd=checkout,
+            check=True,
+        )
+        source = checkout / "client"
+        source.mkdir()
+        (checkout / "cmake").mkdir()
+        (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
+            f'set(ATRINIK_DEVELOPMENT_VERSION "{cmake_version}")\n',
+            encoding="utf-8",
+        )
+        if version is not None:
+            (source / "VERSION").write_text(f"{version}\nignored\n", encoding="utf-8")
+        if owner_version is not None:
+            (checkout / "VERSION").write_text(
+                f"{owner_version}\nignored\n", encoding="utf-8"
+            )
+        (source / "source.txt").write_text("identity\n", encoding="utf-8")
+        subprocess.run(["git", "add", "."], cwd=checkout, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "identity"], cwd=checkout, check=True)
+        head = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=checkout, check=True, capture_output=True, text=True
+        ).stdout.strip()
+        return checkout, source, head
+
+    @staticmethod
+    def synthetic_classic_owner_git(
+        checkout: Path, *arguments: str, capture: bool = False, trace: bool = True
+    ) -> str:
+        if arguments == ("rev-parse", "HEAD"):
+            return "a" * 40
+        if arguments == (
+            "rev-parse", "--path-format=absolute", "--git-common-dir"
+        ):
+            return str(checkout)
+        if arguments == ("status", "--porcelain=v1", "--untracked-files=all"):
+            return ""
+        raise AssertionError(f"unexpected synthetic Classic Git probe: {arguments}")
+
     def test_plain_init_selects_only_default_cohort(self) -> None:
         with mock.patch.object(
             self.workspace, "_ensure_repository", return_value=self.wrapper
@@ -229,6 +295,11 @@ class CohortWorkspaceTests(unittest.TestCase):
                 "atrinik_workspace.workspace.git", return_value="a" * 40
             ),
             mock.patch("atrinik_workspace.workspace._is_clean", return_value=True),
+            mock.patch.object(
+                self.workspace,
+                "_classic_owner_git",
+                side_effect=self.synthetic_classic_owner_git,
+            ),
         ):
             default = self.workspace.topology_summary(
                 "default", "default", ["server", "client"]
@@ -417,6 +488,16 @@ class CohortWorkspaceTests(unittest.TestCase):
         }
 
         roots: list[Path] = []
+        captured_identities: list[dict[str, dict[str, str]]] = []
+
+        def classic_identity(
+            checkout: Path, source: Path, head: str, dirty: bool
+        ) -> dict[str, str]:
+            self.assertEqual(checkout, self.wrapper / "classic")
+            self.assertTrue(source.is_relative_to(checkout))
+            self.assertEqual(head, "a" * 40)
+            self.assertFalse(dirty)
+            return {"version": "5.1.0", "revision": head, "dirty": "false"}
 
         def build_resolved(
             target: str,
@@ -431,6 +512,11 @@ class CohortWorkspaceTests(unittest.TestCase):
             self.assertFalse(force_reconfigure)
             self.assertTrue(use_ccache)
             self.assertEqual(set(selected), expected_roles[target])
+            snapshot = self.workspace._profile_snapshot
+            if snapshot is not None:
+                captured_identities.append(
+                    snapshot.checkout_states()["classic"]["package_identity"]
+                )
             root = self.workspace.paths.builds / "profiles" / (
                 f"{profile_name}-{self.workspace._profile_build_key(profile_name, selected)}"
             )
@@ -449,11 +535,21 @@ class CohortWorkspaceTests(unittest.TestCase):
             ) as git,
             mock.patch(
                 "atrinik_workspace.workspace._is_clean", return_value=True
-            ) as clean,
+            ),
             mock.patch.object(
                 self.workspace,
                 "_git_common_directory",
                 return_value=self.wrapper / "classic",
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_classic_owner_git",
+                side_effect=self.synthetic_classic_owner_git,
+            ) as owner_git,
+            mock.patch.object(
+                self.workspace,
+                "_classic_package_identity",
+                side_effect=classic_identity,
             ),
             mock.patch.object(
                 self.workspace,
@@ -504,6 +600,14 @@ class CohortWorkspaceTests(unittest.TestCase):
             {"server", "content", "resources", "libatrinik", "protocol"},
         )
         self.assertGreater(validate.call_count, 0)
+        self.assertTrue(captured_identities)
+        for identity in captured_identities:
+            self.assertEqual(identity["."]["revision"], "a" * 40)
+            self.assertEqual(identity["."]["dirty"], "false")
+        self.assertTrue(
+            any(identity.get("client", {}).get("version") == "5.1.0"
+                for identity in captured_identities)
+        )
         # Each public build snapshot records checkout HEAD identities. Common-Git
         # namespace discovery may add independent Git calls, so assert the
         # meaningful probes instead of their aggregate mock count.
@@ -514,7 +618,6 @@ class CohortWorkspaceTests(unittest.TestCase):
         }
         self.assertTrue(
             {
-                self.wrapper / "classic",
                 self.wrapper / "content",
                 self.wrapper / "sound",
                 self.wrapper / "resources",
@@ -522,90 +625,151 @@ class CohortWorkspaceTests(unittest.TestCase):
             }
             <= head_roots
         )
-        self.assertGreater(clean.call_count, 0)
+        owner_git.assert_any_call(
+            self.wrapper / "classic", "rev-parse", "HEAD", capture=True, trace=False
+        )
+        owner_git.assert_any_call(
+            self.wrapper / "classic",
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=all",
+            capture=True,
+            trace=False,
+        )
 
     def test_dev_build_uses_full_paired_closure_and_selected_service_target(self) -> None:
         self.make_classic_build_profile(include_worker=False)
-        profile = self.workspace._load_profile("classic", require_file=False)
-        expected_roles = self.workspace._dependency_roles(
-            profile, {"client", "server"}
-        )
-        observed: dict[str, object] = {}
+        for services in (["client"], ["server"], ["server", "client"]):
+            with self.subTest(services=services):
+                profile = self.workspace._load_profile("classic", require_file=False)
+                expected_roles = self.workspace._dependency_roles(
+                    profile, {"client", "server"}
+                )
+                observed: dict[str, object] = {}
 
-        def build_resolved(
-            target: str,
-            profile_name: str,
-            tests: bool,
-            targets: list[str],
-            selected: dict[str, Path],
-            *,
-            force_reconfigure: bool = False,
-            use_ccache: bool = True,
-            build_services: set[str] | None = None,
-        ) -> Path:
-            observed.update(
-                {
-                    "target": target,
-                    "profile": profile_name,
-                    "tests": tests,
-                    "targets": set(targets),
-                    "selected": set(selected),
-                    "force_reconfigure": force_reconfigure,
-                    "use_ccache": use_ccache,
-                    "build_services": build_services,
-                }
-            )
-            return self.wrapper / "classic-build-root"
+                def classic_identity(
+                    checkout: Path, source: Path, head: str, dirty: bool
+                ) -> dict[str, str]:
+                    self.assertEqual(checkout, self.wrapper / "classic")
+                    self.assertTrue(source.is_relative_to(checkout))
+                    self.assertEqual(head, "a" * 40)
+                    self.assertFalse(dirty)
+                    return {
+                        "version": "5.1.0",
+                        "revision": head,
+                        "dirty": "false",
+                    }
 
-        with (
-            mock.patch.object(
-                self.workspace, "_validate_selected_checkout", return_value="origin"
-            ),
-            mock.patch.object(
-                self.workspace, "_build_resolved", side_effect=build_resolved
-            ),
-            mock.patch(
-                "atrinik_workspace.workspace.git", return_value="a" * 40
-            ),
-            mock.patch("atrinik_workspace.workspace._is_clean", return_value=True),
-            mock.patch.object(
-                self.workspace,
-                "_git_common_directory",
-                return_value=self.wrapper / "classic",
-            ),
-            mock.patch.object(
-                self.workspace,
-                "_materialize_clean_primary_sources",
-                side_effect=lambda _profile, selected, _states: (
-                    selected,
-                    set(),
-                    {},
-                ),
-            ),
-        ):
-            result = self.workspace.dev_build(
-                "classic",
-                ["server"],
-                tests=True,
-                force_reconfigure=True,
-                use_ccache=False,
-            )
+                def build_resolved(
+                    target: str,
+                    profile_name: str,
+                    tests: bool,
+                    targets: list[str],
+                    selected: dict[str, Path],
+                    *,
+                    force_reconfigure: bool = False,
+                    use_ccache: bool = True,
+                    build_services: set[str] | None = None,
+                    generate_region_maps: bool = True,
+                ) -> Path:
+                    observed.update(
+                        {
+                            "target": target,
+                            "profile": profile_name,
+                            "tests": tests,
+                            "targets": set(targets),
+                            "selected": set(selected),
+                            "force_reconfigure": force_reconfigure,
+                            "use_ccache": use_ccache,
+                            "build_services": build_services,
+                            "generate_region_maps": generate_region_maps,
+                        }
+                    )
+                    snapshot = self.workspace._profile_snapshot
+                    self.assertIsNotNone(snapshot)
+                    assert snapshot is not None
+                    observed["package_identity"] = snapshot.checkout_states()[
+                        "classic"
+                    ]["package_identity"]
+                    return self.wrapper / "classic-build-root"
 
-        self.assertEqual(result["services"], ["server"])
-        self.assertTrue(result["tests"])
-        self.assertEqual(result["build_root"], str(self.wrapper / "classic-build-root"))
-        self.assertEqual(observed["target"], "topology")
-        self.assertEqual(observed["profile"], "classic")
-        self.assertTrue(observed["tests"])
-        self.assertEqual(
-            observed["targets"],
-            {"content", "protocol", "libatrinik", "client", "server"},
-        )
-        self.assertNotIn("metaserver-worker", observed["targets"])
-        self.assertEqual(observed["selected"], expected_roles)
-        self.assertEqual(observed["build_services"], {"server"})
-        self.assertTrue(observed["force_reconfigure"])
-        self.assertFalse(observed["use_ccache"])
+                with (
+                    mock.patch.object(
+                        self.workspace, "_validate_selected_checkout", return_value="origin"
+                    ),
+                    mock.patch.object(
+                        self.workspace, "_build_resolved", side_effect=build_resolved
+                    ),
+                    mock.patch(
+                        "atrinik_workspace.workspace.git", return_value="a" * 40
+                    ),
+                    mock.patch("atrinik_workspace.workspace._is_clean", return_value=True),
+                    mock.patch.object(
+                        self.workspace,
+                        "_git_common_directory",
+                        return_value=self.wrapper / "classic",
+                    ),
+                    mock.patch.object(
+                        self.workspace,
+                        "_classic_owner_git",
+                        side_effect=self.synthetic_classic_owner_git,
+                    ),
+                    mock.patch.object(
+                        self.workspace,
+                        "_classic_package_identity",
+                        side_effect=classic_identity,
+                    ),
+                    mock.patch.object(
+                        self.workspace,
+                        "_materialize_clean_primary_sources",
+                        side_effect=lambda _profile, selected, _states: (
+                            selected,
+                            set(),
+                            {},
+                        ),
+                    ),
+                ):
+                    result = self.workspace.dev_build(
+                        "classic",
+                        services,
+                        tests=True,
+                        force_reconfigure=True,
+                        use_ccache=False,
+                    )
+
+                self.assertEqual(result["services"], services)
+                self.assertTrue(result["tests"])
+                self.assertEqual(result["build_root"], str(self.wrapper / "classic-build-root"))
+                self.assertEqual(observed["target"], "topology")
+                self.assertEqual(observed["profile"], "classic")
+                self.assertTrue(observed["tests"])
+                self.assertEqual(
+                    observed["targets"],
+                    {"content", "protocol", "libatrinik", "client", "server"},
+                )
+                self.assertNotIn("metaserver-worker", observed["targets"])
+                self.assertEqual(observed["selected"], expected_roles)
+                self.assertEqual(observed["build_services"], set(services))
+                self.assertEqual(observed["generate_region_maps"], "server" in services)
+                self.assertTrue(observed["force_reconfigure"])
+                self.assertFalse(observed["use_ccache"])
+                package_identity = observed["package_identity"]
+                self.assertIsInstance(package_identity, dict)
+                assert isinstance(package_identity, dict)
+                self.assertEqual(
+                    set(package_identity),
+                    {".", "client", "server", "protocol", "libatrinik"},
+                )
+                self.assertTrue(
+                    all(
+                        identity == {
+                            "version": "5.1.0",
+                            "revision": "a" * 40,
+                            "dirty": "false",
+                        }
+                        for identity in package_identity.values()
+                    )
+                )
 
     def test_complete_default_selection_uses_requested_service_closure(self) -> None:
         profile = self.workspace._load_profile("default", require_file=False)
@@ -707,6 +871,11 @@ class CohortWorkspaceTests(unittest.TestCase):
             mock.patch(
                 "atrinik_workspace.workspace._is_clean", return_value=True
             ),
+            mock.patch.object(
+                self.workspace,
+                "_classic_owner_git",
+                side_effect=self.synthetic_classic_owner_git,
+            ) as owner_git,
         ):
             self.workspace.set_profile(
                 "classic-review", "classic", "worktree", "review"
@@ -760,8 +929,9 @@ class CohortWorkspaceTests(unittest.TestCase):
             for call in git.call_args_list
             if call.args[1:] == ("rev-parse", "HEAD")
         }
-        self.assertTrue(
-            {worktree} <= head_roots
+        self.assertNotIn(worktree, head_roots)
+        owner_git.assert_any_call(
+            worktree, "rev-parse", "HEAD", capture=True, trace=False
         )
 
     def test_classic_component_source_rejects_symlinked_module(self) -> None:
@@ -1231,6 +1401,135 @@ class CohortWorkspaceTests(unittest.TestCase):
                 self.workspace.build("server", "default", tests=False)
 
         resolve.assert_not_called()
+
+    def test_classic_package_identity_uses_source_version_and_pinned_tag(self) -> None:
+        checkout, source, first_head = self.make_classic_identity_repository(
+            version="5.70.1", owner_version="5.69.0", cmake_version="5.1.0"
+        )
+        subprocess.run(["git", "tag", "v5.68.0", first_head], cwd=checkout, check=True)
+        (source / "later.txt").write_text("later\n", encoding="utf-8")
+        subprocess.run(["git", "add", "client/later.txt"], cwd=checkout, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "later head"], cwd=checkout, check=True)
+
+        identity = self.workspace._classic_package_identity(
+            checkout, source, first_head, False
+        )
+
+        self.assertEqual(
+            identity,
+            {"version": "5.70.1", "revision": first_head, "dirty": "false"},
+        )
+
+    def test_classic_package_identity_owner_version_precedes_exact_tag(self) -> None:
+        checkout, source, head = self.make_classic_identity_repository(
+            owner_version="5.69.0"
+        )
+        subprocess.run(["git", "tag", "v5.68.0", head], cwd=checkout, check=True)
+
+        identity = self.workspace._classic_package_identity(checkout, source, head, False)
+
+        self.assertEqual(identity["version"], "5.69.0")
+
+    def test_classic_package_identity_falls_back_to_owner_cmake_version(self) -> None:
+        checkout, source, head = self.make_classic_identity_repository()
+
+        identity = self.workspace._classic_package_identity(checkout, source, head, True)
+
+        self.assertEqual(
+            identity,
+            {"version": "5.1.0", "revision": head, "dirty": "true"},
+        )
+
+    def test_classic_package_identity_accepts_linked_worktree_and_scrubs_selectors(
+        self,
+    ) -> None:
+        checkout, source, head = self.make_classic_identity_repository()
+        subprocess.run(["git", "tag", "v5.68.0", head], cwd=checkout, check=True)
+        linked = self.root / "linked-classic"
+        subprocess.run(
+            ["git", "worktree", "add", "-q", "-b", "linked", str(linked), head],
+            cwd=checkout,
+            check=True,
+        )
+        linked_source = linked / source.relative_to(checkout)
+        foreign_git_dir = self.root / "foreign-tag-8.34" / ".git"
+
+        with mock.patch.dict(
+            os.environ,
+            {"GIT_DIR": str(foreign_git_dir), "GIT_WORK_TREE": str(self.root)},
+        ):
+            identity = self.workspace._classic_package_identity(
+                linked, linked_source, head, False
+            )
+
+        self.assertEqual(
+            identity,
+            {"version": "5.68.0", "revision": head, "dirty": "false"},
+        )
+
+    def test_classic_snapshot_captures_dirty_owner_despite_git_work_tree(self) -> None:
+        checkout, source, head = self.make_classic_identity_repository()
+        linked = self.root / "clean-linked-classic"
+        subprocess.run(
+            ["git", "worktree", "add", "-q", "-b", "clean-linked", str(linked), head],
+            cwd=checkout,
+            check=True,
+        )
+        (source / "source.txt").write_text("dirty owner\n", encoding="utf-8")
+        polluted_environment = os.environ | {"GIT_WORK_TREE": str(linked)}
+        ambient_status = subprocess.run(
+            ["git", "-C", str(checkout), "status", "--porcelain=v1"],
+            check=True,
+            capture_output=True,
+            env=polluted_environment,
+            text=True,
+        )
+        self.assertEqual(ambient_status.stdout, "")
+
+        with (
+            mock.patch.object(
+                self.workspace, "_selector_root", return_value=checkout
+            ),
+            mock.patch.object(
+                self.workspace,
+                "_resolve_build_profile",
+                return_value={"client": source},
+            ),
+            mock.patch.dict(os.environ, {"GIT_WORK_TREE": str(linked)}),
+        ):
+            with self.workspace._resolved_profile_operation(
+                "classic", {"client"}, "capture ambient Git selector"
+            ) as snapshot:
+                state = snapshot.checkout_states()["classic"]
+
+        self.assertEqual(state["head"], head)
+        self.assertTrue(state["dirty"])
+        self.assertEqual(state["package_identity"]["client"]["revision"], head)
+        self.assertEqual(state["package_identity"]["client"]["dirty"], "true")
+
+    def test_classic_package_identity_rejects_invalid_or_foreign_versions(self) -> None:
+        checkout, source, head = self.make_classic_identity_repository(version="invalid")
+        with self.assertRaisesRegex(WorkspaceError, "version"):
+            self.workspace._classic_package_identity(checkout, source, head, False)
+
+        with mock.patch.dict(
+            os.environ, {"ATRINIK_PACKAGE_VERSION": "invalid"}
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "package version"):
+                self.workspace._classic_package_identity(checkout, source, head, False)
+
+        (source / "VERSION").unlink()
+        (checkout / "cmake" / "AtrinikVersion.cmake").write_text(
+            'set(ATRINIK_DEVELOPMENT_VERSION "not-a-version")\n', encoding="utf-8"
+        )
+        with self.assertRaisesRegex(WorkspaceError, "version"):
+            self.workspace._classic_package_identity(checkout, source, head, False)
+
+        foreign_source = self.root / "foreign-tag-8.34"
+        with self.assertRaisesRegex(WorkspaceError, "source"):
+            self.workspace._classic_package_identity(checkout, foreign_source, head, False)
+        with self.assertRaisesRegex(WorkspaceError, "not owned"):
+            self.workspace._classic_package_identity(source, source, head, False)
 
     def test_missing_classic_components_are_reported_not_initialized(self) -> None:
         summary = self.workspace.profile_summary("classic")

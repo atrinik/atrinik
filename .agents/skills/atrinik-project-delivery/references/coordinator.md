@@ -26,7 +26,7 @@ its actual file/resource reservations, until externally completed. Separate
 filesystems require the existing supported handoff; copying state is not it.
 
 The CLI derives an ignored project directory from the canonical wrapper and
-parent. Keep its returned path, actor, session authority and snapshot tuple in
+parent. Keep its returned path, actor, session authority and snapshot generation/digest pair in
 the private handoff. A second `init` cannot adopt it. Resume only the same
 authorized session or an explicit takeover after proving the old owner stopped,
 rerunning the live probe/ledger/worktree/lease checks and reconciling every
@@ -54,10 +54,28 @@ python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT plan --capaci
 python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT dispatch --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit 1 --expected /absolute/snapshot.json
 ```
 
-Save `inspect` stdout directly as the bounded expected-snapshot input; other
-mutations return `{snapshot,result}` and `init` returns `{root,snapshot}`.
+For repeated operations, save exact snapshots directly and return compact output:
+
+```sh
+# Use a private, owned 0700 directory and a NEW absolute file for each result.
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT --snapshot-output /absolute/private/step-1.json --compact inspect
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT --snapshot-output /absolute/private/step-2.json --compact dispatch --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit HEAVY_LIMIT --expected /absolute/private/step-1.json
+```
+
+The helper retains complete snapshot bytes in the private file and emits CAS
+metadata plus the actionable result. Tracking output includes only operation
+`id`, `kind`, `target` and `phase`; read the operation in the exported snapshot
+when assessing exact payloads or remote evidence. Compact output alone is never
+proof of retry safety or acceptance. It never overwrites an existing file or
+replaces live ownership checks. Keep full output when needed for diagnosis.
+`plan` and `terminal` do not return snapshots; call them without these flags.
+If a command fails or a CAS is stale, inspect into a fresh file and reconcile
+before retrying; a partial output is never authority to repeat a mutation.
+Default output remains unchanged: save `inspect` stdout directly as the bounded
+expected-snapshot input; mutations return `{snapshot,result}` and `init`
+returns `{root,snapshot}`. If using default output,
 Extract `.snapshot` without editing the authoritative file. Every mutation
-requires the current generation/digest/device/inode tuple together. Stale CAS
+requires the current generation and digest together. Stale CAS
 means inspect and reconsider, not overwrite. Commands below share `--root` and
 `--expected`; use `--help` for exact argument order:
 
@@ -94,6 +112,96 @@ prove that attempt, leave its reservation blocked; never guess a worker ID.
 If a worker's bound delivery already owns a PR, continue that exact delivery,
 not a second issue-mode claim. If additional independent PR work is needed,
 add a separately authorized type-explicit lane after collision checks.
+
+## Reserve an existing idle worker
+
+Use this operation after `retry` or an eligible `replan` leaves the same leaf
+pending with no bound worker and an exact retained attempt. It does not adopt a
+worker from another leaf or authorize copying patches, credentials or ledgers.
+Ordinary `dispatch` and same-owner `reopen` retain their existing behavior.
+
+```sh
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT --snapshot-output /absolute/private/reserved.json --compact reserve-existing atrinik/atrinik#NUMBER --worker /root/leaf --runtime-observation /absolute/private/runtime.json --heavy-limit 1 --expected /absolute/private/current.json
+```
+
+The observation is a trusted coordinator's attestation, not an authenticated
+runtime credential. This adapter uses the collaboration runtime's whole-thread
+tree: obtain a fresh complete `list_agents` response and the actual exposed
+capacity, including the root coordinator and nested/review/completed handles.
+Do not derive capacity from desired parallelism or decrement the open-worker
+count to make space. Only the root dispatcher's own direct children may be
+selected; nested workers remain with their dispatcher. Use this exact schema,
+replacing every example value with current evidence:
+
+```json
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-12T12:00:00Z",
+  "snapshot": {"generation": 7, "digest": "EXACT_SNAPSHOT_SHA256", "path": "/absolute/project/root/project.json"},
+  "project": {"parent": "atrinik/atrinik#PARENT", "authority": "EXACT_SESSION_AUTHORITY", "actor": "zoeyrose"},
+  "runtime": {
+    "namespace": "/root",
+    "capacity_domain": "whole-thread-tree",
+    "capacity": 2,
+    "complete": true,
+    "agents": [
+      {"agent_name": "/root", "agent_status": "running"},
+      {"agent_name": "/root/leaf", "agent_status": {"completed": "Actual retained result text"}}
+    ]
+  },
+  "selection": {
+    "worker": "/root/leaf",
+    "coordinate": "atrinik/atrinik#NUMBER",
+    "entry_mode": "issue",
+    "retired_attempt": "EXACT_PENDING_NODE_ATTEMPT",
+    "evidence": "Actual runtime task history matches this leaf and retired attempt; exact leaf ledger/worktree/head checked."
+  }
+}
+```
+
+Retain the actual runtime `agent_name`/`agent_status` rows without rewriting
+statuses. A completed worker has the actual tagged status object
+`{"completed": "result text"}`; selected workers accept that exact shape or
+`"idle"`. The inventory also accepts `"running"`, and refuses plain
+`"completed"`, unknown/interrupted states and malformed or ambiguous objects.
+Completion text is bounded with the input, hashed as part of the raw observation
+and never copied into the project record or returned request. The root must be
+present and running. `complete`, namespace, capacity, selection,
+session and leaf correlation are coordinator attestations, not fields returned
+or cryptographically verified by the runtime. The helper rejects an absent,
+duplicate or mismatched selected identity; it cannot detect a fabricated whole
+attestation. Obtain the selection evidence from actual runtime history and
+fresh leaf ownership checks; never infer ownership from a convenient name.
+
+Keep the observation in an owned regular no-follow file of at most 128 KiB.
+The CLI reads it inside the locked CAS callback, after validating the expected
+snapshot's generation, digest and canonical path. Its UTC timestamp (optionally
+1–6 fractional digits) must be no more than 60 seconds old and not in the
+future. Project actor/authority/parent and selection coordinate/entry mode/
+retired attempt must match exactly. Stale or mismatched evidence fails without
+changing the project. A worker bound to any other node, including a terminal
+node, is unavailable. A running runtime worker with an inactive project
+reservation is inconsistent and must be reconciled first. Dependencies,
+file/resource conflicts, external reservations and heavy-job limits remain
+required. Existing unbound spawn reservations still reserve future handles;
+reactivation adds no open handle and must fit the active capacity budget.
+
+The result durably binds `reserved`, the existing worker and a fresh attempt,
+including the prior attempt and canonical observation digest in its identity.
+Keep the exact returned snapshot/request. A single trusted dispatcher must
+immediately recheck actual runtime idleness, follow up that exact worker with
+that new attempt and the unchanged leaf delivery authority, and only after the
+runtime accepts the start run `worker COORD --attempt NEW_ATTEMPT --id WORKER`
+with the returned snapshot. Every resumed writing worker still re-proves its
+own issue-delivery ledger, worktree, actor and leases before edits. Runtime
+recheck/follow-up is not atomic with local CAS; no signed runtime or atomic
+activation API is available. Serialize these actions in the owning dispatcher.
+
+Busy, unknown, lost follow-up or lost output preserves the prebound reservation.
+Inspect and reconcile the actual worker/attempt before any further action;
+never automatically retry a follow-up, spawn a replacement, or release its
+resources. `retry` still requires actual non-start/stopped-runtime and exact
+leaf recovery proof. Old-attempt results cannot complete the new reservation.
 
 ## GitHub tracking journal
 
@@ -182,3 +290,14 @@ failure tests, guidance inventory, wrapper validation and a fresh independent
 forward-test using realistic blocked/parallel/merge-gated requests. A fixture
 pilot is not evidence that real workers delivered real project PRs. Keep live
 pilots read-only unless their specific tracking/implementation scope is authorized.
+
+## Same-owner unchanged-target reconnect
+
+A retained issue worker with unchanged current target coordinates must complete
+the issue ledger's public `revalidate-current-targets-cas` proof after
+canonical context, live selection and inventory checks. Retain its exact
+helper-returned generation and digest. Project scheduling renewal
+does not itself prove worktree leases or transfer ownership. Generic CAS,
+stored check-reuse flags and private helper contexts grant no reconnect proof.
+Use the accepted helper only; a proposed helper change cannot authorize its
+own reconnect or another paused worker before that change is actually merged.
