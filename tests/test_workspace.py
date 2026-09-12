@@ -7817,6 +7817,15 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(sentinel.read_bytes(), b"historical build output\x00\n")
         self.assertTrue(new_root.is_dir())
 
+    def test_portable_build_identity_cannot_reuse_ordinary_cmake_cache(self) -> None:
+        selected = {"server": self.workspace.paths.repositories / "server"}
+        ordinary = self.workspace._profile_build_key("default", selected)
+        portable = self.workspace._profile_build_key("default", selected, variant="linux-portable:first-image")
+        changed_image = self.workspace._profile_build_key("default", selected, variant="linux-portable:second-image")
+        self.assertNotEqual(ordinary, portable)
+        self.assertNotEqual(portable, changed_image)
+        self.assertEqual(self.workspace._profile_build_key("default", selected), ordinary)
+
     def test_profile_build_key_names_repository_and_branch_coordinates(self) -> None:
         selected = {"server": self.workspace.paths.repositories / "server"}
         with mock.patch(

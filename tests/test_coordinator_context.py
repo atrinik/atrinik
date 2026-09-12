@@ -146,7 +146,7 @@ class CoordinatorContextTests(unittest.TestCase):
         self.assertEqual(result["status"], "unknown-or-unsafe")
         self.assertFalse(result["authoritative"])
         self.assertEqual(result["entry_mode"], context.ENTRY_MODE_NATIVE_HOST)
-        self.assertIn("container-runtime-marker", result["failed_checks"])
+        self.assertIn("native-host-proof-unavailable-or-unsafe", result["failed_checks"])
 
     def test_canonical_container_launched_without_vscode_can_be_authoritative(
         self,
@@ -206,7 +206,7 @@ class CoordinatorContextTests(unittest.TestCase):
         self.assertEqual(result["status"], "unknown-or-unsafe")
         self.assertFalse(result["authoritative"])
         self.assertEqual(result["entry_mode"], context.ENTRY_MODE_NATIVE_HOST)
-        self.assertIn("container-runtime-marker", result["failed_checks"])
+        self.assertIn("native-host-proof-unavailable-or-unsafe", result["failed_checks"])
 
     def test_nested_coordinator_signal_fails_closed(self) -> None:
         result = self._probe(
@@ -339,6 +339,241 @@ class CoordinatorContextTests(unittest.TestCase):
         source = SCRIPT.read_text(encoding="utf-8")
         self.assertNotIn("import fcntl", source)
         self.assertNotIn("delivery_ledger", source)
+
+
+@unittest.skipUnless(sys.platform.startswith("linux"), "native Linux proof")
+class NativeCoordinatorTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.repository = self.root / "repository"
+        self.home = self.root / "home"
+        self.codex = self.home / ".codex"
+        self.proc = self.root / "proc"
+        for path in (self.repository, self.codex, self.proc):
+            path.mkdir(parents=True)
+        self.codex.chmod(0o700)
+        (self.repository / ".devcontainer/windows-cross").mkdir(parents=True)
+        (self.repository / ".git").mkdir()
+        for relative in ("components.json", ".devcontainer/devcontainer.json",
+                         ".devcontainer/windows-cross/devcontainer.json"):
+            (self.repository / relative).write_bytes((ROOT / relative).read_bytes())
+        self.executable = self.root / "systemd"
+        self.executable.write_text("fixture")
+        self.executable.chmod(0o755)
+        self.uid = os.geteuid()
+        self.environment = {"HOME": str(self.home), "CODEX_HOME": str(self.codex)}
+        device = self.root.stat().st_dev
+        device_name = f"{os.major(device)}:{os.minor(device)}"
+        self.inputs = {
+            **{str(self.repository / relative): "{}" for relative in (
+                "components.json", ".devcontainer/devcontainer.json",
+                ".devcontainer/windows-cross/devcontainer.json")},
+            str(self.proc / str(os.getpid()) / "mountinfo"):
+                f"1 0 {device_name} / / rw - ext4 /dev/test rw\n"
+                f"2 1 {device_name} / {self.proc} rw - proc proc rw\n",
+            str(self.proc / "1/status"): "Name:\tsystemd\nUid:\t0 0 0 0\n",
+            str(self.proc / "sys/kernel/osrelease"): "7.0.0-generic\n",
+            str(self.root / "usr/lib/os-release"): 'ID=ubuntu\nVERSION_ID="26.04"\n',
+        }
+        for process in (self.proc / str(os.getpid()), self.proc / "1"):
+            for field in ("uid_map", "gid_map"):
+                self.inputs[str(process / field)] = "         0          0 4294967295\n"
+
+    def read(self, path: Path, uid: int, limit: int = 16384) -> str:
+        return self.inputs[str(path)]
+
+    def open(self, path: Path, uid: int, *, directory: bool = False) -> int:
+        # Model kernel/OS facts at the I/O boundary. The real descriptor opener
+        # has separate rejection tests; these are not native runtime evidence.
+        if directory:
+            return os.open(path if path.is_dir() else self.root, os.O_RDONLY | os.O_DIRECTORY)
+        return os.open(self.executable, os.O_RDONLY)
+
+    def probe(self) -> dict[str, object]:
+        import pwd
+        from types import SimpleNamespace
+        with mock.patch.object(context, "_native_read", side_effect=self.read), \
+             mock.patch.object(context, "_native_open", side_effect=self.open), \
+             mock.patch.object(pwd, "getpwuid", return_value=SimpleNamespace(pw_dir=str(self.home))):
+            return context.probe(self.repository, system="Linux", environment=self.environment,
+                                 user_name="vscode", effective_uid=self.uid,
+                                 runtime_root=self.root, cwd=self.repository)
+
+    def test_supported_nonroot_host_does_not_require_pid1_exe_or_namespace_access(self) -> None:
+        with mock.patch.object(os, "readlink", side_effect=PermissionError):
+            result = self.probe()
+        self.assertTrue(result["authoritative"])
+        self.assertEqual(result["status"], "native-linux")
+
+    def test_user_namespace_maps_require_one_full_initial_identity_row(self) -> None:
+        key = str(self.proc / str(os.getpid()) / "uid_map")
+        for value in ("0 1000 1\n", "0 0 4294967295\n1 1 1\n", "", "0 0 invalid"):
+            with self.subTest(value=value):
+                self.inputs[key] = value
+                result = self.probe()
+                self.assertFalse(result["authoritative"])
+                self.assertIn("native-initial-user-namespace", result["failed_checks"])
+
+    def test_pid1_user_namespace_is_checked_separately(self) -> None:
+        self.inputs[str(self.proc / "1/gid_map")] = "0 1000 1"
+        self.assertFalse(self.probe()["authoritative"])
+
+    def test_wsl_and_non_systemd_processes_are_not_native_authority(self) -> None:
+        self.inputs[str(self.proc / "sys/kernel/osrelease")] = "microsoft-standard-WSL2"
+        self.assertIn("native-wsl-host-boundary", self.probe()["failed_checks"])
+        self.inputs[str(self.proc / "1/status")] = "Name: systemd\nUid: 1000 1000 1000 1000"
+        self.assertIn("native-systemd-init", self.probe()["failed_checks"])
+
+    def test_unsupported_distribution_and_container_environment_fail(self) -> None:
+        self.inputs[str(self.root / "usr/lib/os-release")] = "ID=unknown\nVERSION_ID=1"
+        self.assertIn("native-distribution-unsupported", self.probe()["failed_checks"])
+        self.environment["DEVCONTAINER"] = "true"
+        self.assertIn("native-container-environment-mismatch", self.probe()["failed_checks"])
+
+    def test_caller_mountinfo_must_prove_procfs(self) -> None:
+        key = str(self.proc / str(os.getpid()) / "mountinfo")
+        self.inputs[key] = self.inputs[key].replace("proc proc", "ext4 proc")
+        self.assertIn("native-procfs", self.probe()["failed_checks"])
+
+    def test_native_mount_coordinates_do_not_require_device_number_equivalence(self) -> None:
+        key = str(self.proc / str(os.getpid()) / "mountinfo")
+        self.inputs[key] = self.inputs[key].replace(
+            f"{os.major(self.root.stat().st_dev)}:{os.minor(self.root.stat().st_dev)}", "123:456")
+        self.assertTrue(self.probe()["authoritative"])
+
+    def test_caller_home_and_private_codex_are_required(self) -> None:
+        self.environment["HOME"] = "/forged/home"
+        self.assertIn("native-passwd-home", self.probe()["failed_checks"])
+        self.environment["HOME"] = str(self.home)
+        self.codex.chmod(0o755)
+        self.assertIn("unsafe-codex-home-mode", self.probe()["failed_checks"])
+
+    def test_descriptor_opener_rejects_unsafe_anchor_and_closes_it(self) -> None:
+        from types import SimpleNamespace
+        import stat
+        for mode, owner in ((stat.S_IFDIR | 0o777, 0),
+                            (stat.S_IFDIR | 0o755, self.uid + 1),
+                            (stat.S_IFREG | 0o644, 0)):
+            with self.subTest(mode=mode, owner=owner), \
+                 mock.patch.object(context.os, "fstat", return_value=SimpleNamespace(
+                     st_mode=mode, st_uid=owner)), \
+                 mock.patch.object(context.os, "close", wraps=os.close) as close:
+                with self.assertRaises(context.ProbeError):
+                    context._native_open(Path("/"), self.uid, directory=True)
+                close.assert_called_once()
+
+    def test_descriptor_opener_checks_real_safe_paths_and_symlinks(self) -> None:
+        build = ROOT / "build"
+        build.mkdir(mode=0o700, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=build) as temporary:
+            safe = Path(temporary)
+            source = safe / "input"
+            source.write_text("real bytes")
+            source.chmod(0o600)
+            self.assertEqual(context._native_read(source, self.uid), "real bytes")
+            with self.assertRaisesRegex(context.ProbeError, "oversized"):
+                context._native_read(source, self.uid, limit=3)
+            link = safe / "link"
+            link.symlink_to(source)
+            with self.assertRaises(OSError):
+                context._native_open(link, self.uid)
+            source.chmod(0o666)
+            with self.assertRaisesRegex(context.ProbeError, "owner-or-mode"):
+                context._native_open(source, self.uid)
+            source.chmod(0o600)
+            with self.assertRaisesRegex(context.ProbeError, "owner-or-mode"):
+                context._native_open(source, self.uid + 1)
+
+    def test_actual_read_detects_in_place_mutation(self) -> None:
+        build = ROOT / "build"
+        build.mkdir(mode=0o700, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=build) as temporary:
+            source = Path(temporary) / "input"
+            source.write_text("before")
+            original_fdopen = os.fdopen
+
+            class RacingReader:
+                def __init__(self, fd: int, mode: str) -> None:
+                    self.stream = original_fdopen(fd, mode)
+
+                def __enter__(self) -> object:
+                    return self
+
+                def __exit__(self, *args: object) -> None:
+                    self.stream.close()
+
+                def fileno(self) -> int:
+                    return self.stream.fileno()
+
+                def read(self, limit: int) -> bytes:
+                    data = self.stream.read(limit)
+                    source.write_text("changed while reading")
+                    return data
+
+            with mock.patch.object(context.os, "fdopen", side_effect=RacingReader):
+                with self.assertRaisesRegex(context.ProbeError, "native-input-changed"):
+                    context._native_read(source, self.uid)
+
+    def test_malformed_os_release_quoting_and_duplicate_keys_fail(self) -> None:
+        key = str(self.root / "usr/lib/os-release")
+        for value in ('ID=ubuntu\nVERSION_ID="26.04', 'ID=ubuntu\nVERSION_ID=""26.04""',
+                      "ID=ubuntu\nID=debian\nVERSION_ID=26.04"):
+            with self.subTest(value=value):
+                self.inputs[key] = value
+                self.assertFalse(self.probe()["authoritative"])
+
+    def test_public_probe_rejects_forged_configuration_before_native_facts(self) -> None:
+        config = self.repository / ".devcontainer/devcontainer.json"
+        value = context.json.loads(config.read_text())
+        value["image"] = "forged"
+        config.write_text(context.json.dumps(value))
+        result = self.probe()
+        self.assertFalse(result["authoritative"])
+        self.assertIn("canonical-image-pin", result["failed_checks"])
+
+
+class ProjectContextConsumerTests(unittest.TestCase):
+    def test_accepts_only_actual_boolean_authority_and_supported_status(self) -> None:
+        from atrinik_workspace import project_delivery
+        from atrinik_workspace.project_coordinator import ProjectError
+        import subprocess
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "components.json").write_text("{}")
+            for status in ("canonical-linux", "native-linux"):
+                result = {"authoritative": True, "status": status}
+                with mock.patch.object(project_delivery.subprocess, "run", side_effect=[
+                    subprocess.CompletedProcess([], 0, stdout=json.dumps(result).encode()),
+                    subprocess.CompletedProcess([], 0, stdout=str(root / ".git") + "\n")]):
+                    self.assertEqual(project_delivery.context(), root)
+            invalid = [{}, [], {"authoritative": "true", "status": "native-linux"},
+                       {"authoritative": False, "status": "native-linux"},
+                       {"authoritative": 1, "status": "canonical-linux"},
+                       {"authoritative": True, "status": "native-windows"},
+                       {"authoritative": True, "status": "windows-cross"},
+                       {"authoritative": True, "status": "unknown-or-unsafe"},
+                       {"authoritative": True, "status": []}]
+            for result in invalid:
+                with self.subTest(result=result), mock.patch.object(
+                    project_delivery.subprocess, "run",
+                    return_value=subprocess.CompletedProcess([], 0, stdout=json.dumps(result).encode())
+                ) as run:
+                    with self.assertRaises(ProjectError):
+                        project_delivery.context()
+                    self.assertEqual(run.call_count, 1)
+
+    def test_nonzero_and_malformed_probe_stop_before_git_or_state(self) -> None:
+        from atrinik_workspace import project_delivery
+        from atrinik_workspace.project_coordinator import ProjectError
+        import subprocess
+        for code, output in ((2, b"{}"), (0, b"not json")):
+            with self.subTest(code=code), mock.patch.object(project_delivery.subprocess, "run",
+                    return_value=subprocess.CompletedProcess([], code, stdout=output)) as run:
+                with self.assertRaises((ProjectError, ValueError)):
+                    project_delivery.context()
+                self.assertEqual(run.call_count, 1)
 
 
 if __name__ == "__main__":

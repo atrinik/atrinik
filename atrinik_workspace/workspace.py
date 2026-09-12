@@ -8049,6 +8049,7 @@ class Workspace:
         use_ccache: bool = True,
         build_services: set[str] | None = None,
         generate_region_maps: bool = True,
+        portable: bool = False,
     ) -> Path:
         requested_services = set(targets).intersection(TOPOLOGY_SERVICES)
         selective_build = build_services is not None
@@ -8061,7 +8062,11 @@ class Workspace:
                     "selective build services are outside the requested topology: "
                     + ", ".join(sorted(invalid_services))
                 )
-        key = self._profile_build_key(profile_name, selected)
+        if portable:
+            from .linux_portable import IMAGE
+            key = self._profile_build_key(profile_name, selected, variant="linux-portable:" + IMAGE)
+        else:
+            key = self._profile_build_key(profile_name, selected)
         root = self.paths.builds / "profiles" / f"{profile_name}-{key}"
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
@@ -8090,9 +8095,9 @@ class Workspace:
                         root, selected, profile_name
                     )
                 if stack.name == "classic":
-                    gpu_shader = self._prepare_gpu_shader(
-                        root, selected, profile_name
-                    )
+                    gpu_shader = (self._gpu_shader_external_record("/opt/atrinik-portable/shaders")
+                                  if portable else self._prepare_gpu_shader(
+                                      root, selected, profile_name))
             elif sound_root is not None:
                 profile = self._load_profile(profile_name, require_file=False)
                 if profile["sound_mode"] == SOURCE_MODE:
@@ -8132,6 +8137,8 @@ class Workspace:
                         "component": stack.providers["client"],
                         "sound_root": sound_root,
                     }
+                    if portable:
+                        client_arguments["portable"] = True
                     if selective_build:
                         client_arguments["build_target"] = "atrinik"
                     if gpu_shader is not None:
@@ -9112,7 +9119,7 @@ class Workspace:
         return states
 
     def _profile_build_key(
-        self, profile_name: str, selected: dict[str, Path]
+        self, profile_name: str, selected: dict[str, Path], *, variant: str = ""
     ) -> str:
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
@@ -9138,6 +9145,8 @@ class Workspace:
             f"{json.dumps(profile['sound_release'], sort_keys=True, separators=(',', ':'))};"
             f"providers:{providers}"
         )
+        if variant:
+            namespace += ";variant:" + variant
         return profile_key(selected, namespace=namespace)
 
     def _expand_build_target(self, target: str, profile_name: str) -> list[str]:
@@ -11883,6 +11892,7 @@ class Workspace:
         sound_root: Path | None = None,
         build_target: str | None = None,
         gpu_shader: dict[str, Any] | None = None,
+        portable: bool = False,
     ) -> None:
         peer_inputs = any(
             peer.name != component.name and peer.checkout_name == component.checkout_name
@@ -11923,6 +11933,10 @@ class Workspace:
             f"-DFETCHCONTENT_SOURCE_DIR_LIBATRINIK={library}",
             *self._classic_identity_arguments(selected["client"]),
         ]
+        if portable:
+            arguments.extend(["-DCMAKE_SKIP_RPATH=ON", "-DCMAKE_BUILD_TYPE=Release",
+                              "-DCMAKE_C_FLAGS=-O2 -march=x86-64 -mtune=generic",
+                              "-DCMAKE_CXX_FLAGS=-O2 -march=x86-64 -mtune=generic"])
         if gpu_shader is not None:
             arguments.extend(self._gpu_shader_cmake_arguments(gpu_shader))
         if build_target is None:

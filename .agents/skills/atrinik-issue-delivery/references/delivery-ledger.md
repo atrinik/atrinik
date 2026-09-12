@@ -185,6 +185,13 @@ observation without a worker login. Host-supplied actor JSON is still not proof.
 The helper strips arbitrary `GH_CONFIG_DIR` overrides; retain its environment
 filtering and verify the mounted login through the live helper.
 
+For an accepted direct-native Linux coordinator, the protected helper instead
+uses the proven passwd user's standard `~/.config/gh` through `HOME`.
+Follow the native section of [the auth contract](../../../../docs/COORDINATOR_AUTH.md);
+`GH_CONFIG_DIR` remains filtered. Native actor/target proof, no-follow source/Git
+validation, worktree binding and CAS/lease requirements are identical. A
+container-mount example does not impose a fixed ubuntu identity on native hosts.
+
 Before any dynamic `Workspace` import or Python execution, live proof performs
 a bounded component-wise no-follow ownership/mode prevalidation of the complete
 importable `atrinik_workspace` source/bytecode tree. It fingerprints every

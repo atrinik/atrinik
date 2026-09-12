@@ -232,7 +232,8 @@ initializing or mutating delivery evidence:
 python3 scripts/atrinik_coordinator_context.py --json
 ~~~
 
-Continue only for `canonical-linux` with `authoritative: true`. The probe also
+Continue only for `canonical-linux` or `native-linux` with `authoritative: true`.
+The [direct native contract](docs/LINUX_EXECUTION.md) defines the latter. The probe also
 recognizes `native-windows`, `windows-cross`, and `unknown-or-unsafe` with a
 bounded next action. The probe reports an entry mode as a diagnostic, but the
 authoritative result comes only from the complete pinned identity, ownership,
@@ -240,20 +241,23 @@ workspace, ledger, Codex-home, and configured-path contract.
 
 #### Codex entry modes
 
-Delivery supports exactly two Codex entry modes:
+Delivery supports these proven Codex entry modes:
 
 - **Already inside the canonical VS Code devcontainer:** continue in the
   current plugin process, workspace, ledger root, worktree, and warm caches.
   Do not invoke Docker or the Dev Containers CLI merely to create, attach,
-  recreate, reconfigure, or re-enter another container.
-- **Native-host bootstrap:** before delivery work, enter or attach to the
+  recreate, remount, or re-enter another container.
+- **Supported native Linux:** use the [direct-host contract](docs/LINUX_EXECUTION.md),
+  actual passwd identity, private Codex home and a dedicated safe worktree.
+  Existing authentication, filesystem, ledger/CAS and lease gates remain intact.
+- **Windows or unsupported-host bootstrap:** before delivery work, enter or attach to the
   pinned ordinary Linux devcontainer with Docker or the Dev Containers CLI.
   The native host may perform only that minimum bootstrap/attach and approved
   Git/GitHub/commit operations. Wrapper/context, ownership, repository and
   worktree setup, ledger locks/CAS/leases/recovery, edits, tests, builds,
   review, and validation all run inside the container.
 
-In both modes, Codex must never launch or control VS Code, invoke `code` or
+In every mode, Codex must never launch or control VS Code, invoke `code` or
 `code.cmd`, send a VS Code URI, or use GUI automation. VS Code setup text in
 this README is for a human developer, not an agent handoff. A persistent
 session is reusable only while its owner, pinned image, current
@@ -341,15 +345,17 @@ profile, container name and ID, pinned image digest, source mounts and live
 identities, named volumes and targets, start/last-activity times, idle
 deadline, active services, and cleanup owner.
 
-A native host bootstraps once, then keeps using the returned container. It may
-run only bootstrap/attach, exact identity inspection, and approved
-Git/GitHub/commit operations. Require one exact active container row; ambiguity
+The canonical-container entry mode bootstraps once, then keeps using the
+returned container. Its host runs only bootstrap/attach, exact identity
+inspection, and approved Git/GitHub/commit operations. Direct native Linux
+uses the separate [accepted native authority and execution contract](docs/LINUX_EXECUTION.md);
+a candidate cannot activate that authority for its own delivery. Require one exact active container row; ambiguity
 fails closed. After selecting its exact ID, run the coordinator and wrapper
 commands inside that container:
 
 ~~~sh
 HOST_REPO="$(pwd)"
-devcontainer up --workspace-folder "$HOST_REPO"
+devcontainer up --workspace-folder "$HOST_REPO" --config "$HOST_REPO/.devcontainer/devcontainer.json"
 docker ps --filter "label=devcontainer.local_folder=$HOST_REPO" \
   --format '{{.ID}}\t{{.Names}}'
 CONTAINER_ID=THE_EXACT_ID_FROM_THE_LIST
@@ -438,6 +444,37 @@ The Atrinik development container supplies the native build dependencies. Run
 all commands below from this repository's root.
 
 ### Development container
+
+The default [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json)
+is display-independent: no graphics device, display socket, audio endpoint,
+WSL path, host networking or nested Docker daemon is required to create it.
+The immutable Linux image currently supplies Ubuntu 26.04 userland. This is
+container toolchain evidence, not native Ubuntu/Debian desktop qualification.
+
+Select the configuration explicitly from a terminal with the Dev Containers CLI:
+
+~~~sh
+# Linux CPU-only builds, documentation and headless agent work:
+devcontainer up --workspace-folder . --config .devcontainer/devcontainer.json
+devcontainer exec --workspace-folder . --config .devcontainer/devcontainer.json bash
+
+# Windows/WSL2 with WSLg desktop resources:
+devcontainer up --workspace-folder . --config .devcontainer/windows-wslg/devcontainer.json
+devcontainer exec --workspace-folder . --config .devcontainer/windows-wslg/devcontainer.json bash
+~~~
+
+The explicit WSLg configuration retains its graphics, audio and Docker feature
+contract; the Windows cross-build role remains separate. Configuration selection
+does not grant delivery authority: rerun the coordinator probe and the exact
+worktree/ledger/lease checks in the selected session. Existing canonical
+sessions continue in place.
+
+Run `python3 -m atrinik_workspace.linux_platform` inside the selected environment
+before repository operations to check build tools and Git LFS filters without
+consulting display variables. Add `--docker` only for operations that need a
+Docker daemon. A daemon permission failure requires a Docker/user-access fix;
+adding GPU flags or display mounts cannot repair it. The headless default
+does not grant access to the host Docker socket or start a privileged daemon.
 
 For a human developer, open this wrapper repository in VS Code and choose
 **Dev Containers: Reopen in Container** to use the pinned Linux build
@@ -1689,19 +1726,19 @@ A saved Classic-derived profile may instead consume the publishable Classic
 compatibility runtime from an immutable `atrinik/sound` release. Released mode
 does not invoke a source builder and never falls back to `source` or
 `local-playtest`. Supply every coordinate posted by the sound release. For
-example, the published v1.4.1 Classic runtime is selected with:
+example, the published v1.0.0 Classic runtime is selected with:
 
 ~~~sh
 ./atrinik profile create classic-released-audio --from classic
 ./atrinik profile sound-mode classic-released-audio released \
   --release-repository atrinik/sound \
-  --release-tag v1.4.1 \
-  --release-product-version 1.4.1 \
-  --release-source-commit 49a169bf41568e4e3b3ac70dfaf42b1a3eabe985 \
-  --release-source-tree 92b81774820dfd55944f4d7b005c1dc344b43561 \
-  --release-asset-url https://github.com/atrinik/sound/releases/download/v1.4.1/atrinik-sound-classic-runtime-1.4.1.tar.gz \
-  --release-archive-sha256 8373868ab4632eda58ae7959909f414a10a43ce519dd1ef9e7f911d4fa208a52 \
-  --release-manifest-sha256 7961ea27069c2cd54131466394571942d486e31e1007c9d957b97cb8b0d63b56 \
+  --release-tag v1.0.0 \
+  --release-product-version 1.0.0 \
+  --release-source-commit d0561bf9ff8dc88836818dbe602a5a256c6c0e3f \
+  --release-source-tree f464de12f943f1844f8587ca1a7419f6b78b9e44 \
+  --release-asset-url https://github.com/atrinik/sound/releases/download/v1.0.0/atrinik-sound-classic-runtime-1.0.0.tar.gz \
+  --release-archive-sha256 e3f17d314b3933db9c6af3f9290c5df79375a6cc3d570ea29f225b53de362784 \
+  --release-manifest-sha256 2d7a1ba78e4f484aa0554809f72b14345c40d37cc2d46daf0416de69627f2cbb \
   --release-source-manifest-sha256 3aacd122abe16da771ac1eb6ad80c50c1c6e7ab43d555dc8772f21be24248366 \
   --release-schema-sha256 428e1312d9922ab4ec20c0ee89d93d842528db6d8cc75197c135f4d4f59066aa \
   --release-toolchain-sha256 ee842444c37df3c6784665c2dacef4ab9220f3abfc5c2daf9214fe4b40aadbf7 \
@@ -1724,6 +1761,18 @@ build key, while incomplete or mismatched caches fail closed and remain covered
 by normal preview-first build cleanup. Supply-chain audit output identifies the
 selected archive, source commit/tree, and logical tree; license, CycloneDX, and
 SPDX reports for that profile also carry the complete immutable coordinate set.
+
+## Portable Linux client
+
+[Linux execution and export](docs/LINUX_EXECUTION.md) documents native dependency
+preflight, terminal bootstrap/reconnect, explicit X11/XWayland and GPU/audio
+selection, the movable Classic client, and a separate persistent headless server.
+The public commands are `./atrinik linux export --profile NAME --output DIRECTORY`
+and `./atrinik linux verify DIRECTORY`. Export requires the pinned portable
+producer and a verified released-sound profile matching the selected source.
+Before merge, the automatic nonpublishing pull-request acceptance job is the
+actual producer route. Keep relocation/decoding, hardware gameplay, audible
+playback, Windows/WSLg, MXE and native Windows D3D12 evidence separate.
 
 ## Deterministic test scenarios
 

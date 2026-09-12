@@ -125,7 +125,8 @@ git config --global commit.gpgsign true
 Leave `commit.gpgsign` unset and use `git commit -S` for per-commit opt-in
 if a global default is not wanted. The private key and signing configuration
 stay on the host. Native host Git is the default place to create and sign
-commits; use the Docker/devcontainer for compilation and tests. An exceptional
+commits; use a proven native Linux host or the pinned Docker/devcontainer for
+compilation/tests, following [the execution contract](docs/LINUX_EXECUTION.md). An exceptional
 container commit may forward `SSH_AUTH_SOCK` when that workflow explicitly
 supports it, but never copy or mount a private key or private `.ssh` directory.
 
@@ -345,3 +346,13 @@ Dependency and license diagnostics (`./atrinik supply-chain ...`) are optional.
 Catalog maintenance and diagnostic findings never gate changes, PR readiness,
 or delivery. Update the catalog only when explicitly requested; use component
 lockfiles and actual source notices for current build inputs and licensing.
+
+For Linux execution/export changes, run focused platform, coordinator-context,
+CLI/export and portable acceptance tests, then the complete wrapper checks.
+Actual portable export runs in the pinned producer through automatic nonpublishing
+pull-request CI with a clean Classic commit and verified released sound. Verify
+the moved output with original source/build paths unavailable. Record loader and
+media decoding separately from hardware Vulkan gameplay, authenticated QUIC,
+persistent-state restart and audible playback. Preserve distinct Windows/WSLg,
+MXE and native Windows D3D12 evidence. A candidate native authority contract cannot
+authorize its own delivery; activation follows merge and parent acceptance.

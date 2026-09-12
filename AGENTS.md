@@ -8,8 +8,8 @@
   Observatory, shared `web-platform`, source-only `deploy-control`; M1
   lacks wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
   playtester; never mix providers.
-- Windows supports repository commands; delivery-ledger needs pinned Linux
-  devcontainer; Linux-only commands fail stably.
+- Delivery needs live `canonical-linux` or accepted `native-linux` proof. Windows
+  supports repository commands; Linux-only operations fail stably elsewhere.
 
 ## Folder structure and ownership
 
@@ -34,10 +34,12 @@
   migration/cleanup/releases/CLI/layout; add specialists and use
   `atrinik-guidance-maintenance` for audits.
 - Invoke `atrinik-issue-delivery` explicitly for an issue or existing PR; it stops before merge.
+- Portable export needs clean Classic sources, verified released sound and the
+  pinned producer. Keep byte, gameplay and audible proof separate.
 - Native Windows Classic GPU preflight: follow `docs/WINDOWS_GPU_PREFLIGHT.md`; keep Linux coordinator and native results separate.
 - Use `atrinik-project-delivery` for parallel projects; legacy `atrinik-program-delivery` remains explicit-only. See `docs/PROJECT_DELIVERY_GOAL.md`.
-- Codex delivery has two entry modes: continue in the canonical VS Code devcontainer or bootstrap/attach the pinned Linux devcontainer from a native host; host work is limited to bootstrap/attach and approved Git/GitHub/commit operations; wrapper/ledger/worktree/edit/test/build/review/validation stay inside.
-- Codex never launches/controls VS Code; no URIs, GUI automation, or nesting. Reuse exact owner/container/image/configured-mount-path/worktree/ledger coordinates only; reconnect rechecks probe, worktree, ledger and leases. Bound shutdown to owner. Isolate mutable state; share host GitHub auth read-only per `docs/COORDINATOR_AUTH.md`.
+- Codex entry modes: stay inside the canonical VS Code devcontainer, attach the pinned container from a native host, or use proven native Linux. See docs/LINUX_EXECUTION.md. Require context proof and worktree/ledger/CAS/lease gates. Windows host work is bootstrap/attach or approved Git/GitHub/commits. Unaccepted authority cannot authorize its own delivery.
+- Codex never launches/controls VS Code; no URIs, GUI automation, nesting or remounting. Reuse exact owner/container/image/configured-mount-path/worktree/ledger coordinates only; reconnect rechecks probe, worktree, ledger and leases. Bound shutdown to owner. Isolate mutable state; share host GitHub auth read-only per `docs/COORDINATOR_AUTH.md`.
 - Never replace dirty primaries/remove dirty worktrees or overwrite mutable server data; preserve migration inputs.
 - Cleanup is preview-first; delivery grants none. Keep ledger transactions separate from `./atrinik cleanup`; preserve dirty/detached/locked/active/referenced/uncertain targets; history fails closed.
 - Worktrees belong to physical checkouts; `classic`, `classic-*`, and its roles

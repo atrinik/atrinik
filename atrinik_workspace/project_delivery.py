@@ -27,8 +27,9 @@ def context() -> Path:
                              "--json"], capture_output=True, timeout=30, check=False)
     require(result.returncode == 0, "coordinator probe failed")
     probe = json.loads(result.stdout)
-    require(probe.get("authoritative") is True and probe.get("status") == "canonical-linux",
-            "project operations require the supported canonical Linux coordinator")
+    require(isinstance(probe, dict) and probe.get("authoritative") is True
+            and probe.get("status") in ("canonical-linux", "native-linux"),
+            "project operations require a proven canonical container or supported native Linux coordinator")
     common = subprocess.run(["git", "-C", str(SOURCE_ROOT), "rev-parse", "--path-format=absolute",
                              "--git-common-dir"], capture_output=True, text=True, timeout=20, check=True)
     root = Path(common.stdout.strip()).parent

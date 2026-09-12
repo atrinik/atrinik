@@ -278,6 +278,10 @@ def _read_mountinfo(path: Path) -> dict[str, MountInfo]:
     # /proc/1 avoids the /proc/self symlink while retaining the current mount
     # namespace.  The file is virtual and is intentionally read-only here.
     text = _read_bounded(path, MAX_MOUNTINFO_BYTES, "mountinfo")
+    return _parse_mountinfo(text)
+
+
+def _parse_mountinfo(text: str) -> dict[str, MountInfo]:
     mounts: dict[str, MountInfo] = {}
     for line in text.splitlines():
         prefix, separator, suffix = line.partition(" - ")
@@ -440,6 +444,191 @@ def _result(
     }
 
 
+# Native support is a host-user contract, not remote attestation. A trusted
+# administrator can construct a container/chroot that resembles a host.
+NATIVE_LINUX_STATUS = "native-linux"
+NATIVE_DISTRIBUTIONS = {"ubuntu": {"24.04", "26.04"}, "debian": {"12", "13"}}
+NATIVE_FILESYSTEMS = frozenset({"ext4", "xfs", "btrfs", "zfs", "tmpfs"})
+
+
+def _native_open(path: Path, uid: int, *, directory: bool = False) -> int:
+    """Pin every ancestor and require trusted ownership/modes without links."""
+    candidate = _absolute(path)
+    descriptor = os.open(candidate.anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        anchor = os.fstat(descriptor)
+        if anchor.st_uid not in (0, uid) or anchor.st_mode & 0o022:
+            raise ProbeError("native-path-owner-or-mode")
+        if not stat.S_ISDIR(anchor.st_mode):
+            raise ProbeError("native-path-type")
+        for index, part in enumerate(candidate.parts[1:]):
+            last = index == len(candidate.parts) - 2
+            flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
+            if not last or directory:
+                flags |= os.O_DIRECTORY
+            child = os.open(part, flags, dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+            info = os.fstat(descriptor)
+            if info.st_uid not in (0, uid) or info.st_mode & 0o022:
+                raise ProbeError("native-path-owner-or-mode")
+            if not (stat.S_ISDIR(info.st_mode) if not last or directory else stat.S_ISREG(info.st_mode)):
+                raise ProbeError("native-path-type")
+        return descriptor
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _native_read(path: Path, uid: int, limit: int = 16384) -> str:
+    descriptor = _native_open(path, uid)
+    with os.fdopen(descriptor, "rb") as stream:
+        before = os.fstat(stream.fileno())
+        data = stream.read(limit + 1)
+        after = os.fstat(stream.fileno())
+        if (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_ctime_ns) != (
+            after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns):
+            raise ProbeError("native-input-changed")
+    if len(data) > limit:
+        raise ProbeError("native-input-oversized")
+    return data.decode("utf-8")
+
+
+def _native_probe(
+    root: Path, environment: Mapping[str, str], uid: int, failures: list[str],
+    *, runtime_root: Path, cwd: Path | None,
+) -> dict[str, object]:
+    """Recognize an ordinary unprivileged systemd Linux host.
+
+    Kernel/procfs, installed OS and host administrator are trusted. Initial
+    user mappings reject ordinary rootless namespace ownership forgery.
+    This does not attest PID1 executable bytes or exclude admin-created chroots.
+    """
+    try:
+        import pwd
+
+        account = pwd.getpwuid(uid)
+        for relative in ("components.json", ".devcontainer/devcontainer.json",
+                         ".devcontainer/windows-cross/devcontainer.json"):
+            # Common configuration validation above must also have trusted
+            # descriptor-pinned ancestors on a direct native host.
+            _native_read(root / relative, uid, MAX_COMPONENTS_BYTES)
+        if uid == 0:
+            failures.append("native-root-user")
+        home = Path(account.pw_dir)
+        if environment.get("HOME") != str(home):
+            failures.append("native-passwd-home")
+        codex = Path(environment.get("CODEX_HOME", str(home / ".codex")))
+        if not codex.is_absolute():
+            failures.append("native-codex-path")
+        if not _absolute(cwd or Path.cwd()).is_relative_to(root):
+            failures.append("current-directory-outside-repository")
+        if environment.get("ATRINIK_COORDINATOR_NESTED") == "true" or environment.get("ATRINIK_COORDINATOR_DEPTH", "0") != "0":
+            failures.append("nested-coordinator")
+        if environment.get("DEVCONTAINER_IMAGE") or environment.get("DEVCONTAINER") == "true":
+            failures.append("native-container-environment-mismatch")
+        if not _posix_locking_available():
+            failures.append("posix-locking-unavailable")
+
+        # Read live caller mountinfo, not PID1's potentially different namespace.
+        proc = runtime_root / "proc"
+        caller = proc / str(os.getpid())
+        mount_path = caller / "mountinfo"
+        mount_text = _native_read(mount_path, uid, MAX_MOUNTINFO_BYTES)
+        mounts = _parse_mountinfo(mount_text)
+        proc_identity = _mount_for_path(proc, mounts)
+        proc_fd = _native_open(proc, 0, directory=True)
+        try:
+            proc_info = os.fstat(proc_fd)
+        finally:
+            os.close(proc_fd)
+        if proc_identity is None or proc_identity.filesystem != "proc":
+            failures.append("native-procfs")
+        else:
+            _check_mount(proc, "native-procfs", proc_info, mounts, failures)
+        for process in (caller, proc / "1"):
+            for field in ("uid_map", "gid_map"):
+                rows = _native_read(process / field, uid).splitlines()
+                if len(rows) != 1 or rows[0].split() != ["0", "0", "4294967295"]:
+                    failures.append("native-initial-user-namespace")
+        status = _native_read(proc / "1/status", 0)
+        fields = dict(line.split(":", 1) for line in status.splitlines() if ":" in line)
+        if fields.get("Name", "").strip() != "systemd" or fields.get("Uid", "").split() != ["0"] * 4:
+            failures.append("native-systemd-init")
+        # /proc/1/exe and namespace links may be ptrace-denied to normal users.
+        # Do not demand elevated permissions merely to read those links.
+        kernel = _native_read(proc / "sys/kernel/osrelease", 0).lower()
+        if "microsoft" in kernel or "wsl" in kernel:
+            failures.append("native-wsl-host-boundary")
+        os_release = _native_read(runtime_root / "usr/lib/os-release", 0)
+        distribution: dict[str, str] = {}
+        for line in os_release.splitlines():
+            if line.startswith(("ID=", "VERSION_ID=")):
+                key, value = line.split("=", 1)
+                if key in distribution:
+                    raise ProbeError("native-distribution-duplicate")
+                if not re.fullmatch(r'[A-Za-z0-9._-]+|"[A-Za-z0-9._-]+"', value):
+                    raise ProbeError("native-distribution-value")
+                distribution[key] = value[1:-1] if value.startswith('"') else value
+        if distribution.get("VERSION_ID") not in NATIVE_DISTRIBUTIONS.get(distribution.get("ID", ""), set()):
+            failures.append("native-distribution-unsupported")
+        systemd = _native_open(runtime_root / "usr/lib/systemd/systemd", 0)
+        try:
+            if not os.fstat(systemd).st_mode & 0o111:
+                failures.append("native-systemd-installation")
+        finally:
+            os.close(systemd)
+        systemd_runtime = _native_open(runtime_root / "run/systemd/system", 0, directory=True)
+        os.close(systemd_runtime)
+        if _lstat_no_follow(runtime_root / "run/systemd/container", "native-container-declaration", allow_missing=True) is not None:
+            failures.append("native-container-declaration")
+        for path, label in ((runtime_root, "native-root"), (root, "repository-root"),
+                            (home, "native-home"), (codex, "codex-home")):
+            descriptor = _native_open(path, uid, directory=True)
+            try:
+                info = os.fstat(descriptor)
+                if label in {"repository-root", "native-home", "codex-home"} and info.st_uid != uid:
+                    failures.append("native-user-directory-owner")
+                if label == "codex-home" and info.st_mode & 0o077:
+                    failures.append("unsafe-codex-home-mode")
+                identity = _mount_for_path(path, mounts)
+                if identity is None or identity.filesystem not in NATIVE_FILESYSTEMS:
+                    failures.append("native-filesystem-unsupported")
+                _check_mount(path, label, info, mounts, failures)
+            finally:
+                os.close(descriptor)
+        for relative in ("workspace", "build", "build/reviews"):
+            path = root / relative
+            try:
+                descriptor = _native_open(path, uid, directory=True)
+            except FileNotFoundError:
+                # The helper creates missing descendants only after its own
+                # full pinned-parent proof; absence grants no reuse authority.
+                continue
+            try:
+                info = os.fstat(descriptor)
+                if info.st_uid != uid:
+                    failures.append("native-mutable-directory-owner")
+                identity = _mount_for_path(path, mounts)
+                if identity is None or identity.filesystem not in NATIVE_FILESYSTEMS:
+                    failures.append("native-filesystem-unsupported")
+                _check_mount(path, relative.replace("/", "-"), info, mounts, failures)
+            finally:
+                os.close(descriptor)
+    except (OSError, KeyError, ValueError, UnicodeError, ProbeError):
+        failures.append("native-host-proof-unavailable-or-unsafe")
+    if failures:
+        return _result(UNKNOWN_STATUS, False, failures,
+                       "Use a supported systemd Ubuntu/Debian host with trusted native filesystems, "
+                       "your passwd home and private Codex directory, or attach the pinned Linux container; "
+                       "rerun the probe and exact ledger/worktree gates.",
+                       "native-linux-contract-failed", entry_mode=ENTRY_MODE_NATIVE_HOST)
+    return _result(NATIVE_LINUX_STATUS, True, [],
+                   "Native Linux context proved; continue with authenticated ledger, dedicated worktree "
+                   "and exact ownership/CAS/lease gates.",
+                   "native-linux-coordinator", entry_mode=ENTRY_MODE_NATIVE_HOST)
+
+
 def probe(
     root: Path,
     *,
@@ -494,7 +683,11 @@ def probe(
             entry_mode=_entry_mode(environment, host=host),
         )
 
+    runtime_marker = _marker_present(runtime_root, failures)
     role_signals = _mxe_signals(environment, user_name)
+    if not runtime_marker:
+        role_signals = [signal for signal in role_signals
+                        if signal not in {"windows-cross-remote-user", "windows-cross-home"}]
     if role_signals:
         return _result(
             WINDOWS_CROSS_STATUS,
@@ -579,6 +772,10 @@ def probe(
         "PATH"
     ) != "/opt/mxe/usr/bin:${containerEnv:PATH}":
         failures.append("windows-cross-mxe-reference")
+
+    if not _marker_present(runtime_root, failures):
+        return _native_probe(repository_root, environment, uid, failures,
+                             runtime_root=runtime_root, cwd=cwd)
 
     configured_workspace = canonical_config.get("workspaceFolder")
     try:
