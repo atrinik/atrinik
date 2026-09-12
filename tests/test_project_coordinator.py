@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+from datetime import datetime, timedelta, timezone
 import json
 import multiprocessing
 import os
@@ -12,7 +13,7 @@ from unittest.mock import patch
 
 from atrinik_workspace.project_coordinator import (
     ProjectError, attest, conflict, digest, new_project, record_worker, replan, require,
-    reopen, reserve, retry, schedule, terminal_gaps, validate_plan, validate_project, worker_result,
+    reopen, reserve, reserve_existing, retry, schedule, terminal_gaps, validate_plan, validate_project, worker_result,
 )
 from atrinik_workspace.project_coordinator_store import Store, decode, read_input
 from atrinik_workspace.project_coordinator_github import (
@@ -46,6 +47,180 @@ def race(root, expected, queue):
         queue.put("won")
     except (ProjectError, OSError):
         queue.put("lost")
+
+
+def retired_project(nodes=None):
+    p = project(nodes)
+    request = reserve(p, 1, 1)[0]
+    record_worker(p, request["coordinate"], request["attempt"], "/root/leaf")
+    worker_result(p, request["coordinate"], request["attempt"], "ready", "exact leaf checkpoint")
+    retry(p, request["coordinate"], request["attempt"], "runtime completed; exact leaf remains owned")
+    changed = copy.deepcopy(p["plan"])
+    changed["nodes"][0]["writes"] = ["phase-two"]
+    replan(p, changed)
+    return p
+
+
+def runtime_observation(p, expected, capacity=17):
+    agents = {"/root": "running", "/root/leaf": "completed"}
+    for state in p["nodes"].values():
+        if state["worker"] and state["worker"] not in agents:
+            agents[state["worker"]] = "running" if state["state"] == "running" else "completed"
+    for index in range(capacity - len(agents)):
+        agents[f"/root/reviewer_{index}"] = "completed"
+    return {"schema_version": 1, "observed_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "snapshot": {k: expected[k] for k in ("generation", "digest", "path")},
+            "project": {"actor": p["actor"], "authority": p["authority"], "parent": p["plan"]["parent"]},
+            "runtime": {"namespace": "/root", "capacity_domain": "whole-thread-tree", "capacity": capacity,
+                        "complete": True, "agents": [{"agent_name": name, "agent_status": {"completed": "Retained runtime result"} if status == "completed" else status}
+                                                       for name, status in agents.items()]},
+            "selection": {"worker": "/root/leaf", "coordinate": "atrinik/atrinik#2", "entry_mode": "issue",
+                          "retired_attempt": p["nodes"]["atrinik/atrinik#2"]["attempt"],
+                          "evidence": "Runtime task history matches this retired attempt; exact leaf ledger/head checked."}}
+
+
+class ExistingReservationTests(unittest.TestCase):
+    def reserve(self, p, observation=None, heavy=1):
+        expected = {"generation": p["generation"], "digest": digest(p), "path": "/private/project.json"}
+        observation = observation or runtime_observation(p, expected)
+        return reserve_existing(p, "atrinik/atrinik#2", "/root/leaf", observation, expected, heavy)
+
+    def test_full_capacity_retry_replan_keeps_handle_and_requires_accepted_start(self):
+        p = retired_project()
+        previous = p["nodes"]["atrinik/atrinik#2"]["attempt"]
+        self.assertEqual(reserve(p, 17, 1, 17), [])
+        result = self.reserve(p)
+        self.assertEqual((result["worker"], result["writes"]), ("/root/leaf", ["phase-two"]))
+        self.assertNotEqual(result["attempt"], previous)
+        self.assertEqual(result["previous_attempt"], previous)
+        self.assertEqual(p["nodes"][result["coordinate"]]["state"], "reserved")
+        before = copy.deepcopy(p)
+        for attempt in (previous, result["attempt"]):
+            with self.assertRaises(ProjectError):
+                worker_result(p, result["coordinate"], attempt, "ready", "unstarted or old result")
+        with self.assertRaises(ProjectError):
+            record_worker(p, result["coordinate"], result["attempt"], "/root/other")
+        with self.assertRaises(ProjectError):
+            self.reserve(p)
+        self.assertEqual(p, before)
+        record_worker(p, result["coordinate"], result["attempt"], result["worker"])
+        worker_result(p, result["coordinate"], result["attempt"], "ready", "fresh leaf result")
+        renewed = reopen(p, result["coordinate"], result["attempt"], "same owner; reviewer finding", 1)
+        self.assertNotEqual(renewed["attempt"], result["attempt"])
+
+    def test_actual_tagged_completed_rows_bind_digest_without_copying_runtime_results(self):
+        p = retired_project()
+        expected = {"generation": p["generation"], "digest": digest(p), "path": "/private/project.json"}
+        observation = runtime_observation(p, expected)
+        private_result = "private runtime completion text must remain outside persisted project"
+        for agent in observation["runtime"]["agents"][1:]:
+            agent["agent_status"] = {"completed": private_result}
+        result = self.reserve(p, observation)
+        self.assertEqual(result["runtime_observation_sha256"], digest(observation))
+        self.assertNotIn(private_result, json.dumps(p))
+        self.assertNotIn(private_result, json.dumps(result))
+
+    def test_pending_requires_retired_attempt_and_no_existing_binding(self):
+        for change in (lambda s: s.update(attempt=None), lambda s: s.update(worker="/root/leaf"),
+                       lambda s: s.update(state="running"), lambda s: s.update(attempt="unknown")):
+            p = retired_project(); change(p["nodes"]["atrinik/atrinik#2"]); before = copy.deepcopy(p)
+            with self.assertRaises(ProjectError): self.reserve(p)
+            self.assertEqual(p, before)
+
+    def test_observation_rejects_stale_foreign_ambiguous_and_unknown_inputs_without_mutation(self):
+        changes = [
+            lambda o: o.update(schema_version=True),
+            lambda o: o["snapshot"].update(generation=99),
+            lambda o: o["snapshot"].update(generation=True),
+            lambda o: o["snapshot"].update(digest="f" * 64),
+            lambda o: o["snapshot"].update(path="/other/project.json"),
+            lambda o: o["project"].update(actor="foreign"),
+            lambda o: o["project"].update(authority="other session"),
+            lambda o: o["project"].update(parent="atrinik/atrinik#99"),
+            lambda o: o["runtime"].update(namespace="/foreign"),
+            lambda o: o["runtime"].update(capacity_domain="children-only"),
+            lambda o: o["runtime"].update(complete=False),
+            lambda o: o["runtime"].update(capacity=True),
+            lambda o: o["runtime"].update(capacity=16),
+            lambda o: o["runtime"]["agents"].pop(0),
+            lambda o: o["runtime"]["agents"].pop(1),
+            lambda o: o["runtime"]["agents"][0].update(agent_status="idle"),
+            lambda o: o["runtime"]["agents"][1].update(agent_status="running"),
+            lambda o: o["runtime"]["agents"][1].update(agent_status="interrupted"),
+            lambda o: o["runtime"]["agents"][1].update(agent_status="completed"),
+            lambda o: o["runtime"]["agents"][1].update(agent_status={"completed": None}),
+            lambda o: o["runtime"]["agents"][1].update(agent_status={"completed": [], "running": True}),
+            lambda o: o["runtime"]["agents"][1].update(agent_status={"errored": "unknown result"}),
+            lambda o: o["runtime"]["agents"][2].update(agent_status={"completed": 1}),
+            lambda o: o["runtime"]["agents"][2].update(agent_name="/root/leaf"),
+            lambda o: o["runtime"]["agents"][1].update(agent_name="/root/foreign/leaf"),
+            lambda o: o["selection"].update(worker="/root/fabricated"),
+            lambda o: o["selection"].update(coordinate="atrinik/atrinik#3"),
+            lambda o: o["selection"].update(entry_mode="PR"),
+            lambda o: o["selection"].update(retired_attempt="f" * 64),
+            lambda o: o["selection"].update(evidence=" "),
+            lambda o: o.update(observed_at="2026-02-30T00:00:00Z"),
+            lambda o: o.update(observed_at="not UTC"),
+            lambda o: o.update(observed_at=(datetime.now(timezone.utc) - timedelta(seconds=61)).isoformat().replace("+00:00", "Z")),
+            lambda o: o.update(observed_at=(datetime.now(timezone.utc) + timedelta(seconds=1)).isoformat().replace("+00:00", "Z")),
+        ]
+        for index, change in enumerate(changes):
+            with self.subTest(index=index):
+                p = retired_project(); before = copy.deepcopy(p)
+                expected = {"generation": p["generation"], "digest": digest(p), "path": "/private/project.json"}
+                o = runtime_observation(p, expected); change(o)
+                with self.assertRaises(ProjectError): self.reserve(p, o)
+                self.assertEqual(p, before)
+
+    def test_every_other_node_binding_blocks_reuse_even_terminal(self):
+        for state in ("pending", "reserved", "running", "blocked", "ready", "merged", "accepted", "external"):
+            with self.subTest(state=state):
+                p = retired_project(); p["nodes"]["atrinik/atrinik#3"].update(state=state, worker="/root/leaf")
+                with self.assertRaisesRegex(ProjectError, "already owns another node"): self.reserve(p)
+
+    def test_dependency_conditions_and_stale_acceptance_remain_gates(self):
+        for condition in ("ready", "merged", "accepted"):
+            p = retired_project()
+            p["plan"]["nodes"][0]["dependencies"] = [{"id": "atrinik/atrinik#3", "condition": condition}]
+            with self.assertRaisesRegex(ProjectError, "dependency"): self.reserve(p)
+            p["nodes"]["atrinik/atrinik#3"]["state"] = "accepted" if condition == "accepted" else condition
+            if condition == "accepted":
+                with self.assertRaisesRegex(ProjectError, "dependency"): self.reserve(p)
+            else:
+                self.assertEqual(self.reserve(p)["worker"], "/root/leaf")
+
+    def test_conflicts_heavy_and_unbound_spawn_reservations_remain_occupied(self):
+        for kind in ("write", "read", "resource", "external", "heavy", "spawn"):
+            with self.subTest(kind=kind):
+                p = retired_project(); a, b = p["plan"]["nodes"]
+                other = p["nodes"][b["id"]]
+                other.update(state="reserved", worker="/root/other", attempt="a" * 64)
+                if kind == "write": b["writes"] = ["phase-two/child"]
+                if kind == "read": b["reads"] = ["phase-two"]
+                if kind == "resource": a["resources"] = b["resources"] = ["database"]
+                if kind == "external":
+                    b["external"] = True; b["writes"] = ["phase-two"]
+                    other.update(state="external", worker=None, attempt=None)
+                if kind == "heavy": a["heavy"] = b["heavy"] = True
+                if kind == "spawn": other["worker"] = None
+                before = copy.deepcopy(p)
+                with self.assertRaises(ProjectError): self.reserve(p)
+                self.assertEqual(p, before)
+        p = retired_project(); p["plan"]["nodes"][0]["heavy"] = True
+        with self.assertRaisesRegex(ProjectError, "heavy capacity"): self.reserve(p, heavy=0)
+
+    def test_missing_occupied_worker_and_running_terminal_worker_fail_closed(self):
+        for state in ("ready", "merged", "accepted"):
+            p = retired_project(); p["nodes"]["atrinik/atrinik#3"].update(state=state, worker="/root/other")
+            expected = {"generation": p["generation"], "digest": digest(p), "path": "/private/project.json"}
+            observation = runtime_observation(p, expected)
+            next(a for a in observation["runtime"]["agents"] if a["agent_name"] == "/root/other")["agent_status"] = "running"
+            with self.assertRaisesRegex(ProjectError, "inactive project reservation"): self.reserve(p, observation)
+        p = retired_project(); p["nodes"]["atrinik/atrinik#3"].update(state="reserved", worker="/root/other")
+        expected = {"generation": p["generation"], "digest": digest(p), "path": "/private/project.json"}
+        observation = runtime_observation(p, expected)
+        observation["runtime"]["agents"] = [a for a in observation["runtime"]["agents"] if a["agent_name"] != "/root/other"]
+        with self.assertRaisesRegex(ProjectError, "missing from runtime inventory"): self.reserve(p, observation)
 
 
 class SchedulerTests(unittest.TestCase):

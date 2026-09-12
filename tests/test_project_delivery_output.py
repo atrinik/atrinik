@@ -2,6 +2,7 @@
 from contextlib import redirect_stderr, redirect_stdout
 import io
 import json
+import multiprocessing
 import os
 from pathlib import Path
 import stat
@@ -10,9 +11,9 @@ import unittest
 from unittest.mock import patch
 
 from atrinik_workspace import project_delivery as cli
-from atrinik_workspace.project_coordinator import digest
+from atrinik_workspace.project_coordinator import ProjectError, digest, reserve_existing
 from atrinik_workspace.project_coordinator_store import Store, read_input
-from tests.test_project_coordinator import FakeGitHub, plan, project
+from tests.test_project_coordinator import FakeGitHub, plan, project, retired_project, runtime_observation
 
 
 @unittest.skipUnless(os.name == "posix", "canonical Linux filesystem contract")
@@ -163,6 +164,125 @@ class SnapshotOutputTests(unittest.TestCase):
                 self.assertEqual(response["result"], metadata)
                 self.assertLess(len(json.dumps(response)), 1000)
                 self.assertEqual(read_input(output), snapshot)
+
+
+def race_existing_reservation(root, expected, observation, start, result):
+    start.wait(10)
+    try:
+        snapshot, request = Store(Path(root)).update(expected, lambda p: reserve_existing(
+            p, "atrinik/atrinik#2", "/root/leaf", read_input(Path(observation)), expected, 1))
+        result.put(("reserved", request["attempt"], snapshot["generation"]))
+    except (ProjectError, OSError) as error:
+        result.put(("refused", str(error)))
+
+
+@unittest.skipUnless(os.name == "posix", "canonical Linux filesystem contract")
+class ExistingReservationOutputTests(unittest.TestCase):
+    invoke = SnapshotOutputTests.invoke
+    # Reuse the CLI fixture and invoke helper without inheriting unrelated tests.
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.wrapper = Path(temporary.name)
+        document = retired_project()
+        self.root = self.wrapper / "build" / "project-delivery" / digest({"parent": document["plan"]["parent"]})
+        self.root.mkdir(parents=True, mode=0o700)
+        self.initial = Store(self.root).create(document)
+        for mocked in (patch.object(cli, "context", return_value=self.wrapper),
+                       patch.object(cli, "GitHub", return_value=FakeGitHub())):
+            mocked.start(); self.addCleanup(mocked.stop)
+        self.expected = self.wrapper / "expected.json"
+        self.observation = self.wrapper / "runtime.json"
+        self.invoke(["inspect"], self.expected)
+        self.observation.write_text(json.dumps(runtime_observation(document, self.initial)))
+        self.observation.chmod(0o600)
+        self.command = ["reserve-existing", "atrinik/atrinik#2", "--worker", "/root/leaf",
+                        "--runtime-observation", str(self.observation), "--expected", str(self.expected)]
+
+    def test_reuse_compact_output_is_durable_and_old_snapshot_cannot_reserve_again(self):
+        output = self.wrapper / "reserved.json"
+        code, result, error = self.invoke(self.command, output, True)
+        self.assertEqual((code, error), (0, ""))
+        self.assertEqual(result["result"]["worker"], "/root/leaf")
+        snapshot = read_input(output)
+        self.assertEqual(snapshot, Store(self.root).inspect())
+        state = snapshot["document"]["nodes"]["atrinik/atrinik#2"]
+        self.assertEqual((state["worker"], state["state"]), ("/root/leaf", "reserved"))
+        self.assertEqual(state["attempt"], result["result"]["attempt"])
+        calls = []
+        original = cli.read_input
+        def observed(path, *args):
+            calls.append(path); return original(path, *args)
+        with patch.object(cli, "read_input", side_effect=observed):
+            code, _, error = self.invoke(self.command)
+        self.assertEqual(code, 2); self.assertIn("stale project CAS", error)
+        self.assertNotIn(self.observation, calls)
+        self.assertEqual(Store(self.root).inspect(), snapshot)
+        code, _, error = self.invoke(["worker", "atrinik/atrinik#2", "--attempt", state["attempt"],
+                                     "--id", "/root/other", "--expected", str(output)])
+        self.assertEqual(code, 2); self.assertIn("takeover", error)
+        self.assertEqual(Store(self.root).inspect(), snapshot)
+
+    def test_observation_read_occurs_inside_cas_change_callback(self):
+        original_read, original_update = cli.read_input, Store.update
+        inside = False
+        def update(store, expected, change):
+            def guarded(project):
+                nonlocal inside
+                inside = True
+                try: return change(project)
+                finally: inside = False
+            return original_update(store, expected, guarded)
+        def read(path, *args):
+            if path == self.observation: self.assertTrue(inside)
+            return original_read(path, *args)
+        with patch.object(Store, "update", update), patch.object(cli, "read_input", side_effect=read):
+            self.assertEqual(self.invoke(self.command)[0], 0)
+
+    def test_unsafe_and_oversized_runtime_files_preserve_project(self):
+        link = self.wrapper / "link.json"; link.symlink_to(self.observation)
+        hard = self.wrapper / "hard.json"; os.link(self.observation, hard)
+        fifo = self.wrapper / "pipe.json"; os.mkfifo(fifo, 0o600)
+        huge = self.wrapper / "huge.json"; huge.write_text(" " * (128 * 1024 + 1)); huge.chmod(0o600)
+        duplicate = self.wrapper / "duplicate.json"; duplicate.write_text('{"a":1,"a":2}'); duplicate.chmod(0o600)
+        for path in (link, hard, fifo, huge, duplicate, self.wrapper / "missing.json"):
+            with self.subTest(path=path):
+                command = list(self.command); command[command.index("--runtime-observation") + 1] = str(path)
+                self.assertEqual(self.invoke(command)[0], 2)
+                self.assertEqual(Store(self.root).inspect(), self.initial)
+
+    def test_lost_output_preserves_prebound_reservation_and_requires_reconciliation(self):
+        with patch.object(cli, "publish_result", side_effect=OSError("lost output")):
+            code, result, error = self.invoke(self.command, self.wrapper / "lost.json", True)
+        self.assertEqual(code, 2); self.assertIsNone(result)
+        self.assertIn("command completed", error)
+        self.assertIn("reconcile before any retry", error)
+        current = Store(self.root).inspect()
+        state = current["document"]["nodes"]["atrinik/atrinik#2"]
+        self.assertEqual((state["worker"], state["state"]), ("/root/leaf", "reserved"))
+        self.assertEqual(self.invoke(self.command)[0], 2)
+        self.assertEqual(Store(self.root).inspect(), current)
+
+    def test_concurrent_same_cas_reservations_have_one_winner(self):
+        ctx = multiprocessing.get_context("fork")
+        start, result = ctx.Event(), ctx.Queue()
+        workers = [ctx.Process(target=race_existing_reservation,
+                    args=(str(self.root), self.initial, str(self.observation), start, result)) for _ in range(2)]
+        for worker in workers: worker.start()
+        start.set()
+        try:
+            outcomes = [result.get(timeout=10) for _ in workers]
+            for worker in workers:
+                worker.join(10); self.assertEqual(worker.exitcode, 0)
+            self.assertEqual(sorted(o[0] for o in outcomes), ["refused", "reserved"])
+            current = Store(self.root).inspect()
+            self.assertEqual(current["generation"], self.initial["generation"] + 1)
+            self.assertEqual(current["document"]["nodes"]["atrinik/atrinik#2"]["attempt"],
+                             next(o[1] for o in outcomes if o[0] == "reserved"))
+        finally:
+            for worker in workers:
+                if worker.is_alive(): worker.terminate(); worker.join(10)
+            result.close(); result.join_thread()
 
 
 if __name__ == "__main__":
