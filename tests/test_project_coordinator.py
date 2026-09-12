@@ -348,6 +348,27 @@ class StoreTests(unittest.TestCase):
             self.store.update(initial, lambda p: None)
         self.assertEqual(self.store.inspect(), current)
 
+    def test_cas_accepts_recreated_record_at_same_path(self):
+        initial = self.store.create(project())
+        path = self.root / "project.json"
+        replacement = self.root / "replacement.json"
+        replacement.write_bytes(path.read_bytes())
+        replacement.chmod(0o600)
+        replacement.replace(path)
+        # Old filesystem metadata is inert; the path and content still match.
+        initial.update(device=-1, inode=-1, ctime_ns=-1)
+        current, _ = self.store.update(initial, lambda p: None)
+        self.assertEqual(current["generation"], 2)
+        self.assertEqual(current["path"], str(path))
+        self.assertTrue({"device", "inode", "ctime_ns"}.isdisjoint(current))
+
+    def test_cas_rejects_different_record_path(self):
+        initial = self.store.create(project())
+        initial["path"] = str(self.root / "other.json")
+        with self.assertRaisesRegex(ProjectError, "stale project CAS"):
+            self.store.update(initial, lambda p: None)
+        self.assertEqual(self.store.inspect()["generation"], 1)
+
     def test_concurrent_cas_has_one_winner(self):
         initial = self.store.create(project())
         ctx = multiprocessing.get_context("fork")

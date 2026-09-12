@@ -17,11 +17,6 @@ import subprocess
 import tempfile
 from typing import Any, Callable, Iterable
 
-from .filesystem_identity import (
-    FilesystemIdentityError,
-    portable_device,
-    validate_identity,
-)
 from .locking import LockBusyError, active_lock_fds, exclusive_layout_lock
 from .delivery import inventory_active_delivery_evidence
 from .model import (
@@ -45,14 +40,6 @@ OLDEST_PROFILE_SCHEMA_VERSION = 3
 MIGRATION_NAME = "repositories"
 MIGRATION_RECORD = "migrations/repositories.json"
 MIGRATION_PENDING = "migrations/repositories.pending.json"
-
-
-def _valid_filesystem_identity(value: Any) -> bool:
-    try:
-        validate_identity(value)
-    except FilesystemIdentityError:
-        return False
-    return True
 
 
 def physical_repository_lock_path(repository_root: Path) -> Path:
@@ -2246,8 +2233,8 @@ class RepositoryMigration:
                 replacement.unlink(missing_ok=True)
                 raise
             # After exchange, replacement contains the exact original profile.
-            # Put that inode back even if verification or a concurrent writer
-            # failed, and preserve the displaced bytes for manual recovery.
+            # Put it back even if verification or a concurrent writer failed,
+            # and preserve the displaced bytes for manual recovery.
             try:
                 if replacement.read_bytes() != action.before:
                     raise WorkspaceError(
@@ -2591,7 +2578,11 @@ class RepositoryMigration:
                 or source.parent != self.repository_root
                 or source.name not in allowed_source_names
                 or source in seen_sources
-                or archive != self._archive_destination(source)
+                or archive
+                not in {
+                    self._archive_destination(source),
+                    self.archive_root / "repositories" / source.name,
+                }
                 or not isinstance(linked_raw, list)
                 or not all(isinstance(value, str) for value in linked_raw)
             ):
@@ -3078,20 +3069,17 @@ class RepositoryMigration:
                     )
                 )
                 continue
-            try:
-                metadata = path.stat()
-            except OSError as error:
+            if not path.is_dir():
                 refusals.append(
                     self._refusal(
                         "unsafe_inert_path",
-                        f"cannot inspect inert ownership root {path}: {error}",
+                        f"inert ownership root is not a directory: {path}",
                         "restore the wrapper-managed path",
                     )
                 )
                 continue
             rows.append(
                 {
-                    "identity": f"{portable_device(metadata)}:{metadata.st_ino}",
                     "name": name,
                     "path": str(path),
                     "present": True,
@@ -3182,9 +3170,8 @@ class RepositoryMigration:
                     or control.get("socket")
                     != str(control_socket_path(directory, control["generation"]))
                     or not isinstance(control.get("lease"), dict)
-                    or not _valid_filesystem_identity(control["lease"])
                 ):
-                    raise WorkspaceError("topology control identity is invalid")
+                    raise WorkspaceError("topology control record is invalid")
                 generation = (
                     control["generation"] if control is not None else None
                 )
@@ -3321,21 +3308,10 @@ class RepositoryMigration:
             return False
 
     def _archive_destination(self, source: Path) -> Path:
-        preferred = self.archive_root / "repositories" / source.name
-        try:
-            source_device = source.parent.stat().st_dev
-            workspace_device = self.workspace.stat().st_dev
-        except OSError as error:
-            raise WorkspaceError(
-                f"cannot determine migration archive filesystem: {error}"
-            ) from error
-        if source_device == workspace_device:
-            return preferred
-        # The wrapper-local workspace directory is ignored by repository
-        # policy and lives beside every canonical source checkout.  Use it as
-        # the preservation root when ATRINIK_WORKSPACE_DIR is on another
-        # filesystem so the final no-replace rename remains atomic.
-        local = (
+        # Classic sources are direct children of the wrapper root. Keep their
+        # recovery archives under that same path-owned tree so a separately
+        # configured workspace cannot turn the atomic rename into EXDEV.
+        return (
             self.repository_root
             / "workspace"
             / "archive"
@@ -3343,16 +3319,6 @@ class RepositoryMigration:
             / "repositories"
             / source.name
         )
-        try:
-            if self.repository_root.stat().st_dev != source_device:
-                raise WorkspaceError(
-                    f"no same-filesystem archive root is available for {source}"
-                )
-        except OSError as error:
-            raise WorkspaceError(
-                f"cannot inspect wrapper-local archive filesystem: {error}"
-            ) from error
-        return local
 
     def _classic_profile_component_names(self) -> set[str]:
         try:
@@ -3718,14 +3684,7 @@ class RepositoryMigration:
                 raise WorkspaceError(f"unsupported module entry: {candidate}")
             if any(
                 getattr(before, field) != getattr(after, field)
-                for field in (
-                    "st_dev",
-                    "st_ino",
-                    "st_mode",
-                    "st_size",
-                    "st_mtime_ns",
-                    "st_ctime_ns",
-                )
+                for field in ("st_mode", "st_size", "st_mtime_ns")
             ):
                 raise WorkspaceError(
                     f"module entry changed while it was inspected: {candidate}"
@@ -3798,14 +3757,7 @@ class RepositoryMigration:
                 )
             else:
                 raise WorkspaceError(f"unsupported worktree entry: {candidate}")
-            stable_fields = (
-                "st_dev",
-                "st_ino",
-                "st_mode",
-                "st_size",
-                "st_mtime_ns",
-                "st_ctime_ns",
-            )
+            stable_fields = ("st_mode", "st_size", "st_mtime_ns")
             if any(getattr(before, field) != getattr(after, field) for field in stable_fields):
                 raise WorkspaceError(
                     f"worktree entry changed while it was inspected: {candidate}"

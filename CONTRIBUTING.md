@@ -137,13 +137,14 @@ trailer from `git commit -s` is not a cryptographic signature and does not
 produce that badge. See the [agent-facing SSH signing reference](.agents/skills/atrinik-github-governance/references/ssh-signing.md)
 for the full host/container procedure and troubleshooting notes.
 
-Filesystem-identity changes must keep the durable/ephemeral boundary explicit:
-portable identities are the only values written to workspace, topology, lease,
-scope, and delivery-ledger records; raw `st_dev` values are limited to live
-descriptor or mount fencing. Add a remount/rebind regression test that covers
-the explicit migration journal, changed-inode refusal, and rollback or audit
-behavior. Validate the documented command with `--dry-run` and `--audit` in a
-temporary test-owned workspace; never apply it to shared generated state.
+Filesystem path changes must keep canonical path validation explicit. New
+workspace, topology, lease, scope, and delivery-ledger records do not store
+device, inode, or ctime identity fields; readers ignore those fields in legacy
+records. Add storage-move regression coverage that reuses legacy records at the
+same canonical paths after the underlying storage or mount device changes,
+while retaining symlink/type, ownership/mode, generation, digest, Git, process,
+lease, and ordinary lock checks. The removed `migrate
+filesystem` workflow must not reappear.
 
 ## Copyright headers
 

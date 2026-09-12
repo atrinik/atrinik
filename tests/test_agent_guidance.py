@@ -55,8 +55,8 @@ class AgentGuidanceTests(unittest.TestCase):
                 self.assertIn("revalidate-current-targets-cas", path.read_text())
         protocol = (issue / "references/delivery-ledger.md").read_text()
         self.assertIn("--expected-generation GENERATION --expected-digest SHA256", protocol)
-        self.assertIn("--expected-device DEVICE --expected-inode INODE", protocol)
-        self.assertIn("original four-tuple", protocol)
+        self.assertNotIn("--expected-inode", protocol)
+        self.assertIn("original generation/digest pair", protocol)
         self.assertIn("fresh actor and every target", protocol)
         self.assertIn("unmerged candidate helper", protocol)
         command_section = protocol.split("## Use the command surface", 1)[1].split("## ", 1)[0]
@@ -1037,7 +1037,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "inventory REVIEW_ROOT",
             "create REVIEW_ROOT INPUT",
             "--expected-generation GENERATION",
-            "--expected-inode INODE",
+            "--expected-digest SHA256",
             "candidate-digest-named stage and no-clobber publication",
             "exclusive no-follow root lock",
             "persistent per-ledger lock",
@@ -1054,7 +1054,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "null `create_output` and null producer `result_sha256`",
             "Every fresh planned worktree has null immutable path",
             "Generic `cas` cannot perform any part of an initial deferred",
-            "fresh current tuple cannot treat that receipt",
+            "fresh current generation/digest pair cannot treat that receipt",
             "complete importable `atrinik_workspace` source/bytecode tree",
             "executes only retained `.py` snapshot bytes",
             "fingerprint-specific private package name",
@@ -1063,7 +1063,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "legal live-observation CAS may refresh a bound artifact's safety",
             "git push origin HEAD_BRANCH",
             "On both primary and worktree checkouts",
-            "profile file's exact retained digest/device/inode",
+            "profile file's exact retained digest and canonical path",
             "creation journal is deliberately non-authoritative",
             "issue-mode and mode-less names reserve",
             "precommitted deferred primitive/scope managed paths",
@@ -1246,7 +1246,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "The helper, not Markdown, is the ownership and recovery boundary",
             "`inventory` first validates every recognized canonical ledger",
             "candidate-digest-named stage and no-clobber publication",
-            "generation/digest/device/inode again immediately before",
+            "generation/digest again immediately before",
             "Every operation inventories under an exclusive no-follow root lock",
             "Mutations also use a persistent per-ledger lock",
             "Legacy migration is issue-mode only",
@@ -1263,7 +1263,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "permanently retains canonical predecessor",
             "recorded merge base equals a fresh `git merge-base` result",
             "RECOVERY_AUTHORITY_JSON",
-            "exact installed erroneous ledger inode",
+            "hard-link receipt for the exact installed erroneous ledger",
             "`git cat-file --batch-check`",
             "history retains the correction digest",
         }:
@@ -1542,7 +1542,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "<coordinate-sha256>.publication.lock",
             "goal-specific locks are forbidden",
             "Path replacement stops the writer",
-            "lock on the replaceable JSON inode is invalid",
+            "lock on the replaceable JSON path is invalid",
             "schema_version: 1",
             "goal_thread_id",
             "exact UTF-8 objective returned by the goal API",
@@ -1552,7 +1552,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "json.dumps(value, ensure_ascii=False",
             "<!-- atrinik-program-delivery:v1 sha256=<64 lowercase hex> -->",
             "final line of `intended_body`",
-            "record its fstat device/inode as `self`",
+            "record the canonical destination path as `self`",
             "at most 100 pages",
             "16 MiB total body bytes",
             "incomplete pagination and stops",
@@ -1597,7 +1597,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "## Leaf ledger composition",
             "Final master-comment generation / node / body digests:",
             "never authorizes publication",
-            "Stable lock path / device / inode:",
+            "Stable lock canonical path:",
             "Current / next authority and graph-rekey phase:",
             "Child create phase / intent digest / issue number / node / URL:",
             "Native link phase / intent digest / parent-child proof digest:",
@@ -1605,7 +1605,7 @@ class AgentGuidanceTests(unittest.TestCase):
             self.assertIn(marker, report)
         for marker in {
             "Master publication recovery",
-            "generation/digest/inode CAS",
+            "generation/digest CAS",
             "complete bounded comment pagination",
             "accepted-but-not-yet-visible result",
             "ledger/report loss",

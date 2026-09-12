@@ -37,7 +37,7 @@
 - Native Windows Classic GPU preflight: follow `docs/WINDOWS_GPU_PREFLIGHT.md`; keep Linux coordinator and native results separate.
 - Use `atrinik-project-delivery` for parallel projects; legacy `atrinik-program-delivery` remains explicit-only. See `docs/PROJECT_DELIVERY_GOAL.md`.
 - Codex delivery has two entry modes: continue in the canonical VS Code devcontainer or bootstrap/attach the pinned Linux devcontainer from a native host; host work is limited to bootstrap/attach and approved Git/GitHub/commit operations; wrapper/ledger/worktree/edit/test/build/review/validation stay inside.
-- Codex never launches/controls VS Code; no URIs, GUI automation, nesting or remounting. Reuse exact owner/container/image/mount/worktree/ledger coordinates only; reconnect rechecks probe, worktree, ledger and leases. Bound shutdown to owner. Isolate mutable state; share host GitHub auth read-only per `docs/COORDINATOR_AUTH.md`.
+- Codex never launches/controls VS Code; no URIs, GUI automation, or nesting. Reuse exact owner/container/image/configured-mount-path/worktree/ledger coordinates only; reconnect rechecks probe, worktree, ledger and leases. Bound shutdown to owner. Isolate mutable state; share host GitHub auth read-only per `docs/COORDINATOR_AUTH.md`.
 - Never replace dirty primaries/remove dirty worktrees or overwrite mutable server data; preserve migration inputs.
 - Cleanup is preview-first; delivery grants none. Keep ledger transactions separate from `./atrinik cleanup`; preserve dirty/detached/locked/active/referenced/uncertain targets; history fails closed.
 - Worktrees belong to physical checkouts; `classic`, `classic-*`, and its roles

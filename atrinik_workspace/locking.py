@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from typing import BinaryIO, Callable, Iterator, TextIO
 
 from .model import WorkspaceError
+from .path_identity import canonical_path, descriptor_path
 from .platform_compat import (
     IS_WINDOWS,
     O_CLOEXEC,
@@ -144,11 +145,9 @@ def _open_lock(
             if (
                 not stat.S_ISREG(opened.st_mode)
                 or not stat.S_ISREG(visible.st_mode)
-                or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
-                or (opened_parent.st_dev, opened_parent.st_ino)
-                != (visible_parent.st_dev, visible_parent.st_ino)
+                or not stat.S_ISDIR(visible_parent.st_mode)
             ):
-                raise WorkspaceError(f"{description} lock identity changed during open: {path}")
+                raise WorkspaceError(f"{description} lock path is unsafe during open: {path}")
             return lock
         except WorkspaceError:
             if lock is not None:
@@ -174,25 +173,21 @@ def _open_lock(
     try:
         if directory_fd is None:
             parent_descriptor = os.open(path.parent, directory_flags)
-            parent_status = os.fstat(parent_descriptor)
             visible_status = path.parent.stat(follow_symlinks=False)
             if (
                 not stat.S_ISDIR(visible_status.st_mode)
-                or (parent_status.st_dev, parent_status.st_ino)
-                != (visible_status.st_dev, visible_status.st_ino)
+                or descriptor_path(parent_descriptor) != canonical_path(path.parent)
             ):
                 raise OSError("lock parent directory changed during open")
         else:
             parent_descriptor = directory_fd
         descriptor = os.open(path.name, flags, 0o600, dir_fd=parent_descriptor)
-        opened_status = os.fstat(descriptor)
         visible_lock = os.stat(
             path.name, dir_fd=parent_descriptor, follow_symlinks=False
         )
         if (
             not stat.S_ISREG(visible_lock.st_mode)
-            or (opened_status.st_dev, opened_status.st_ino)
-            != (visible_lock.st_dev, visible_lock.st_ino)
+            or descriptor_path(descriptor) != canonical_path(path)
         ):
             os.close(descriptor)
             descriptor = None
@@ -274,8 +269,8 @@ def _reap_staged_resource_owners(
                 )
                 if (
                     not stat.S_ISREG(visible.st_mode)
-                    or (opened.st_dev, opened.st_ino)
-                    != (visible.st_dev, visible.st_ino)
+                    or descriptor_path(descriptor)
+                    != canonical_path(owners / ".pending" / metadata_name)
                 ):
                     continue
                 fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -353,8 +348,8 @@ def _lease_owner_summary(
             )
             if (
                 not stat.S_ISREG(visible.st_mode)
-                or (opened.st_dev, opened.st_ino)
-                != (visible.st_dev, visible.st_ino)
+                or descriptor_path(descriptor)
+                != canonical_path(owners / metadata_name)
             ):
                 continue
             try:
@@ -697,7 +692,7 @@ def _open_directory(path: Path, description: str) -> int:
         flags |= os.O_NOFOLLOW
     try:
         descriptor = os.open(path, flags)
-        opened = os.fstat(descriptor)
+        opened_path = descriptor_path(descriptor)
         visible = path.stat(follow_symlinks=False)
     except OSError as error:
         if "descriptor" in locals():
@@ -707,7 +702,7 @@ def _open_directory(path: Path, description: str) -> int:
         ) from error
     if (
         not stat.S_ISDIR(visible.st_mode)
-        or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+        or opened_path != canonical_path(path)
     ):
         os.close(descriptor)
         raise WorkspaceError(f"{description} directory is unsafe: {path}")
@@ -733,7 +728,7 @@ def _open_or_create_directory_at(
     descriptor: int | None = None
     try:
         descriptor = os.open(name, flags, dir_fd=parent_descriptor)
-        opened = os.fstat(descriptor)
+        opened_path = descriptor_path(descriptor)
         visible = os.stat(
             name, dir_fd=parent_descriptor, follow_symlinks=False
         )
@@ -745,7 +740,7 @@ def _open_or_create_directory_at(
         ) from error
     if (
         not stat.S_ISDIR(visible.st_mode)
-        or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+        or opened_path != canonical_path(display_path)
     ):
         os.close(descriptor)
         raise WorkspaceError(
@@ -794,8 +789,7 @@ def _resource_owner(
         )
         if (
             not stat.S_ISDIR(visible.st_mode)
-            or (opened.st_dev, opened.st_ino)
-            != (visible.st_dev, visible.st_ino)
+            or descriptor_path(owner_descriptor) != canonical_path(owners)
         ):
             os.close(owner_descriptor)
             owner_descriptor = None

@@ -36,15 +36,13 @@ import zipfile
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
 from .docker_storage import windows_package_volume_mounts
-from .filesystem_identity import (
-    FilesystemIdentityError,
-    identity_digest,
-    identity_matches,
-    is_legacy_identity,
-    pair_matches,
-    portable_device,
-    portable_identity,
-    validate_identity,
+from .path_identity import (
+    PathRecordError,
+    canonical_path,
+    descriptor_path,
+    path_record,
+    path_record_matches,
+    validate_path_record,
 )
 from .locking import (
     LeaseRequest,
@@ -378,29 +376,25 @@ CLASSIC_CLIENT_RUNTIME_SOURCE_EXCLUSIONS = frozenset(
     {".git", "build", "sound", MANAGED_MARKER, "shaders"}
 )
 CLASSIC_CLIENT_RUNTIME_BINARY_EXCLUSIONS = frozenset({"src", "shaders"})
-LEASE_NAMESPACE_IDENTITY_SCHEMA_VERSION = 2
 
 
 @dataclass
 class StateLease:
     path_lock: TextIO
-    bind_identity: Callable[[dict[str, int]], TextIO | None]
-    physical_lock: TextIO | None = None
-    physical_identity: dict[str, int] | None = None
+    requested_identity: dict[str, Any] | None = None
 
     def fileno(self) -> int:
         return self.path_lock.fileno()
 
-    def bind(self, identity: dict[str, int]) -> None:
-        if self.physical_lock is not None:
-            if self.physical_identity != identity:
-                raise WorkspaceError(
-                    "server state identity changed while acquiring its lease"
-                )
-            return
-        self.physical_lock = self.bind_identity(identity)
-        if self.physical_lock is not None:
-            self.physical_identity = dict(identity)
+    def bind(self, identity: dict[str, Any]) -> None:
+        # The state path owns the lock; old metadata-only records are inert.
+        if "path" in identity:
+            validate_path_record(identity)
+            if self.requested_identity is not None and (
+                self.requested_identity["path"] != identity["path"]
+            ):
+                raise WorkspaceError("server state path changed while acquiring its lease")
+            self.requested_identity = dict(identity)
 
 
 @dataclass(frozen=True)
@@ -503,10 +497,16 @@ def git(
     return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
 
 
-def _darwin_descriptor_mount_id(descriptor: int) -> tuple[int, int]:
+def _darwin_descriptor_mount_path(descriptor: int) -> str:
+    """Read only the mountpoint pathname from Darwin's statfs64 layout."""
+
     buffer = ctypes.create_string_buffer(4096)
     library = ctypes.CDLL(None, use_errno=True)
-    fstatfs = library.fstatfs
+    # Intel exports the explicit statfs64 ABI; Apple Silicon uses it natively.
+    try:
+        fstatfs = library.fstatfs64
+    except AttributeError:
+        fstatfs = library.fstatfs
     fstatfs.argtypes = [ctypes.c_int, ctypes.c_void_p]
     fstatfs.restype = ctypes.c_int
     if fstatfs(descriptor, ctypes.byref(buffer)) != 0:
@@ -515,60 +515,57 @@ def _darwin_descriptor_mount_id(descriptor: int) -> tuple[int, int]:
             "cannot inspect filesystem mount for descriptor "
             f"{descriptor}: {os.strerror(error)}"
         )
-    # Darwin's fsid_t is two signed 32-bit integers at byte offset 48 in
-    # struct statfs, after the size and block/file count fields.
-    first = ctypes.c_int32.from_buffer(buffer, 48).value
-    second = ctypes.c_int32.from_buffer(buffer, 52).value
-    return first, second
+    # __DARWIN_STRUCT_STATFS64 places f_mntonname[1024] at byte 88.
+    # https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/mount.h
+    raw = buffer.raw[88:1112]
+    if b"\0" not in raw:
+        raise WorkspaceError("Darwin mountpoint pathname is not terminated")
+    mountpoint = os.fsdecode(raw.split(b"\0", 1)[0])
+    if not os.path.isabs(mountpoint):
+        raise WorkspaceError("Darwin mountpoint pathname is not absolute")
+    return canonical_path(mountpoint)
 
 
-def _linux_descriptor_mount_id(descriptor: int) -> int:
-    buffer = ctypes.create_string_buffer(256)
-    library = ctypes.CDLL(None, use_errno=True)
+def _linux_descriptor_mount_path(descriptor: int) -> str:
+    """Find the enclosing mountpoint without using mount or device numbers."""
+
     try:
-        statx = library.statx
-    except AttributeError as error:
-        raise WorkspaceError("Linux statx mount identity is unavailable") from error
-    statx.argtypes = [
-        ctypes.c_int,
-        ctypes.c_char_p,
-        ctypes.c_int,
-        ctypes.c_uint,
-        ctypes.c_void_p,
-    ]
-    statx.restype = ctypes.c_int
-    statx_mount_id = 0x1000
-    at_empty_path = 0x1000
-    if (
-        statx(
-            descriptor,
-            b"",
-            at_empty_path,
-            statx_mount_id,
-            ctypes.byref(buffer),
-        )
-        != 0
-    ):
-        error = ctypes.get_errno()
+        path = descriptor_path(descriptor)
+        with open("/proc/self/mountinfo", "rb") as stream:
+            data = stream.read(8 * 1024 * 1024 + 1)
+        if len(data) > 8 * 1024 * 1024:
+            raise WorkspaceError("Linux mountpoint inventory is oversized")
+        candidates: list[str] = []
+        for line in data.splitlines():
+            prefix, separator, _ = line.partition(b" - ")
+            fields = prefix.split()
+            if not separator or len(fields) < 6:
+                raise WorkspaceError("Linux mountpoint inventory is malformed")
+            # mountinfo escapes spaces, tabs, newlines and backslashes in paths.
+            raw = re.sub(rb"\\([0-7]{3})", lambda match: bytes([int(match[1], 8)]), fields[4])
+            mountpoint = os.fsdecode(raw)
+            if not os.path.isabs(mountpoint):
+                raise WorkspaceError("Linux mountpoint pathname is not absolute")
+            mountpoint = canonical_path(mountpoint)
+            if Path(path).is_relative_to(mountpoint):
+                candidates.append(mountpoint)
+        if not candidates:
+            raise WorkspaceError("Linux descriptor has no enclosing mountpoint")
+        return max(candidates, key=len)
+    except OSError as error:
         raise WorkspaceError(
-            "cannot inspect filesystem mount for descriptor "
-            f"{descriptor}: {os.strerror(error)}"
-        )
-    returned_mask = ctypes.c_uint32.from_buffer(buffer, 0).value
-    if returned_mask & statx_mount_id == 0:
-        raise WorkspaceError("Linux statx did not return a mount identity")
-    return ctypes.c_uint64.from_buffer(buffer, 144).value
+            f"cannot inspect filesystem mount for descriptor {descriptor}: {error}"
+        ) from error
 
 
-def _descriptor_mount_id(descriptor: int) -> int | tuple[int, int]:
+def _descriptor_mount_path(descriptor: int) -> str:
     if sys.platform == "darwin":
-        return _darwin_descriptor_mount_id(descriptor)
+        return _darwin_descriptor_mount_path(descriptor)
     if sys.platform == "linux":
-        return _linux_descriptor_mount_id(descriptor)
-    else:
-        raise WorkspaceError(
-            f"filesystem mount identity is unavailable on {sys.platform}"
-        )
+        return _linux_descriptor_mount_path(descriptor)
+    raise WorkspaceError(
+        f"filesystem mount paths are unavailable on {sys.platform}"
+    )
 
 
 def _descriptor_path(descriptor: int) -> Path:
@@ -611,7 +608,7 @@ def _open_owned_tree_directory(
     parent_descriptor: int,
     name: str,
     before: os.stat_result,
-    mount_id: int | tuple[int, int],
+    mount_path: str,
     display: Path,
     *,
     root: bool = False,
@@ -622,7 +619,7 @@ def _open_owned_tree_directory(
     except OSError as error:
         if sys.platform == "linux" and error.errno in (errno.EACCES, errno.EPERM):
             return _open_unreadable_linux_owned_tree_directory(
-                parent_descriptor, name, before, mount_id, display, root=root
+                parent_descriptor, name, before, mount_path, display, root=root
             )
         label = "root" if root else "directory"
         raise WorkspaceError(
@@ -630,12 +627,7 @@ def _open_owned_tree_directory(
         ) from error
     changed_mode = False
     try:
-        opened = os.fstat(readable_descriptor)
-        if (
-            opened.st_dev != before.st_dev
-            or opened.st_ino != before.st_ino
-            or _descriptor_mount_id(readable_descriptor) != mount_id
-        ):
+        if _descriptor_mount_path(readable_descriptor) != mount_path:
             message = (
                 f"owned removal root changed or is mounted: {display}"
                 if root
@@ -644,12 +636,7 @@ def _open_owned_tree_directory(
             raise WorkspaceError(message)
         os.fchmod(readable_descriptor, stat.S_IRWXU)
         changed_mode = True
-        readable = os.fstat(readable_descriptor)
-        if (
-            readable.st_dev != before.st_dev
-            or readable.st_ino != before.st_ino
-            or _descriptor_mount_id(readable_descriptor) != mount_id
-        ):
+        if _descriptor_mount_path(readable_descriptor) != mount_path:
             raise WorkspaceError(
                 f"owned removal encountered a mount: {display}"
             )
@@ -672,7 +659,7 @@ def _open_unreadable_linux_owned_tree_directory(
     parent_descriptor: int,
     name: str,
     before: os.stat_result,
-    mount_id: int | tuple[int, int],
+    mount_path: str,
     display: Path,
     *,
     root: bool,
@@ -690,12 +677,7 @@ def _open_unreadable_linux_owned_tree_directory(
         ) from error
     changed_mode = False
     try:
-        opened = os.fstat(bound_descriptor)
-        if (
-            opened.st_dev != before.st_dev
-            or opened.st_ino != before.st_ino
-            or _descriptor_mount_id(bound_descriptor) != mount_id
-        ):
+        if _descriptor_mount_path(bound_descriptor) != mount_path:
             message = (
                 f"owned removal root changed or is mounted: {display}"
                 if root
@@ -709,12 +691,7 @@ def _open_unreadable_linux_owned_tree_directory(
             os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
             dir_fd=bound_descriptor,
         )
-        readable = os.fstat(readable_descriptor)
-        if (
-            readable.st_dev != before.st_dev
-            or readable.st_ino != before.st_ino
-            or _descriptor_mount_id(readable_descriptor) != mount_id
-        ):
+        if _descriptor_mount_path(readable_descriptor) != mount_path:
             os.close(readable_descriptor)
             raise WorkspaceError(
                 f"owned removal encountered a mount: {display}"
@@ -740,7 +717,7 @@ def _probe_owned_tree_entry_mount(
     descriptor: int,
     name: str,
     child: os.stat_result,
-    mount_id: int | tuple[int, int],
+    mount_path: str,
     display: Path,
 ) -> None:
     if stat.S_ISLNK(child.st_mode):
@@ -758,11 +735,9 @@ def _probe_owned_tree_entry_mount(
         raise WorkspaceError(f"owned removal entry changed: {display}") from error
     try:
         opened = os.fstat(probe)
-        if (
-            opened.st_dev != child.st_dev
-            or opened.st_ino != child.st_ino
-            or _descriptor_mount_id(probe) != mount_id
-        ):
+        if stat.S_IFMT(opened.st_mode) != stat.S_IFMT(child.st_mode):
+            raise WorkspaceError(f"owned removal entry type changed: {display}")
+        if _descriptor_mount_path(probe) != mount_path:
             raise WorkspaceError(f"owned removal encountered a mount: {display}")
     finally:
         os.close(probe)
@@ -770,8 +745,7 @@ def _probe_owned_tree_entry_mount(
 
 def _prepare_owned_tree_removal(
     descriptor: int,
-    device: int,
-    mount_id: int | tuple[int, int],
+    mount_path: str,
     display: Path,
     original_mode: int | None = None,
     reject_links: bool = False,
@@ -779,8 +753,7 @@ def _prepare_owned_tree_removal(
     root = os.fstat(descriptor)
     if (
         not stat.S_ISDIR(root.st_mode)
-        or root.st_dev != device
-        or _descriptor_mount_id(descriptor) != mount_id
+        or _descriptor_mount_path(descriptor) != mount_path
     ):
         raise WorkspaceError(f"owned removal crossed a filesystem boundary: {display}")
     restore_mode = (
@@ -791,10 +764,6 @@ def _prepare_owned_tree_removal(
         for name in sorted(os.listdir(descriptor)):
             child_display = display / name
             child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
-            if child.st_dev != device:
-                raise WorkspaceError(
-                    f"owned removal encountered a mount: {child_display}"
-                )
             if reject_links and not (
                 stat.S_ISDIR(child.st_mode)
                 or (stat.S_ISREG(child.st_mode) and child.st_nlink == 1)
@@ -804,13 +773,12 @@ def _prepare_owned_tree_removal(
                 )
             if stat.S_ISDIR(child.st_mode):
                 child_descriptor = _open_owned_tree_directory(
-                    descriptor, name, child, mount_id, child_display
+                    descriptor, name, child, mount_path, child_display
                 )
                 try:
                     _prepare_owned_tree_removal(
                         child_descriptor,
-                        device,
-                        mount_id,
+                        mount_path,
                         child_display,
                         stat.S_IMODE(child.st_mode),
                         reject_links,
@@ -819,7 +787,7 @@ def _prepare_owned_tree_removal(
                     os.close(child_descriptor)
             else:
                 _probe_owned_tree_entry_mount(
-                    descriptor, name, child, mount_id, child_display
+                    descriptor, name, child, mount_path, child_display
                 )
     finally:
         try:
@@ -830,61 +798,36 @@ def _prepare_owned_tree_removal(
             ) from restore_error
 
 
-def _owned_tree_tombstone_name(name: str, device: int, inode: int) -> str:
+def _owned_tree_tombstone_name(name: str) -> str:
     digest = hashlib.sha256(name.encode("utf-8")).hexdigest()[:16]
-    return f".remove-{digest}-{device:x}-{inode:x}"
+    return f".remove-{digest}"
 
 
-def _owned_tree_tombstone_path(
-    path: Path, identity: dict[str, int]
-) -> Path:
-    return path.parent / _owned_tree_tombstone_name(
-        path.name, identity["device"], identity["inode"]
-    )
+def _owned_tree_tombstone_path(path: Path, identity: dict[str, Any]) -> Path:
+    return path.parent / _owned_tree_tombstone_name(path.name)
 
 
-def _live_identity_dict(metadata: os.stat_result) -> dict[str, int]:
-    """Project an opened object into the identity used by live fences."""
+def _portable_tombstone_path(path: Path, identity: dict[str, Any]) -> Path | None:
+    """Find the exact path tombstone or a unique legacy name in its family."""
 
-    return {"device": metadata.st_dev, "inode": metadata.st_ino}
-
-
-def _portable_tombstone_path(
-    path: Path, identity: dict[str, Any]
-) -> Path | None:
-    """Find an owned-tree tombstone without reconstructing a mount device.
-
-    Older tombstones include the old device in their filename.  New durable
-    records do not know that value after a remount, so recovery scans only the
-    exact name-hash family and proves the candidate through its opened
-    metadata.  Ambiguous candidates fail closed.
-    """
-
-    digest = hashlib.sha256(path.name.encode("utf-8")).hexdigest()[:16]
-    candidates: list[Path] = []
+    if (
+        "path" in identity
+        and validate_path_record(identity)["path"] != canonical_path(path)
+    ):
+        raise WorkspaceError(f"owned-tree tombstone path changed: {path}")
+    prefix = _owned_tree_tombstone_name(path.name)
     try:
-        entries = sorted(path.parent.iterdir())
+        candidates = [
+            entry
+            for entry in path.parent.iterdir()
+            if re.fullmatch(rf"{prefix}(?:-[0-9a-f]+-[0-9a-f]+)?", entry.name)
+        ]
     except FileNotFoundError:
         return None
     except OSError as error:
         raise WorkspaceError(
             f"cannot inspect owned-tree tombstones for {path}: {error}"
         ) from error
-    for candidate in entries:
-        if not re.fullmatch(rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+", candidate.name):
-            continue
-        try:
-            metadata = candidate.stat(follow_symlinks=False)
-        except OSError as error:
-            raise WorkspaceError(
-                f"cannot inspect owned-tree tombstone {candidate}: {error}"
-            ) from error
-        if (
-            pair_matches(identity, metadata)
-            if set(identity) == {"device", "inode"}
-            else identity_matches(identity, metadata)
-        ):
-            candidates.append(candidate)
     if len(candidates) > 1:
         raise WorkspaceError(f"owned-tree tombstones are ambiguous: {path}")
     return candidates[0] if candidates else None
@@ -902,28 +845,14 @@ def _fsync_directory(path: Path) -> None:
 
 def _remove_owned_tree_contents(
     descriptor: int,
-    device: int,
-    mount_id: int | tuple[int, int],
+    mount_path: str,
     display: Path,
     reject_links: bool = False,
 ) -> None:
     def move_to_tombstone(name: str, child: os.stat_result) -> str:
-        tombstone = _owned_tree_tombstone_name(
-            name, portable_device(child), child.st_ino
-        )
+        tombstone = _owned_tree_tombstone_name(name)
         rename_no_replace_at(descriptor, name, descriptor, tombstone)
         moved = os.stat(tombstone, dir_fd=descriptor, follow_symlinks=False)
-        if (moved.st_dev, moved.st_ino) != (
-            child.st_dev,
-            child.st_ino,
-        ):
-            try:
-                rename_no_replace_at(descriptor, tombstone, descriptor, name)
-            except WorkspaceError:
-                pass
-            raise WorkspaceError(
-                f"owned removal entry identity changed: {display / name}"
-            )
         if reject_links and not (
             stat.S_ISDIR(moved.st_mode)
             or (stat.S_ISREG(moved.st_mode) and moved.st_nlink == 1)
@@ -941,25 +870,8 @@ def _remove_owned_tree_contents(
         child_display = display / name
         child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
         tombstone_match = re.fullmatch(
-            r"\.remove-[0-9a-f]{16}-([0-9a-f]+)-([0-9a-f]+)", name
+            r"\.remove-[0-9a-f]{16}(?:-[0-9a-f]+-[0-9a-f]+)?", name
         )
-        if tombstone_match:
-            encoded_identity = {
-                "device": int(tombstone_match.group(1), 16),
-                "inode": int(tombstone_match.group(2), 16),
-            }
-            if not (
-                child.st_ino == encoded_identity["inode"]
-                and encoded_identity["device"]
-                in {child.st_dev, portable_device(child)}
-            ):
-                raise WorkspaceError(
-                    f"owned removal has an uncertain tombstone: {child_display}"
-                )
-        if child.st_dev != device:
-            raise WorkspaceError(
-                f"owned removal encountered a mount: {child_display}"
-            )
         if reject_links and not (
             stat.S_ISDIR(child.st_mode)
             or (stat.S_ISREG(child.st_mode) and child.st_nlink == 1)
@@ -969,13 +881,12 @@ def _remove_owned_tree_contents(
             )
         if stat.S_ISDIR(child.st_mode):
             child_descriptor = _open_owned_tree_directory(
-                descriptor, name, child, mount_id, child_display
+                descriptor, name, child, mount_path, child_display
             )
             try:
                 _remove_owned_tree_contents(
                     child_descriptor,
-                    device,
-                    mount_id,
+                    mount_path,
                     child_display,
                     reject_links,
                 )
@@ -985,7 +896,7 @@ def _remove_owned_tree_contents(
             os.rmdir(tombstone, dir_fd=descriptor)
         else:
             _probe_owned_tree_entry_mount(
-                descriptor, name, child, mount_id, child_display
+                descriptor, name, child, mount_path, child_display
             )
             tombstone = name if tombstone_match else move_to_tombstone(name, child)
             os.unlink(tombstone, dir_fd=descriptor)
@@ -999,39 +910,19 @@ def remove_owned_tree(
     reject_links: bool = False,
     parent_directory_fd: int | None = None,
 ) -> None:
-    if expected_identity is not None:
-        try:
-            validate_identity(expected_identity)
-        except FilesystemIdentityError as error:
-            raise WorkspaceError(
-                f"owned removal root identity is invalid: {path}"
-            ) from error
+    if parent_directory_fd is not None:
+        path = Path(descriptor_path(parent_directory_fd)) / path.name
+    if expected_identity is not None and "path" in expected_identity:
+        if validate_path_record(expected_identity)["path"] != canonical_path(path):
+            raise WorkspaceError(f"owned removal root path changed: {path}")
 
     def find_tombstone() -> tuple[str, os.stat_result]:
-        candidates: list[tuple[str, os.stat_result]] = []
-        for name in sorted(os.listdir(parent_descriptor)):
-            if not re.fullmatch(
-                rf"\.remove-{hashlib.sha256(path.name.encode('utf-8')).hexdigest()[:16]}-[0-9a-f]+-[0-9a-f]+",
-                name,
-            ):
-                continue
-            try:
-                candidate = os.stat(
-                    name, dir_fd=parent_descriptor, follow_symlinks=False
-                )
-            except FileNotFoundError:
-                continue
-            if expected_identity is not None and (
-                pair_matches(expected_identity, candidate)
-                if set(expected_identity) == {"device", "inode"}
-                else identity_matches(expected_identity, candidate)
-            ):
-                candidates.append((name, candidate))
-        if len(candidates) > 1:
-            raise WorkspaceError(f"owned removal roots are ambiguous: {path}")
-        if not candidates:
+        tombstone = _portable_tombstone_path(path, expected_identity or {})
+        if tombstone is None:
             raise FileNotFoundError(path)
-        return candidates[0]
+        return tombstone.name, os.stat(
+            tombstone.name, dir_fd=parent_descriptor, follow_symlinks=False
+        )
 
     parent_descriptor = (
         os.dup(parent_directory_fd)
@@ -1061,28 +952,19 @@ def remove_owned_tree(
             already_tombstoned = True
         if not stat.S_ISDIR(before.st_mode):
             raise WorkspaceError(f"owned removal root is invalid: {path}")
-        if expected_identity is not None and not (
-            pair_matches(expected_identity, before)
-            if set(expected_identity) == {"device", "inode"}
-            else identity_matches(expected_identity, before)
-        ):
-            raise WorkspaceError(f"owned removal root identity changed: {path}")
-        parent_mount_id = _descriptor_mount_id(parent_descriptor)
+        parent_mount_path = _descriptor_mount_path(parent_descriptor)
         descriptor = _open_owned_tree_directory(
             parent_descriptor,
             entry_name,
             before,
-            parent_mount_id,
+            parent_mount_path,
             path,
             root=True,
         )
-        opened = os.fstat(descriptor)
-        expected = (opened.st_dev, opened.st_ino)
-        root_mount_id = _descriptor_mount_id(descriptor)
+        root_mount_path = _descriptor_mount_path(descriptor)
         _prepare_owned_tree_removal(
             descriptor,
-            opened.st_dev,
-            root_mount_id,
+            root_mount_path,
             path,
             stat.S_IMODE(before.st_mode),
             reject_links,
@@ -1090,32 +972,33 @@ def remove_owned_tree(
         visible = os.stat(
             entry_name, dir_fd=parent_descriptor, follow_symlinks=False
         )
-        if (visible.st_dev, visible.st_ino) != expected:
-            raise WorkspaceError(f"owned removal root identity changed: {path}")
+        if (
+            not stat.S_ISDIR(visible.st_mode)
+            or descriptor_path(descriptor) != canonical_path(path.parent / entry_name)
+        ):
+            raise WorkspaceError(f"owned removal root path changed: {path}")
         os.fchmod(descriptor, stat.S_IRWXU)
         _remove_owned_tree_contents(
             descriptor,
-            opened.st_dev,
-            root_mount_id,
+            root_mount_path,
             path,
             reject_links,
         )
-        os.close(descriptor)
-        descriptor = None
         visible = os.stat(
             entry_name, dir_fd=parent_descriptor, follow_symlinks=False
         )
-        if (visible.st_dev, visible.st_ino) != expected:
-            raise WorkspaceError(f"owned removal root identity changed: {path}")
+        if (
+            not stat.S_ISDIR(visible.st_mode)
+            or descriptor_path(descriptor) != canonical_path(path.parent / entry_name)
+        ):
+            raise WorkspaceError(f"owned removal root path changed: {path}")
         if keep_root:
             os.fsync(parent_descriptor)
             return
         tombstone = (
             entry_name
             if already_tombstoned
-            else _owned_tree_tombstone_name(
-                path.name, portable_device(opened), opened.st_ino
-            )
+            else _owned_tree_tombstone_name(path.name)
         )
         if not already_tombstoned:
             rename_no_replace_at(
@@ -1127,17 +1010,8 @@ def remove_owned_tree(
         moved = os.stat(
             tombstone, dir_fd=parent_descriptor, follow_symlinks=False
         )
-        if (moved.st_dev, moved.st_ino) != expected:
-            try:
-                rename_no_replace_at(
-                    parent_descriptor,
-                    tombstone,
-                    parent_descriptor,
-                    path.name,
-                )
-            except WorkspaceError:
-                pass
-            raise WorkspaceError(f"owned removal root identity changed: {path}")
+        if not stat.S_ISDIR(moved.st_mode):
+            raise WorkspaceError(f"owned removal root is invalid: {path}")
         os.rmdir(tombstone, dir_fd=parent_descriptor)
     finally:
         if descriptor is not None:
@@ -1599,7 +1473,7 @@ def _tree_digest_descriptor(
 
     digest = hashlib.sha256()
     root = os.fstat(root_fd)
-    root_mount = _descriptor_mount_id(root_fd)
+    root_mount = _descriptor_mount_path(root_fd)
 
     def record(*fields: object) -> None:
         encoded = json.dumps(
@@ -1619,10 +1493,6 @@ def _tree_digest_descriptor(
             )
             mode = stat.S_IMODE(metadata.st_mode)
             if stat.S_ISDIR(metadata.st_mode):
-                if metadata.st_dev != root.st_dev:
-                    raise WorkspaceError(
-                        f"Worker source contains a mounted directory: {child_display}"
-                    )
                 record("directory", child.as_posix(), mode)
                 descriptor = os.open(
                     name,
@@ -1634,10 +1504,7 @@ def _tree_digest_descriptor(
                 )
                 try:
                     opened = os.fstat(descriptor)
-                    if (opened.st_dev, opened.st_ino) != (
-                        metadata.st_dev,
-                        metadata.st_ino,
-                    ) or _descriptor_mount_id(descriptor) != root_mount:
+                    if _descriptor_mount_path(descriptor) != root_mount:
                         raise WorkspaceError(
                             f"Worker source changed during inventory: {child_display}"
                         )
@@ -1645,7 +1512,7 @@ def _tree_digest_descriptor(
                 finally:
                     os.close(descriptor)
             elif stat.S_ISREG(metadata.st_mode):
-                if metadata.st_nlink != 1 or metadata.st_dev != root.st_dev:
+                if metadata.st_nlink != 1:
                     raise WorkspaceError(
                         f"Worker source contains a linked file: {child_display}"
                     )
@@ -1659,9 +1526,7 @@ def _tree_digest_descriptor(
                     if (
                         not stat.S_ISREG(opened.st_mode)
                         or opened.st_nlink != 1
-                        or (opened.st_dev, opened.st_ino)
-                        != (metadata.st_dev, metadata.st_ino)
-                        or _descriptor_mount_id(descriptor) != root_mount
+                        or _descriptor_mount_path(descriptor) != root_mount
                     ):
                         raise WorkspaceError(
                             f"Worker source changed during inventory: {child_display}"
@@ -1770,7 +1635,6 @@ def _make_worker_staging_owner_writable(staging: Path) -> None:
         visible = staging.stat(follow_symlinks=False)
         if (
             not stat.S_ISDIR(opened.st_mode)
-            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
             or opened.st_uid != os.geteuid()
         ):
             raise WorkspaceError(
@@ -2168,8 +2032,6 @@ def open_regular_file(
             visible = path.stat(follow_symlinks=False)
             if (
                 not stat.S_ISREG(visible.st_mode)
-                or (opened.st_dev, opened.st_ino)
-                != (visible.st_dev, visible.st_ino)
             ):
                 raise WorkspaceError(f"{description} identity changed during open: {path}")
         result = descriptor
@@ -2186,14 +2048,14 @@ def open_regular_file(
 
 
 def load_regular_json(path: Path, description: str, *, limit: int = 4 * 1024 * 1024) -> Any:
-    """Read one identity-bound regular JSON file without following links."""
+    """Read one bounded regular JSON file without following links."""
 
     descriptor = open_regular_file(path, os.O_RDONLY, description)
     try:
         opened = os.fstat(descriptor)
         visible = path.stat(follow_symlinks=False)
         if (
-            (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            not stat.S_ISREG(visible.st_mode)
             or opened.st_size > limit
         ):
             raise WorkspaceError(f"{description} identity is unsafe: {path}")
@@ -2350,8 +2212,6 @@ class _DeliveryWorkspacePreparation:
         self.__admitted = False
         self.__closed = False
         self.__directories: dict[Path, int] = {}
-        self.__record: bytes | None = None
-        self.__record_identity: tuple[int, int, int, int] | None = None
         try:
             namespace = workspace._lease_namespace
             for path in (workspace.paths.repository, namespace.parent, namespace):
@@ -2361,7 +2221,7 @@ class _DeliveryWorkspacePreparation:
             status = os.fstat(self.__directories[namespace])
             if stat.S_IMODE(status.st_mode) != 0o700 or status.st_uid != os.geteuid():
                 raise WorkspaceError("delivery preparation namespace is unsafe")
-            workspace._physical_lease_namespace_identity = (status.st_dev, status.st_ino)
+            workspace._physical_lease_namespace_identity = canonical_path(namespace)
             self._verify_identity()
         except BaseException:
             self.close()
@@ -2376,74 +2236,24 @@ class _DeliveryWorkspacePreparation:
         return self.__workspace._lease_namespace
 
     def _verify_identity(self) -> None:
+        """Check the named directories; obsolete identity sidecars are inert."""
         if self.__closed:
             raise WorkspaceError("delivery preparation is closed")
-        for path, descriptor in self.__directories.items():
-            opened = os.fstat(descriptor)
+        for path in self.__directories:
             current = _open_directory_nofollow(
                 path, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
             )
             try:
                 visible = os.fstat(current)
+                if not stat.S_ISDIR(visible.st_mode):
+                    raise WorkspaceError("delivery preparation directory is unsafe")
+                if path == self.__workspace._lease_namespace and (
+                    stat.S_IMODE(visible.st_mode) != 0o700
+                    or visible.st_uid != os.geteuid()
+                ):
+                    raise WorkspaceError("delivery preparation namespace is unsafe")
             finally:
                 os.close(current)
-            if not stat.S_ISDIR(visible.st_mode) or (
-                opened.st_dev, opened.st_ino
-            ) != (visible.st_dev, visible.st_ino):
-                raise WorkspaceError("delivery preparation directory identity changed")
-        namespace = self.__workspace._lease_namespace
-        parent = self.__directories[namespace.parent]
-        descriptor = os.open(
-            "atrinik-resource-leases.identity.json",
-            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=parent,
-        )
-        try:
-            status = os.fstat(descriptor)
-            if (
-                not stat.S_ISREG(status.st_mode) or status.st_nlink != 1
-                or status.st_uid != os.geteuid() or stat.S_IMODE(status.st_mode) != 0o600
-                or status.st_size > 4096
-            ):
-                raise WorkspaceError("delivery preparation identity record is unsafe")
-            raw = os.read(descriptor, 4097)
-            after = os.fstat(descriptor)
-            if len(raw) != status.st_size:
-                raise WorkspaceError("delivery preparation identity read was incomplete")
-            identity = (status.st_dev, status.st_ino, status.st_size, status.st_ctime_ns)
-            if identity != (after.st_dev, after.st_ino, after.st_size, after.st_ctime_ns):
-                raise WorkspaceError("delivery preparation identity record changed")
-            visible = os.stat(
-                "atrinik-resource-leases.identity.json", dir_fd=parent,
-                follow_symlinks=False,
-            )
-            if (visible.st_dev, visible.st_ino) != (status.st_dev, status.st_ino):
-                raise WorkspaceError("delivery preparation identity record was replaced")
-            record = json.loads(raw, object_pairs_hook=_reject_duplicate_keys)
-            namespace_status = os.fstat(self.__directories[namespace])
-            if (
-                isinstance(record, dict)
-                and set(record) == {"schema_version", "device", "inode"}
-                and record["schema_version"] == 1
-            ):
-                valid = (record["device"], record["inode"]) == (
-                    namespace_status.st_dev, namespace_status.st_ino
-                )
-            elif (
-                isinstance(record, dict)
-                and set(record) == {"schema_version", "identity"}
-                and record["schema_version"] == LEASE_NAMESPACE_IDENTITY_SCHEMA_VERSION
-            ):
-                valid = identity_matches(record["identity"], namespace_status)
-            else:
-                valid = False
-            if not valid:
-                raise WorkspaceError("delivery preparation namespace identity differs")
-            if self.__record is None:
-                self.__record, self.__record_identity = raw, identity
-            elif (raw, identity) != (self.__record, self.__record_identity):
-                raise WorkspaceError("delivery preparation identity changed during proof")
-        finally:
-            os.close(descriptor)
 
     def plan_live_worktree(self, request, path, scope_record):
         """Return exact read-only checkout and lease planning facts."""
@@ -2533,8 +2343,6 @@ class Workspace:
         manifest: Manifest | None = None,
     ):
         self._initialize_fields(repository, manifest)
-        repository_identity = self.paths.repository.stat()
-        common_identity = self._lease_namespace.parent.stat()
         namespace_identity = self._establish_lease_namespace_identity()
         wrapper_request = self._lease_request(
             "source",
@@ -2550,18 +2358,7 @@ class Workspace:
             raise WorkspaceError(
                 f"wrapper worktree disappeared while acquiring its lease: {self.paths.repository}"
             )
-        current_repository = self.paths.repository.stat()
-        current_common = self._lease_namespace.parent.stat()
-        current_namespace = self._lease_namespace.stat(follow_symlinks=False)
-        if (
-            (repository_identity.st_dev, repository_identity.st_ino)
-            != (current_repository.st_dev, current_repository.st_ino)
-            or (common_identity.st_dev, common_identity.st_ino)
-            != (current_common.st_dev, current_common.st_ino)
-            or namespace_identity
-            != (current_namespace.st_dev, current_namespace.st_ino)
-        ):
-            raise WorkspaceError("wrapper worktree identity changed while acquiring its lease")
+        self._assert_lease_namespace_identity(self._lease_namespace)
         self.manifest = (
             manifest
             if manifest is not None
@@ -2799,7 +2596,7 @@ class Workspace:
             self._fallback_lease_namespace = namespace
         return namespace
 
-    def _establish_lease_namespace_identity(self) -> tuple[int, int]:
+    def _establish_lease_namespace_identity(self) -> str:
         namespace = self._lease_namespace
         if IS_WINDOWS:  # pragma: no cover - exercised by native Windows CI
             try:
@@ -2807,73 +2604,26 @@ class Workspace:
             except OSError as error:
                 raise WorkspaceError(str(error)) from error
         namespace.mkdir(mode=0o700, exist_ok=True)
-        visible = namespace.stat(follow_symlinks=False)
-        if not stat.S_ISDIR(visible.st_mode) or (
-            not IS_WINDOWS and stat.S_IMODE(visible.st_mode) != 0o700
-        ):
-            raise WorkspaceError(f"physical lease namespace is unsafe: {namespace}")
-        identity = (visible.st_dev, visible.st_ino)
-        if not (self.paths.repository / ".git").exists():
-            return identity
-        record_path = namespace.parent / "atrinik-resource-leases.identity.json"
-        lock_path = namespace.parent / "atrinik-resource-leases.identity.lock"
-        with exclusive_lock(lock_path, "physical lease namespace identity"):
-            if record_path.exists() or record_path.is_symlink():
-                record = load_regular_json(
-                    record_path, "physical lease namespace identity"
-                )
-                valid = False
-                if (
-                    isinstance(record, dict)
-                    and set(record) == {"schema_version", "device", "inode"}
-                    and record.get("schema_version") == 1
-                ):
-                    valid = record.get("device") == identity[0] and record.get(
-                        "inode"
-                    ) == identity[1]
-                elif (
-                    isinstance(record, dict)
-                    and set(record) == {"schema_version", "identity"}
-                    and record.get("schema_version")
-                    == LEASE_NAMESPACE_IDENTITY_SCHEMA_VERSION
-                ):
-                    try:
-                        valid = identity_matches(record["identity"], visible)
-                    except FilesystemIdentityError:
-                        valid = False
-                if not valid:
-                    raise WorkspaceError(
-                        "physical lease namespace identity changed; restore the "
-                        f"original namespace: {namespace}"
-                    )
-            else:
-                durable_atomic_json(
-                    record_path,
-                    {
-                        "schema_version": LEASE_NAMESPACE_IDENTITY_SCHEMA_VERSION,
-                        "identity": portable_identity(visible),
-                    },
-                )
-        return identity
+        self._assert_lease_namespace_identity(namespace)
+        return canonical_path(namespace)
 
     def _assert_lease_namespace_identity(self, namespace: Path) -> None:
-        expected = getattr(self, "_physical_lease_namespace_identity", None)
-        if expected is None:
-            return
         try:
             visible = namespace.stat(follow_symlinks=False)
         except OSError as error:
             raise WorkspaceError(
                 f"physical lease namespace is unavailable: {namespace}: {error}"
             ) from error
+        expected = getattr(self, "_physical_lease_namespace_identity", None)
         if (
             not stat.S_ISDIR(visible.st_mode)
-            or (visible.st_dev, visible.st_ino) != expected
+            or (expected is not None and canonical_path(namespace) != expected)
+            or (not IS_WINDOWS and (
+                stat.S_IMODE(visible.st_mode) != 0o700
+                or visible.st_uid != os.geteuid()
+            ))
         ):
-            raise WorkspaceError(
-                "physical lease namespace identity changed; restore the original "
-                f"namespace: {namespace}"
-            )
+            raise WorkspaceError(f"physical lease namespace is unsafe: {namespace}")
 
     def command_maintenance(self) -> AbstractContextManager[None]:
         """Protect one non-migration CLI command from physical layout writers."""
@@ -2890,14 +2640,15 @@ class Workspace:
         return self.paths.workspace
 
     def _assert_physical_namespace_fd(self, descriptor: int) -> None:
-        expected = getattr(self, "_physical_lease_namespace_identity", None)
-        if expected is None:
-            return
         opened = os.fstat(descriptor)
-        if (opened.st_dev, opened.st_ino) != expected:
+        if not stat.S_ISDIR(opened.st_mode) or (
+            not IS_WINDOWS and (
+                stat.S_IMODE(opened.st_mode) != 0o700
+                or opened.st_uid != os.geteuid()
+            )
+        ):
             raise WorkspaceError(
-                "physical lease namespace identity changed; restore the original "
-                f"namespace: {self._lease_namespace}"
+                f"physical lease namespace is unsafe: {self._lease_namespace}"
             )
 
     @contextmanager
@@ -3141,196 +2892,99 @@ class Workspace:
             parent_fd = _open_directory_nofollow(output.parent, flags, create=True)
             if not existing_output:
                 try:
-                    os.mkdir(output.name, 0o755, dir_fd=parent_fd)
+                    os.mkdir(output.name, 493, dir_fd=parent_fd)
                 except FileExistsError as error:
-                    raise WorkspaceError(
-                        f"Git source archive output already exists: {output}"
-                    ) from error
-            visible_root = os.stat(
-                output.name, dir_fd=parent_fd, follow_symlinks=False
-            )
+                    raise WorkspaceError(f'Git source archive output already exists: {output}') from error
+            visible_root = os.stat(output.name, dir_fd=parent_fd, follow_symlinks=False)
             root_fd = os.open(output.name, flags, dir_fd=parent_fd)
             opened_root = os.fstat(root_fd)
-            root_mount = _descriptor_mount_id(root_fd)
-            if (
-                (visible_root.st_dev, visible_root.st_ino)
-                != (opened_root.st_dev, opened_root.st_ino)
-                or not stat.S_ISDIR(opened_root.st_mode)
-                or _descriptor_mount_id(parent_fd) != root_mount
-            ):
-                raise WorkspaceError(
-                    f"Git source archive output is not a regular directory: {output}"
-                )
-            archive_file = (
-                os.fdopen(os.dup(archive_path), "rb")
-                if isinstance(archive_path, int)
-                else None
-            )
+            root_mount = _descriptor_mount_path(root_fd)
+            if not stat.S_ISDIR(opened_root.st_mode) or _descriptor_mount_path(parent_fd) != root_mount:
+                raise WorkspaceError(f'Git source archive output is not a regular directory: {output}')
+            archive_file = os.fdopen(os.dup(archive_path), 'rb') if isinstance(archive_path, int) else None
             if isinstance(archive_path, int):
                 os.lseek(archive_path, 0, os.SEEK_SET)
                 archive_file.seek(0)
             seen: set[str] = set()
-            with tarfile.open(
-                archive_path if archive_file is None else None,
-                mode="r:",
-                fileobj=archive_file,
-            ) as archive:
+            with tarfile.open(archive_path if archive_file is None else None, mode='r:', fileobj=archive_file) as archive:
                 for member in archive:
                     relative = PurePosixPath(member.name)
-                    if (
-                        not member.name
-                        or relative.is_absolute()
-                        or any(part in {"", ".", ".."} for part in relative.parts)
-                    ):
-                        raise WorkspaceError(
-                            f"Git source archive contains an unsafe path: {member.name!r}"
-                        )
+                    if not member.name or relative.is_absolute() or any((part in {'', '.', '..'} for part in relative.parts)):
+                        raise WorkspaceError(f'Git source archive contains an unsafe path: {member.name!r}')
                     repeated = relative.as_posix() in seen
-                    if repeated and not member.isdir():
-                        raise WorkspaceError(
-                            f"Git source archive repeats a path: {member.name}"
-                        )
+                    if repeated and (not member.isdir()):
+                        raise WorkspaceError(f'Git source archive repeats a path: {member.name}')
                     seen.add(relative.as_posix())
                     directory_fd = os.dup(root_fd)
                     try:
                         for part in relative.parts[:-1]:
                             try:
-                                child = os.stat(
-                                    part,
-                                    dir_fd=directory_fd,
-                                    follow_symlinks=False,
-                                )
+                                child = os.stat(part, dir_fd=directory_fd, follow_symlinks=False)
                             except FileNotFoundError:
-                                os.mkdir(part, 0o755, dir_fd=directory_fd)
-                                child = os.stat(
-                                    part,
-                                    dir_fd=directory_fd,
-                                    follow_symlinks=False,
-                                )
+                                os.mkdir(part, 493, dir_fd=directory_fd)
+                                child = os.stat(part, dir_fd=directory_fd, follow_symlinks=False)
                             if not stat.S_ISDIR(child.st_mode):
                                 if stat.S_ISLNK(child.st_mode):
-                                    raise WorkspaceError(
-                                        "Git source archive traverses a symbolic "
-                                        f"link: {member.name}"
-                                    )
-                                raise WorkspaceError(
-                                    "Git source archive ancestor is not a directory: "
-                                    f"{member.name}"
-                                )
+                                    raise WorkspaceError(f'Git source archive traverses a symbolic link: {member.name}')
+                                raise WorkspaceError(f'Git source archive ancestor is not a directory: {member.name}')
                             try:
                                 next_fd = os.open(part, flags, dir_fd=directory_fd)
                             except OSError as error:
-                                raise WorkspaceError(
-                                    "Git source archive ancestor changed or cannot "
-                                    f"be opened safely: {member.name}"
-                                ) from error
+                                raise WorkspaceError(f'Git source archive ancestor changed or cannot be opened safely: {member.name}') from error
                             opened = os.fstat(next_fd)
-                            if (
-                                (opened.st_dev, opened.st_ino)
-                                != (child.st_dev, child.st_ino)
-                                or opened.st_dev != opened_root.st_dev
-                                or _descriptor_mount_id(next_fd) != root_mount
-                            ):
+                            if _descriptor_mount_path(next_fd) != root_mount:
                                 os.close(next_fd)
-                                raise WorkspaceError(
-                                    "Git source archive ancestor changed or is "
-                                    f"mounted: {member.name}"
-                                )
+                                raise WorkspaceError(f'Git source archive ancestor changed or is mounted: {member.name}')
                             os.close(directory_fd)
                             directory_fd = next_fd
                         name = relative.parts[-1]
                         try:
-                            existing = os.stat(
-                                name,
-                                dir_fd=directory_fd,
-                                follow_symlinks=False,
-                            )
+                            existing = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
                         except FileNotFoundError:
                             existing = None
-                        permissions = member.mode & 0o777
+                        permissions = member.mode & 511
                         if member.isdir():
                             if existing is None:
                                 os.mkdir(name, permissions, dir_fd=directory_fd)
-                                existing = os.stat(
-                                    name,
-                                    dir_fd=directory_fd,
-                                    follow_symlinks=False,
-                                )
-                            elif (
-                                not (existing_output or repeated)
-                                or not stat.S_ISDIR(existing.st_mode)
-                            ):
-                                raise WorkspaceError(
-                                    f"Git source archive repeats a path: {member.name}"
-                                )
+                                existing = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+                            elif not (existing_output or repeated) or not stat.S_ISDIR(existing.st_mode):
+                                raise WorkspaceError(f'Git source archive repeats a path: {member.name}')
                             try:
-                                descriptor = os.open(
-                                    name, flags, dir_fd=directory_fd
-                                )
+                                descriptor = os.open(name, flags, dir_fd=directory_fd)
                             except OSError as error:
-                                raise WorkspaceError(
-                                    "Git source archive directory changed or cannot "
-                                    f"be opened safely: {member.name}"
-                                ) from error
+                                raise WorkspaceError(f'Git source archive directory changed or cannot be opened safely: {member.name}') from error
                             try:
                                 opened = os.fstat(descriptor)
-                                if (
-                                    (opened.st_dev, opened.st_ino)
-                                    != (existing.st_dev, existing.st_ino)
-                                    or opened.st_dev != opened_root.st_dev
-                                    or _descriptor_mount_id(descriptor) != root_mount
-                                ):
-                                    raise WorkspaceError(
-                                        "Git source archive directory changed or is "
-                                        f"mounted: {member.name}"
-                                    )
+                                if _descriptor_mount_path(descriptor) != root_mount:
+                                    raise WorkspaceError(f'Git source archive directory changed or is mounted: {member.name}')
                                 os.fchmod(descriptor, permissions)
                             finally:
                                 os.close(descriptor)
                         elif member.isreg():
                             if existing is not None:
-                                raise WorkspaceError(
-                                    f"Git source archive repeats a path: {member.name}"
-                                )
+                                raise WorkspaceError(f'Git source archive repeats a path: {member.name}')
                             stream = archive.extractfile(member)
                             if stream is None:
-                                raise WorkspaceError(
-                                    f"Git source archive cannot read file: {member.name}"
-                                )
-                            descriptor = os.open(
-                                name,
-                                os.O_WRONLY
-                                | os.O_CREAT
-                                | os.O_EXCL
-                                | os.O_NOFOLLOW,
-                                permissions,
-                                dir_fd=directory_fd,
-                            )
+                                raise WorkspaceError(f'Git source archive cannot read file: {member.name}')
+                            descriptor = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, permissions, dir_fd=directory_fd)
                             try:
-                                with stream, os.fdopen(
-                                    descriptor, "wb", closefd=False
-                                ) as target:
+                                with stream, os.fdopen(descriptor, 'wb', closefd=False) as target:
                                     shutil.copyfileobj(stream, target, 1024 * 1024)
                                     os.fchmod(descriptor, permissions)
                             finally:
                                 os.close(descriptor)
                         elif member.issym():
                             if existing is not None:
-                                raise WorkspaceError(
-                                    f"Git source archive repeats a path: {member.name}"
-                                )
+                                raise WorkspaceError(f'Git source archive repeats a path: {member.name}')
                             target = member.linkname
                             if not target or Path(target).is_absolute():
-                                raise WorkspaceError(
-                                    "Git source archive contains an unsafe link: "
-                                    f"{member.name}"
-                                )
+                                raise WorkspaceError(f'Git source archive contains an unsafe link: {member.name}')
                             normalized = list(relative.parent.parts)
                             bounded = True
                             for part in PurePosixPath(target).parts:
-                                if part in {"", "."}:
+                                if part in {'', '.'}:
                                     continue
-                                if part == "..":
+                                if part == '..':
                                     if not normalized:
                                         bounded = False
                                         break
@@ -3338,36 +2992,19 @@ class Workspace:
                                 else:
                                     normalized.append(part)
                             if not bounded:
-                                raise WorkspaceError(
-                                    "Git source archive link escapes its generation: "
-                                    f"{member.name}"
-                                )
+                                raise WorkspaceError(f'Git source archive link escapes its generation: {member.name}')
                             os.symlink(target, name, dir_fd=directory_fd)
                         else:
-                            raise WorkspaceError(
-                                "Git source archive contains an unsupported entry: "
-                                f"{member.name}"
-                            )
+                            raise WorkspaceError(f'Git source archive contains an unsupported entry: {member.name}')
                     finally:
                         os.close(directory_fd)
-            current_root = os.stat(
-                output.name, dir_fd=parent_fd, follow_symlinks=False
-            )
-            if (
-                (current_root.st_dev, current_root.st_ino)
-                != (opened_root.st_dev, opened_root.st_ino)
-                or (os.fstat(root_fd).st_dev, os.fstat(root_fd).st_ino)
-                != (opened_root.st_dev, opened_root.st_ino)
-            ):
-                raise WorkspaceError(
-                    f"Git source archive output changed during extraction: {output}"
-                )
+            current_root = os.stat(output.name, dir_fd=parent_fd, follow_symlinks=False)
+            if descriptor_path(root_fd) != canonical_path(output):
+                raise WorkspaceError(f'Git source archive output changed during extraction: {output}')
         except WorkspaceError:
             raise
         except (OSError, tarfile.TarError) as error:
-            raise WorkspaceError(
-                f"cannot extract immutable Git source archive: {error}"
-            ) from error
+            raise WorkspaceError(f'cannot extract immutable Git source archive: {error}') from error
         finally:
             if archive_file is not None:
                 archive_file.close()
@@ -3705,8 +3342,7 @@ class Workspace:
             output, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW
         )
         try:
-            root_mount = _descriptor_mount_id(root_fd)
-            root_device = os.fstat(root_fd).st_dev
+            root_mount = _descriptor_mount_path(root_fd)
         finally:
             os.close(root_fd)
         for relative, (pointer, oid, size) in pointers.items():
@@ -3722,9 +3358,7 @@ class Workspace:
             temporary_name: str | None = None
             try:
                 before = os.stat(path.name, dir_fd=parent_fd, follow_symlinks=False)
-                if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
-                        or before.st_dev != root_device
-                        or _descriptor_mount_id(parent_fd) != root_mount):
+                if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or _descriptor_mount_path(parent_fd) != root_mount):
                     raise WorkspaceError(f"unsafe Git LFS staging file: {path}")
                 # Never truncate a name that an outside writer could swap or
                 # hard-link. Publish verified bytes through the pinned parent.
@@ -3758,13 +3392,7 @@ class Workspace:
                     digest.update(chunk)
                 after = os.fstat(descriptor)
                 visible = os.stat(path.name, dir_fd=parent_fd, follow_symlinks=False)
-                if (observed != size or after.st_size != size or digest.hexdigest() != oid
-                        or (visible.st_dev, visible.st_ino, visible.st_mode, visible.st_nlink,
-                            visible.st_size, visible.st_mtime_ns, visible.st_ctime_ns)
-                        != (before.st_dev, before.st_ino, before.st_mode, before.st_nlink,
-                            before.st_size, before.st_mtime_ns, before.st_ctime_ns)
-                        or (after.st_dev, after.st_ino) != (opened.st_dev, opened.st_ino)
-                        or after.st_nlink != 1):
+                if (observed != size or after.st_size != size or digest.hexdigest() != oid or ((visible.st_mode, visible.st_nlink, visible.st_size, visible.st_mtime_ns) != (before.st_mode, before.st_nlink, before.st_size, before.st_mtime_ns)) or (after.st_nlink != 1)):
                     raise WorkspaceError(
                         f"Git LFS payload hash/size verification failed for {path}; "
                         "fetch the correct object in the selected checkout, then retry"
@@ -3798,21 +3426,13 @@ class Workspace:
             digest.update(payload)
             return digest.hexdigest().encode()
 
-        def stable_identity(value: os.stat_result) -> tuple[int, ...]:
-            return (
-                value.st_dev,
-                value.st_ino,
-                value.st_mode,
-                value.st_nlink,
-                value.st_size,
-                value.st_mtime_ns,
-                value.st_ctime_ns,
-            )
+        def stable_metadata(value: os.stat_result) -> tuple[int, ...]:
+            return (value.st_mode, value.st_nlink, value.st_size, value.st_mtime_ns)
 
         def changed(
             before: os.stat_result, after: os.stat_result
         ) -> bool:
-            return stable_identity(before) != stable_identity(after)
+            return stable_metadata(before) != stable_metadata(after)
 
         def visit(directory_fd: int, prefix: bytes) -> None:
             directory_before = os.fstat(directory_fd)
@@ -3844,9 +3464,7 @@ class Workspace:
                         )
                         opened = os.fstat(descriptor)
                         if (
-                            changed(status, opened)
-                            or opened.st_dev != root_status.st_dev
-                            or _descriptor_mount_id(descriptor) != root_mount
+                            changed(status, opened) or _descriptor_mount_path(descriptor) != root_mount
                         ):
                             raise WorkspaceError(
                                 "immutable source generation changed while "
@@ -3872,11 +3490,7 @@ class Workspace:
                         )
                         opened = os.fstat(descriptor)
                         if (
-                            changed(status, opened)
-                            or not stat.S_ISREG(opened.st_mode)
-                            or opened.st_nlink != 1
-                            or opened.st_dev != root_status.st_dev
-                            or _descriptor_mount_id(descriptor) != root_mount
+                            changed(status, opened) or not stat.S_ISREG(opened.st_mode) or opened.st_nlink != 1 or (_descriptor_mount_path(descriptor) != root_mount)
                         ):
                             raise WorkspaceError(
                                 "immutable source generation changed while "
@@ -3965,7 +3579,7 @@ class Workspace:
             flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
             container_fd = _open_directory_nofollow(source.parent.parent, flags)
             container_status = os.fstat(container_fd)
-            container_mount = _descriptor_mount_id(container_fd)
+            container_mount = _descriptor_mount_path(container_fd)
             visible_parent = os.stat(
                 source.parent.name,
                 dir_fd=container_fd,
@@ -3977,11 +3591,9 @@ class Workspace:
                 dir_fd=container_fd,
             )
             parent_status = os.fstat(parent_fd)
-            parent_mount = _descriptor_mount_id(parent_fd)
+            parent_mount = _descriptor_mount_path(parent_fd)
             if (
-                changed(visible_parent, parent_status)
-                or parent_status.st_dev != container_status.st_dev
-                or parent_mount != container_mount
+                changed(visible_parent, parent_status) or parent_mount != container_mount
             ):
                 raise WorkspaceError(
                     "immutable source generation parent changed or is mounted: "
@@ -3994,11 +3606,9 @@ class Workspace:
             )
             root_fd = os.open(source.name, flags, dir_fd=parent_fd)
             root_status = os.fstat(root_fd)
-            root_mount = _descriptor_mount_id(root_fd)
+            root_mount = _descriptor_mount_path(root_fd)
             if (
-                changed(visible_root, root_status)
-                or root_status.st_dev != parent_status.st_dev
-                or root_mount != parent_mount
+                changed(visible_root, root_status) or root_mount != parent_mount
             ):
                 raise WorkspaceError(
                     "immutable source generation root changed or is mounted: "
@@ -4024,7 +3634,9 @@ class Workspace:
                 follow_symlinks=False,
             )
             if (
-                changed(root_status, os.fstat(root_fd))
+                descriptor_path(root_fd) != canonical_path(source)
+                or descriptor_path(parent_fd) != canonical_path(source.parent)
+                or changed(root_status, os.fstat(root_fd))
                 or changed(root_status, visible_after)
                 or changed(parent_status, os.fstat(parent_fd))
                 or changed(parent_status, visible_parent_after)
@@ -4087,37 +3699,7 @@ class Workspace:
                 follow_symlinks=False,
             )
             if (
-                (visible.st_dev, visible.st_ino)
-                != (opened.st_dev, opened.st_ino)
-                or opened.st_dev != os.fstat(container_fd).st_dev
-                or _descriptor_mount_id(generation_fd)
-                != _descriptor_mount_id(container_fd)
-                or not stat.S_ISREG(marker.st_mode)
-                or marker.st_nlink != 1
-                or marker.st_dev != opened.st_dev
-                or (
-                    marker.st_dev,
-                    marker.st_ino,
-                    marker.st_mode,
-                    marker.st_nlink,
-                    marker.st_size,
-                    marker.st_mtime_ns,
-                    marker.st_ctime_ns,
-                )
-                != (
-                    confirmed_marker.st_dev,
-                    confirmed_marker.st_ino,
-                    confirmed_marker.st_mode,
-                    confirmed_marker.st_nlink,
-                    confirmed_marker.st_size,
-                    confirmed_marker.st_mtime_ns,
-                    confirmed_marker.st_ctime_ns,
-                )
-                or marker_value
-                != {
-                    "schema_version": SCHEMA_VERSION,
-                    "purpose": f"source-generation:{key}",
-                }
+                _descriptor_mount_path(generation_fd) != _descriptor_mount_path(container_fd) or not stat.S_ISREG(marker.st_mode) or marker.st_nlink != 1 or ((marker.st_mode, marker.st_nlink, marker.st_size, marker.st_mtime_ns) != (confirmed_marker.st_mode, confirmed_marker.st_nlink, confirmed_marker.st_size, confirmed_marker.st_mtime_ns)) or (marker_value != {'schema_version': SCHEMA_VERSION, 'purpose': f'source-generation:{key}'})
             ):
                 raise WorkspaceError(
                     f"immutable source generation ownership is invalid: {generation}"
@@ -4129,23 +3711,7 @@ class Workspace:
                 allow_unsafe=True,
             )
             confirmed = os.stat(key, dir_fd=container_fd, follow_symlinks=False)
-            if (
-                confirmed.st_dev,
-                confirmed.st_ino,
-                confirmed.st_mode,
-                confirmed.st_nlink,
-                confirmed.st_size,
-                confirmed.st_mtime_ns,
-                confirmed.st_ctime_ns,
-            ) != (
-                opened.st_dev,
-                opened.st_ino,
-                opened.st_mode,
-                opened.st_nlink,
-                opened.st_size,
-                opened.st_mtime_ns,
-                opened.st_ctime_ns,
-            ):
+            if (confirmed.st_mode, confirmed.st_nlink, confirmed.st_size, confirmed.st_mtime_ns) != (opened.st_mode, opened.st_nlink, opened.st_size, opened.st_mtime_ns):
                 raise WorkspaceError(
                     f"immutable source generation changed before recovery: {generation}"
                 )
@@ -4191,23 +3757,8 @@ class Workspace:
                     dir_fd=container_fd,
                     follow_symlinks=False,
                 )
-                stable_fields = (
-                    "st_dev",
-                    "st_ino",
-                    "st_mode",
-                    "st_nlink",
-                    "st_size",
-                    "st_mtime_ns",
-                    "st_ctime_ns",
-                )
-                if any(
-                    getattr(quarantined, field)
-                    != getattr(quarantined_before, field)
-                    for field in stable_fields
-                ) or (quarantined.st_dev, quarantined.st_ino) != (
-                    os.fstat(generation_fd).st_dev,
-                    os.fstat(generation_fd).st_ino,
-                ):
+                stable_fields = ('st_mode', 'st_nlink', 'st_size', 'st_mtime_ns')
+                if any((getattr(quarantined, field) != getattr(quarantined_before, field) for field in stable_fields)):
                     raise WorkspaceError(
                         "source generation changed during recovery: "
                         f"{container / quarantine_name}"
@@ -4239,214 +3790,99 @@ class Workspace:
                 os.close(container_fd)
 
     @staticmethod
-    def _source_generation_inventory(
-        root_fd: int,
-        root: Path,
-        *,
-        sync: bool,
-        allow_unsafe: bool,
-    ) -> str:
+    def _source_generation_inventory(root_fd: int, root: Path, *, sync: bool, allow_unsafe: bool) -> str:
         """Inventory one pinned tree, rejecting mount crossings and races."""
-
+        if descriptor_path(root_fd) != canonical_path(root):
+            raise WorkspaceError(f'source generation path changed during inventory: {root}')
         root_metadata = os.fstat(root_fd)
-        root_device = root_metadata.st_dev
-        root_mount = _descriptor_mount_id(root_fd)
-        if not allow_unsafe and root_metadata.st_mode & 0o222:
-            raise _SourceGenerationCorrupt(
-                f"immutable source generation is writable: {root}"
-            )
+        root_mount = _descriptor_mount_path(root_fd)
+        if not allow_unsafe and root_metadata.st_mode & 146:
+            raise _SourceGenerationCorrupt(f'immutable source generation is writable: {root}')
         digest = hashlib.sha256()
 
-        def stable_identity(metadata: os.stat_result) -> tuple[int, ...]:
-            return (
-                metadata.st_dev,
-                metadata.st_ino,
-                metadata.st_mode,
-                metadata.st_nlink,
-                metadata.st_size,
-                metadata.st_mtime_ns,
-                metadata.st_ctime_ns,
-            )
+        def stable_metadata(metadata: os.stat_result) -> tuple[int, ...]:
+            return (metadata.st_mode, metadata.st_nlink, metadata.st_size, metadata.st_mtime_ns)
 
         def record(*values: object) -> None:
-            payload = json.dumps(values, separators=(",", ":"), ensure_ascii=True)
-            digest.update(len(payload).to_bytes(8, "big"))
+            payload = json.dumps(values, separators=(',', ':'), ensure_ascii=True)
+            digest.update(len(payload).to_bytes(8, 'big'))
             digest.update(payload.encode())
 
-        def inventory_directory(
-            directory_fd: int, display: Path, relative: str
-        ) -> None:
+        def inventory_directory(directory_fd: int, display: Path, relative: str) -> None:
             directory_before = os.fstat(directory_fd)
-            directory_identity = stable_identity(directory_before)
-            record(
-                "directory",
-                relative,
-                directory_identity[:-1] if not relative else directory_identity,
-            )
+            directory_metadata = stable_metadata(directory_before)
+            record('directory', relative, directory_metadata)
             try:
                 entries = sorted(os.listdir(directory_fd))
             except OSError as error:
-                raise WorkspaceError(
-                    f"cannot inventory source generation durability: {display}: {error}"
-                ) from error
+                raise WorkspaceError(f'cannot inventory source generation durability: {display}: {error}') from error
             for name in entries:
                 path = display / name
-                child_relative = f"{relative}/{name}" if relative else name
+                child_relative = f'{relative}/{name}' if relative else name
                 descriptor: int | None = None
                 try:
-                    metadata = os.stat(
-                        name,
-                        dir_fd=directory_fd,
-                        follow_symlinks=False,
-                    )
+                    metadata = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
                     if stat.S_ISDIR(metadata.st_mode):
-                        descriptor = os.open(
-                            name,
-                            os.O_RDONLY
-                            | os.O_CLOEXEC
-                            | os.O_DIRECTORY
-                            | os.O_NOFOLLOW,
-                            dir_fd=directory_fd,
-                        )
+                        descriptor = os.open(name, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=directory_fd)
                         opened = os.fstat(descriptor)
-                        if (
-                            stable_identity(opened) != stable_identity(metadata)
-                            or opened.st_dev != root_device
-                            or _descriptor_mount_id(descriptor) != root_mount
-                        ):
-                            raise WorkspaceError(
-                                "source generation changed or is mounted: "
-                                f"{path}"
-                            )
-                        if not allow_unsafe and opened.st_mode & 0o222:
-                            raise _SourceGenerationCorrupt(
-                                f"immutable source generation is writable: {path}"
-                            )
+                        if stable_metadata(opened) != stable_metadata(metadata) or _descriptor_mount_path(descriptor) != root_mount:
+                            raise WorkspaceError(f'source generation changed or is mounted: {path}')
+                        if not allow_unsafe and opened.st_mode & 146:
+                            raise _SourceGenerationCorrupt(f'immutable source generation is writable: {path}')
                         inventory_directory(descriptor, path, child_relative)
-                        if stable_identity(os.fstat(descriptor)) != stable_identity(
-                            opened
-                        ):
-                            raise WorkspaceError(
-                                "source generation changed during inventory: "
-                                f"{path}"
-                            )
+                        if stable_metadata(os.fstat(descriptor)) != stable_metadata(opened):
+                            raise WorkspaceError(f'source generation changed during inventory: {path}')
                     elif stat.S_ISREG(metadata.st_mode):
-                        descriptor = os.open(
-                            name,
-                            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
-                            dir_fd=directory_fd,
-                        )
+                        descriptor = os.open(name, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=directory_fd)
                         opened = os.fstat(descriptor)
-                        if (
-                            stable_identity(opened) != stable_identity(metadata)
-                            or opened.st_dev != root_device
-                            or _descriptor_mount_id(descriptor) != root_mount
-                        ):
-                            raise WorkspaceError(
-                                "source generation changed or is mounted: "
-                                f"{path}"
-                            )
-                        if not allow_unsafe and (
-                            opened.st_nlink != 1 or opened.st_mode & 0o222
-                        ):
-                            raise _SourceGenerationCorrupt(
-                                "immutable source generation contains an unsafe "
-                                f"file: {path}"
-                            )
+                        if stable_metadata(opened) != stable_metadata(metadata) or _descriptor_mount_path(descriptor) != root_mount:
+                            raise WorkspaceError(f'source generation changed or is mounted: {path}')
+                        if not allow_unsafe and (opened.st_nlink != 1 or opened.st_mode & 146):
+                            raise _SourceGenerationCorrupt(f'immutable source generation contains an unsafe file: {path}')
                         if sync:
                             os.fsync(descriptor)
                         content = hashlib.sha256()
-                        while chunk := os.read(descriptor, 1024 * 1024):
+                        while (chunk := os.read(descriptor, 1024 * 1024)):
                             content.update(chunk)
-                        if stable_identity(os.fstat(descriptor)) != stable_identity(
-                            opened
-                        ):
-                            raise WorkspaceError(
-                                "source generation changed during inventory: "
-                                f"{path}"
-                            )
-                        record(
-                            "file",
-                            child_relative,
-                            stable_identity(opened),
-                            content.hexdigest(),
-                        )
+                        if stable_metadata(os.fstat(descriptor)) != stable_metadata(opened):
+                            raise WorkspaceError(f'source generation changed during inventory: {path}')
+                        record('file', child_relative, stable_metadata(opened), content.hexdigest())
                     elif stat.S_ISLNK(metadata.st_mode):
-                        if metadata.st_dev != root_device:
-                            raise WorkspaceError(
-                                "source generation link is on another device: "
-                                f"{path}"
-                            )
                         target = os.readlink(name, dir_fd=directory_fd)
-                        after = os.stat(
-                            name, dir_fd=directory_fd, follow_symlinks=False
-                        )
-                        if stable_identity(after) != stable_identity(metadata):
-                            raise WorkspaceError(
-                                "source generation changed during inventory: "
-                                f"{path}"
-                            )
-                        record(
-                            "link",
-                            child_relative,
-                            stable_identity(metadata),
-                            target,
-                        )
+                        after = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+                        if stable_metadata(after) != stable_metadata(metadata):
+                            raise WorkspaceError(f'source generation changed during inventory: {path}')
+                        record('link', child_relative, stable_metadata(metadata), target)
                     else:
                         if not allow_unsafe:
-                            raise _SourceGenerationCorrupt(
-                                f"source generation contains a special entry: {path}"
-                            )
-                        path_flag = getattr(os, "O_PATH", None)
+                            raise _SourceGenerationCorrupt(f'source generation contains a special entry: {path}')
+                        path_flag = getattr(os, 'O_PATH', None)
                         if path_flag is None:
-                            raise WorkspaceError(
-                                "cannot prove source generation special-entry "
-                                f"mount identity: {path}"
-                            )
-                        descriptor = os.open(
-                            name,
-                            path_flag | os.O_CLOEXEC | os.O_NOFOLLOW,
-                            dir_fd=directory_fd,
-                        )
+                            raise WorkspaceError(f'cannot prove source generation special-entry mount identity: {path}')
+                        descriptor = os.open(name, path_flag | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=directory_fd)
                         opened = os.fstat(descriptor)
-                        if (
-                            stable_identity(opened) != stable_identity(metadata)
-                            or opened.st_dev != root_device
-                            or _descriptor_mount_id(descriptor) != root_mount
-                        ):
-                            raise WorkspaceError(
-                                "source generation special entry changed or is "
-                                "mounted: "
-                                f"{path}"
-                            )
-                        record("special", child_relative, stable_identity(opened))
+                        if stable_metadata(opened) != stable_metadata(metadata) or _descriptor_mount_path(descriptor) != root_mount:
+                            raise WorkspaceError(f'source generation special entry changed or is mounted: {path}')
+                        record('special', child_relative, stable_metadata(opened))
                 except OSError as error:
-                    raise WorkspaceError(
-                        f"cannot inventory source generation: {path}: {error}"
-                    ) from error
+                    raise WorkspaceError(f'cannot inventory source generation: {path}: {error}') from error
                 finally:
                     if descriptor is not None:
                         os.close(descriptor)
             try:
                 if sync:
                     os.fsync(directory_fd)
-                if stable_identity(os.fstat(directory_fd)) != stable_identity(
-                    directory_before
-                ):
-                    raise WorkspaceError(
-                        "source generation changed during inventory: "
-                        f"{display}"
-                    )
+                if stable_metadata(os.fstat(directory_fd)) != stable_metadata(directory_before):
+                    raise WorkspaceError(f'source generation changed during inventory: {display}')
             except OSError as error:
-                raise WorkspaceError(
-                    f"cannot make source generation durable: {display}: {error}"
-                ) from error
-
-        inventory_directory(root_fd, root, "")
+                raise WorkspaceError(f'cannot make source generation durable: {display}: {error}') from error
+        inventory_directory(root_fd, root, '')
+        if descriptor_path(root_fd) != canonical_path(root):
+            raise WorkspaceError(f'source generation path changed during inventory: {root}')
         return digest.hexdigest()
 
     @staticmethod
-    def _durably_sync_source_generation(root: Path) -> tuple[int, int, str]:
+    def _durably_sync_source_generation(root: Path) -> str:
         """Flush and inventory a sealed source tree before publication."""
 
         descriptor: int | None = None
@@ -4463,7 +3899,7 @@ class Workspace:
                 allow_unsafe=False,
             )
             metadata = os.fstat(descriptor)
-            return metadata.st_dev, metadata.st_ino, inventory
+            return inventory
         finally:
             if descriptor is not None:
                 os.close(descriptor)
@@ -4474,7 +3910,7 @@ class Workspace:
     ) -> None:
         """Make a visible canonical generation and its directory entry durable."""
 
-        device, inode, durable_inventory = (
+        durable_inventory = (
             Workspace._durably_sync_source_generation(generation)
         )
         if (
@@ -4501,28 +3937,9 @@ class Workspace:
                 dir_fd=container_fd,
             )
             opened = os.fstat(generation_fd)
-            stable_fields = (
-                "st_dev",
-                "st_ino",
-                "st_mode",
-                "st_nlink",
-                "st_size",
-                "st_mtime_ns",
-                "st_ctime_ns",
-            )
+            stable_fields = ('st_mode', 'st_nlink', 'st_size', 'st_mtime_ns')
             if (
-                (visible.st_dev, visible.st_ino) != (device, inode)
-                or (opened.st_dev, opened.st_ino) != (device, inode)
-                or opened.st_dev != os.fstat(container_fd).st_dev
-                or _descriptor_mount_id(generation_fd)
-                != _descriptor_mount_id(container_fd)
-                or Workspace._source_generation_inventory(
-                    generation_fd,
-                    generation,
-                    sync=False,
-                    allow_unsafe=False,
-                )
-                != durable_inventory
+                _descriptor_mount_path(generation_fd) != _descriptor_mount_path(container_fd) or Workspace._source_generation_inventory(generation_fd, generation, sync=False, allow_unsafe=False) != durable_inventory
             ):
                 raise WorkspaceError(
                     "source generation changed during durable retry: "
@@ -4580,7 +3997,7 @@ class Workspace:
                 follow_symlinks=False,
             )
             final_opened = os.fstat(generation_fd)
-            if any(
+            if descriptor_path(generation_fd) != canonical_path(generation) or any(
                 getattr(final_visible, field) != getattr(opened, field)
                 or getattr(final_opened, field) != getattr(opened, field)
                 for field in stable_fields
@@ -4623,23 +4040,9 @@ class Workspace:
                 dir_fd=container_fd,
             )
             opened = os.fstat(generation_fd)
-            stable_fields = (
-                "st_dev",
-                "st_ino",
-                "st_mode",
-                "st_nlink",
-                "st_size",
-                "st_mtime_ns",
-                "st_ctime_ns",
-            )
+            stable_fields = ('st_mode', 'st_nlink', 'st_size', 'st_mtime_ns')
             if (
-                any(
-                    getattr(visible, field) != getattr(opened, field)
-                    for field in stable_fields
-                )
-                or opened.st_dev != os.fstat(container_fd).st_dev
-                or _descriptor_mount_id(generation_fd)
-                != _descriptor_mount_id(container_fd)
+                any((getattr(visible, field) != getattr(opened, field) for field in stable_fields)) or _descriptor_mount_path(generation_fd) != _descriptor_mount_path(container_fd)
             ):
                 raise WorkspaceError(
                     "immutable source generation changed or is mounted: "
@@ -4802,23 +4205,15 @@ class Workspace:
                 )
                 opened = os.fstat(descriptor)
 
-                def file_identity(value: os.stat_result) -> tuple[int, ...]:
-                    return (
-                        value.st_dev,
-                        value.st_ino,
-                        value.st_mode,
-                        value.st_nlink,
-                        value.st_size,
-                        value.st_mtime_ns,
-                        value.st_ctime_ns,
-                    )
+                def file_metadata(value: os.stat_result) -> tuple[int, ...]:
+                    return (value.st_mode, value.st_nlink, value.st_size, value.st_mtime_ns)
 
                 if (
-                    file_identity(visible) != file_identity(opened)
+                    file_metadata(visible) != file_metadata(opened)
                     or not stat.S_ISREG(opened.st_mode)
                     or opened.st_nlink != 1
-                    or _descriptor_mount_id(descriptor)
-                    != _descriptor_mount_id(parent_fd)
+                    or _descriptor_mount_path(descriptor)
+                    != _descriptor_mount_path(parent_fd)
                 ):
                     raise WorkspaceError(
                         f"immutable source include changed while reading: {include_path}"
@@ -4847,7 +4242,7 @@ class Workspace:
                         actual_oid = b"lfs-mismatch:" + payload_digest.hexdigest().encode()
                 if (
                     observed != opened.st_size
-                    or file_identity(opened) != file_identity(after)
+                    or file_metadata(opened) != file_metadata(after)
                 ):
                     raise WorkspaceError(
                         f"immutable source include changed while reading: {include_path}"
@@ -4857,7 +4252,7 @@ class Workspace:
                     dir_fd=parent_fd,
                     follow_symlinks=False,
                 )
-                if file_identity(visible) != file_identity(visible_after):
+                if file_metadata(visible) != file_metadata(visible_after):
                     raise WorkspaceError(
                         f"immutable source include changed while reading: {include_path}"
                     )
@@ -4893,36 +4288,10 @@ class Workspace:
         source: Path,
         state: dict[str, Any],
     ) -> Path:
-        checkout_identity = checkout.stat()
-        source_identity = source.stat()
         git_common = self._git_common_directory(checkout, trace=False)
-        git_common_identity = git_common.stat()
         expected_source_identity = state.get("sources", {}).get(component.source)
         if (
-            not pair_matches(
-                {
-                    "device": state.get("device"),
-                    "inode": state.get("inode"),
-                },
-                checkout_identity,
-            )
-            or str(git_common) != state.get("git_common")
-            or not pair_matches(
-                {
-                    "device": state.get("git_common_device"),
-                    "inode": state.get("git_common_inode"),
-                },
-                git_common_identity,
-            )
-            or not isinstance(expected_source_identity, dict)
-            or expected_source_identity.get("path") != str(source.resolve())
-            or not pair_matches(
-                {
-                    "device": expected_source_identity.get("device"),
-                    "inode": expected_source_identity.get("inode"),
-                },
-                source_identity,
-            )
+            str(git_common) != state.get('git_common') or not isinstance(expected_source_identity, dict) or expected_source_identity.get('path') != str(source.resolve())
         ):
             raise WorkspaceError(
                 f"clean primary source identity changed before materialization: {checkout}"
@@ -5035,40 +4404,8 @@ class Workspace:
                     f"immutable source generation is invalid: {generation}"
                 )
             current_git_common = self._git_common_directory(checkout, trace=False)
-            current_checkout = checkout.stat()
-            current_source = source.stat()
-            current_git_common_identity = current_git_common.stat()
             if (
-                not pair_matches(
-                    {"device": state["device"], "inode": state["inode"]},
-                    current_checkout,
-                )
-                or str(current_git_common) != state["git_common"]
-                or not pair_matches(
-                    {
-                        "device": state["git_common_device"],
-                        "inode": state["git_common_inode"],
-                    },
-                    current_git_common_identity,
-                )
-                or not pair_matches(
-                    {
-                        "device": state["sources"][component.source]["device"],
-                        "inode": state["sources"][component.source]["inode"],
-                    },
-                    current_source,
-                )
-                or state["sources"][component.source]["path"]
-                != str(source.resolve())
-                or not _is_clean(checkout, trace=False)
-                or git(
-                    checkout,
-                    "rev-parse",
-                    "HEAD",
-                    capture=True,
-                    trace=False,
-                )
-                != commit
+                str(current_git_common) != state['git_common'] or state['sources'][component.source]['path'] != str(source.resolve()) or (not _is_clean(checkout, trace=False)) or (git(checkout, 'rev-parse', 'HEAD', capture=True, trace=False) != commit)
             ):
                 raise WorkspaceError(
                     f"clean primary source changed before generation reuse: {checkout}"
@@ -5144,11 +4481,7 @@ class Workspace:
             staging = Path(
                 tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
             )
-            staging_metadata = staging.stat()
-            staging_identity = {
-                "device": staging_metadata.st_dev,
-                "inode": staging_metadata.st_ino,
-            }
+            staging_identity = path_record(staging)
             try:
                 exports: list[
                     tuple[
@@ -5255,38 +4588,11 @@ class Workspace:
                         checkout, destination, archive_object, archive_prefix,
                         archive_mode, archive_kind,
                     )
-                current_checkout = checkout.stat()
-                current_source = source.stat()
                 current_git_common = self._git_common_directory(
                     checkout, trace=False
                 )
-                current_git_common_identity = current_git_common.stat()
                 if (
-                    (checkout_identity.st_dev, checkout_identity.st_ino)
-                    != (current_checkout.st_dev, current_checkout.st_ino)
-                    or (source_identity.st_dev, source_identity.st_ino)
-                    != (current_source.st_dev, current_source.st_ino)
-                    or str(current_git_common) != state["git_common"]
-                    or (
-                        git_common_identity.st_dev,
-                        git_common_identity.st_ino,
-                    )
-                    != (
-                        current_git_common_identity.st_dev,
-                        current_git_common_identity.st_ino,
-                    )
-                    or not _is_clean(checkout, trace=False)
-                    or git(checkout, "rev-parse", "HEAD", capture=True, trace=False)
-                    != commit
-                    or git(
-                        checkout,
-                        "--no-replace-objects",
-                        "rev-parse",
-                        f"{commit}^{{tree}}",
-                        capture=True,
-                        trace=False,
-                    )
-                    != tree
+                    str(current_git_common) != state['git_common'] or not _is_clean(checkout, trace=False) or git(checkout, 'rev-parse', 'HEAD', capture=True, trace=False) != commit or (git(checkout, '--no-replace-objects', 'rev-parse', f'{commit}^{{tree}}', capture=True, trace=False) != tree)
                 ):
                     raise WorkspaceError(
                         f"clean primary source changed during materialization: {checkout}"
@@ -5342,7 +4648,7 @@ class Workspace:
                     bounded_symlinks=True,
                     reject_hardlinks=True,
                 )
-                durable_device, durable_inode, durable_inventory = (
+                durable_inventory = (
                     self._durably_sync_source_generation(staging)
                 )
                 self._validate_source_generation_git_closure(
@@ -5386,16 +4692,7 @@ class Workspace:
                         dir_fd=container_fd,
                     )
                     opened = os.fstat(staging_fd)
-                    if (visible.st_dev, visible.st_ino) != (
-                        durable_device,
-                        durable_inode,
-                    ) or (opened.st_dev, opened.st_ino) != (
-                        durable_device,
-                        durable_inode,
-                    ) or opened.st_dev != os.fstat(container_fd).st_dev or (
-                        _descriptor_mount_id(staging_fd)
-                        != _descriptor_mount_id(container_fd)
-                    ):
+                    if _descriptor_mount_path(staging_fd) != _descriptor_mount_path(container_fd):
                         raise WorkspaceError(
                             "source generation changed before publication: "
                             f"{staging}"
@@ -5416,15 +4713,7 @@ class Workspace:
                         follow_symlinks=False,
                     )
                     opened_after = os.fstat(staging_fd)
-                    stable_fields = (
-                        "st_dev",
-                        "st_ino",
-                        "st_mode",
-                        "st_nlink",
-                        "st_size",
-                        "st_mtime_ns",
-                        "st_ctime_ns",
-                    )
+                    stable_fields = ('st_mode', 'st_nlink', 'st_size', 'st_mtime_ns')
                     if any(
                         getattr(confirmed, field) != getattr(opened, field)
                         or getattr(opened_after, field) != getattr(opened, field)
@@ -5445,9 +4734,7 @@ class Workspace:
                         dir_fd=container_fd,
                         follow_symlinks=False,
                     )
-                    publication_fields = tuple(
-                        field for field in stable_fields if field != "st_ctime_ns"
-                    )
+                    publication_fields = stable_fields
                     if any(
                         getattr(published, field) != getattr(opened, field)
                         for field in publication_fields
@@ -6677,15 +5964,14 @@ class Workspace:
     def _require_visible_worktree_identity(visible: Path, stable: Path) -> None:
         try:
             visible_identity = visible.stat(follow_symlinks=False)
-            stable_identity = stable.stat()
+            stable_path = stable.resolve(strict=True)
         except OSError as error:
             raise WorkspaceError(
                 f"managed worktree path was replaced: {visible}"
             ) from error
         if (
             not stat.S_ISDIR(visible_identity.st_mode)
-            or (visible_identity.st_dev, visible_identity.st_ino)
-            != (stable_identity.st_dev, stable_identity.st_ino)
+            or canonical_path(visible) != canonical_path(stable_path)
         ):
             raise WorkspaceError(f"managed worktree path was replaced: {visible}")
 
@@ -6719,8 +6005,8 @@ class Workspace:
                 visible = current_path.stat(follow_symlinks=False)
                 if (
                     not stat.S_ISDIR(opened.st_mode)
-                    or (opened.st_dev, opened.st_ino)
-                    != (visible.st_dev, visible.st_ino)
+                    or descriptor_path(current_fd) != canonical_path(current_path)
+                    or not stat.S_ISDIR(visible.st_mode)
                 ):
                     raise WorkspaceError(
                         f"managed worktree path was replaced: {current_path}"
@@ -6773,7 +6059,8 @@ class Workspace:
             visible = visible_path.stat(follow_symlinks=False)
             if (
                 not stat.S_ISDIR(opened.st_mode)
-                or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+                or descriptor_path(parent_fd) != canonical_path(visible_path)
+                or not stat.S_ISDIR(visible.st_mode)
             ):
                 raise WorkspaceError(
                     f"managed worktree path was replaced: {visible_path}"
@@ -6927,7 +6214,7 @@ class Workspace:
                                 "shared",
                                 "classify topology source references",
                             )
-                            for name, _device, _inode in topology_snapshot
+                            for name in topology_snapshot
                         ]
                     )
                 )
@@ -6996,8 +6283,8 @@ class Workspace:
             topology_leases.close()
         return sorted(set(references))
 
-    def _topology_reference_snapshot(self) -> tuple[tuple[str, int, int], ...]:
-        """Return direct topology directory identities for a guarded scan."""
+    def _topology_reference_snapshot(self) -> tuple[str, ...]:
+        """Return direct topology directory names for a guarded scan."""
 
         root = self.paths.topologies
         try:
@@ -7006,7 +6293,7 @@ class Workspace:
             return ()
         if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISDIR(metadata.st_mode):
             raise WorkspaceError(f"topology reference root is invalid: {root}")
-        rows: list[tuple[str, int, int]] = []
+        rows: list[str] = []
         try:
             for directory in sorted(root.iterdir()):
                 if directory.name.startswith(".") or directory.name in {
@@ -7017,7 +6304,7 @@ class Workspace:
                 child = directory.lstat()
                 if stat.S_ISLNK(child.st_mode) or not stat.S_ISDIR(child.st_mode):
                     continue
-                rows.append((directory.name, child.st_dev, child.st_ino))
+                rows.append(directory.name)
         except OSError as error:
             raise WorkspaceError(
                 f"cannot inventory topology reference root: {root}: {error}"
@@ -7606,7 +6893,7 @@ class Workspace:
         if (
             not stat.S_ISDIR(opened.st_mode)
             or not stat.S_ISDIR(visible.st_mode)
-            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            or descriptor_path(descriptor) != canonical_path(path)
             or opened.st_uid != os.geteuid()
             or (
                 expected_mode is not None
@@ -7701,8 +6988,8 @@ class Workspace:
                     visible = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
                     if (
                         not stat.S_ISREG(metadata.st_mode)
-                        or (metadata.st_dev, metadata.st_ino)
-                        != (visible.st_dev, visible.st_ino)
+                        or descriptor_path(descriptor) != canonical_path(registry / name)
+                        or not stat.S_ISREG(visible.st_mode)
                         or metadata.st_size > 4 * 1024 * 1024
                     ):
                         raise WorkspaceError(
@@ -9008,23 +8295,21 @@ class Workspace:
                             dir_fd=runtime_fd,
                         )
                         identity = os.fstat(descriptor)
-                        mount_id = _descriptor_mount_id(descriptor)
+                        mount_path = _descriptor_mount_path(descriptor)
                         try:
                             yield Path(f"/proc/self/fd/{descriptor}")
                         finally:
                             try:
                                 _prepare_owned_tree_removal(
                                     descriptor,
-                                    identity.st_dev,
-                                    mount_id,
+                                    mount_path,
                                     created,
                                     stat.S_IMODE(identity.st_mode),
                                     reject_links=True,
                                 )
                                 _remove_owned_tree_contents(
                                     descriptor,
-                                    identity.st_dev,
-                                    mount_id,
+                                    mount_path,
                                     created,
                                     reject_links=True,
                                 )
@@ -9035,8 +8320,9 @@ class Workspace:
                                 )
                                 if (
                                     not stat.S_ISDIR(visible.st_mode)
-                                    or (visible.st_dev, visible.st_ino)
-                                    != (identity.st_dev, identity.st_ino)
+                                    or descriptor_path(descriptor) != canonical_path(
+                                        Path(descriptor_path(runtime_fd)) / name
+                                    )
                                 ):
                                     raise WorkspaceError(
                                         "released sound temporary directory changed"
@@ -9123,8 +8409,7 @@ class Workspace:
                     )
                     if (
                         not stat.S_ISDIR(current_runtime.st_mode)
-                        or (current_runtime.st_dev, current_runtime.st_ino)
-                        != (runtime_identity.st_dev, runtime_identity.st_ino)
+                        or descriptor_path(runtime_fd) != canonical_path(root / "runtime")
                     ):
                         raise WorkspaceError(
                             "released sound handoff parent changed during publication"
@@ -9132,8 +8417,7 @@ class Workspace:
                     visible_root = os.stat(root, follow_symlinks=False)
                     if (
                         not stat.S_ISDIR(visible_root.st_mode)
-                        or (visible_root.st_dev, visible_root.st_ino)
-                        != (root_identity.st_dev, root_identity.st_ino)
+                        or descriptor_path(root_fd) != canonical_path(root)
                     ):
                         raise WorkspaceError(
                             "profile build root changed during released sound publication"
@@ -9798,7 +9082,6 @@ class Workspace:
                 ),
             }
             if include_identity:
-                identity = checkout.stat()
                 git_common = (
                     Path(owner_git(
                         checkout, "rev-parse", "--path-format=absolute", "--git-common-dir",
@@ -9807,14 +9090,9 @@ class Workspace:
                     if component.checkout_name == "classic"
                     else self._git_common_directory(checkout, trace=False)
                 )
-                git_common_identity = git_common.stat()
                 state.update(
                     {
-                        "device": portable_device(identity),
-                        "inode": identity.st_ino,
                         "git_common": str(git_common),
-                        "git_common_device": portable_device(git_common_identity),
-                        "git_common_inode": git_common_identity.st_ino,
                         "sources": {},
                     }
                 )
@@ -9828,11 +9106,8 @@ class Workspace:
             for role in sorted(selected):
                 component = stack.providers[role]
                 source = selected[role].resolve()
-                identity = source.stat()
                 states[component.checkout_name]["sources"][component.source] = {
                     "path": str(source),
-                    "device": portable_device(identity),
-                    "inode": identity.st_ino,
                 }
         return states
 
@@ -12121,8 +11396,7 @@ class Workspace:
             with ExitStack() as stack:
                 root_fd = _open_directory_nofollow(closure_root, flags)
                 stack.callback(os.close, root_fd)
-                root_identity = os.fstat(root_fd)
-                mount = _descriptor_mount_id(root_fd)
+                mount = _descriptor_mount_path(root_fd)
                 parent = root_fd
                 bindings: list[tuple[int, str, int]] = []
                 for index, part in enumerate(relative.parts):
@@ -12136,9 +11410,8 @@ class Workspace:
                     descriptor = os.open(part, read_flags, dir_fd=parent)
                     stack.callback(os.close, descriptor)
                     opened = os.fstat(descriptor)
-                    if ((opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino)
-                            or opened.st_dev != root_identity.st_dev
-                            or _descriptor_mount_id(descriptor) != mount
+                    if (stat.S_IFMT(opened.st_mode) != stat.S_IFMT(before.st_mode)
+                            or _descriptor_mount_path(descriptor) != mount
                             or (stat.S_ISREG(opened.st_mode) and opened.st_nlink != 1)):
                         raise WorkspaceError(f"live peer source include identity changed: {include_source}")
                     bindings.append((parent, part, descriptor))
@@ -12147,14 +11420,14 @@ class Workspace:
                 # publishing provenance, including replacement of the root.
                 probe = _open_directory_nofollow(closure_root, flags)
                 stack.callback(os.close, probe)
-                visible_root = os.fstat(probe)
-                if (visible_root.st_dev, visible_root.st_ino) != (
-                        root_identity.st_dev, root_identity.st_ino):
+                if descriptor_path(root_fd) != canonical_path(closure_root):
                     raise WorkspaceError(f"live peer source include identity changed: {include_source}")
                 for directory_fd, name, descriptor in bindings:
                     visible = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
                     opened = os.fstat(descriptor)
-                    if (visible.st_dev, visible.st_ino) != (opened.st_dev, opened.st_ino):
+                    if (stat.S_IFMT(visible.st_mode) != stat.S_IFMT(opened.st_mode)
+                            or descriptor_path(descriptor) != canonical_path(
+                                Path(descriptor_path(directory_fd)) / name)):
                         raise WorkspaceError(f"live peer source include identity changed: {include_source}")
                 return {"kind": "live-peer", "source": str(include_source)}
         except OSError as error:
@@ -12275,8 +11548,7 @@ class Workspace:
         flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
         probe = _open_directory_nofollow(path, flags)
         try:
-            opened, visible = os.fstat(descriptor), os.fstat(probe)
-            if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+            if descriptor_path(descriptor) != canonical_path(path):
                 raise WorkspaceError(f"client source layout identity changed: {path}")
         finally:
             os.close(probe)
@@ -12313,8 +11585,8 @@ class Workspace:
                 return None
 
         @contextmanager
-        def directory(parent: int, name: str, path: Path, *, create: bool = False,
-                      expected: os.stat_result | None = None) -> Iterator[int]:
+        def directory(parent: int, name: str, path: Path, *, create: bool = False
+                      ) -> Iterator[int]:
             nonlocal changed
             fence()
             before = visible(parent, name)
@@ -12324,15 +11596,10 @@ class Workspace:
                 before = visible(parent, name)
             if before is None or not stat.S_ISDIR(before.st_mode):
                 raise WorkspaceError(f"client source layout directory is unsafe: {path}")
-            if expected is not None and (before.st_dev, before.st_ino) != (
-                    expected.st_dev, expected.st_ino):
-                raise WorkspaceError(f"client source layout identity changed: {path}")
             descriptor = os.open(name, flags, dir_fd=parent)
             try:
-                opened = os.fstat(descriptor)
-                if ((opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino)
-                        or opened.st_dev != os.fstat(parent).st_dev
-                        or _descriptor_mount_id(descriptor) != _descriptor_mount_id(parent)):
+                if (descriptor_path(descriptor) != canonical_path(path)
+                        or _descriptor_mount_path(descriptor) != _descriptor_mount_path(parent)):
                     raise WorkspaceError(f"client source layout identity changed: {path}")
                 retained.append((path, descriptor))
                 try:
@@ -12351,13 +11618,12 @@ class Workspace:
             if entry is None:
                 return
             if stat.S_ISDIR(entry.st_mode):
-                with directory(parent, name, path, expected=entry) as descriptor:
+                with directory(parent, name, path) as descriptor:
                     for child in os.listdir(descriptor):
                         remove(descriptor, child, path / child)
                 fence()
                 current = visible(parent, name)
-                if current is None or (current.st_dev, current.st_ino) != (
-                        entry.st_dev, entry.st_ino):
+                if current is None or not stat.S_ISDIR(current.st_mode):
                     raise WorkspaceError(f"client source layout identity changed: {path}")
                 os.rmdir(name, dir_fd=parent)
             else:
@@ -12377,14 +11643,19 @@ class Workspace:
                                  | os.O_NONBLOCK, dir_fd=parent)
             try:
                 opened = os.fstat(descriptor)
-                if (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino):
+                if (not stat.S_ISREG(opened.st_mode) or opened.st_nlink != 1
+                        or (limit is not None and opened.st_size > limit)
+                        or descriptor_path(descriptor) != canonical_path(
+                            Path(descriptor_path(parent)) / name)):
                     raise WorkspaceError(f"client source layout file changed: {name}")
                 with os.fdopen(descriptor, "rb", closefd=False) as stream:
                     value = stream.read()
                 after = os.fstat(descriptor)
                 current = visible(parent, name)
-                fields = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
-                if (current is None or any(getattr(opened, field) != getattr(after, field)
+                fields = ("st_mode", "st_nlink", "st_size", "st_mtime_ns")
+                if (current is None or descriptor_path(descriptor) != canonical_path(
+                        Path(descriptor_path(parent)) / name)
+                        or any(getattr(opened, field) != getattr(after, field)
                         or getattr(opened, field) != getattr(current, field)
                         for field in fields)):
                     raise WorkspaceError(f"client source layout file changed: {name}")
@@ -12512,7 +11783,7 @@ class Workspace:
                     changed = True
                     previous_layout = visible(sources_fd, "client-layout")
                 layout_fd = stack.enter_context(directory(
-                    sources_fd, "client-layout", layout, expected=previous_layout))
+                    sources_fd, "client-layout", layout))
                 if existed:
                     try:
                         marker_bytes, _ = file_bytes(layout_fd, MANAGED_MARKER, limit=4096)
@@ -13884,8 +13155,7 @@ class Workspace:
             opened_status = os.fstat(descriptor)
             path_status = view.lstat()
             if (
-                (path_status.st_dev, path_status.st_ino)
-                != (opened_status.st_dev, opened_status.st_ino)
+                descriptor_path(descriptor) != canonical_path(view)
                 or not stat.S_ISDIR(path_status.st_mode)
                 or marker_path.is_symlink()
                 or not marker_path.is_file()
@@ -13934,8 +13204,7 @@ class Workspace:
                         current_status is not None
                         and not view.is_symlink()
                         and stat.S_ISDIR(current_status.st_mode)
-                        and (current_status.st_dev, current_status.st_ino)
-                        == (opened_status.st_dev, opened_status.st_ino)
+                        and descriptor_path(descriptor) == canonical_path(view)
                     ):
                         for control_path in (marker_path, metadata_path):
                             if control_path.is_symlink() or not control_path.is_dir():
@@ -14094,8 +13363,7 @@ class Workspace:
             )
         if (
             metadata.st_nlink != 1
-            or (metadata.st_dev, metadata.st_ino)
-            != (visible.st_dev, visible.st_ino)
+            or descriptor_path(descriptor) != canonical_path(path)
             or not 0 < metadata.st_size <= SCENARIO_PASSWORD_MAX_SIZE
         ):
             os.close(descriptor)
@@ -14625,25 +13893,22 @@ class Workspace:
         return candidate
 
     @staticmethod
-    def _state_identity(path: Path) -> dict[str, int]:
+    def _state_identity(path: Path) -> dict[str, Any]:
         metadata = path.stat(follow_symlinks=False)
         if not stat.S_ISDIR(metadata.st_mode):
             raise WorkspaceError(f"server state is not a directory: {path}")
-        return {"device": metadata.st_dev, "inode": metadata.st_ino}
+        return path_record(path, kind="directory")
 
     @staticmethod
     def _state_portable_identity(path: Path) -> dict[str, Any]:
-        metadata = path.stat(follow_symlinks=False)
-        if not stat.S_ISDIR(metadata.st_mode):
-            raise WorkspaceError(f"server state is not a directory: {path}")
-        return portable_identity(metadata)
+        return Workspace._state_identity(path)
 
     @staticmethod
     def _state_identity_matches(path: Path, identity: Any) -> bool:
         try:
             metadata = path.stat(follow_symlinks=False)
-            return identity_matches(identity, metadata)
-        except (OSError, FilesystemIdentityError):
+            return stat.S_ISDIR(metadata.st_mode) and path_record_matches(identity, path)
+        except (OSError, PathRecordError):
             return False
 
     @staticmethod
@@ -14850,7 +14115,7 @@ class Workspace:
             visible = path.stat(follow_symlinks=False)
             if (
                 not stat.S_ISDIR(opened.st_mode)
-                or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+                or descriptor_path(descriptor) != canonical_path(path)
                 or self._canonical_state_path(path) != path
             ):
                 raise WorkspaceError(
@@ -14873,7 +14138,7 @@ class Workspace:
                 write_implementation=write_implementation,
             )
             visible = path.stat(follow_symlinks=False)
-            if (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino):
+            if descriptor_path(descriptor) != canonical_path(path):
                 raise WorkspaceError(
                     f"server state identity changed during validation: {path}"
                 )
@@ -14893,15 +14158,32 @@ class Workspace:
             "path",
             "owner",
             "created_at",
-            "identity",
             "implementation",
             "profile",
             "server",
         }
+        if not isinstance(creation_policy, dict):
+            return False
+        required = immutable | {"name", "lifecycle"}
+        if not required <= set(creation_policy) <= required | {"identity"}:
+            return False
+        for record in (policy, creation_policy):
+            if "identity" not in record:
+                continue
+            identity = record["identity"]
+            if not isinstance(identity, dict):
+                return False
+            # Legacy filesystem metadata is inert; the containing path owns it.
+            if "path" not in identity:
+                continue
+            try:
+                validate_path_record(identity)
+                if identity["path"] != canonical_path(record["path"]):
+                    return False
+            except (PathRecordError, KeyError, TypeError):
+                return False
         return bool(
-            isinstance(creation_policy, dict)
-            and set(creation_policy) == immutable | {"name", "lifecycle"}
-            and creation_policy.get("name") is None
+            creation_policy.get("name") is None
             and creation_policy.get("lifecycle") == "disposable"
             and all(creation_policy.get(key) == policy.get(key) for key in immutable)
         )
@@ -14981,7 +14263,7 @@ class Workspace:
         server_source: Path,
         resolved_path: Path,
         implementation: dict[str, str],
-        expected_identity: dict[str, int] | None,
+        expected_identity: dict[str, Any] | None,
     ) -> tuple[Path, int]:
         prepared = self.state_path(
             name,
@@ -15002,16 +14284,13 @@ class Workspace:
             raise
         if (
             canonical != path
-            or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
+            or descriptor_path(descriptor) != canonical_path(path)
         ):
             os.close(descriptor)
             raise WorkspaceError(
                 f"server state identity changed while preparing topology: {path}"
             )
-        if expected_identity is not None and expected_identity != {
-            "device": opened.st_dev,
-            "inode": opened.st_ino,
-        }:
+        if expected_identity is not None and not self._state_identity_matches(path, expected_identity):
             os.close(descriptor)
             raise WorkspaceError(
                 f"server state identity changed while preparing topology: {path}"
@@ -15138,6 +14417,8 @@ class Workspace:
             return None
         record = load_regular_json(record_path, "promoted state provenance")
         identity = record.get("identity") if isinstance(record, dict) else None
+        if isinstance(identity, dict) and "path" not in identity:
+            identity = path_record(path, kind="directory")
         if (
             not isinstance(record, dict)
             or record.get("schema_version") != SCHEMA_VERSION
@@ -15164,6 +14445,17 @@ class Workspace:
             raise WorkspaceError(
                 f"promoted state provenance is invalid: {record_path}"
             )
+        marker_path = path / MANAGED_MARKER
+        if marker_path.is_symlink() or not marker_path.is_file():
+            raise WorkspaceError(f"promoted state provenance is invalid: {record_path}")
+        marker = load_regular_json(marker_path, "promoted state ownership")
+        if marker != {
+            "schema_version": SCHEMA_VERSION,
+            "purpose": "temporary-topology-state",
+            "topology": record["topology"],
+            "generation": record["generation"],
+        }:
+            raise WorkspaceError(f"promoted state provenance is invalid: {record_path}")
         return {
             "kind": "promoted-topology-state",
             "topology": record["topology"],
@@ -15197,22 +14489,18 @@ class Workspace:
             except FileNotFoundError:
                 staging = f".temporary-states.{secrets.token_hex(12)}.tmp"
                 staging_fd: int | None = None
-                staging_identity: dict[str, int] | None = None
+                staging_identity: dict[str, Any] | None = None
                 try:
                     os.mkdir(staging, mode=0o700, dir_fd=root_fd)
                     created = os.stat(
                         staging, dir_fd=root_fd, follow_symlinks=False
                     )
-                    staging_identity = {
-                        "device": created.st_dev,
-                        "inode": created.st_ino,
-                    }
+                    staging_identity = path_record(topology_root / staging, kind="directory")
                     staging_fd = os.open(staging, flags, dir_fd=root_fd)
                     opened_staging = os.fstat(staging_fd)
                     if (
                         not stat.S_ISDIR(created.st_mode)
-                        or (opened_staging.st_dev, opened_staging.st_ino)
-                        != (created.st_dev, created.st_ino)
+                        or descriptor_path(staging_fd) != canonical_path(topology_root / staging)
                     ):
                         raise WorkspaceError(
                             "temporary state container staging changed"
@@ -15223,10 +14511,7 @@ class Workspace:
                     visible_staging = os.stat(
                         staging, dir_fd=root_fd, follow_symlinks=False
                     )
-                    if (visible_staging.st_dev, visible_staging.st_ino) != (
-                        created.st_dev,
-                        created.st_ino,
-                    ):
+                    if descriptor_path(staging_fd) != canonical_path(topology_root / staging):
                         raise WorkspaceError(
                             "temporary state container staging changed"
                         )
@@ -15259,10 +14544,9 @@ class Workspace:
             opened = os.fstat(container_fd)
             if (
                 not stat.S_ISDIR(visible.st_mode)
-                or (visible.st_dev, visible.st_ino)
-                != (opened.st_dev, opened.st_ino)
-                or _descriptor_mount_id(container_fd)
-                != _descriptor_mount_id(root_fd)
+                or descriptor_path(container_fd) != canonical_path(container)
+                or _descriptor_mount_path(container_fd)
+                != _descriptor_mount_path(root_fd)
                 or self._load_state_json_at(
                     container_fd,
                     MANAGED_MARKER,
@@ -15298,18 +14582,6 @@ class Workspace:
             with ExitStack() as leases:
                 state_lease: StateLease
 
-                def bind_identity(identity: dict[str, int]) -> TextIO | None:
-                    if not physical_identity:
-                        return None
-                    return leases.enter_context(
-                        exclusive_lock(
-                            self._lease_namespace
-                            / f"state-identity-{identity['device']}-"
-                            f"{identity['inode']}.lock",
-                            f"physical server state {path}",
-                            nonblocking=True,
-                        )
-                    )
                 path_lock = leases.enter_context(
                     exclusive_lock(
                         Path(f"{path}.lock"),
@@ -15317,7 +14589,7 @@ class Workspace:
                         nonblocking=True,
                     )
                 )
-                state_lease = StateLease(path_lock, bind_identity)
+                state_lease = StateLease(path_lock)
                 if requested_identity is not None:
                     state_lease.bind(requested_identity)
                 for topology in sorted(self.paths.topologies.iterdir()):
@@ -15476,6 +14748,8 @@ class Workspace:
                 physical_identity=False,
             ) as previous_lease:
                 previous_identity = previous_policy.get("identity")
+                if isinstance(previous_identity, dict) and "path" not in previous_identity:
+                    previous_identity = path_record(previous_state, kind="directory")
                 previous_lease_identity = previous_policy.get("lease_identity")
                 if (
                     not isinstance(previous_identity, dict)
@@ -15495,13 +14769,9 @@ class Workspace:
                     write_implementation=False,
                 )
                 try:
-                    previous_metadata = os.fstat(previous_fd)
-                    try:
-                        previous_identity_matches = identity_matches(
-                            previous_identity, previous_metadata
-                        )
-                    except FilesystemIdentityError:
-                        previous_identity_matches = False
+                    previous_identity_matches = self._state_identity_matches(
+                        previous_state, previous_identity
+                    )
                     if not previous_identity_matches:
                         raise WorkspaceError(
                             f"temporary topology state identity changed: {previous_state}"
@@ -15622,7 +14892,7 @@ class Workspace:
                             finally:
                                 os.close(tmp_fd)
                         staged_metadata = os.fstat(staging_fd)
-                        staged_identity = portable_identity(staged_metadata)
+                        staged_identity = path_record(destination, kind="directory")
                         policy = {
                             "mode": "temporary",
                             "name": None,
@@ -15687,10 +14957,7 @@ class Workspace:
                             dir_fd=container_fd,
                             follow_symlinks=False,
                         )
-                        if (visible.st_dev, visible.st_ino) != (
-                            staged_metadata.st_dev,
-                            staged_metadata.st_ino,
-                        ):
+                        if descriptor_path(staging_fd) != canonical_path(destination):
                             raise WorkspaceError(
                                 f"temporary topology state identity changed during clone: {destination}"
                             )
@@ -15760,7 +15027,7 @@ class Workspace:
                 f"temporary topology state already exists for generation {generation}"
             )
         staging: Path | None = None
-        staging_identity: dict[str, int] | None = None
+        staging_identity: dict[str, Any] | None = None
         try:
             staging = Path(tempfile.mkdtemp(
                 prefix=f".{generation}.", dir=f"/proc/self/fd/{container_fd}"
@@ -15769,10 +15036,7 @@ class Workspace:
             created = os.stat(
                 staging_name, dir_fd=container_fd, follow_symlinks=False
             )
-            staging_identity = {
-                "device": created.st_dev,
-                "inode": created.st_ino,
-            }
+            staging_identity = path_record(container / staging_name, kind="directory")
             staging_fd = os.open(
                 staging_name,
                 os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
@@ -15781,8 +15045,7 @@ class Workspace:
             opened_staging = os.fstat(staging_fd)
             if (
                 not stat.S_ISDIR(created.st_mode)
-                or (opened_staging.st_dev, opened_staging.st_ino)
-                != (created.st_dev, created.st_ino)
+                or descriptor_path(staging_fd) != canonical_path(container / staging_name)
             ):
                 raise WorkspaceError(
                     "temporary topology state staging changed"
@@ -15799,7 +15062,7 @@ class Workspace:
                     pass
             os.close(container_fd)
             raise
-        published_identity: dict[str, int] | None = None
+        published_identity: dict[str, Any] | None = None
         created_at = datetime.now(timezone.utc).isoformat()
         install_data = server_source / "install_data"
         staging_access = Path(f"/proc/self/fd/{staging_fd}")
@@ -15837,11 +15100,8 @@ class Workspace:
                 write_implementation=False,
             )
             staging_metadata = os.fstat(staging_fd)
-            live_state_identity = {
-                "device": staging_metadata.st_dev,
-                "inode": staging_metadata.st_ino,
-            }
-            persistent_state_identity = portable_identity(staging_metadata)
+            live_state_identity = path_record(destination, kind="directory")
+            persistent_state_identity = path_record(destination, kind="directory")
             policy = {
                 "mode": "temporary",
                 "name": None,
@@ -15918,9 +15178,9 @@ class Workspace:
                 try:
                     tmp_metadata = os.fstat(tmp_fd)
                     if (
-                        tmp_metadata.st_dev != staging_metadata.st_dev
-                        or _descriptor_mount_id(tmp_fd)
-                        != _descriptor_mount_id(staging_fd)
+                        not stat.S_ISDIR(tmp_metadata.st_mode)
+                        or _descriptor_mount_path(tmp_fd)
+                        != _descriptor_mount_path(staging_fd)
                         or os.listdir(tmp_fd)
                     ):
                         raise WorkspaceError(
@@ -15962,9 +15222,7 @@ class Workspace:
             visible_staging = os.stat(
                 staging_name, dir_fd=container_fd, follow_symlinks=False
             )
-            if (visible_staging.st_dev, visible_staging.st_ino) != (
-                live_state_identity["device"], live_state_identity["inode"]
-            ):
+            if descriptor_path(staging_fd) != canonical_path(container / staging_name):
                 raise WorkspaceError(
                     "temporary topology state staging changed before publication"
                 )
@@ -16000,13 +15258,8 @@ class Workspace:
             visible_container = container.stat(follow_symlinks=False)
             opened_container = os.fstat(container_fd)
             if (
-                (published.st_dev, published.st_ino)
-                != (
-                    live_state_identity["device"],
-                    live_state_identity["inode"],
-                )
-                or (visible_container.st_dev, visible_container.st_ino)
-                != (opened_container.st_dev, opened_container.st_ino)
+                descriptor_path(staging_fd) != canonical_path(destination)
+                or descriptor_path(container_fd) != canonical_path(container)
             ):
                 raise WorkspaceError(
                     f"temporary topology state identity changed during publication: {destination}"
@@ -16060,7 +15313,7 @@ class Workspace:
         """Fail closed before deleting wrapper-owned mutable server state."""
 
         root = os.fstat(directory_fd)
-        root_mount = _descriptor_mount_id(directory_fd)
+        root_mount = _descriptor_mount_path(directory_fd)
         parent_fd = (
             os.dup(parent_directory_fd)
             if parent_directory_fd is not None
@@ -16076,8 +15329,8 @@ class Workspace:
                 follow_symlinks=False,
             )
             if (
-                (visible.st_dev, visible.st_ino) != (root.st_dev, root.st_ino)
-                or _descriptor_mount_id(parent_fd) != root_mount
+                descriptor_path(directory_fd) != canonical_path(Path(descriptor_path(parent_fd)) / (entry_name or path.name))
+                or _descriptor_mount_path(parent_fd) != root_mount
             ):
                 raise WorkspaceError(
                     f"temporary server state root changed or crossed a mount: {path}"
@@ -16166,9 +15419,8 @@ class Workspace:
                         opened = os.fstat(child_fd)
                         if (
                             opened.st_nlink != 1
-                            or (opened.st_dev, opened.st_ino)
-                            != (metadata.st_dev, metadata.st_ino)
-                            or _descriptor_mount_id(child_fd) != root_mount
+                            or descriptor_path(child_fd) != canonical_path(Path(descriptor_path(descriptor)) / name)
+                            or _descriptor_mount_path(child_fd) != root_mount
                         ):
                             raise WorkspaceError(
                                 "temporary server state file changed or crossed "
@@ -16182,7 +15434,7 @@ class Workspace:
                         f"temporary server state contains a special entry: "
                         f"{child_display}"
                     )
-                if metadata.st_dev != root.st_dev:
+                if not stat.S_ISDIR(metadata.st_mode):
                     raise WorkspaceError(
                         f"temporary server state contains a mounted directory: "
                         f"{child_display}"
@@ -16197,10 +15449,7 @@ class Workspace:
                 )
                 try:
                     opened = os.fstat(child_fd)
-                    if (opened.st_dev, opened.st_ino) != (
-                        metadata.st_dev,
-                        metadata.st_ino,
-                    ) or _descriptor_mount_id(child_fd) != root_mount:
+                    if descriptor_path(child_fd) != canonical_path(Path(descriptor_path(descriptor)) / name) or _descriptor_mount_path(child_fd) != root_mount:
                         raise WorkspaceError(
                             "temporary server state entry changed or crossed a "
                             "mount during "
@@ -16802,8 +16051,7 @@ class Workspace:
                     try:
                         opened = os.fstat(descriptor)
                         if (
-                            (opened.st_dev, opened.st_ino)
-                            != (metadata.st_dev, metadata.st_ino)
+                            descriptor_path(descriptor) != canonical_path(path)
                             or opened.st_nlink != 1
                         ):
                             raise WorkspaceError(
@@ -16813,8 +16061,8 @@ class Workspace:
                             with archive.open(info, "w") as target:
                                 shutil.copyfileobj(source, target)
                         retained = os.fstat(descriptor)
-                        if Workspace._runtime_tree_identity(retained) != (
-                            Workspace._runtime_tree_identity(opened)
+                        if Workspace._runtime_tree_metadata(retained) != (
+                            Workspace._runtime_tree_metadata(opened)
                         ):
                             raise WorkspaceError(
                                 f"Windows profile package input changed: {path}"
@@ -16886,10 +16134,7 @@ class Workspace:
                     )
                     assert isinstance(prepared, tuple)
                     state, state_fd = prepared
-                    state_identity = {
-                        "device": os.fstat(state_fd).st_dev,
-                        "inode": os.fstat(state_fd).st_ino,
-                    }
+                    state_identity = self._state_identity(state)
                     state_lock.bind(state_identity)
                     try:
                         fingerprint = self._snapshot_windows_profile_state(
@@ -17176,14 +16421,11 @@ class Workspace:
         return path
 
     @staticmethod
-    def _runtime_tree_identity(value: os.stat_result) -> tuple[int, ...]:
+    def _runtime_tree_metadata(value: os.stat_result) -> tuple[int, ...]:
         return (
-            value.st_dev,
-            value.st_ino,
             value.st_mode,
             value.st_size,
             value.st_mtime_ns,
-            value.st_ctime_ns,
         )
 
     def _compare_topology_runtime_directories(
@@ -17311,10 +16553,10 @@ class Workspace:
                                 if not source_chunk:
                                     break
                     if (
-                        self._runtime_tree_identity(os.fstat(source_child_fd))
-                        != self._runtime_tree_identity(source_file_before)
-                        or self._runtime_tree_identity(os.fstat(destination_child_fd))
-                        != self._runtime_tree_identity(destination_file_before)
+                        self._runtime_tree_metadata(os.fstat(source_child_fd))
+                        != self._runtime_tree_metadata(source_file_before)
+                        or self._runtime_tree_metadata(os.fstat(destination_child_fd))
+                        != self._runtime_tree_metadata(destination_file_before)
                     ):
                         raise WorkspaceError(
                             "topology runtime input changed during validation: "
@@ -17329,10 +16571,10 @@ class Workspace:
                     f"file: {destination_child}"
                 )
         if (
-            self._runtime_tree_identity(os.fstat(source_fd))
-            != self._runtime_tree_identity(source_before)
-            or self._runtime_tree_identity(os.fstat(destination_fd))
-            != self._runtime_tree_identity(destination_before)
+            self._runtime_tree_metadata(os.fstat(source_fd))
+            != self._runtime_tree_metadata(source_before)
+            or self._runtime_tree_metadata(os.fstat(destination_fd))
+            != self._runtime_tree_metadata(destination_before)
         ):
             raise WorkspaceError(
                 "topology runtime input changed during validation: "
@@ -17379,8 +16621,8 @@ class Workspace:
                         f"{source_child}"
                     ) from error
                 try:
-                    if self._runtime_tree_identity(os.fstat(child_fd)) != (
-                        self._runtime_tree_identity(child_before)
+                    if self._runtime_tree_metadata(os.fstat(child_fd)) != (
+                        self._runtime_tree_metadata(child_before)
                     ):
                         raise WorkspaceError(
                             f"topology runtime input changed during copy: {source_child}"
@@ -17426,8 +16668,8 @@ class Workspace:
                     opened = os.fstat(child_fd)
                     if (
                         not stat.S_ISREG(opened.st_mode)
-                        or self._runtime_tree_identity(opened)
-                        != self._runtime_tree_identity(child_before)
+                        or self._runtime_tree_metadata(opened)
+                        != self._runtime_tree_metadata(child_before)
                     ):
                         raise WorkspaceError(
                             f"topology runtime input changed during copy: {source_child}"
@@ -17451,8 +16693,8 @@ class Workspace:
                             ) as destination_file:
                                 shutil.copyfileobj(source_file, destination_file)
                         copied = os.fstat(child_fd)
-                        if self._runtime_tree_identity(copied) != (
-                            self._runtime_tree_identity(opened)
+                        if self._runtime_tree_metadata(copied) != (
+                            self._runtime_tree_metadata(opened)
                         ):
                             raise WorkspaceError(
                                 "topology runtime input changed during copy: "
@@ -17477,7 +16719,7 @@ class Workspace:
                     f"{source_child}"
                 )
         directory_after = os.fstat(source_fd)
-        if self._runtime_tree_identity(directory_after) != self._runtime_tree_identity(
+        if self._runtime_tree_metadata(directory_after) != self._runtime_tree_metadata(
             directory_before
         ):
             raise WorkspaceError(
@@ -17508,8 +16750,8 @@ class Workspace:
         destination_parent_fd: int | None = None
         destination_fd: int | None = None
         try:
-            if self._runtime_tree_identity(os.fstat(source_fd)) != (
-                self._runtime_tree_identity(source_before)
+            if self._runtime_tree_metadata(os.fstat(source_fd)) != (
+                self._runtime_tree_metadata(source_before)
             ):
                 raise WorkspaceError(
                     f"topology runtime input changed during copy: {source}"
@@ -17524,8 +16766,8 @@ class Workspace:
                 if pinned_destination_parent_fd is not None
                 else os.open(destination.parent, flags)
             )
-            if self._runtime_tree_identity(os.fstat(destination_parent_fd)) != (
-                self._runtime_tree_identity(destination_parent_before)
+            if self._runtime_tree_metadata(os.fstat(destination_parent_fd)) != (
+                self._runtime_tree_metadata(destination_parent_before)
             ):
                 raise WorkspaceError(
                     "topology runtime staging directory changed during copy: "
@@ -17556,16 +16798,15 @@ class Workspace:
             )
             destination_parent_after = os.fstat(destination_parent_fd)
             if (
-                destination_parent_after.st_dev != destination_parent_before.st_dev
-                or destination_parent_after.st_ino != destination_parent_before.st_ino
+                descriptor_path(destination_parent_fd) != canonical_path(destination.parent)
             ):
                 raise WorkspaceError(
                     "topology runtime staging directory changed during copy: "
                     f"{destination.parent}"
                 )
             source_after = source.stat(follow_symlinks=False)
-            if self._runtime_tree_identity(source_after) != (
-                self._runtime_tree_identity(source_before)
+            if self._runtime_tree_metadata(source_after) != (
+                self._runtime_tree_metadata(source_before)
             ):
                 raise WorkspaceError(
                     f"topology runtime input changed during copy: {source}"
@@ -17603,10 +16844,10 @@ class Workspace:
             ) from error
         try:
             if (
-                self._runtime_tree_identity(os.fstat(source_fd))
-                != self._runtime_tree_identity(source_before)
-                or self._runtime_tree_identity(os.fstat(destination_fd))
-                != self._runtime_tree_identity(destination_before)
+                self._runtime_tree_metadata(os.fstat(source_fd))
+                != self._runtime_tree_metadata(source_before)
+                or self._runtime_tree_metadata(os.fstat(destination_fd))
+                != self._runtime_tree_metadata(destination_before)
             ):
                 raise WorkspaceError(
                     "runtime publication directory changed before copy"
@@ -17657,8 +16898,8 @@ class Workspace:
         destination_fd: int | None = None
         try:
             destination_parent_fd = os.open(destination.parent, flags)
-            if self._runtime_tree_identity(os.fstat(destination_parent_fd)) != (
-                self._runtime_tree_identity(destination_parent_before)
+            if self._runtime_tree_metadata(os.fstat(destination_parent_fd)) != (
+                self._runtime_tree_metadata(destination_parent_before)
             ):
                 raise WorkspaceError(
                     "runtime staging directory changed before descriptor copy: "
@@ -17685,18 +16926,15 @@ class Workspace:
                 destination,
                 exclusions,
             )
-            if self._runtime_tree_identity(os.fstat(source_fd)) != (
-                self._runtime_tree_identity(source_before)
+            if self._runtime_tree_metadata(os.fstat(source_fd)) != (
+                self._runtime_tree_metadata(source_before)
             ):
                 raise WorkspaceError(
                     f"runtime publication input changed during copy: {source_display}"
                 )
             destination_parent_after = os.fstat(destination_parent_fd)
             if (
-                destination_parent_after.st_dev
-                != destination_parent_before.st_dev
-                or destination_parent_after.st_ino
-                != destination_parent_before.st_ino
+                descriptor_path(destination_parent_fd) != canonical_path(destination.parent)
             ):
                 raise WorkspaceError(
                     "runtime staging directory changed during descriptor copy: "
@@ -17718,8 +16956,8 @@ class Workspace:
             opened = os.fstat(source_fd)
             if (
                 not stat.S_ISREG(opened.st_mode)
-                or self._runtime_tree_identity(opened)
-                != self._runtime_tree_identity(before)
+                or self._runtime_tree_metadata(opened)
+                != self._runtime_tree_metadata(before)
             ):
                 raise WorkspaceError(
                     f"runtime publication input changed or is not regular: {source}"
@@ -17736,8 +16974,8 @@ class Workspace:
                     shutil.copyfileobj(source_stream, destination_stream)
                     destination_stream.flush()
                     os.fsync(destination_stream.fileno())
-            if self._runtime_tree_identity(os.fstat(source_fd)) != (
-                self._runtime_tree_identity(opened)
+            if self._runtime_tree_metadata(os.fstat(source_fd)) != (
+                self._runtime_tree_metadata(opened)
             ):
                 raise WorkspaceError(
                     f"runtime publication input changed during copy: {source}"
@@ -17831,19 +17069,18 @@ class Workspace:
     ) -> dict[str, Any]:
         flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
         descriptors: list[int] = []
-        state_mount_id = _descriptor_mount_id(state_directory_fd)
+        state_mount_path = _descriptor_mount_path(state_directory_fd)
         try:
             parent = state_directory_fd
             for name in ("tmp", "runtime-assets", generation):
                 descriptor = os.open(name, flags, dir_fd=parent)
                 descriptors.append(descriptor)
-                if _descriptor_mount_id(descriptor) != state_mount_id:
+                if _descriptor_mount_path(descriptor) != state_mount_path:
                     raise WorkspaceError(
                         "server runtime state output crosses a mount"
                     )
                 parent = descriptor
-            metadata = os.fstat(descriptors[-1])
-            return portable_identity(metadata)
+            return path_record(descriptor_path(descriptors[-1]), kind="directory")
         finally:
             for descriptor in reversed(descriptors):
                 os.close(descriptor)
@@ -17861,7 +17098,7 @@ class Workspace:
         if cleanup_proof is not None:
             cleanup_proof[0] = True
         output = state / "tmp" / "runtime-assets" / generation
-        state_mount_id: int | None = None
+        state_mount_path: str | None = None
 
         def open_directory(parent: int, name: str, create: bool) -> int:
             if create:
@@ -17869,24 +17106,26 @@ class Workspace:
                     os.mkdir(name, 0o700, dir_fd=parent)
                 except FileExistsError:
                     pass
-            metadata = os.stat(
-                name, dir_fd=parent, follow_symlinks=False
-            )
+            metadata = os.stat(name, dir_fd=parent, follow_symlinks=False)
             if not stat.S_ISDIR(metadata.st_mode):
                 raise WorkspaceError(
                     f"server runtime state output path is invalid: {output}"
                 )
             descriptor = os.open(name, flags, dir_fd=parent)
-            if Workspace._runtime_tree_identity(os.fstat(descriptor)) != (
-                Workspace._runtime_tree_identity(metadata)
+            opened = os.fstat(descriptor)
+            expected_path = canonical_path(Path(descriptor_path(parent)) / name)
+            if (
+                not stat.S_ISDIR(opened.st_mode)
+                or stat.S_IMODE(opened.st_mode) != stat.S_IMODE(metadata.st_mode)
+                or descriptor_path(descriptor) != expected_path
             ):
                 os.close(descriptor)
                 raise WorkspaceError(
                     f"server runtime state output path changed: {output}"
                 )
             if (
-                state_mount_id is not None
-                and _descriptor_mount_id(descriptor) != state_mount_id
+                state_mount_path is not None
+                and _descriptor_mount_path(descriptor) != state_mount_path
             ):
                 os.close(descriptor)
                 raise WorkspaceError(
@@ -17902,17 +17141,12 @@ class Workspace:
             )
             descriptors.append(state_fd)
             state_metadata = os.fstat(state_fd)
-            state_mount_id = _descriptor_mount_id(state_fd)
-            if not stat.S_ISDIR(state_metadata.st_mode):
-                raise WorkspaceError(f"server state is invalid: {state}")
-            if state_directory_fd is None and Workspace._runtime_tree_identity(
-                state_metadata
-            ) != Workspace._runtime_tree_identity(
-                state.stat(follow_symlinks=False)
+            state_mount_path = _descriptor_mount_path(state_fd)
+            if (
+                not stat.S_ISDIR(state_metadata.st_mode)
+                or descriptor_path(state_fd) != canonical_path(state)
             ):
-                raise WorkspaceError(
-                    f"server state changed before runtime publication: {state}"
-                )
+                raise WorkspaceError(f"server state is invalid: {state}")
             tmp_fd = open_directory(state_fd, "tmp", True)
             descriptors.append(tmp_fd)
             container_fd = open_directory(tmp_fd, "runtime-assets", True)
@@ -17949,37 +17183,34 @@ class Workspace:
                     os.fsync(stream.fileno())
             finally:
                 os.close(marker_fd)
-            metadata = os.fstat(generation_fd)
             result_fd = os.dup(generation_fd)
-            return output, result_fd, portable_identity(metadata)
+            return output, result_fd, path_record(
+                descriptor_path(generation_fd), kind="directory"
+            )
         except BaseException as error:
             if created_generation and len(descriptors) >= 4:
                 generation_fd = descriptors[-1]
                 metadata = os.fstat(generation_fd)
-                mount_id = _descriptor_mount_id(generation_fd)
+                mount_path = _descriptor_mount_path(generation_fd)
                 _prepare_owned_tree_removal(
                     generation_fd,
-                    metadata.st_dev,
-                    mount_id,
+                    mount_path,
                     output,
                     stat.S_IMODE(metadata.st_mode),
                 )
                 _remove_owned_tree_contents(
-                    generation_fd, metadata.st_dev, mount_id, output
+                    generation_fd, mount_path, output
                 )
                 parent_fd = descriptors[-2]
-                tombstone = _owned_tree_tombstone_name(
-                    generation, metadata.st_dev, metadata.st_ino
-                )
+                tombstone = _owned_tree_tombstone_name(generation)
                 rename_no_replace_at(
                     parent_fd, generation, parent_fd, tombstone
                 )
-                moved = os.stat(
-                    tombstone, dir_fd=parent_fd, follow_symlinks=False
-                )
-                if (moved.st_dev, moved.st_ino) != (
-                    metadata.st_dev,
-                    metadata.st_ino,
+                moved = os.stat(tombstone, dir_fd=parent_fd, follow_symlinks=False)
+                if (
+                    not stat.S_ISDIR(moved.st_mode)
+                    or descriptor_path(generation_fd)
+                    != canonical_path(Path(descriptor_path(parent_fd)) / tombstone)
                 ):
                     try:
                         rename_no_replace_at(
@@ -18014,9 +17245,21 @@ class Workspace:
         keep_tombstone: bool = False,
     ) -> None:
         if state_directory_fd is not None:
+            # Callers may address the pinned state through its inherited
+            # descriptor. Compare records against that descriptor's named path,
+            # while retaining the exact output suffix and generation boundary.
+            descriptor_output = (
+                Path(f"/proc/self/fd/{state_directory_fd}")
+                / "tmp" / "runtime-assets" / generation
+            )
+            if canonical_path(path) == canonical_path(descriptor_output):
+                path = (
+                    Path(descriptor_path(state_directory_fd))
+                    / "tmp" / "runtime-assets" / generation
+                )
             flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
             descriptors = [os.dup(state_directory_fd)]
-            state_mount_id = _descriptor_mount_id(descriptors[0])
+            state_mount_path = _descriptor_mount_path(descriptors[0])
 
             def open_exact_directory(parent: int, name: str) -> int:
                 visible = os.stat(name, dir_fd=parent, follow_symlinks=False)
@@ -18026,14 +17269,17 @@ class Workspace:
                     )
                 descriptor = os.open(name, flags, dir_fd=parent)
                 opened = os.fstat(descriptor)
-                if Workspace._runtime_tree_identity(opened) != (
-                    Workspace._runtime_tree_identity(visible)
+                expected_path = canonical_path(Path(descriptor_path(parent)) / name)
+                if (
+                    not stat.S_ISDIR(opened.st_mode)
+                    or stat.S_IMODE(opened.st_mode) != stat.S_IMODE(visible.st_mode)
+                    or descriptor_path(descriptor) != expected_path
                 ):
                     os.close(descriptor)
                     raise WorkspaceError(
                         f"server runtime state output path changed: {path}"
                     )
-                if _descriptor_mount_id(descriptor) != state_mount_id:
+                if _descriptor_mount_path(descriptor) != state_mount_path:
                     os.close(descriptor)
                     raise WorkspaceError(
                         f"server runtime state output crosses a mount: {path}"
@@ -18054,19 +17300,19 @@ class Workspace:
                     ).hexdigest()[:16]
                     candidates: list[str] = []
                     for name in os.listdir(parent_fd):
-                        if not re.fullmatch(
+                        if name != _owned_tree_tombstone_name(
+                            generation
+                        ) and not re.fullmatch(
                             rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+", name
                         ):
                             continue
                         try:
-                            candidate_metadata = os.stat(
+                            candidate = os.stat(
                                 name, dir_fd=parent_fd, follow_symlinks=False
                             )
                         except FileNotFoundError:
                             continue
-                        if expected_identity is not None and identity_matches(
-                            expected_identity, candidate_metadata
-                        ):
+                        if stat.S_ISDIR(candidate.st_mode):
                             candidates.append(name)
                     if len(candidates) > 1:
                         raise WorkspaceError(
@@ -18080,18 +17326,29 @@ class Workspace:
                     already_tombstoned = True
                 descriptors.append(generation_fd)
                 metadata = os.fstat(generation_fd)
-                if expected_identity is None or not identity_matches(
-                    expected_identity, metadata
+                if expected_identity is None or not Workspace._valid_state_identity(
+                    expected_identity, path
+                ):
+                    raise WorkspaceError(
+                        f"server runtime state output identity changed: {path}"
+                    )
+                if (
+                    not already_tombstoned
+                    and "path" in expected_identity
+                    and not path_record_matches(expected_identity, path)
                 ):
                     raise WorkspaceError(
                         f"server runtime state output identity changed: {path}"
                     )
                 if already_tombstoned:
-                    match = re.fullmatch(
-                        r"\.remove-[0-9a-f]{16}-([0-9a-f]+)-([0-9a-f]+)",
-                        entry_name,
-                    )
-                    if match is None:
+                    digest = hashlib.sha256(
+                        generation.encode("utf-8")
+                    ).hexdigest()[:16]
+                    if entry_name != _owned_tree_tombstone_name(
+                        generation
+                    ) and re.fullmatch(
+                        rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+", entry_name
+                    ) is None:
                         raise WorkspaceError(
                             f"server runtime state output tombstone is invalid: {path}"
                         )
@@ -18109,18 +17366,15 @@ class Workspace:
                             "server runtime state output ownership is invalid: "
                             f"{path}"
                         )
-                    tombstone = _owned_tree_tombstone_name(
-                        generation, metadata.st_dev, metadata.st_ino
-                    )
+                    tombstone = _owned_tree_tombstone_name(generation)
                     rename_no_replace_at(
                         parent_fd, generation, parent_fd, tombstone
                     )
-                    moved = os.stat(
-                        tombstone, dir_fd=parent_fd, follow_symlinks=False
-                    )
-                    if (moved.st_dev, moved.st_ino) != (
-                        metadata.st_dev,
-                        metadata.st_ino,
+                    moved = os.stat(tombstone, dir_fd=parent_fd, follow_symlinks=False)
+                    if (
+                        not stat.S_ISDIR(moved.st_mode)
+                        or descriptor_path(generation_fd)
+                        != canonical_path(Path(descriptor_path(parent_fd)) / tombstone)
                     ):
                         try:
                             rename_no_replace_at(
@@ -18134,22 +17388,24 @@ class Workspace:
                     entry_name = tombstone
                 else:
                     tombstone = entry_name
-                mount_id = _descriptor_mount_id(generation_fd)
+                mount_path = _descriptor_mount_path(generation_fd)
                 _prepare_owned_tree_removal(
                     generation_fd,
-                    metadata.st_dev,
-                    mount_id,
+                    mount_path,
                     path,
                     stat.S_IMODE(metadata.st_mode),
                 )
                 _remove_owned_tree_contents(
-                    generation_fd, metadata.st_dev, mount_id, path
+                    generation_fd, mount_path, path
                 )
                 visible = os.stat(tombstone, dir_fd=parent_fd, follow_symlinks=False)
                 opened = os.fstat(generation_fd)
-                if (visible.st_dev, visible.st_ino) != (
-                    opened.st_dev,
-                    opened.st_ino,
+                if (
+                    not stat.S_ISDIR(visible.st_mode)
+                    or not stat.S_ISDIR(opened.st_mode)
+                    or stat.S_IMODE(visible.st_mode) != stat.S_IMODE(opened.st_mode)
+                    or descriptor_path(generation_fd)
+                    != canonical_path(Path(descriptor_path(parent_fd)) / tombstone)
                 ):
                     raise WorkspaceError(
                         f"server runtime state output path changed: {path}"
@@ -18185,7 +17441,7 @@ class Workspace:
     ) -> bool:
         flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
         descriptors = [os.dup(state_directory_fd)]
-        state_mount_id = _descriptor_mount_id(descriptors[0])
+        state_mount_path = _descriptor_mount_path(descriptors[0])
         try:
             for name in ("tmp", "runtime-assets"):
                 try:
@@ -18194,7 +17450,7 @@ class Workspace:
                     )
                 except FileNotFoundError:
                     return False
-                if _descriptor_mount_id(descriptor) != state_mount_id:
+                if _descriptor_mount_path(descriptor) != state_mount_path:
                     os.close(descriptor)
                     raise WorkspaceError(
                         "server runtime state output tombstone crosses a mount"
@@ -18204,7 +17460,9 @@ class Workspace:
             digest = hashlib.sha256(generation.encode("utf-8")).hexdigest()[:16]
             candidates: list[str] = []
             for name in os.listdir(parent_fd):
-                if not re.fullmatch(
+                if name != _owned_tree_tombstone_name(
+                    generation
+                ) and not re.fullmatch(
                     rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+", name
                 ):
                     continue
@@ -18214,7 +17472,7 @@ class Workspace:
                     )
                 except FileNotFoundError:
                     continue
-                if identity_matches(expected_identity, candidate):
+                if stat.S_ISDIR(candidate.st_mode):
                     candidates.append(name)
             if len(candidates) > 1:
                 raise WorkspaceError(
@@ -18229,12 +17487,20 @@ class Workspace:
             descriptor = os.open(tombstone, flags, dir_fd=parent_fd)
             descriptors.append(descriptor)
             opened = os.fstat(descriptor)
+            output = (
+                Path(descriptor_path(state_directory_fd))
+                / "tmp"
+                / "runtime-assets"
+                / generation
+            )
             if (
                 not stat.S_ISDIR(visible.st_mode)
-                or not identity_matches(expected_identity, visible)
-                or (opened.st_dev, opened.st_ino)
-                != (visible.st_dev, visible.st_ino)
-                or _descriptor_mount_id(descriptor) != state_mount_id
+                or not stat.S_ISDIR(opened.st_mode)
+                or stat.S_IMODE(visible.st_mode) != stat.S_IMODE(opened.st_mode)
+                or not Workspace._valid_state_identity(expected_identity, output)
+                or descriptor_path(descriptor)
+                != canonical_path(Path(descriptor_path(parent_fd)) / tombstone)
+                or _descriptor_mount_path(descriptor) != state_mount_path
                 or os.listdir(descriptor)
             ):
                 raise WorkspaceError(
@@ -18253,7 +17519,7 @@ class Workspace:
     ) -> bool:
         flags = os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
         descriptors = [os.dup(state_directory_fd)]
-        state_mount_id = _descriptor_mount_id(descriptors[0])
+        state_mount_path = _descriptor_mount_path(descriptors[0])
         try:
             for name in ("tmp", "runtime-assets"):
                 try:
@@ -18262,7 +17528,7 @@ class Workspace:
                     )
                 except FileNotFoundError:
                     return False
-                if _descriptor_mount_id(descriptor) != state_mount_id:
+                if _descriptor_mount_path(descriptor) != state_mount_path:
                     os.close(descriptor)
                     raise WorkspaceError(
                         "server runtime state output parent crosses a mount"
@@ -18282,12 +17548,18 @@ class Workspace:
                 os.close(descriptor)
 
     @staticmethod
-    def _valid_state_identity(value: Any) -> bool:
-        try:
-            validate_identity(value)
-        except FilesystemIdentityError:
+    def _valid_state_identity(value: Any, path: Path | None = None) -> bool:
+        if not isinstance(value, dict):
             return False
-        return True
+        try:
+            if "path" in value:
+                record = validate_path_record(value)
+                return path is None or record["path"] == canonical_path(path)
+        except PathRecordError:
+            return False
+        # Legacy metadata is deliberately ignored when the containing record
+        # supplies the actual path coordinate.
+        return path is not None
 
     @staticmethod
     def _clear_runtime_state_output_transaction(topology_root: Path) -> None:
@@ -18316,16 +17588,18 @@ class Workspace:
             )
             try:
                 opened = os.fstat(opened_fd)
-                if (opened.st_dev, opened.st_ino) != (
-                    visible.st_dev,
-                    visible.st_ino,
+                if (
+                    not stat.S_ISREG(opened.st_mode)
+                    or opened.st_nlink != 1
+                    or stat.S_IMODE(opened.st_mode) != stat.S_IMODE(visible.st_mode)
+                    or descriptor_path(opened_fd) != canonical_path(transaction)
                 ):
                     raise WorkspaceError(
                         "runtime state output transaction changed before removal"
                     )
                 tombstone = (
-                    f".{RUNTIME_STATE_OUTPUT_TRANSACTION}.remove-"
-                    f"{opened.st_dev:x}-{opened.st_ino:x}"
+                    f".{RUNTIME_STATE_OUTPUT_TRANSACTION}"
+                    f"{_owned_tree_tombstone_name(RUNTIME_STATE_OUTPUT_TRANSACTION)}"
                 )
                 rename_no_replace_at(
                     descriptor,
@@ -18336,9 +17610,12 @@ class Workspace:
                 moved = os.stat(
                     tombstone, dir_fd=descriptor, follow_symlinks=False
                 )
-                if (moved.st_dev, moved.st_ino) != (
-                    opened.st_dev,
-                    opened.st_ino,
+                if (
+                    not stat.S_ISREG(moved.st_mode)
+                    or moved.st_nlink != 1
+                    or stat.S_IMODE(moved.st_mode) != stat.S_IMODE(opened.st_mode)
+                    or descriptor_path(opened_fd)
+                    != canonical_path(Path(descriptor_path(descriptor)) / tombstone)
                 ):
                     try:
                         rename_no_replace_at(
@@ -18424,11 +17701,17 @@ class Workspace:
             or not isinstance(transaction.get("state"), str)
             or not Path(transaction["state"]).is_absolute()
             or transaction.get("phase") not in {"creating", "prepared", "complete"}
-            or not self._valid_state_identity(transaction.get("state_identity"))
+            or not self._valid_state_identity(
+                transaction.get("state_identity"), Path(transaction["state"])
+            )
             or (
                 transaction["phase"] in {"prepared", "complete"}
                 and not self._valid_state_identity(
-                    transaction.get("output_identity")
+                    transaction.get("output_identity"),
+                    Path(transaction["state"])
+                    / "tmp"
+                    / "runtime-assets"
+                    / transaction["generation"],
                 )
             )
             or (
@@ -18738,7 +18021,7 @@ class Workspace:
                             "schema_version": SCHEMA_VERSION,
                             "generation": generation,
                             "state": str(state),
-                            "state_identity": portable_identity(state_metadata),
+                            "state_identity": path_record(state, kind="directory"),
                             "phase": "creating",
                             "output_identity": None,
                         },
@@ -18760,9 +18043,7 @@ class Workspace:
                             "schema_version": SCHEMA_VERSION,
                             "generation": generation,
                             "state": str(state),
-                            "state_identity": portable_identity(
-                                os.fstat(state_directory_fd)
-                            ),
+                            "state_identity": path_record(state, kind="directory"),
                             "phase": "prepared",
                             "output_identity": state_output_identity,
                         },
@@ -18795,9 +18076,7 @@ class Workspace:
                         state_directory_fd, generation
                     )
                     if state_directory_fd is not None
-                    else portable_identity(
-                        state_output.stat(follow_symlinks=False)
-                    )
+                    else path_record(state_output, kind="directory")
                 )
                 if visible_output_identity != state_output_identity:
                     raise WorkspaceError(
@@ -18867,7 +18146,7 @@ class Workspace:
                 "runtime generation manifest",
             )
             self._seal_runtime_generation(staging)
-            lease_identity = portable_identity(os.fstat(lease_fd))
+            lease_identity = path_record(published / RUNTIME_GENERATION_LEASE)
             staging.replace(published)
             runtime_record = {
                 "schema_version": RUNTIME_GENERATION_SCHEMA_VERSION,
@@ -19023,8 +18302,7 @@ class Workspace:
                         retained = os.fstat(retained_fd)
                         installed = os.fstat(installed_fd)
                         if (
-                            retained.st_dev != installed.st_dev
-                            or retained.st_ino != installed.st_ino
+                            descriptor_path(retained_fd) != canonical_path(container / name)
                         ):
                             raise WorkspaceError(
                                 "installed topology runtime input changed: "
@@ -19181,8 +18459,9 @@ class Workspace:
             if (
                 not stat.S_ISREG(opened.st_mode)
                 or opened.st_nlink != 1
-                or (opened.st_dev, opened.st_ino)
-                != (visible.st_dev, visible.st_ino)
+                or not stat.S_ISREG(visible.st_mode)
+                or visible.st_nlink != 1
+                or descriptor_path(descriptor) != canonical_path(path)
             ):
                 return "unverifiable"
             try:
@@ -19350,9 +18629,7 @@ class Workspace:
                             (
                                 (
                                     tombstone := (
-                                        _owned_tree_tombstone_path(output, identity)
-                                        if is_legacy_identity(identity)
-                                        else _portable_tombstone_path(output, identity)
+                                        _portable_tombstone_path(output, path_record(output))
                                     )
                                 )
                                 is not None
@@ -19417,9 +18694,9 @@ class Workspace:
             or not isinstance(policy.get("owner"), dict)
             or not isinstance(policy.get("lifecycle"), str)
             or not isinstance(identity, dict)
-            or not self._valid_state_identity(identity)
+            or not self._valid_state_identity(identity, Path(state))
             or not isinstance(lease_identity, dict)
-            or not self._valid_state_identity(lease_identity)
+            or not self._valid_state_identity(lease_identity, Path(f"{state}.lock"))
             or not isinstance(implementation, dict)
             or set(implementation) != {"stack", "provider", "repository"}
             or not isinstance(providers, dict)
@@ -19698,7 +18975,7 @@ class Workspace:
                     or set(entry) != {"path", "identity", "status"}
                     or not isinstance(entry.get("path"), str)
                     or not isinstance(entry.get("identity"), dict)
-                    or not self._valid_state_identity(entry["identity"])
+                    or not self._valid_state_identity(entry["identity"], Path(entry["path"]))
                     or entry.get("status") not in {"pending", "complete"}
                     for entry in cleanup_entries
                 )
@@ -19840,7 +19117,7 @@ class Workspace:
             or control.get("socket")
             != str(control_socket_path(root, control["generation"]))
             or not isinstance(control.get("lease"), dict)
-            or not self._valid_state_identity(control["lease"])
+            or not self._valid_state_identity(control["lease"], root / "process-tree.lease")
         ):
             raise WorkspaceError(f"topology control identity is invalid: {name}")
         process_keys = (
@@ -19916,14 +19193,15 @@ class Workspace:
                     != len(runtime["mutable_state_outputs"])
                     or any(
                         not isinstance(identity, dict)
-                        or not self._valid_state_identity(identity)
-                        for identity in runtime[
-                            "mutable_state_output_identities"
-                        ]
+                        or not self._valid_state_identity(identity, Path(output))
+                        for identity, output in zip(
+                            runtime["mutable_state_output_identities"],
+                            runtime["mutable_state_outputs"], strict=True
+                        )
                     )
                 )
                 or not isinstance(runtime.get("lease"), dict)
-                or not self._valid_state_identity(runtime["lease"])
+                or not self._valid_state_identity(runtime["lease"], expected_runtime_path / RUNTIME_GENERATION_LEASE)
             ):
                 raise WorkspaceError(f"topology runtime identity is invalid: {name}")
             if mutable_state_cleanup is not None and (
@@ -20408,7 +19686,7 @@ class Workspace:
                     open_port_transaction(
                         reservation_root,
                         port,
-                        root_identity=self._physical_lease_namespace_identity,
+                        root_path=reservation_root,
                     )
                 )
                 try:
@@ -20907,10 +20185,7 @@ class Workspace:
                                     state_location,
                                     rollback_lease,
                                     state_policy["identity"],
-                                    {
-                                        "device": rollback_metadata.st_dev,
-                                        "inode": rollback_metadata.st_ino,
-                                    },
+                                    path_record(Path(f"{state_location}.lock")),
                                     implementation=state_policy[
                                         "implementation"
                                     ],
@@ -20928,10 +20203,7 @@ class Workspace:
                         stack.callback(os.close, state_directory_fd)
                         opened_state = os.fstat(state_directory_fd)
                         state_lock.bind(
-                            {
-                                "device": opened_state.st_dev,
-                                "inode": opened_state.st_ino,
-                            }
+                            path_record(state)
                         )
                         state_policy = self._persistent_state_policy(
                             state_name, state, implementation
@@ -20947,9 +20219,7 @@ class Workspace:
                         )
                     state_policy = {
                         **state_policy,
-                        "lease_identity": {
-                            **portable_identity(lock_metadata, include_ctime=False),
-                        },
+                        "lease_identity": path_record(Path(f"{state}.lock")),
                     }
                     try:
                         visible_lock = Path(f"{state}.lock").stat(
@@ -20960,11 +20230,10 @@ class Workspace:
                             f"server state lease changed before publication: {state}.lock"
                         ) from error
                     if (
-                        visible_lock.st_dev,
-                        visible_lock.st_ino,
-                    ) != (
-                        lock_metadata.st_dev,
-                        lock_metadata.st_ino,
+                        not stat.S_ISREG(visible_lock.st_mode)
+                        or visible_lock.st_nlink != 1
+                        or descriptor_path(state_lock.fileno())
+                        != canonical_path(Path(f"{state}.lock"))
                     ):
                         raise WorkspaceError(
                             f"server state lease changed before publication: {state}.lock"
@@ -20995,8 +20264,8 @@ class Workspace:
                             else None
                         )
                     state_metadata = os.fstat(state_directory_fd)
-                    if not identity_matches(
-                        state_policy["identity"], state_metadata
+                    if not path_record_matches(
+                        state_policy["identity"], state
                     ):
                         raise WorkspaceError(
                             f"server state identity changed before runtime publication: {state}"
@@ -21186,10 +20455,7 @@ class Workspace:
                         raise WorkspaceError(
                             f"server state changed before topology launch: {state}"
                         ) from error
-                    if canonical != state or (pinned.st_dev, pinned.st_ino) != (
-                        visible.st_dev,
-                        visible.st_ino,
-                    ):
+                    if canonical != state or not stat.S_ISDIR(visible.st_mode) or descriptor_path(state_directory_fd) != canonical_path(state):
                         raise WorkspaceError(
                             f"server state changed before topology launch: {state}"
                         )
@@ -21262,16 +20528,6 @@ class Workspace:
                     if state_lock is not None:
                         command.extend(["--lock-fd", str(state_lock.fileno())])
                         inherited_locks.append(state_lock.fileno())
-                        if state_lock.physical_lock is not None:
-                            command.extend(
-                                [
-                                    "--physical-state-lock-fd",
-                                    str(state_lock.physical_lock.fileno()),
-                                ]
-                            )
-                            inherited_locks.append(
-                                state_lock.physical_lock.fileno()
-                            )
                     if state_directory_fd is not None:
                         command.extend(
                             ["--state-directory-fd", str(state_directory_fd)]
@@ -21567,10 +20823,9 @@ class Workspace:
             visible = state.stat(follow_symlinks=False)
             identity = policy.get("identity")
             if (
-                not identity_matches(identity, opened)
-                or not identity_matches(identity, visible)
-                or (opened.st_dev, opened.st_ino)
-                != (visible.st_dev, visible.st_ino)
+                not self._valid_state_identity(identity, state)
+                or not stat.S_ISDIR(visible.st_mode)
+                or descriptor_path(descriptor) != canonical_path(state)
             ):
                 raise WorkspaceError(
                     f"server state identity changed before runtime cleanup: {state}"
@@ -21732,73 +20987,30 @@ class Workspace:
         lease_identity: dict[str, Any],
         parent_directory_fd: int | None = None,
     ) -> None:
-        Workspace._validate_temporary_state_lock(
-            state, state_lease, lease_identity
-        )
+        Workspace._validate_temporary_state_lock(state, state_lease, lease_identity)
         lock = Path(f"{state}.lock")
-        live_lease_identity = _live_identity_dict(os.fstat(state_lease.fileno()))
-
         parent_fd = (
             os.dup(parent_directory_fd)
             if parent_directory_fd is not None
-            else os.open(
+            else _open_directory_nofollow(
                 lock.parent,
                 os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
             )
         )
         try:
-            durable_device = portable_device(os.fstat(state_lease.fileno()))
-            tombstone = (
-                f".{lock.name}.remove-{durable_device:x}-"
-                f"{live_lease_identity['inode']:x}"
-            )
-            rename_no_replace_at(
-                parent_fd, lock.name, parent_fd, tombstone
-            )
-            moved = os.stat(
-                tombstone, dir_fd=parent_fd, follow_symlinks=False
-            )
-            expected = (
-                live_lease_identity["device"],
-                live_lease_identity["inode"],
-            )
-            if (moved.st_dev, moved.st_ino) != expected:
-                try:
-                    rename_no_replace_at(
-                        parent_fd, tombstone, parent_fd, lock.name
-                    )
-                except WorkspaceError:
-                    pass
+            tombstone = f".{lock.name}.remove-pending"
+            rename_no_replace_at(parent_fd, lock.name, parent_fd, tombstone)
+            moved = os.stat(tombstone, dir_fd=parent_fd, follow_symlinks=False)
+            if (
+                not stat.S_ISREG(moved.st_mode)
+                or moved.st_nlink != 1
+                or descriptor_path(state_lease.fileno())
+                != canonical_path(lock.parent / tombstone)
+            ):
                 raise WorkspaceError(
                     f"temporary topology state lease changed before removal: {lock}"
                 )
-            if not stat.S_ISREG(moved.st_mode) or moved.st_nlink != 1:
-                raise WorkspaceError(
-                    f"temporary topology state lease changed before removal: {lock}"
-                )
-            tombstone_fd = os.open(
-                tombstone, os.O_PATH | os.O_CLOEXEC | os.O_NOFOLLOW,
-                dir_fd=parent_fd,
-            )
-            try:
-                opened = os.fstat(tombstone_fd)
-                visible = os.stat(
-                    tombstone, dir_fd=parent_fd, follow_symlinks=False
-                )
-                if (
-                    not stat.S_ISREG(opened.st_mode)
-                    or opened.st_nlink != 1
-                    or (opened.st_dev, opened.st_ino) != expected
-                    or (visible.st_dev, visible.st_ino) != expected
-                    or visible.st_nlink != 1
-                    or not identity_matches(lease_identity, opened)
-                ):
-                    raise WorkspaceError(
-                        f"temporary topology state lease changed before removal: {lock}"
-                    )
-                os.unlink(tombstone, dir_fd=parent_fd)
-            finally:
-                os.close(tombstone_fd)
+            os.unlink(tombstone, dir_fd=parent_fd)
             os.fsync(parent_fd)
         finally:
             os.close(parent_fd)
@@ -21812,18 +21024,19 @@ class Workspace:
         lock = Path(f"{state}.lock")
         try:
             visible = lock.stat(follow_symlinks=False)
-        except FileNotFoundError as error:
+            opened = os.fstat(state_lease.fileno())
+            valid_path = descriptor_path(state_lease.fileno()) == canonical_path(lock)
+        except OSError as error:
             raise WorkspaceError(
                 f"temporary topology state lease is missing: {lock}"
             ) from error
-        opened = os.fstat(state_lease.fileno())
-        expected = (opened.st_dev, opened.st_ino)
         if (
             not stat.S_ISREG(visible.st_mode)
+            or not stat.S_ISREG(opened.st_mode)
             or visible.st_nlink != 1
-            or (visible.st_dev, visible.st_ino) != expected
-            or (opened.st_dev, opened.st_ino) != expected
-            or not identity_matches(lease_identity, opened)
+            or opened.st_nlink != 1
+            or not valid_path
+            or not Workspace._valid_state_identity(lease_identity, lock)
         ):
             raise WorkspaceError(
                 "temporary topology state lease changed before lifecycle "
@@ -21837,63 +21050,57 @@ class Workspace:
         parent_directory_fd: int | None = None,
     ) -> bool:
         lock = Path(f"{state}.lock")
-        tombstone: Path | None = None
-        for candidate in sorted(lock.parent.glob(f".{lock.name}.remove-*")):
-            try:
-                metadata = candidate.stat(follow_symlinks=False)
-            except FileNotFoundError:
-                continue
-            if identity_matches(lease_identity, metadata):
-                if tombstone is not None:
-                    raise WorkspaceError(
-                        f"temporary topology state lease tombstones are ambiguous: {lock}"
-                    )
-                tombstone = candidate
-        if tombstone is None:
-            return False
-        if parent_directory_fd is None:
-            if not tombstone.exists() and not tombstone.is_symlink():
-                return False
-        else:
-            try:
-                os.stat(
-                    tombstone.name,
-                    dir_fd=parent_directory_fd,
-                    follow_symlinks=False,
-                )
-            except FileNotFoundError:
-                return False
+        if not Workspace._valid_state_identity(lease_identity, lock):
+            raise WorkspaceError(f"temporary topology state lease path is invalid: {lock}")
+        tombstone = lock.parent / f".{lock.name}.remove-pending"
         parent_fd = (
             os.dup(parent_directory_fd)
             if parent_directory_fd is not None
-            else os.open(
-                tombstone.parent,
+            else _open_directory_nofollow(
+                lock.parent,
                 os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
             )
         )
         try:
-            descriptor = os.open(
-                tombstone.name,
-                os.O_PATH | os.O_CLOEXEC | os.O_NOFOLLOW,
-                dir_fd=parent_fd,
+            # Older interrupted cleanup used storage numbers in the filename.
+            # They are opaque historical spelling, never resource identity.
+            legacy_pattern = re.compile(
+                rf"\.{re.escape(lock.name)}\.remove-[0-9a-f]+-[0-9a-f]+"
             )
+            candidates = [
+                name for name in os.listdir(parent_fd)
+                if name == tombstone.name or legacy_pattern.fullmatch(name)
+            ]
+            if len(candidates) > 1:
+                raise WorkspaceError(
+                    f"temporary topology state lease tombstones are ambiguous: {lock}"
+                )
+            if not candidates:
+                return False
+            tombstone = lock.parent / candidates[0]
+            try:
+                descriptor = os.open(
+                    tombstone.name, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                    dir_fd=parent_fd,
+                )
+            except FileNotFoundError:
+                return False
             try:
                 metadata = os.fstat(descriptor)
-                visible = os.stat(
-                    tombstone.name, dir_fd=parent_fd, follow_symlinks=False
-                )
                 if (
                     not stat.S_ISREG(metadata.st_mode)
                     or metadata.st_nlink != 1
-                    or (metadata.st_dev, metadata.st_ino)
-                    != (visible.st_dev, visible.st_ino)
-                    or visible.st_nlink != 1
-                    or not identity_matches(lease_identity, metadata)
+                    or descriptor_path(descriptor) != canonical_path(tombstone)
                 ):
                     raise WorkspaceError(
-                        "temporary topology state lease tombstone is invalid: "
-                        f"{tombstone}"
+                        f"temporary topology state lease tombstone is invalid: {tombstone}"
                     )
+                try:
+                    fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except OSError as error:
+                    raise WorkspaceError(
+                        f"temporary topology state lease tombstone is in use: {tombstone}"
+                    ) from error
                 os.unlink(tombstone.name, dir_fd=parent_fd)
                 os.fsync(parent_fd)
             finally:
@@ -21916,9 +21123,9 @@ class Workspace:
             visible = path.stat(follow_symlinks=False)
             if (
                 not stat.S_ISDIR(opened.st_mode)
-                or (opened.st_dev, opened.st_ino)
-                != (visible.st_dev, visible.st_ino)
-                or not identity_matches(identity, opened)
+                or not stat.S_ISDIR(visible.st_mode)
+                or descriptor_path(descriptor) != canonical_path(path)
+                or not Workspace._valid_state_identity(identity, path)
             ):
                 raise WorkspaceError(
                     f"{description} identity changed before mutation: {path}"
@@ -21957,10 +21164,9 @@ class Workspace:
             opened = os.fstat(container_fd)
             if (
                 not stat.S_ISDIR(visible.st_mode)
-                or (visible.st_dev, visible.st_ino)
-                != (opened.st_dev, opened.st_ino)
-                or _descriptor_mount_id(container_fd)
-                != _descriptor_mount_id(root_fd)
+                or descriptor_path(container_fd) != canonical_path(state.parent)
+                or _descriptor_mount_path(container_fd)
+                != _descriptor_mount_path(root_fd)
             ):
                 raise WorkspaceError(
                     "temporary state container changed or crossed a mount"
@@ -22008,13 +21214,16 @@ class Workspace:
                 owned_descriptor, state, implementation
             )
             state_metadata = os.fstat(owned_descriptor)
-            if not identity_matches(state_identity, state_metadata):
+            if (
+                not Workspace._valid_state_identity(state_identity, state)
+                or descriptor_path(owned_descriptor) != canonical_path(state)
+            ):
                 raise WorkspaceError(
                     f"temporary state identity changed before rollback: {state}"
                 )
             remove_owned_tree(
                 state,
-                expected_identity=_live_identity_dict(state_metadata),
+                expected_identity=path_record(state, kind="directory"),
                 reject_links=True,
             )
         finally:
@@ -22066,20 +21275,7 @@ class Workspace:
         if lifecycle == "removal-pending":
             state_present = entry_present(state)
             tombstone_present = entry_present(tombstone)
-            removal_tombstone = _portable_tombstone_path(tombstone, identity)
-            if removal_tombstone is None and state_present:
-                removal_tombstone = _owned_tree_tombstone_path(
-                    tombstone,
-                    _live_identity_dict(
-                        state.stat(follow_symlinks=False)
-                        if state_container_fd is None
-                        else os.stat(
-                            state.name,
-                            dir_fd=state_container_fd,
-                            follow_symlinks=False,
-                        )
-                    ),
-                )
+            removal_tombstone = _portable_tombstone_path(tombstone, path_record(tombstone))
             removal_tombstone_present = (
                 removal_tombstone is not None
                 and entry_present(removal_tombstone)
@@ -22098,7 +21294,10 @@ class Workspace:
                         follow_symlinks=False,
                     )
                 )
-                if not identity_matches(identity, state_metadata):
+                if (
+                    not self._valid_state_identity(identity, state)
+                    or not stat.S_ISDIR(state_metadata.st_mode)
+                ):
                     raise WorkspaceError(
                         f"temporary state identity changed before removal: {state}"
                     )
@@ -22132,7 +21331,7 @@ class Workspace:
                 )
                 if (
                     not stat.S_ISDIR(tombstone_metadata.st_mode)
-                    or not identity_matches(identity, tombstone_metadata)
+                    or not self._valid_state_identity(identity, state)
                 ):
                     raise WorkspaceError(
                         f"temporary state removal identity is invalid: {tombstone}"
@@ -22144,7 +21343,7 @@ class Workspace:
             if tombstone_present or removal_tombstone_present:
                 remove_owned_tree(
                     tombstone,
-                    expected_identity=identity,
+                    expected_identity=path_record(tombstone, kind="directory"),
                     keep_root=True,
                     reject_links=True,
                     parent_directory_fd=state_container_fd,
@@ -22186,7 +21385,7 @@ class Workspace:
             )
             if (
                 not stat.S_ISDIR(metadata.st_mode)
-                or not identity_matches(identity, metadata)
+                or not self._valid_state_identity(identity, state)
                 or (
                     any(tombstone.iterdir())
                     if tombstone_fd is None
@@ -22275,15 +21474,8 @@ class Workspace:
                 return self._write_temporary_state_policy(name, current, retained)
             removal_path = self._temporary_state_removal_path(policy)
             removal_root_tombstone = _portable_tombstone_path(
-                removal_path, policy["identity"]
+                removal_path, path_record(removal_path)
             )
-            if removal_root_tombstone is None and (
-                state.exists() or state.is_symlink()
-            ):
-                removal_root_tombstone = _owned_tree_tombstone_path(
-                    removal_path,
-                    _live_identity_dict(state.stat(follow_symlinks=False)),
-                )
             mutation_path = next(
                 (
                     candidate
@@ -22316,7 +21508,7 @@ class Workspace:
             mutation_fd: int | None = None
             try:
                 mutation_fd = self._lock_state_directory_mutation(
-                    mutation_path, policy["identity"]
+                    mutation_path, path_record(mutation_path, kind="directory")
                 )
                 if policy.get("lifecycle") not in {
                     "removal-pending",
@@ -22440,14 +21632,8 @@ class Workspace:
                     if (
                         not stat.S_ISDIR(visible_state.st_mode)
                         or self._canonical_state_path(state) != state
-                        or not identity_matches(
-                            policy.get("identity"), opened_state
-                        )
-                        or not identity_matches(
-                            policy.get("identity"), visible_state
-                        )
-                        or (visible_state.st_dev, visible_state.st_ino)
-                        != (opened_state.st_dev, opened_state.st_ino)
+                        or not self._valid_state_identity(policy.get("identity"), state)
+                        or descriptor_path(state_fd) != canonical_path(state)
                     ):
                         raise WorkspaceError(
                             f"temporary state changed during promotion: {state}"
@@ -22686,7 +21872,7 @@ class Workspace:
                 f"mode={policy['mode']} owner={json.dumps(policy['owner'], sort_keys=True)} "
                 f"path={policy['path']} lifecycle={policy['lifecycle']} <=="
             )
-        positions: dict[Path, tuple[int, int, int]] = {}
+        positions: dict[Path, int] = {}
         for item, path in paths:
             with os.fdopen(
                 open_regular_file(path, os.O_RDONLY, "topology log"),
@@ -22699,7 +21885,7 @@ class Workspace:
                 for line in lines:
                     print(line, end="")
                 metadata = os.fstat(stream.fileno())
-                positions[path] = (metadata.st_dev, metadata.st_ino, stream.tell())
+                positions[path] = stream.tell()
         while follow:
             changed = False
             for item, path in paths:
@@ -22713,19 +21899,14 @@ class Workspace:
                     descriptor, encoding="utf-8", errors="replace"
                 ) as stream:
                     metadata = os.fstat(stream.fileno())
-                    device, inode, offset = positions[path]
+                    offset = positions[path]
                     if (
-                        (metadata.st_dev, metadata.st_ino) != (device, inode)
-                        or metadata.st_size < offset
+                        metadata.st_size < offset
                     ):
                         offset = 0
                     stream.seek(offset)
                     content = stream.read()
-                    positions[path] = (
-                        metadata.st_dev,
-                        metadata.st_ino,
-                        stream.tell(),
-                    )
+                    positions[path] = stream.tell()
                 if content:
                     if len(paths) > 1:
                         print(f"==> {item} <==")
@@ -22933,7 +22114,6 @@ class Workspace:
         runtime_fd = prepared["runtime_fd"]
         state_fd = prepared["state_fd"]
         state_lock_fd = prepared["state_lock_fd"]
-        physical_state_lock_fd = prepared["physical_state_lock_fd"]
         state_output_fd = prepared["state_output_fd"]
         generation_root = prepared["generation_root"]
         state_output = prepared["state_output"]
@@ -22949,7 +22129,6 @@ class Workspace:
                             runtime_fd,
                             state_fd,
                             state_lock_fd,
-                            physical_state_lock_fd,
                             state_output_fd,
                         )
                         if descriptor is not None
@@ -22966,8 +22145,6 @@ class Workspace:
                         prepared["state_output_identity"],
                     )
             finally:
-                if physical_state_lock_fd is not None:
-                    os.close(physical_state_lock_fd)
                 os.close(state_output_fd)
                 os.close(state_lock_fd)
                 os.close(state_fd)
@@ -23017,10 +22194,7 @@ class Workspace:
                 opened_state = os.fstat(state_fd)
                 try:
                     state_lock.bind(
-                        {
-                            "device": opened_state.st_dev,
-                            "inode": opened_state.st_ino,
-                        }
+                        path_record(state, kind="directory")
                     )
                 except BaseException:
                     os.close(state_fd)
@@ -23065,17 +22239,9 @@ class Workspace:
                 )
                 assert state_output_fd is not None
                 state_lock_fd: int | None = None
-                physical_state_lock_fd: int | None = None
                 try:
                     state_lock_fd = os.dup(state_lock.fileno())
-                    physical_state_lock_fd = (
-                        os.dup(state_lock.physical_lock.fileno())
-                        if state_lock.physical_lock is not None
-                        else None
-                    )
                 except BaseException:
-                    if physical_state_lock_fd is not None:
-                        os.close(physical_state_lock_fd)
                     if state_lock_fd is not None:
                         os.close(state_lock_fd)
                     try:
@@ -23116,7 +22282,6 @@ class Workspace:
                     "runtime_fd": runtime_fd,
                     "state_fd": state_fd,
                     "state_lock_fd": state_lock_fd,
-                    "physical_state_lock_fd": physical_state_lock_fd,
                     "state_output": state_output,
                     "state_output_identity": state_output_identity,
                     "state_output_fd": state_output_fd,

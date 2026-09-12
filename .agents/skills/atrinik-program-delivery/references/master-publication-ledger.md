@@ -16,13 +16,13 @@ Lock the master-coordinate `<coordinate-sha256>.publication.lock`, created mode
 `0600` without following links and never replaced or removed while retained.
 Every goal/objective for that master uses this arbitration lock; goal-specific
 locks are forbidden. This injective node-identity digest prevents owner/repo
-hyphen collisions. Verify its device/inode after locking, require it equal
-the ledger's `lock` identity, and hold that descriptor across ledger
+hyphen collisions. Verify its canonical path after locking, require it to equal
+the ledger's `lock.path`, and hold that descriptor across ledger
 read, pagination, persistence, remote mutation, and reconciliation. A lock on
-the replaceable JSON inode is invalid.
+the replaceable JSON path is invalid.
 Immediately before and after each observation, durable replacement, or remote
-call, lstat/open the lock path no-follow and require its device/inode equal both
-the held descriptor and ledger identity. Path replacement stops the writer.
+call, open the canonical lock path no-follow, require it to equal the ledger's
+`lock.path`, and verify that the held file lock remains active. Path replacement stops the writer.
 
 Canonical JSON is UTF-8 with NFC strings, keys sorted by Unicode code point,
 no insignificant whitespace, JSON booleans/null, decimal integers, no floats,
@@ -60,9 +60,9 @@ The top-level object has exactly:
 ```text
 schema_version: 1
 generation: integer >= 0
-self: {device: integer >= 0, inode: integer > 0}
-lock: {device: integer >= 0, inode: integer > 0}
-previous: null | {device: integer >= 0, inode: integer > 0, sha256: digest}
+self: {path: canonical absolute path}
+lock: {path: canonical absolute path}
+previous: null | {path: canonical absolute path, sha256: digest}
 authority: authority
 next_authority: null | authority
 ordered_graph: [graph_entry]
@@ -183,11 +183,11 @@ vectors only in the durably bound phase.
 ## Durable replacement and initialization
 
 Replace generations only under the stable lock. Write a same-directory
-no-clobber temporary, record its fstat device/inode as `self`, fsync it, recheck
-the old ledger's fstat, generation, and canonical byte digest against
+no-clobber temporary, record the canonical destination path as `self`, fsync it, recheck
+the old ledger's canonical path, generation, and byte digest against
 `previous`, atomically replace, then fsync the parent. On resume require the
-canonical ledger fstat to equal `self`; generation zero has `previous: null`,
-and each later generation names the immediately replaced identity/digest.
+canonical ledger path to equal `self`; generation zero has `previous: null`,
+and each later generation names the immediately replaced path and digest.
 Construct and fully validate the prospective next record, including canonical
 size and all epoch invariants, before writing any byte or changing the retained
 in-memory record; validation failure preserves the prior generation exactly.
@@ -201,7 +201,7 @@ goal does not change the master coordinate or bypass this stop. Otherwise a
 maintainer must supply a different master issue coordinate. Never delete/reuse
 a lock-only artifact or infer freshness from remote state alone.
 
-Reject stale CAS, inode substitution, corrupt/missing ledger, changed
+Reject stale CAS, path replacement, corrupt/missing ledger, changed
 goal/actor/master coordinate, or unrecorded temporary artifact. The durable
 goal and ledger grant authority. GitHub linkage, marker text, the report, a
 leaf ledger, or possession of a result node ID never does. Never adopt live
@@ -311,7 +311,7 @@ comment, another position, or an incidental issue. Missing, overlapping,
 reordered, corrupt, or changed evidence stops until deliberately replanned.
 
 Use no-live-mutation fixtures for every pre/post durable transition and remote
-call; concurrent writers; stable-lock replacement; stale CAS/inodes; malformed,
+call; concurrent writers; stable-lock replacement; stale CAS/paths; malformed,
 duplicate, wrong-author, missing, and drifted markers; multi-page results and
 pagination loss; ledger/report loss/corruption; accepted but invisible POSTs;
 PATCH and graph-rekey resumption; full duplicate search; uncertain create/link;

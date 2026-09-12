@@ -109,7 +109,7 @@ Use exactly two entry modes:
 
 An `entry_mode` marker, container name or copied session record is corroboration,
 not authority. Codex never launches or controls VS Code; no executable/URI or
-GUI automation, nested containers, live remounts or foreign/stale coordinates.
+GUI automation, nested containers or foreign/stale configured paths.
 Wrapper-required Docker operations retain their own operation contract.
 
 ### Reuse one owned devcontainer session
@@ -171,7 +171,7 @@ additional task authority. The session benchmark remains credential/source-free.
   through the ledger helper.
 
   Feed raw `scope show`/list JSON to `scope-observe`; call `scope-bind-cas` with
-  a fresh inspect tuple. It pins/reproves before CAS. Partial, released,
+  a fresh inspect generation/digest pair. It pins/reproves before CAS. Partial, released,
   referenced, cross-checkout, or mismatched evidence stops. Generic `cas`
   cannot bind it; `scope-bind` only diagnoses. An exact live pre-bind topology
   mismatch from an older helper may use `recover-prebind-scope` with retained
@@ -179,7 +179,7 @@ additional task authority. The session benchmark remains credential/source-free.
   only the proven topology request through CAS and preserves the predecessor.
 - In issue mode, `bind-check` only diagnoses a remotely created planned PR.
   Use the helper-owned `pr-bind-cas` with the exact PR number and a fresh
-  four-part ledger tuple. It re-proves the authenticated actor, same-repository
+  ledger generation/digest pair. It re-proves the authenticated actor, same-repository
   draft PR, durable body, complete paginated comment collection, target, and
   bound worktree immediately before its private CAS; generic `cas` cannot
   perform this initial PR bind. Ordinary Codecov, reviewer, and other external
@@ -222,7 +222,7 @@ additional task authority. The session benchmark remains credential/source-free.
 After the canonical probe, authenticated selection and complete collision
 inventory above, run the ledger protocol's public
 `revalidate-current-targets-cas` with the exact helper-returned
-generation/digest/device/inode. It derives a neutral observation while holding
+generation and digest. It derives a neutral observation while holding
 every current bound target's live guards. Preserve immutable initial requests;
 do not manufacture a commit, repeat initial binding, call private helper
 contexts, or use generic CAS/check-reuse as a substitute for live proof.

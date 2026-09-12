@@ -12,7 +12,7 @@
 
 - Canonical ledger path:
 - Repository/master coordinate SHA-256:
-- Schema / generation / inode / canonical byte digest:
+- Schema / generation / canonical path / byte digest:
 - Goal authority / exact objective SHA-256:
 - Repository node / master node / authenticated actor:
 - Ordered leaf graph SHA-256:
@@ -20,7 +20,7 @@
 - Intended body SHA-256 / current body SHA-256:
 - Remote comment node ID:
 - Complete pagination observation:
-- Stable lock path / device / inode:
+- Stable lock canonical path:
 - Current / next authority and graph-rekey phase:
 - Proposed child repository / exact title / body SHA-256 / parent node:
 - Duplicate-search query / stream digest / candidates / proven-missing:

@@ -90,5 +90,5 @@ remaining gates, external owners, recovery root and next runnable lanes. Do not
 claim completion while only child counts or PR status look finished.
 
 For unchanged bound targets on reconnect, use the public
-`revalidate-current-targets-cas` exact-tuple proof in the issue-delivery
+`revalidate-current-targets-cas` generation/digest proof in the issue-delivery
 ledger protocol; saved safety fields or generic CAS are not live lease proof.

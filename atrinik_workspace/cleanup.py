@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import ExitStack, contextmanager, nullcontext
 from contextvars import copy_context
@@ -16,20 +17,15 @@ import subprocess
 import sys
 from typing import Any, Callable, Iterable, Iterator
 
+from .path_identity import (
+    PathRecordError, canonical_path, descriptor_path, path_record,
+    path_record_matches, validate_path_record,
+)
 from .locking import LockBusyError, active_lock_fds
 from .platform_compat import fcntl, inherited_subprocess_handles
 from .content_migration import CONTENT_MIGRATION_PENDING, CONTENT_MIGRATION_RECORD
 from .delivery import inventory_active_delivery_evidence
-from .filesystem_identity import (
-    FilesystemIdentityError,
-    identity_matches,
-    is_legacy_identity,
-    pair_matches,
-    portable_device,
-    portable_identity,
-    portable_pair,
-    validate_identity,
-)
+
 from .migration import MIGRATION_PENDING, MIGRATION_RECORD, OPERATION_PATHS
 from .model import (
     MANAGED_MARKER,
@@ -58,10 +54,11 @@ from .workspace import (
     RUNTIME_STATE_OUTPUT_TRANSACTION,
     TEMPORARY_STATE_METADATA,
     TEMPORARY_STATE_SCHEMA_VERSION,
-    _descriptor_mount_id,
+    _descriptor_mount_path,
     _descriptor_path,
     _open_directory_nofollow,
     _owned_tree_tombstone_path,
+    _owned_tree_tombstone_name,
     _portable_tombstone_path,
     _remote_matches,
     exclusive_lock,
@@ -99,162 +96,80 @@ def _canonical_json_sha256(value: Any) -> str:
     ).hexdigest()
 
 
-def _portable_text_identity(
-    metadata: os.stat_result, value: str
-) -> dict[str, Any]:
-    """Describe Git text evidence without retaining the mount device."""
-
-    return {
-        "device": portable_device(metadata),
-        "inode": metadata.st_ino,
-        "ctime_ns": metadata.st_ctime_ns,
-        "size": metadata.st_size,
-        "sha256": hashlib.sha256(value.encode("utf-8")).hexdigest(),
-    }
-
-
-def _identity_matches_metadata(value: Any, metadata: os.stat_result) -> bool:
+def _identity_matches_metadata(value: Any, path: Path, *, logical_path: Path | None = None) -> bool:
+    if not isinstance(value, dict):
+        return False
     try:
-        if isinstance(value, dict) and set(value) == {"device", "inode"}:
-            return pair_matches(value, metadata)
-        return identity_matches(value, metadata)
-    except (FilesystemIdentityError, TypeError):
+        metadata = path.lstat()
+        if not (stat.S_ISDIR(metadata.st_mode) or stat.S_ISREG(metadata.st_mode)):
+            return False
+        if "path" in value:
+            record = validate_path_record(value)
+            return (
+                record["path"] == canonical_path(logical_path or path)
+                and record.get("kind", "directory" if stat.S_ISDIR(metadata.st_mode) else "file")
+                == ("directory" if stat.S_ISDIR(metadata.st_mode) else "file")
+            )
+        # Historical filesystem fields do not identify resources after migration.
+        return bool(value) and ("inode" in value or "device" in value)
+    except (OSError, ValueError, TypeError):
         return False
 
 
-def _pair_matches_metadata(value: Any, metadata: os.stat_result) -> bool:
-    try:
-        return pair_matches(value, metadata)
-    except (FilesystemIdentityError, TypeError):
-        return False
+
+def _pair_matches_metadata(value: Any, path: Path) -> bool:
+    return _identity_matches_metadata(value, path)
 
 
-def _temporary_state_lock_tombstone(
-    lock: Path, identity: Any
-) -> Path | None:
-    """Find a state-lease tombstone by its live metadata, not its old device."""
 
-    candidates: list[Path] = []
-    for candidate in sorted(lock.parent.glob(f".{lock.name}.remove-*")):
+def _temporary_state_lock_tombstone(lock: Path, identity: Any) -> Path | None:
+    candidates = []
+    for candidate in sorted(lock.parent.glob(f".{lock.name}.remove*")):
+        if candidate.name != f".{lock.name}.remove-pending" and re.fullmatch(
+            rf"\.{re.escape(lock.name)}\.remove-[0-9a-f]+-[0-9a-f]+", candidate.name
+        ) is None:
+            continue
         try:
-            metadata = candidate.stat(follow_symlinks=False)
+            metadata = candidate.lstat()
         except FileNotFoundError:
             continue
-        if _identity_matches_metadata(identity, metadata) or (
-            _pair_matches_metadata(identity, metadata)
-            if isinstance(identity, dict) and set(identity) == {"device", "inode"}
-            else False
-        ):
+        if (stat.S_ISREG(metadata.st_mode) and metadata.st_nlink == 1
+            and _identity_matches_metadata(identity, candidate, logical_path=lock)):
             candidates.append(candidate)
     if len(candidates) > 1:
-        raise WorkspaceError(
-            f"temporary topology state lease tombstones are ambiguous: {lock}"
-        )
+        raise WorkspaceError(f"temporary topology state lease tombstones are ambiguous: {lock}")
     return candidates[0] if candidates else None
 
 
-def _owned_tree_tombstone_for_identity(
-    path: Path, identity: Any
-) -> Path | None:
-    """Find a tree tombstone for either a portable or legacy record."""
-
-    if isinstance(identity, dict) and set(identity) == {"device", "inode"}:
-        digest = hashlib.sha256(path.name.encode("utf-8")).hexdigest()[:16]
-        candidates: list[Path] = []
-        for candidate in sorted(path.parent.iterdir()):
-            if not re.fullmatch(
-                rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+",
-                candidate.name,
-            ):
-                continue
-            try:
-                metadata = candidate.stat(follow_symlinks=False)
-            except FileNotFoundError:
-                continue
-            if _pair_matches_metadata(identity, metadata):
-                candidates.append(candidate)
-        if len(candidates) > 1:
-            raise WorkspaceError(f"owned-tree tombstones are ambiguous: {path}")
-        return candidates[0] if candidates else None
-    if isinstance(identity, dict) and set(identity) == {
-        "device",
-        "inode",
-        "ctime_ns",
-        "file_type",
-    }:
-        pair = {key: identity[key] for key in ("device", "inode")}
-        digest = hashlib.sha256(path.name.encode("utf-8")).hexdigest()[:16]
-        candidates: list[Path] = []
-        for candidate in sorted(path.parent.iterdir()):
-            if not re.fullmatch(
-                rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+",
-                candidate.name,
-            ):
-                continue
-            try:
-                metadata = candidate.stat(follow_symlinks=False)
-            except FileNotFoundError:
-                continue
-            if _pair_matches_metadata(pair, metadata):
-                candidates.append(candidate)
-        if len(candidates) > 1:
-            raise WorkspaceError(f"owned-tree tombstones are ambiguous: {path}")
-        return candidates[0] if candidates else None
-    if is_legacy_identity(identity):
-        candidate = _owned_tree_tombstone_path(path, identity)
-        return candidate if candidate.exists() or candidate.is_symlink() else None
+def _owned_tree_tombstone_for_identity(path: Path, identity: Any) -> Path | None:
+    """Find the named tombstone, tolerating unique historical spellings."""
     return _portable_tombstone_path(path, identity)
 
 
 def _recovery_filesystem_matches(
-    value: Any, metadata: os.stat_result, check_ctime: bool
+    value: Any, path: Path, check_ctime: bool = False, *, logical_path: Path | None = None
 ) -> bool:
-    """Match the bounded temporary-state evidence to a live object."""
+    return _identity_matches_metadata(value, path, logical_path=logical_path)
 
-    if (
-        isinstance(value, dict)
-        and set(value) == {"device", "inode", "ctime_ns", "file_type"}
-    ):
-        return (
-            _pair_matches_metadata(
-                {"device": value["device"], "inode": value["inode"]},
-                metadata,
-            )
-            and stat.S_IFMT(metadata.st_mode) == value["file_type"]
-            and (not check_ctime or metadata.st_ctime_ns == value["ctime_ns"])
-        )
-    return isinstance(value, dict) and _identity_matches_metadata(value, metadata)
 
 
 def _recovery_identity_matches_record(identity: Any, record: Any) -> bool:
-    """Compare a state-policy identity with temporary recovery evidence."""
+    return _identity_records_match(identity, record)
 
-    if not isinstance(identity, dict) or not isinstance(record, dict):
-        return False
-    if identity.get("inode") != record.get("inode"):
-        return False
-    if set(identity) == {"device", "inode"} and "device" in record:
-        return identity["device"] == record["device"]
-    return identity.get("kind") == "directory"
 
 
 def _identity_records_match(left: Any, right: Any) -> bool:
     if not isinstance(left, dict) or not isinstance(right, dict):
         return False
-    if left.get("inode") != right.get("inode"):
-        return False
-    if set(left) == {"device", "inode"} and set(right) == {
-        "device",
-        "inode",
-    }:
-        return left["device"] == right["device"]
-    if "schema_version" in left and "schema_version" in right:
-        return left == right
-    if "schema_version" in left or "schema_version" in right:
-        # A legacy pair can be compared to a portable record only by the
-        # inode until the current object is opened and fenced below.
-        return True
-    return True
+    if "path" in left and "path" in right:
+        try:
+            return validate_path_record(left) == validate_path_record(right)
+        except ValueError:
+            return False
+    return bool(left) and bool(right) and (
+        "path" in left or "inode" in left or "device" in left
+    ) and ("path" in right or "inode" in right or "device" in right)
+
 
 
 def _cleanup_journal_name_matches_coordinate(name: str, coordinate: str) -> bool:
@@ -416,7 +331,7 @@ def _git_directories(path: Path) -> tuple[Path, Path]:
     return Path(values[0]).resolve(), Path(values[1]).resolve()
 
 
-def _regular_text_identity(path: Path) -> tuple[str, tuple[int, int, int, int]]:
+def _regular_text_identity(path: Path) -> tuple[str, tuple[str, int, str]]:
     flags = os.O_RDONLY | os.O_CLOEXEC
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
@@ -430,10 +345,8 @@ def _regular_text_identity(path: Path) -> tuple[str, tuple[int, int, int, int]]:
         if len(value) > 4096:
             raise WorkspaceError(f"Git worktree pointer is oversized: {path}")
         return value, (
-            metadata.st_dev,
-            metadata.st_ino,
-            metadata.st_ctime_ns,
-            metadata.st_size,
+            canonical_path(path), len(value.encode("utf-8")),
+            hashlib.sha256(value.encode("utf-8")).hexdigest(),
         )
     finally:
         os.close(descriptor)
@@ -441,17 +354,13 @@ def _regular_text_identity(path: Path) -> tuple[str, tuple[int, int, int, int]]:
 
 def _text_evidence(path: Path) -> tuple[str, dict[str, Any]]:
     value, identity = _regular_text_identity(path)
+    repeated, repeated_identity = _regular_text_identity(path)
+    if identity != repeated_identity or value != repeated:
+        raise WorkspaceError(f"Git worktree metadata changed contents: {path}")
     metadata = path.lstat()
-    if identity != (
-        metadata.st_dev,
-        metadata.st_ino,
-        metadata.st_ctime_ns,
-        metadata.st_size,
-    ):
-        raise WorkspaceError(f"Git worktree metadata changed identity: {path}")
     if metadata.st_uid != os.geteuid():
         raise WorkspaceError(f"Git worktree metadata has a foreign owner: {path}")
-    return value, _portable_text_identity(metadata, value)
+    return value, {"path": identity[0], "size": identity[1], "sha256": identity[2]}
 
 
 def _linked_worktree_registration_identity(
@@ -509,11 +418,11 @@ def _linked_worktree_registration_identity(
     return {
         "schema_version": 1,
         "worktree": str(worktree.resolve()),
-        "worktree_identity": portable_pair(worktree_metadata),
+        "worktree_identity": path_record(worktree, kind="directory"),
         "pointer": pointer,
         "common": str(common),
         "admin": str(git_directory),
-        "admin_identity": portable_pair(admin_metadata),
+        "admin_identity": path_record(git_directory, kind="directory"),
         "backlink": backlink,
     }
 
@@ -536,24 +445,19 @@ def _valid_linked_worktree_registration_identity(value: Any) -> bool:
         path = value.get(key)
         if not isinstance(path, str) or not Path(path).is_absolute():
             return False
-    identity_keys = {
-        "worktree_identity": {"device", "inode"},
-        "admin_identity": {"device", "inode"},
-        "pointer": {"device", "inode", "ctime_ns", "size", "sha256"},
-        "backlink": {"device", "inode", "ctime_ns", "size", "sha256"},
-    }
-    for key, expected in identity_keys.items():
+    for key in ("pointer", "backlink"):
         identity = value.get(key)
-        if not isinstance(identity, dict) or set(identity) != expected:
+        if not isinstance(identity, dict):
             return False
-        for field in expected - {"sha256"}:
-            number = identity[field]
-            if not isinstance(number, int) or isinstance(number, bool) or number < 0:
-                return False
-        if "sha256" in expected and (
-            not isinstance(identity["sha256"], str)
-            or not re.fullmatch(r"[0-9a-f]{64}", identity["sha256"])
+        if not isinstance(identity.get("sha256"), str) or not re.fullmatch(
+            r"[0-9a-f]{64}", identity["sha256"]
         ):
+            return False
+    for key, path_key in (("worktree_identity", "worktree"), ("admin_identity", "admin")):
+        identity = value.get(key)
+        if not isinstance(identity, dict):
+            return False
+        if "path" in identity and identity["path"] != value[path_key]:
             return False
     worktree = Path(value["worktree"])
     common = Path(value["common"])
@@ -570,24 +474,12 @@ def _text_evidence_matches(path: Path, expected: Any) -> bool:
         return False
     try:
         _value, observed = _text_evidence(path)
-        metadata = path.lstat()
     except (OSError, RuntimeError, WorkspaceError):
         return False
-    if (
-        observed.get("inode") != metadata.st_ino
-        or observed.get("ctime_ns") != metadata.st_ctime_ns
-        or observed.get("size") != metadata.st_size
-    ):
-        return False
-    if set(expected) != set(observed):
-        return False
-    return all(
-        observed[key] == expected[key]
-        for key in observed
-        if key != "device"
-    ) and _pair_matches_metadata(
-        {"device": expected.get("device"), "inode": expected.get("inode")},
-        metadata,
+    return (
+        observed["sha256"] == expected.get("sha256")
+        and observed["size"] == expected.get("size")
+        and ("path" not in expected or observed["path"] == expected["path"])
     )
 
 
@@ -608,9 +500,7 @@ def _linked_worktree_registration_matches(
     ):
         return False
     return (
-        _pair_matches_metadata(expected["worktree_identity"], worktree_metadata)
-        and _pair_matches_metadata(expected["admin_identity"], admin_metadata)
-        and _text_evidence_matches(worktree / ".git", expected["pointer"])
+        _text_evidence_matches(worktree / ".git", expected["pointer"])
         and _text_evidence_matches(
             Path(actual["admin"]) / "gitdir", expected["backlink"]
         )
@@ -683,10 +573,8 @@ def _sound_worktree_identity(worktree: Path, common: Path) -> tuple[Any, ...]:
             raise WorkspaceError("sound primary Git directory is invalid")
         return (
             "primary",
-            worktree_metadata.st_dev,
-            worktree_metadata.st_ino,
-            pointer_metadata.st_dev,
-            pointer_metadata.st_ino,
+            canonical_path(worktree),
+            canonical_path(pointer),
             str(common),
         )
     pointer_value, pointer_identity = _regular_text_identity(pointer)
@@ -714,11 +602,9 @@ def _sound_worktree_identity(worktree: Path, common: Path) -> tuple[Any, ...]:
         raise WorkspaceError("sound linked-worktree Git backlink does not match its path")
     return (
         "linked",
-        worktree_metadata.st_dev,
-        worktree_metadata.st_ino,
+        canonical_path(worktree),
         *pointer_identity,
-        admin_metadata.st_dev,
-        admin_metadata.st_ino,
+        canonical_path(git_directory),
         *backlink_identity,
         str(common),
         str(git_directory),
@@ -727,19 +613,18 @@ def _sound_worktree_identity(worktree: Path, common: Path) -> tuple[Any, ...]:
 
 def _sound_producer_lock_snapshot(
     worktree: Path,
-) -> tuple[Path, tuple[int, int, int, int]]:
+) -> tuple[Path, tuple[str, int, str]]:
     path = _git_directory(worktree) / SOUND_PRODUCER_LOCK
     marker, identity = _regular_text_identity(path)
     if marker != SOUND_PRODUCER_LOCK_MARKER or path.lstat().st_uid != os.geteuid():
         raise WorkspaceError("sound producer cleanup lease marker is invalid")
-    metadata = path.lstat()
-    return path, (portable_device(metadata), metadata.st_ino, identity[2], identity[3])
+    return path, identity
 
 
 @contextmanager
 def _exclusive_sound_producer_lease(
     worktree: Path,
-    expected_identity: tuple[int, int, int, int],
+    expected_identity: tuple[str, int, str],
 ) -> Iterator[None]:
     path = _git_directory(worktree) / SOUND_PRODUCER_LOCK
     flags = os.O_RDWR | os.O_CLOEXEC
@@ -748,39 +633,25 @@ def _exclusive_sound_producer_lease(
     descriptor = os.open(path, flags)
     try:
         metadata = os.fstat(descriptor)
-        identity = (
-            portable_device(metadata),
-            metadata.st_ino,
-            metadata.st_ctime_ns,
-            metadata.st_size,
-        )
-        legacy_identity = (
-            metadata.st_dev,
-            metadata.st_ino,
-            metadata.st_ctime_ns,
-            metadata.st_size,
-        )
         if (
             not stat.S_ISREG(metadata.st_mode)
             or metadata.st_nlink != 1
             or metadata.st_uid != os.geteuid()
-            or tuple(expected_identity) not in {identity, legacy_identity}
         ):
-            raise WorkspaceError("sound producer cleanup lease changed identity")
+            raise WorkspaceError("sound producer cleanup lease path is unsafe")
         try:
             fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError as error:
             raise WorkspaceError("sound playtest producer is already in use") from error
         os.lseek(descriptor, 0, os.SEEK_SET)
         marker = os.read(descriptor, len(SOUND_PRODUCER_LOCK_MARKER.encode()) + 1)
-        try:
-            path_metadata = path.lstat()
-        except OSError as error:
-            raise WorkspaceError("sound producer cleanup lease path changed") from error
+        current_marker, identity = _regular_text_identity(path)
         if (
             marker != SOUND_PRODUCER_LOCK_MARKER.encode()
-            or (path_metadata.st_dev, path_metadata.st_ino)
-            != (metadata.st_dev, metadata.st_ino)
+            or current_marker != SOUND_PRODUCER_LOCK_MARKER
+            or (expected_identity and isinstance(expected_identity[0], str)
+                and tuple(expected_identity) != identity)
+            or descriptor_path(descriptor) != canonical_path(path)
         ):
             raise WorkspaceError("sound producer cleanup lease changed while locking")
         yield
@@ -826,8 +697,8 @@ def _path_relation(root: Path, path: Path) -> bool:
 
 def _tree_usage(
     root: Path, excluded: Iterable[Path] = ()
-) -> tuple[dict[tuple[int, int], int], datetime | None, str | None]:
-    sizes: dict[tuple[int, int], int] = {}
+) -> tuple[dict[str, int], datetime | None, str | None]:
+    sizes: dict[str, int] = {}
     maximum: float | None = None
     try:
         root_value = os.fspath(root)
@@ -837,7 +708,7 @@ def _tree_usage(
             while stack:
                 raw_path = stack.pop()
                 metadata = os.lstat(raw_path)
-                key = (metadata.st_dev, metadata.st_ino)
+                key = canonical_path(raw_path)
                 sizes.setdefault(key, metadata.st_blocks * 512)
                 maximum = (
                     metadata.st_mtime
@@ -865,7 +736,7 @@ def _tree_usage(
             if raw_path != root_value and normalized in excluded_paths:
                 continue
             metadata = os.lstat(raw_path)
-            key = (metadata.st_dev, metadata.st_ino)
+            key = canonical_path(raw_path)
             sizes.setdefault(key, metadata.st_blocks * 512)
             maximum = metadata.st_mtime if maximum is None else max(maximum, metadata.st_mtime)
             if stat.S_ISDIR(metadata.st_mode) and not stat.S_ISLNK(metadata.st_mode):
@@ -884,7 +755,7 @@ def _tree_usage(
 def _tree_usage_descriptor(
     root_fd: int, display: Path
 ) -> tuple[
-    dict[tuple[int, int], int],
+    dict[str, int],
     datetime | None,
     str | None,
     str | None,
@@ -893,10 +764,10 @@ def _tree_usage_descriptor(
 ]:
     """Measure and fingerprint one pinned source generation tree."""
 
-    sizes: dict[tuple[int, int], int] = {}
+    sizes: dict[str, int] = {}
     maximum: float | None = None
     root = os.fstat(root_fd)
-    root_mount = _descriptor_mount_id(root_fd)
+    root_mount = _descriptor_mount_path(root_fd)
     evidence = hashlib.sha256()
     semantic = hashlib.sha256()
     content_errors: list[str] = []
@@ -908,10 +779,10 @@ def _tree_usage_descriptor(
         digest.update(len(encoded).to_bytes(8, "big"))
         digest.update(encoded)
 
-    def record(metadata: os.stat_result) -> None:
+    def record(metadata: os.stat_result, path: Path) -> None:
         nonlocal maximum
         sizes.setdefault(
-            (metadata.st_dev, metadata.st_ino), metadata.st_blocks * 512
+            canonical_path(path), metadata.st_blocks * 512
         )
         maximum = (
             metadata.st_mtime
@@ -926,18 +797,15 @@ def _tree_usage_descriptor(
                 dir_fd=directory_fd,
                 follow_symlinks=False,
             )
-            record(child)
             child_relative = relative / name
             child_display = display / child_relative.as_posix()
+            record(child, child_display)
             evidence_fields = (
                 child_relative.as_posix(),
-                child.st_dev,
-                child.st_ino,
                 child.st_mode,
                 child.st_nlink,
                 child.st_size,
                 child.st_mtime_ns,
-                child.st_ctime_ns,
             )
             if stat.S_ISDIR(child.st_mode):
                 try:
@@ -970,10 +838,9 @@ def _tree_usage_descriptor(
                 try:
                     opened = os.fstat(descriptor)
                     if (
-                        (opened.st_dev, opened.st_ino)
-                        != (child.st_dev, child.st_ino)
-                        or opened.st_dev != root.st_dev
-                        or _descriptor_mount_id(descriptor) != root_mount
+                        descriptor_path(descriptor) != canonical_path(child_display)
+                        or _descriptor_mount_path(descriptor) != root_mount
+                        or stat.S_IFMT(opened.st_mode) != stat.S_IFMT(child.st_mode)
                     ):
                         raise WorkspaceError(
                             "source generation changed during usage inventory: "
@@ -1011,10 +878,9 @@ def _tree_usage_descriptor(
                 try:
                     opened = os.fstat(descriptor)
                     if (
-                        (opened.st_dev, opened.st_ino)
-                        != (child.st_dev, child.st_ino)
-                        or opened.st_dev != root.st_dev
-                        or _descriptor_mount_id(descriptor) != root_mount
+                        descriptor_path(descriptor) != canonical_path(child_display)
+                        or _descriptor_mount_path(descriptor) != root_mount
+                        or stat.S_IFMT(opened.st_mode) != stat.S_IFMT(child.st_mode)
                     ):
                         raise WorkspaceError(
                             "source generation changed during usage inventory: "
@@ -1025,11 +891,9 @@ def _tree_usage_descriptor(
                         digest.update(chunk)
                     after = os.fstat(descriptor)
                     if (
-                        (after.st_dev, after.st_ino, after.st_mode, after.st_nlink,
-                         after.st_size, after.st_mtime_ns, after.st_ctime_ns)
-                        != (opened.st_dev, opened.st_ino, opened.st_mode,
-                            opened.st_nlink, opened.st_size, opened.st_mtime_ns,
-                            opened.st_ctime_ns)
+                        (after.st_mode, after.st_nlink, after.st_size, after.st_mtime_ns)
+                        != (opened.st_mode, opened.st_nlink, opened.st_size, opened.st_mtime_ns)
+                        or descriptor_path(descriptor) != canonical_path(child_display)
                     ):
                         raise WorkspaceError(
                             "source generation changed during usage inventory: "
@@ -1057,12 +921,9 @@ def _tree_usage_descriptor(
                 after = os.stat(
                     name, dir_fd=directory_fd, follow_symlinks=False
                 )
-                if (after.st_dev, after.st_ino, after.st_mode, after.st_ctime_ns) != (
-                    child.st_dev,
-                    child.st_ino,
-                    child.st_mode,
-                    child.st_ctime_ns,
-                ):
+                if not stat.S_ISLNK(after.st_mode) or os.readlink(
+                    name, dir_fd=directory_fd
+                ) != target:
                     raise WorkspaceError(
                         "source generation changed during usage inventory: "
                         f"{child_display}"
@@ -1100,17 +961,14 @@ def _tree_usage_descriptor(
                 )
 
     try:
-        record(root)
+        record(root, display)
         digest_record(
             evidence,
             "root",
-            root.st_dev,
-            root.st_ino,
             root.st_mode,
             root.st_nlink,
             root.st_size,
             root.st_mtime_ns,
-            root.st_ctime_ns,
         )
         digest_record(semantic, "root", stat.S_IMODE(root.st_mode))
         visit(root_fd, PurePosixPath())
@@ -1135,14 +993,14 @@ def _source_closure_digest_descriptor(
     root_fd: int, display: Path, includes: Iterable[str]
 ) -> str:
     """Hash a generated source closure through its pinned generation root."""
-
-    root = os.fstat(root_fd)
-    root_mount = _descriptor_mount_id(root_fd)
+    root_mount = _descriptor_mount_path(root_fd)
 
     def open_directory(parts: tuple[str, ...], path: Path) -> int:
         descriptor = os.dup(root_fd)
+        current_path = display
         try:
             for part in parts:
+                current_path = current_path / part
                 child = os.stat(part, dir_fd=descriptor, follow_symlinks=False)
                 next_descriptor = os.open(
                     part,
@@ -1151,10 +1009,9 @@ def _source_closure_digest_descriptor(
                 )
                 opened = os.fstat(next_descriptor)
                 if (
-                    (opened.st_dev, opened.st_ino)
-                    != (child.st_dev, child.st_ino)
-                    or opened.st_dev != root.st_dev
-                    or _descriptor_mount_id(next_descriptor) != root_mount
+                    descriptor_path(next_descriptor) != canonical_path(current_path)
+                    or _descriptor_mount_path(next_descriptor) != root_mount
+                    or not stat.S_ISDIR(opened.st_mode)
                 ):
                     os.close(next_descriptor)
                     raise WorkspaceError(
@@ -1196,10 +1053,9 @@ def _source_closure_digest_descriptor(
                 )
                 opened = os.fstat(descriptor)
                 if (
-                    (opened.st_dev, opened.st_ino)
-                    != (metadata.st_dev, metadata.st_ino)
-                    or opened.st_dev != root.st_dev
-                    or _descriptor_mount_id(descriptor) != root_mount
+                    descriptor_path(descriptor) != canonical_path(display / include)
+                    or _descriptor_mount_path(descriptor) != root_mount
+                    or not stat.S_ISDIR(opened.st_mode)
                 ):
                     raise WorkspaceError(
                         "source generation changed during closure inventory: "
@@ -1221,12 +1077,10 @@ def _source_closure_digest_descriptor(
                 )
                 opened = os.fstat(descriptor)
                 if (
-                    (opened.st_dev, opened.st_ino)
-                    != (metadata.st_dev, metadata.st_ino)
+                    descriptor_path(descriptor) != canonical_path(display / include)
+                    or _descriptor_mount_path(descriptor) != root_mount
                     or not stat.S_ISREG(opened.st_mode)
                     or opened.st_nlink != 1
-                    or opened.st_dev != root.st_dev
-                    or _descriptor_mount_id(descriptor) != root_mount
                 ):
                     raise WorkspaceError(
                         "source generation changed during closure inventory: "
@@ -1239,24 +1093,19 @@ def _source_closure_digest_descriptor(
                     digest.update(chunk)
                 after = os.fstat(descriptor)
                 before_identity = (
-                    opened.st_dev,
-                    opened.st_ino,
                     opened.st_mode,
                     opened.st_nlink,
                     opened.st_size,
                     opened.st_mtime_ns,
-                    opened.st_ctime_ns,
                 )
                 after_identity = (
-                    after.st_dev,
-                    after.st_ino,
                     after.st_mode,
                     after.st_nlink,
                     after.st_size,
                     after.st_mtime_ns,
-                    after.st_ctime_ns,
                 )
-                if observed != opened.st_size or before_identity != after_identity:
+                if (observed != opened.st_size or before_identity != after_identity
+                    or descriptor_path(descriptor) != canonical_path(display / include)):
                     raise WorkspaceError(
                         "source generation changed during closure inventory: "
                         f"{display / include}"
@@ -1283,129 +1132,68 @@ def _source_closure_digest_descriptor(
 
 def _temporary_tree_usage(
     root: Path,
-) -> tuple[dict[tuple[int, int], int], datetime | None, str | None]:
-    """Measure temporary state without following links or crossing mounts."""
+) -> tuple[dict[str, int], datetime | None, str | None]:
+    """Measure temporary state by path without following symbolic links."""
 
-    sizes: dict[tuple[int, int], int] = {}
+    sizes: dict[str, int] = {}
     maximum: float | None = None
     root_fd: int | None = None
-    try:
-        root_fd = os.open(
-            root,
-            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
-        )
-        root_metadata = os.fstat(root_fd)
-        root_mount = _descriptor_mount_id(root_fd)
-        parent_fd = _open_directory_nofollow(
-            root.parent,
-            os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
-        )
-        try:
-            visible = os.stat(
-                root.name, dir_fd=parent_fd, follow_symlinks=False
+    root_mount: str | None = None
+
+    def record(metadata: os.stat_result, display: Path) -> None:
+        nonlocal maximum
+        sizes.setdefault(canonical_path(display), metadata.st_blocks * 512)
+        maximum = metadata.st_mtime if maximum is None else max(maximum, metadata.st_mtime)
+
+    def walk(descriptor: int, display: Path) -> None:
+        directory = os.fstat(descriptor)
+        if not stat.S_ISDIR(directory.st_mode) or descriptor_path(descriptor) != canonical_path(display):
+            raise WorkspaceError(f"temporary state directory path changed: {display}")
+        if _descriptor_mount_path(descriptor) != root_mount:
+            raise WorkspaceError(f"temporary state traversal encountered a mount: {display}")
+        record(directory, display)
+        for name in os.listdir(descriptor):
+            child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+            child_display = display / name
+            record(child, child_display)
+            if stat.S_ISREG(child.st_mode):
+                file_fd = os.open(name, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=descriptor)
+                try:
+                    if _descriptor_mount_path(file_fd) != root_mount:
+                        raise WorkspaceError(f"temporary state traversal encountered a mount: {child_display}")
+                finally:
+                    os.close(file_fd)
+            if not stat.S_ISDIR(child.st_mode):
+                continue
+            child_fd = os.open(
+                name, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+                dir_fd=descriptor,
             )
-            if (
-                (visible.st_dev, visible.st_ino)
-                != (root_metadata.st_dev, root_metadata.st_ino)
-                or _descriptor_mount_id(parent_fd) != root_mount
-            ):
-                raise WorkspaceError(
-                    f"temporary state traversal encountered a root mount: {root}"
-                )
+            try:
+                walk(child_fd, child_display)
+            finally:
+                os.close(child_fd)
+
+    try:
+        root_fd = _open_directory_nofollow(
+            root, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW,
+        )
+        root_mount = _descriptor_mount_path(root_fd)
+        parent_fd = _open_directory_nofollow(root.parent, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            if _descriptor_mount_path(parent_fd) != root_mount:
+                raise WorkspaceError(f"temporary state traversal encountered a root mount: {root}")
         finally:
             os.close(parent_fd)
-        visited: set[tuple[int, int, int | tuple[int, int]]] = set()
-
-        def walk(descriptor: int, display: Path) -> None:
-            nonlocal maximum
-            directory = os.fstat(descriptor)
-            coordinate = (directory.st_dev, directory.st_ino, root_mount)
-            if coordinate in visited:
-                raise WorkspaceError(
-                    f"temporary state traversal encountered a cycle: {display}"
-                )
-            visited.add(coordinate)
-            sizes.setdefault(
-                (directory.st_dev, directory.st_ino), directory.st_blocks * 512
-            )
-            maximum = (
-                directory.st_mtime
-                if maximum is None
-                else max(maximum, directory.st_mtime)
-            )
-            for name in os.listdir(descriptor):
-                child = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
-                sizes.setdefault(
-                    (child.st_dev, child.st_ino), child.st_blocks * 512
-                )
-                maximum = (
-                    child.st_mtime
-                    if maximum is None
-                    else max(maximum, child.st_mtime)
-                )
-                if stat.S_ISREG(child.st_mode):
-                    flags = os.O_NOFOLLOW
-                    if sys.platform == "linux":
-                        flags |= os.O_PATH
-                    else:
-                        flags |= os.O_RDONLY | os.O_NONBLOCK
-                    file_fd = os.open(name, flags, dir_fd=descriptor)
-                    try:
-                        opened = os.fstat(file_fd)
-                        if (
-                            (opened.st_dev, opened.st_ino)
-                            != (child.st_dev, child.st_ino)
-                            or _descriptor_mount_id(file_fd) != root_mount
-                        ):
-                            raise WorkspaceError(
-                                "temporary state traversal encountered a mount: "
-                                f"{display / name}"
-                            )
-                    finally:
-                        os.close(file_fd)
-                    continue
-                if not stat.S_ISDIR(child.st_mode):
-                    continue
-                child_fd = os.open(
-                    name,
-                    os.O_RDONLY
-                    | os.O_CLOEXEC
-                    | os.O_DIRECTORY
-                    | os.O_NOFOLLOW,
-                    dir_fd=descriptor,
-                )
-                try:
-                    opened = os.fstat(child_fd)
-                    if (
-                        (opened.st_dev, opened.st_ino)
-                        != (child.st_dev, child.st_ino)
-                        or _descriptor_mount_id(child_fd) != root_mount
-                    ):
-                        raise WorkspaceError(
-                            f"temporary state traversal encountered a mount: "
-                            f"{display / name}"
-                        )
-                    walk(child_fd, display / name)
-                finally:
-                    os.close(child_fd)
-
         walk(root_fd, root)
-        observed = (
-            datetime.fromtimestamp(maximum, timezone.utc)
-            if maximum is not None
-            else None
-        )
-        return sizes, observed, None
-    except (OSError, RuntimeError, WorkspaceError) as error:
-        observed = (
-            datetime.fromtimestamp(maximum, timezone.utc)
-            if maximum is not None
-            else None
-        )
-        return sizes, observed, str(error)
+        error = None
+    except (OSError, RuntimeError, WorkspaceError) as exception:
+        error = str(exception)
     finally:
         if root_fd is not None:
             os.close(root_fd)
+    observed = datetime.fromtimestamp(maximum, timezone.utc) if maximum is not None else None
+    return sizes, observed, error
 
 
 def _topology_tree_snapshot(
@@ -1414,17 +1202,18 @@ def _topology_tree_snapshot(
     str | None,
     list[str],
     datetime | None,
-    dict[tuple[int, int], int],
+    dict[str, int],
     str | None,
 ]:
     """Snapshot one topology tree without following links or special files."""
 
     rows: list[tuple[Any, ...]] = []
     paths: list[str] = []
-    sizes: dict[tuple[int, int], int] = {}
+    sizes: dict[str, int] = {}
     maximum: float | None = None
     parent_descriptor: int | None = None
     root_descriptor: int | None = None
+    root_mount: str | None = None
 
     def record(
         metadata: os.stat_result,
@@ -1434,8 +1223,6 @@ def _topology_tree_snapshot(
         allow_runtime_state_link: bool = False,
     ) -> None:
         nonlocal maximum
-        if metadata.st_dev != root_device:
-            raise WorkspaceError(f"topology tree contains a mount: {display}")
         if not (
             stat.S_ISDIR(metadata.st_mode)
             or stat.S_ISREG(metadata.st_mode)
@@ -1447,20 +1234,17 @@ def _topology_tree_snapshot(
         rows.append(
             (
                 relative,
-                metadata.st_dev,
-                metadata.st_ino,
                 stat.S_IFMT(metadata.st_mode),
                 stat.S_IMODE(metadata.st_mode),
                 metadata.st_nlink,
                 metadata.st_size,
                 metadata.st_blocks,
                 metadata.st_mtime_ns,
-                metadata.st_ctime_ns,
             )
         )
         paths.append(str(display))
         sizes.setdefault(
-            (metadata.st_dev, metadata.st_ino), metadata.st_blocks * 512
+            canonical_path(display), metadata.st_blocks * 512
         )
         maximum = (
             metadata.st_mtime
@@ -1469,6 +1253,8 @@ def _topology_tree_snapshot(
         )
 
     def walk(descriptor: int, relative: str, display: Path) -> None:
+        if _descriptor_mount_path(descriptor) != root_mount:
+            raise WorkspaceError(f"topology tree contains a mount: {display}")
         record(os.fstat(descriptor), relative, display)
         for name in sorted(os.listdir(descriptor)):
             child_display = display / name
@@ -1499,10 +1285,7 @@ def _topology_tree_snapshot(
                 )
                 try:
                     opened = os.fstat(child_descriptor)
-                    if (opened.st_dev, opened.st_ino) != (
-                        metadata.st_dev,
-                        metadata.st_ino,
-                    ):
+                    if descriptor_path(child_descriptor) != canonical_path(child_display):
                         raise WorkspaceError(
                             f"topology tree changed during inventory: {child_display}"
                         )
@@ -1511,6 +1294,13 @@ def _topology_tree_snapshot(
                     os.close(child_descriptor)
             else:
                 record(metadata, child_relative, child_display)
+                if stat.S_ISREG(metadata.st_mode):
+                    file_fd = os.open(name, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=descriptor)
+                    try:
+                        if _descriptor_mount_path(file_fd) != root_mount:
+                            raise WorkspaceError(f"topology tree contains a mount: {child_display}")
+                    finally:
+                        os.close(file_fd)
 
     try:
         parent_descriptor = os.open(
@@ -1527,7 +1317,6 @@ def _topology_tree_snapshot(
             root_metadata.st_mode
         ):
             raise WorkspaceError("topology root is not a regular directory")
-        root_device = root_metadata.st_dev
         root_descriptor = os.open(
             root.name,
             os.O_RDONLY
@@ -1537,19 +1326,18 @@ def _topology_tree_snapshot(
             dir_fd=parent_descriptor,
         )
         opened = os.fstat(root_descriptor)
-        if (opened.st_dev, opened.st_ino) != (
-            root_metadata.st_dev,
-            root_metadata.st_ino,
-        ):
+        if not stat.S_ISDIR(opened.st_mode) or descriptor_path(
+            root_descriptor
+        ) != canonical_path(root):
             raise WorkspaceError(f"topology root changed during inventory: {root}")
+        root_mount = _descriptor_mount_path(root_descriptor)
         walk(root_descriptor, ".", root)
         retained = os.stat(
             root.name, dir_fd=parent_descriptor, follow_symlinks=False
         )
-        if (retained.st_dev, retained.st_ino) != (
-            opened.st_dev,
-            opened.st_ino,
-        ):
+        if not stat.S_ISDIR(retained.st_mode) or descriptor_path(
+            root_descriptor
+        ) != canonical_path(root):
             raise WorkspaceError(f"topology root changed during inventory: {root}")
         payload = json.dumps(rows, separators=(",", ":"), ensure_ascii=True)
         observed = (
@@ -1573,10 +1361,10 @@ def _topology_tree_snapshot(
             os.close(parent_descriptor)
 
 
-def _listed_usage(root: Path, relative_paths: Iterable[str]) -> dict[tuple[int, int], int]:
+def _listed_usage(root: Path, relative_paths: Iterable[str]) -> dict[str, int]:
     """Account for Git-listed paths without resolving and rewalking every file."""
 
-    sizes: dict[tuple[int, int], int] = {}
+    sizes: dict[str, int] = {}
     root_value = os.fspath(root)
     for relative in relative_paths:
         parts = relative.split("/")
@@ -1597,7 +1385,7 @@ def _listed_usage(root: Path, relative_paths: Iterable[str]) -> dict[tuple[int, 
             if error is None:
                 sizes.update(nested)
             continue
-        sizes.setdefault((metadata.st_dev, metadata.st_ino), metadata.st_blocks * 512)
+        sizes.setdefault(canonical_path(candidate), metadata.st_blocks * 512)
     return sizes
 
 
@@ -1933,12 +1721,14 @@ class Cleanup:
                 producer_identity = intent.get("producer_identity")
                 return (
                     isinstance(producer_identity, list)
-                    and len(producer_identity) == 4
-                    and all(
-                        isinstance(value, int)
-                        and not isinstance(value, bool)
-                        and value >= 0
-                        for value in producer_identity
+                    and (
+                        len(producer_identity) == 4
+                        or (len(producer_identity) == 3
+                            and isinstance(producer_identity[0], str)
+                            and Path(producer_identity[0]).is_absolute()
+                            and isinstance(producer_identity[1], int)
+                            and isinstance(producer_identity[2], str)
+                            and re.fullmatch(r"[0-9a-f]{64}", producer_identity[2]))
                     )
                 )
             return True
@@ -2472,7 +2262,7 @@ class Cleanup:
                         raise WorkspaceError(
                             f"cleanup target is not a directory: {target['path']}"
                         )
-                    intent["identity"] = portable_identity(identity)
+                    intent["identity"] = path_record(Path(target["path"]), kind="directory")
                     intent["target_sha256"] = _canonical_json_sha256(
                         planned_target
                     )
@@ -2490,7 +2280,7 @@ class Cleanup:
                     journal_metadata = Path(target["path"]).stat(
                         follow_symlinks=False
                     )
-                    intent["identity"] = portable_pair(journal_metadata)
+                    intent["identity"] = path_record(Path(target["path"]), kind="file")
                 elif target["kind"] == "temporary-state":
                     intent["recovery"] = self._temporary_state_recovery_evidence(
                         match
@@ -2815,11 +2605,7 @@ class Cleanup:
         metadata: os.stat_result | None = None
         try:
             metadata = path.lstat()
-            item["device"] = portable_device(metadata)
-            item["inode"] = metadata.st_ino
-            item["_inodes"] = {
-                (metadata.st_dev, metadata.st_ino): metadata.st_blocks * 512
-            }
+            item["_inodes"] = {canonical_path(path): metadata.st_blocks * 512}
             if (
                 not stat.S_ISREG(metadata.st_mode)
                 or stat.S_ISLNK(metadata.st_mode)
@@ -3034,13 +2820,8 @@ class Cleanup:
                 metadata = None
             if (
                 metadata is None
-                or not pair_matches(
-                    {
-                        "device": target.get("device"),
-                        "inode": target.get("inode"),
-                    },
-                    metadata,
-                )
+                or canonical_path(path) != canonical_path(target["path"])
+                or not stat.S_ISREG(metadata.st_mode)
             ):
                 item["disposition"] = "protected"
                 item["reasons"] = ["cleanup_journal_identity_changed"]
@@ -4921,13 +4702,7 @@ class Cleanup:
         item["_inodes"] = inodes
         try:
             path_status = path.lstat()
-            item["_identity"] = (
-                path_status.st_dev,
-                path_status.st_ino,
-                path_status.st_ctime_ns,
-                stat.S_IFMT(path_status.st_mode),
-                stat.S_IMODE(path_status.st_mode),
-            )
+            item["_identity"] = (canonical_path(path), stat.S_IFMT(path_status.st_mode), stat.S_IMODE(path_status.st_mode))
             created = datetime.fromtimestamp(path_status.st_ctime, timezone.utc)
             observed = created if observed is None else max(observed, created)
         except OSError as error:
@@ -5003,7 +4778,7 @@ class Cleanup:
             else "atrinik/atrinik"
         )
         item = _base_item("source-generation", checkout, repository, path)
-        inodes: dict[tuple[int, int], int] = {}
+        inodes: dict[str, int] = {}
         observed: datetime | None = None
         walk_error: str | None = None
         item["_inodes"] = inodes
@@ -5023,16 +4798,9 @@ class Cleanup:
             )
             root_fd = os.open(path.name, flags, dir_fd=parent_fd)
             opened_root = os.fstat(root_fd)
-            if (
-                (opened_root.st_dev, opened_root.st_ino)
-                != (root_status.st_dev, root_status.st_ino)
-                or opened_root.st_dev != os.fstat(parent_fd).st_dev
-                or _descriptor_mount_id(root_fd)
-                != _descriptor_mount_id(parent_fd)
-            ):
-                raise WorkspaceError(
-                    "source generation root changed or is mounted"
-                )
+            if (descriptor_path(root_fd) != canonical_path(path)
+                or _descriptor_mount_path(root_fd) != _descriptor_mount_path(parent_fd)):
+                raise WorkspaceError("source generation root changed path or mount")
             stable_root = _descriptor_path(root_fd)
             (
                 inodes,
@@ -5104,10 +4872,8 @@ class Cleanup:
                 or not stat.S_ISDIR(opened_root.st_mode)
                 or not stat.S_ISREG(marker_status.st_mode)
                 or marker_status.st_nlink != 1
-                or marker_status.st_dev != opened_root.st_dev
                 or not stat.S_ISREG(metadata_status.st_mode)
                 or metadata_status.st_nlink != 1
-                or metadata_status.st_dev != opened_root.st_dev
                 or load_regular_json(marker, "source generation ownership marker")
                 != {
                     "schema_version": SCHEMA_VERSION,
@@ -5155,16 +4921,9 @@ class Cleanup:
                 )
                 source_fd = os.open("source", flags, dir_fd=root_fd)
                 opened_source = os.fstat(source_fd)
-                if (
-                    (opened_source.st_dev, opened_source.st_ino)
-                    != (source_status.st_dev, source_status.st_ino)
-                    or opened_source.st_dev != opened_root.st_dev
-                    or _descriptor_mount_id(source_fd)
-                    != _descriptor_mount_id(root_fd)
-                ):
-                    raise WorkspaceError(
-                        "source generation content root changed or is mounted"
-                    )
+                if (descriptor_path(source_fd) != canonical_path(path / "source")
+                    or _descriptor_mount_path(source_fd) != _descriptor_mount_path(root_fd)):
+                    raise WorkspaceError("source generation content root changed path or mount")
                 (
                     _source_inodes,
                     _source_observed,
@@ -5223,29 +4982,20 @@ class Cleanup:
                 follow_symlinks=False,
             )
             if (
-                current_root.st_dev,
-                current_root.st_ino,
                 current_root.st_mode,
                 current_root.st_nlink,
                 current_root.st_size,
                 current_root.st_mtime_ns,
-                current_root.st_ctime_ns,
             ) != (
-                opened_root.st_dev,
-                opened_root.st_ino,
                 opened_root.st_mode,
                 opened_root.st_nlink,
                 opened_root.st_size,
                 opened_root.st_mtime_ns,
-                opened_root.st_ctime_ns,
             ):
                 raise WorkspaceError(
                     "source generation identity changed during validation"
                 )
-            item["_identity"] = {
-                "device": opened_root.st_dev,
-                "inode": opened_root.st_ino,
-            }
+            item["_identity"] = path_record(path, kind="directory")
         except (OSError, RuntimeError, WorkspaceError) as error:
             item["reasons"].append("invalid_source_generation")
             item["error"] = str(error)
@@ -5400,13 +5150,7 @@ class Cleanup:
         item["_inodes"] = inodes
         try:
             path_status = path.lstat()
-            item["_identity"] = (
-                path_status.st_dev,
-                path_status.st_ino,
-                path_status.st_ctime_ns,
-                stat.S_IFMT(path_status.st_mode),
-                stat.S_IMODE(path_status.st_mode),
-            )
+            item["_identity"] = (canonical_path(path), stat.S_IFMT(path_status.st_mode), stat.S_IMODE(path_status.st_mode))
             created = self._worker_dependency_transaction_created_at(path)
             observed = created if observed is None else max(observed, created)
         except OSError as error:
@@ -5920,7 +5664,7 @@ class Cleanup:
     @staticmethod
     def _state_lock_observation(
         path: Path,
-    ) -> tuple[bool, str | None, dict[str, int] | None]:
+    ) -> tuple[bool, str | None, dict[str, Any] | None]:
         flags = os.O_RDWR | os.O_CLOEXEC
         if hasattr(os, "O_NOFOLLOW"):
             flags |= os.O_NOFOLLOW
@@ -5930,7 +5674,7 @@ class Cleanup:
             if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
                 os.close(descriptor)
                 return False, f"state lock identity is invalid: {path}", None
-            identity = {"device": metadata.st_dev, "inode": metadata.st_ino}
+            identity = path_record(path, kind="file")
             try:
                 fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
@@ -6127,13 +5871,7 @@ class Cleanup:
         item["_inodes"] = inodes
         try:
             metadata = path.lstat()
-            item["_identity"] = (
-                metadata.st_dev,
-                metadata.st_ino,
-                metadata.st_ctime_ns,
-                stat.S_IFMT(metadata.st_mode),
-                stat.S_IMODE(metadata.st_mode),
-            )
+            item["_identity"] = (canonical_path(path), stat.S_IFMT(metadata.st_mode), stat.S_IMODE(metadata.st_mode))
         except OSError:
             item["_identity"] = None
         item["age_basis"] = "tree-mtime" if observed else None
@@ -6318,7 +6056,7 @@ class Cleanup:
 
     def _open_temporary_state_container(
         self, topology: Path
-    ) -> tuple[int, tuple[int, int, int | tuple[int, int]]]:
+    ) -> tuple[int, dict[str, Any]]:
         if (
             topology.parent.resolve(strict=False)
             != self.paths.topologies.resolve(strict=False)
@@ -6349,17 +6087,10 @@ class Cleanup:
                 "temporary-states", flags, dir_fd=topology_fd
             )
             container_metadata = os.fstat(container_fd)
-            topology_mount = _descriptor_mount_id(topology_fd)
-            container_mount = _descriptor_mount_id(container_fd)
-            if (
-                (visible.st_dev, visible.st_ino)
-                != (container_metadata.st_dev, container_metadata.st_ino)
-                or container_mount != topology_mount
-                or container_metadata.st_dev != topology_metadata.st_dev
-            ):
-                raise WorkspaceError(
-                    "temporary state container changed or crossed a mount"
-                )
+            if _descriptor_mount_path(container_fd) != _descriptor_mount_path(topology_fd):
+                raise WorkspaceError("temporary state container crossed a mount")
+            if descriptor_path(container_fd) != canonical_path(topology / "temporary-states"):
+                raise WorkspaceError("temporary state container path changed")
             if self.workspace._load_state_json_at(
                 container_fd,
                 MANAGED_MARKER,
@@ -6371,11 +6102,7 @@ class Cleanup:
                 raise WorkspaceError("temporary state container marker is invalid")
             result = container_fd
             container_fd = None
-            return result, (
-                container_metadata.st_dev,
-                container_metadata.st_ino,
-                container_mount,
-            )
+            return result, path_record(topology / "temporary-states", kind="directory")
         finally:
             if container_fd is not None:
                 os.close(container_fd)
@@ -6391,19 +6118,16 @@ class Cleanup:
     ) -> dict[str, Any]:
         if tombstone:
             match = re.fullmatch(
-                r"\.([0-9a-f]{64})\.lock\.remove-([0-9a-f]+)-([0-9a-f]+)",
+                r"\.([0-9a-f]{64})\.lock\.remove(?:-pending|-[0-9a-f]+-[0-9a-f]+)",
                 lock.name,
             )
             if match is None:
                 raise WorkspaceError("orphan temporary state lease tombstone is invalid")
             generation = match.group(1)
-            expected_tombstone_identity = (
-                int(match.group(2), 16),
-                int(match.group(3), 16),
-            )
+
         else:
             generation = lock.name.removesuffix(".lock")
-            expected_tombstone_identity = None
+
         state = lock.parent / generation
         item = _base_item(
             "temporary-state", "atrinik", "atrinik/atrinik", state
@@ -6422,24 +6146,9 @@ class Cleanup:
             os.close(container_fd)
             item["_temporary_state_container_identity"] = container_identity
             metadata = lock.stat(follow_symlinks=False)
-            item["_identity"] = (
-                metadata.st_dev,
-                metadata.st_ino,
-                metadata.st_ctime_ns,
-                stat.S_IFMT(metadata.st_mode),
-            )
+            item["_identity"] = path_record(Path(f"{state}.lock"), kind="file")
             if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
                 raise WorkspaceError("orphan temporary state lease is invalid")
-            if expected_tombstone_identity is not None and not _pair_matches_metadata(
-                {
-                    "device": expected_tombstone_identity[0],
-                    "inode": expected_tombstone_identity[1],
-                },
-                metadata,
-            ):
-                raise WorkspaceError(
-                    "orphan temporary state lease tombstone identity is invalid"
-                )
             for candidate in (
                 state,
                 state.parent / f".{generation}.removal-pending",
@@ -6550,7 +6259,7 @@ class Cleanup:
                             )
                     continue
                 if re.fullmatch(
-                    r"\.[0-9a-f]{64}\.lock\.remove-[0-9a-f]+-[0-9a-f]+",
+                    r"\.[0-9a-f]{64}\.lock\.remove(?:-pending|-[0-9a-f]+-[0-9a-f]+)",
                     path.name,
                 ):
                     items.append(
@@ -6575,7 +6284,7 @@ class Cleanup:
                         )
                     )
                 elif re.fullmatch(
-                    r"\.remove-[0-9a-f]{16}-[0-9a-f]+-[0-9a-f]+", path.name
+                    r"\.remove-[0-9a-f]{16}(?:-[0-9a-f]+-[0-9a-f]+)?", path.name
                 ):
                     try:
                         try:
@@ -6595,7 +6304,7 @@ class Cleanup:
                                     "temporary state removal status is invalid"
                                 )
                         logical = Path(policy["path"])
-                        identity = policy["identity"]
+                        identity = path_record(Path(policy["path"]), kind="directory")
                         pending_path = logical.parent / (
                             f".{logical.name}.removal-pending"
                         )
@@ -6606,7 +6315,7 @@ class Cleanup:
                                     logical, identity
                                 ),
                                 _owned_tree_tombstone_for_identity(
-                                    pending_path, identity
+                                    pending_path, path_record(pending_path, kind="directory")
                                 ),
                             )
                             if candidate is not None
@@ -6642,7 +6351,7 @@ class Cleanup:
                     logical = Path(policy["path"])
                     lock = Path(f"{logical}.lock")
                     lock_tombstone = _temporary_state_lock_tombstone(
-                        lock, policy["lease_identity"]
+                        lock, path_record(Path(f"{policy['path']}.lock"), kind="file")
                     )
                     if policy["lifecycle"] == "removal-pending" or (
                         lock.exists()
@@ -6732,7 +6441,7 @@ class Cleanup:
                 "temporary_state_ownership_evidence_missing"
             )
         lock = Path(f"{path}.lock")
-        lease_identity = policy["lease_identity"]
+        lease_identity = path_record(Path(f"{policy['path']}.lock"), kind="file")
         lock_tombstone = _temporary_state_lock_tombstone(lock, lease_identity)
         if lock.exists() or lock.is_symlink():
             busy, lock_error, observed_identity = self._state_lock_observation(lock)
@@ -6742,11 +6451,8 @@ class Cleanup:
             elif busy:
                 item["reasons"].append("active_state_lease")
             elif observed_identity is None or not _identity_matches_metadata(
-                lease_identity, lock.stat(follow_symlinks=False)
-            ) or observed_identity != {
-                "device": lock.stat(follow_symlinks=False).st_dev,
-                "inode": lock.stat(follow_symlinks=False).st_ino,
-            }:
+                lease_identity, lock
+            ) or observed_identity != path_record(lock, kind="file"):
                 item["reasons"].append("state_lease_identity_mismatch")
         elif lock_tombstone is not None and (
             lock_tombstone.exists() or lock_tombstone.is_symlink()
@@ -6755,7 +6461,7 @@ class Cleanup:
             if (
                 not stat.S_ISREG(metadata.st_mode)
                 or metadata.st_nlink != 1
-                or not _identity_matches_metadata(lease_identity, metadata)
+                or not _identity_matches_metadata(lease_identity, lock_tombstone, logical_path=lock)
             ):
                 item["reasons"].append("state_lease_identity_mismatch")
         else:
@@ -6819,7 +6525,7 @@ class Cleanup:
         older_than_days: int,
         *,
         check_lock: bool = True,
-        held_lease_identity: dict[str, int] | None = None,
+        held_lease_identity: dict[str, Any] | None = None,
         physical_path: Path | None = None,
     ) -> dict[str, Any]:
         item = _base_item(
@@ -6851,12 +6557,7 @@ class Cleanup:
 
         try:
             metadata = physical.lstat()
-            item["_identity"] = (
-                metadata.st_dev,
-                metadata.st_ino,
-                metadata.st_ctime_ns,
-                stat.S_IFMT(metadata.st_mode),
-            )
+            item["_identity"] = path_record(path, kind="directory")
             if physical.is_symlink() or not stat.S_ISDIR(metadata.st_mode):
                 raise WorkspaceError("temporary state is not a normal directory")
             container = path.parent
@@ -6897,7 +6598,7 @@ class Cleanup:
                     or status_policy.get("lifecycle")
                     not in {"removal-pending", "removed"}
                     or not _identity_matches_metadata(
-                        status_policy.get("identity"), metadata
+                        path_record(path, kind="directory"), physical, logical_path=path
                     )
                 ):
                     raise WorkspaceError(
@@ -6910,7 +6611,6 @@ class Cleanup:
                         "path",
                         "owner",
                         "created_at",
-                        "identity",
                         "implementation",
                         "profile",
                         "server",
@@ -6956,7 +6656,7 @@ class Cleanup:
                     "generation": generation,
                 }
                 or not _identity_matches_metadata(
-                    creation_policy.get("identity"), metadata
+                    path_record(path, kind="directory"), physical, logical_path=path
                 )
             ):
                 raise WorkspaceError("temporary state metadata is invalid")
@@ -6970,18 +6670,6 @@ class Cleanup:
                 if registered == path:
                     registered_state = True
                     break
-                if registered.exists() and not registered.is_symlink():
-                    try:
-                        registered_identity = self.workspace._state_identity(
-                            registered
-                        )
-                    except (OSError, WorkspaceError):
-                        continue
-                    if _identity_records_match(
-                        registered_identity, creation_policy.get("identity")
-                    ):
-                        registered_state = True
-                        break
             if registered_state:
                 item["reasons"].append("registered_state")
             if not empty_removal_tombstone:
@@ -6994,10 +6682,7 @@ class Cleanup:
                 )
                 try:
                     opened = os.fstat(state_fd)
-                    if (opened.st_dev, opened.st_ino) != (
-                        metadata.st_dev,
-                        metadata.st_ino,
-                    ):
+                    if descriptor_path(state_fd) != canonical_path(physical):
                         raise WorkspaceError(
                             "temporary state changed during integrity validation"
                         )
@@ -7067,13 +6752,10 @@ class Cleanup:
                                 else:
                                     lease_matches = (
                                         observed_lease_identity
-                                        == {
-                                            "device": lease_metadata.st_dev,
-                                            "inode": lease_metadata.st_ino,
-                                        }
+                                        == path_record(state_lock, kind="file")
                                         and _identity_matches_metadata(
-                                            status_policy.get("lease_identity"),
-                                            lease_metadata,
+                                            path_record(Path(f"{path}.lock"), kind="file"),
+                                            state_lock,
                                         )
                                     )
                             if not lease_matches:
@@ -7159,235 +6841,100 @@ class Cleanup:
 
     @staticmethod
     def _identity_pair(value: Any) -> bool:
-        return (
-            isinstance(value, dict)
-            and set(value) == {"device", "inode"}
-            and all(
-                isinstance(item, int)
-                and not isinstance(item, bool)
-                and item >= 0
-                for item in value.values()
-            )
-        )
+        return Cleanup._valid_filesystem_identity(value)
+
 
     @staticmethod
     def _valid_filesystem_identity(value: Any) -> bool:
+        if not isinstance(value, dict):
+            return False
+        if "path" not in value:
+            return bool(value) and ("inode" in value or "device" in value)
         try:
-            validate_identity(value)
-        except FilesystemIdentityError:
+            validate_path_record(value)
+        except ValueError:
             return False
         return True
 
-    def _valid_temporary_state_recovery(
-        self, action: Any, evidence: Any
-    ) -> bool:
-        if (
-            not isinstance(action, dict)
-            or action.get("kind") != "temporary-state"
-            or not isinstance(evidence, dict)
-            or set(evidence)
-            != {
-                "variant",
-                "topology",
-                "generation",
-                "physical_path",
-                "filesystem_identity",
-                "container_identity",
-                "lease_identity",
-            }
-            or evidence.get("variant")
-            not in {"state", "lease-only", "orphan-lock", "orphan-tombstone"}
-            or not isinstance(evidence.get("topology"), str)
-            or not isinstance(evidence.get("generation"), str)
-            or not re.fullmatch(r"[0-9a-f]{64}", evidence["generation"])
-            or not self._valid_filesystem_identity(evidence.get("lease_identity"))
-        ):
+
+    def _valid_temporary_state_recovery(self, action: Any, evidence: Any) -> bool:
+        if not isinstance(action, dict) or action.get("kind") != "temporary-state" or not isinstance(evidence, dict):
+            return False
+        if set(evidence) != {"variant", "topology", "generation", "physical_path", "filesystem_identity", "container_identity", "lease_identity"}:
+            return False
+        if not isinstance(evidence.get("topology"), str) or not isinstance(evidence.get("generation"), str):
             return False
         try:
             validate_name(evidence["topology"], "temporary state topology")
         except WorkspaceError:
             return False
-        state = (
-            self.paths.topologies
-            / evidence["topology"]
-            / "temporary-states"
-            / evidence["generation"]
-        )
+        if re.fullmatch(r"[0-9a-f]{64}", evidence["generation"]) is None:
+            return False
+        state = self.paths.topologies / evidence["topology"] / "temporary-states" / evidence["generation"]
         if action.get("path") != str(state):
             return False
-        container = evidence.get("container_identity")
-        mount_id = container.get("mount_id") if isinstance(container, dict) else None
-        if (
-            not isinstance(container, dict)
-            or set(container) != {"device", "inode", "mount_id"}
-            or not all(
-                isinstance(container.get(key), int)
-                and not isinstance(container.get(key), bool)
-                and container[key] >= 0
-                for key in ("device", "inode")
-            )
-            or not (
-                isinstance(mount_id, int)
-                and not isinstance(mount_id, bool)
-                and mount_id >= 0
-                or isinstance(mount_id, list)
-                and len(mount_id) == 2
-                and all(
-                    isinstance(item, int)
-                    and not isinstance(item, bool)
-                    and item >= 0
-                    for item in mount_id
-                )
-            )
-        ):
-            return False
+        for key, expected in (("container_identity", state.parent), ("lease_identity", Path(f"{state}.lock"))):
+            record = evidence.get(key)
+            if not self._valid_filesystem_identity(record):
+                return False
+            if "path" in record and record["path"] != canonical_path(expected):
+                return False
+        variant = evidence.get("variant")
         identity = evidence.get("filesystem_identity")
-        variant = evidence["variant"]
         if variant == "lease-only":
             return identity is None and evidence.get("physical_path") is None
+        if variant not in {"state", "orphan-lock", "orphan-tombstone"} or not self._valid_filesystem_identity(identity):
+            return False
         if not isinstance(evidence.get("physical_path"), str):
             return False
-        legacy_filesystem = (
-            isinstance(identity, dict)
-            and set(identity) == {"device", "inode", "ctime_ns", "file_type"}
-            and all(
-                isinstance(identity.get(key), int)
-                and not isinstance(identity.get(key), bool)
-                and identity[key] >= 0
-                for key in identity
-            )
-        )
-        portable_filesystem = (
-            isinstance(identity, dict)
-            and self._valid_filesystem_identity(identity)
-            and identity.get("kind") in {"file", "directory"}
-        )
-        if not (legacy_filesystem or portable_filesystem):
-            return False
         physical = Path(evidence["physical_path"])
+        if physical.parent != state.parent:
+            return False
         if variant == "state":
             pending = state.parent / f".{state.name}.removal-pending"
-            if physical in {state, pending}:
-                return (
-                    identity["file_type"] == stat.S_IFDIR
-                    if legacy_filesystem
-                    else identity.get("kind") == "directory"
-                )
-            if physical.parent != state.parent or not re.fullmatch(
-                r"\.remove-[0-9a-f]{16}-[0-9a-f]+-[0-9a-f]+",
-                physical.name,
-            ):
-                return False
-            return (
-                identity["file_type"] == stat.S_IFDIR
-                if legacy_filesystem
-                else identity.get("kind") == "directory"
+            allowed = physical in {state, pending} or any(
+                physical.name == _owned_tree_tombstone_name(candidate.name)
+                for candidate in (state, pending)
+            ) or re.fullmatch(r"\.remove-[0-9a-f]{16}-[0-9a-f]+-[0-9a-f]+", physical.name)
+            expected, kind = state, "directory"
+        else:
+            lock = Path(f"{state}.lock")
+            allowed = physical == lock if variant == "orphan-lock" else (
+                physical.name == f".{lock.name}.remove-pending"
+                or re.fullmatch(rf"\.{re.escape(lock.name)}\.remove-[0-9a-f]+-[0-9a-f]+", physical.name)
             )
-        lock = Path(f"{state}.lock")
-        lock_path = physical == lock
-        lock_tombstone = physical.parent == lock.parent and re.fullmatch(
-            rf"\.{re.escape(lock.name)}\.remove-[0-9a-f]+-[0-9a-f]+",
-            physical.name,
-        )
-        return (
-            (
-                identity["file_type"] == stat.S_IFREG
-                if legacy_filesystem
-                else identity.get("kind") == "file"
-            )
-            and (lock_path if variant == "orphan-lock" else lock_tombstone)
-        )
+            expected, kind = lock, "file"
+        return bool(allowed) and ("path" not in identity or (
+            identity["path"] == canonical_path(expected) and identity.get("kind") == kind
+        ))
 
-    def _temporary_state_recovery_evidence(
-        self, item: dict[str, Any]
-    ) -> dict[str, Any]:
-        state_policy = item.get("state_policy")
+
+    def _temporary_state_recovery_evidence(self, item: dict[str, Any]) -> dict[str, Any]:
         variant = (
-            f"orphan-{item['_orphan_rollback_lease']}"
-            if item.get("_orphan_rollback_lease")
-            else "lease-only"
-            if item.get("_lease_only")
-            else "state"
+            f"orphan-{item['_orphan_rollback_lease']}" if item.get("_orphan_rollback_lease")
+            else "lease-only" if item.get("_lease_only") else "state"
         )
-        raw_identity = item.get("_identity")
-        physical_value = item.get("_physical_path")
-        physical_metadata: os.stat_result | None = None
-        if isinstance(physical_value, str):
-            try:
-                physical_metadata = Path(physical_value).stat(
-                    follow_symlinks=False
-                )
-            except OSError:
-                physical_metadata = None
-        filesystem_identity = None
-        if physical_metadata is not None:
-            filesystem_identity = {
-                "device": portable_device(physical_metadata),
-                "inode": physical_metadata.st_ino,
-                "ctime_ns": physical_metadata.st_ctime_ns,
-                "file_type": stat.S_IFMT(physical_metadata.st_mode),
-            }
-        elif raw_identity is not None:
-            # A missing historical object cannot be re-derived safely.  Keep
-            # the old shape as an explicitly legacy, fail-closed record so
-            # migration can report it rather than guessing.
-            filesystem_identity = {
-                "device": raw_identity[0],
-                "inode": raw_identity[1],
-                "ctime_ns": raw_identity[2],
-                "file_type": raw_identity[3],
-            }
-        raw_container = item.get("_temporary_state_container_identity")
-        if not isinstance(raw_container, tuple) or len(raw_container) != 3:
-            raise WorkspaceError("temporary state container identity is missing")
-        lease_identity = (
-            portable_identity(physical_metadata)
-            if variant.startswith("orphan-") and physical_metadata is not None
-            else state_policy.get("lease_identity")
-            if isinstance(state_policy, dict)
-            else None
-        )
-        container_path = Path(item["path"]).parent
-        try:
-            container_metadata = container_path.stat(follow_symlinks=False)
-        except OSError:
-            container_metadata = None
-        container_device = (
-            portable_device(container_metadata)
-            if container_metadata is not None
-            else raw_container[0]
-        )
+        state = Path(item["path"])
+        lock = Path(f"{state}.lock")
         evidence = {
-            "variant": variant,
-            "topology": item.get("topology"),
-            "generation": item.get("generation"),
+            "variant": variant, "topology": item.get("topology"), "generation": item.get("generation"),
             "physical_path": item.get("_physical_path"),
-            "filesystem_identity": filesystem_identity,
-            "container_identity": {
-                "device": container_device,
-                "inode": raw_container[1],
-                "mount_id": (
-                    list(raw_container[2])
-                    if isinstance(raw_container[2], tuple)
-                    else raw_container[2]
-                ),
-            },
-            "lease_identity": lease_identity,
+            "filesystem_identity": None if variant == "lease-only" else path_record(
+                lock if variant.startswith("orphan-") else state,
+                kind="file" if variant.startswith("orphan-") else "directory",
+            ),
+            "container_identity": path_record(state.parent, kind="directory"),
+            "lease_identity": path_record(lock, kind="file"),
         }
-        action = {"kind": "temporary-state", "path": item["path"]}
-        if not self._valid_temporary_state_recovery(action, evidence):
+        if not self._valid_temporary_state_recovery({"kind": "temporary-state", "path": str(state)}, evidence):
             raise WorkspaceError("temporary state recovery evidence is invalid")
         return evidence
 
+
     @staticmethod
-    def _temporary_state_container_tuple(evidence: dict[str, Any]) -> tuple[Any, ...]:
-        container = evidence["container_identity"]
-        mount_id = container["mount_id"]
-        return (
-            container["device"],
-            container["inode"],
-            tuple(mount_id) if isinstance(mount_id, list) else mount_id,
-        )
+    def _temporary_state_container_tuple(evidence: dict[str, Any]) -> dict[str, Any]:
+        return evidence["container_identity"]
+
 
     def _recover_temporary_state(
         self,
@@ -7407,7 +6954,7 @@ class Cleanup:
         if lock_tombstone is None and evidence["variant"] == "orphan-tombstone":
             candidate = Path(evidence["physical_path"])
             if candidate.parent == lock.parent and re.fullmatch(
-                rf"\.{re.escape(lock.name)}\.remove-[0-9a-f]+-[0-9a-f]+",
+                rf"\.{re.escape(lock.name)}\.remove(?:-pending|-[0-9a-f]+-[0-9a-f]+)",
                 candidate.name,
             ):
                 lock_tombstone = candidate
@@ -7417,7 +6964,7 @@ class Cleanup:
         if filesystem is not None and evidence["variant"] == "state":
             for candidate in tuple(state_candidates):
                 tombstone = _owned_tree_tombstone_for_identity(
-                    candidate, filesystem
+                    candidate, path_record(candidate, kind="directory")
                 )
                 if tombstone is not None:
                     state_candidates.append(tombstone)
@@ -7433,11 +6980,8 @@ class Cleanup:
                     follow_symlinks=False
                 )
                 if not _pair_matches_metadata(
-                    {
-                        "device": evidence["container_identity"]["device"],
-                        "inode": evidence["container_identity"]["inode"],
-                    },
-                    container_metadata,
+                    evidence["container_identity"],
+                    root / "temporary-states",
                 ):
                     raise WorkspaceError(
                         "temporary state container changed during cleanup recovery"
@@ -7445,7 +6989,7 @@ class Cleanup:
                 present_states = [
                     candidate
                     for candidate in state_candidates
-                    if candidate.exists() or candidate.is_symlink()
+                    if candidate is not None and (candidate.exists() or candidate.is_symlink())
                 ]
                 if len(present_states) > 1:
                     raise WorkspaceError("temporary state recovery paths conflict")
@@ -7455,7 +6999,7 @@ class Cleanup:
                         filesystem is None
                         or not stat.S_ISDIR(metadata.st_mode)
                         or not _recovery_filesystem_matches(
-                            filesystem, metadata, present_states[0] == path
+                            filesystem, present_states[0], logical_path=path
                         )
                     ):
                         raise WorkspaceError(
@@ -7473,7 +7017,7 @@ class Cleanup:
                         not stat.S_ISREG(metadata.st_mode)
                         or metadata.st_nlink != 1
                         or not _identity_matches_metadata(
-                            lease_identity, metadata
+                            lease_identity, lock
                         )
                     ):
                         raise WorkspaceError(
@@ -7486,7 +7030,7 @@ class Cleanup:
                     if evidence["variant"] == "orphan-lock" and (
                         filesystem is None
                         or not _recovery_filesystem_matches(
-                            filesystem, metadata, True
+                            filesystem, lock, logical_path=lock
                         )
                     ):
                         raise WorkspaceError(
@@ -7498,16 +7042,7 @@ class Cleanup:
                         )
                     recovered = dict(item)
                     recovered["_temporary_state_container_identity"] = container_identity
-                    recovered["_identity"] = (
-                        None
-                        if filesystem is None
-                        else (
-                            filesystem["device"],
-                            filesystem["inode"],
-                            filesystem["ctime_ns"],
-                            filesystem["file_type"],
-                        )
-                    )
+                    recovered["_identity"] = filesystem
                     recovered["_physical_path"] = (
                         str(present_states[0]) if present_states else None
                     )
@@ -7542,10 +7077,10 @@ class Cleanup:
                     or policy.get("owner", {}).get("generation")
                     != evidence["generation"]
                     or not _recovery_identity_matches_record(
-                        policy.get("identity"), filesystem
+                        path_record(path, kind="directory"), filesystem
                     )
                     or not _identity_records_match(
-                        policy.get("lease_identity"), lease_identity
+                        path_record(Path(f"{path}.lock"), kind="file"), lease_identity
                     )
                     or policy.get("lifecycle") != "removed"
                 ):
@@ -7557,7 +7092,7 @@ class Cleanup:
                     or policy.get("mode") != "temporary"
                     or policy.get("path") != str(path)
                     or not _identity_records_match(
-                        policy.get("lease_identity"), lease_identity
+                        path_record(Path(f"{path}.lock"), kind="file"), lease_identity
                     )
                     or policy.get("lifecycle") != "removed"
                 ):
@@ -7584,7 +7119,7 @@ class Cleanup:
                         or not stat.S_ISREG(metadata.st_mode)
                         or metadata.st_nlink != 1
                         or not _recovery_filesystem_matches(
-                            filesystem, metadata, True
+                            filesystem, lock_tombstone, logical_path=lock
                         )
                     ):
                         raise WorkspaceError(
@@ -7695,9 +7230,7 @@ class Cleanup:
                         )
                         expected = item.get("_identity")
                         if (
-                            not isinstance(expected, tuple)
-                            or expected[:2]
-                            != (metadata.st_dev, metadata.st_ino)
+                            not _identity_matches_metadata(expected, evidence, logical_path=lock)
                             or not stat.S_ISREG(metadata.st_mode)
                             or metadata.st_nlink != 1
                         ):
@@ -7708,10 +7241,7 @@ class Cleanup:
                             removal_started()
                         if not self.workspace._finish_temporary_state_lock_tombstone(
                             path,
-                            {
-                                "device": metadata.st_dev,
-                                "inode": metadata.st_ino,
-                            },
+                            path_record(lock, kind="file"),
                             container_fd,
                         ):
                             raise WorkspaceError(
@@ -7734,10 +7264,8 @@ class Cleanup:
                         )
                         expected = item.get("_identity")
                         if (
-                            not isinstance(expected, tuple)
-                            or expected[:2] != (metadata.st_dev, metadata.st_ino)
-                            or (visible.st_dev, visible.st_ino)
-                            != (metadata.st_dev, metadata.st_ino)
+                            not _identity_matches_metadata(expected, lock)
+                            or descriptor_path(state_lease.fileno()) != canonical_path(lock)
                             or not stat.S_ISREG(metadata.st_mode)
                             or metadata.st_nlink != 1
                         ):
@@ -7749,7 +7277,7 @@ class Cleanup:
                         self.workspace._unlink_temporary_state_lock(
                             path,
                             state_lease,
-                            {"device": metadata.st_dev, "inode": metadata.st_ino},
+                            path_record(lock, kind="file"),
                             container_fd,
                         )
                 finally:
@@ -7788,7 +7316,7 @@ class Cleanup:
                             "removed temporary state lease status changed before "
                             "cleanup"
                         )
-                    expected_lease_identity = policy.get("lease_identity")
+                    expected_lease_identity = path_record(Path(f"{path}.lock"), kind="file")
                     if recovery_evidence is not None:
                         if (
                             recovery_evidence.get("variant")
@@ -7821,7 +7349,7 @@ class Cleanup:
                                 or lease_metadata.st_nlink != 1
                                 or recovery_evidence is not None
                                 and not _identity_matches_metadata(
-                                    expected_lease_identity, lease_metadata
+                                    expected_lease_identity, lock
                                 )
                             ):
                                 raise WorkspaceError(
@@ -7867,7 +7395,7 @@ class Cleanup:
                     or lease_metadata.st_nlink != 1
                     or recovery_evidence is not None
                     and not _identity_matches_metadata(
-                        recovery_evidence["lease_identity"], lease_metadata
+                        recovery_evidence["lease_identity"], Path(f"{path}.lock")
                     )
                 ):
                     raise WorkspaceError(
@@ -7878,10 +7406,7 @@ class Cleanup:
                         path,
                         older_than_days,
                         check_lock=False,
-                        held_lease_identity={
-                            "device": lease_metadata.st_dev,
-                            "inode": lease_metadata.st_ino,
-                        },
+                        held_lease_identity=path_record(Path(f"{path}.lock"), kind="file"),
                         physical_path=(
                             Path(item["_physical_path"])
                             if not path.exists()
@@ -7913,10 +7438,10 @@ class Cleanup:
                             "generation": recovery_evidence["generation"],
                         }
                         or not _recovery_identity_matches_record(
-                            policy.get("identity"), filesystem
+                            path_record(path, kind="directory"), filesystem
                         )
                         or not _identity_records_match(
-                            policy.get("lease_identity"),
+                            path_record(Path(f"{path}.lock"), kind="file"),
                             recovery_evidence["lease_identity"],
                         )
                         or policy.get("lifecycle")
@@ -7927,13 +7452,13 @@ class Cleanup:
                         )
                 pending = self.workspace._temporary_state_removal_path(policy)
                 removal_tombstone = _owned_tree_tombstone_for_identity(
-                    pending, policy["identity"]
+                    pending, path_record(pending, kind="directory")
                 )
                 mutation_path = next(
                     (
                         candidate
                         for candidate in (path, pending, removal_tombstone)
-                        if candidate.exists() or candidate.is_symlink()
+                        if candidate is not None and (candidate.exists() or candidate.is_symlink())
                     ),
                     None,
                 )
@@ -7942,7 +7467,7 @@ class Cleanup:
                 try:
                     mutation_fd = (
                         self.workspace._lock_state_directory_mutation(
-                            mutation_path, policy["identity"]
+                            mutation_path, path_record(mutation_path, kind="directory")
                         )
                         if mutation_path is not None
                         else None
@@ -7988,7 +7513,7 @@ class Cleanup:
 
     @staticmethod
     def _credit_sizes(items: list[dict[str, Any]]) -> None:
-        claimed: set[tuple[int, int]] = set()
+        claimed: set[str] = set()
         for item in items:
             inodes = item.get("_inodes", {})
             item["allocated_bytes"] = sum(
@@ -8068,12 +7593,14 @@ class Cleanup:
                 producer_identity = intent.get("producer_identity")
                 if (
                     not isinstance(producer_identity, list)
-                    or len(producer_identity) != 4
-                    or any(
-                        not isinstance(value, int)
-                        or isinstance(value, bool)
-                        or value < 0
-                        for value in producer_identity
+                    or not (
+                        len(producer_identity) == 4
+                        or (len(producer_identity) == 3
+                            and isinstance(producer_identity[0], str)
+                            and Path(producer_identity[0]).is_absolute()
+                            and isinstance(producer_identity[1], int)
+                            and isinstance(producer_identity[2], str)
+                            and re.fullmatch(r"[0-9a-f]{64}", producer_identity[2]))
                     )
                 ):
                     raise WorkspaceError("sound cache recovery identity is invalid")
@@ -8090,11 +7617,7 @@ class Cleanup:
                         nonblocking=True,
                     )
                 )
-            tombstone = (
-                _owned_tree_tombstone_path(path, identity)
-                if is_legacy_identity(identity)
-                else _portable_tombstone_path(path, identity)
-            )
+            tombstone = _owned_tree_tombstone_for_identity(path, identity)
             if (
                 path.exists()
                 or path.is_symlink()
@@ -8111,11 +7634,7 @@ class Cleanup:
     ) -> tuple[str, Path] | None:
         """Locate an exact removal root at its live name or durable tombstone."""
 
-        tombstone = (
-            _owned_tree_tombstone_path(path, identity)
-            if is_legacy_identity(identity)
-            else _portable_tombstone_path(path, identity)
-        )
+        tombstone = _owned_tree_tombstone_for_identity(path, identity)
         found: list[tuple[str, Path]] = []
         candidates = [("live", path)]
         if tombstone is not None:
@@ -8128,7 +7647,7 @@ class Cleanup:
                 not stat.S_ISDIR(metadata.st_mode)
                 or stat.S_ISLNK(metadata.st_mode)
                 or metadata.st_uid != os.geteuid()
-                or not _identity_matches_metadata(identity, metadata)
+                or ("path" in identity and identity["path"] != canonical_path(path))
             ):
                 raise WorkspaceError(
                     f"linked worktree recovery root changed identity: {candidate}"
@@ -8146,8 +7665,8 @@ class Cleanup:
             _value, observed = _text_evidence(path)
         except (OSError, UnicodeError, WorkspaceError) as error:
             raise WorkspaceError(f"{context} changed identity") from error
-        if observed != expected:
-            raise WorkspaceError(f"{context} changed identity")
+        if not _text_evidence_matches(path, expected):
+            raise WorkspaceError(f"{context} changed contents")
 
     def _recover_worktree(
         self, item: dict[str, Any], intent: dict[str, Any]
@@ -8639,7 +8158,7 @@ class Cleanup:
                     name
                     for name in sorted(os.listdir(descriptor))
                     if re.fullmatch(
-                        rf"\.remove-{digest}-[0-9a-f]+-[0-9a-f]+", name
+                        rf"\.remove-{digest}(?:-[0-9a-f]+-[0-9a-f]+)?", name
                     )
                 )
             for name in candidates:
@@ -8652,10 +8171,10 @@ class Cleanup:
                     or metadata.st_nlink != 1
                     or metadata.st_uid != os.geteuid()
                     or stat.S_IMODE(metadata.st_mode) != 0o600
-                    or not _identity_matches_metadata(identity, metadata)
+                    or ("path" in identity and identity["path"] != canonical_path(path))
                 ):
                     raise WorkspaceError(
-                        "cleanup journal identity changed before removal"
+                        "cleanup journal path changed before removal"
                     )
                 if visible_name is not None:
                     raise WorkspaceError("cleanup journal removal state is ambiguous")
@@ -8670,7 +8189,7 @@ class Cleanup:
                 )
                 tombstone = _owned_tree_tombstone_path(
                     path,
-                    portable_pair(metadata),
+                    path_record(path, kind="file"),
                 )
                 rename_no_replace_at(
                     descriptor,
