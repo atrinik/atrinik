@@ -26,6 +26,53 @@ class LegacyCorrectionPathTests(unittest.TestCase):
     def tearDown(self) -> None:
         fixtures.DeliveryLedgerTests.tearDown(self)
 
+    def test_partial_current_receipt_resumes_but_nonprefix_bytes_are_retained(self) -> None:
+        bad_head = "f0f8d7493278dc691710056c79d0d63f1d802488"
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            predecessor, _, actual_head, base_head, _ = fixtures.target_refresh_setup(
+                self.live_base, root, "partial-correction-receipt"
+            )
+            erroneous, recovery_raw = fixtures.stale_coordinate_recovery(
+                root, predecessor, actual_head, base_head, bad_head
+            )
+            arguments = {
+                **fixtures.cas_arguments(erroneous),
+                "bad_head": bad_head,
+                "actual_head": actual_head,
+                "actual_merge_base": base_head,
+            }
+
+            def correct(**extra):
+                return ledger.correct_target_head(
+                    root, erroneous.name, predecessor.raw, recovery_raw,
+                    **arguments, **extra,
+                )
+
+            with self.assertRaises(ledger.InjectedCrash):
+                correct(failpoint="correct-target-head:receipt")
+            receipt_path = root / (
+                f".{erroneous.name}.correct-target-head-{erroneous.digest}.json"
+            )
+            expected_raw = receipt_path.read_bytes()
+            corrupt = b'{"unexpected":'
+            receipt_path.write_bytes(corrupt)
+            with self.assertRaises(ledger.LedgerError):
+                correct()
+            self.assertEqual(receipt_path.read_bytes(), corrupt)
+            self.assertEqual((root / erroneous.name).read_bytes(), erroneous.raw)
+            for size in (0, 1, len(expected_raw) // 2, len(expected_raw) - 1):
+                with self.subTest(prefix_bytes=size):
+                    receipt_path.write_bytes(expected_raw[:size])
+                    with self.assertRaises(ledger.InjectedCrash):
+                        correct(failpoint="correct-target-head:receipt")
+                    self.assertEqual(receipt_path.read_bytes(), expected_raw)
+                    self.assertEqual((root / erroneous.name).read_bytes(), erroneous.raw)
+            corrected = correct()
+            self.assertEqual(corrected.document["generation"], erroneous.document["generation"] + 1)
+            self.assertEqual(receipt_path.read_bytes(), expected_raw)
+            self.assertEqual(ledger.inventory(root).pending, ())
+
     def test_legacy_receipt_retains_bytes_and_reproves_content_and_git(self) -> None:
         bad_head = "f0f8d7493278dc691710056c79d0d63f1d802488"
         with tempfile.TemporaryDirectory() as temporary:

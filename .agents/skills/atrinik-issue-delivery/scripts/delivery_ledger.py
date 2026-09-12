@@ -16577,16 +16577,19 @@ def correct_target_head(
                     retained_raw, _ = _read_regular(
                         directory, receipt_name, managed=True, sync=True
                     )
-                    retained = _head_correction_receipt(
-                        _decode(retained_raw, receipt_name), receipt_name
-                    )
-                    if (
-                        retained_raw != canonical_bytes(retained)
-                        or _head_correction_receipt_semantics(retained, root)
-                        != _head_correction_receipt_semantics(receipt, root)
-                    ):
-                        raise LedgerError("retained head correction has different authority or content")
-                    receipt_raw = retained_raw
+                    # Preserve exact-prefix short-write recovery before considering
+                    # a complete historical receipt with different metadata.
+                    if not receipt_raw.startswith(retained_raw):
+                        retained = _head_correction_receipt(
+                            _decode(retained_raw, receipt_name), receipt_name
+                        )
+                        if (
+                            retained_raw != canonical_bytes(retained)
+                            or _head_correction_receipt_semantics(retained, root)
+                            != _head_correction_receipt_semantics(receipt, root)
+                        ):
+                            raise LedgerError("retained head correction has different authority or content")
+                        receipt_raw = retained_raw
                 _ensure_stage(directory, receipt_name, receipt_raw, allow_prefix_resume=True)
                 _hit(failpoint, "correct-target-head:receipt")
                 rechecked = _snapshot(directory, name)
