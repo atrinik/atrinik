@@ -8,6 +8,9 @@ import hashlib
 import json
 import os
 import re
+import selectors
+import signal
+import time
 from pathlib import Path
 import subprocess
 import sys
@@ -84,19 +87,137 @@ def build(output, evidence):
     for key, flag in flags.items():
         arguments.extend(["--release-" + flag, SOUND_RELEASE[key]])
     run(arguments)
-    result = json.loads(run(["./atrinik", "linux", "export", "--profile", profile,
-                             "--output", output]))
-    save(evidence / "export.json", result)
     save(evidence / "inputs.json", {"wrapper_head": wrapper_head,
          "sources": SOURCE_COMMITS, "sound": SOUND_RELEASE,
          "image": linux_portable.IMAGE, "platform_manifest": linux_portable.PLATFORM_MANIFEST})
-    # Keep the executable's exact configure/compiler evidence without copying
-    # source/build trees into the isolated runtime test environment.
-    for cache in Path("workspace/build/profiles").glob(profile + "-*/build/client/CMakeCache.txt"):
-        (evidence / "CMakeCache.txt").write_bytes(cache.read_bytes())
-        commands = cache.parent / "compile_commands.json"
-        if commands.is_file():
-            (evidence / "compile_commands.json").write_bytes(commands.read_bytes())
+    failure = None
+    try:
+        result = json.loads(capture_export(["./atrinik", "linux", "export", "--profile", profile,
+                                           "--output", output], evidence))
+    except BaseException as error:
+        failure = error
+        try:
+            save(evidence / "failure.json", {"stage": "export", "type": type(error).__name__,
+                 "message": str(error), "returncode": getattr(error, "returncode", None),
+                 "timed_out": isinstance(error, subprocess.TimeoutExpired)})
+        except OSError:
+            pass  # Preserve the original failure even when evidence storage fails.
+        raise
+    finally:
+        try:
+            collect_build_evidence(profile, evidence)
+        except Exception as error:
+            # A collector failure cannot turn a failed export into success or
+            # replace its original exit/timeout with a secondary exception.
+            try:
+                save(evidence / "collector-failure.json", {"type": type(error).__name__, "message": str(error)})
+            except OSError:
+                if failure is None:
+                    raise
+            if failure is None:
+                raise
+    save(evidence / "export.json", result)
+
+
+MAX_CAPTURE_BYTES = 4 * 1024 * 1024
+
+
+def capture_export(arguments, evidence, *, timeout=3600):
+    """Drain both pipes while retaining bounded logs and the original exit status."""
+    arguments = [str(value) for value in arguments]
+    retained = {"stdout": 0, "stderr": 0}
+    total = dict(retained)
+    expired = False
+    with selectors.DefaultSelector() as selector, \
+         (evidence / "export.stdout.log").open("xb") as stdout, \
+         (evidence / "export.stderr.log").open("xb") as stderr:
+        process = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   start_new_session=True)
+        deadline = time.monotonic() + timeout
+        for stream, name, output in ((process.stdout, "stdout", stdout), (process.stderr, "stderr", stderr)):
+            selector.register(stream, selectors.EVENT_READ, (name, output))
+        try:
+            while selector.get_map():
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    expired = True
+                    try:
+                        os.killpg(process.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    break
+                for key, _ in selector.select(min(remaining, 0.25)):
+                    data = os.read(key.fileobj.fileno(), 65536)
+                    if not data:
+                        selector.unregister(key.fileobj)
+                        continue
+                    name, output = key.data
+                    total[name] += len(data)
+                    kept = data[:max(0, MAX_CAPTURE_BYTES - retained[name])]
+                    output.write(kept)
+                    retained[name] += len(kept)
+            process.wait(timeout=max(1, deadline - time.monotonic()))
+        except subprocess.TimeoutExpired:
+            expired = True
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            process.wait(timeout=10)
+        except BaseException:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            process.wait(timeout=10)
+            raise
+        finally:
+            process.stdout.close()
+            process.stderr.close()
+    save(evidence / "export-process.json", {"returncode": process.returncode,
+         "timed_out": expired, "retained_bytes": retained, "observed_bytes": total})
+    if expired:
+        raise subprocess.TimeoutExpired(arguments, timeout)
+    if process.returncode:
+        raise subprocess.CalledProcessError(process.returncode, arguments)
+    if total["stdout"] > MAX_CAPTURE_BYTES:
+        raise RuntimeError("export JSON exceeds bounded capture")
+    return (evidence / "export.stdout.log").read_text()
+
+
+def collect_build_evidence(profile, evidence):
+    """Inspect only this CI profile's bounded build candidates, never a workspace dump."""
+    candidates = sorted((Path.cwd() / "workspace/build/profiles").glob(profile + "-*/build/client/CMakeCache.txt"))
+    if len(candidates) > 8:
+        raise RuntimeError("ambiguous portable profile build evidence")
+    records = []
+    for index, cache in enumerate(candidates):
+        row = {"cache": str(cache), "files": {}}
+        for filename in ("CMakeCache.txt", "compile_commands.json"):
+            path = cache.parent / filename
+            try:
+                data = linux_portable._read_regular(path, limit=MAX_CAPTURE_BYTES)
+            except FileNotFoundError:
+                continue
+            (evidence / (str(index) + "-" + filename)).write_bytes(data)
+            row["files"][filename] = {"sha256": hashlib.sha256(data).hexdigest(), "size": len(data)}
+        binary = cache.parent / "atrinik"
+        try:
+            parent = linux_export._open_root(binary.parent)
+            try:
+                descriptor = linux_export._open_beneath(parent, binary.name)
+                try:
+                    row["client"] = linux_portable.byte_record(descriptor)
+                    report = linux_export._readelf(descriptor)
+                    (evidence / (str(index) + "-client-elf.txt")).write_text(report)
+                finally:
+                    os.close(descriptor)
+            finally:
+                os.close(parent)
+        except FileNotFoundError:
+            row["client"] = None
+        records.append(row)
+    save(evidence / "compiler-evidence.json", records)
 
 
 def bind_function(library, name, result, arguments):

@@ -494,9 +494,45 @@ def _native_read(path: Path, uid: int, limit: int = 16384) -> str:
     return data.decode("utf-8")
 
 
+def _native_mutable_roots(root: Path, environment: Mapping[str, str],
+                          extra: tuple[Path, ...], uid: int,
+                          mounts: Mapping[str, MountInfo], failures: list[str]) -> None:
+    """Prove actual mutable destinations, using an existing parent if absent."""
+    configured = environment.get("ATRINIK_WORKSPACE_DIR")
+    workspace = Path(configured).expanduser() if configured else root / "workspace"
+    paths = (root / "build", root / "build/reviews", workspace,
+             *(workspace / name for name in
+               ("worktrees", "scopes", "profiles", "build", "topologies", "scenarios", "state")),
+             *extra)
+    if len(paths) > 64:
+        raise ProbeError("native-mutable-roots-limit")
+    for path in dict.fromkeys(paths):
+        if not path.is_absolute() or ".." in path.parts:
+            raise ProbeError("native-mutable-path")
+        observed = path
+        while True:
+            try:
+                descriptor = _native_open(observed, uid, directory=True)
+                break
+            except FileNotFoundError:
+                if observed == observed.parent:
+                    raise
+                observed = observed.parent
+        try:
+            info = os.fstat(descriptor)
+            if observed == path and info.st_uid != uid:
+                failures.append("native-mutable-directory-owner")
+            identity = _mount_for_path(observed, mounts)
+            if identity is None or identity.filesystem not in NATIVE_FILESYSTEMS:
+                failures.append("native-filesystem-unsupported")
+            _check_mount(observed, "native-mutable-root", info, mounts, failures)
+        finally:
+            os.close(descriptor)
+
+
 def _native_probe(
     root: Path, environment: Mapping[str, str], uid: int, failures: list[str],
-    *, runtime_root: Path, cwd: Path | None,
+    *, runtime_root: Path, cwd: Path | None, mutable_roots: tuple[Path, ...] = (),
 ) -> dict[str, object]:
     """Recognize an ordinary unprivileged systemd Linux host.
 
@@ -597,24 +633,7 @@ def _native_probe(
                 _check_mount(path, label, info, mounts, failures)
             finally:
                 os.close(descriptor)
-        for relative in ("workspace", "build", "build/reviews"):
-            path = root / relative
-            try:
-                descriptor = _native_open(path, uid, directory=True)
-            except FileNotFoundError:
-                # The helper creates missing descendants only after its own
-                # full pinned-parent proof; absence grants no reuse authority.
-                continue
-            try:
-                info = os.fstat(descriptor)
-                if info.st_uid != uid:
-                    failures.append("native-mutable-directory-owner")
-                identity = _mount_for_path(path, mounts)
-                if identity is None or identity.filesystem not in NATIVE_FILESYSTEMS:
-                    failures.append("native-filesystem-unsupported")
-                _check_mount(path, relative.replace("/", "-"), info, mounts, failures)
-            finally:
-                os.close(descriptor)
+        _native_mutable_roots(root, environment, mutable_roots, uid, mounts, failures)
     except (OSError, KeyError, ValueError, UnicodeError, ProbeError):
         failures.append("native-host-proof-unavailable-or-unsafe")
     if failures:
@@ -641,6 +660,7 @@ def probe(
     runtime_root: Path = Path("/"),
     mountinfo: Path = DEFAULT_MOUNTINFO,
     effective_uid: int | None = None,
+    mutable_roots: tuple[Path, ...] = (),
 ) -> dict[str, object]:
     """Return a stable context record without changing any filesystem state."""
 
@@ -775,7 +795,7 @@ def probe(
 
     if not _marker_present(runtime_root, failures):
         return _native_probe(repository_root, environment, uid, failures,
-                             runtime_root=runtime_root, cwd=cwd)
+                             runtime_root=runtime_root, cwd=cwd, mutable_roots=mutable_roots)
 
     configured_workspace = canonical_config.get("workspaceFolder")
     try:
@@ -949,11 +969,13 @@ def main(argv: list[str] | None = None) -> int:
         help="repository/worktree root to inspect (defaults to this script's "
         "checkout)",
     )
+    parser.add_argument("--mutable-root", type=Path, action="append", default=[],
+                        help="additional exact retained mutable coordinate to prove")
     parser.add_argument("--json", action="store_true", help="emit stable JSON")
     args = parser.parse_args(argv)
 
     try:
-        result = probe(args.root)
+        result = probe(args.root, mutable_roots=tuple(args.mutable_root))
     except (OSError, ProbeError, TypeError, ValueError):
         result = _result(
             UNKNOWN_STATUS,

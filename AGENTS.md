@@ -1,6 +1,6 @@
-# Atrinik workspace agent guide
+# Atrinik workspace
 
-## Overview
+## Map
 
 - Python 3.11+ `./atrinik` coordinates repos; `components.json` owns profiles,
   worktrees, builds, runtimes, cleanup, migration, and supply-chain reports.
@@ -11,7 +11,7 @@
 - Delivery needs live `canonical-linux` or accepted `native-linux` proof. Windows
   supports repository commands; Linux-only operations fail stably elsewhere.
 
-## Folder structure and ownership
+## Ownership
 
 - `atrinik` CLI, `atrinik_workspace/` orchestration, `tests/` unittest suite.
 - Checkout/cohort/stack/role/source/build contracts: `components.json`; machine
@@ -28,7 +28,7 @@
   is classic-only; `tools/` is MIT-default except GPL-2.0-or-later
   `map-checker-qt/` (`LicenseRef-Atrinik-Tools-Mixed`).
 
-## Core behaviors and patterns
+## Rules
 
 - Use `atrinik-multi-repo-workspace` for wrapper ownership/profiles/worktrees/
   migration/cleanup/releases/CLI/layout; add specialists and use
@@ -73,9 +73,9 @@
   PR bodies must be substantive rendered GitHub-Flavored Markdown with actual line breaks, never literal `\n` separators; include `Summary`, `Implementation / behavior`, `Validation`, and applicable `Limitations / follow-up`.
   An issue-closing line alone is insufficient; preserve contributor-authored text byte-for-byte outside the delivery-owned section. Feed multi-section bodies by file/stdin; after create/edit verify remote rendering. Use `atrinik-github-governance`.
 
-## Working agreements and commands
+## Commands
 
-At root; inspect first. See README: Windows workflow.
+At root; inspect first. Windows: README.
 `init` clones missing repos; `sync` never initializes:
 
 ```sh
@@ -85,7 +85,7 @@ At root; inspect first. See README: Windows workflow.
 ./atrinik init --with classic
 ```
 
-Use this playable build/runtime lifecycle (`--follow` only for interactive logs):
+Playable lifecycle (`--follow` only for interactive logs):
 
 ```sh
 ./atrinik profile show classic --json
@@ -96,7 +96,7 @@ Use this playable build/runtime lifecycle (`--follow` only for interactive logs)
 ./atrinik down classic-local
 ```
 
-Run complete wrapper validation:
+Validate wrapper:
 
 ```sh
 python3 -m pip install --requirement requirements-dev.txt
@@ -108,7 +108,7 @@ python3 -m atrinik_workspace.guidance_inventory --check
 git diff --check
 ```
 
-For cleanup changes also run:
+For cleanup changes:
 
 ```sh
 ./atrinik cleanup --scope all --older-than 7 --dry-run --json

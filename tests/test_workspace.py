@@ -12571,6 +12571,8 @@ class WorkspaceTests(unittest.TestCase):
         os.close(output_fd)
         replacement = self.root / "replacement-output"
         replacement.mkdir()
+        # Matching permissions must not conceal replacement between stat/open.
+        replacement.chmod(stat.S_IMODE(output.stat().st_mode))
         atomic_json(
             replacement / MANAGED_MARKER,
             {

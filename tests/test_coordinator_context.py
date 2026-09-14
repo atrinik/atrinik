@@ -388,10 +388,11 @@ class NativeCoordinatorTests(unittest.TestCase):
         # Model kernel/OS facts at the I/O boundary. The real descriptor opener
         # has separate rejection tests; these are not native runtime evidence.
         if directory:
-            return os.open(path if path.is_dir() else self.root, os.O_RDONLY | os.O_DIRECTORY)
+            return os.open(self.root if path == self.root / "run/systemd/system" else path,
+                           os.O_RDONLY | os.O_DIRECTORY)
         return os.open(self.executable, os.O_RDONLY)
 
-    def probe(self) -> dict[str, object]:
+    def probe(self, *, mutable_roots=()) -> dict[str, object]:
         import pwd
         from types import SimpleNamespace
         with mock.patch.object(context, "_native_read", side_effect=self.read), \
@@ -399,13 +400,47 @@ class NativeCoordinatorTests(unittest.TestCase):
              mock.patch.object(pwd, "getpwuid", return_value=SimpleNamespace(pw_dir=str(self.home))):
             return context.probe(self.repository, system="Linux", environment=self.environment,
                                  user_name="vscode", effective_uid=self.uid,
-                                 runtime_root=self.root, cwd=self.repository)
+                                 runtime_root=self.root, cwd=self.repository,
+                                 mutable_roots=mutable_roots)
 
     def test_supported_nonroot_host_does_not_require_pid1_exe_or_namespace_access(self) -> None:
         with mock.patch.object(os, "readlink", side_effect=PermissionError):
             result = self.probe()
         self.assertTrue(result["authoritative"])
         self.assertEqual(result["status"], "native-linux")
+
+    def test_selected_nested_and_explicit_mutable_mounts_fail_closed(self) -> None:
+        key = str(self.proc / str(os.getpid()) / "mountinfo")
+        original = self.inputs[key]
+        for selector in ("ambient", "nested", "retained", "absent"):
+            with self.subTest(selector=selector):
+                unsafe = self.root / ("unsafe-" + selector)
+                unsafe.mkdir()
+                roots = ()
+                self.environment.pop("ATRINIK_WORKSPACE_DIR", None)
+                if selector == "ambient":
+                    self.environment["ATRINIK_WORKSPACE_DIR"] = str(unsafe)
+                elif selector == "nested":
+                    unsafe = self.repository / "workspace/build"
+                    unsafe.mkdir(parents=True)
+                elif selector == "retained":
+                    roots = (unsafe,)
+                else:
+                    roots = (unsafe / "missing/reviews",)
+                self.inputs[key] = original + f"3 1 8:1 / {unsafe} rw - 9p bridge rw\n"
+                result = self.probe(mutable_roots=roots)
+                self.assertFalse(result["authoritative"])
+                self.assertIn("native-filesystem-unsupported", result["failed_checks"])
+
+    def test_distinct_supported_mutable_coordinates_are_eligible(self) -> None:
+        selected = self.root / "selected"
+        resource = self.root / "resource"
+        selected.mkdir()
+        resource.mkdir()
+        self.environment["ATRINIK_WORKSPACE_DIR"] = str(selected)
+        self.assertTrue(self.probe(mutable_roots=(resource, resource / "missing/build"))["authoritative"])
+        self.environment["ATRINIK_WORKSPACE_DIR"] = "relative-workspace"
+        self.assertFalse(self.probe()["authoritative"])
 
     def test_user_namespace_maps_require_one_full_initial_identity_row(self) -> None:
         key = str(self.proc / str(os.getpid()) / "uid_map")

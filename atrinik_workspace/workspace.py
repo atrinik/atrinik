@@ -17793,6 +17793,9 @@ class Workspace:
                 expected_path = canonical_path(Path(descriptor_path(parent)) / name)
                 if (
                     not stat.S_ISDIR(opened.st_mode)
+                    # Compare observations within this operation, not persisted
+                    # inode identities across a reconnect or relocation.
+                    or (opened.st_dev, opened.st_ino) != (visible.st_dev, visible.st_ino)
                     or stat.S_IMODE(opened.st_mode) != stat.S_IMODE(visible.st_mode)
                     or descriptor_path(descriptor) != expected_path
                 ):

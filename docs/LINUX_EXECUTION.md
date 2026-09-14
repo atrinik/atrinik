@@ -67,10 +67,12 @@ git lfs install --skip-repo
 python3 -m atrinik_workspace.linux_platform
 ```
 
-This installs orchestration tools, not the complete Classic C library toolchain.
-Classic CMake enforces its owner-declared development-library versions; the
-qualified portable producer supplies those exact versions for export. Do not
-replace its SDL3 libraries with SDL2 or claim a source build from tool presence.
+For complete Classic client/server/test prerequisites, follow the
+[Ubuntu 26.04 native toolchain recipe](NATIVE_LINUX_TOOLCHAIN.md): exact owner
+package snapshot, user-local pinned audio libraries, wrapper-managed shader
+tools, integrated tests and headless runtime commands. Its source contract is
+container-tested; direct-host qualification is separately recorded after merge.
+The authority distribution list alone does not establish build qualification.
 An exported client needs no compiler or development headers. Mesa hosts need the
 distribution's `mesa-vulkan-drivers`; NVIDIA hosts need the installed proprietary
 driver's matching Vulkan ICD. Preserve a working host driver. The portable image
@@ -89,8 +91,52 @@ contract, keep the previously accepted canonical container.
 
 ## Fresh headless containers and child reaping
 
-After the existing image-access and isolated-session prerequisites in README,
-select the Linux headless configuration explicitly from the host terminal:
+Install Docker Engine using the distribution's official instructions for
+[Ubuntu](https://docs.docker.com/engine/install/ubuntu/) or
+[Debian](https://docs.docker.com/engine/install/debian/). An existing installation
+and its resources must be preserved. Configure daemon access through the host
+administrator's chosen supported method; a socket permission failure is a Docker
+access problem, independent of graphics. Install Node.js/npm and the
+[Dev Containers CLI](https://code.visualstudio.com/docs/devcontainers/devcontainer-cli)
+in the host user's tool environment, then verify both interfaces:
+
+```sh
+npm install --global --prefix "$HOME/.local" @devcontainers/cli
+export PATH="$HOME/.local/bin:$PATH"
+devcontainer --version
+docker version
+```
+
+The pinned Atrinik images require the appropriate GHCR package read access when
+private. GitHub CLI authentication for coordinator operations does not log Docker
+into a registry. The host owner establishes Docker authentication separately;
+reuse an existing working Docker login. For a missing login, use a host credential
+helper and GitHub's [container registry authentication procedure](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
+The following command prompts privately for the host owner's classic PAT with
+`read:packages` and any required organization SSO authorization. Replace the login
+placeholder with the account that has access; never put the token in argv, source,
+logs or a worker environment. Agents do not perform this login or copy the mounted
+GitHub CLI token into Docker configuration.
+
+```sh
+docker login ghcr.io --username YOUR_GITHUB_LOGIN
+docker pull ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8
+```
+
+For portable export, pull its separate producer only when needed:
+
+```sh
+docker pull ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1
+```
+
+A pull of a public package needs no login. A private-package denial requires the
+host owner to correct that package's access; it is not permission to make a
+package public or pass credentials into the runtime. Keep the separate shared
+read-only coordinator GitHub mount from [COORDINATOR_AUTH.md](COORDINATOR_AUTH.md),
+and never mount the host Docker credential store into build/runtime workers.
+With image access and the isolated-session prerequisites in README satisfied,
+set `HOST_REPO` to the exact reserved checkout and select the Linux headless
+configuration explicitly from the host terminal:
 
 ```sh
 devcontainer up --workspace-folder "$HOST_REPO" --config "$HOST_REPO/.devcontainer/devcontainer.json"
@@ -305,6 +351,21 @@ inspection checks actual provider hashes, static dependencies, symbol/version
 providers and declared dynamic SONAMEs. The host supplies glibc 2.36 or newer,
 its loader and graphics drivers. The X11/Vulkan producer uses XWayland on a
 Wayland desktop; PulseAudio or PipeWire's Pulse service supplies audio.
+
+The pinned Debian libpulse input has an absolute PulseAudio search directory.
+Export derives only that exact provider's private copy by replacing its 37-byte
+NUL-terminated DT_RUNPATH string with `$ORIGIN` and NUL padding. Strict ELF
+inspection remains mandatory for the derived bytes and every other provider.
+`portable-evidence.json` records the original and exported hashes, immutable image,
+provider path and exact transformation. The standalone
+`sources/export-recipes/libpulse-origin.py` recipe reproduces the derivative from
+the original library; corresponding sources and a changed-library notice remain
+included. The installed producer is unchanged and shared libraries stay replaceable.
+
+Portable CI writes validated inputs before export and retains bounded stdout,
+stderr, exit/timeout metadata and available exact-profile compiler/client ELF
+diagnostics on failure. Failure produces no successful export report or archive;
+a secondary collector failure does not mask the export's original failure.
 
 Move the whole directory, then run its `atrinik` launcher. It sets library and
 OpenSSL-provider paths relative to itself and keeps mutable configuration outside

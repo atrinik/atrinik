@@ -85,7 +85,7 @@ or status operation cannot silently escape its wrapper lease.
 | Initialize/synchronize checkouts, status, profile inspection/publication, path resolution, and worktree inventory | supported | supported with `LockFileEx` and native paths |
 | Build publication, cleanup, repository/content migration, scope/state/scenario mutation | supported | deliberate capability result; requires descriptor-relative filesystem proof |
 | Supervised topology build/start/status/log/stop and direct client/server run | supported when host capabilities pass | deliberate capability result; requires Linux process identity, pidfd, signals, or `/proc` |
-| Issue/PR delivery ledger coordination, locking, CAS, and recovery | supported only from the pinned ordinary Linux devcontainer | host editing, native Git/GitHub UI, and D3D12 validation only; not an authoritative ledger coordinator |
+| Issue/PR delivery ledger coordination, locking, CAS, and recovery | supported from a live-proven canonical container or accepted native Linux context under [the execution contract](LINUX_EXECUTION.md) | host editing, native Git/GitHub UI, and D3D12 validation only; not an authoritative ledger coordinator |
 | Windows review ZIP | supported through the pinned Windows cross-build workflow | use the package workflow from Linux, WSL2, or the `windows-cross` devcontainer |
 | Native Windows Classic GPU preflight | package and test-build handoff only; do not run the graphical client in Linux | native Windows package smoke and existing D3D12 qualification; see [`docs/WINDOWS_GPU_PREFLIGHT.md`](WINDOWS_GPU_PREFLIGHT.md) |
 

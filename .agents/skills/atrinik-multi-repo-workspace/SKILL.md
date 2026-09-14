@@ -30,13 +30,7 @@ Inspect before mutation:
 Initialize absent repositories with `init` (`--with classic` adds classic);
 `sync` never clones.
 
-```sh
-./atrinik init [COMPONENT...]
-./atrinik init --with classic
-./atrinik sync
-./atrinik scope create COMPONENT... --name REVIEW --from PROFILE --json
-./atrinik worktree create COMPONENT LABEL --branch TYPE/TOPIC
-```
+See root `AGENTS.md` for initialization commands; scope and worktree primitives follow.
 
 Sync only clean primaries; never alter dirty sources. Classic selectors create
 `workspace/worktrees/classic/LABEL`; prefer atomic scopes.
@@ -125,17 +119,7 @@ characters. Never handcraft saves or expose credentials; use distinct topology/s
 
 ## Validate and hand off
 
-Wrapper commands:
-
-```sh
-./atrinik profile show PROFILE
-./atrinik build COMPONENT --profile PROFILE --test
-./atrinik topology show PROFILE --temporary-state --json
-./atrinik up --name TOPOLOGY --profile PROFILE --temporary-state
-./atrinik ps TOPOLOGY --json
-./atrinik logs TOPOLOGY [server|client] --follow
-./atrinik down TOPOLOGY
-```
+Use the exact profile/build/topology/runtime lifecycle in root `AGENTS.md`.
 
 For native Windows Classic GPU handoff, follow [`docs/WINDOWS_GPU_PREFLIGHT.md`](../../../docs/WINDOWS_GPU_PREFLIGHT.md); reuse Classic package-smoke/D3D12 commands and keep
 package, test-build, native runtime, and Linux coordinator evidence separate.

@@ -228,7 +228,7 @@ additional task authority. The session benchmark remains credential/source-free.
 After the canonical probe, authenticated selection and complete collision
 inventory above, run the ledger protocol's public
 `revalidate-current-targets-cas` with the exact helper-returned
-generation and digest. It derives a neutral observation while holding
+generation, digest and canonical ledger `--expected-path`. It derives a neutral observation while holding
 every current bound target's live guards. Preserve immutable initial requests;
 do not manufacture a commit, repeat initial binding, call private helper
 contexts, or use generic CAS/check-reuse as a substitute for live proof.

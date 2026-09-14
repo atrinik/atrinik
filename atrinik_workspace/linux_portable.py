@@ -8,12 +8,14 @@ from __future__ import annotations
 
 from contextlib import ExitStack
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
 import re
 import secrets
 import stat
+import tarfile
 from typing import Callable
 
 from . import linux_export as export
@@ -38,11 +40,120 @@ PRODUCER_FILES_SHA256 = 'da6ee7e46cfb5b254a4811adf65a6056719114a8755f65db3605c28
 DEBIAN_NOTICES_SHA256 = '6670f1afe9d1face038ae959386c3f264a4b3f05328c493579ea359a8cd2f4e5'
 COMMON_LICENSES_SHA256 = 'cfe52936825faa1cd66a4b17ed41051f5c777c5035c8206eaad4db5b730f2bfd'
 COMMON_LICENSE_NAMES = ('Apache-2.0', 'Artistic', 'BSD', 'CC0-1.0', 'GFDL-1.2', 'GFDL-1.3', 'GPL-1', 'GPL-2', 'GPL-3', 'LGPL-2', 'LGPL-2.1', 'LGPL-3', 'MPL-1.1', 'MPL-2.0')
+# Exact notice bytes in the already pinned source archives. Full embedded
+# decoder headers preserve their original license blocks and attribution.
+AUDIO_NOTICES = {'libogg': {'members': {'libsdl-org-ogg-936fdd8/AUTHORS': {'sha256': '6fcb33d0cdd60b5054e7df820916388b590427514288c2bab01c626bb8ae9506',
+                                                           'size': 198},
+                        'libsdl-org-ogg-936fdd8/COPYING': {'sha256': 'd2ab5758336489da61c12cc5bb757da5339c4ae9001f9bb0562b4370249af814',
+                                                           'size': 1466}},
+            'sha256': '4e2e1da271f4b7b9902f325a714e07d6412e9df7a0dbe43ca53257901c5d74ff'},
+ 'libopus': {'members': {'libsdl-org-opus-ac9f053/AUTHORS': {'sha256': 'f9fd849e652219ce98e008303370b352d37663d0ffb27b8dc514ad93c9c7438b',
+                                                             'size': 239},
+                         'libsdl-org-opus-ac9f053/COPYING': {'sha256': '8338ce8d922bb4416ce3dd1e5680173332435e3f0755007ac7801ccd674fe682',
+                                                             'size': 1928},
+                         'libsdl-org-opus-ac9f053/LICENSE_PLEASE_READ.txt': {'sha256': '7efb4989e0cd1b256229bdf2f09300c5d14e35db0e7476bfb87fac243498273d',
+                                                                             'size': 703}},
+             'sha256': '3af32ef61579bc441883a63fce6b28bc9975df194d72b399415db67c61d5c25a'},
+ 'libopusfile': {'members': {'libsdl-org-opusfile-9e5322c/AUTHORS': {'sha256': '7bafd4ec8a8f284cce7a8c9dab476f141ed0de91f38947c145e49929d0922071',
+                                                                     'size': 262},
+                             'libsdl-org-opusfile-9e5322c/COPYING': {'sha256': '0267ae795ab744c4e0f9c45e249440fdf2e75dac8c804f36066b28649bf74aaf',
+                                                                     'size': 1487}},
+                 'sha256': 'ed9ea07e9e7e9f9b603e793ffac9551218c978cd5021c7d8f9a3a5dfece9a860'},
+ 'sdl3-mixer': {'members': {'SDL3_mixer-3.2.4/LICENSE.txt': {'sha256': 'e36997fe492c48e7ed873065cc3a694f38e8189a328d3709099ffdc9a8843f4c',
+                                                             'size': 878},
+                            'SDL3_mixer-3.2.4/src/dr_libs/dr_mp3.h': {'sha256': 'f0919e1652ffd9469e3440b5c759d26e862a50e6dc93cb4b51cb7e7e90b00f77',
+                                                                      'size': 208336},
+                            'SDL3_mixer-3.2.4/src/stb_vorbis/stb_vorbis.h': {'sha256': 'e0ddb968df34374d4253fa9d7b4a8bb757cba8e08a91fd0dfc6faa4abedcda2a',
+                                                                             'size': 201104}},
+                'sha256': '182a07c745375e113dc740d43964ff21b0be29f29f59876c4dbc4db3d32f6901'}}
+
+
 # Use the host's glibc/loader so its graphics-driver modules can load against
 # their matching system libc. Application libraries and plugins are bundled.
 HOST_GLIBC = frozenset({"libc.so.6", "libm.so.6", "libpthread.so.0", "libdl.so.2",
                         "librt.so.1", "libresolv.so.2", "libutil.so.1",
                         "ld-linux-x86-64.so.2"})
+
+
+# This recipe applies only to one immutable producer artifact. The unchanged
+# ELF inspector validates the derived bytes; no other search path is normalized.
+PULSE_RECIPE = {
+    "id": "debian12-libpulse-origin-v1",
+    "image": "ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1",
+    "platform_manifest": "sha256:40412cc14527deb333273527681fb0639efef90e68b2ca508844ada38da9f2a6",
+    "provider_path": "/usr/lib/x86_64-linux-gnu/libpulse.so.0.24.2",
+    "input_sha256": "38b07a06cefcaabd8db3edaddafea0ab5b5d2ee15e8641929f7d07d45fb66d59",
+    "output_sha256": "43da0e3a6816292d4c4c973d56d2753e968a28bb020f8b3035e404044513acf2",
+    "size": 338992,
+    "offset": 33230,
+    "original": "/usr/lib/x86_64-linux-gnu/pulseaudio",
+    "replacement": "$ORIGIN",
+    "span": 37,
+}
+
+
+def pulse_derivative(data: bytes) -> bytes:
+    """Reproduce the fixed in-place dynstr edit without changing any ELF offsets."""
+    recipe = PULSE_RECIPE
+    if (len(data) != recipe["size"] or
+            hashlib.sha256(data).hexdigest() != recipe["input_sha256"]):
+        raise export.ExportError("portable-derivative: pinned libpulse input differs")
+    original = recipe["original"].encode() + b"\0"
+    start, length = recipe["offset"], recipe["span"]
+    if len(original) != length or data.count(original) != 1 or data[start:start + length] != original:
+        raise export.ExportError("portable-derivative: pinned libpulse string span differs")
+    replacement = (recipe["replacement"].encode() + b"\0").ljust(length, b"\0")
+    result = data[:start] + replacement + data[start + length:]
+    if len(result) != len(data) or hashlib.sha256(result).hexdigest() != recipe["output_sha256"]:
+        raise export.ExportError("portable-derivative: libpulse output digest differs")
+    return result
+
+
+def provider_payload(stack: ExitStack, path: Path, descriptor: int, record: dict):
+    """Return the original provider or its sole verified private derivative."""
+    if str(path) != PULSE_RECIPE["provider_path"]:
+        return descriptor, record, None
+    if IMAGE != PULSE_RECIPE["image"] or PLATFORM_MANIFEST != PULSE_RECIPE["platform_manifest"]:
+        raise export.ExportError("portable-derivative: producer coordinate differs")
+    if record["sha256"] != PULSE_RECIPE["input_sha256"] or record["size"] != PULSE_RECIPE["size"]:
+        raise export.ExportError("portable-derivative: pinned libpulse record differs")
+    before = os.fstat(descriptor)
+    data = os.pread(descriptor, record["size"] + 1, 0)
+    if export._identity(os.fstat(descriptor)) != export._identity(before):
+        raise export.ExportError("portable-derivative: provider changed during read")
+    result = pulse_derivative(data)
+    output = os.memfd_create("atrinik-libpulse-derivative", os.MFD_CLOEXEC)
+    stack.callback(os.close, output)
+    pending = memoryview(result)
+    while pending:
+        written = os.write(output, pending)
+        if written <= 0:
+            raise export.ExportError("portable-derivative: incomplete private copy")
+        pending = pending[written:]
+    os.fchmod(output, 0o700 if record["executable"] else 0o600)
+    derived = byte_record(output)
+    if derived != {**record, "sha256": PULSE_RECIPE["output_sha256"]}:
+        raise export.ExportError("portable-derivative: private copy differs")
+    return output, derived, dict(PULSE_RECIPE)
+
+
+def derivative_recipe_script() -> bytes:
+    """Ship a standalone reproducible recipe alongside corresponding sources."""
+    return ("#!/usr/bin/env python3\n"
+            "# Atrinik libpulse export modification, 2026. MIT; see wrapper sources.\n"
+            "import hashlib, pathlib, sys\n"
+            "recipe = " + repr(PULSE_RECIPE) + "\n"
+            "source, destination = map(pathlib.Path, sys.argv[1:])\n"
+            "data = source.read_bytes()\n"
+            "if len(data) != recipe['size'] or hashlib.sha256(data).hexdigest() != recipe['input_sha256']:\n"
+            "    raise SystemExit('pinned libpulse input differs')\n"
+            "offset, span = recipe['offset'], recipe['span']\n"
+            "replacement = (recipe['replacement'].encode() + bytes([0])).ljust(span, bytes([0]))\n"
+            "result = data[:offset] + replacement + data[offset + span:]\n"
+            "if len(result) != len(data) or hashlib.sha256(result).hexdigest() != recipe['output_sha256']:\n"
+            "    raise SystemExit('derived libpulse output differs')\n"
+            "with destination.open('xb') as stream:\n"
+            "    stream.write(result)\n").encode()
 
 
 def byte_record(descriptor: int) -> dict:
@@ -346,6 +457,7 @@ def add_runtime(publication: Publication, documents: dict, binary: Path) -> dict
     copied = {}
     by_path = {}
     by_soname = {}
+    derivatives = []
     with ExitStack() as stack:
         for row in rows:
             path = Path(row["path"])
@@ -356,7 +468,11 @@ def add_runtime(publication: Publication, documents: dict, binary: Path) -> dict
             record = byte_record(descriptor)
             if record["sha256"] != row["sha256"]:
                 raise export.ExportError("portable-runtime: provider hash mismatch")
-            facts = export.inspect_elf(descriptor)
+            descriptor, record, derivative = provider_payload(stack, path, descriptor, record)
+            try:
+                facts = export.inspect_elf(descriptor)
+            except export.ExportError as error:
+                raise export.ExportError("portable-runtime: provider " + str(path) + ": " + str(error)) from error
             if set(facts["needed"]) != set(row["needed"]):
                 raise export.ExportError("portable-runtime: dependency metadata differs from ELF")
             basename = facts["soname"] or path.name
@@ -369,6 +485,8 @@ def add_runtime(publication: Publication, documents: dict, binary: Path) -> dict
             if basename not in HOST_GLIBC:
                 publication.add(target, descriptor, record, library=True)
                 copied[row["path"]] = target
+                if derivative is not None:
+                    derivatives.append({**derivative, "exported_path": target})
         source = export._open_root(binary.parent)
         stack.callback(os.close, source)
         client = export._open_beneath(source, binary.name)
@@ -400,7 +518,7 @@ def add_runtime(publication: Publication, documents: dict, binary: Path) -> dict
                     raise export.ExportError("portable-runtime: required symbol absent from its version provider")
     return {"producer": IMAGE, "platform_manifest": PLATFORM_MANIFEST,
             "source_commit": CONSUMER_COMMIT, "runtime_payload_verified": True,
-            "dynamic_sonames": dynamic, "symbols": symbols,
+            "dynamic_sonames": dynamic, "symbols": symbols, "derivatives": derivatives,
             "host_glibc": sorted(HOST_GLIBC), "minimum_host_glibc": "2.36",
             "baseline_dependencies": dependency["dependencies"],
             "host_graphics_drivers_bundled": False,
@@ -455,6 +573,39 @@ def verified_debian_notices(documents: dict) -> dict:
     return records
 
 
+def add_audio_notices(publication: Publication, root: Path) -> list[dict]:
+    """Materialize pinned archive members without extracting archive paths."""
+    result = []
+    for component, source in AUDIO_NOTICES.items():
+        path = root / "sources" / (source["sha256"] + ".tar.gz")
+        raw = _read_regular(path, limit=64 * 1024 * 1024)
+        if hashlib.sha256(raw).hexdigest() != source["sha256"]:
+            raise export.ExportError("portable-legal: audio source archive differs")
+        with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as archive:
+            members = {}
+            for member in archive:
+                if member.name in source["members"]:
+                    if member.name in members:
+                        raise export.ExportError("portable-legal: duplicate audio notice member")
+                    members[member.name] = member
+            for name, expected in source["members"].items():
+                member = members.get(name)
+                if member is None or not member.isfile() or member.size != expected["size"]:
+                    raise export.ExportError("portable-legal: audio notice member differs")
+                stream = archive.extractfile(member)
+                if stream is None:
+                    raise export.ExportError("portable-legal: audio notice member unreadable")
+                with stream:
+                    data = stream.read(expected["size"] + 1)
+                if len(data) != expected["size"] or hashlib.sha256(data).hexdigest() != expected["sha256"]:
+                    raise export.ExportError("portable-legal: audio notice bytes differ")
+                target = "licenses/audio/" + component + "/" + name.split("/", 1)[1]
+                publication.add_bytes(target, data, notice=True)
+                result.append({"archive_sha256": source["sha256"], "member": name,
+                               "path": target, **expected})
+    return result
+
+
 def add_corresponding_sources(publication: Publication, documents: dict) -> dict:
     root = Path("/opt/atrinik-portable")
     producer_files = verified_tree_inventory(root, PRODUCER_FILES_SHA256)
@@ -499,7 +650,8 @@ def add_corresponding_sources(publication: Publication, documents: dict) -> dict
             os.close(parent)
     if inventory_digest(common_records) != COMMON_LICENSES_SHA256:
         raise export.ExportError("portable-legal: complete common-license inventory mismatch")
-    return {"debian_source_packages": len(source_packages), "debian_archives": len(archives),
+    audio_notices = add_audio_notices(publication, root)
+    return {"audio_notices": audio_notices, "debian_source_packages": len(source_packages), "debian_archives": len(archives),
             "producer_files": len(remaining), "producer_inventory_sha256": PRODUCER_FILES_SHA256,
             "debian_notices_sha256": DEBIAN_NOTICES_SHA256,
             "common_licenses_sha256": COMMON_LICENSES_SHA256,
@@ -565,6 +717,17 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
             with Publication(destination, sources) as publication:
                 runtime = add_runtime(publication, documents, binary_directory / "atrinik")
                 legal = add_corresponding_sources(publication, documents)
+                if runtime["derivatives"]:
+                    publication.add_bytes("sources/export-recipes/libpulse-origin.py", derivative_recipe_script())
+                    publication.add_bytes("licenses/libpulse-export-modification.txt", (
+                        "Atrinik modified lib/libpulse.so.0 on 2026-09-14.\n"
+                        "The pinned Debian library's absolute DT_RUNPATH is replaced with $ORIGIN\n"
+                        "and NUL padding; all ELF sizes, offsets and other bytes are preserved.\n"
+                        "The producer library is unchanged. Both hashes and the exact recipe are\n"
+                        "in portable-evidence.json; reproduce with sources/export-recipes/libpulse-origin.py.\n"
+                        "PulseAudio corresponding sources, Debian copyright and LGPL notices are\n"
+                        "included in sources and licenses/debian. The shared library remains replaceable.\n"
+                    ).encode(), notice=True)
                 for role, source in selected.items():
                     proof = proofs[role]
                     parent = export._open_root(source.parent)

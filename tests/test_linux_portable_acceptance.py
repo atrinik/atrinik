@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import unittest
 
@@ -26,6 +27,65 @@ class PortablePublicationTests(unittest.TestCase):
         self.root.chmod(0o700)
         self.output = self.root / "client"
         self.sources = {"atrinik/classic@main": "a" * 40}
+
+    def audio_archive(self, *, duplicate=False, linked=False):
+        payload = b"Original attribution and license text\n"
+        buffer = io.BytesIO()
+        name = "library-1/COPYING"
+        with tarfile.open(fileobj=buffer, mode="w:gz") as archive:
+            member = tarfile.TarInfo(name)
+            member.size = len(payload)
+            if linked:
+                member.type = tarfile.SYMTYPE
+                member.linkname = "/outside"
+            archive.addfile(member, io.BytesIO(payload))
+            if duplicate:
+                archive.addfile(member, io.BytesIO(payload))
+        data = buffer.getvalue()
+        digest = hashlib.sha256(data).hexdigest()
+        source = self.root / "sources"
+        source.mkdir()
+        (source / (digest + ".tar.gz")).write_bytes(data)
+        record = {"library": {"sha256": digest, "members": {
+            name: {"sha256": hashlib.sha256(payload).hexdigest(), "size": len(payload)}}}}
+        return record, payload
+
+    def test_audio_notices_preserve_verified_text_and_archive_provenance(self):
+        record, payload = self.audio_archive()
+        with mock.patch.object(portable, "AUDIO_NOTICES", record), portable.Publication(self.output, self.sources) as publication:
+            evidence = portable.add_audio_notices(publication, self.root)
+            self.assertEqual((publication.path / "licenses/audio/library/COPYING").read_bytes(), payload)
+            self.assertEqual(evidence[0]["archive_sha256"], record["library"]["sha256"])
+            self.assertIn("licenses/audio/library/COPYING", publication.manifest["notices"])
+
+    def test_audio_notices_reject_duplicate_members_and_links(self):
+        for option in ("duplicate", "linked"):
+            with self.subTest(option=option):
+                if (self.root / "sources").exists():
+                    shutil.rmtree(self.root / "sources")
+                record, _ = self.audio_archive(**{option: True})
+                with mock.patch.object(portable, "AUDIO_NOTICES", record), portable.Publication(self.output, self.sources) as publication:
+                    with self.assertRaisesRegex(export.ExportError, "audio notice member"):
+                        portable.add_audio_notices(publication, self.root)
+
+    def test_audio_notices_reject_wrong_archive_member_hash_or_missing_member(self):
+        record, _ = self.audio_archive()
+        for mutation in ("archive", "hash", "missing"):
+            altered = json.loads(json.dumps(record))
+            if mutation == "archive":
+                digest = altered["library"]["sha256"]
+                source = self.root / "sources" / (digest + ".tar.gz")
+                original = source.read_bytes()
+                source.write_bytes(b"changed")
+            elif mutation == "hash":
+                altered["library"]["members"]["library-1/COPYING"]["sha256"] = "0" * 64
+            else:
+                altered["library"]["members"]["library-1/MISSING"] = altered["library"]["members"].pop("library-1/COPYING")
+            with mock.patch.object(portable, "AUDIO_NOTICES", altered), portable.Publication(self.output, self.sources) as publication:
+                with self.assertRaisesRegex(export.ExportError, "portable-legal"):
+                    portable.add_audio_notices(publication, self.root)
+            if mutation == "archive":
+                source.write_bytes(original)
 
     def populate(self, publication):
         publication.add_bytes("bin/atrinik", b"client", executable=True)
@@ -312,3 +372,284 @@ class PortablePublicationTests(unittest.TestCase):
         consumer["symbols"]["required"] = ["sample@SAMPLE_2"]
         with self.assertRaisesRegex(export.ExportError, "unresolved symbols"):
             portable.symbol_closure({"lib": facts, "client": consumer}, entrypoint="client")
+
+
+    def derivative_fixture(self):
+        original = b"/usr/lib/x86_64-linux-gnu/pulseaudio\0"
+        data = b"private fixture prefix" + original + b"unmodified tail"
+        replacement = b"$ORIGIN\0".ljust(len(original), b"\0")
+        result = data[:22] + replacement + data[22 + len(original):]
+        recipe = dict(portable.PULSE_RECIPE, offset=22, size=len(data),
+                      input_sha256=hashlib.sha256(data).hexdigest(),
+                      output_sha256=hashlib.sha256(result).hexdigest())
+        return data, result, recipe
+
+    def test_fixed_derivative_preserves_other_bytes_and_reproduces_from_shipped_recipe(self):
+        from contextlib import ExitStack
+        data, expected, recipe = self.derivative_fixture()
+        source = self.root / "source-library"
+        source.write_bytes(data)
+        destination = self.root / "reproduced-library"
+        with mock.patch.object(portable, "PULSE_RECIPE", recipe):
+            self.assertEqual(portable.pulse_derivative(data), expected)
+            with ExitStack() as stack:
+                stream = stack.enter_context(source.open("rb"))
+                descriptor, record, provenance = portable.provider_payload(
+                    stack, Path(recipe["provider_path"]), stream.fileno(), portable.byte_record(stream.fileno()))
+                self.assertNotEqual(descriptor, stream.fileno())
+                self.assertEqual(os.pread(descriptor, 1000, 0), expected)
+                self.assertEqual(record["sha256"], recipe["output_sha256"])
+                self.assertEqual(provenance["input_sha256"], recipe["input_sha256"])
+            script = self.root / "reproduce.py"
+            script.write_bytes(portable.derivative_recipe_script())
+            subprocess.run([sys.executable, str(script), str(source), str(destination)], check=True)
+            self.assertEqual(destination.read_bytes(), expected)
+            retry = subprocess.run([sys.executable, str(script), str(source), str(destination)], capture_output=True)
+            self.assertNotEqual(retry.returncode, 0)
+        self.assertEqual(source.read_bytes(), data)
+
+    def test_fixed_derivative_rejects_hash_span_size_and_output_changes(self):
+        data, expected, recipe = self.derivative_fixture()
+        for change, value, message in (
+            ("input_sha256", "f" * 64, "input differs"),
+            ("size", len(data) + 1, "input differs"),
+            ("offset", 0, "string span differs"),
+            ("output_sha256", "f" * 64, "output digest differs"),
+            ("replacement", "wrong", "output digest differs"),
+        ):
+            with self.subTest(change=change), mock.patch.object(portable, "PULSE_RECIPE", {**recipe, change: value}):
+                with self.assertRaisesRegex(export.ExportError, message):
+                    portable.pulse_derivative(data)
+        with mock.patch.object(portable, "PULSE_RECIPE", recipe):
+            with self.assertRaisesRegex(export.ExportError, "input differs"):
+                portable.pulse_derivative(data[:-1] + b"!")
+
+    def test_derivative_requires_exact_provider_coordinate_and_original_record(self):
+        from contextlib import ExitStack
+        data, expected, recipe = self.derivative_fixture()
+        source = self.root / "library"
+        source.write_bytes(data)
+        with mock.patch.object(portable, "PULSE_RECIPE", recipe), source.open("rb") as stream, ExitStack() as stack:
+            record = portable.byte_record(stream.fileno())
+            descriptor, same_record, provenance = portable.provider_payload(stack, source, stream.fileno(), record)
+            self.assertEqual(descriptor, stream.fileno())
+            self.assertEqual(same_record, record)
+            self.assertIsNone(provenance)
+            for key, value in (("IMAGE", "another-image"), ("PLATFORM_MANIFEST", "sha256:" + "f" * 64)):
+                with mock.patch.object(portable, key, value):
+                    with self.assertRaisesRegex(export.ExportError, "producer coordinate differs"):
+                        portable.provider_payload(stack, Path(recipe["provider_path"]), stream.fileno(), record)
+            with self.assertRaisesRegex(export.ExportError, "record differs"):
+                portable.provider_payload(stack, Path(recipe["provider_path"]), stream.fileno(), {**record, "sha256": "f" * 64})
+
+    def acceptance_namespace(self):
+        import runpy
+        return runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
+
+    def test_failed_export_capture_preserves_bounded_logs_and_exit_status(self):
+        ns = self.acceptance_namespace()
+        command = [sys.executable, "-c", "import sys; print('provider rejected'); print('strict ELF failure', file=sys.stderr); sys.exit(23)"]
+        with self.assertRaises(subprocess.CalledProcessError) as error:
+            ns["capture_export"](command, self.root, timeout=10)
+        self.assertEqual(error.exception.returncode, 23)
+        self.assertIn("provider rejected", (self.root / "export.stdout.log").read_text())
+        self.assertIn("strict ELF failure", (self.root / "export.stderr.log").read_text())
+        self.assertEqual(json.loads((self.root / "export-process.json").read_text())["returncode"], 23)
+        self.assertFalse((self.root / "export.json").exists())
+
+    def test_export_capture_timeout_retains_failure_and_bounded_output(self):
+        ns = self.acceptance_namespace()
+        with self.assertRaises(subprocess.TimeoutExpired):
+            ns["capture_export"]([sys.executable, "-c", "import time; print('before timeout', flush=True); time.sleep(30)"], self.root, timeout=0.2)
+        self.assertIn("before timeout", (self.root / "export.stdout.log").read_text())
+        self.assertTrue(json.loads((self.root / "export-process.json").read_text())["timed_out"])
+
+    def test_export_capture_drains_large_logs_without_unbounded_retention(self):
+        ns = self.acceptance_namespace()
+        limit = ns["MAX_CAPTURE_BYTES"]
+        result = ns["capture_export"]([sys.executable, "-c", "import sys; sys.stderr.write('x' * " + str(limit * 2) + "); print('{}')"], self.root, timeout=10)
+        self.assertEqual(json.loads(result), {})
+        self.assertEqual((self.root / "export.stderr.log").stat().st_size, limit)
+        report = json.loads((self.root / "export-process.json").read_text())
+        self.assertEqual(report["observed_bytes"]["stderr"], limit * 2)
+
+    def test_build_failure_keeps_validated_inputs_and_does_not_mask_root_error(self):
+        ns = self.acceptance_namespace()
+        globals_ = ns["build"].__globals__
+        failure = subprocess.CalledProcessError(19, ["./atrinik", "linux", "export"])
+        def fake_run(arguments, **kwargs):
+            if arguments[0] == "git" and "rev-parse" in arguments:
+                return ns["SOURCE_COMMITS"].get(arguments[2], "a" * 40) + "\n" if "-C" in arguments else "a" * 40 + "\n"
+            return ""
+        with mock.patch.dict(globals_, {"require_headless": lambda: None, "run": fake_run,
+                              "capture_export": mock.Mock(side_effect=failure),
+                              "collect_build_evidence": mock.Mock(side_effect=RuntimeError("collector failed"))}), \
+             mock.patch.object(os, "sched_setaffinity"), \
+             mock.patch.object(portable, "installed_metadata", return_value=({}, {})):
+            with self.assertRaises(subprocess.CalledProcessError) as caught:
+                ns["build"](self.output, self.root)
+        self.assertIs(caught.exception, failure)
+        self.assertEqual(json.loads((self.root / "inputs.json").read_text())["sources"], ns["SOURCE_COMMITS"])
+        self.assertEqual(json.loads((self.root / "failure.json").read_text())["returncode"], 19)
+        self.assertIn("collector failed", (self.root / "collector-failure.json").read_text())
+        self.assertFalse((self.root / "export.json").exists())
+        self.assertFalse((self.root / "client.tar").exists())
+
+
+    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    def test_other_absolute_runpath_provider_remains_rejected(self):
+        from contextlib import ExitStack
+        source = self.root / "provider.c"
+        library = self.root / "libother.so"
+        source.write_text("int other(void) { return 0; }\n")
+        subprocess.run(["cc", "-shared", "-fPIC", str(source), "-o", str(library),
+                        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/pulseaudio"], check=True, capture_output=True)
+        with library.open("rb") as stream, ExitStack() as stack:
+            descriptor, _, derivative = portable.provider_payload(stack, library, stream.fileno(), portable.byte_record(stream.fileno()))
+            self.assertIsNone(derivative)
+            with self.assertRaises(export.ExportError):
+                export.inspect_elf(descriptor)
+
+    def test_derivative_rejects_source_mutation_during_private_copy(self):
+        from contextlib import ExitStack
+        data, _, recipe = self.derivative_fixture()
+        source = self.root / "source"
+        source.write_bytes(data)
+        original_read = os.pread
+        def mutate(descriptor, size, offset):
+            result = original_read(descriptor, size, offset)
+            source.write_bytes(data + b"changed")
+            return result
+        with source.open("rb") as stream, ExitStack() as stack, mock.patch.object(portable, "PULSE_RECIPE", recipe):
+            record = portable.byte_record(stream.fileno())
+            with mock.patch.object(os, "pread", side_effect=mutate):
+                with self.assertRaisesRegex(export.ExportError, "changed during read"):
+                    portable.provider_payload(stack, Path(recipe["provider_path"]), stream.fileno(), record)
+
+    def test_derivative_handles_short_writes_and_rejects_failed_write(self):
+        from contextlib import ExitStack
+        data, expected, recipe = self.derivative_fixture()
+        source = self.root / "source"
+        source.write_bytes(data)
+        original_write = os.write
+        with source.open("rb") as stream, mock.patch.object(portable, "PULSE_RECIPE", recipe):
+            record = portable.byte_record(stream.fileno())
+            with ExitStack() as stack, mock.patch.object(os, "write", side_effect=lambda fd, data: original_write(fd, data[:3])):
+                descriptor, _, _ = portable.provider_payload(stack, Path(recipe["provider_path"]), stream.fileno(), record)
+                self.assertEqual(os.pread(descriptor, 1000, 0), expected)
+            with ExitStack() as stack, mock.patch.object(os, "write", return_value=0):
+                with self.assertRaisesRegex(export.ExportError, "incomplete private copy"):
+                    portable.provider_payload(stack, Path(recipe["provider_path"]), stream.fileno(), record)
+
+    def test_compiler_evidence_collects_only_selected_profile_and_rejects_links(self):
+        ns = self.acceptance_namespace()
+        previous = Path.cwd()
+        os.chdir(self.root)
+        try:
+            selected = Path("workspace/build/profiles/selected-123/build/client")
+            selected.mkdir(parents=True)
+            (selected / "CMakeCache.txt").write_text("compiler input")
+            (selected / "compile_commands.json").write_text("[]")
+            foreign = Path("workspace/build/profiles/foreign-123/build/client")
+            foreign.mkdir(parents=True)
+            (foreign / "CMakeCache.txt").write_text("foreign must not be copied")
+            ns["collect_build_evidence"]("selected", self.root)
+            result = json.loads((self.root / "compiler-evidence.json").read_text())
+            self.assertEqual(len(result), 1)
+            self.assertEqual((self.root / "0-CMakeCache.txt").read_text(), "compiler input")
+            self.assertIsNone(result[0]["client"])
+            (selected / "compile_commands.json").unlink()
+            (selected / "compile_commands.json").symlink_to((foreign / "CMakeCache.txt").resolve())
+            with self.assertRaises(OSError):
+                ns["collect_build_evidence"]("selected", self.root)
+        finally:
+            os.chdir(previous)
+
+    def test_occupied_capture_logs_refuse_before_starting_process(self):
+        ns = self.acceptance_namespace()
+        (self.root / "export.stdout.log").write_text("existing evidence")
+        with mock.patch.object(subprocess, "Popen") as spawn:
+            with self.assertRaises(FileExistsError):
+                ns["capture_export"]([sys.executable, "-c", "pass"], self.root)
+        spawn.assert_not_called()
+        self.assertEqual((self.root / "export.stdout.log").read_text(), "existing evidence")
+
+
+    def compiled_runtime(self):
+        source = self.root / "provider.c"
+        source.write_text("int sample(void) { return 7; }\n")
+        versions = self.root / "versions.map"
+        versions.write_text("SAMPLE_1 { global: sample; local: *; };\n")
+        library = self.root / "provider.so"
+        subprocess.run(["cc", "-shared", "-fPIC", "-nostdlib", str(source), "-o", str(library),
+                        "-Wl,-soname,libfixture.so.1", "-Wl,--version-script=" + str(versions)],
+                       check=True, capture_output=True)
+        client_source = self.root / "client.c"
+        client_source.write_text("extern int sample(void); int main(void) { return sample(); }\n")
+        binary = self.root / "client-binary"
+        subprocess.run(["cc", "-nostdlib", str(client_source), str(library), "-o", str(binary),
+                        "-Wl,-e,main", "-Wl,--dynamic-linker=/lib64/ld-linux-x86-64.so.2"],
+                       check=True, capture_output=True)
+        documents = {"runtime-abi.json": {"objects": [{
+            "path": str(library), "sha256": hashlib.sha256(library.read_bytes()).hexdigest(),
+            "needed": [], "dlopen": [{"feature": "fixture", "soname": ["libfixture.so.1"]}],
+            "dlopen_providers": {"fixture": [str(library)]},
+            "required_providers": {"sample@SAMPLE_1": {"provider": "libfixture.so.1"}},
+        }]}, "contract.json": {"runtime": {"unsupported_dlopen_features": []}}}
+        return library, binary, documents
+
+    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    def test_actual_runtime_elf_closure_is_copied_and_verified_after_relocation(self):
+        library, binary, documents = self.compiled_runtime()
+        with portable.Publication(self.output, self.sources) as publication:
+            report = portable.add_runtime(publication, documents, binary)
+            publication.add_bytes("licenses/NOTICE", b"fixture license", notice=True)
+            publication.publish(lambda: None)
+        moved = self.root / "relocated runtime"
+        self.output.rename(moved)
+        library.unlink()
+        binary.unlink()
+        result = export.verify_export(moved)
+        self.assertEqual(len(result["files"]), 3)
+        self.assertTrue(report["runtime_payload_verified"])
+        self.assertTrue(report["symbols"]["symbol_names_verified"])
+        self.assertEqual(report["dynamic_sonames"][0]["provider"], "lib/libfixture.so.1")
+        self.assertFalse(report["hardware_gameplay_verified"])
+        self.assertFalse(report["audible_playback_verified"])
+        self.assertEqual(report["derivatives"], [])
+
+    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    def test_actual_runtime_rejects_provider_hash_dependency_dynamic_and_symbol_drift(self):
+        import copy
+        library, binary, original = self.compiled_runtime()
+        changes = (
+            ("hash", "provider hash mismatch"), ("needed", "dependency metadata differs"),
+            ("dynamic", "unresolved dynamic SONAME"), ("symbol", "required symbol absent"),
+            ("duplicate", "ambiguous provider SONAME"),
+        )
+        for label, message in changes:
+            documents = copy.deepcopy(original)
+            row = documents["runtime-abi.json"]["objects"][0]
+            if label == "hash":
+                row["sha256"] = "f" * 64
+            elif label == "needed":
+                row["needed"] = ["libmissing.so.1"]
+            elif label == "dynamic":
+                row["dlopen"][0]["soname"] = ["libmissing.so.1"]
+            elif label == "symbol":
+                row["required_providers"] = {"missing@SAMPLE_1": {"provider": "libfixture.so.1"}}
+            else:
+                documents["runtime-abi.json"]["objects"].append(copy.deepcopy(row))
+            with self.subTest(label=label), portable.Publication(self.root / label, self.sources) as publication:
+                with self.assertRaisesRegex(export.ExportError, message):
+                    portable.add_runtime(publication, documents, binary)
+            self.assertFalse((self.root / label).exists())
+
+    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    def test_declared_unsupported_dynamic_feature_is_excluded_explicitly(self):
+        library, binary, documents = self.compiled_runtime()
+        documents["contract.json"]["runtime"]["unsupported_dlopen_features"] = [
+            {"object": str(library), "feature": "fixture", "soname": ["libfixture.so.1"]}]
+        with portable.Publication(self.output, self.sources) as publication:
+            report = portable.add_runtime(publication, documents, binary)
+        self.assertEqual(report["dynamic_sonames"], [])
