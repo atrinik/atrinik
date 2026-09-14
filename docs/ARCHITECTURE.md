@@ -1656,3 +1656,8 @@ admission before any generation/build publication. Planning requires an already
 managed workspace and skips profile-resolution initialization/backfill. It uses
 filter-free Git status with exact LFS pointer/payload verification; unsupported
 custom clean filters refuse instead of executing external filter commands.
+
+Existing state data is recoverable only with its exact prior named registration;
+UID and directory layout alone establish no logical ownership. Source-generation
+quarantine and republication recheck retained reservations under the generation
+mutation lock. Healthy immutable generation reads remain available.

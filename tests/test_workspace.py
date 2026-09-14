@@ -2202,6 +2202,28 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(original.exists())
         self.assertTrue(build.exists())
 
+    def test_existing_state_recovery_requires_exact_registration(self):
+        from atrinik_workspace.workspace import _DeliveryResourceRecovery
+        name = "unregistered-existing"
+        state = self.workspace.state_path(name, self.workspace.paths.repositories / "server",
+                                          resolved_path=self.workspace.paths.state / "server" / name)
+        before = _tree_digest(state, set(), bounded_symlinks=True)
+        resources = [{"slot_id": "state", "kind": "state",
+                      "immutable": {"name": name, "path": str(state)}}]
+        proof = _DeliveryResourceRecovery(self.workspace, resources, {})
+        with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
+            with self.assertRaisesRegex(WorkspaceError, "unregistered state has no proven recovery ownership"):
+                proof.observe()
+        self.assertEqual(_tree_digest(state, set(), bounded_symlinks=True), before)
+        self.assertNotIn(name, self.workspace._load_states())
+        self.workspace.state_add(name, state)
+        registered = _DeliveryResourceRecovery(self.workspace, resources, {})
+        with self.workspace._resource_locks(registered.requests, nonblocking=True), registered.legacy_locks():
+            observation = registered.observe()["state"]
+        self.assertEqual(observation["disposition"], "residual-preserved")
+        self.assertTrue(observation["observations"][0]["registered"])
+        self.assertEqual(_tree_digest(state, set(), bounded_symlinks=True), before)
+
     def test_retained_source_generation_corruption_refuses_repair_before_mutation(self):
         from atrinik_workspace.delivery import ActiveDeliveryEvidence
         plan = self.workspace.build_plan("resources", "default")

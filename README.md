@@ -237,7 +237,9 @@ For an interrupted delivery with unbound build/state/topology plans, use the
 [resource recovery procedure](.agents/skills/atrinik-issue-delivery/references/delivery-ledger.md).
 Recovery preserves original intent, registered state, and proven residual output
 as nonreusable evidence. It does not initialize data, adopt output, or remove
-anything. Retained reservations also block overlapping new resource slots and
+anything. Existing state data requires an exact prior named registration;
+unregistered directories remain uncertain and recovery refuses them.
+Retained reservations also block overlapping new resource slots and
 cleanup. Mutable build/state/topology admission also refuses retained coordinates;
 ledger release/archive remains unavailable while those reservations
 require preservation. New work uses fresh names and a fresh recorded build plan.

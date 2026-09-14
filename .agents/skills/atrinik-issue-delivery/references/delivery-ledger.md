@@ -2247,7 +2247,9 @@ intent and exact predecessor bytes; derives `absent` or `residual-preserved`
 observations; leaves current null; and sets resource-only terminal state
 `recovered`. No binding, adoption, retarget, data initialization, deletion, or
 cleanup occurs. Every unselected ordinary unbound resource still blocks.
-Existing topology directories and unsupported/foreign/ambiguous resources refuse.
+Existing topology directories, unregistered existing state directories, and
+unsupported/foreign/ambiguous resources refuse. An existing state's exact named
+registration must already exist; directory shape and UID alone prove no ownership.
 Recovered slots, proof, original coordinates, residual paths/names, and dependency
 generation reservations are immutable; generic CAS cannot forge them or reuse
 an overlapping coordinate. Cleanup and ledger release preserve them.

@@ -2646,6 +2646,8 @@ class _DeliveryResourceRecovery:
                     if identity["name"] == "default" or path == workspace._canonical_state_path(Path(states.get("default", str(workspace.paths.state / "server" / "default")))):
                         raise WorkspaceError("implicit default state is not an eligible recovery resource")
                     if exists:
+                        if registered is None:
+                            raise WorkspaceError("existing unregistered state has no proven recovery ownership")
                         workspace._validate_state(path)
                         row["tree_sha256"] = _tree_digest(path, set(), bounded_symlinks=True)
                     row["registered"] = registered is not None
