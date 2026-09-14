@@ -498,8 +498,8 @@ def git(
     path: Path, *arguments: str, capture: bool = False, trace: bool = True
 ) -> str:
     options = ["--no-optional-locks", "-c", "core.fsmonitor=false"] if _BUILD_PLAN_GIT.get() else []
-    return run(["git", *options, "-C", str(path), *arguments], capture=capture, trace=trace,
-               env=dict(os.environ, GIT_NO_LAZY_FETCH="1", GIT_OPTIONAL_LOCKS="0") if _BUILD_PLAN_GIT.get() else None)
+    environment = {"env": dict(os.environ, GIT_NO_LAZY_FETCH="1", GIT_OPTIONAL_LOCKS="0")} if _BUILD_PLAN_GIT.get() else {}
+    return run(["git", *options, "-C", str(path), *arguments], capture=capture, trace=trace, **environment)
 
 
 def _darwin_descriptor_mount_path(descriptor: int) -> str:
@@ -4808,6 +4808,7 @@ class Workspace:
                     reused = reuse_generation()
                 except _SourceGenerationCorrupt as error:
                     try:
+                        self._guard_recovered_resource("source-generation", generation)
                         self._quarantine_source_generation(
                             container, generation, key
                         )
@@ -4820,6 +4821,7 @@ class Workspace:
                     if reused is not None:
                         return reused
 
+            self._guard_recovered_resource("source-generation", generation)
             staging = Path(
                 tempfile.mkdtemp(prefix=f"{key}-staging-", dir=container)
             )
@@ -8213,15 +8215,19 @@ class Workspace:
                 or load_regular_json(self.paths.marker, "workspace marker") != {"schema_version": SCHEMA_VERSION}):
             raise WorkspaceError("build planning requires an initialized workspace; run status first")
 
-    def _guard_recovered_resource(self, kind: str, path: Path, name: str | None = None) -> None:
-        """Re-read terminal reservations while the caller holds its mutation lock."""
-        from .delivery import inventory_active_delivery_evidence
+    def _delivery_evidence_roots(self) -> tuple[Path, ...]:
+        """Include evidence owned by the primary when invoked from a linked tree."""
         roots = {self.paths.repository}
         if (self.paths.repository / ".git").exists():
             records = _worktree_records(self.paths.repository, trace=False)
             if records and "worktree" in records[0]:
                 roots.add(Path(records[0]["worktree"]))
-        for root in sorted(roots):
+        return tuple(sorted(roots))
+
+    def _guard_recovered_resource(self, kind: str, path: Path, name: str | None = None) -> None:
+        """Re-read terminal reservations while the caller holds its mutation lock."""
+        from .delivery import inventory_active_delivery_evidence
+        for root in self._delivery_evidence_roots():
             evidence = inventory_active_delivery_evidence(root)
             for row in evidence.recovered:
                 retained = Path(row["path"])
@@ -11575,10 +11581,12 @@ class Workspace:
             name: value for name, value in os.environ.items()
             if not name.startswith("GIT_")
         }
+        options = []
         if _BUILD_PLAN_GIT.get():
             environment.update(GIT_NO_LAZY_FETCH="1", GIT_OPTIONAL_LOCKS="0")
+            options = ["--no-optional-locks", "-c", "core.fsmonitor=false"]
         return run(
-            ["git", "--no-replace-objects", "-c", "core.fsmonitor=false", "-C", str(checkout), *arguments],
+            ["git", "--no-replace-objects", *options, "-C", str(checkout), *arguments],
             capture=capture, trace=trace, env=environment,
         )
 

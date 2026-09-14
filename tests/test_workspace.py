@@ -6,6 +6,7 @@ from contextlib import contextmanager, ExitStack, nullcontext, redirect_stderr
 import ctypes
 import errno
 import fcntl
+import gc
 import hashlib
 import io
 import json
@@ -2201,6 +2202,73 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(original.exists())
         self.assertTrue(build.exists())
 
+    def test_retained_source_generation_corruption_refuses_repair_before_mutation(self):
+        from atrinik_workspace.delivery import ActiveDeliveryEvidence
+        plan = self.workspace.build_plan("resources", "default")
+        build = self.workspace.build("resources", "default", False, expected_plan=plan["plan_sha256"])
+        source = Path(plan["execution_sources"]["resources"])
+        generation = source.parent
+        metadata = generation / workspace_module.SOURCE_GENERATION_METADATA
+        evidence = ActiveDeliveryEvidence(self.wrapper / "build/reviews", {}, (), (), (
+            {"kind": "build", "name": build.name, "path": str(build), "ledger": "fixture"},
+            {"kind": "build", "name": generation.name, "path": str(generation), "ledger": "fixture"}))
+        # Healthy retained immutable input remains consumable by fresh builds.
+        with mock.patch("atrinik_workspace.delivery.inventory_active_delivery_evidence", return_value=evidence):
+            with self.workspace._resolved_profile_operation("default", {"resources"},
+                "read retained immutable dependency", materialize_clean_primaries=True) as observed:
+                self.assertEqual(observed.paths()["resources"], source)
+        generation.chmod(0o700)
+        metadata.chmod(0o600)
+        value = json.loads(metadata.read_text())
+        value["source_tree_sha256"] = "0" * 64
+        metadata.write_text(json.dumps(value))
+        generation.chmod(0o500)
+        before = metadata.read_bytes()
+        with mock.patch("atrinik_workspace.delivery.inventory_active_delivery_evidence", return_value=evidence):
+            with self.assertRaisesRegex(WorkspaceError, "terminal delivery recovery"):
+                self.workspace.build("resources", "default", False)
+        self.assertEqual(metadata.read_bytes(), before)
+        self.assertEqual(list(generation.parent.glob(generation.name + "-staging-recovery_*")), [])
+
+    def test_linked_cleanup_protects_primary_owned_residual_build(self):
+        from atrinik_workspace.delivery import ActiveDeliveryEvidence
+        build = self.workspace.build("resources", "default", False)
+        self.workspace.close()
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        command("git", "config", "user.name", "Tests", cwd=self.wrapper)
+        command("git", "config", "user.email", "tests@example.invalid", cwd=self.wrapper)
+        command("git", "add", "components.json", cwd=self.wrapper)
+        command("git", "commit", "-m", "wrapper fixture", cwd=self.wrapper)
+        command("git", "remote", "add", "origin", "https://github.com/atrinik/atrinik.git", cwd=self.wrapper)
+        for checkout in self.workspace.manifest.checkouts:
+            command("git", "remote", "set-url", "origin", "https://github.com/" + checkout.repository + ".git",
+                    cwd=self.wrapper / checkout.path)
+        linked_path = self.root / "linked-wrapper"
+        command("git", "worktree", "add", "-b", "test/linked", str(linked_path), cwd=self.wrapper)
+        primary = Workspace(self.wrapper)
+        linked = Workspace(linked_path)
+        evidence = ActiveDeliveryEvidence(self.wrapper / "build/reviews",
+            {build: ("retained-fixture",)}, ("retained-fixture",), (),
+            ({"kind": "build", "name": build.name, "path": str(build), "ledger": "retained-fixture"},))
+        visited = []
+        def inventory(root):
+            visited.append(root)
+            return evidence if root == self.wrapper else ActiveDeliveryEvidence(root / "build/reviews", {}, (), ())
+        try:
+            with mock.patch("atrinik_workspace.cleanup.inventory_active_delivery_evidence", side_effect=inventory):
+                for workspace in (primary, linked):
+                    report = workspace.cleanup(["builds"], 0, [], False)
+                    item = next(row for row in report["items"] if row["path"] == str(build))
+                    self.assertEqual(item["disposition"], "protected")
+                    self.assertIn("delivery_reference", item["reasons"])
+                    self.assertIn("retained-fixture", item["references"]["delivery"])
+            self.assertIn(self.wrapper, visited)
+            self.assertIn(linked_path, visited)
+            self.assertTrue(build.is_dir())
+        finally:
+            primary.close()
+            linked.close()
+
     def test_planning_missing_promisor_tree_does_not_fetch_objects(self):
         primary = self.workspace.paths.repositories / "resources"
         tree = command("git", "rev-parse", "HEAD^{tree}", cwd=primary).strip()
@@ -2260,7 +2328,19 @@ class WorkspaceTests(unittest.TestCase):
         from atrinik_workspace.workspace import _DeliveryResourceRecovery
         state = self.workspace.state_add("fd-retained", None)
         resources = [{"slot_id": "state", "kind": "state", "immutable": {"name": "fd-retained", "path": str(state)}}]
-        baseline = len(list(Path("/proc/self/fd").iterdir()))
+        gc.collect()
+        def owned_descriptors():
+            result = {}
+            for descriptor in Path("/proc/self/fd").iterdir():
+                try:
+                    target = descriptor.readlink()
+                except FileNotFoundError:
+                    continue
+                if target.is_relative_to(self.root):
+                    identity = descriptor.stat()
+                    result[descriptor.name] = (str(target), identity.st_dev, identity.st_ino)
+            return result
+        baseline = owned_descriptors()
         for _ in range(12):
             proof = _DeliveryResourceRecovery(self.workspace, resources, {})
             with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
@@ -2269,7 +2349,7 @@ class WorkspaceTests(unittest.TestCase):
                 with self.assertRaises(WorkspaceError):
                     with proof.legacy_locks():
                         self.fail("contending legacy lock admitted")
-            self.assertEqual(len(list(Path("/proc/self/fd").iterdir())), baseline)
+            self.assertEqual(owned_descriptors(), baseline)
 
     def test_recovered_resources_refuse_mutation_but_allow_fresh_siblings(self):
         from atrinik_workspace.delivery import ActiveDeliveryEvidence

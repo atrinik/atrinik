@@ -3911,10 +3911,11 @@ class Cleanup:
             errors.add("retention_inventory_error")
 
     def _delivery_references(self, references: dict[str, Any], errors: set[str]) -> None:
-        evidence = inventory_active_delivery_evidence(self.paths.repository)
-        for path, ledgers in evidence.references.items():
-            for ledger in ledgers:
-                self._add_reference(references["delivery"], path, ledger)
+        for root in self.workspace._delivery_evidence_roots():
+            evidence = inventory_active_delivery_evidence(root)
+            for path, ledgers in evidence.references.items():
+                for ledger in ledgers:
+                    self._add_reference(references["delivery"], path, ledger)
 
     def _worktrees(
         self,
