@@ -54,6 +54,9 @@ _TEST_CLI_ACTOR_BOOTSTRAP = (
     "raise SystemExit(module.main())\n"
 )
 
+_TEST_CLI_CONTEXT_BOOTSTRAP = _TEST_CLI_ACTOR_BOOTSTRAP.replace(
+    "module._authenticated_actor = lambda document, _context=None: document['actor']\n", "")
+
 SHA_A = "a" * 40
 SHA_B = "b" * 40
 SHA_C = "c" * 40
@@ -6561,6 +6564,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "worktree-bind",
                     str(root),
@@ -6794,6 +6798,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "scope-bind",
                     str(root),
@@ -8740,6 +8745,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "worktree-observe",
                     str(review_root),
@@ -8759,6 +8765,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "worktree-bind-cas",
                     str(review_root),
@@ -9017,6 +9024,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 (),
                 {
                     "Manifest": module.Manifest,
+                    "resource_lock_path": module.resource_lock_path,
                     "Workspace": DriftingWorkspace,
                 },
             )
@@ -9056,6 +9064,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 (),
                 {
                     "Manifest": module.Manifest,
+                    "resource_lock_path": module.resource_lock_path,
                     "Workspace": RacingWorkspace,
                 },
             )
@@ -9144,6 +9153,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                         (),
                         {
                             "Manifest": module.Manifest,
+                            "resource_lock_path": module.resource_lock_path,
                             "Workspace": RacingWorkspace,
                         },
                     )
@@ -9213,7 +9223,11 @@ class DeliveryLedgerTests(unittest.TestCase):
             return type(
                 "RacingAbaProfileWorkspaceModule",
                 (),
-                {"Manifest": module.Manifest, "Workspace": RacingWorkspace},
+                {
+                    "Manifest": module.Manifest,
+                    "resource_lock_path": module.resource_lock_path,
+                    "Workspace": RacingWorkspace,
+                },
             )
 
         with mock.patch.object(
@@ -9538,6 +9552,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "scope-observe",
                     str(review_root),
@@ -9558,6 +9573,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "scope-bind-cas",
                     str(review_root),
@@ -10557,7 +10573,11 @@ class DeliveryLedgerTests(unittest.TestCase):
             return type(
                 "LegacyPrimaryWorkspaceModule",
                 (),
-                {"Manifest": module.Manifest, "Workspace": LegacyWorkspace},
+                {
+                    "Manifest": module.Manifest,
+                    "resource_lock_path": module.resource_lock_path,
+                    "Workspace": LegacyWorkspace,
+                },
             )
 
         roots = live_roots(self.live_base / "dirty-bootstrap", "atrinik")
@@ -11877,6 +11897,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                     (),
                     {
                         "Manifest": module.Manifest,
+                        "resource_lock_path": module.resource_lock_path,
                         "Workspace": LegacyWorkspace,
                     },
                 )
@@ -12216,6 +12237,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "correct-target-head",
                     str(root),
@@ -13428,6 +13450,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "target-refresh-cas",
                     str(root),
@@ -13777,7 +13800,11 @@ class DeliveryLedgerTests(unittest.TestCase):
                 return type(
                     "RacingTopologyWorkspaceModule",
                     (),
-                    {"Manifest": module.Manifest, "Workspace": RacingWorkspace},
+                    {
+                        "Manifest": module.Manifest,
+                        "resource_lock_path": module.resource_lock_path,
+                        "Workspace": RacingWorkspace,
+                    },
                 )
 
             raced_candidate = advance(refreshed, "replacement-topology")
@@ -15367,7 +15394,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         from atrinik_workspace.locking import LeaseRequest, resource_lock_path
         fake_workspace._lease_namespace = self.live_base / "fixture-namespace"
         fake_workspace._lease_root.return_value = fake_workspace._lease_namespace
-        fake_workspace._lease_request.side_effect = LeaseRequest
+        fake_workspace._lease_request.side_effect = lambda *args: LeaseRequest(*args, "fixture recovery instruction")
         fake_module = mock.Mock()
         fake_module.resource_lock_path = resource_lock_path
         fake_module.Workspace.return_value = fake_workspace
@@ -15800,6 +15827,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         resource["current"] = {
             "binding": inline_payload(record_raw),
             "lifecycle": "active",
+            "path": None,
         }
         snapshot = mock.Mock(
             document={

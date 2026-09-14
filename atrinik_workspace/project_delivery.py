@@ -21,24 +21,55 @@ from .path_identity import canonical_path, descriptor_path
 SOURCE_ROOT = Path(__file__).resolve().parents[1]
 
 
-def context() -> Path:
+def context(*, mutable_roots: tuple[Path, ...] = ()) -> Path:
     """Do not let a caller-supplied runtime marker authorize this CLI."""
-    result = subprocess.run([sys.executable, str(SOURCE_ROOT / "scripts/atrinik_coordinator_context.py"),
-                             "--json"], capture_output=True, timeout=30, check=False)
-    require(result.returncode == 0, "coordinator probe failed")
-    probe = json.loads(result.stdout)
-    require(isinstance(probe, dict) and probe.get("authoritative") is True
-            and probe.get("status") in ("canonical-linux", "native-linux"),
-            "project operations require a proven canonical container or supported native Linux coordinator")
+    def prove(subjects):
+        command = [sys.executable, str(SOURCE_ROOT / "scripts/atrinik_coordinator_context.py"), "--json"]
+        for subject in dict.fromkeys(subjects):
+            command.extend(("--mutable-root", str(subject)))
+        result = subprocess.run(command, capture_output=True, timeout=30, check=False)
+        require(result.returncode == 0, "coordinator probe failed")
+        probe = json.loads(result.stdout)
+        require(isinstance(probe, dict) and probe.get("authoritative") is True
+                and probe.get("status") in ("canonical-linux", "native-linux"),
+                "project operations require a proven canonical container or supported native Linux coordinator")
+    prove(())
     common = subprocess.run(["git", "-C", str(SOURCE_ROOT), "rev-parse", "--path-format=absolute",
                              "--git-common-dir"], capture_output=True, text=True, timeout=20, check=True)
     root = Path(common.stdout.strip()).parent
     require((root / "components.json").is_file(), "wrapper root unresolved")
+    prove((root, root / "build", root / "build/project-delivery", *mutable_roots))
     return root
+
+
+def _project_context(wrapper: Path, directory: Path) -> None:
+    require(context(mutable_roots=(directory, directory / "project.lock",
+                                   directory / "project.json")) == wrapper,
+            "project primary wrapper changed")
+
+
+class ContextStore(Store):
+    """Repeat exact storage eligibility within the existing locked transaction."""
+
+    def __init__(self, wrapper: Path, root: Path):
+        super().__init__(root)
+        self.wrapper = wrapper
+
+    @contextmanager
+    def locked(self, create: bool = False):
+        _project_context(self.wrapper, self.root)
+        with super().locked(create=create) as (fd, retained_check):
+            def check():
+                retained_check()
+                _project_context(self.wrapper, self.root)
+            check()
+            yield fd, check
+            check()
 
 
 def initialize_root(wrapper: Path, parent: str) -> Path:
     directory = wrapper / "build" / "project-delivery" / digest({"parent": parent})
+    _project_context(wrapper, directory)
     ignored = subprocess.run(["git", "-C", str(wrapper), "check-ignore", "--quiet", "--", str(directory)],
                              timeout=20, check=False)
     require(ignored.returncode == 0, "project root must be Git ignored")
@@ -54,6 +85,7 @@ def initialize_root(wrapper: Path, parent: str) -> Path:
             fd = next_fd
     finally:
         os.close(fd)
+    _project_context(wrapper, directory)
     return directory
 
 
@@ -134,10 +166,10 @@ def run(args, github=None):
         document = new_project(plan, gh.actor(), args.authority)
         refresh(document, gh)
         root = initialize_root(wrapper, plan["parent"])
-        return {"root": str(root), "snapshot": Store(root).create(document)}
+        return {"root": str(root), "snapshot": ContextStore(wrapper, root).create(document)}
     require(args.root is not None, "--root is required")
     require(args.root.parent == wrapper / "build" / "project-delivery", "noncanonical project root")
-    store = Store(args.root)
+    store = ContextStore(wrapper, args.root)
     snapshot = store.inspect()
     require(args.root.name == digest({"parent": snapshot["document"]["plan"]["parent"]}),
             "project/root mismatch")

@@ -2,7 +2,7 @@
 """Load the shared read-only context probe through trusted source descriptors.
 
 No package import or ambient PYTHONPATH lookup executes before source validation.
-Windows remains non-authoritative; reparse points are rejected there as well.
+Native Windows returns its non-authoritative diagnostic before shared source loading.
 """
 from __future__ import annotations
 
@@ -11,33 +11,53 @@ from pathlib import Path
 import stat
 
 
+def _native_windows_main() -> int:
+    # Windows cannot authorize Linux operations and need not execute their source.
+    import argparse
+    import json
+    parser = argparse.ArgumentParser(description="Probe the read-only Atrinik delivery coordinator context")
+    parser.add_argument("--root")
+    parser.add_argument("--mutable-root", action="append", default=[])
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
+    result = {"schema_version": 2, "authoritative": False, "status": "native-windows",
+              "entry_mode": "native-host", "diagnostic": "native-windows-boundary",
+              "failed_checks": ["native-host-boundary", "posix-ledger-primitives"],
+              "next_action": "Bootstrap or attach to the pinned Atrinik Linux devcontainer before "
+                             "any delivery-ledger mutation."}
+    if args.json:
+        print(json.dumps(result, sort_keys=True))
+    else:
+        print("atrinik coordinator: native-windows (authoritative=false)\n"
+              "entry mode: native-host\n"
+              "failed checks: " + ", ".join(result["failed_checks"]) + "\n"
+              "next action: " + result["next_action"])
+    return 2
+
+
+if os.name == "nt":
+    if __name__ == "__main__":
+        raise SystemExit(_native_windows_main())
+    raise ImportError("Linux authority source is unavailable on native Windows; run the diagnostic CLI")
+
+
 def _read_probe_source(path: Path) -> bytes:
     uid = os.geteuid() if hasattr(os, "geteuid") else None
     directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
     descriptors = []
     try:
-        # Windows does not provide descriptor-relative opens; verify every
-        # reparse-free ancestor before opening. It cannot gain Linux authority.
-        if os.name == "nt":
-            for parent in (*reversed(path.parents), path):
-                info = parent.lstat()
-                if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
-                    raise OSError("probe source has a reparse point")
-            descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_BINARY", 0))
-            descriptors.append(descriptor)
-        else:
-            descriptor = os.open(path.anchor, directory_flags)
-            descriptors.append(descriptor)
-            for index, name in enumerate((None, *path.parts[1:])):
-                if name is not None:
-                    flags = os.O_RDONLY | os.O_NOFOLLOW
-                    if index != len(path.parts) - 1:
-                        flags |= os.O_DIRECTORY
-                    descriptor = os.open(name, flags, dir_fd=descriptor)
-                    descriptors.append(descriptor)
-                info = os.fstat(descriptor)
-                if info.st_uid not in (0, uid) or info.st_mode & 0o022:
-                    raise OSError("probe source ancestry is not trusted")
+        descriptor = os.open(path.anchor, directory_flags)
+        descriptors.append(descriptor)
+        for index, name in enumerate((None, *path.parts[1:])):
+            if name is not None:
+                flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+                if index != len(path.parts) - 1:
+                    flags |= os.O_DIRECTORY
+                descriptor = os.open(name, flags, dir_fd=descriptor)
+                descriptors.append(descriptor)
+            info = os.fstat(descriptor)
+            if info.st_uid not in (0, uid) or info.st_mode & 0o022:
+                raise OSError("probe source ancestry is not trusted")
         before = os.fstat(descriptor)
         if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 128 * 1024:
             raise OSError("probe source is not a bounded regular file")
@@ -52,14 +72,11 @@ def _read_probe_source(path: Path) -> bytes:
         if len(data) != before.st_size or identity(before) != identity(after):
             raise OSError("probe source changed during read")
         # Check all opened named ancestors at the same operation boundary.
-        if os.name != "nt":
-            for index in range(1, len(descriptors)):
-                visible = os.stat(path.parts[index], dir_fd=descriptors[index - 1], follow_symlinks=False)
-                opened = os.fstat(descriptors[index])
-                if (visible.st_dev, visible.st_ino) != (opened.st_dev, opened.st_ino):
-                    raise OSError("probe source path changed during read")
-        elif identity(path.lstat()) != identity(after):
-            raise OSError("probe source path changed during read")
+        for index in range(1, len(descriptors)):
+            visible = os.stat(path.parts[index], dir_fd=descriptors[index - 1], follow_symlinks=False)
+            opened = os.fstat(descriptors[index])
+            if (visible.st_dev, visible.st_ino) != (opened.st_dev, opened.st_ino):
+                raise OSError("probe source path changed during read")
         return bytes(data)
     finally:
         for descriptor in reversed(descriptors):

@@ -386,6 +386,33 @@ class CoordinatorContextTests(unittest.TestCase):
             self.assertFalse(sentinel.exists())
             self.assertFalse((package / "__pycache__").exists())
 
+    @unittest.skipUnless(os.name == "posix", "POSIX FIFO source rejection")
+    def test_standalone_fifo_source_rejection_is_bounded(self) -> None:
+        with tempfile.TemporaryDirectory(prefix=".probe-fifo-test-", dir=ROOT) as temporary:
+            directory = Path(temporary)
+            (directory / "scripts").mkdir()
+            (directory / "atrinik_workspace").mkdir()
+            script = directory / "scripts/atrinik_coordinator_context.py"
+            script.write_bytes(SCRIPT.read_bytes())
+            os.mkfifo(directory / "atrinik_workspace/coordinator_context.py", 0o600)
+            result = subprocess.run([sys.executable, "-B", str(script), "--json"],
+                                    capture_output=True, text=True, timeout=5)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertEqual(json.loads(result.stdout)["diagnostic"], "probe-source-untrusted")
+
+    def test_windows_cli_returns_before_any_shared_source_access(self) -> None:
+        code = compile(SCRIPT.read_bytes(), str(SCRIPT), "exec")
+        expected = context.probe(ROOT, system="Windows")
+        output = io.StringIO()
+        with mock.patch.object(os, "name", "nt"), \
+             mock.patch.object(os, "open", side_effect=AssertionError("source open on Windows")), \
+             mock.patch.object(Path, "lstat", side_effect=AssertionError("source stat on Windows")), \
+             mock.patch.object(sys, "argv", [str(SCRIPT), "--json"]), redirect_stdout(output):
+            with self.assertRaises(SystemExit) as stopped:
+                exec(code, {"__name__": "__main__", "__file__": str(SCRIPT)})
+        self.assertEqual(stopped.exception.code, 2)
+        self.assertEqual(json.loads(output.getvalue()), expected)
+
     def test_probe_source_does_not_import_posix_locking(self) -> None:
         source = SCRIPT.read_text(encoding="utf-8")
         self.assertNotIn("import fcntl", source)
@@ -534,6 +561,93 @@ class NativeCoordinatorTests(unittest.TestCase):
         with self.assertRaisesRegex(ledger.LedgerError, "lacks exact delivery context"):
             ledger._require_workspace_filesystem_eligibility(SimpleNamespace(), self.repository, selected)
 
+    def test_real_git_lease_subjects_refuse_nested_mount_before_namespace_creation(self) -> None:
+        import pwd
+        from types import SimpleNamespace
+        from tests.test_delivery_ledger import ledger
+        from atrinik_workspace.workspace import Workspace
+        subprocess.run(["git", "init", "--initial-branch=main", str(self.repository)],
+                       check=True, capture_output=True)
+        module = SimpleNamespace(coordinator_context=context, Workspace=Workspace)
+        real_probe = context.probe
+        def classified(authority_root, **kwargs):
+            return real_probe(self.repository, system="Linux", user_name="vscode",
+                              effective_uid=self.uid, runtime_root=self.root,
+                              cwd=self.repository, **kwargs)
+        key = str(self.proc / str(os.getpid()) / "mountinfo")
+        original = self.inputs[key]
+        with mock.patch.dict(os.environ, self.environment, clear=True), \
+             mock.patch.object(context, "probe", side_effect=classified), \
+             mock.patch.object(context, "_native_read", side_effect=self.read), \
+             mock.patch.object(context, "_native_open", side_effect=self.open), \
+             mock.patch.object(pwd, "getpwuid", return_value=SimpleNamespace(pw_dir=str(self.home))), \
+             mock.patch.object(Workspace, "__init__", side_effect=AssertionError("operational constructor")):
+            subjects = Workspace._delivery_context_subjects(self.repository)
+            self.assertTrue(subjects)
+            namespace = self.repository / ".git/atrinik-resource-leases"
+            self.assertFalse(namespace.exists())
+            ledger._require_workspace_filesystem_eligibility(module, self.repository, self.repository / "workspace")
+            for unsafe in (self.repository / ".git", namespace):
+                with self.subTest(unsafe=unsafe):
+                    if unsafe == namespace:
+                        unsafe.mkdir()
+                    self.inputs[key] = original + f"3 1 8:1 / {unsafe} rw - 9p bridge rw\n"
+                    before = sorted(str(path.relative_to(self.repository)) for path in self.repository.rglob("*"))
+                    with self.assertRaisesRegex(ledger.LedgerError, "filesystem context is ineligible"):
+                        ledger._require_workspace_filesystem_eligibility(module, self.repository,
+                                                                         self.repository / "workspace")
+                    self.assertEqual(before, sorted(str(path.relative_to(self.repository))
+                                                    for path in self.repository.rglob("*")))
+                    self.assertFalse((namespace / "leases").exists())
+
+    def test_project_primary_storage_mount_is_checked_before_create_and_at_cas(self) -> None:
+        from atrinik_workspace import project_delivery
+        from atrinik_workspace.project_coordinator import ProjectError, digest
+        from atrinik_workspace.project_coordinator_store import Store
+        from tests.test_project_coordinator import project
+        primary = self.root / "primary"
+        primary.mkdir()
+        (primary / "components.json").write_text("{}")
+        parent = "atrinik/atrinik#1"
+        directory = primary / "build/project-delivery" / digest({"parent": parent})
+        directory.parent.mkdir(parents=True)
+        key = str(self.proc / str(os.getpid()) / "mountinfo")
+        original = self.inputs[key]
+        observed = []
+        def run(command, **kwargs):
+            if command[0] == "git":
+                if "--git-common-dir" in command:
+                    return subprocess.CompletedProcess(command, 0, stdout=str(primary / ".git") + "\n")
+                return subprocess.CompletedProcess(command, 0)
+            roots = tuple(Path(command[index + 1]) for index, value in enumerate(command)
+                          if value == "--mutable-root")
+            observed.append(roots)
+            result = self.probe(mutable_roots=roots)
+            return subprocess.CompletedProcess(command, 0 if result["authoritative"] else 2,
+                                               stdout=json.dumps(result).encode())
+        with mock.patch.object(project_delivery, "SOURCE_ROOT", self.repository), \
+             mock.patch.object(project_delivery.subprocess, "run", side_effect=run):
+            self.inputs[key] = original + f"3 1 8:1 / {directory.parent} rw - 9p bridge rw\n"
+            with self.assertRaisesRegex(ProjectError, "probe failed"):
+                project_delivery.initialize_root(primary, parent)
+            self.assertFalse(directory.exists())
+            self.inputs[key] = original
+            self.assertEqual(project_delivery.initialize_root(primary, parent), directory)
+            store = project_delivery.ContextStore(primary, directory)
+            initial = store.create(project())
+            raw = (directory / "project.json").read_bytes()
+            def change(document):
+                self.inputs[key] = original + f"3 1 8:1 / {directory / 'project.json'} rw - 9p bridge rw\n"
+            with self.assertRaisesRegex(ProjectError, "probe failed"):
+                store.update(initial, change)
+            self.assertEqual((directory / "project.json").read_bytes(), raw)
+            self.inputs[key] = original
+            self.assertEqual(Store(directory).inspect(), initial)
+            updated, _ = store.update(initial, lambda document: None)
+            self.assertEqual(updated["generation"], initial["generation"] + 1)
+        self.assertTrue(any(directory / "project.lock" in roots and directory / "project.json" in roots
+                            and primary / "build" in roots for roots in observed))
+
     def test_user_namespace_maps_require_one_full_initial_identity_row(self) -> None:
         key = str(self.proc / str(os.getpid()) / "uid_map")
         for value in ("0 1000 1\n", "0 0 4294967295\n1 1 1\n", "", "0 0 invalid"):
@@ -673,8 +787,11 @@ class ProjectContextConsumerTests(unittest.TestCase):
                 result = {"authoritative": True, "status": status}
                 with mock.patch.object(project_delivery.subprocess, "run", side_effect=[
                     subprocess.CompletedProcess([], 0, stdout=json.dumps(result).encode()),
-                    subprocess.CompletedProcess([], 0, stdout=str(root / ".git") + "\n")]):
-                    self.assertEqual(project_delivery.context(), root)
+                    subprocess.CompletedProcess([], 0, stdout=str(root / ".git") + "\n"),
+                    subprocess.CompletedProcess([], 0, stdout=json.dumps(result).encode())]) as calls:
+                    self.assertEqual(project_delivery.context(mutable_roots=(root / "build/project-delivery/exact",)), root)
+                    self.assertIn(str(root / "build/project-delivery/exact"), calls.call_args.args[0])
+                    self.assertIn(str(root / "build"), calls.call_args.args[0])
             invalid = [{}, [], {"authoritative": "true", "status": "native-linux"},
                        {"authoritative": False, "status": "native-linux"},
                        {"authoritative": 1, "status": "canonical-linux"},

@@ -34,6 +34,11 @@ subjects such as profiles and locks include their own filesystem mount. Operator
 probe arguments cannot substitute for helper-derived ownership or permission.
 Existing review-lock bookkeeping remains separate from operational admission;
 missing descendants grant no reuse or creation authority.
+Project delivery also proves the resolved primary checkout build directory and
+its exact project directory, record and lock before storage access, then repeats
+that proof inside the existing transaction before publication. Linked-worktree
+invocation does not exempt the primary storage filesystem. Native Windows emits
+its stable non-authoritative diagnostic without loading Linux authority source.
 
 Both caller and PID1 UID/GID maps must contain the full initial identity row
 `0 0 4294967295`. Caller numeric-PID mountinfo must identify genuine procfs
