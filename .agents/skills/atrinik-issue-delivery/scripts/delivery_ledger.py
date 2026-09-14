@@ -6427,8 +6427,49 @@ def _scope_binding_observation(
         raise LedgerError(f"{context} path identity differs from scope result")
 
 
+def _resource_context_selector(value):
+    selector = _exact(value, {"kind", "worktree_slot"}, "resource context selector")
+    if selector["kind"] != "bound-wrapper-worktree":
+        raise LedgerError("unsupported resource context kind")
+    _string(selector["worktree_slot"], "resource context worktree slot", SLOT_RE)
+    return selector
+
+
+def _bound_resource_context(document, selector, slots):
+    """Derive paths solely from the exact installed wrapper worktree identity."""
+    selector = _resource_context_selector(selector)
+    matches = [row for row in document["artifacts"]
+               if row["slot_id"] == selector["worktree_slot"] and row["kind"] == "worktree"]
+    if len(matches) != 1 or matches[0]["current"] is None:
+        raise LedgerError("resource context requires an exact bound wrapper worktree")
+    worktree = matches[0]
+    request = _target_refresh_worktree_provenance(document, worktree)[0]
+    if (request["component"] != "atrinik" or request["physical_checkout"] != "atrinik"
+            or request["roots"]["wrapper"] != request["roots"]["primary"]
+            or request["repository"]["owner"] != "atrinik"
+            or request["repository"]["name"] != "atrinik"):
+        raise LedgerError("resource context is not a bound wrapper target")
+    if any(row["immutable"]["repository"] != worktree["current"]["repository"]
+           for row in document["resources"] if row["slot_id"] in slots):
+        raise LedgerError("resource context selection spans foreign target repositories")
+    wrapper = worktree["current"]["path"]
+    return {**selector, "wrapper": wrapper, "workspace": str(Path(wrapper) / "workspace")}
+
+
+def _retained_resource_context(document, proof):
+    if "resource_context" not in proof:
+        return None
+    context = proof["resource_context"]
+    _exact(context, {"kind", "worktree_slot", "wrapper", "workspace"}, "retained resource context")
+    selector = {key: context[key] for key in ("kind", "worktree_slot")}
+    if _bound_resource_context(document, selector, proof["slots"]) != context:
+        raise LedgerError("retained resource context differs from its bound worktree")
+    return context
+
+
 def _recovered_resource_proof(resource, context):
-    proof = _exact(resource["recovery"], {"predecessor", "slots", "build_outputs", "observation"}, context + ".recovery")
+    proof = _exact(resource["recovery"], {"predecessor", "slots", "build_outputs", "observation"}
+                   | ({"resource_context"} if "resource_context" in resource["recovery"] else set()), context + ".recovery")
     predecessor = _exact(proof["predecessor"], {"generation", "digest", "path", "payload"}, context + ".predecessor")
     _integer(predecessor["generation"], context + ".generation")
     _string(predecessor["digest"], context + ".digest", SHA256_RE)
@@ -6445,6 +6486,7 @@ def _recovered_resource_proof(resource, context):
         _RESOURCE_PROOF_DEPTH.reset(token)
     if canonical_bytes(before) != raw or byte_digest(raw) != predecessor["digest"] or before["generation"] != predecessor["generation"]:
         raise LedgerError("resource recovery predecessor identity differs")
+    _retained_resource_context(before, proof)
     slots = _sorted_names(proof["slots"], context + ".slots")
     if resource["slot_id"] not in slots:
         raise LedgerError("resource recovery slot is outside retained selection")
@@ -7167,7 +7209,7 @@ def validate(document: Any) -> dict[str, Any]:
                 raise LedgerError("resource recovery predecessor authority differs")
         peers = [row for row in recovered if row["slot_id"] in proof["slots"]]
         if sorted(row["slot_id"] for row in peers) != proof["slots"] or any(
-            any(row["recovery"][field] != proof[field] for field in ("predecessor", "slots", "build_outputs")) for row in peers
+            any(row["recovery"].get(field) != proof.get(field) for field in ("predecessor", "slots", "build_outputs", "resource_context")) for row in peers
         ):
             raise LedgerError("resource recovery batch proof is incomplete")
     migration = item["migration"]
@@ -14509,6 +14551,50 @@ def _current_target_leases(plans: Sequence[Any]) -> Iterator[None]:
 
 
 @contextmanager
+def _bound_resource_workspace(document, context):
+    """Use accepted primary code with pinned bound-wrapper data, never its code."""
+    slot = next(row for row in document["artifacts"] if row["slot_id"] == context["worktree_slot"])
+    request = _target_refresh_worktree_provenance(document, slot)[0]
+    wrapper = context["wrapper"]
+    workspace = context["workspace"]
+    with ExitStack() as stack:
+        directory = _directory_fd(Path(wrapper))
+        stack.callback(os.close, directory)
+        data_directory = _open_trusted_child_directory(directory, "workspace", workspace, "resource workspace")
+        stack.callback(os.close, data_directory)
+        raw, status = _read_regular(directory, "components.json")
+        _require_trusted_regular(status, "resource workspace manifest")
+        marker, marker_status = _read_regular(data_directory, ".atrinik-workspace.json")
+        _require_trusted_regular(marker_status, "resource workspace marker")
+        if _decode(marker, "resource workspace marker") != {"schema_version": 1}:
+            raise LedgerError("resource workspace is not managed")
+        module = _load_workspace_module(request["roots"]["wrapper"]["path"])
+        manifest = module.Manifest.from_value(_decode(raw, "resource manifest"))
+        saved = _enter_workspace_environment(workspace)
+        try:
+            preparation = module.Workspace._prepare_delivery_workspace(Path(wrapper), manifest=manifest)
+        finally:
+            _leave_workspace_environment(saved)
+        stack.callback(preparation.close)
+        if str(preparation.paths.repository) != wrapper or str(preparation.paths.workspace) != workspace:
+            raise LedgerError("resource workspace differs from its exact bound context")
+
+        def recheck():
+            _recheck_pinned_directory(directory, wrapper, "resource wrapper", wrapper)
+            _recheck_pinned_directory(data_directory, workspace, "resource workspace", workspace)
+            for fd, name, expected in ((directory, "components.json", raw),
+                                       (data_directory, ".atrinik-workspace.json", marker)):
+                current, current_status = _read_regular(fd, name)
+                _require_trusted_regular(current_status, "resource workspace authority")
+                if current != expected:
+                    raise LedgerError("resource workspace authority changed during proof")
+            preparation._verify_identity()
+
+        recheck()
+        yield module, preparation, recheck
+
+
+@contextmanager
 def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_request=None, observations=None) -> Iterator[Callable[[], None]]:
     """Prepare every current target, then prove under one complete lease union."""
 
@@ -14547,15 +14633,34 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
             for change in changes
         ]
         resource_proofs = []
-        for module, preparation, requests in tuple(plans):
-            target_repositories = {
-                change["after"]["repository"]["node_id"] for change in changes
-                if _target_refresh_worktree_provenance(document, change["worktree_slot"])[0]["roots"]["wrapper"]["path"] == str(preparation.paths.repository)
-            }
-            resources = [row for row in document["resources"] if row["immutable"]["repository"]["node_id"] in target_repositories
-                         and (row["slot_id"] in recovery_slots or row["state"] == "recovered")]
-            if not resources or any(str(pr.workspace.paths.workspace) == str(preparation.paths.workspace) for pr in resource_proofs):
+        context_checks = []
+        resource_groups = {}
+        for row in document["resources"]:
+            if row["slot_id"] not in recovery_slots and row["state"] != "recovered":
                 continue
+            if row["state"] == "recovered":
+                context = _retained_resource_context(document, row["recovery"])
+            elif recovery_request.get("resource_context") is not None:
+                context = _bound_resource_context(document, recovery_request["resource_context"], recovery_slots)
+            else:
+                context = None
+            key = (row["immutable"]["repository"]["node_id"],
+                   canonical_bytes(context) if context is not None else None)
+            resource_groups.setdefault(key, (context, []))[1].append(row)
+        for (repository_id, _), (context, resources) in resource_groups.items():
+            if context is not None:
+                module, preparation, recheck = stack.enter_context(
+                    _bound_resource_workspace(document, context))
+                context_checks.append(recheck)
+            else:
+                wrappers = {_target_refresh_worktree_provenance(document, change["worktree_slot"])[0]["roots"]["wrapper"]["path"]
+                            for change in changes if change["after"]["repository"]["node_id"] == repository_id}
+                candidates = [(module, preparation) for module, preparation, _requests in plans
+                              if str(preparation.paths.repository) in wrappers]
+                unique = {str(preparation.paths.workspace): (module, preparation) for module, preparation in candidates}
+                if len(unique) != 1:
+                    raise LedgerError("resource recovery workspace is ambiguous")
+                module, preparation = next(iter(unique.values()))
             outputs = dict(recovery_request["build_outputs"]) if recovery_request else {}
             for row in resources:
                 if row["state"] == "recovered":
@@ -14578,6 +14683,8 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
         expected_resources = None
         def prove() -> None:
             nonlocal expected_resources
+            for check in context_checks:
+                check()
             actual = {}
             for resource_proof in resource_proofs:
                 try:
@@ -14604,6 +14711,8 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
                     fresh.update(resource_proof.observe())
                 except Exception as error:
                     raise LedgerError(f"resource recovery precommit failed: {error}") from error
+            for check in context_checks:
+                check()
             if fresh != expected_resources:
                 raise LedgerError("resource recovery evidence changed around actor proof")
 
@@ -14689,7 +14798,10 @@ def recover_unbound_resources_cas(
     _integer(expected_generation, "expected_generation")
     _string(expected_digest, "expected_digest", SHA256_RE)
     _absolute_path(expected_path, "expected_path")
-    request = _exact(request, {"slots", "build_outputs"}, "resource recovery request")
+    request = _exact(request, {"slots", "build_outputs"}
+                     | ({"resource_context"} if "resource_context" in request else set()), "resource recovery request")
+    if "resource_context" in request:
+        _resource_context_selector(request["resource_context"])
     slots = _sorted_names(request["slots"], "resource recovery slots")
     if len(slots) > 64 or not isinstance(request["build_outputs"], dict):
         raise LedgerError("resource recovery selection is invalid")
@@ -14707,7 +14819,10 @@ def recover_unbound_resources_cas(
         if sorted(row["slot_id"] for row in recovered) != slots:
             raise LedgerError("resource recovery retry selection differs")
         proof = recovered[0]["recovery"]
-        if proof["slots"] != slots or proof["build_outputs"] != request["build_outputs"] or proof["predecessor"]["path"] != expected_path:
+        if (proof["slots"] != slots or proof["build_outputs"] != request["build_outputs"]
+                or proof["predecessor"]["path"] != expected_path
+                or ({key: proof["resource_context"][key] for key in ("kind", "worktree_slot")}
+                    if "resource_context" in proof else None) != request.get("resource_context")):
             raise LedgerError("resource recovery retry evidence differs")
         before = validate(_decode(_retained_result(proof["predecessor"]["payload"], "recovery predecessor"), "recovery predecessor"))
         if byte_digest(canonical_bytes(before)) != expected_digest:
@@ -14735,6 +14850,8 @@ def recover_unbound_resources_cas(
                 resource["recovery"] = {"predecessor": predecessor, "slots": slots,
                                         "build_outputs": request["build_outputs"],
                                         "observation": observations[resource["slot_id"]]}
+                if "resource_context" in request:
+                    resource["recovery"]["resource_context"] = _bound_resource_context(before, request["resource_context"], slots)
         prepared = prepare(prepared)
         if current.document["generation"] != expected_generation and canonical_bytes(prepared) != current.raw:
             raise LedgerError("resource recovery retry live evidence differs from installed successor")

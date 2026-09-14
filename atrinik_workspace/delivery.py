@@ -210,7 +210,11 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
                 _add_reference(references, _absolute_path(identity["path"], "resource reservation"), name)
             if resource["state"] == "recovered":
                 for reservation in resource["recovery"]["observation"]["reservations"]:
-                    recovered.append({"kind": resource["kind"], "name": reservation["name"], "path": reservation["path"], "ledger": name})
+                    projected = {"kind": resource["kind"], "name": reservation["name"], "path": reservation["path"], "ledger": name}
+                    context = resource["recovery"].get("resource_context")
+                    if context is not None:
+                        projected["workspace"] = context["workspace"]
+                    recovered.append(projected)
                     _add_reference(references, _absolute_path(reservation["path"], "recovered reservation"), name)
         active_names.append(name)
 

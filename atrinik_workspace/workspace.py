@@ -2438,6 +2438,12 @@ class _DeliveryResourceRecovery:
             self.requests.append(workspace._lease_request(
                 kind, str(coordinate), "exclusive", "recover unbound resource"))
         request("registry", "physical-references")
+        # The bound resource wrapper participates in the same union as its
+        # storage target; strongest-mode deduplication handles their overlap.
+        for coordinate in (workspace._source_coordinate("atrinik", workspace.paths.repository),
+                           workspace._physical_source_coordinate(workspace.paths.repository)):
+            self.requests.append(workspace._lease_request(
+                "source", coordinate, "shared", "read resource wrapper context"))
         for resource in resources:
             identity = resource["immutable"]
             name = identity["name"]
@@ -2452,8 +2458,10 @@ class _DeliveryResourceRecovery:
                 # A scope owns this namespace even before a topology starts.
                 if name.startswith("scope-"):
                     request("registry", f"scope:{name.removeprefix('scope-')}")
-                if path.exists():
-                    self.plain_locks.add(path / "operation.lock")
+                if path.exists() or path.is_symlink():
+                    # This operation never adopts materialized topology state.
+                    # Refuse before creating a lock inside an unowned directory.
+                    raise WorkspaceError("materialized topology requires separate supported ownership recovery")
             elif kind == "state":
                 if raw_path is None:
                     raise WorkspaceError("recovery state requires its planned path")
@@ -2595,7 +2603,10 @@ class _DeliveryResourceRecovery:
                             or resolution.get("profile") != profile_name
                             or resolution.get("selected") != metadata["coordinates"]):
                         raise WorkspaceError("build residual lacks exact managed profile provenance")
-                    profile = workspace._load_profile_file(profile_name, require_file=False)
+                    profile_raw = None
+                    if profile_name not in workspace.manifest.stacks:
+                        profile_raw = json.dumps(self._json(workspace.paths.profiles / f"{profile_name}.json")).encode()
+                    profile = workspace._load_profile_file(profile_name, require_file=False, retained_raw=profile_raw)
                     stack = workspace.manifest.stack(profile["stack"])
                     if resolution.get("stack") != stack.name or resolution.get("stack_generation") != stack.generation:
                         raise WorkspaceError("build residual stack identity changed")
@@ -8236,7 +8247,8 @@ class Workspace:
                 # This guard is only for mutable admission; ordinary immutable
                 # dependency reads never call it.
                 if (path == retained or path in retained.parents or retained in path.parents
-                        or (row["kind"] == kind and name is not None and name == row["name"])):
+                        or (row["kind"] == kind and name is not None and name == row["name"]
+                            and row.get("workspace", str(self.paths.workspace)) == str(self.paths.workspace))):
                     raise WorkspaceError(f"resource is retained by terminal delivery recovery: {kind} {path}")
 
     def build_plan(self, target: str, profile_name: str, tests: bool = False,
