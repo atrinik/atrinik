@@ -707,6 +707,29 @@ class ParserTests(unittest.TestCase):
             [], "none", include_classic=True
         )
 
+    def test_build_plan_json_dispatches_without_execution(self) -> None:
+        plan = {"plan_sha256": "a" * 64, "build_root": "/eventual/build"}
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.build_plan.return_value = plan
+            with mock.patch("sys.stdout", new_callable=io.StringIO) as output:
+                result = main(["build", "client", "--profile", "review", "--plan", "--json", "--test", "--no-ccache"])
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.getvalue()), plan)
+        workspace_type.return_value.build_plan.assert_called_once_with(
+            "client", "review", True, force_reconfigure=False, use_ccache=False)
+        workspace_type.return_value.build.assert_not_called()
+
+    def test_build_expected_plan_dispatches_exact_fence(self) -> None:
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.build.return_value = Path("/build")
+            with mock.patch("sys.stdout", new_callable=io.StringIO) as output:
+                result = main(["build", "resources", "--expected-plan", "b" * 64])
+        self.assertEqual(result, 0)
+        self.assertEqual(output.getvalue().strip(), "/build")
+        workspace_type.return_value.build.assert_called_once_with(
+            "resources", "default", False, force_reconfigure=False, use_ccache=True, expected_plan="b" * 64)
+        workspace_type.return_value.build_plan.assert_not_called()
+
     def test_build_dispatches_cache_controls(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             workspace_type.return_value.build.return_value = Path("/build")

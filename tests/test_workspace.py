@@ -2178,6 +2178,213 @@ class WorkspaceTests(unittest.TestCase):
                 self.workspace.build("resources", "default", False, expected_plan="0" * 64)
         self.assertEqual(len(list(Path("/proc/self/fd").iterdir())), before)
 
+    def test_resource_recovery_rejects_malformed_plans_and_output_without_publication(self):
+        from atrinik_workspace.workspace import _DeliveryResourceRecovery
+        planned = self.workspace.paths.builds / "profiles/default-111111111111"
+        missing = self.root / "missing-output"
+        cases = [
+            ("state", "retained", None, None, "requires its planned path"),
+            ("build", planned.name, None, None, "requires its planned path"),
+            ("topology", "unused", str(self.root / "foreign"), None, "differs from its namespace"),
+            ("scope", "unused", None, None, "only unbound"),
+            ("build", planned.name, str(planned), b"\xff", "must be UTF-8"),
+            ("build", planned.name, str(planned), b"no final newline", "final public path line"),
+            ("build", planned.name, str(planned), b"relative/path\n", "not an absolute path"),
+            ("build", planned.name, str(planned), f"{missing}\n".encode(), "output is missing"),
+            ("build", planned.name, str(self.root / planned.name), None, "outside its exact workspace"),
+            ("build", "invalid", str(planned.parent / "invalid"), None, "not a profile coordinate"),
+        ]
+        before = set(self.workspace.paths.builds.rglob("*"))
+        for kind, name, path, output, message in cases:
+            with self.subTest(kind=kind, message=message):
+                resources = [{"slot_id": "selected", "kind": kind,
+                              "immutable": {"name": name, "path": path}}]
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    _DeliveryResourceRecovery(self.workspace, resources,
+                                              {} if output is None else {"selected": output})
+                self.assertEqual(set(self.workspace.paths.builds.rglob("*")), before)
+        self.assertFalse(missing.exists())
+
+    def test_resource_recovery_rejects_foreign_registry_and_topology_coordinates(self):
+        from atrinik_workspace.workspace import _DeliveryResourceRecovery
+        state = self.workspace.paths.state / "server" / "selected"
+        registry = self.workspace.paths.states_file
+        cases = [
+            ({"schema_version": 999, "states": {}}, "selected", state, "registry is invalid"),
+            ({"schema_version": 1, "states": {"other": 4}}, "selected", state, "registered state path is invalid"),
+            ({"schema_version": 1, "states": {"other": str(state)}}, "selected", state, "foreign alias"),
+            ({"schema_version": 1, "states": {"other": str(state.parent)}}, "selected", state, "foreign alias"),
+            ({"schema_version": 1, "states": {"selected": str(state.parent / "elsewhere")}}, "selected", state, "registration differs"),
+            ({"schema_version": 1, "states": {}}, "selected", state.parent / "default", "implicit default"),
+        ]
+        for value, name, path, message in cases:
+            with self.subTest(message=message, path=path):
+                registry.write_text(json.dumps(value))
+                registry.chmod(0o600)
+                before = registry.read_bytes()
+                proof = _DeliveryResourceRecovery(self.workspace, [{"slot_id": "state", "kind": "state",
+                    "immutable": {"name": name, "path": str(path)}}], {})
+                with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        proof.observe()
+                self.assertEqual(registry.read_bytes(), before)
+                self.assertFalse(path.exists())
+        for name, exists, message in (("scope-unused", False, "scope topology namespaces"),
+                                      ("materialized", True, "materialized topology")):
+            with self.subTest(topology=name):
+                path = self.workspace.paths.topologies / name
+                if exists:
+                    path.mkdir(mode=0o700)
+                proof = _DeliveryResourceRecovery(self.workspace, [{"slot_id": "topology", "kind": "topology",
+                    "immutable": {"name": name, "path": None}}], {})
+                with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        proof.observe()
+                self.assertEqual(path.exists(), exists)
+
+    def test_resource_recovery_rejects_build_provenance_drift_and_preserves_bytes(self):
+        from atrinik_workspace.workspace import _DeliveryResourceRecovery
+        build = self.workspace.build("resources", "default", False)
+        metadata_path = build / workspace_module.BUILD_METADATA
+        resolution_path = build / workspace_module.PROFILE_RESOLUTION_METADATA
+        marker_path = build / workspace_module.MANAGED_MARKER
+        originals = {path: path.read_bytes() for path in (metadata_path, resolution_path, marker_path)}
+        resource = {"slot_id": "build", "kind": "build", "immutable": {"name": build.name, "path": str(build)}}
+        cases = [
+            ("coordinates", "coordinates", {}, "incomplete source coordinates"),
+            ("coordinate", "all", None, "source coordinate is invalid"),
+            ("coordinate", "checkout_path", "relative", "checkout path is invalid"),
+            ("coordinate", "component", "foreign-provider", "provider is unknown"),
+            ("coordinate", "source_path", str(self.root / "foreign/source"), "source generation path is invalid"),
+            ("metadata", "key", "0" * 12, "managed profile provenance"),
+            ("marker", "purpose", "foreign", "managed profile provenance"),
+            ("resolution", "stack_generation", "foreign", "stack identity changed"),
+            ("coordinate", "repository", "foreign/repository", "provider/source association differs"),
+            ("coordinate", "head", "0" * 40, "source head changed"),
+            ("coordinate", "source_generation", {}, "source generation changed"),
+            ("coordinate", "source_generation", None, "live source differs"),
+            ("role", "unavailable", None, "role is unavailable"),
+        ]
+        try:
+            for target, field, value, message in cases:
+                with self.subTest(target=target, field=field):
+                    for path, raw in originals.items():
+                        path.write_bytes(raw)
+                    metadata = json.loads(originals[metadata_path])
+                    resolution = json.loads(originals[resolution_path])
+                    marker = json.loads(originals[marker_path])
+                    if target == "coordinates":
+                        metadata[field] = value
+                    elif target == "role":
+                        role = next(iter(metadata["coordinates"]))
+                        metadata["coordinates"][field] = metadata["coordinates"].pop(role)
+                        resolution["selected"] = metadata["coordinates"]
+                    elif target == "coordinate":
+                        role = next(iter(metadata["coordinates"]))
+                        if field == "all":
+                            metadata["coordinates"][role] = value
+                        else:
+                            metadata["coordinates"][role][field] = value
+                        resolution["selected"] = metadata["coordinates"]
+                    else:
+                        {"metadata": metadata, "resolution": resolution, "marker": marker}[target][field] = value
+                    for path, document in ((metadata_path, metadata), (resolution_path, resolution), (marker_path, marker)):
+                        path.write_text(json.dumps(document))
+                    before = {path: path.read_bytes() for path in originals}
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        proof = _DeliveryResourceRecovery(self.workspace, [resource], {})
+                        with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
+                            proof.observe()
+                    self.assertEqual({path: path.read_bytes() for path in originals}, before)
+            for path, raw in originals.items():
+                path.write_bytes(raw)
+            proof = _DeliveryResourceRecovery(self.workspace, [resource], {})
+            with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
+                metadata = json.loads(metadata_path.read_text())
+                metadata["last_used_at"] = "changed during admission"
+                metadata_path.write_text(json.dumps(metadata))
+                before = metadata_path.read_bytes()
+                with self.assertRaisesRegex(WorkspaceError, "changed during union admission"):
+                    proof.observe()
+                self.assertEqual(metadata_path.read_bytes(), before)
+        finally:
+            for path, raw in originals.items():
+                path.write_bytes(raw)
+
+    def test_resource_recovery_rejects_metadata_permissions_and_pinned_replacement(self):
+        from atrinik_workspace.workspace import _DeliveryResourceRecovery
+        state = self.workspace.state_add("permission-check", None)
+        registry = self.workspace.paths.states_file
+        resource = {"slot_id": "state", "kind": "state",
+                    "immutable": {"name": "permission-check", "path": str(state)}}
+        registry.chmod(0o666)
+        try:
+            proof = _DeliveryResourceRecovery(self.workspace, [resource], {})
+            with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
+                with self.assertRaisesRegex(WorkspaceError, "metadata is untrusted"):
+                    proof.observe()
+        finally:
+            registry.chmod(0o600)
+        self.assertFalse(state.exists())
+        topology = self.workspace.paths.topologies / "pinned"
+        topology.mkdir(mode=0o700)
+        resource = {"slot_id": "topology", "kind": "topology", "immutable": {"name": "pinned", "path": None}}
+        proof = _DeliveryResourceRecovery(self.workspace, [resource], {})
+        displaced = topology.with_name("displaced-pinned")
+        with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
+            topology.rename(displaced)
+            topology.mkdir(mode=0o700)
+            try:
+                with self.assertRaisesRegex(WorkspaceError, "directory changed while pinned"):
+                    proof.observe()
+                self.assertTrue(displaced.is_dir())
+                self.assertEqual(list(topology.iterdir()), [])
+            finally:
+                topology.rmdir()
+                displaced.rename(topology)
+        topology.chmod(0o777)
+        try:
+            proof = _DeliveryResourceRecovery(self.workspace, [resource], {})
+            with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
+                with self.assertRaisesRegex(WorkspaceError, "directory is unsafe"):
+                    proof.observe()
+        finally:
+            topology.chmod(0o700)
+
+    def test_build_plan_refuses_drift_between_admission_observations(self):
+        original = self.workspace._build_plan_observation
+        plan = self.workspace.build_plan("resources", "default")
+        observed = []
+        def race(*args, **kwargs):
+            result = original(*args, **kwargs)
+            observed.append(result)
+            if len(observed) == 1:
+                (self.workspace.paths.repositories / "resources" / "README").write_text("raced source bytes")
+            return result
+        before = set(self.workspace.paths.builds.rglob("*"))
+        with mock.patch.object(self.workspace, "_build_plan_observation", side_effect=race):
+            with self.assertRaisesRegex(WorkspaceError, "source identity changed before mutation"):
+                self.workspace.build("resources", "default", False, expected_plan=plan["plan_sha256"])
+        self.assertEqual(len(observed), 1)
+        self.assertEqual(set(self.workspace.paths.builds.rglob("*")), before)
+
+    def test_build_plan_invalid_digest_and_uninitialized_workspace_do_not_publish(self):
+        with self.assertRaisesRegex(WorkspaceError, "SHA-256 digest"):
+            self.workspace.build("resources", "default", False, expected_plan="invalid")
+        marker = self.workspace.paths.marker
+        original = marker.read_bytes()
+        marker.unlink()
+        before = set(self.workspace.paths.workspace.rglob("*"))
+        try:
+            for operation in (lambda: self.workspace.build_plan("resources", "default"),
+                              lambda: self.workspace.build("resources", "default", False, expected_plan="0" * 64)):
+                with self.assertRaisesRegex(WorkspaceError, "initialized workspace"):
+                    operation()
+                self.assertEqual(set(self.workspace.paths.workspace.rglob("*")), before)
+                self.assertFalse(marker.exists())
+        finally:
+            marker.write_bytes(original)
+
     def test_resource_recovery_preserves_actual_build_and_uninitialized_state(self):
         from atrinik_workspace.workspace import _DeliveryResourceRecovery
         build = self.workspace.build("resources", "default", False)
