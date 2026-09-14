@@ -83,9 +83,11 @@ python3 scripts/delivery_ledger.py cas REVIEW_ROOT LEDGER_NAME INPUT \
   --expected-digest SHA256
 python3 scripts/delivery_ledger.py target-refresh-cas \
   REVIEW_ROOT LEDGER_NAME INPUT \
-  --expected-generation GENERATION --expected-digest SHA256
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-path CANONICAL_LEDGER_PATH
 python3 scripts/delivery_ledger.py revalidate-current-targets-cas REVIEW_ROOT LEDGER_NAME \
-  --expected-generation GENERATION --expected-digest SHA256
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-path CANONICAL_LEDGER_PATH
 python3 scripts/delivery_ledger.py correct-target-head \
   REVIEW_ROOT LEDGER_NAME EXACT_PREDECESSOR_JSON RECOVERY_AUTHORITY_JSON \
   --expected-generation GENERATION --expected-digest SHA256 \
@@ -184,6 +186,13 @@ at ubuntu's standard `~/.config/gh` supplies this container-local protected `gh`
 observation without a worker login. Host-supplied actor JSON is still not proof.
 The helper strips arbitrary `GH_CONFIG_DIR` overrides; retain its environment
 filtering and verify the mounted login through the live helper.
+
+For an accepted direct-native Linux coordinator, the protected helper instead
+uses the proven passwd user's standard `~/.config/gh` through `HOME`.
+Follow the native section of [the auth contract](../../../../docs/COORDINATOR_AUTH.md);
+`GH_CONFIG_DIR` remains filtered. Native actor/target proof, no-follow source/Git
+validation, worktree binding and CAS/lease requirements are identical. A
+container-mount example does not impose a fixed ubuntu identity on native hosts.
 
 Before any dynamic `Workspace` import or Python execution, live proof performs
 a bounded component-wise no-follow ownership/mode prevalidation of the complete
@@ -2147,9 +2156,13 @@ complete inventory checks, a same-owner delivery may prove clean unchanged
 current targets without changing an immutable initial worktree/scope request:
 
 ```sh
-python3 scripts/delivery_ledger.py revalidate-current-targets-cas REVIEW_ROOT LEDGER_NAME --expected-generation GENERATION --expected-digest SHA256
+python3 scripts/delivery_ledger.py revalidate-current-targets-cas REVIEW_ROOT LEDGER_NAME \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-path CANONICAL_LEDGER_PATH
 ```
 
+Supply generation, digest and the canonical ledger path from one exact `inspect`
+result; `--expected-path` is required even when the root/name already identify it.
 There is no candidate file or caller safety assertion. The helper derives only
 generation+1, predecessor digest and digest-history append; every semantic
 field, target/artifact/resource identity, actor, authority and initial producer

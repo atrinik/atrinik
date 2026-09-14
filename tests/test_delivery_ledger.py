@@ -48,10 +48,14 @@ _TEST_CLI_ACTOR_BOOTSTRAP = (
     "sys.modules[spec.name] = module\n"
     "spec.loader.exec_module(module)\n"
     "module._authenticated_actor = lambda document, _context=None: document['actor']\n"
+    "module._require_workspace_filesystem_eligibility = lambda *args: None\n"
     "script = sys.argv[1]\n"
     "sys.argv = [script, *sys.argv[2:]]\n"
     "raise SystemExit(module.main())\n"
 )
+
+_TEST_CLI_CONTEXT_BOOTSTRAP = _TEST_CLI_ACTOR_BOOTSTRAP.replace(
+    "module._authenticated_actor = lambda document, _context=None: document['actor']\n", "")
 
 SHA_A = "a" * 40
 SHA_B = "b" * 40
@@ -2033,6 +2037,12 @@ class DeliveryLedgerTests(unittest.TestCase):
         _LIVE_TEMPLATE_ROOT = Path(cls.live_seed_temporary.name)
 
     def setUp(self) -> None:
+        # These fixtures model Git/ledger races, not OS coordinator facts.
+        # Dedicated context tests exercise the real admission seam separately.
+        self.context_eligibility = mock.patch.object(
+            ledger, "_require_workspace_filesystem_eligibility", return_value=None)
+        self.context_eligibility.start()
+        self.addCleanup(self.context_eligibility.stop)
         self.live_temporary = tempfile.TemporaryDirectory()
         self.live_base = Path(self.live_temporary.name)
         self.release_safety = mock.patch.object(
@@ -6554,6 +6564,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "worktree-bind",
                     str(root),
@@ -6787,6 +6798,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "scope-bind",
                     str(root),
@@ -8733,6 +8745,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "worktree-observe",
                     str(review_root),
@@ -8752,6 +8765,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "worktree-bind-cas",
                     str(review_root),
@@ -9010,6 +9024,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 (),
                 {
                     "Manifest": module.Manifest,
+                    "resource_lock_path": module.resource_lock_path,
                     "Workspace": DriftingWorkspace,
                 },
             )
@@ -9049,6 +9064,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 (),
                 {
                     "Manifest": module.Manifest,
+                    "resource_lock_path": module.resource_lock_path,
                     "Workspace": RacingWorkspace,
                 },
             )
@@ -9137,6 +9153,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                         (),
                         {
                             "Manifest": module.Manifest,
+                            "resource_lock_path": module.resource_lock_path,
                             "Workspace": RacingWorkspace,
                         },
                     )
@@ -9206,7 +9223,11 @@ class DeliveryLedgerTests(unittest.TestCase):
             return type(
                 "RacingAbaProfileWorkspaceModule",
                 (),
-                {"Manifest": module.Manifest, "Workspace": RacingWorkspace},
+                {
+                    "Manifest": module.Manifest,
+                    "resource_lock_path": module.resource_lock_path,
+                    "Workspace": RacingWorkspace,
+                },
             )
 
         with mock.patch.object(
@@ -9531,6 +9552,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "scope-observe",
                     str(review_root),
@@ -9551,6 +9573,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "scope-bind-cas",
                     str(review_root),
@@ -10550,7 +10573,11 @@ class DeliveryLedgerTests(unittest.TestCase):
             return type(
                 "LegacyPrimaryWorkspaceModule",
                 (),
-                {"Manifest": module.Manifest, "Workspace": LegacyWorkspace},
+                {
+                    "Manifest": module.Manifest,
+                    "resource_lock_path": module.resource_lock_path,
+                    "Workspace": LegacyWorkspace,
+                },
             )
 
         roots = live_roots(self.live_base / "dirty-bootstrap", "atrinik")
@@ -11870,6 +11897,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                     (),
                     {
                         "Manifest": module.Manifest,
+                        "resource_lock_path": module.resource_lock_path,
                         "Workspace": LegacyWorkspace,
                     },
                 )
@@ -12209,6 +12237,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "correct-target-head",
                     str(root),
@@ -13231,6 +13260,26 @@ class DeliveryLedgerTests(unittest.TestCase):
             )
             self.assertEqual(result.document, next_generation(current))
 
+    def test_public_helper_refuses_unproven_recorded_context_without_publication(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old, candidate, _, _, _ = target_refresh_setup(
+                self.live_base, root, "context-cli", stale_predecessor=False)
+            current = ledger.target_refresh_cas(root, old.name, candidate, **cas_arguments(old))
+            before = {str(path.relative_to(self.live_base)) for path in self.live_base.rglob("*")}
+            # Keep the actor fixture; deliberately run the real context guard.
+            bootstrap = _TEST_CLI_ACTOR_BOOTSTRAP.replace(
+                "module._require_workspace_filesystem_eligibility = lambda *args: None\n", "")
+            command = [sys.executable, "-B", "-c", bootstrap, str(SCRIPT),
+                       "revalidate-current-targets-cas", str(root), current.name]
+            for key, value in cas_arguments(current).items():
+                command.extend(("--" + key.replace("_", "-"), str(value)))
+            process = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(process.returncode, 2, process.stderr)
+            self.assertIn("filesystem context is ineligible", process.stderr)
+            self.assertEqual(ledger.inspect(root, current.name).raw, current.raw)
+            self.assertEqual(before, {str(path.relative_to(self.live_base)) for path in self.live_base.rglob("*")})
+
     def test_current_targets_public_cli_has_no_candidate_argument(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -13401,6 +13450,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 [
                     sys.executable,
                     "-B",
+                    "-c", _TEST_CLI_CONTEXT_BOOTSTRAP,
                     str(SCRIPT),
                     "target-refresh-cas",
                     str(root),
@@ -13750,7 +13800,11 @@ class DeliveryLedgerTests(unittest.TestCase):
                 return type(
                     "RacingTopologyWorkspaceModule",
                     (),
-                    {"Manifest": module.Manifest, "Workspace": RacingWorkspace},
+                    {
+                        "Manifest": module.Manifest,
+                        "resource_lock_path": module.resource_lock_path,
+                        "Workspace": RacingWorkspace,
+                    },
                 )
 
             raced_candidate = advance(refreshed, "replacement-topology")
@@ -15337,7 +15391,12 @@ class DeliveryLedgerTests(unittest.TestCase):
             {"supervisor": {"liveness": "stopped"}, "services": {}},
             {"supervisor": {"liveness": "live"}, "services": {}},
         ]
+        from atrinik_workspace.locking import LeaseRequest, resource_lock_path
+        fake_workspace._lease_namespace = self.live_base / "fixture-namespace"
+        fake_workspace._lease_root.return_value = fake_workspace._lease_namespace
+        fake_workspace._lease_request.side_effect = lambda *args: LeaseRequest(*args, "fixture recovery instruction")
         fake_module = mock.Mock()
+        fake_module.resource_lock_path = resource_lock_path
         fake_module.Workspace.return_value = fake_workspace
         with mock.patch.object(ledger, "_load_workspace_module", return_value=fake_module):
             with ledger._release_resource_safety(resource_document, request) as guard:
@@ -15768,6 +15827,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         resource["current"] = {
             "binding": inline_payload(record_raw),
             "lifecycle": "active",
+            "path": None,
         }
         snapshot = mock.Mock(
             document={

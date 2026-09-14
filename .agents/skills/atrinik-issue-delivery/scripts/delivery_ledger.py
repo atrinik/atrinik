@@ -36,6 +36,66 @@ import time
 from typing import Any, Callable, Iterable, Iterator, Mapping, Sequence
 
 
+_ACTIVE_REVIEW_ROOT: ContextVar[str | None] = ContextVar("delivery_review_root", default=None)
+_ACTIVE_RESOURCE_SUBJECTS: ContextVar[tuple[str, ...]] = ContextVar("delivery_resource_subjects", default=())
+
+
+@contextmanager
+def _resource_subject_scope(document):
+    paths = tuple(row["current"]["path"] for row in document["resources"]
+                  if row["current"] is not None and row["current"]["path"] is not None)
+    token = _ACTIVE_RESOURCE_SUBJECTS.set(paths)
+    try:
+        yield
+    finally:
+        _ACTIVE_RESOURCE_SUBJECTS.reset(token)
+
+
+def _lease_filesystem_subjects(module, workspace, requests, *, preparation=False):
+    route = workspace.lease_root if preparation else workspace._lease_root
+    subjects = [workspace._lease_namespace / "repository-layout.lock"]
+    for request in requests:
+        root = route(request)
+        subjects.extend((root, root / "leases" / request.kind,
+                         module.resource_lock_path(root, request.kind, request.coordinate)))
+    result = []
+    for path in subjects:
+        result.append(str(path))
+        if path.suffix == ".lock":
+            result.extend(str(path) + suffix for suffix in
+                          (".owners", ".writer-intent", ".writer-pending", ".owner-transition.lock"))
+    return tuple(dict.fromkeys(result))
+
+
+def _require_workspace_filesystem_eligibility(module, wrapper_root, workspace_root, extra_paths=()):
+    """Use retained trusted code and live facts before operational admission."""
+    context = getattr(module, "coordinator_context", None)
+    require = getattr(context, "require_delivery_context", None)
+    if not callable(require):
+        raise LedgerError("accepted wrapper lacks exact delivery context proof")
+    paths = [Path(path) for path in (*extra_paths, *_ACTIVE_RESOURCE_SUBJECTS.get())]
+    review = _ACTIVE_REVIEW_ROOT.get()
+    if review is not None:
+        paths.append(Path(review))
+    try:
+        # The initiating helper source root is the coordinator context. Retained
+        # wrapper/storage/resource paths are subjects, never substitute cwd.
+        result = require(Path(__file__).absolute().parents[4], Path(wrapper_root),
+                         Path(workspace_root), tuple(dict.fromkeys(paths)))
+        if not isinstance(result, dict) or result.get("authoritative") is not True or result.get("status") not in {"canonical-linux", "native-linux"}:
+            raise LedgerError("accepted wrapper returned no authoritative context proof")
+        subjects = getattr(module.Workspace, "_delivery_context_subjects", None)
+        if not callable(subjects):
+            raise LedgerError("accepted wrapper lacks constructor filesystem subjects")
+        paths.extend(subjects(Path(wrapper_root)))
+        result = require(Path(__file__).absolute().parents[4], Path(wrapper_root),
+                         Path(workspace_root), tuple(dict.fromkeys(paths)))
+        if not isinstance(result, dict) or result.get("authoritative") is not True or result.get("status") not in {"canonical-linux", "native-linux"}:
+            raise LedgerError("accepted wrapper returned no authoritative context proof")
+    except Exception as error:
+        raise LedgerError("delivery mutable filesystem context is ineligible") from error
+
+
 SCHEMA_VERSION = 1
 MAX_BYTES = 1024 * 1024 * 1024
 MAX_RETAINED_RESULT_BYTES = 512 * 1024
@@ -2141,6 +2201,9 @@ def _prove_scope_release(resource: Mapping[str, Any], context: str) -> None:
     workspace = None
     try:
         module = _load_workspace_module(wrapper_root)
+        def context_check():
+            _require_workspace_filesystem_eligibility(module, wrapper_root, workspace_root)
+        context_check()
         workspace = module.Workspace(Path(wrapper_root), backfill_references=False)
         _prove_fresh_scope_release(workspace, record, plan, context)
         for item in plan["items"]:
@@ -3451,6 +3514,14 @@ def _workspace_safety_lease(
         retained_manifest = module.Manifest.from_value(
             _decode(manifest_raw, f"{context} retained workspace manifest")
         )
+        context_paths = [path, request["roots"]["primary"]["path"]]
+        if scope_record is not None:
+            context_paths.extend((scope_record["profile"]["path"], scope_record["topology"]["path"]))
+            context_paths.extend(row[key] for row in scope_record["worktrees"] for key in ("path", "primary_path"))
+            context_paths.extend(scope_record["cleanup"][key] for key in ("journal", "release_journal"))
+        def context_check():
+            _require_workspace_filesystem_eligibility(module, wrapper_root, workspace_root, context_paths)
+        context_check()
         workspace_parameters = signature(module.Workspace).parameters
         supports_manifest = "manifest" in workspace_parameters or any(
             parameter.kind is Parameter.VAR_KEYWORD
@@ -3584,6 +3655,10 @@ def _workspace_safety_lease(
                 )
         else:
             requests = preparation.plan_live_worktree(request, path, scope_record)
+        context_paths.extend(_lease_filesystem_subjects(module, workspace, requests, preparation=preparation is not None))
+        context_check()
+        if preparation is not None:
+            preparation._delivery_context_recheck = context_check
         try:
             if _lease_plans is None:
                 locks = workspace._resource_locks(requests, nonblocking=True)
@@ -3593,6 +3668,7 @@ def _workspace_safety_lease(
             with locks:
                 def recheck() -> None:
                     try:
+                        context_check()
                         proof_workspace = (
                             preparation.admitted_workspace if preparation is not None else workspace
                         )
@@ -9278,7 +9354,11 @@ def _locked_root(root: Path) -> Iterator[int]:
         visible = os.stat(Path(os.path.abspath(root)), follow_symlinks=False)
         if _descriptor_path(directory) != _canonical_path(root) or not stat.S_ISDIR(visible.st_mode):
             raise LedgerError(f"review root was replaced while locking: {root}")
-        yield directory
+        token = _ACTIVE_REVIEW_ROOT.set(_canonical_path(root))
+        try:
+            yield directory
+        finally:
+            _ACTIVE_REVIEW_ROOT.reset(token)
         visible_after = os.stat(Path(os.path.abspath(root)), follow_symlinks=False)
         _require_trusted_directory(visible_after, f"review root {root}")
         if _descriptor_path(directory) != _canonical_path(root):
@@ -12444,6 +12524,10 @@ def _release_resource_safety(
     workspace = None
     try:
         module = _load_workspace_module(wrapper_root)
+        context_paths = [row["current"]["path"] for row in topologies]
+        def context_check():
+            _require_workspace_filesystem_eligibility(module, wrapper_root, workspace_root, context_paths)
+        context_check()
         workspace = module.Workspace(Path(wrapper_root), backfill_references=False)
         leases = [
             workspace._lease_request(
@@ -12451,8 +12535,11 @@ def _release_resource_safety(
             )
             for resource in topologies
         ]
+        context_paths.extend(_lease_filesystem_subjects(module, workspace, leases))
+        context_check()
         with workspace._resource_locks(leases, nonblocking=True):
             def recheck() -> None:
+                context_check()
                 for resource in topologies:
                     current = resource["current"]
                     expected_path = workspace.paths.topologies / current["name"]
@@ -12902,6 +12989,12 @@ def _archive_live_safety(
     build_descriptors: list[int] = []
     try:
         module = _load_workspace_module(wrapper_root)
+        context_paths = [row["current"]["path"] for row in document["resources"]
+                         if row["current"] is not None and row["current"]["path"] is not None]
+        context_paths.extend(path for _primitive, path in worktree_requests)
+        def context_check():
+            _require_workspace_filesystem_eligibility(module, wrapper_root, workspace_root, context_paths)
+        context_check()
         workspace = module.Workspace(Path(wrapper_root), backfill_references=False)
         leases: list[Any] = [
             workspace._lease_request(
@@ -12989,6 +13082,10 @@ def _archive_live_safety(
                     "delivery archive proof",
                 )
             )
+        context_paths.extend(_lease_filesystem_subjects(module, workspace, leases))
+        for build_root in _archive_build_roots(scopes, document["resources"]):
+            context_paths.extend((str(build_root), str(workspace.paths.builds / "locks" / f"{build_root.name}.lock")))
+        context_check()
         with ExitStack() as stack:
             stack.enter_context(workspace._resource_locks(leases, nonblocking=True))
             acquired_build_locks: set[Path] = set()
@@ -13015,6 +13112,7 @@ def _archive_live_safety(
                 acquire_build_lock(root)
 
             def recheck() -> None:
+                context_check()
                 _prove_cleanup_journal(request["cleanup"], workspace_root)
                 for primitive, path in worktree_requests:
                     if Path(path).exists() or Path(path).is_symlink():
@@ -14532,6 +14630,16 @@ def _current_target_leases(plans: Sequence[Any]) -> Iterator[None]:
     ordered = sorted(
         combined.items(), key=lambda row: (*row[1][2].sort_key, row[0][0])
     )
+    def check_contexts():
+        for module, preparation, requests in plans:
+            check = getattr(preparation, "_delivery_context_recheck", None)
+            if not callable(check):
+                raise LedgerError("current-target preparation lacks live context proof")
+            check()
+            _require_workspace_filesystem_eligibility(
+                module, str(preparation.paths.repository), str(preparation.paths.workspace),
+                _lease_filesystem_subjects(module, preparation, requests, preparation=True))
+    check_contexts()
     with ExitStack() as stack:
         for _, preparation in sorted(barriers.items()):
             stack.enter_context(preparation.maintenance())
@@ -14540,12 +14648,14 @@ def _current_target_leases(plans: Sequence[Any]) -> Iterator[None]:
                 module.resource_locks(Path(root), [request], nonblocking=True)
             )
             preparation._verify_identity()
+        check_contexts()
         admitted = set()
         for _, preparation, _ in plans:
             if id(preparation) not in admitted:
                 stack.enter_context(preparation.admitted())
                 admitted.add(id(preparation))
         yield
+        check_contexts()
         for _, preparation, _ in plans:
             preparation._verify_identity()
 
@@ -14570,16 +14680,21 @@ def _bound_resource_workspace(document, context):
             raise LedgerError("resource workspace is not managed")
         module = _load_workspace_module(request["roots"]["wrapper"]["path"])
         manifest = module.Manifest.from_value(_decode(raw, "resource manifest"))
+        def context_check():
+            _require_workspace_filesystem_eligibility(module, wrapper, workspace)
+        context_check()
         saved = _enter_workspace_environment(workspace)
         try:
             preparation = module.Workspace._prepare_delivery_workspace(Path(wrapper), manifest=manifest)
         finally:
             _leave_workspace_environment(saved)
+        preparation._delivery_context_recheck = context_check
         stack.callback(preparation.close)
         if str(preparation.paths.repository) != wrapper or str(preparation.paths.workspace) != workspace:
             raise LedgerError("resource workspace differs from its exact bound context")
 
         def recheck():
+            context_check()
             _recheck_pinned_directory(directory, wrapper, "resource wrapper", wrapper)
             _recheck_pinned_directory(data_directory, workspace, "resource workspace", workspace)
             for fd, name, expected in ((directory, "components.json", raw),
@@ -14625,7 +14740,7 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
     ))
     _require_authenticated_actor(document, "current-target revalidation")
     plans: list[Any] = []
-    with ExitStack() as stack:
+    with _resource_subject_scope(document), ExitStack() as stack:
         proofs = [
             stack.enter_context(_target_refresh_live_safety(
                 document, change, _lease_plans=plans
@@ -14670,6 +14785,16 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
                 resource_proof = preparation.plan_resource_recovery(resources, decoded)
             except Exception as error:
                 raise LedgerError(f"resource recovery preparation failed: {error}") from error
+            subjects = [str(path) for paths in resource_proof.paths.values() for path in paths]
+            subjects.extend(str(path) for path in resource_proof.plain_locks)
+            for metadata in resource_proof.preliminary.values():
+                for coordinate in metadata["coordinates"].values():
+                    subjects.append(coordinate["checkout_path"])
+                    if coordinate.get("source_generation") is not None:
+                        subjects.extend((coordinate["source_path"], str(Path(coordinate["source_path"]).parent)))
+            _ACTIVE_RESOURCE_SUBJECTS.set(tuple(dict.fromkeys((*_ACTIVE_RESOURCE_SUBJECTS.get(), *subjects))))
+            _require_workspace_filesystem_eligibility(module, str(preparation.paths.repository),
+                                                       str(preparation.paths.workspace))
             resource_proofs.append(resource_proof)
             plans.append((module, preparation, resource_proof.requests))
         # A repeated preparation must be admitted only once after union construction.

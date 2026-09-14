@@ -8333,6 +8333,15 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(sentinel.read_bytes(), b"historical build output\x00\n")
         self.assertTrue(new_root.is_dir())
 
+    def test_portable_build_identity_cannot_reuse_ordinary_cmake_cache(self) -> None:
+        selected = {"server": self.workspace.paths.repositories / "server"}
+        ordinary = self.workspace._profile_build_key("default", selected)
+        portable = self.workspace._profile_build_key("default", selected, variant="linux-portable:first-image")
+        changed_image = self.workspace._profile_build_key("default", selected, variant="linux-portable:second-image")
+        self.assertNotEqual(ordinary, portable)
+        self.assertNotEqual(portable, changed_image)
+        self.assertEqual(self.workspace._profile_build_key("default", selected), ordinary)
+
     def test_profile_build_key_names_repository_and_branch_coordinates(self) -> None:
         selected = {"server": self.workspace.paths.repositories / "server"}
         with mock.patch(
@@ -12562,6 +12571,8 @@ class WorkspaceTests(unittest.TestCase):
         os.close(output_fd)
         replacement = self.root / "replacement-output"
         replacement.mkdir()
+        # Matching permissions must not conceal replacement between stat/open.
+        replacement.chmod(stat.S_IMODE(output.stat().st_mode))
         atomic_json(
             replacement / MANAGED_MARKER,
             {
@@ -18049,6 +18060,20 @@ class WorkspaceTests(unittest.TestCase):
             )
         self.assertEqual(process.returncode, 0, process.stderr)
         self.assertEqual(process.stdout.strip(), "prepared without source admission")
+
+    @unittest.skipIf(os.name == "nt", "delivery context subjects require Linux Git")
+    def test_delivery_context_subjects_are_read_only_before_namespace_creation(self) -> None:
+        self.delivery_preparation_fixture()
+        namespace = self.workspace._lease_namespace
+        self.workspace.close()
+        displaced = namespace.with_name("retained-context-namespace")
+        namespace.rename(displaced)
+        subjects = Workspace._delivery_context_subjects(self.wrapper)
+        self.assertIn(namespace, subjects)
+        self.assertIn(namespace / "repository-layout.lock", subjects)
+        self.assertTrue(any(path.parent == namespace / "leases/source" and path.suffix == ".lock" for path in subjects))
+        self.assertFalse(namespace.exists())
+        self.assertTrue(displaced.is_dir())
 
     @unittest.skipIf(os.name == "nt", "delivery preparation requires Linux descriptors")
     def test_delivery_preparation_never_creates_missing_identity(self) -> None:
