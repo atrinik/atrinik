@@ -2228,10 +2228,10 @@ published PR head; do not invent head movement or rewrite initial requests.
 Prepare a bounded regular request with `slots` (unique sorted selected slot IDs)
 and `build_outputs` (selected build slot to canonical retained payload). When
 resources belong to the bound wrapper worktree's default workspace rather than
-the workspace storing that worktree, add exactly:
+the workspace storing that worktree, include this field:
 
 ```json
-"resource_context": {"kind": "bound-wrapper-worktree", "worktree_slot": "worktree"}
+{"resource_context": {"kind": "bound-wrapper-worktree", "worktree_slot": "worktree"}}
 ```
 
 The selector names one exact bound wrapper target, never an arbitrary path.
