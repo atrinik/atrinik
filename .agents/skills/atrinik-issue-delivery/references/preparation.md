@@ -228,3 +228,10 @@ do not manufacture a commit, repeat initial binding, call private helper
 contexts, or use generic CAS/check-reuse as a substitute for live proof.
 Actual target drift still uses `target-refresh-cas`. A changed actor, dirty,
 foreign, locked, active or uncertain target blocks this operation.
+
+When planned/null build/state/topology resources block reconnect, follow the
+[accepted specialized recovery](delivery-ledger.md)
+after any real target-base refresh and before ordinary all-target revalidation.
+Keep current null, preserve residual reservations, and use public `build --plan`
+plus `--expected-plan` for subsequent build intent. An unmerged candidate helper
+never authorizes a paused delivery's recovery.
