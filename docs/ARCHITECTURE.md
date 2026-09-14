@@ -1619,3 +1619,59 @@ Actions run; semantic-release remains responsible for selecting the unreleased
 commit range and next version. Release ownership follows physical repositories:
 the five classic logical components share the `atrinik/classic` repository's
 commit and release history rather than publishing as independent checkouts.
+
+## Unbound resource recovery and build planning
+
+`recover-unbound-resources-cas` derives an exact successor for selected planned,
+null-current build/state/topology slots. Terminal `recovered` slots keep their
+immutable identity and null current value, plus bounded canonical predecessor
+bytes, the exact generation/digest/path, selection, retained public output, and
+helper-derived observations/reservations. Generic CAS cannot introduce or alter
+that disposition. Later batches preserve earlier proofs; predecessor nesting is
+limited to four levels and every retained payload remains bounded to 512 KiB.
+
+An optional tagged `resource_context` selects one already-bound wrapper worktree
+by slot. Its resource wrapper is that exact worktree and its only supported
+resource workspace is the canonical managed `W/workspace`; the immutable
+primitive request still proves the distinct storage workspace. Accepted primary
+code consumes the freshly pinned worktree manifest without executing candidate
+worktree code. Recovery durably retains the derived canonical paths and selector;
+retries and ordinary reconnect reprove both contexts. Untagged historical proofs
+retain their original interpretation and bytes. Names are projected in the
+resource namespace while path and dependency reservations remain protected.
+
+The helper prepares all bound targets and resource dependencies before acquiring
+one deduplicated ordered lease union. It also nonblockingly holds the legacy
+profile-build, source-generation, state registry/state path, and applicable
+topology operation locks. Transient directory descriptors protect publication;
+historical inode/device identities are not persisted. Observations and actor
+proof repeat immediately before the tagged CAS. Installed retries require the
+original generation/digest/path, exact predecessor and request, and fresh proofs.
+Ordinary reconnect still refuses unselected unbound resources and freshly checks
+all recovered residuals, without declaring them reusable. Independent sibling
+state registrations do not change the retained registration proof.
+
+Recovery recognizes registered state even when its data directory does not yet
+exist. A bounded retained combined build log may corroborate its final public
+path line; the wrapper independently validates managed build metadata, profile
+resolution, provider/source coordinates, and immutable source generations. The
+observation does not claim compilation succeeded. Existing topology directories,
+implicit-default state aliases, ambiguous ownership, active locks, and unsafe
+paths refuse recovery. Original/residual reservations protect cleanup and
+cross-ledger or same-ledger resource ownership, including containing paths.
+Release refuses these terminal reservations rather than making them inert.
+
+Build planning and materialization share the same clean-primary generation
+identity calculation; content and dirty/worktree selectors retain live paths.
+The public plan hashes the complete effective manifest/profile, role closure,
+options, source bytes and includes, Git/configuration/attribute identities, and
+predicted execution paths. Execution re-observes them under source/profile
+admission before any generation/build publication. Planning requires an already
+managed workspace and skips profile-resolution initialization/backfill. It uses
+filter-free Git status with exact LFS pointer/payload verification; unsupported
+custom clean filters refuse instead of executing external filter commands.
+
+Existing state data is recoverable only with its exact prior named registration;
+UID and directory layout alone establish no logical ownership. Source-generation
+quarantine and republication recheck retained reservations under the generation
+mutation lock. Healthy immutable generation reads remain available.

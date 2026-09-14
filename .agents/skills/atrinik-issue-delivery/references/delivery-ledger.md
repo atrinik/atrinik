@@ -2222,3 +2222,85 @@ Classic case, Classic's target stays unchanged through the wrapper-only base
 refresh. This ordering uses actual merged base drift; it never fabricates a
 commit, rewrites an initial request, adopts another delivery, or treats a
 project scheduling action as lease authority.
+
+## Recover unbound build, state, and topology plans
+
+After accepted helper rollout, canonical context, live selection, and complete
+inventory, use this specialized operation before ordinary reconnect when selected
+planned/null resources prevent reuse. It requires no impossible prior ordinary
+reconnect. First perform any real accepted-main target advancement through
+`target-refresh-cas`, preserving a clean local unpublished head and the older
+published PR head; do not invent head movement or rewrite initial requests.
+
+Prepare a bounded regular request with `slots` (unique sorted selected slot IDs)
+and `build_outputs` (selected build slot to canonical retained payload). When
+resources belong to the bound wrapper worktree's default workspace rather than
+the workspace storing that worktree, include this field:
+
+```json
+{"resource_context": {"kind": "bound-wrapper-worktree", "worktree_slot": "worktree"}}
+```
+
+The selector names one exact bound wrapper target, never an arbitrary path.
+Every selected resource must belong to that target repository. The helper derives
+resource wrapper `W` from the bound slot and resource workspace `W/workspace`,
+requiring its canonical managed directory and pinned manifest. Original primitive
+storage roots remain unchanged. Omission retains the existing storage-workspace
+behavior; failed proof never selects another workspace automatically.
+
+Each payload uses the existing `{encoding, raw_base64, sha256}` format and retains
+the exact original public output bytes. Legacy combined build logs are accepted
+only with a final LF-terminated absolute build path line. Do not synthesize a
+standalone stdout file from a log and present it as original evidence. Omit an
+output only when no residual output is being associated; filesystem absence
+never overrides a registered logical state.
+
+```sh
+python3 scripts/delivery_ledger.py recover-unbound-resources-cas \
+  REVIEW_ROOT LEDGER_NAME REQUEST_JSON \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-path CANONICAL_LEDGER_PATH
+```
+
+The helper proves selected build/state/topology plans and all bound targets under
+the complete graph and actual legacy mutation-lock union. It retains original
+intent and exact predecessor bytes; derives `absent` or `residual-preserved`
+observations; leaves current null; and sets resource-only terminal state
+`recovered`. No binding, adoption, retarget, data initialization, deletion, or
+cleanup occurs. Every unselected ordinary unbound resource still blocks.
+Existing topology directories, unregistered existing state directories, and
+unsupported/foreign/ambiguous resources refuse. An existing state's exact named
+registration must already exist; directory shape and UID alone prove no ownership.
+Recovered slots, proof, original coordinates, residual paths/names, and dependency
+generation reservations are immutable; generic CAS cannot forge them or reuse
+an overlapping coordinate. Cleanup and ledger release preserve them.
+
+The transaction tag is `-recover-resources`. After any interruption rerun the
+same request with its original generation/digest/path. Both staged and installed
+retries require fresh actor, all-target, and residual proofs. A newer tuple cannot
+consume an old receipt. Once complete, run `revalidate-current-targets-cas` with
+the returned tuple. It excludes recovered history from reuse while reproving its
+residuals; ordinary planned/null resources remain blocked. Later disjoint batches
+are supported within four predecessor levels and the existing 512 KiB retained
+payload bound; exceeding a bound fails closed without discarding history.
+
+For the paused native platform delivery, apply this only after the prerequisite
+actually merges: accepted primary/helper refresh, real target-base refresh,
+specialized recovery, ordinary all-target proof, then supported project worker
+admission. Reuse a retained idle handle only if that exact handle still exists;
+an absent old handle uses supported retry/dispatch/replacement-worker admission,
+with the same exact leaf ownership re-proven. Never run candidate code against
+the real paused ledger. New work records fresh names/profile/build resources
+using `build --plan --json`, then executes with its exact `--expected-plan` digest.
+Keep the original build and registered-but-uninitialized state untouched.
+
+For a tagged resource context, the helper loads accepted primary wrapper code
+with the pinned bound-worktree manifest; it never executes that worktree's
+candidate implementation. It prepares storage and resource contexts before one
+complete graph/legacy lock union. Recovery retains the derived context alongside
+its original predecessor and output; retries require the same selector and tuple.
+Ordinary reconnect reproves that context, registry and residuals. Generic CAS
+cannot change it. Collision, direct mutation and cleanup protection retain the
+resource namespace and all dependency-generation reservations. Same textual names
+in another namespace gain no ownership from this association. Existing proofs
+without a context retain their original interpretation and bytes.

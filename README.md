@@ -219,6 +219,33 @@ if (Test-Path -LiteralPath $ArtifactRoot) {
 
 Related coordination: [Docker volume/cache I/O (#538)](https://github.com/atrinik/atrinik/issues/538), [Windows package separation (#535)](https://github.com/atrinik/atrinik/issues/535), [tooling ledger (#536)](https://github.com/atrinik/atrinik/issues/536), and [native Windows GPU preflight (#539)](https://github.com/atrinik/atrinik/issues/539).
 
+### Build plans and interrupted resource intent
+
+Initialize the selected workspace with `./atrinik status --json` before planning.
+Use `./atrinik build server --profile classic --test --plan --json` to obtain the
+actual future `build_root`, source-generation paths, and `plan_sha256` without
+publishing source generations or build output. Record that returned identity in
+the delivery ledger before execution, then run the same build options with
+`--expected-plan RETURNED_SHA256`. Changed source bytes, Git identities, profile,
+manifest, providers, dependencies, or build options refuse before publication.
+Planning recognizes exact Git LFS pointer and hydrated payload bytes without
+running clean filters; custom clean filters are unsupported and fail closed.
+Topology summaries describe current selections; use the returned build plan,
+not a summary path, to reserve execution identity before the fenced build.
+
+For an interrupted delivery with unbound build/state/topology plans, use the
+[resource recovery procedure](.agents/skills/atrinik-issue-delivery/references/delivery-ledger.md).
+The helper's explicit bound-wrapper `resource_context` selector supports resources
+in that worktree's default workspace while preserving its separate storage roots.
+Recovery preserves original intent, registered state, and proven residual output
+as nonreusable evidence. It does not initialize data, adopt output, or remove
+anything. Existing state data requires an exact prior named registration;
+unregistered directories remain uncertain and recovery refuses them.
+Retained reservations also block overlapping new resource slots and
+cleanup. Mutable build/state/topology admission also refuses retained coordinates;
+ledger release/archive remains unavailable while those reservations
+require preservation. New work uses fresh names and a fresh recorded build plan.
+
 ### Issue/PR delivery coordinator
 
 Native Windows is a supported host for editing, native Git and GitHub UI, and

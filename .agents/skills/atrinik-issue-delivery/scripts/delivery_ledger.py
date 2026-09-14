@@ -13,6 +13,7 @@ import argparse
 import base64
 import binascii
 import copy
+from contextvars import ContextVar
 from contextlib import ExitStack, contextmanager, nullcontext
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -97,20 +98,20 @@ _CREATE_STAGE_RE = re.compile(
 _MIGRATE_STAGE_RE = re.compile(r"^\.(?P<target>.+\.md\.ledger\.json)\.migrate\.tmp$")
 _UPDATE_STAGE_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update"
-    r"(?P<operation>-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
+    r"(?P<operation>-recover-resources|-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g(?P<generation>[0-9]+)-"
     r"from-(?P<digest>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_RECEIPT_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update-proof"
-    r"(?P<operation>-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
+    r"(?P<operation>-recover-resources|-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g"
     r"(?P<generation>[0-9]+)-from-(?P<digest>[0-9a-f]{64})-"
     r"(?:d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-|path-)"
     r"to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_OPERATION_RE = re.compile(
-    r"^(?:|-revalidate-targets|-refresh-target"
+    r"^(?:|-recover-resources|-revalidate-targets|-refresh-target"
     r"|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}"
     r"|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}"
     r"|-recover-identity)$"
@@ -274,6 +275,8 @@ class Snapshot:
 _ATOMIC_BIND_TOKEN = object()
 _TARGET_REFRESH_TOKEN = object()
 _CURRENT_TARGETS_TOKEN = object()
+_RESOURCE_RECOVERY_TOKEN = object()
+_RESOURCE_PROOF_DEPTH = ContextVar("resource_recovery_proof_depth", default=0)
 _SCOPE_RECOVERY_TOKEN = object()
 _IDENTITY_RECOVERY_TOKEN = object()
 
@@ -344,6 +347,11 @@ class _CurrentTargetsCapability:
     expected_generation: int
     expected_digest: str
     expected_path: str
+
+
+@dataclass(frozen=True)
+class _ResourceRecoveryCapability(_CurrentTargetsCapability):
+    """Authority for one helper-derived terminal resource disposition."""
 
 
 @dataclass(frozen=True)
@@ -6419,18 +6427,108 @@ def _scope_binding_observation(
         raise LedgerError(f"{context} path identity differs from scope result")
 
 
+def _resource_context_selector(value):
+    selector = _exact(value, {"kind", "worktree_slot"}, "resource context selector")
+    if selector["kind"] != "bound-wrapper-worktree":
+        raise LedgerError("unsupported resource context kind")
+    _string(selector["worktree_slot"], "resource context worktree slot", SLOT_RE)
+    return selector
+
+
+def _bound_resource_context(document, selector, slots):
+    """Derive paths solely from the exact installed wrapper worktree identity."""
+    selector = _resource_context_selector(selector)
+    matches = [row for row in document["artifacts"]
+               if row["slot_id"] == selector["worktree_slot"] and row["kind"] == "worktree"]
+    if len(matches) != 1 or matches[0]["current"] is None:
+        raise LedgerError("resource context requires an exact bound wrapper worktree")
+    worktree = matches[0]
+    request = _target_refresh_worktree_provenance(document, worktree)[0]
+    if (request["component"] != "atrinik" or request["physical_checkout"] != "atrinik"
+            or request["roots"]["wrapper"] != request["roots"]["primary"]
+            or request["repository"]["owner"] != "atrinik"
+            or request["repository"]["name"] != "atrinik"):
+        raise LedgerError("resource context is not a bound wrapper target")
+    if any(row["immutable"]["repository"] != worktree["current"]["repository"]
+           for row in document["resources"] if row["slot_id"] in slots):
+        raise LedgerError("resource context selection spans foreign target repositories")
+    wrapper = worktree["current"]["path"]
+    return {**selector, "wrapper": wrapper, "workspace": str(Path(wrapper) / "workspace")}
+
+
+def _retained_resource_context(document, proof):
+    if "resource_context" not in proof:
+        return None
+    context = proof["resource_context"]
+    _exact(context, {"kind", "worktree_slot", "wrapper", "workspace"}, "retained resource context")
+    selector = {key: context[key] for key in ("kind", "worktree_slot")}
+    if _bound_resource_context(document, selector, proof["slots"]) != context:
+        raise LedgerError("retained resource context differs from its bound worktree")
+    return context
+
+
+def _recovered_resource_proof(resource, context):
+    proof = _exact(resource["recovery"], {"predecessor", "slots", "build_outputs", "observation"}
+                   | ({"resource_context"} if "resource_context" in resource["recovery"] else set()), context + ".recovery")
+    predecessor = _exact(proof["predecessor"], {"generation", "digest", "path", "payload"}, context + ".predecessor")
+    _integer(predecessor["generation"], context + ".generation")
+    _string(predecessor["digest"], context + ".digest", SHA256_RE)
+    _absolute_path(predecessor["path"], context + ".path")
+    raw = _retained_result(predecessor["payload"], context + ".payload")
+    before = _decode(raw, context + ".predecessor bytes")
+    depth = _RESOURCE_PROOF_DEPTH.get()
+    if depth >= 4:
+        raise LedgerError("resource recovery predecessor nesting exceeds its safety bound")
+    token = _RESOURCE_PROOF_DEPTH.set(depth + 1)
+    try:
+        before = validate(before)
+    finally:
+        _RESOURCE_PROOF_DEPTH.reset(token)
+    if canonical_bytes(before) != raw or byte_digest(raw) != predecessor["digest"] or before["generation"] != predecessor["generation"]:
+        raise LedgerError("resource recovery predecessor identity differs")
+    _retained_resource_context(before, proof)
+    slots = _sorted_names(proof["slots"], context + ".slots")
+    if resource["slot_id"] not in slots:
+        raise LedgerError("resource recovery slot is outside retained selection")
+    original = [row for row in before["resources"] if row["slot_id"] == resource["slot_id"]]
+    if len(original) != 1 or original[0]["state"] != "planned" or original[0]["current"] is not None or original[0]["kind"] != resource["kind"] or original[0]["immutable"] != resource["immutable"]:
+        raise LedgerError("resource recovery changed its original intent")
+    if not isinstance(proof["build_outputs"], dict):
+        raise LedgerError("resource recovery outputs must be an object")
+    for slot, payload in proof["build_outputs"].items():
+        if slot not in slots:
+            raise LedgerError("resource recovery output is outside selection")
+        _retained_result(payload, context + ".build_output")
+    observation = _exact(proof["observation"], {"kind", "disposition", "observations", "reservations"}, context + ".observation")
+    if observation["kind"] != resource["kind"] or observation["disposition"] not in {"absent", "residual-preserved"}:
+        raise LedgerError("resource recovery disposition is invalid")
+    if not isinstance(observation["observations"], list) or not observation["observations"]:
+        raise LedgerError("resource recovery lacks observations")
+    reservations = observation["reservations"]
+    if not isinstance(reservations, list) or not reservations or len(reservations) > 256:
+        raise LedgerError("resource recovery reservations are invalid")
+    keys = []
+    for row in reservations:
+        _exact(row, {"name", "path"}, context + ".reservation")
+        keys.append((_string(row["name"], context + ".name", REFERENCE_RE), _absolute_path(row["path"], context + ".path")))
+    if keys != sorted(set(keys)):
+        raise LedgerError("resource recovery reservations are not unique sorted coordinates")
+    return before
+
+
 def _resource(value: Any, context: str) -> tuple[str, str]:
     scope = isinstance(value, dict) and value.get("kind") == "scope"
+    recovered = isinstance(value, dict) and value.get("state") == "recovered"
     item = _exact(
         value,
         {"slot_id", "kind", "state", "immutable", "current"}
-        | ({"request"} if scope else set()),
+        | ({"request"} if scope else set()) | ({"recovery"} if recovered else set()),
         context,
     )
     slot = _string(item["slot_id"], f"{context}.slot_id", SLOT_RE)
     if item["kind"] not in RESOURCE_KINDS:
         raise LedgerError(f"{context}.kind is invalid")
-    if item["state"] not in ARTIFACT_STATES:
+    if item["state"] not in ARTIFACT_STATES | {"recovered"}:
         raise LedgerError(f"{context}.state is invalid")
     immutable = _resource_identity(
         item["immutable"], f"{context}.immutable", current=False, scope=scope
@@ -6445,6 +6543,10 @@ def _resource(value: Any, context: str) -> tuple[str, str]:
             raise LedgerError(
                 f"{context} scope request/name/path identity is inconsistent"
             )
+    if recovered:
+        if item["kind"] not in {"build", "state", "topology"} or item["current"] is not None:
+            raise LedgerError(f"{context} terminal recovery cannot bind a resource")
+        _recovered_resource_proof(item, context)
     current = None
     if item["current"] is not None:
         current = _resource_identity(
@@ -6452,7 +6554,7 @@ def _resource(value: Any, context: str) -> tuple[str, str]:
         )
     if item["state"] == "planned" and current is not None:
         raise LedgerError(f"{context} planned resource must not have current identity")
-    if item["state"] != "planned" and current is None:
+    if item["state"] not in {"planned", "recovered"} and current is None:
         raise LedgerError(f"{context} bound resource requires current identity")
     if current is not None and current[:5] != immutable[:5]:
         raise LedgerError(f"{context} immutable resource identity changed")
@@ -6802,6 +6904,17 @@ def validate(document: Any) -> dict[str, Any]:
             if path_coordinate in resource_paths:
                 raise LedgerError("resources contain a duplicate path coordinate")
             resource_paths.add(path_coordinate)
+    for recovered in item["resources"]:
+        if recovered["state"] != "recovered":
+            continue
+        reservations = recovered["recovery"]["observation"]["reservations"]
+        for other in item["resources"]:
+            if other["slot_id"] == recovered["slot_id"] or other["state"] == "recovered":
+                continue
+            if any(other["immutable"]["name"].casefold() == row["name"].casefold()
+                   or (other["immutable"]["path"] is not None and (Path(other["immutable"]["path"].casefold()).is_relative_to(Path(row["path"].casefold())) or Path(row["path"].casefold()).is_relative_to(Path(other["immutable"]["path"].casefold()))))
+                   for row in reservations):
+                raise LedgerError("resource overlaps a retained recovery reservation")
     resources_by_slot = {resource["slot_id"]: resource for resource in item["resources"]}
     scope_resources = [
         resource for resource in item["resources"] if resource["kind"] == "scope"
@@ -7084,6 +7197,21 @@ def validate(document: Any) -> dict[str, Any]:
         _string(previous, "ledger.previous_byte_digest", SHA256_RE)
         if history_digests[-1] != previous:
             raise LedgerError("ledger history tail must equal previous byte digest")
+    recovered = [row for row in item["resources"] if row["state"] == "recovered"]
+    for resource in recovered:
+        proof = resource["recovery"]
+        predecessor = proof["predecessor"]
+        if generation <= predecessor["generation"] or history[predecessor["generation"] - 1] != predecessor["digest"]:
+            raise LedgerError("resource recovery predecessor is absent from ledger history")
+        before = _decode(_retained_result(predecessor["payload"], "recovery predecessor"), "recovery predecessor")
+        for field in ("ledger_id", "actor", "authority", "issues", "entry_mode", "closing_scope"):
+            if before[field] != item[field]:
+                raise LedgerError("resource recovery predecessor authority differs")
+        peers = [row for row in recovered if row["slot_id"] in proof["slots"]]
+        if sorted(row["slot_id"] for row in peers) != proof["slots"] or any(
+            any(row["recovery"].get(field) != proof.get(field) for field in ("predecessor", "slots", "build_outputs", "resource_context")) for row in peers
+        ):
+            raise LedgerError("resource recovery batch proof is incomplete")
     migration = item["migration"]
     if migration is not None:
         migration_keys = {
@@ -7282,11 +7410,13 @@ def _require_migration_genesis(document: Mapping[str, Any], kind: str) -> None:
         )
 
 
-def require_reusable_resources(document: Mapping[str, Any]) -> None:
+def require_reusable_resources(document: Mapping[str, Any], *, _recovery_slots: frozenset[str] = frozenset()) -> None:
     """Fail unless every recorded optional resource is bound and safe to reuse."""
 
     item = validate(document)
     for resource in item["resources"]:
+        if resource["state"] == "recovered" or resource["slot_id"] in _recovery_slots:
+            continue
         if resource["state"] == "planned" or resource["current"] is None:
             raise LedgerError(f"resource is not bound for reuse: {resource['slot_id']}")
         lifecycle = resource["current"]["lifecycle"]
@@ -9838,6 +9968,10 @@ def _conflict_keys(snapshot: Snapshot) -> Iterator[tuple[str, tuple[Any, ...]]]:
                     request["label"].casefold(),
                 )
     for slot in document["resources"]:
+        if slot["state"] == "recovered":
+            for reservation in slot["recovery"]["observation"]["reservations"]:
+                yield "resource/name", (reservation["name"].casefold(),)
+                yield "resource/path", (reservation["path"].casefold(),)
         identity = slot["immutable"]
         repository = identity["repository"]
         yield "resource/name", (identity["name"].casefold(),)
@@ -9988,6 +10122,23 @@ def _reject_overlaps(
                 f"ledger identity is duplicated by {prior_id.name} and {snapshot.name}"
             )
         ledger_ids[snapshot.document["ledger_id"]] = snapshot
+        for resource in snapshot.document["resources"]:
+            candidate_paths = [resource["immutable"]["path"]] if resource["immutable"]["path"] is not None else []
+            if resource["state"] == "recovered":
+                candidate_paths.extend(row["path"] for row in resource["recovery"]["observation"]["reservations"])
+            for prior in ledger_ids.values():
+                if prior.name == snapshot.name:
+                    continue
+                for retained in prior.document["resources"]:
+                    if retained["state"] != "recovered" and resource["state"] != "recovered":
+                        continue
+                    paths = [retained["immutable"]["path"]] if retained["immutable"]["path"] is not None else []
+                    if retained["state"] == "recovered":
+                        paths.extend(row["path"] for row in retained["recovery"]["observation"]["reservations"])
+                    if any(Path(left.casefold()).is_relative_to(Path(right.casefold()))
+                           or Path(right.casefold()).is_relative_to(Path(left.casefold()))
+                           for left in candidate_paths for right in paths):
+                        raise LedgerError("resource ownership overlaps a retained recovery reservation")
         for kind, key in _conflict_keys(snapshot):
             prior = owners.get((kind, key))
             if prior is not None and prior.name != snapshot.name:
@@ -12465,6 +12616,8 @@ def release_preview(
         if any(item.target == target for item in current.pending):
             raise LedgerError(f"release is blocked by a pending operation for {target}")
         snapshot = _snapshot(directory, target)
+        if any(row["state"] == "recovered" for row in snapshot.document["resources"]):
+            raise LedgerError("retained recovery reservations prohibit ledger release")
         marker_name = _release_name(target)
         existing = next(
             (row for row in current.releases if row.ledger_name == target), None
@@ -12500,6 +12653,8 @@ def release_apply(
     with _locked_root(Path(root)) as directory:
         current = _inventory_locked(directory)
         snapshot = _snapshot(directory, target)
+        if any(row["state"] == "recovered" for row in snapshot.document["resources"]):
+            raise LedgerError("retained recovery reservations prohibit ledger release")
         marker_name = _release_name(target)
         existing = next(
             (row for row in current.releases if row.ledger_name == target), None
@@ -13610,6 +13765,7 @@ def _transition(
     _target_refresh_capability: _TargetRefreshCapability | None = None,
     _scope_recovery_capability: _ScopeRecoveryCapability | None = None,
     _identity_recovery_capability: _IdentityRecoveryCapability | None = None,
+    _resource_recovery_capability: _ResourceRecoveryCapability | None = None,
 ) -> None:
     immutable = {
         "schema_version",
@@ -13938,6 +14094,14 @@ def _transition(
             raise LedgerError("scope resources must be reserved by fresh issue-mode create")
     for slot, before in old_resources.items():
         after = new_resources[slot]
+        if before["state"] == "recovered" or after["state"] == "recovered":
+            if before == after:
+                continue
+            if (_resource_recovery_capability is None or before["state"] != "planned"
+                    or before["current"] is not None or after["state"] != "recovered"
+                    or before["kind"] != after["kind"] or before["immutable"] != after["immutable"]):
+                raise LedgerError("terminal resource recovery requires its dedicated public CAS")
+            continue
         if (
             _scope_recovery_capability is not None
             and slot == _scope_recovery_capability.slot_id
@@ -14376,19 +14540,67 @@ def _current_target_leases(plans: Sequence[Any]) -> Iterator[None]:
                 module.resource_locks(Path(root), [request], nonblocking=True)
             )
             preparation._verify_identity()
+        admitted = set()
         for _, preparation, _ in plans:
-            stack.enter_context(preparation.admitted())
+            if id(preparation) not in admitted:
+                stack.enter_context(preparation.admitted())
+                admitted.add(id(preparation))
         yield
         for _, preparation, _ in plans:
             preparation._verify_identity()
 
 
 @contextmanager
-def _current_targets_live_safety(document: Mapping[str, Any]) -> Iterator[Callable[[], None]]:
+def _bound_resource_workspace(document, context):
+    """Use accepted primary code with pinned bound-wrapper data, never its code."""
+    slot = next(row for row in document["artifacts"] if row["slot_id"] == context["worktree_slot"])
+    request = _target_refresh_worktree_provenance(document, slot)[0]
+    wrapper = context["wrapper"]
+    workspace = context["workspace"]
+    with ExitStack() as stack:
+        directory = _directory_fd(Path(wrapper))
+        stack.callback(os.close, directory)
+        data_directory = _open_trusted_child_directory(directory, "workspace", workspace, "resource workspace")
+        stack.callback(os.close, data_directory)
+        raw, status = _read_regular(directory, "components.json")
+        _require_trusted_regular(status, "resource workspace manifest")
+        marker, marker_status = _read_regular(data_directory, ".atrinik-workspace.json")
+        _require_trusted_regular(marker_status, "resource workspace marker")
+        if _decode(marker, "resource workspace marker") != {"schema_version": 1}:
+            raise LedgerError("resource workspace is not managed")
+        module = _load_workspace_module(request["roots"]["wrapper"]["path"])
+        manifest = module.Manifest.from_value(_decode(raw, "resource manifest"))
+        saved = _enter_workspace_environment(workspace)
+        try:
+            preparation = module.Workspace._prepare_delivery_workspace(Path(wrapper), manifest=manifest)
+        finally:
+            _leave_workspace_environment(saved)
+        stack.callback(preparation.close)
+        if str(preparation.paths.repository) != wrapper or str(preparation.paths.workspace) != workspace:
+            raise LedgerError("resource workspace differs from its exact bound context")
+
+        def recheck():
+            _recheck_pinned_directory(directory, wrapper, "resource wrapper", wrapper)
+            _recheck_pinned_directory(data_directory, workspace, "resource workspace", workspace)
+            for fd, name, expected in ((directory, "components.json", raw),
+                                       (data_directory, ".atrinik-workspace.json", marker)):
+                current, current_status = _read_regular(fd, name)
+                _require_trusted_regular(current_status, "resource workspace authority")
+                if current != expected:
+                    raise LedgerError("resource workspace authority changed during proof")
+            preparation._verify_identity()
+
+        recheck()
+        yield module, preparation, recheck
+
+
+@contextmanager
+def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_request=None, observations=None) -> Iterator[Callable[[], None]]:
     """Prepare every current target, then prove under one complete lease union."""
 
     require_reusable_artifacts(document)
-    require_reusable_resources(document)
+    recovery_slots = frozenset(recovery_request["slots"]) if recovery_request else frozenset()
+    require_reusable_resources(document, _recovery_slots=recovery_slots)
     changes = []
     for target in document["targets"]:
         matching = [
@@ -14420,17 +14632,89 @@ def _current_targets_live_safety(document: Mapping[str, Any]) -> Iterator[Callab
             ))
             for change in changes
         ]
+        resource_proofs = []
+        context_checks = []
+        resource_groups = {}
+        for row in document["resources"]:
+            if row["slot_id"] not in recovery_slots and row["state"] != "recovered":
+                continue
+            if row["state"] == "recovered":
+                context = _retained_resource_context(document, row["recovery"])
+            elif recovery_request.get("resource_context") is not None:
+                context = _bound_resource_context(document, recovery_request["resource_context"], recovery_slots)
+            else:
+                context = None
+            key = (row["immutable"]["repository"]["node_id"],
+                   canonical_bytes(context) if context is not None else None)
+            resource_groups.setdefault(key, (context, []))[1].append(row)
+        for (repository_id, _), (context, resources) in resource_groups.items():
+            if context is not None:
+                module, preparation, recheck = stack.enter_context(
+                    _bound_resource_workspace(document, context))
+                context_checks.append(recheck)
+            else:
+                wrappers = {_target_refresh_worktree_provenance(document, change["worktree_slot"])[0]["roots"]["wrapper"]["path"]
+                            for change in changes if change["after"]["repository"]["node_id"] == repository_id}
+                candidates = [(module, preparation) for module, preparation, _requests in plans
+                              if str(preparation.paths.repository) in wrappers]
+                unique = {str(preparation.paths.workspace): (module, preparation) for module, preparation in candidates}
+                if len(unique) != 1:
+                    raise LedgerError("resource recovery workspace is ambiguous")
+                module, preparation = next(iter(unique.values()))
+            outputs = dict(recovery_request["build_outputs"]) if recovery_request else {}
+            for row in resources:
+                if row["state"] == "recovered":
+                    outputs.update(row["recovery"]["build_outputs"])
+            decoded = {slot: _retained_result(payload, "resource build output") for slot, payload in outputs.items()}
+            try:
+                resource_proof = preparation.plan_resource_recovery(resources, decoded)
+            except Exception as error:
+                raise LedgerError(f"resource recovery preparation failed: {error}") from error
+            resource_proofs.append(resource_proof)
+            plans.append((module, preparation, resource_proof.requests))
+        # A repeated preparation must be admitted only once after union construction.
         try:
             stack.enter_context(_current_target_leases(plans))
+            for resource_proof in resource_proofs:
+                stack.enter_context(resource_proof.legacy_locks())
         except Exception as error:
             raise LedgerError(f"current-target union lease admission failed: {error}") from error
 
+        expected_resources = None
         def prove() -> None:
+            nonlocal expected_resources
+            for check in context_checks:
+                check()
+            actual = {}
+            for resource_proof in resource_proofs:
+                try:
+                    actual.update(resource_proof.observe())
+                except Exception as error:
+                    raise LedgerError(f"resource recovery observation failed: {error}") from error
+            for resource in document["resources"]:
+                if resource["state"] == "recovered" and actual.get(resource["slot_id"]) != resource["recovery"]["observation"]:
+                    raise LedgerError("retained resource residual changed since recovery")
+            if expected_resources is not None and actual != expected_resources:
+                raise LedgerError("resource recovery evidence changed before publication")
+            expected_resources = actual
+            if observations is not None:
+                observations.clear()
+                observations.update(actual)
             for proof in proofs:
                 proof()
             _require_authenticated_actor(document, "current-target revalidation")
             for proof in proofs:
                 proof()
+            fresh = {}
+            for resource_proof in resource_proofs:
+                try:
+                    fresh.update(resource_proof.observe())
+                except Exception as error:
+                    raise LedgerError(f"resource recovery precommit failed: {error}") from error
+            for check in context_checks:
+                check()
+            if fresh != expected_resources:
+                raise LedgerError("resource recovery evidence changed around actor proof")
 
         prove()
         yield prove
@@ -14503,6 +14787,82 @@ def revalidate_current_targets_cas(
             _precommit=prove,
             _current_targets_capability=capability,
         )
+
+def recover_unbound_resources_cas(
+    root: Path | str, name: str, request: Mapping[str, Any], *,
+    expected_generation: int, expected_digest: str, expected_path: str,
+    failpoint: Failpoint = None,
+) -> Snapshot:
+    """Preserve selected unused/residual plans as immutable, nonreusable evidence."""
+    name = _direct_name(name)
+    _integer(expected_generation, "expected_generation")
+    _string(expected_digest, "expected_digest", SHA256_RE)
+    _absolute_path(expected_path, "expected_path")
+    request = _exact(request, {"slots", "build_outputs"}
+                     | ({"resource_context"} if "resource_context" in request else set()), "resource recovery request")
+    if "resource_context" in request:
+        _resource_context_selector(request["resource_context"])
+    slots = _sorted_names(request["slots"], "resource recovery slots")
+    if len(slots) > 64 or not isinstance(request["build_outputs"], dict):
+        raise LedgerError("resource recovery selection is invalid")
+    for slot, output in request["build_outputs"].items():
+        if slot not in slots:
+            raise LedgerError("build result is outside resource recovery selection")
+        _retained_result(output, "resource recovery build result")
+    current = inspect(root, name)
+    if _snapshot_matches_identity(current, expected_generation, expected_digest, expected_path):
+        before = current.document
+    elif (current.document["generation"] == expected_generation + 1
+          and current.document["previous_byte_digest"] == expected_digest
+          and _snapshot_matches_identity(current, current.document["generation"], current.digest, expected_path)):
+        recovered = [row for row in current.document["resources"] if row["state"] == "recovered" and row["slot_id"] in slots]
+        if sorted(row["slot_id"] for row in recovered) != slots:
+            raise LedgerError("resource recovery retry selection differs")
+        proof = recovered[0]["recovery"]
+        if (proof["slots"] != slots or proof["build_outputs"] != request["build_outputs"]
+                or proof["predecessor"]["path"] != expected_path
+                or ({key: proof["resource_context"][key] for key in ("kind", "worktree_slot")}
+                    if "resource_context" in proof else None) != request.get("resource_context")):
+            raise LedgerError("resource recovery retry evidence differs")
+        before = validate(_decode(_retained_result(proof["predecessor"]["payload"], "recovery predecessor"), "recovery predecessor"))
+        if byte_digest(canonical_bytes(before)) != expected_digest:
+            raise LedgerError("resource recovery retry predecessor differs")
+    else:
+        raise LedgerError("stale resource recovery generation, digest, or path")
+    selected = [row for row in before["resources"] if row["slot_id"] in slots]
+    if sorted(row["slot_id"] for row in selected) != slots or any(
+        row["kind"] not in {"build", "state", "topology"} or row["state"] != "planned" or row["current"] is not None for row in selected
+    ):
+        raise LedgerError("resource recovery requires selected planned unbound build/state/topology slots")
+    if any(row["kind"] != "build" and row["slot_id"] in request["build_outputs"] for row in selected):
+        raise LedgerError("only build slots accept retained build output")
+    predecessor_raw = canonical_bytes(before)
+    predecessor = {"generation": expected_generation, "digest": expected_digest,
+                   "path": expected_path, "payload": _retained_result_document(predecessor_raw, "resource predecessor")}
+    observations = {}
+    with _current_targets_live_safety(before, recovery_request=request, observations=observations) as prove:
+        if not set(slots).issubset(observations):
+            raise LedgerError("resource recovery lacks a participating target workspace")
+        prepared = _neutral_successor(before, expected_digest)
+        for resource in prepared["resources"]:
+            if resource["slot_id"] in slots:
+                resource["state"] = "recovered"
+                resource["recovery"] = {"predecessor": predecessor, "slots": slots,
+                                        "build_outputs": request["build_outputs"],
+                                        "observation": observations[resource["slot_id"]]}
+                if "resource_context" in request:
+                    resource["recovery"]["resource_context"] = _bound_resource_context(before, request["resource_context"], slots)
+        prepared = prepare(prepared)
+        if current.document["generation"] != expected_generation and canonical_bytes(prepared) != current.raw:
+            raise LedgerError("resource recovery retry live evidence differs from installed successor")
+        capability = _ResourceRecoveryCapability(
+            _RESOURCE_RECOVERY_TOKEN, name, predecessor_raw, canonical_bytes(prepared),
+            expected_generation, expected_digest, expected_path)
+        return cas(root, name, prepared, expected_generation=expected_generation,
+                   expected_digest=expected_digest, expected_path=expected_path,
+                   failpoint=failpoint, _precommit=prove,
+                   _resource_recovery_capability=capability)
+
 
 def target_refresh_cas(
     root: Path | str,
@@ -14612,6 +14972,7 @@ def cas(
     _identity_recovery_capability: _IdentityRecoveryCapability | None = None,
     _target_refresh_legacy: bool = False,
     _current_targets_capability: _CurrentTargetsCapability | None = None,
+    _resource_recovery_capability: _ResourceRecoveryCapability | None = None,
 ) -> Snapshot:
     name = _direct_name(name)
     prepared = prepare(document)
@@ -14747,6 +15108,30 @@ def cas(
         ):
             raise LedgerError("current-target capability is not an exact neutral transition")
         operation = "-revalidate-targets"
+    if _resource_recovery_capability is not None:
+        capability = _resource_recovery_capability
+        if (operation or not isinstance(capability, _ResourceRecoveryCapability)
+                or capability.token is not _RESOURCE_RECOVERY_TOKEN or capability.name != name
+                or capability.after_raw != raw or _precommit is None
+                or (capability.expected_generation, capability.expected_digest, capability.expected_path)
+                != (expected_generation, expected_digest, expected_path)):
+            raise LedgerError("invalid internal resource recovery capability")
+        predecessor = validate(_decode(capability.before_raw, "resource predecessor"))
+        if byte_digest(capability.before_raw) != expected_digest:
+            raise LedgerError("resource recovery predecessor differs")
+        expected = _neutral_successor(predecessor, expected_digest)
+        for resource in prepared["resources"]:
+            if resource["state"] == "recovered":
+                for index, original in enumerate(expected["resources"]):
+                    if original["slot_id"] == resource["slot_id"]:
+                        if original == resource:
+                            continue
+                        if original["state"] != "planned" or original["current"] is not None or original["immutable"] != resource["immutable"] or original["kind"] != resource["kind"]:
+                            raise LedgerError("resource recovery altered immutable intent")
+                        expected["resources"][index] = resource
+        if expected != prepared:
+            raise LedgerError("resource recovery changed unrelated ledger state")
+        operation = "-recover-resources"
     candidate_digest = byte_digest(raw)
     legacy_stage = (
         f".{name}.update{operation}-g{prepared['generation']}-from-{expected_digest}-"
@@ -14985,6 +15370,8 @@ def cas(
                 and _current_targets_capability.before_raw != current.raw
             ):
                 raise LedgerError("current-target predecessor bytes changed")
+            if _resource_recovery_capability is not None and _resource_recovery_capability.before_raw != current.raw:
+                raise LedgerError("resource recovery predecessor bytes changed")
             _transition(
                 current.document,
                 prepared,
@@ -14993,6 +15380,7 @@ def cas(
                 _target_refresh_capability=_target_refresh_capability,
                 _scope_recovery_capability=_scope_recovery_capability,
                 _identity_recovery_capability=_identity_recovery_capability,
+                _resource_recovery_capability=_resource_recovery_capability,
             )
             if compact:
                 assert receipt_name is not None
@@ -17357,6 +17745,14 @@ def parser() -> argparse.ArgumentParser:
     refresh_parser.add_argument("--expected-generation", required=True, type=int)
     refresh_parser.add_argument("--expected-digest", required=True)
     refresh_parser.add_argument("--expected-path", required=True)
+    resource_recovery_parser = commands.add_parser(
+        "recover-unbound-resources-cas", help="preserve selected unbound resource plans under live exact CAS")
+    resource_recovery_parser.add_argument("root")
+    resource_recovery_parser.add_argument("name")
+    resource_recovery_parser.add_argument("input", help="bounded selected slots and retained public build outputs")
+    resource_recovery_parser.add_argument("--expected-generation", required=True, type=int)
+    resource_recovery_parser.add_argument("--expected-digest", required=True)
+    resource_recovery_parser.add_argument("--expected-path", required=True)
     revalidate_parser = commands.add_parser(
         "revalidate-current-targets-cas",
         help="live-prove all unchanged bound targets and record one neutral observation",
@@ -17662,6 +18058,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                     expected_path=arguments.expected_path,
                 ).json()
             )
+        elif arguments.command == "recover-unbound-resources-cas":
+            _print(recover_unbound_resources_cas(
+                arguments.root, arguments.name, _read_input(arguments.input),
+                expected_generation=arguments.expected_generation,
+                expected_digest=arguments.expected_digest,
+                expected_path=arguments.expected_path,
+            ).json())
         elif arguments.command == "revalidate-current-targets-cas":
             _print(revalidate_current_targets_cas(
                 arguments.root, arguments.name,

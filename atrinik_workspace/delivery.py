@@ -54,6 +54,7 @@ class ActiveDeliveryEvidence:
     references: dict[Path, tuple[str, ...]]
     ledgers: tuple[str, ...]
     transition_blockers: tuple[str, ...]
+    recovered: tuple[dict[str, str], ...] = ()
 
 
 def _regular_path(path: Path, context: str) -> None:
@@ -140,6 +141,7 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
         raise WorkspaceError("delivery-ledger inventory ledgers are invalid")
 
     references: dict[Path, list[str]] = {}
+    recovered: list[dict[str, str]] = []
     active_names: list[str] = []
     for index, snapshot in enumerate(ledgers):
         context = f"delivery-ledger inventory ledgers[{index}]"
@@ -202,6 +204,18 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
                 f"{context}.document.artifacts[{artifact_index}].current.path",
             )
             _add_reference(references, path, name)
+        for resource in document.get("resources", []):
+            identity = resource["immutable"]
+            if identity["path"] is not None:
+                _add_reference(references, _absolute_path(identity["path"], "resource reservation"), name)
+            if resource["state"] == "recovered":
+                for reservation in resource["recovery"]["observation"]["reservations"]:
+                    projected = {"kind": resource["kind"], "name": reservation["name"], "path": reservation["path"], "ledger": name}
+                    context = resource["recovery"].get("resource_context")
+                    if context is not None:
+                        projected["workspace"] = context["workspace"]
+                    recovered.append(projected)
+                    _add_reference(references, _absolute_path(reservation["path"], "recovered reservation"), name)
         active_names.append(name)
 
     preserved_labels: list[str] = [*active_names]
@@ -236,4 +250,5 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
         {path: tuple(sorted(set(values))) for path, values in references.items()},
         tuple(sorted(active_names)),
         tuple(sorted(set(transition_blockers))),
+        tuple(recovered),
     )

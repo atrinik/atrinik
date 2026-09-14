@@ -94,6 +94,11 @@ or substitute classic C/CMake for missing adapters. Replacement repositories lac
 ./atrinik build COMPONENT --profile REVIEW --test
 ```
 
+In an initialized workspace, `build --plan --json` returns execution coordinates;
+use the same options with `--expected-plan SHA256`. Unbound intents require the
+[issue recovery procedure](../atrinik-issue-delivery/references/delivery-ledger.md);
+preserve terminal residuals. Use `resource_context` for wrapper worktrees.
+
 Classic selection is checkout-wide; builds pin snapshots, live inputs retain leases,
 and cleanup owns staging.
 
@@ -152,7 +157,7 @@ or require inventory updates. Follow `docs/PROVENANCE.md`; fail uncertainty.
 ## Maintain guidance
 
 For wrapper or cross-repository contract changes, load `atrinik-guidance-maintenance`;
-synchronize guidance and run inventory/validation.
+sync guidance and run inventory/validation.
 
 Portable export requires verified released sound and the pinned producer;
 raw source/local-playtest sound cannot be packaged.

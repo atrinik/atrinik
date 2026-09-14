@@ -78,6 +78,26 @@ class DeliveryEvidenceTests(unittest.TestCase):
         self.assertEqual(invoke.call_args.args[0][3], "inventory")
         self.assertEqual(invoke.call_args.kwargs["timeout"], 30)
 
+    def test_projects_original_and_residual_reservations_as_typed_evidence(self):
+        worktree = self.root / "workspace/worktrees/active"
+        original = self.root / "workspace/build/profiles/classic-111111111111"
+        residual = original.with_name("classic-222222222222")
+        generation = self.root / "workspace/build/source-generations/classic/generation"
+        output = json.loads(self.inventory_output(worktree))
+        output["ledgers"][0]["document"]["resources"] = [{
+            "kind": "build", "state": "recovered", "immutable": {"name": original.name, "path": str(original)},
+            "recovery": {"observation": {"reservations": [
+                {"name": original.name, "path": str(original)},
+                {"name": residual.name, "path": str(residual)},
+                {"name": generation.name, "path": str(generation)}]}}}]
+        with mock.patch("atrinik_workspace.delivery.subprocess.run",
+            return_value=SimpleNamespace(returncode=0, stdout=json.dumps(output), stderr="")):
+            evidence = inventory_active_delivery_evidence(self.root)
+        self.assertEqual({Path(row["path"]) for row in evidence.recovered}, {original, residual, generation})
+        for path in (original, residual, generation):
+            self.assertIn(self.name, evidence.references[path])
+        self.assertNotIn(worktree, {Path(row["path"]) for row in evidence.recovered})
+
     def test_compact_ledger_lock_coordinate_obeys_name_limit(self) -> None:
         ledger_name = "a" * 240 + ".md.ledger.json"
         lock_name = _ledger_lock_name(self.review_root, ledger_name)

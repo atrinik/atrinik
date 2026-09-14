@@ -47,6 +47,8 @@
 - Prefer `scope create`; Classic uses selectors/physical overrides.
   `scope-<name>` is profile/topology; noncanonical overrides fail pre-publication;
   rerun exact named create after rollback and bind via helper CAS.
+- Plan build intent with `build --plan --json`; execute with `--expected-plan` to fence drift.
+  Unbound resource recovery uses the issue helper; preserve terminal residual reservations.
 - Use wrapper paths; never reconstruct managed paths. Isolate topology/state, ports,
   client config; prefer temporary state and local scenario secrets.
 - Process/tooling ledgers are optional local diagnostics. Do not read or update
