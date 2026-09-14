@@ -281,6 +281,61 @@ class CoordinatorContextTests(unittest.TestCase):
         self.assertEqual(result["status"], "unknown-or-unsafe")
         self.assertIn("canonical-image-pin", result["failed_checks"])
 
+    def test_each_pinned_configuration_boundary_rejects_independent_drift(self) -> None:
+        canonical = self.repository / ".devcontainer/devcontainer.json"
+        cross = self.repository / ".devcontainer/windows-cross/devcontainer.json"
+        original = {path: path.read_bytes() for path in (canonical, cross)}
+        cases = [(canonical, "workspaceFolder", "/other", "canonical-workspace-folder"),
+                 (canonical, "remoteUser", "root", "canonical-remote-user"),
+                 (canonical, "updateRemoteUserUID", 1, "canonical-uid-update"),
+                 (canonical, "postCreateCommand", "true", "canonical-init-command"),
+                 (canonical, "containerEnv", [], "canonical-codex-home"),
+                 (canonical, "mounts", [], "canonical-codex-mount"),
+                 (cross, "image", "unqualified", "windows-cross-image-reference"),
+                 (cross, "remoteUser", "root", "windows-cross-remote-user-reference"),
+                 (cross, "remoteEnv", {"PATH": "/usr/bin"}, "windows-cross-mxe-reference")]
+        for path, key, value, failure in cases:
+            with self.subTest(key=key, path=path):
+                config = json.loads(context._strip_jsonc(original[path].decode()))
+                config[key] = value
+                path.write_text(json.dumps(config))
+                result = self._probe()
+                self.assertFalse(result["authoritative"])
+                self.assertIn(failure, result["failed_checks"])
+                path.write_bytes(original[path])
+        for path in (canonical, cross):
+            with self.subTest(nonobject=path):
+                path.write_text("[]")
+                self.assertFalse(self._probe()["authoritative"])
+                path.write_bytes(original[path])
+        manifest = self.repository / "components.json"
+        manifest.write_text('{"schema_version": 2}')
+        self.assertIn("components-manifest-schema", self._probe()["failed_checks"])
+
+    def test_config_reader_rejects_malformed_oversized_and_non_utf8_input(self) -> None:
+        path = self.repository / ".devcontainer/devcontainer.json"
+        original = path.read_bytes()
+        for payload in (b"{", b"/* unfinished", b"\xff", b" " * (context.MAX_CONFIG_BYTES + 1)):
+            with self.subTest(payload=payload[:20]):
+                path.write_bytes(payload)
+                self.assertFalse(self._probe()["authoritative"])
+        path.write_bytes(original)
+        path.unlink()
+        self.assertFalse(self._probe()["authoritative"])
+        self.assertEqual(json.loads(context._strip_jsonc(
+            '/* first\n second */ {"url":"https://host/a/*literal*/", "quote":"\\\""} // end')),
+            {"url": "https://host/a/*literal*/", "quote": '"'})
+
+    def test_cli_probe_exception_is_bounded_non_authoritative_json(self) -> None:
+        for error in (OSError("unavailable"), context.ProbeError("untrusted")):
+            with self.subTest(error=type(error)), mock.patch.object(context, "probe", side_effect=error):
+                output = io.StringIO()
+                with redirect_stdout(output):
+                    self.assertEqual(context.main(["--json"]), 2)
+                result = json.loads(output.getvalue())
+                self.assertFalse(result["authoritative"])
+                self.assertEqual(result["failed_checks"], ["probe-failed-closed"])
+
     def test_unsafe_ledger_mode_and_windows_mount_are_not_authoritative(self) -> None:
         (self.workspace / "build/reviews").chmod(0o777)
         result = self._probe()
@@ -470,16 +525,17 @@ class NativeCoordinatorTests(unittest.TestCase):
                            os.O_RDONLY | os.O_DIRECTORY)
         return os.open(self.executable, os.O_RDONLY)
 
-    def probe(self, *, mutable_roots=()) -> dict[str, object]:
+    def probe(self, *, mutable_roots=(), **overrides) -> dict[str, object]:
         import pwd
         from types import SimpleNamespace
         with mock.patch.object(context, "_native_read", side_effect=self.read), \
              mock.patch.object(context, "_native_open", side_effect=self.open), \
              mock.patch.object(pwd, "getpwuid", return_value=SimpleNamespace(pw_dir=str(self.home))):
-            return context.probe(self.repository, system="Linux", environment=self.environment,
-                                 user_name="vscode", effective_uid=self.uid,
-                                 runtime_root=self.root, cwd=self.repository,
-                                 mutable_roots=mutable_roots)
+            arguments = dict(system="Linux", environment=self.environment, user_name="vscode",
+                             effective_uid=self.uid, runtime_root=self.root, cwd=self.repository,
+                             mutable_roots=mutable_roots)
+            arguments.update(overrides)
+            return context.probe(self.repository, **arguments)
 
     def test_supported_nonroot_host_does_not_require_pid1_exe_or_namespace_access(self) -> None:
         with mock.patch.object(os, "readlink", side_effect=PermissionError):
@@ -647,6 +703,52 @@ class NativeCoordinatorTests(unittest.TestCase):
             self.assertEqual(updated["generation"], initial["generation"] + 1)
         self.assertTrue(any(directory / "project.lock" in roots and directory / "project.json" in roots
                             and primary / "build" in roots for roots in observed))
+
+    def test_native_user_session_and_installation_boundaries_fail_closed(self) -> None:
+        original = dict(self.environment)
+        for key, value, failure in (("CODEX_HOME", "relative", "native-codex-path"),
+                                    ("ATRINIK_COORDINATOR_NESTED", "true", "nested-coordinator"),
+                                    ("ATRINIK_COORDINATOR_DEPTH", "invalid", "nested-coordinator"),
+                                    ("ATRINIK_COORDINATOR_DEPTH", "1", "nested-coordinator")):
+            with self.subTest(key=key, value=value):
+                self.environment = {**original, key: value}
+                result = self.probe()
+                self.assertFalse(result["authoritative"])
+                self.assertIn(failure, result["failed_checks"])
+        self.environment = original
+        for arguments, failure in (({"effective_uid": 0}, "native-root-user"),
+                                   ({"cwd": self.root}, "current-directory-outside-repository")):
+            with self.subTest(arguments=arguments):
+                result = self.probe(**arguments)
+                self.assertFalse(result["authoritative"])
+                self.assertIn(failure, result["failed_checks"])
+        with mock.patch.object(context, "_posix_locking_available", return_value=False):
+            self.assertIn("posix-locking-unavailable", self.probe()["failed_checks"])
+        self.executable.chmod(0o600)
+        self.assertIn("native-systemd-installation", self.probe()["failed_checks"])
+        self.executable.chmod(0o755)
+        marker = self.root / "run/systemd/container"
+        marker.parent.mkdir(parents=True)
+        marker.write_text("container")
+        self.assertIn("native-container-declaration", self.probe()["failed_checks"])
+
+    def test_native_mount_policy_checks_user_roots_and_individual_file_subjects(self) -> None:
+        key = str(self.proc / str(os.getpid()) / "mountinfo")
+        original = self.inputs[key]
+        subject = self.root / "profile.json"
+        subject.write_text("{}")
+        self.assertTrue(self.probe(mutable_roots=(subject,))["authoritative"])
+        for path in (self.repository, self.home, self.codex, subject):
+            with self.subTest(path=path):
+                self.inputs[key] = original + f"3 1 8:1 / {path} rw - 9p bridge rw\n"
+                result = self.probe(mutable_roots=(subject,))
+                self.assertFalse(result["authoritative"])
+                self.assertIn("native-filesystem-unsupported", result["failed_checks"])
+        self.inputs[key] = original
+        build = self.repository / "workspace/build"
+        build.parent.mkdir()
+        build.write_text("not a directory")
+        self.assertFalse(self.probe()["authoritative"])
 
     def test_user_namespace_maps_require_one_full_initial_identity_row(self) -> None:
         key = str(self.proc / str(os.getpid()) / "uid_map")

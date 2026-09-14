@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from contextlib import ExitStack, nullcontext
+
 import hashlib
 import io
 import json
@@ -301,6 +303,183 @@ class PortablePublicationTests(unittest.TestCase):
                         portable.export_client(workspace, "classic", self.output)
                 workspace._resolved_profile_operation.assert_not_called()
                 workspace._build_resolved.assert_not_called()
+
+    def test_export_source_copy_and_final_publication_guards(self):
+        from scripts.linux_portable_acceptance import SOUND_RELEASE
+        from atrinik_workspace import sound
+        cases = {"complete": None, "dirty": "clean committed", "classic": "requires Classic",
+                 "sound": "selected sound source commit", "generation": "immutable primary",
+                 "configure": "CMake configuration changed", "sound-tree": "source tree",
+                 "source-bytes": "source proof changed", "late-record": "source generation changed",
+                 "late-proof": "source closure changed", "late-sound": "released sound changed",
+                 "late-metadata": "producer metadata changed", "late-configure": "build configuration changed"}
+        for case, failure in cases.items():
+            with self.subTest(case=case), ExitStack() as patches:
+                directory = self.root / case
+                directory.mkdir()
+                destination = directory / "published"
+                selected, records, states = {}, {}, {}
+                for role, checkout in (("client", "classic"), ("sound", "sound")):
+                    source = directory / role / "source"
+                    source.mkdir(parents=True)
+                    (source / "LICENSE.md").write_bytes(b"original source license")
+                    (source / "media.dat").write_bytes(b"materialized source data")
+                    selected[role] = source
+                    records[role] = {"checkout": checkout, "source_tree": "b" * 40,
+                                     "tree": "c" * 40, "source_includes": ["."]}
+                    states[checkout] = {"dirty": False, "path": str(directory / checkout),
+                                        "head": portable.CONSUMER_COMMIT if checkout == "classic"
+                                        else SOUND_RELEASE["source_commit"]}
+                (selected["client"] / "shaders").mkdir()
+                (selected["client"] / "shaders/source.hlsl").write_bytes(b"source only")
+                binary = directory / "build/client"
+                binary.mkdir(parents=True)
+                cache = binary / "CMakeCache.txt"
+                cache.write_text("CMAKE_SKIP_RPATH:BOOL=ON\nCMAKE_BUILD_TYPE:STRING=Release\n"
+                                 "CMAKE_C_FLAGS:STRING=-O2 -march=x86-64 -mtune=generic\n")
+                released = directory / "released"
+                released.mkdir()
+                (released / "COPYING").write_bytes(b"released sound attribution")
+                (released / "effect.ogg").write_bytes(b"encoded fixture")
+                sound_record = {"source_tree": "b" * 40, "root": str(released)}
+                snapshot = mock.Mock()
+                snapshot.paths.return_value = selected
+                snapshot.checkout_states.return_value = states
+                workspace = mock.Mock()
+                workspace._load_profile.return_value = {"stack": "classic", "sound_mode": "released",
+                                                         "sound_release": SOUND_RELEASE}
+                workspace._resolved_profile_operation.return_value = nullcontext(snapshot)
+                workspace._profile_build_lock.return_value = nullcontext()
+                workspace._expand_build_target.return_value = ["client"]
+                workspace._classic_binary_directory.return_value = binary
+                workspace._prepare_sound.return_value = (released, sound_record)
+                def generation(source):
+                    role = next(role for role, path in selected.items() if path == source)
+                    return None if case == "generation" else json.loads(json.dumps(records[role]))
+                workspace._source_generation_record.side_effect = generation
+                def closure(checkout, root, *arguments):
+                    result = {}
+                    for path in sorted(root.rglob("*")):
+                        if path.is_file():
+                            raw = path.read_bytes()
+                            result[str(path.relative_to(root))] = {
+                                "sha256": hashlib.sha256(raw).hexdigest(), "size": len(raw),
+                                "executable": bool(path.stat().st_mode & 0o111)}
+                    return result
+                workspace._validate_source_generation_git_closure.side_effect = closure
+                def build(*arguments, **options):
+                    if case == "source-bytes":
+                        (selected["client"] / "media.dat").write_bytes(b"changed source")
+                    return binary.parent
+                workspace._build_resolved.side_effect = build
+                def runtime(publication, documents, executable):
+                    self.assertEqual(executable, binary / "atrinik")
+                    publication.add_bytes("bin/atrinik", b"fixture client", executable=True)
+                    publication.add_bytes("lib/provider.so", b"fixture provider")
+                    publication.manifest["application_libraries"].append("lib/provider.so")
+                    return {"derivatives": [{"fixture": "exact input normalization"}]}
+                def legal(publication, documents):
+                    publication.add_bytes("licenses/provider", b"provider notice", notice=True)
+                    return {"sources_and_notices_materialized": True}
+                def verify_sound(*arguments):
+                    if case == "late-record": records["client"]["tree"] = "d" * 40
+                    if case == "late-proof": (selected["client"] / "media.dat").write_bytes(b"late change")
+                    if case == "late-configure": cache.write_text("changed configure contract")
+                    return {**sound_record, "changed": True} if case == "late-sound" else sound_record
+                if case == "dirty": states["classic"]["dirty"] = True
+                if case == "classic": states["classic"]["head"] = "a" * 40
+                if case == "sound": states["sound"]["head"] = "a" * 40
+                if case == "configure": cache.write_text("CMAKE_SKIP_RPATH:BOOL=OFF\n")
+                if case == "sound-tree": sound_record["source_tree"] = "e" * 40
+                metadata = ({"contract": b"authenticated fixture"}, {})
+                patches.enter_context(mock.patch.object(portable, "installed_metadata", side_effect=[
+                    metadata, ({"contract": b"changed"}, {}) if case == "late-metadata" else metadata]))
+                patches.enter_context(mock.patch.object(portable, "add_runtime", side_effect=runtime))
+                patches.enter_context(mock.patch.object(portable, "add_corresponding_sources", side_effect=legal))
+                patches.enter_context(mock.patch.object(sound, "verify_release_tree", side_effect=verify_sound))
+                if failure:
+                    with self.assertRaisesRegex((WorkspaceError, export.ExportError), failure):
+                        portable.export_client(workspace, "qualified", destination)
+                    self.assertFalse(destination.exists())
+                    if case in ("dirty", "classic", "sound", "generation"):
+                        workspace._build_resolved.assert_not_called()
+                else:
+                    result = portable.export_client(workspace, "qualified", destination)
+                    export.verify_export(destination)
+                    self.assertEqual(result["image"], portable.IMAGE)
+                    self.assertEqual((destination / "share/games/atrinik/media.dat").read_bytes(),
+                                     b"materialized source data")
+                    self.assertTrue((destination / "sources/client/source/shaders/source.hlsl").is_file())
+                    self.assertFalse((destination / "share/games/atrinik/shaders/source.hlsl").exists())
+                    self.assertEqual((destination / "share/games/atrinik/sound/effect.ogg").read_bytes(),
+                                     b"encoded fixture")
+                    self.assertIn("licenses/libpulse-export-modification.txt",
+                                  export.verify_export(destination)["notices"])
+                    self.assertIn(b"OPENSSL_MODULES", (destination / "atrinik").read_bytes())
+
+    def test_corresponding_source_and_notice_closure_is_materialized_or_refused(self):
+        copyright_path = Path("/usr/share/doc/bash/copyright").resolve(strict=True)
+        common_names = ("GPL-2", "LGPL-2.1")
+        def record(path):
+            data = path.read_bytes()
+            return {"sha256": hashlib.sha256(data).hexdigest(), "size": len(data),
+                    "executable": bool(path.stat().st_mode & 0o111)}
+        for case in ("complete", "missing-notices", "wrong-copyright", "wrong-common", "escape"):
+            with self.subTest(case=case), ExitStack() as patches:
+                producer = self.root / case / "producer"
+                (producer / "sources/debian").mkdir(parents=True)
+                archive = producer / "sources/debian/package.orig.tar.xz"
+                archive.write_bytes(b"original Debian source archive")
+                upstream_bytes = b"original upstream source archive"
+                upstream_sha = hashlib.sha256(upstream_bytes).hexdigest()
+                (producer / "sources" / (upstream_sha + ".tar.gz")).write_bytes(upstream_bytes)
+                if case != "missing-notices":
+                    (producer / "notices").mkdir()
+                    (producer / "notices/LICENSE").write_bytes(b"producer attribution")
+                producer_records = {str(path.relative_to(producer)): record(path)
+                                    for path in producer.rglob("*") if path.is_file()}
+                notices = {"/usr/share/doc/bash/copyright": {**record(copyright_path),
+                                                            "resolved_path": str(copyright_path)}}
+                common = {name: record(Path("/usr/share/common-licenses") / name) for name in common_names}
+                documents = {"runtime-sources.json": {"source_packages": ["bash"],
+                             "archives": {archive.name: record(archive)["sha256"]}},
+                             "contract.json": {"sources": [{"url": "https://example.invalid/upstream.tar.gz",
+                                                               "sha256": upstream_sha}]},
+                             "debian-sources.json": [
+                                 {"source": "ignored", "package": "ignored", "notice_directory": "/unavailable"},
+                                 {"source": "bash", "package": "bash:amd64", "notice_directory": "/usr/share/doc/bash"}]}
+                if case == "escape":
+                    (producer / "copyright").write_bytes(b"outside Debian notice boundary")
+                    documents["debian-sources.json"][1]["notice_directory"] = str(producer)
+                    producer_records["copyright"] = record(producer / "copyright")
+                patches.enter_context(mock.patch.object(portable, "Path", side_effect=lambda value:
+                    producer if str(value) == "/opt/atrinik-portable" else Path(value)))
+                patches.enter_context(mock.patch.object(portable, "PRODUCER_FILES_SHA256",
+                                                        portable.inventory_digest(producer_records)))
+                patches.enter_context(mock.patch.object(portable, "DEBIAN_NOTICES_SHA256",
+                    "0" * 64 if case == "wrong-copyright" else portable.inventory_digest(notices)))
+                patches.enter_context(mock.patch.object(portable, "COMMON_LICENSE_NAMES", common_names))
+                patches.enter_context(mock.patch.object(portable, "COMMON_LICENSES_SHA256",
+                    "0" * 64 if case == "wrong-common" else portable.inventory_digest(common)))
+                # Archive-member notice materialization has separate exact-byte tests.
+                patches.enter_context(mock.patch.object(portable, "add_audio_notices", return_value=[]))
+                destination = self.root / case / "published"
+                with portable.Publication(destination, self.sources) as publication:
+                    self.populate(publication)
+                    if case != "complete":
+                        with self.assertRaisesRegex(export.ExportError, "portable-legal"):
+                            portable.add_corresponding_sources(publication, documents)
+                        self.assertFalse(destination.exists())
+                    else:
+                        result = portable.add_corresponding_sources(publication, documents)
+                        publication.publish(lambda: None)
+                        manifest = export.verify_export(destination)
+                        self.assertEqual(result["debian_archives"], 1)
+                        self.assertEqual(result["debian_source_packages"], 1)
+                        self.assertEqual((destination / "sources/debian" / archive.name).read_bytes(), archive.read_bytes())
+                        self.assertEqual((destination / "sources/upstream/upstream.tar.gz").read_bytes(), upstream_bytes)
+                        self.assertEqual((destination / "licenses/debian/bash_amd64/copyright").read_bytes(), copyright_path.read_bytes())
+                        self.assertIn("sources/portable-producer/notices/LICENSE", manifest["notices"])
 
     def test_cli_routes_real_build_chatter_and_errors_to_stderr(self):
         from atrinik_workspace import cli
