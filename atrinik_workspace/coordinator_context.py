@@ -1024,4 +1024,3 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(_render_human(result))
     return 0 if result["authoritative"] else 2
-
