@@ -235,6 +235,8 @@ not a summary path, to reserve execution identity before the fenced build.
 
 For an interrupted delivery with unbound build/state/topology plans, use the
 [resource recovery procedure](.agents/skills/atrinik-issue-delivery/references/delivery-ledger.md).
+The helper's explicit bound-wrapper `resource_context` selector supports resources
+in that worktree's default workspace while preserving its separate storage roots.
 Recovery preserves original intent, registered state, and proven residual output
 as nonreusable evidence. It does not initialize data, adopt output, or remove
 anything. Existing state data requires an exact prior named registration;

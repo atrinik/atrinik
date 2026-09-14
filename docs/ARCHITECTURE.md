@@ -1626,6 +1626,16 @@ helper-derived observations/reservations. Generic CAS cannot introduce or alter
 that disposition. Later batches preserve earlier proofs; predecessor nesting is
 limited to four levels and every retained payload remains bounded to 512 KiB.
 
+An optional tagged `resource_context` selects one already-bound wrapper worktree
+by slot. Its resource wrapper is that exact worktree and its only supported
+resource workspace is the canonical managed `W/workspace`; the immutable
+primitive request still proves the distinct storage workspace. Accepted primary
+code consumes the freshly pinned worktree manifest without executing candidate
+worktree code. Recovery durably retains the derived canonical paths and selector;
+retries and ordinary reconnect reprove both contexts. Untagged historical proofs
+retain their original interpretation and bytes. Names are projected in the
+resource namespace while path and dependency reservations remain protected.
+
 The helper prepares all bound targets and resource dependencies before acquiring
 one deduplicated ordered lease union. It also nonblockingly holds the legacy
 profile-build, source-generation, state registry/state path, and applicable

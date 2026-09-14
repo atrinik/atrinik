@@ -2225,8 +2225,22 @@ reconnect. First perform any real accepted-main target advancement through
 `target-refresh-cas`, preserving a clean local unpublished head and the older
 published PR head; do not invent head movement or rewrite initial requests.
 
-Prepare a bounded regular request with exactly `slots` (unique sorted selected
-slot IDs) and `build_outputs` (selected build slot to canonical retained payload).
+Prepare a bounded regular request with `slots` (unique sorted selected slot IDs)
+and `build_outputs` (selected build slot to canonical retained payload). When
+resources belong to the bound wrapper worktree's default workspace rather than
+the workspace storing that worktree, include this field:
+
+```json
+{"resource_context": {"kind": "bound-wrapper-worktree", "worktree_slot": "worktree"}}
+```
+
+The selector names one exact bound wrapper target, never an arbitrary path.
+Every selected resource must belong to that target repository. The helper derives
+resource wrapper `W` from the bound slot and resource workspace `W/workspace`,
+requiring its canonical managed directory and pinned manifest. Original primitive
+storage roots remain unchanged. Omission retains the existing storage-workspace
+behavior; failed proof never selects another workspace automatically.
+
 Each payload uses the existing `{encoding, raw_base64, sha256}` format and retains
 the exact original public output bytes. Legacy combined build logs are accepted
 only with a final LF-terminated absolute build path line. Do not synthesize a
@@ -2272,3 +2286,14 @@ with the same exact leaf ownership re-proven. Never run candidate code against
 the real paused ledger. New work records fresh names/profile/build resources
 using `build --plan --json`, then executes with its exact `--expected-plan` digest.
 Keep the original build and registered-but-uninitialized state untouched.
+
+For a tagged resource context, the helper loads accepted primary wrapper code
+with the pinned bound-worktree manifest; it never executes that worktree's
+candidate implementation. It prepares storage and resource contexts before one
+complete graph/legacy lock union. Recovery retains the derived context alongside
+its original predecessor and output; retries require the same selector and tuple.
+Ordinary reconnect reproves that context, registry and residuals. Generic CAS
+cannot change it. Collision, direct mutation and cleanup protection retain the
+resource namespace and all dependency-generation reservations. Same textual names
+in another namespace gain no ownership from this association. Existing proofs
+without a context retain their original interpretation and bytes.

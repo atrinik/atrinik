@@ -233,5 +233,8 @@ When planned/null build/state/topology resources block reconnect, follow the
 [accepted specialized recovery](delivery-ledger.md)
 after any real target-base refresh and before ordinary all-target revalidation.
 Keep current null, preserve residual reservations, and use public `build --plan`
-plus `--expected-plan` for subsequent build intent. An unmerged candidate helper
+plus `--expected-plan` for subsequent build intent. If resources belong to the
+bound wrapper worktree's default workspace, use the documented explicit
+`resource_context` selector; preserve the primitive storage workspace and retain
+the helper-derived association through retries and reconnect. An unmerged candidate helper
 never authorizes a paused delivery's recovery.

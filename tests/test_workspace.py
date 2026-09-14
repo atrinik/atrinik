@@ -2235,11 +2235,13 @@ class WorkspaceTests(unittest.TestCase):
                 path = self.workspace.paths.topologies / name
                 if exists:
                     path.mkdir(mode=0o700)
-                proof = _DeliveryResourceRecovery(self.workspace, [{"slot_id": "topology", "kind": "topology",
-                    "immutable": {"name": name, "path": None}}], {})
-                with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
-                    with self.assertRaisesRegex(WorkspaceError, message):
+                before = sorted(path.iterdir()) if exists else []
+                with self.assertRaisesRegex(WorkspaceError, message):
+                    proof = _DeliveryResourceRecovery(self.workspace, [{"slot_id": "topology", "kind": "topology",
+                        "immutable": {"name": name, "path": None}}], {})
+                    with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
                         proof.observe()
+                self.assertEqual(sorted(path.iterdir()) if exists else [], before)
                 self.assertEqual(path.exists(), exists)
 
     def test_resource_recovery_rejects_build_provenance_drift_and_preserves_bytes(self):
@@ -2326,30 +2328,38 @@ class WorkspaceTests(unittest.TestCase):
         finally:
             registry.chmod(0o600)
         self.assertFalse(state.exists())
+        # An absent topology pins its existing namespace parent. Replacing
+        # that directory after admission must still fail the transient proof.
         topology = self.workspace.paths.topologies / "pinned"
-        topology.mkdir(mode=0o700)
+        parent = topology.parent
         resource = {"slot_id": "topology", "kind": "topology", "immutable": {"name": "pinned", "path": None}}
         proof = _DeliveryResourceRecovery(self.workspace, [resource], {})
-        displaced = topology.with_name("displaced-pinned")
+        displaced = parent.with_name("displaced-topologies")
         with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
-            topology.rename(displaced)
-            topology.mkdir(mode=0o700)
+            parent.rename(displaced)
+            parent.mkdir(mode=0o700)
             try:
                 with self.assertRaisesRegex(WorkspaceError, "directory changed while pinned"):
                     proof.observe()
                 self.assertTrue(displaced.is_dir())
-                self.assertEqual(list(topology.iterdir()), [])
+                self.assertEqual(list(parent.iterdir()), [])
+                self.assertFalse(topology.exists())
             finally:
-                topology.rmdir()
-                displaced.rename(topology)
-        topology.chmod(0o777)
+                parent.rmdir()
+                displaced.rename(parent)
+        # Materialized topology paths now refuse before any lock file creation;
+        # a registered state retains the directory-mode observation regression.
+        state.mkdir(parents=True, mode=0o700)
+        state.chmod(0o777)
+        resource = {"slot_id": "state", "kind": "state",
+                    "immutable": {"name": "permission-check", "path": str(state)}}
         try:
             proof = _DeliveryResourceRecovery(self.workspace, [resource], {})
             with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
                 with self.assertRaisesRegex(WorkspaceError, "directory is unsafe"):
                     proof.observe()
         finally:
-            topology.chmod(0o700)
+            state.chmod(0o700)
 
     def test_build_plan_refuses_drift_between_admission_observations(self):
         original = self.workspace._build_plan_observation

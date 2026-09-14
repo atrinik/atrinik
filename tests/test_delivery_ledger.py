@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import base64
-from contextlib import contextmanager, nullcontext
+from contextlib import ExitStack, contextmanager, nullcontext
 import fcntl
 import hashlib
 import importlib.util
@@ -12565,6 +12565,372 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertIn(str(actual), {row["path"] for row in observation["reservations"]})
             ledger.revalidate_current_targets_cas(root, recovered.name, **cas_arguments(recovered))
             self.assertFalse(original.exists())
+            self.assertFalse(state.exists())
+            self.assertTrue(actual.exists())
+
+    def split_resource_context_setup(self, root, label):
+        from atrinik_workspace.workspace import Workspace
+        root = self.live_base / label / "wrapper/build/reviews"
+        original_live_roots = live_roots
+        def managed_roots(*arguments, **keywords):
+            roots = original_live_roots(*arguments, **keywords)
+            wrapper = Path(roots["wrapper"]["path"])
+            root.mkdir(parents=True, mode=0o700)
+            helper = wrapper / ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
+            helper.parent.mkdir(parents=True)
+            shutil.copy2(SCRIPT, helper)
+            shutil.copy2(ROOT / ".gitignore", wrapper / ".gitignore")
+            git_run(wrapper, "add", ".gitignore", ".agents")
+            git_run(wrapper, "commit", "-m", "real wrapper managed ignore contract")
+            with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": roots["workspace"]["path"]}):
+                workspace = Workspace(Path(roots["wrapper"]["path"]), backfill_references=False)
+                workspace.paths.ensure()
+                workspace.close()
+            return roots
+        with mock.patch(__name__ + ".live_roots", side_effect=managed_roots):
+            old, refresh, head, base, live = target_refresh_setup(self.live_base, root, label, stale_predecessor=False)
+        current = ledger.target_refresh_cas(root, old.name, refresh, **cas_arguments(old))
+        report = root / current.name.removesuffix(".ledger.json")
+        report.write_text("Disposable public recovery fixture.\n")
+        report.chmod(0o600)
+        worktree = next(row for row in current.document["artifacts"] if row["kind"] == "worktree")
+        roots = worktree["primitive_request"]["roots"]
+        wrapper = Path(roots["wrapper"]["path"])
+        storage = Path(roots["workspace"]["path"])
+        workspace_path = live / "workspace"
+        self.assertNotEqual(storage, workspace_path)
+        # Bind one remotely observed draft before preserving a newer unpublished
+        # local head; GitHub is mocked only at its external transport boundary.
+        target = current.document["targets"][0]
+        repo = {"node_id": "R_repo", "full_name": "atrinik/atrinik"}
+        remote = {"node_id": "P_split_created", "number": 500, "state": "open", "draft": True,
+                  "user": {"node_id": "U_actor"},
+                  "base": {"ref": "main", "sha": target["base"]["current_sha"], "repo": repo},
+                  "head": {"ref": target["head"]["branch"], "sha": head, "repo": repo},
+                  "body": INITIAL_PR_BODY.decode(), "updated_at": "2026-09-14T07:00:00Z"}
+        def remote_read(arguments, context):
+            if context == "PR binding live base ref":
+                return {"data": {"repository": {"id": "R_repo", "nameWithOwner": "atrinik/atrinik",
+                    "ref": {"prefix": "refs/heads/", "name": "main",
+                            "target": {"__typename": "Commit", "oid": remote["base"]["sha"]}}}}}
+            endpoint = tuple(arguments)[-1]
+            if "/pulls/500" in endpoint:
+                return copy.deepcopy(remote)
+            if "/comments?" in endpoint:
+                return []
+            raise AssertionError(f"unexpected remote observation: {context}")
+        with mock.patch.object(ledger, "_gh_json", side_effect=remote_read):
+            ledger.bind_pr_cas(root, current.name, "pull-request", 500, **cas_arguments(current))
+        current = ledger.inspect(root, current.name)
+        git_run(wrapper, "update-ref", "refs/remotes/origin/" + target["head"]["branch"], head)
+        # Candidate worktree implementation must never become recovery authority.
+        candidate_code = live / "atrinik_workspace/workspace.py"
+        candidate_code.write_text("raise AssertionError('candidate implementation executed')\n")
+        git_run(live, "add", "atrinik_workspace/workspace.py")
+        git_run(live, "commit", "-m", "unpublished candidate implementation")
+        head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+        advance = next_generation(current)
+        advance["targets"][0]["head"]["current_sha"] = head
+        advance["targets"][0]["head"]["lineage"].append(head)
+        for row in advance["artifacts"]:
+            if row["current"] is not None:
+                row["current"]["head_sha"] = head
+        current = ledger.target_refresh_cas(root, current.name, advance, **cas_arguments(current))
+        self.assertNotEqual(head, remote["head"]["sha"])
+        for name in ("content", "resources"):
+            checkout = live / name
+            checkout.mkdir()
+            git_run(checkout, "init", "--initial-branch=main")
+            git_run(checkout, "config", "user.name", "Delivery Test")
+            git_run(checkout, "config", "user.email", "delivery@example.invalid")
+            git_run(checkout, "remote", "add", "origin", f"https://github.com/atrinik/{name}.git")
+            (checkout / "fixture.txt").write_text("disposable dependency\n")
+            git_run(checkout, "add", ".")
+            git_run(checkout, "commit", "-m", "disposable dependency")
+        classic = live / "classic"
+        classic.mkdir()
+        git_run(classic, "init", "--initial-branch=main")
+        git_run(classic, "config", "user.name", "Delivery Test")
+        git_run(classic, "config", "user.email", "delivery@example.invalid")
+        git_run(classic, "remote", "add", "origin", "https://github.com/atrinik/classic.git")
+        for directory in ("protocol", "cmake", "libatrinik", "server"):
+            (classic / directory).mkdir()
+            (classic / directory / "README").write_text("dependency source")
+        (classic / "VERSION").write_text("1.0.0\n")
+        (classic / "LICENSE.md").write_text("disposable dependency license fixture\n")
+        (classic / "ATTRIBUTIONS.md").write_text("disposable dependency attribution fixture\n")
+        git_run(classic, "add", ".")
+        git_run(classic, "commit", "-m", "independent Classic dependency")
+        dependency_head = git_run(classic, "rev-parse", "HEAD").stdout.strip()
+        self.assertNotEqual(dependency_head, head)
+        with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(workspace_path)}):
+            workspace = Workspace(live, backfill_references=False)
+            workspace.paths.ensure()
+            try:
+                with ExitStack() as build_boundary:
+                    for method in ("_build_protocol", "_build_library", "_build_server",
+                                   "_collect_content", "_stage_resources", "_generate_region_maps"):
+                        build_boundary.enter_context(mock.patch.object(workspace, method))
+                    actual = workspace.build("server", "classic", False)
+                state = workspace.state_add("retained-classic", self.live_base / label / "external-state")
+                metadata = json.loads((actual / ".atrinik-build.json").read_text())
+                resolution = json.loads((actual / ".atrinik-profile-resolution.json").read_text())
+                self.assertEqual(metadata["schema_version"], 4)
+                self.assertEqual(resolution["schema_version"], 3)
+                self.assertEqual(set(metadata["coordinates"]), {"content", "resources", "protocol", "libatrinik", "server"})
+            finally:
+                workspace.close()
+        self.assertFalse(state.exists())
+        # These belong only to S. A mistaken S observation must not pass.
+        (storage / "states.json").write_text(json.dumps({"schema_version": 1,
+            "states": {"retained-classic": str(storage / "foreign-state")}}))
+        (storage / "topologies" / "unstarted-classic").mkdir(parents=True)
+        registry_bytes = (workspace_path / "states.json").read_bytes()
+        plan = next_generation(current)
+        original = workspace_path / "build/profiles/classic-111111111111"
+        plan["resources"] = [
+            {"slot_id": "build", "kind": "build", "state": "planned", "immutable": {"repository": repository(), "name": original.name, "path": str(original)}, "current": None},
+            {"slot_id": "state", "kind": "state", "state": "planned", "immutable": {"repository": repository(), "name": "retained-classic", "path": str(state)}, "current": None},
+            {"slot_id": "topology", "kind": "topology", "state": "planned", "immutable": {"repository": repository(), "name": "unstarted-classic", "path": None}, "current": None},
+        ]
+        planned = ledger.cas(root, current.name, plan, **cas_arguments(current))
+        (wrapper / "new-main.txt").write_text("accepted prerequisite advance")
+        git_run(wrapper, "add", "new-main.txt")
+        git_run(wrapper, "commit", "-m", "new accepted main")
+        advanced_base = git_run(wrapper, "rev-parse", "HEAD").stdout.strip()
+        update = next_generation(planned)
+        update["targets"][0]["base"]["current_sha"] = advanced_base
+        update["targets"][0]["base"]["lineage"].append(advanced_base)
+        refreshed = ledger.target_refresh_cas(root, planned.name, update, **cas_arguments(planned))
+        self.assertEqual(refreshed.document["targets"][0]["head"]["current_sha"], head)
+        with self.assertRaises(ledger.LedgerError):
+            ledger.revalidate_current_targets_cas(root, refreshed.name, **cas_arguments(refreshed))
+        output = inline_payload(f"compiler progress\ntests passed\n{actual}\n".encode())
+        request = {"slots": ["build", "state", "topology"], "build_outputs": {"build": output},
+                   "resource_context": {"kind": "bound-wrapper-worktree", "worktree_slot": "worktree"}}
+        return refreshed, request, roots, live, actual, state, registry_bytes
+
+    def test_split_resource_context_public_recovery_and_reconnect(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            before, request, roots, live, actual, state, registry_bytes = self.split_resource_context_setup(root, "split-context")
+            root = Path(before.path).parent
+            original_bytes = {path: path.read_bytes() for path in actual.rglob("*") if path.is_file()}
+            with self.assertRaises(ledger.LedgerError):
+                ledger.recover_unbound_resources_cas(root, before.name,
+                    {key: value for key, value in request.items() if key != "resource_context"}, **cas_arguments(before))
+            self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+            recovered = ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+            self.assertEqual(recovered.document["targets"], before.document["targets"])
+            self.assertEqual(len(recovered.document["targets"]), 1)
+            self.assertEqual(recovered.document["artifacts"], before.document["artifacts"])
+            for old, new in zip(before.document["resources"], recovered.document["resources"]):
+                self.assertEqual(old["immutable"], new["immutable"])
+                self.assertIsNone(new["current"])
+                self.assertEqual(new["recovery"]["resource_context"]["workspace"], str(live / "workspace"))
+            result = ledger.revalidate_current_targets_cas(root, before.name, **cas_arguments(recovered))
+            self.assertEqual(result.document, next_generation(recovered))
+            self.assertEqual(original_bytes, {path: path.read_bytes() for path in original_bytes})
+            self.assertEqual(registry_bytes, (live / "workspace/states.json").read_bytes())
+            self.assertFalse(state.exists())
+            self.assertEqual(git_run(live, "status", "--porcelain").stdout, "")
+
+    def test_split_resource_context_rejects_malformed_foreign_and_unsafe_associations(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            before, request, roots, live, actual, state, registry = self.split_resource_context_setup(root, "split-refusals")
+            root = Path(before.path).parent
+            for context in (None, {}, {"kind": "arbitrary", "worktree_slot": "worktree"},
+                            {"kind": "bound-wrapper-worktree", "worktree_slot": "branch"},
+                            {"kind": "bound-wrapper-worktree", "worktree_slot": "missing"},
+                            {**request["resource_context"], "workspace": str(live / "workspace")}):
+                with self.subTest(context=context), self.assertRaises(ledger.LedgerError):
+                    ledger.recover_unbound_resources_cas(root, before.name, {**request, "resource_context": context}, **cas_arguments(before))
+                self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+            data = live / "workspace"
+            displaced = live / "saved-workspace"
+            data.rename(displaced)
+            data.symlink_to(displaced, target_is_directory=True)
+            try:
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+            finally:
+                data.unlink()
+                displaced.rename(data)
+            marker = data / ".atrinik-workspace.json"
+            marker.write_text('{"schema_version": 99}')
+            with self.assertRaises(ledger.LedgerError):
+                ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+            self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+
+    def test_split_resource_context_residual_refusals_are_side_effect_free(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            before, request, roots, live, actual, state, registry = self.split_resource_context_setup(Path(temporary), "split-residual-refusals")
+            root = Path(before.path).parent
+            data = live / "workspace"
+            registry_path = data / "states.json"
+            for replacement in (
+                {"schema_version": 1, "states": {"retained-classic": str(state), "alias": str(state)}},
+                {"schema_version": 1, "states": {"retained-classic": str(state.parent / "other")}},
+                {"schema_version": 1, "states": {"retained-classic": str(state), "default": str(state)}},
+            ):
+                registry_path.write_text(json.dumps(replacement))
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+                self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+            registry_path.write_bytes(registry)
+            topology = data / "topologies/unstarted-classic"
+            topology.mkdir()
+            sentinel = topology / "foreign-record"
+            sentinel.write_bytes(b"preserve exact original topology bytes\n")
+            original_topology = {path.name: path.read_bytes() for path in topology.iterdir()}
+            with self.assertRaises(ledger.LedgerError):
+                ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+            self.assertEqual(original_topology, {path.name: path.read_bytes() for path in topology.iterdir()})
+            sentinel.unlink()
+            topology.rmdir()
+            original_mode = data.stat().st_mode & 0o777
+            data.chmod(0o777)
+            try:
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+            finally:
+                data.chmod(original_mode)
+            for payload in (inline_payload(b"not a public path"),
+                            inline_payload(f"{Path(roots['workspace']['path'])}/build/profiles/classic-111111111111\n".encode())):
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.recover_unbound_resources_cas(root, before.name,
+                        {**request, "build_outputs": {"build": payload}}, **cas_arguments(before))
+            self.assertEqual(registry_path.read_bytes(), registry)
+            self.assertFalse(state.exists())
+            self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+
+    def test_split_resource_context_staged_and_installed_retry_freshness(self):
+        for point in ("cas:staged", "cas:installed"):
+            with self.subTest(point=point), tempfile.TemporaryDirectory() as temporary:
+                before, request, roots, live, actual, state, registry = self.split_resource_context_setup(Path(temporary), "split-retry-" + point.split(":")[1])
+                root = Path(before.path).parent
+                with self.assertRaises(ledger.InjectedCrash):
+                    ledger.recover_unbound_resources_cas(root, before.name, request,
+                        **cas_arguments(before), failpoint=point)
+                interrupted = ledger.inspect(root, before.name)
+                for changed in ({key: value for key, value in request.items() if key != "resource_context"},
+                                {**request, "resource_context": {"kind": "bound-wrapper-worktree", "worktree_slot": "branch"}},
+                                {**request, "build_outputs": {"build": inline_payload(f"changed log\n{actual}\n".encode())}}):
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger.recover_unbound_resources_cas(root, before.name, changed, **cas_arguments(before))
+                    self.assertEqual(ledger.inspect(root, before.name).raw, interrupted.raw)
+                registry_path = live / "workspace/states.json"
+                changed = json.loads(registry)
+                changed["states"]["foreign-alias"] = str(state)
+                registry_path.write_text(json.dumps(changed))
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+                registry_path.write_bytes(registry)
+                foreign = {**before.document["actor"], "node_id": "U_foreign"}
+                with mock.patch.object(ledger, "_authenticated_actor", return_value=foreign):
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+                dirty = live / "actual.txt"
+                original = dirty.read_bytes()
+                dirty.write_text("target changed")
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+                dirty.write_bytes(original)
+                if point == "cas:installed":
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(interrupted))
+                recovered = ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+                self.assertEqual(ledger.inventory(root).pending, ())
+                ledger.revalidate_current_targets_cas(root, before.name, **cas_arguments(recovered))
+
+    def test_split_resource_context_actual_locks_and_reservation_projection(self):
+        from atrinik_workspace.workspace import Workspace
+        from atrinik_workspace.locking import exclusive_lock
+        from atrinik_workspace.model import WorkspaceError
+        from atrinik_workspace.delivery import inventory_active_delivery_evidence
+        with tempfile.TemporaryDirectory() as temporary:
+            before, request, roots, live, actual, state, registry = self.split_resource_context_setup(Path(temporary), "split-locks")
+            root = Path(before.path).parent
+            data = live / "workspace"
+            storage = Path(roots["workspace"]["path"])
+            metadata = json.loads((actual / ".atrinik-build.json").read_text())
+            generation = Path(metadata["coordinates"]["server"]["source_path"]).parent
+            locks = (data / "states.lock", Path(str(state) + ".lock"),
+                     data / "build/locks" / (actual.name + ".lock"),
+                     data / "build/locks" / ("source-generation-" + generation.name + ".lock"))
+            for path in locks:
+                with self.subTest(lock=path), exclusive_lock(path, "concurrent legacy resource writer", nonblocking=True):
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+                self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+            with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(storage)}):
+                workspace = Workspace(Path(roots["wrapper"]["path"]), backfill_references=False)
+                workspace.close()
+                target_lock = workspace._lease_request("source", workspace._physical_source_coordinate(live), "exclusive", "concurrent target writer")
+                with workspace._resource_locks([target_lock], nonblocking=True):
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+            # A real process holds the resource lock first, while recovery's
+            # opposite graph-first order must roll back rather than wait.
+            import select
+            child_script = "from atrinik_workspace.locking import exclusive_lock; from pathlib import Path; import sys\nwith exclusive_lock(Path(sys.argv[1]), 'mixed-order writer', nonblocking=True):\n print('ready', flush=True)\n sys.stdin.readline()\n"
+            holder = subprocess.Popen([sys.executable, "-c", child_script, str(data / "states.lock")],
+                                      cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            try:
+                ready, _, _ = select.select([holder.stdout], [], [], 10)
+                self.assertTrue(ready, "legacy holder failed to reach readiness")
+                self.assertEqual(holder.stdout.readline(), "ready\n")
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+                with workspace._resource_locks([target_lock], nonblocking=True):
+                    self.assertIsNone(holder.poll())
+            finally:
+                holder.communicate("release\n", timeout=10)
+                self.assertEqual(holder.returncode, 0)
+            recovered = ledger.recover_unbound_resources_cas(root, before.name, request, **cas_arguments(before))
+            evidence = inventory_active_delivery_evidence(Path(roots["wrapper"]["path"]))
+            self.assertIn(actual, evidence.references)
+            self.assertIn(generation, evidence.references)
+            self.assertIn(data / "topologies/unstarted-classic", evidence.references)
+            self.assertTrue(all(row["workspace"] == str(data) for row in evidence.recovered))
+            with exclusive_lock(data / "states.lock", "later resource writer", nonblocking=True):
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.revalidate_current_targets_cas(root, before.name, **cas_arguments(recovered))
+            with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(data)}):
+                workspace = Workspace(live, backfill_references=False)
+                try:
+                    with self.assertRaisesRegex(WorkspaceError, "terminal delivery recovery"):
+                        workspace.state_add("retained-classic", state)
+                    with self.assertRaisesRegex(WorkspaceError, "terminal delivery recovery"):
+                        workspace._topology_directory("unstarted-classic", create=True)
+                    with self.assertRaisesRegex(WorkspaceError, "terminal delivery recovery"):
+                        workspace._guard_recovered_resource("source-generation", generation)
+                    # Immutable planning reads remain usable; no generation is adopted.
+                    plan = workspace.build_plan("server", "classic", False)
+                    self.assertEqual(plan["build_root"], str(actual))
+                    workspace.state_add("disjoint-state", None)
+                    for scope in ("all", "topologies"):
+                        preview = workspace.cleanup(scopes=[scope], older_than_days=0, names=[], apply=False)
+                        self.assertFalse(preview.get("removed"))
+                        if scope == "all":
+                            protected = next(row for row in preview["items"] if row["path"] == str(actual))
+                            self.assertEqual(protected["disposition"], "protected")
+                            self.assertIn("delivery_reference", protected["reasons"])
+                finally:
+                    workspace.close()
+            # Same textual names in S do not inherit R's namespace ownership.
+            with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(storage)}):
+                workspace = Workspace(Path(roots["wrapper"]["path"]), backfill_references=False)
+                try:
+                    workspace._guard_recovered_resource("topology", storage / "topologies/unstarted-classic", "unstarted-classic")
+                finally:
+                    workspace.close()
+            final = ledger.revalidate_current_targets_cas(root, before.name, **cas_arguments(recovered))
+            tampered = next_generation(final)
+            tampered["resources"][0]["recovery"]["resource_context"]["workspace"] = str(storage)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.cas(root, final.name, tampered, **cas_arguments(final))
             self.assertFalse(state.exists())
             self.assertTrue(actual.exists())
 
