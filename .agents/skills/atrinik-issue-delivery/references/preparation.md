@@ -97,6 +97,12 @@ Before any ledger mutation, run
 secret-free probe combines the pinned config with live Linux/POSIX, user,
 Codex, no-follow, mode, and mount checks; runtime markers never authorize it.
 `native-windows`, `windows-cross`, and `unknown-or-unsafe` stop delivery.
+The standalone entry validates its shared source bytes before execution. The
+helper loads that implementation through its retained trusted package snapshot
+and independently proves actual recorded storage/resource/review and concrete
+lease subjects before operational admission and under leases before CAS. Include
+additional retained paths with `--mutable-root PATH` for operator diagnostics;
+those arguments never replace helper-derived ownership or point-of-use proof.
 
 Use one of these proven entry modes:
 

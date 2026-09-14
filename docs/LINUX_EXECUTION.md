@@ -24,8 +24,16 @@ traversal, accepts the actual passwd home/user instead of a fixed UID, and requi
 private user-owned Codex state. Repository, home, Codex and existing mutable roots
 must use native ext4, XFS, Btrfs, ZFS or tmpfs with trusted owner/mode ancestry.
 World/group-writable ancestors, links, network/bridge filesystems and missing
-proof fail closed. A missing build/review descendant does not grant reuse:
-the existing helper creates it only through its own pinned-parent transaction.
+proof fail closed. The probe checks `ATRINIK_WORKSPACE_DIR`, its generated build
+and runtime directories, and additional exact `--mutable-root PATH` subjects.
+Missing descendants require proof of their nearest existing no-follow ancestor.
+The delivery helper independently derives storage, resource, scope, review and
+lease subjects from retained records, then uses the same trusted context code
+before operational admission and again under leases before publication. File
+subjects such as profiles and locks include their own filesystem mount. Operator
+probe arguments cannot substitute for helper-derived ownership or permission.
+Existing review-lock bookkeeping remains separate from operational admission;
+missing descendants grant no reuse or creation authority.
 
 Both caller and PID1 UID/GID maps must contain the full initial identity row
 `0 0 4294967295`. Caller numeric-PID mountinfo must identify genuine procfs

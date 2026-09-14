@@ -5,6 +5,7 @@ import importlib.util
 import io
 import json
 import os
+import subprocess
 from pathlib import Path
 import sys
 import tempfile
@@ -335,6 +336,56 @@ class CoordinatorContextTests(unittest.TestCase):
         self.assertIn("authoritative=false", stdout.getvalue())
         self.assertIn("entry mode: unknown", stdout.getvalue())
 
+    @unittest.skipUnless(os.name == "posix", "POSIX source descriptor proof")
+    def test_standalone_loader_pins_bytes_and_rejects_untrusted_or_changed_source(self) -> None:
+        from types import SimpleNamespace
+        source = ROOT / "atrinik_workspace/coordinator_context.py"
+        self.assertEqual(context._read_probe_source(source), source.read_bytes())
+        real_open = os.open
+        real_fstat = os.fstat
+        source_fd = None
+        def tracked_open(path, flags, *args, **kwargs):
+            nonlocal source_fd
+            fd = real_open(path, flags, *args, **kwargs)
+            if path == "coordinator_context.py":
+                source_fd = fd
+            return fd
+        def untrusted(fd):
+            info = real_fstat(fd)
+            if fd == source_fd:
+                return SimpleNamespace(st_uid=info.st_uid, st_mode=info.st_mode | 0o020)
+            return info
+        with mock.patch.object(os, "open", side_effect=tracked_open), \
+             mock.patch.object(os, "fstat", side_effect=untrusted):
+            with self.assertRaisesRegex(OSError, "not trusted"):
+                context._read_probe_source(source)
+        with mock.patch.object(os, "read", side_effect=lambda fd, size: b"changed"):
+            with self.assertRaisesRegex(OSError, "changed during read"):
+                context._read_probe_source(source)
+
+    @unittest.skipUnless(os.name == "posix", "POSIX source descriptor proof")
+    def test_standalone_loader_rejects_symlink_and_ignores_ambient_package(self) -> None:
+        with tempfile.TemporaryDirectory(prefix=".probe-source-test-", dir=ROOT) as temporary:
+            directory = Path(temporary)
+            source = directory / "source.py"
+            source.write_text("raise RuntimeError('must not execute')\n")
+            link = directory / "link.py"
+            link.symlink_to(source)
+            with self.assertRaises(OSError):
+                context._read_probe_source(link)
+            package = directory / "atrinik_workspace"
+            package.mkdir()
+            sentinel = directory / "executed"
+            (package / "__init__.py").write_text(
+                "from pathlib import Path\nPath(" + repr(str(sentinel)) + ").touch()\n")
+            process = subprocess.run([sys.executable, "-B", str(SCRIPT), "--json"], cwd=ROOT,
+                                     env={**os.environ, "PYTHONPATH": str(directory)},
+                                     capture_output=True, text=True)
+            self.assertIn(process.returncode, (0, 2), process.stderr)
+            self.assertIn("authoritative", json.loads(process.stdout))
+            self.assertFalse(sentinel.exists())
+            self.assertFalse((package / "__pycache__").exists())
+
     def test_probe_source_does_not_import_posix_locking(self) -> None:
         source = SCRIPT.read_text(encoding="utf-8")
         self.assertNotIn("import fcntl", source)
@@ -441,6 +492,47 @@ class NativeCoordinatorTests(unittest.TestCase):
         self.assertTrue(self.probe(mutable_roots=(resource, resource / "missing/build"))["authoritative"])
         self.environment["ATRINIK_WORKSPACE_DIR"] = "relative-workspace"
         self.assertFalse(self.probe()["authoritative"])
+
+    def test_helper_uses_recorded_storage_resource_and_review_coordinates(self) -> None:
+        import pwd
+        from types import SimpleNamespace
+        from tests.test_delivery_ledger import ledger
+        real_probe = context.probe
+        selected = self.root / "recorded-storage"
+        resource = self.root / "bound-resource"
+        review = self.root / "retained-reviews"
+        for path in (selected, resource, review):
+            path.mkdir()
+        self.environment["ATRINIK_WORKSPACE_DIR"] = str(self.repository / "safe-ambient")
+        module = SimpleNamespace(coordinator_context=context,
+                                 Workspace=SimpleNamespace(_delivery_context_subjects=lambda root: ()))
+        key = str(self.proc / str(os.getpid()) / "mountinfo")
+        original_mounts = self.inputs[key]
+        def classified(authority_root, **kwargs):
+            self.assertEqual(authority_root, ROOT)
+            return real_probe(self.repository, system="Linux", user_name="vscode",
+                              effective_uid=self.uid, runtime_root=self.root,
+                              cwd=self.repository, **kwargs)
+        with mock.patch.dict(os.environ, self.environment, clear=True), \
+             mock.patch.object(context, "probe", side_effect=classified), \
+             mock.patch.object(context, "_native_read", side_effect=self.read), \
+             mock.patch.object(context, "_native_open", side_effect=self.open), \
+             mock.patch.object(pwd, "getpwuid", return_value=SimpleNamespace(pw_dir=str(self.home))):
+            token = ledger._ACTIVE_REVIEW_ROOT.set(str(review))
+            try:
+                ledger._require_workspace_filesystem_eligibility(module, self.repository, selected, (resource,))
+                for unsafe in (selected, selected / "build", resource, review):
+                    with self.subTest(unsafe=unsafe):
+                        unsafe.mkdir(exist_ok=True)
+                        self.inputs[key] = original_mounts + f"3 1 8:1 / {unsafe} rw - 9p bridge rw\n"
+                        with self.assertRaisesRegex(ledger.LedgerError, "filesystem context is ineligible"):
+                            ledger._require_workspace_filesystem_eligibility(module, self.repository, selected, (resource,))
+                self.inputs[key] = original_mounts
+                ledger._require_workspace_filesystem_eligibility(module, self.repository, selected, (resource / "missing/state",))
+            finally:
+                ledger._ACTIVE_REVIEW_ROOT.reset(token)
+        with self.assertRaisesRegex(ledger.LedgerError, "lacks exact delivery context"):
+            ledger._require_workspace_filesystem_eligibility(SimpleNamespace(), self.repository, selected)
 
     def test_user_namespace_maps_require_one_full_initial_identity_row(self) -> None:
         key = str(self.proc / str(os.getpid()) / "uid_map")

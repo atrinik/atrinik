@@ -33,6 +33,7 @@ import time
 from typing import Any, Callable, Iterator, TextIO
 import zipfile
 
+from . import coordinator_context
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
 from .docker_storage import windows_package_volume_mounts
@@ -2723,6 +2724,21 @@ class Workspace:
             tuple[str, str, str | None, str | None], bool
         ] = {}
         self._prefix_map_support_lock = threading.Lock()
+
+    @classmethod
+    def _delivery_context_subjects(cls, repository: Path) -> tuple[Path, ...]:
+        """Derive constructor lock subjects without creating a namespace."""
+        workspace = cls.__new__(cls)
+        workspace._initialize_fields(repository, None)
+        namespace = workspace._lease_namespace
+        request = workspace._lease_request(
+            "source", workspace._source_coordinate("atrinik", workspace.paths.repository),
+            "shared", "delivery constructor context proof")
+        lock = resource_lock_path(namespace, request.kind, request.coordinate)
+        maintenance = namespace / "repository-layout.lock"
+        return (namespace, lock.parent, lock, maintenance,
+                *(Path(str(path) + suffix) for path in (lock, maintenance)
+                  for suffix in (".owners", ".writer-intent", ".writer-pending", ".owner-transition.lock")))
 
     @classmethod
     def _prepare_delivery_workspace(
