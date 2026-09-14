@@ -2539,6 +2539,23 @@ class Cleanup:
             items.extend(self._topologies(older_than_days, names))
         if "cleanup-journals" in scopes:
             items.extend(self._cleanup_journals(older_than_days, names))
+        if runtime_only:
+            try:
+                self._delivery_references(references, reference_errors)
+            except (OSError, RuntimeError, WorkspaceError):
+                reference_errors.add("delivery_inventory_error")
+        for item in items:
+            protected_by = set()
+            for protected, labels in references["delivery"].items():
+                if _path_relation(Path(item["path"]), protected):
+                    protected_by.update(labels)
+            if protected_by:
+                item["references"]["delivery"] = sorted(protected_by)
+                item["reasons"] = sorted(set(item["reasons"]) | {"delivery_reference"})
+                item["disposition"] = "protected"
+            if "delivery_inventory_error" in reference_errors:
+                item["reasons"] = sorted(set(item["reasons"]) | {"delivery_inventory_error"})
+                item["disposition"] = "protected"
         items.sort(key=lambda item: (item["kind"], item["owner"], item["path"]))
         self._credit_sizes(items)
         for item in items:

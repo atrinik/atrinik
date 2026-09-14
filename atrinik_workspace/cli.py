@@ -360,6 +360,10 @@ def parser() -> argparse.ArgumentParser:
     mark(build.add_argument("target", help="all or a component name"), "build_target")
     mark(build.add_argument("--profile", default="default"), "profile")
     build.add_argument("--test", action="store_true")
+    build_plan = build.add_mutually_exclusive_group()
+    build_plan.add_argument("--plan", action="store_true", help="print read-only eventual build coordinates")
+    mark(build_plan.add_argument("--expected-plan", metavar="SHA256", help="reject changed build inputs before mutation"), "none")
+    build.add_argument("--json", action="store_true", help="print a structured build plan or result")
     build.add_argument(
         "--force-reconfigure",
         action="store_true",
@@ -854,6 +858,8 @@ def main(arguments: list[str] | None = None) -> int:
         if workspace_type is None:
             from .workspace import Workspace as workspace_type
         read_only_dry_run = (
+            options.command == "build" and (options.plan or options.expected_plan is not None)
+        ) or (
             options.command == "cleanup" and not options.apply
         ) or (
             options.command == "migrate"
@@ -1285,15 +1291,21 @@ def main(arguments: list[str] | None = None) -> int:
         elif options.command == "path":
             print(workspace.component_path(options.component, options.profile))
         elif options.command == "build":
-            print(
-                workspace.build(
-                    options.target,
-                    options.profile,
-                    options.test,
-                    force_reconfigure=options.force_reconfigure,
-                    use_ccache=not options.no_ccache,
-                )
+            build_arguments = dict(
+                force_reconfigure=options.force_reconfigure,
+                use_ccache=not options.no_ccache,
             )
+            if options.plan:
+                result = workspace.build_plan(options.target, options.profile,
+                                              options.test, **build_arguments)
+                print(json.dumps(result, indent=2, sort_keys=True))
+            else:
+                if options.expected_plan is not None:
+                    build_arguments["expected_plan"] = options.expected_plan
+                result = workspace.build(options.target, options.profile,
+                                         options.test, **build_arguments)
+                print(json.dumps({"build_root": str(result)}, sort_keys=True)
+                      if options.json else result)
         elif options.command == "dev":
             if options.dev_command == "build":
                 services = _parse_services(options.services)

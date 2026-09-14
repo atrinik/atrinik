@@ -2137,6 +2137,203 @@ class WorkspaceTests(unittest.TestCase):
             resolution.result(timeout=5)
         self.assertTrue(entered.is_set())
 
+    def test_build_plan_lfs_observation_has_no_index_or_object_writes(self):
+        checkout, files = self.source_lfs_fixture()
+        index = checkout / ".git/index"
+        before_index = (index.read_bytes(), index.stat().st_mtime_ns)
+        objects = checkout / ".git/lfs/objects"
+        before_objects = {str(path.relative_to(objects)): path.read_bytes()
+                          for path in objects.rglob("*") if path.is_file()}
+        plan = self.workspace.build_plan("client", "default")
+        self.assertFalse(plan["checkout_states"]["client"]["dirty"])
+        self.assertNotEqual(plan["sources"]["client"], plan["execution_sources"]["client"])
+        self.assertEqual((index.read_bytes(), index.stat().st_mtime_ns), before_index)
+        self.assertEqual({str(path.relative_to(objects)): path.read_bytes()
+                          for path in objects.rglob("*") if path.is_file()}, before_objects)
+        name = next(iter(files))
+        (checkout / name).write_bytes(b"changed payload without an LFS object")
+        with self.assertRaisesRegex(WorkspaceError, "plan changed before mutation"):
+            self.workspace.build("client", "default", False, expected_plan=plan["plan_sha256"])
+        self.assertEqual((index.read_bytes(), index.stat().st_mtime_ns), before_index)
+        self.assertEqual({str(path.relative_to(objects)): path.read_bytes()
+                          for path in objects.rglob("*") if path.is_file()}, before_objects)
+
+    def test_build_plan_refuses_custom_filter_without_running_it(self):
+        checkout = self.workspace.paths.repositories / "resources"
+        (checkout / ".gitattributes").write_text("README filter=custom\n")
+        command("git", "add", ".gitattributes", cwd=checkout)
+        sentinel = self.root / "filter-was-run"
+        command("git", "config", "filter.custom.clean", f"touch {sentinel}; cat", cwd=checkout)
+        with self.assertRaisesRegex(WorkspaceError, "custom clean filters"):
+            self.workspace.build_plan("resources", "default")
+        self.assertFalse(sentinel.exists())
+
+    @unittest.skipUnless(Path("/proc/self/fd").exists(), "Linux descriptor inventory")
+    def test_build_planning_success_and_rejection_do_not_leak_descriptors(self):
+        before = len(list(Path("/proc/self/fd").iterdir()))
+        for _ in range(5):
+            plan = self.workspace.build_plan("resources", "default")
+            with self.assertRaises(WorkspaceError):
+                self.workspace.build("resources", "default", False, expected_plan="0" * 64)
+        self.assertEqual(len(list(Path("/proc/self/fd").iterdir())), before)
+
+    def test_resource_recovery_preserves_actual_build_and_uninitialized_state(self):
+        from atrinik_workspace.workspace import _DeliveryResourceRecovery
+        build = self.workspace.build("resources", "default", False)
+        state = self.workspace.state_add("preserved", None)
+        self.assertFalse(state.exists())
+        original = self.workspace.paths.builds / "profiles/default-111111111111"
+        resources = [
+            {"slot_id": "build", "kind": "build", "immutable": {"name": original.name, "path": str(original)}},
+            {"slot_id": "state", "kind": "state", "immutable": {"name": "preserved", "path": str(state)}},
+            {"slot_id": "topology", "kind": "topology", "immutable": {"name": "unstarted", "path": None}},
+        ]
+        proof = _DeliveryResourceRecovery(self.workspace, resources,
+            {"build": f"compiler and test progress\n54 tests passed\n{build}\n".encode()})
+        with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
+            observed = proof.observe()
+            self.assertEqual(observed["build"]["disposition"], "residual-preserved")
+            self.assertEqual(observed["state"]["disposition"], "residual-preserved")
+            self.assertEqual(observed["topology"]["disposition"], "absent")
+            self.assertIn(str(build), {row["path"] for row in observed["build"]["reservations"]})
+            self.assertEqual(proof.observe(), observed)
+        self.assertFalse(state.exists())
+        self.assertFalse(original.exists())
+        self.assertTrue(build.exists())
+
+    def test_planning_missing_promisor_tree_does_not_fetch_objects(self):
+        primary = self.workspace.paths.repositories / "resources"
+        tree = command("git", "rev-parse", "HEAD^{tree}", cwd=primary).strip()
+        tree_object = primary / ".git/objects" / tree[:2] / tree[2:]
+        self.assertTrue(tree_object.is_file())
+        command("git", "config", "remote.origin.promisor", "true", cwd=primary)
+        command("git", "config", "extensions.partialClone", "origin", cwd=primary)
+        tree_object.unlink()
+        objects = primary / ".git/objects"
+        before = {str(path.relative_to(objects)): hashlib.sha256(path.read_bytes()).hexdigest()
+                  for path in objects.rglob("*") if path.is_file()}
+        with self.assertRaises(WorkspaceError):
+            self.workspace.build_plan("resources", "default")
+        after = {str(path.relative_to(objects)): hashlib.sha256(path.read_bytes()).hexdigest()
+                 for path in objects.rglob("*") if path.is_file()}
+        self.assertEqual(before, after)
+        self.assertFalse(tree_object.exists())
+
+    def test_planning_rejects_gitlinks_before_recursive_status(self):
+        primary = self.workspace.paths.repositories / "resources"
+        nested = primary / "nested"
+        nested.mkdir()
+        command(*["git", "init", "-q"], cwd=nested)
+        command(*["git", "config", "user.name", "Test"], cwd=nested)
+        command(*["git", "config", "user.email", "test@example.invalid"], cwd=nested)
+        (nested / "tracked").write_text("tracked")
+        command(*["git", "add", "tracked"], cwd=nested)
+        command(*["git", "commit", "-qm", "nested seed"], cwd=nested)
+        revision = command(*["git", "rev-parse", "HEAD"], cwd=nested).strip()
+        command(*["git", "update-index", "--add", "--cacheinfo", f"160000,{revision},nested"], cwd=primary)
+        sentinel = self.wrapper / "filter-ran"
+        command(*["git", "config", "filter.nested.clean", f"touch {sentinel}; cat"], cwd=nested)
+        (nested / ".gitattributes").write_text("tracked filter=nested\n")
+        with self.assertRaisesRegex(WorkspaceError, "does not admit Git submodules"):
+            self.workspace.build_plan("resources", "default")
+        self.assertFalse(sentinel.exists())
+
+    def test_plan_and_stale_fence_leave_source_workspace_bytes_unchanged(self):
+        primary = self.workspace.paths.repositories / "resources"
+        def snapshot():
+            result = {}
+            for root in (primary, self.workspace.paths.workspace):
+                for path in root.rglob("*"):
+                    if path.is_file() and not path.is_symlink() and path.suffix != ".lock" and "locks" not in path.parts:
+                        result[str(path)] = (path.stat().st_mode, path.stat().st_mtime_ns, hashlib.sha256(path.read_bytes()).hexdigest())
+            return result
+        before = snapshot()
+        plan = self.workspace.build_plan("resources", "default")
+        self.assertEqual(snapshot(), before)
+        (primary / "README").write_text("different source bytes")
+        before = snapshot()
+        with self.assertRaisesRegex(WorkspaceError, "plan changed before mutation"):
+            self.workspace.build("resources", "default", False, expected_plan=plan["plan_sha256"])
+        self.assertEqual(snapshot(), before)
+
+    def test_resource_recovery_descriptor_count_stable_on_success_and_lock_refusal(self):
+        from atrinik_workspace.workspace import _DeliveryResourceRecovery
+        state = self.workspace.state_add("fd-retained", None)
+        resources = [{"slot_id": "state", "kind": "state", "immutable": {"name": "fd-retained", "path": str(state)}}]
+        baseline = len(list(Path("/proc/self/fd").iterdir()))
+        for _ in range(12):
+            proof = _DeliveryResourceRecovery(self.workspace, resources, {})
+            with self.workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks():
+                proof.observe()
+            with exclusive_lock(self.workspace.paths.workspace / "states.lock", "contending writer", nonblocking=True):
+                with self.assertRaises(WorkspaceError):
+                    with proof.legacy_locks():
+                        self.fail("contending legacy lock admitted")
+            self.assertEqual(len(list(Path("/proc/self/fd").iterdir())), baseline)
+
+    def test_recovered_resources_refuse_mutation_but_allow_fresh_siblings(self):
+        from atrinik_workspace.delivery import ActiveDeliveryEvidence
+        plan = self.workspace.build_plan("resources", "default")
+        build = Path(plan["build_root"])
+        state = self.workspace.paths.state / "server" / "retained"
+        topology = self.workspace.paths.topologies / "retained"
+        evidence = ActiveDeliveryEvidence(self.wrapper / "build/reviews", {}, (), (),
+            ({"kind": "build", "name": build.name, "path": str(build), "ledger": "test"},
+             {"kind": "state", "name": "retained", "path": str(state), "ledger": "test"},
+             {"kind": "topology", "name": "retained", "path": str(topology), "ledger": "test"}))
+        with mock.patch("atrinik_workspace.delivery.inventory_active_delivery_evidence", return_value=evidence):
+            with self.assertRaisesRegex(WorkspaceError, "terminal delivery recovery"):
+                self.workspace.build("resources", "default", False)
+            with self.assertRaisesRegex(WorkspaceError, "terminal delivery recovery"):
+                self.workspace.state_add("alias", state)
+            with self.assertRaisesRegex(WorkspaceError, "terminal delivery recovery"):
+                self.workspace.state_path("retained", self.wrapper, resolved_path=state)
+            with self.workspace._resource_locks([self.workspace._lease_request("topology", "retained", "exclusive", "test")]):
+                with self.assertRaisesRegex(WorkspaceError, "terminal delivery recovery"):
+                    self.workspace._topology_directory("retained", create=True)
+            fresh = self.workspace.state_add("fresh-sibling", None)
+            self.assertFalse(fresh.exists())
+        self.assertFalse(build.exists())
+        self.assertFalse(state.exists())
+        self.assertFalse(topology.exists())
+
+    def test_build_plan_cold_warm_execution_coordinates(self) -> None:
+        before = sorted(str(path.relative_to(self.workspace.paths.builds))
+                        for path in self.workspace.paths.builds.rglob("*"))
+        plan = self.workspace.build_plan("resources", "default")
+        self.assertEqual(before, sorted(str(path.relative_to(self.workspace.paths.builds))
+                                      for path in self.workspace.paths.builds.rglob("*")))
+        self.assertFalse(Path(plan["build_root"]).exists())
+        root = self.workspace.build("resources", "default", False,
+                                    expected_plan=plan["plan_sha256"])
+        self.assertEqual(str(root), plan["build_root"])
+        warm = self.workspace.build_plan("resources", "default")
+        self.assertEqual(warm, plan)
+        self.assertEqual(root, self.workspace.build("resources", "default", False,
+                                                   expected_plan=warm["plan_sha256"]))
+
+    def test_build_plan_stale_dirty_bytes_refuse_before_publication(self) -> None:
+        primary = self.workspace.paths.repositories / "resources"
+        (primary / "README").write_text("first dirty bytes\n")
+        plan = self.workspace.build_plan("resources", "default")
+        (primary / "README").write_text("second dirty bytes\n")
+        before = sorted(str(path) for path in self.workspace.paths.builds.rglob("*"))
+        with mock.patch.object(self.workspace, "_materialize_clean_primary_sources") as materialize:
+            with self.assertRaisesRegex(WorkspaceError, "plan changed before mutation"):
+                self.workspace.build("resources", "default", False, expected_plan=plan["plan_sha256"])
+        materialize.assert_not_called()
+        self.assertEqual(before, sorted(str(path) for path in self.workspace.paths.builds.rglob("*")))
+
+    def test_build_plan_stale_manifest_refuses_cached_workspace(self) -> None:
+        plan = self.workspace.build_plan("resources", "default")
+        manifest = json.loads((self.wrapper / "components.json").read_text())
+        manifest["components"][0]["branch"] = "changed-branch"
+        (self.wrapper / "components.json").write_text(json.dumps(manifest))
+        with mock.patch.object(self.workspace, "_materialize_clean_primary_sources") as materialize:
+            with self.assertRaises(WorkspaceError):
+                self.workspace.build("resources", "default", False, expected_plan=plan["plan_sha256"])
+        materialize.assert_not_called()
+
     def test_clean_primary_build_snapshot_releases_source_and_stays_immutable(self) -> None:
         primary = self.workspace.paths.repositories / "client"
         original = (primary / "README").read_bytes()

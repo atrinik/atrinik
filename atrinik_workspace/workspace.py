@@ -5,7 +5,7 @@ import copy
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import AbstractContextManager, ExitStack, contextmanager, nullcontext
-from contextvars import copy_context
+from contextvars import ContextVar, copy_context
 import ctypes
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -491,10 +491,15 @@ def run(
     return result.stdout.strip() if capture else ""
 
 
+_BUILD_PLAN_GIT = ContextVar("build_plan_git", default=False)
+
+
 def git(
     path: Path, *arguments: str, capture: bool = False, trace: bool = True
 ) -> str:
-    return run(["git", "-C", str(path), *arguments], capture=capture, trace=trace)
+    options = ["--no-optional-locks", "-c", "core.fsmonitor=false"] if _BUILD_PLAN_GIT.get() else []
+    return run(["git", *options, "-C", str(path), *arguments], capture=capture, trace=trace,
+               env=dict(os.environ, GIT_NO_LAZY_FETCH="1", GIT_OPTIONAL_LOCKS="0") if _BUILD_PLAN_GIT.get() else None)
 
 
 def _darwin_descriptor_mount_path(descriptor: int) -> str:
@@ -1774,7 +1779,84 @@ def _github_clone_url(template: str, repository: str) -> str | None:
     return None
 
 
+def _read_only_checkout_observation(path: Path) -> dict[str, Any]:
+    """Inspect status with all external clean filters disabled, proving LFS bytes."""
+    environment = dict(os.environ, GIT_OPTIONAL_LOCKS="0", GIT_NO_LAZY_FETCH="1")
+    prefix = ["git", "--no-optional-locks", "--no-replace-objects", "-c", "core.fsmonitor=false", "-C", str(path)]
+    def capture(arguments, *, input_bytes=None, accepted=(0,)):
+        with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+            result = subprocess.run([*prefix, *arguments], input=input_bytes,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                    env=environment, timeout=60, **inheritance)
+        if result.returncode not in accepted or len(result.stdout) > 32 * 1024 * 1024:
+            raise WorkspaceError("cannot obtain bounded read-only Git source observation")
+        return result.stdout
+    index = capture(["ls-files", "--stage", "-z"])
+    if any(row.startswith(b"160000 ") for row in index.split(b"\0")):
+        raise WorkspaceError("build planning does not admit Git submodules")
+    tracked = capture(["ls-files", "--cached", "-z"])
+    attributes = capture(["check-attr", "-z", "--stdin", "filter"], input_bytes=tracked)
+    fields = attributes.split(b"\0")
+    if fields[-1:] != [b""] or (len(fields) - 1) % 3:
+        raise WorkspaceError("invalid filter attribute inventory")
+    filters = {}
+    for index in range(0, len(fields) - 1, 3):
+        name, attribute, driver = fields[index:index + 3]
+        if attribute != b"filter" or driver not in {b"unspecified", b"unset", b"lfs"}:
+            raise WorkspaceError("build planning does not execute custom clean filters")
+        filters[name] = driver
+    configuration = capture(["config", "--null", "--list"])
+    drivers = {"lfs"}
+    for record in configuration.split(b"\0"):
+        key = record.split(b"\n", 1)[0]
+        match = re.fullmatch(rb"filter\.([A-Za-z0-9_.-]+)\.(?:clean|process|required)", key)
+        if match:
+            drivers.add(match.group(1).decode("ascii"))
+    disabled = []
+    for driver in sorted(drivers):
+        disabled.extend(["-c", f"filter.{driver}.clean=", "-c", f"filter.{driver}.process=", "-c", f"filter.{driver}.required=false"])
+    status = capture([*disabled, "status", "--porcelain=v1", "-z", "--untracked-files=all", "--no-renames"])
+    clean = True
+    lfs_changes = []
+    for record in status.split(b"\0"):
+        if not record:
+            continue
+        if len(record) < 4 or record[2:3] != b" ":
+            raise WorkspaceError("invalid read-only Git status record")
+        flags, name = record[:2], record[3:]
+        if flags != b" M" or filters.get(name) != b"lfs":
+            clean = False
+        else:
+            lfs_changes.append(name)
+    if lfs_changes:
+        tree = capture(["rev-parse", "HEAD^{tree}"]).strip().decode("ascii")
+        entries = Workspace._source_generation_git_entries(path, tree)
+        pointers = Workspace._source_generation_lfs_pointers(path, {name: entries[name] for name in lfs_changes if name in entries})
+        filemode = capture(["config", "--bool", "core.filemode"], accepted=(0, 1)).strip() != b"false"
+        for name in lfs_changes:
+            pointer = pointers.get(name)
+            file = path / os.fsdecode(name)
+            metadata = file.lstat()
+            if pointer is None or not stat.S_ISREG(metadata.st_mode):
+                clean = False
+                continue
+            mode = b"100755" if metadata.st_mode & 0o111 else b"100644"
+            if filemode and entries[name][0] != mode:
+                clean = False
+            pointer_bytes, oid, size = pointer
+            digest = _file_digest(file, "read-only LFS source")
+            if not ((metadata.st_size == size and digest == oid)
+                    or (metadata.st_size == len(pointer_bytes) and digest == hashlib.sha256(pointer_bytes).hexdigest())):
+                clean = False
+    if capture(["config", "--null", "--list"]) != configuration or capture(["check-attr", "-z", "--stdin", "filter"], input_bytes=tracked) != attributes:
+        raise WorkspaceError("Git configuration or attributes changed during source observation")
+    return {"clean": clean, "configuration_sha256": hashlib.sha256(configuration).hexdigest(),
+            "attributes_sha256": hashlib.sha256(attributes).hexdigest()}
+
+
 def _is_clean(path: Path, *, trace: bool = True) -> bool:
+    if _BUILD_PLAN_GIT.get():
+        return _read_only_checkout_observation(path)["clean"]
     return not git(
         path,
         "status",
@@ -1844,6 +1926,7 @@ def _run_wrapper_worktree_inventory(
                     stderr=subprocess.PIPE,
                     timeout=_WORKTREE_INVENTORY_TIMEOUT,
                     check=False,
+                    env=dict(os.environ, GIT_NO_LAZY_FETCH="1", GIT_OPTIONAL_LOCKS="0") if _BUILD_PLAN_GIT.get() else None,
                     **inheritance,
                 )
         except FileNotFoundError as error:
@@ -2298,6 +2381,10 @@ class _DeliveryWorkspacePreparation:
             ))
         return tuple(workspace._lease_request(*row, "delivery live proof") for row in rows)
 
+    def plan_resource_recovery(self, resources, build_outputs):
+        self._verify_identity()
+        return _DeliveryResourceRecovery(self.__workspace, resources, build_outputs)
+
     def lease_root(self, request: LeaseRequest) -> Path:
         return self.__workspace._lease_root(request)
 
@@ -2332,6 +2419,248 @@ class _DeliveryWorkspacePreparation:
             os.close(descriptor)
         self.__directories.clear()
         self.__workspace.close()
+
+
+class _DeliveryResourceRecovery:
+    """Prepare exact resource and legacy mutation locks without publishing resources."""
+
+    def __init__(self, workspace, resources, build_outputs):
+        self.workspace = workspace
+        self.resources = copy.deepcopy(resources)
+        self.build_outputs = dict(build_outputs)
+        self.requests = []
+        self.plain_locks = set()
+        self.builds = {}
+        self.paths = {}
+        self.preliminary = {}
+        self.pins = {}
+        def request(kind, coordinate):
+            self.requests.append(workspace._lease_request(
+                kind, str(coordinate), "exclusive", "recover unbound resource"))
+        request("registry", "physical-references")
+        for resource in resources:
+            identity = resource["immutable"]
+            name = identity["name"]
+            validate_name(name, "recovery resource name")
+            kind = resource["kind"]
+            raw_path = identity["path"]
+            if kind == "topology":
+                path = workspace.paths.topologies / name
+                if raw_path is not None and raw_path != str(path):
+                    raise WorkspaceError("recovery topology path differs from its namespace")
+                request("topology", name)
+                # A scope owns this namespace even before a topology starts.
+                if name.startswith("scope-"):
+                    request("registry", f"scope:{name.removeprefix('scope-')}")
+                if path.exists():
+                    self.plain_locks.add(path / "operation.lock")
+            elif kind == "state":
+                if raw_path is None:
+                    raise WorkspaceError("recovery state requires its planned path")
+                path = workspace._canonical_state_path(Path(raw_path))
+                request("state", path)
+                self.plain_locks.add(Path(str(path) + ".lock"))
+                self.plain_locks.add(workspace.paths.workspace / "states.lock")
+            elif kind == "build":
+                if raw_path is None:
+                    raise WorkspaceError("recovery build requires its planned path")
+                path = Path(raw_path)
+                candidates = [path]
+                output = build_outputs.get(resource["slot_id"])
+                if output is not None:
+                    # Classic logs combine diagnostics with the public final path line.
+                    try:
+                        text = output.decode("utf-8")
+                    except UnicodeError as error:
+                        raise WorkspaceError("build result must be UTF-8") from error
+                    if not text.endswith("\n") or not text.splitlines():
+                        raise WorkspaceError("build result lacks its final public path line")
+                    observed = Path(text.splitlines()[-1])
+                    if not observed.is_absolute():
+                        raise WorkspaceError("build result final line is not an absolute path")
+                    if not observed.exists():
+                        raise WorkspaceError("retained build output is missing")
+                    if observed not in candidates:
+                        candidates.append(observed)
+                for candidate in candidates:
+                    if candidate.parent != workspace.paths.builds / "profiles":
+                        raise WorkspaceError("recovery build is outside its exact workspace")
+                    match = re.fullmatch(r"(.+)-([0-9a-f]{12})", candidate.name)
+                    if match is None:
+                        raise WorkspaceError("recovery build name is not a profile coordinate")
+                    profile, key = match.groups()
+                    validate_name(profile, "build recovery profile")
+                    request("profile", profile)
+                    request("build-root", candidate)
+                    self.plain_locks.add(workspace.paths.builds / "locks" / f"{candidate.name}.lock")
+                    self.builds[candidate] = (profile, key)
+                    if candidate.exists() or candidate.is_symlink():
+                        metadata = self._json(candidate / BUILD_METADATA)
+                        self.preliminary[candidate] = metadata
+                        coordinates = metadata.get("coordinates")
+                        if not isinstance(coordinates, dict) or not coordinates:
+                            raise WorkspaceError("build residual has incomplete source coordinates")
+                        for coordinate in coordinates.values():
+                            if not isinstance(coordinate, dict):
+                                raise WorkspaceError("build residual source coordinate is invalid")
+                            checkout = Path(coordinate.get("checkout_path", ""))
+                            if not checkout.is_absolute():
+                                raise WorkspaceError("build residual checkout path is invalid")
+                            checkout_name = coordinate.get("checkout")
+                            component = workspace.manifest.by_name.get(coordinate.get("component"))
+                            if component is None or component.checkout_name != checkout_name:
+                                raise WorkspaceError("build residual provider is unknown")
+                            request("source", workspace._source_coordinate(checkout_name, checkout))
+                            request("source", workspace._physical_source_coordinate(checkout))
+                            physical = workspace.manifest.by_checkout[checkout_name]
+                            request("git-admin", workspace._git_admin_coordinate(physical, checkout))
+                            generation = coordinate.get("source_generation")
+                            if generation is not None:
+                                source = Path(coordinate["source_path"])
+                                if (source.parent.parent != workspace.paths.builds / "source-generations" / checkout_name
+                                        or source.name != "source" or not re.fullmatch(r"[0-9a-f]{64}", source.parent.name)):
+                                    raise WorkspaceError("build residual source generation path is invalid")
+                                self.plain_locks.add(workspace.paths.builds / "locks" / f"source-generation-{source.parent.name}.lock")
+                self.paths[resource["slot_id"]] = candidates
+                continue
+            else:
+                raise WorkspaceError("only unbound build/state/topology resources can recover")
+            self.paths[resource["slot_id"]] = [path]
+        self.requests = tuple(self.requests)
+
+    @staticmethod
+    def _json(path):
+        Workspace._canonical_state_path(path)
+        metadata = path.lstat()
+        if metadata.st_uid != os.geteuid() or stat.S_IMODE(metadata.st_mode) & 0o022:
+            raise WorkspaceError("resource recovery metadata is untrusted")
+        return load_regular_json(path, "resource recovery metadata")
+
+    @contextmanager
+    def legacy_locks(self):
+        # All acquisitions are nonblocking: legacy state promotion uses a different
+        # order. Failure releases the entire graph/legacy union without waiting.
+        with ExitStack() as stack:
+            for path in sorted(self.plain_locks):
+                stack.enter_context(exclusive_lock(path, "resource recovery", nonblocking=True))
+            for paths in self.paths.values():
+                for path in paths:
+                    anchor = path
+                    while not anchor.exists() and not anchor.is_symlink():
+                        anchor = anchor.parent
+                    if anchor not in self.pins:
+                        descriptor = _open_directory_nofollow(anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+                        stack.callback(os.close, descriptor)
+                        self.pins[anchor] = descriptor
+            try:
+                yield
+            finally:
+                self.pins.clear()
+
+    def observe(self):
+        for path, descriptor in self.pins.items():
+            visible = path.stat(follow_symlinks=False)
+            pinned = os.fstat(descriptor)
+            if (visible.st_dev, visible.st_ino) != (pinned.st_dev, pinned.st_ino):
+                raise WorkspaceError("resource recovery directory changed while pinned")
+        workspace = self.workspace
+        result = {}
+        for resource in self.resources:
+            slot = resource["slot_id"]
+            identity = resource["immutable"]
+            kind = resource["kind"]
+            paths = self.paths[slot]
+            rows = []
+            reservations = [{"name": identity["name"], "path": str(paths[0])}]
+            for path in paths:
+                workspace._canonical_state_path(path)
+                exists = path.exists()
+                if exists:
+                    status = path.lstat()
+                    if not stat.S_ISDIR(status.st_mode) or status.st_uid != os.geteuid() or stat.S_IMODE(status.st_mode) & 0o022:
+                        raise WorkspaceError("resource recovery directory is unsafe")
+                row = {"path": str(path), "exists": exists}
+                if kind == "build" and exists:
+                    profile_name, key = self.builds[path]
+                    marker = self._json(path / MANAGED_MARKER)
+                    metadata = self._json(path / BUILD_METADATA)
+                    resolution = self._json(path / PROFILE_RESOLUTION_METADATA)
+                    if metadata != self.preliminary.get(path):
+                        raise WorkspaceError("build residual changed during union admission")
+                    if (metadata.get("schema_version") != BUILD_METADATA_SCHEMA_VERSION
+                            or metadata.get("profile") != profile_name or metadata.get("key") != key
+                            or metadata.get("purpose") != f"profile:{profile_name}:{key}"
+                            or marker != {"schema_version": SCHEMA_VERSION, "purpose": metadata["purpose"]}
+                            or resolution.get("schema_version") != PROFILE_RESOLUTION_SCHEMA_VERSION
+                            or resolution.get("profile") != profile_name
+                            or resolution.get("selected") != metadata["coordinates"]):
+                        raise WorkspaceError("build residual lacks exact managed profile provenance")
+                    profile = workspace._load_profile_file(profile_name, require_file=False)
+                    stack = workspace.manifest.stack(profile["stack"])
+                    if resolution.get("stack") != stack.name or resolution.get("stack_generation") != stack.generation:
+                        raise WorkspaceError("build residual stack identity changed")
+                    selected = {}
+                    for role, coordinate in metadata["coordinates"].items():
+                        component = stack.providers.get(role)
+                        if component is None:
+                            raise WorkspaceError("build residual role is unavailable")
+                        checkout = workspace._selector_root(profile, component).resolve()
+                        for field, expected in {"component": component.name, "checkout": component.checkout_name,
+                                                "repository": component.repository, "branch": component.branch,
+                                                "source": component.source, "checkout_path": str(checkout)}.items():
+                            if coordinate.get(field) != expected:
+                                raise WorkspaceError("build residual provider/source association differs")
+                        if git(checkout, "rev-parse", "HEAD", capture=True, trace=False) != coordinate.get("head"):
+                            raise WorkspaceError("build residual source head changed")
+                        source = Path(coordinate["source_path"])
+                        generation = coordinate.get("source_generation")
+                        if generation is not None:
+                            actual = workspace._source_generation_record(source)
+                            if actual is None or {**actual, "path": str(source)} != generation:
+                                raise WorkspaceError("build residual source generation changed")
+                            workspace._validate_source_generation_boundary(source.parent, require_sealed=True)
+                            reservations.append({"name": source.parent.name, "path": str(source.parent)})
+                        elif source != checkout / component.source:
+                            raise WorkspaceError("build residual live source differs from selected profile")
+                        selected[role] = source
+                    if workspace._profile_build_key(profile_name, selected) != key:
+                        raise WorkspaceError("build residual execution key differs from its sources")
+                    row.update(metadata=metadata, resolution=resolution, marker=marker)
+                    reservations.append({"name": path.name, "path": str(path)})
+                elif kind == "state":
+                    registry_path = workspace.paths.states_file
+                    registry = self._json(registry_path) if registry_path.exists() else {"schema_version": SCHEMA_VERSION, "states": {}}
+                    if set(registry) != {"schema_version", "states"} or registry["schema_version"] != SCHEMA_VERSION or not isinstance(registry["states"], dict):
+                        raise WorkspaceError("state recovery registry is invalid")
+                    states = registry["states"]
+                    for name, registered in states.items():
+                        validate_name(name, "registered state name")
+                        if not isinstance(registered, str) or not Path(registered).is_absolute():
+                            raise WorkspaceError("registered state path is invalid")
+                        canonical = workspace._canonical_state_path(Path(registered))
+                        if (canonical == path or canonical in path.parents or path in canonical.parents) and name != identity["name"]:
+                            raise WorkspaceError("state recovery path has a foreign alias")
+                    registered = states.get(identity["name"])
+                    if registered is not None and registered != str(path):
+                        raise WorkspaceError("state recovery registration differs from planned path")
+                    if identity["name"] == "default" or path == workspace._canonical_state_path(Path(states.get("default", str(workspace.paths.state / "server" / "default")))):
+                        raise WorkspaceError("implicit default state is not an eligible recovery resource")
+                    if exists:
+                        workspace._validate_state(path)
+                        row["tree_sha256"] = _tree_digest(path, set(), bounded_symlinks=True)
+                    row["registered"] = registered is not None
+                elif kind == "topology":
+                    if identity["name"].startswith("scope-"):
+                        raise WorkspaceError("scope topology namespaces cannot be recovered as unused")
+                    if exists:
+                        # Existing topology ownership is intentionally not adopted.
+                        # Runtime records may retain processes after the parent exits.
+                        raise WorkspaceError("materialized topology requires separate supported ownership recovery")
+                rows.append(row)
+            unique = {(row["name"], row["path"]): row for row in reservations}
+            result[slot] = {"kind": kind, "disposition": "residual-preserved" if any(row["exists"] or row.get("registered") for row in rows) else "absent",
+                            "observations": rows, "reservations": [unique[key] for key in sorted(unique)]}
+        return result
 
 
 class Workspace:
@@ -3208,6 +3537,7 @@ class Workspace:
                     check=True,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
+                    env=dict(os.environ, GIT_NO_LAZY_FETCH="1", GIT_OPTIONAL_LOCKS="0") if _BUILD_PLAN_GIT.get() else None,
                     **inheritance,
                 )
         except FileNotFoundError as error:
@@ -3269,7 +3599,7 @@ class Workspace:
                          "cat-file", *arguments],
                         input=b"\n".join(ids) + b"\n", check=True,
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                        timeout=60, **inheritance,
+                        timeout=60, env=dict(os.environ, GIT_NO_LAZY_FETCH="1", GIT_OPTIONAL_LOCKS="0") if _BUILD_PLAN_GIT.get() else None, **inheritance,
                     ).stdout
             except (OSError, subprocess.SubprocessError) as error:
                 raise WorkspaceError(
@@ -4281,13 +4611,13 @@ class Workspace:
             )
         return payloads
 
-    def _materialize_primary_source(
+    def _primary_source_plan(
         self,
         component: Component,
         checkout: Path,
         source: Path,
         state: dict[str, Any],
-    ) -> Path:
+    ) -> tuple[dict[str, Any], dict[str, tuple[bytes, bytes, bytes]], str]:
         git_common = self._git_common_directory(checkout, trace=False)
         expected_source_identity = state.get("sources", {}).get(component.source)
         if (
@@ -4366,6 +4696,18 @@ class Workspace:
         key = hashlib.sha256(
             json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
+        return identity, source_include_entries, key
+
+    def _materialize_primary_source(
+        self, component: Component, checkout: Path, source: Path, state: dict[str, Any]
+    ) -> Path:
+        identity, source_include_entries, key = self._primary_source_plan(
+            component, checkout, source, state
+        )
+        commit = identity["commit"]
+        tree = identity["tree"]
+        source_tree = identity["source_tree"]
+        source_includes = identity["source_includes"]
         container = self.paths.builds / "source-generations" / component.checkout_name
         container_lock = (
             self.paths.builds
@@ -4890,6 +5232,7 @@ class Workspace:
         operation: str,
         *,
         materialize_clean_primaries: bool = False,
+        before_materialization: Callable[[dict[str, Any], dict[str, Path], dict[str, Any]], None] | None = None,
     ) -> Iterator[ProfileResolutionSnapshot]:
         """Capture and retain one exact profile/source resolution."""
 
@@ -4971,6 +5314,8 @@ class Workspace:
                                 state["head"], state["dirty"],
                             )
                         )
+                if before_materialization is not None:
+                    before_materialization(confirmed_profile, selected, states)
                 released: set[str] = set()
                 if materialize_clean_primaries:
                     (
@@ -7360,7 +7705,8 @@ class Workspace:
         trace: bool = True,
         profile: dict[str, Any] | None = None,
     ) -> dict[str, Path]:
-        self.paths.ensure()
+        if not _BUILD_PLAN_GIT.get():
+            self.paths.ensure()
         if profile is None:
             profile = self._load_profile(name, require_file=False)
         result: dict[str, Path] = {}
@@ -7793,32 +8139,163 @@ class Workspace:
         }
         return {role: paths[stack.providers[role].name] for role in roles}
 
-    def build(
-        self,
-        target: str,
-        profile_name: str,
-        tests: bool,
-        *,
-        force_reconfigure: bool = False,
-        use_ccache: bool = True,
-    ) -> Path:
-        self.paths.ensure()
-        targets = self._expand_build_target(target, profile_name)
-        with self._resolved_profile_operation(
-            profile_name,
-            set(targets),
-            f"build {target}",
-            materialize_clean_primaries=True,
-        ) as snapshot:
-            return self._build_resolved(
-                target,
-                profile_name,
-                tests,
-                targets,
-                snapshot.paths(),
-                force_reconfigure=force_reconfigure,
-                use_ccache=use_ccache,
+    def _planned_build_sources(self, profile, selected, states):
+        """Predict the same immutable source paths used by materialization."""
+        stack = self.manifest.stack(profile["stack"])
+        predicted = dict(selected)
+        for role, source in sorted(selected.items()):
+            component = stack.providers[role]
+            state = states[component.checkout_name]
+            if (role == "content" or state["dirty"]
+                    or profile["components"][component.name]["kind"] != "primary"):
+                continue
+            checkout = self._selector_root(profile, component).resolve()
+            _identity, _entries, key = self._primary_source_plan(
+                component, checkout, source, state
             )
+            predicted[role] = (self.paths.builds / "source-generations"
+                               / component.checkout_name / key / "source")
+        return predicted
+
+    def _build_plan_observation(self, target, profile_name, tests, targets,
+                                profile, selected, states, *,
+                                force_reconfigure, use_ccache):
+        fresh_states = self._selected_checkout_states(profile, selected, include_dirty=True, include_identity=True)
+        if any(any(states.get(name, {}).get(field) != value for field, value in state.items())
+               for name, state in fresh_states.items()) or set(fresh_states) != set(states):
+            raise WorkspaceError("build source identity changed before mutation")
+        if self._load_profile_file(profile_name, require_file=False) != profile:
+            raise WorkspaceError("build profile changed before mutation")
+        manifest = load_regular_json(self.paths.repository / "components.json",
+                                     "build plan manifest")
+        fresh_manifest = Manifest.from_value(manifest)
+        if fresh_manifest.__dict__ != self.manifest.__dict__:
+            raise WorkspaceError("build plan manifest changed; create a fresh workspace")
+        if self._expand_build_target(target, profile_name) != targets:
+            raise WorkspaceError("build plan target roles changed during admission")
+        predicted = self._planned_build_sources(profile, selected, states)
+        stack = self.manifest.stack(profile["stack"])
+        fingerprints = {}
+        for role, source in sorted(selected.items()):
+            component = stack.providers[role]
+            checkout = self._selector_root(profile, component).resolve()
+            paths = {str(source): source}
+            for include in component.source_includes:
+                path = checkout / include
+                paths[str(path)] = path
+            fingerprints[role] = {
+                name: (_tree_digest(path, {".git"}, bounded_symlinks=True)
+                       if path.is_dir() else _file_digest(path, "build source include"))
+                for name, path in sorted(paths.items())
+            }
+        key = self._profile_build_key(profile_name, predicted)
+        plan = {
+            "schema_version": 1, "target": target, "profile": profile,
+            "tests": tests, "force_reconfigure": force_reconfigure,
+            "use_ccache": use_ccache, "targets": targets,
+            "manifest": manifest, "checkout_states": {name: {**state, "path": str(state["path"])} for name, state in states.items()},
+            "source_fingerprints": fingerprints,
+            "git_observations": {name: _read_only_checkout_observation(Path(state["path"])) for name, state in states.items()},
+            "sources": {role: str(path) for role, path in sorted(selected.items())},
+            "execution_sources": {role: str(path) for role, path in sorted(predicted.items())},
+            "wrapper_root": str(self.paths.repository),
+            "workspace_root": str(self.paths.workspace),
+            "builds_root": str(self.paths.builds), "build_key": key,
+            "build_root": str(self.paths.builds / "profiles" / f"{profile_name}-{key}"),
+        }
+        plan["plan_sha256"] = hashlib.sha256(json.dumps(
+            plan, sort_keys=True, separators=(",", ":")
+        ).encode()).hexdigest()
+        return plan
+
+    def _require_planning_workspace(self) -> None:
+        if (not self.paths.marker.is_file() or self.paths.marker.is_symlink()
+                or load_regular_json(self.paths.marker, "workspace marker") != {"schema_version": SCHEMA_VERSION}):
+            raise WorkspaceError("build planning requires an initialized workspace; run status first")
+
+    def _guard_recovered_resource(self, kind: str, path: Path, name: str | None = None) -> None:
+        """Re-read terminal reservations while the caller holds its mutation lock."""
+        from .delivery import inventory_active_delivery_evidence
+        roots = {self.paths.repository}
+        if (self.paths.repository / ".git").exists():
+            records = _worktree_records(self.paths.repository, trace=False)
+            if records and "worktree" in records[0]:
+                roots.add(Path(records[0]["worktree"]))
+        for root in sorted(roots):
+            evidence = inventory_active_delivery_evidence(root)
+            for row in evidence.recovered:
+                retained = Path(row["path"])
+                # This guard is only for mutable admission; ordinary immutable
+                # dependency reads never call it.
+                if (path == retained or path in retained.parents or retained in path.parents
+                        or (row["kind"] == kind and name is not None and name == row["name"])):
+                    raise WorkspaceError(f"resource is retained by terminal delivery recovery: {kind} {path}")
+
+    def build_plan(self, target: str, profile_name: str, tests: bool = False,
+                   *, force_reconfigure: bool = False, use_ccache: bool = True):
+        """Return eventual execution coordinates without publishing build inputs."""
+        self._require_planning_workspace()
+        targets = self._expand_build_target(target, profile_name)
+        observations = []
+        def observe(profile, selected, states):
+            observations.append(self._build_plan_observation(
+                target, profile_name, tests, targets, profile, selected, states,
+                force_reconfigure=force_reconfigure, use_ccache=use_ccache))
+        token = _BUILD_PLAN_GIT.set(True)
+        try:
+            with self._resolved_profile_operation(
+                profile_name, set(targets), f"plan build {target}",
+                before_materialization=observe,
+            ):
+                pass
+        finally:
+            _BUILD_PLAN_GIT.reset(token)
+        return observations[0]
+
+    def build(
+        self, target: str, profile_name: str, tests: bool, *,
+        force_reconfigure: bool = False, use_ccache: bool = True,
+        expected_plan: str | None = None,
+    ) -> Path:
+        if expected_plan is not None and not re.fullmatch(r"[0-9a-f]{64}", expected_plan):
+            raise WorkspaceError("expected build plan must be a SHA-256 digest")
+        if expected_plan is None:
+            self.paths.ensure()
+        else:
+            self._require_planning_workspace()
+        targets = self._expand_build_target(target, profile_name)
+        admitted = []
+        def fence(profile, selected, states):
+            if expected_plan is None:
+                self.paths.ensure()
+                return
+            plan = self._build_plan_observation(
+                target, profile_name, tests, targets, profile, selected, states,
+                force_reconfigure=force_reconfigure, use_ccache=use_ccache)
+            if expected_plan is not None and plan["plan_sha256"] != expected_plan:
+                raise WorkspaceError("build plan changed before mutation; obtain and record a new plan")
+            # Check twice under the same admission before the first publication.
+            if self._build_plan_observation(
+                target, profile_name, tests, targets, profile, selected, states,
+                force_reconfigure=force_reconfigure, use_ccache=use_ccache) != plan:
+                raise WorkspaceError("build inputs changed before mutation")
+            admitted.append(plan)
+            self.paths.ensure()
+        token = _BUILD_PLAN_GIT.set(expected_plan is not None)
+        try:
+            with self._resolved_profile_operation(
+                profile_name, set(targets), f"build {target}",
+                materialize_clean_primaries=True, before_materialization=fence,
+            ) as snapshot:
+                if admitted and {role: str(path) for role, path in snapshot.paths().items()} != admitted[0]["execution_sources"]:
+                    raise WorkspaceError("materialized build sources differ from the admitted plan")
+                return self._build_resolved(
+                    target, profile_name, tests, targets, snapshot.paths(),
+                    force_reconfigure=force_reconfigure, use_ccache=use_ccache,
+                )
+
+        finally:
+            _BUILD_PLAN_GIT.reset(token)
 
     def dev_build(
         self,
@@ -8066,6 +8543,7 @@ class Workspace:
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
         with self._profile_build_lock(root, profile_name):
+            self._guard_recovered_resource("build", root, root.name)
             self._force_reconfigure = force_reconfigure
             self._use_ccache = use_ccache
             self._source_view_unchanged = {}
@@ -9097,10 +9575,10 @@ class Workspace:
                     }
                 )
             if include_dirty:
-                state["dirty"] = bool(owner_git(
+                state["dirty"] = (not _read_only_checkout_observation(checkout)["clean"] if _BUILD_PLAN_GIT.get() else bool(owner_git(
                     checkout, "status", "--porcelain=v1", "--untracked-files=all",
                     capture=True, trace=False,
-                ))
+                )))
             states[component.checkout_name] = state
         if include_identity:
             for role in sorted(selected):
@@ -11097,8 +11575,10 @@ class Workspace:
             name: value for name, value in os.environ.items()
             if not name.startswith("GIT_")
         }
+        if _BUILD_PLAN_GIT.get():
+            environment.update(GIT_NO_LAZY_FETCH="1", GIT_OPTIONAL_LOCKS="0")
         return run(
-            ["git", "--no-replace-objects", "-C", str(checkout), *arguments],
+            ["git", "--no-replace-objects", "-c", "core.fsmonitor=false", "-C", str(checkout), *arguments],
             capture=capture, trace=trace, env=environment,
         )
 
@@ -13310,6 +13790,7 @@ class Workspace:
 
     def _register_state(self, name: str, resolved: Path) -> None:
         with exclusive_lock(self.paths.workspace / "states.lock", "states registry"):
+            self._guard_recovered_resource("state", resolved, name)
             states = self._load_states()
             if name in states:
                 raise WorkspaceError(f"state already exists: {name}")
@@ -14222,6 +14703,7 @@ class Workspace:
         validate_name(name, "state name")
         path = resolved_path or self._state_location(name)
         path = self._canonical_state_path(path)
+        self._guard_recovered_resource("state", path, name)
         server_source = server_source.resolve()
         if server_source == path or server_source in path.parents:
             raise WorkspaceError(f"server state must be outside its source worktree: {path}")
@@ -14589,6 +15071,7 @@ class Workspace:
                         nonblocking=True,
                     )
                 )
+                self._guard_recovered_resource("state", path)
                 state_lease = StateLease(path_lock)
                 if requested_identity is not None:
                     state_lease.bind(requested_identity)
@@ -16384,6 +16867,8 @@ class Workspace:
         if ensure_workspace:
             self.paths.ensure()
         path = self.paths.topologies / name
+        if create:
+            self._guard_recovered_resource("topology", path, name)
         marker = path / MANAGED_MARKER
         metadata = {"schema_version": SCHEMA_VERSION, "purpose": f"topology:{name}"}
         if path.exists() or path.is_symlink():
@@ -21608,6 +22093,7 @@ class Workspace:
                         nonblocking=True,
                     )
                 )
+                self._guard_recovered_resource("state", state, state_name)
                 self._validate_temporary_state_lock(
                     state, state_lease, policy["lease_identity"]
                 )
