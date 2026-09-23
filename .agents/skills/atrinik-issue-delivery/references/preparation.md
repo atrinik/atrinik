@@ -250,3 +250,18 @@ bound wrapper worktree's default workspace, use the documented explicit
 `resource_context` selector; preserve the primitive storage workspace and retain
 the helper-derived association through retries and reconnect. An unmerged candidate helper
 never authorizes a paused delivery's recovery.
+
+## Proven observation correction and unfinished target admission
+
+When a recorded prepublication observation is demonstrably false or genuinely
+deferred, follow [resource observation recovery](resource-observation-recovery.md)
+only after its helper is accepted and merged. Preserve the exact predecessor,
+producer bytes, authority and separate bound-worktree resource namespace.
+Use the specialized correction before attempting ordinary reconnect that the
+known false observation or unfinished plans would block.
+
+Perform required real accepted-main target refresh explicitly. Exact original
+planned/null client reference/runtime intents can then use the distinct
+`admit-in-progress-targets-cas` protocol, remaining unchanged and non-reusable.
+Running or ambiguous resources still refuse. This supplies no creation, adoption,
+transfer, Docker verification or cleanup authority.

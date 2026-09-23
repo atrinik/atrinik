@@ -31,6 +31,11 @@ inventory, canonical coordinator and dedicated worktree/ledger binding gates.
 Read it again on coordinate or authority drift. Keep the helper's live operation
 gates; a saved packet never grants authority or replaces CAS/inventory checks.
 
+For a proven erroneous prepublication resource observation, follow
+[resource observation recovery](references/resource-observation-recovery.md).
+Use its distinct same-owner in-progress admission only for the exact retained
+unfinished client plans; ordinary reuse and target revalidation stay strict.
+
 During an uninterrupted session, retain exact container/worktree/ledger handles
 and helper-returned snapshots in private files. Run deterministic checks and
 extract results in scripts; return compact success/failure and actionable changes
