@@ -1109,6 +1109,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.environment.start()
         self.workspace = Workspace(self.wrapper)
+        self.addCleanup(self.workspace.close)
         self.seeds = {name: self.root / "seeds" / name for name, _ in COMPONENTS}
         self.origins = {
             name: self.root / "origins" / f"{name}.git" for name, _ in COMPONENTS
@@ -1135,6 +1136,17 @@ class WorkspaceTests(unittest.TestCase):
         self.remote_matcher.stop()
         self.environment.stop()
         self.temporary.cleanup()
+
+    def test_fixture_teardown_releases_retained_workspace_lease(self):
+        # Retain the fixture cycle deliberately: release must not depend on GC.
+        fixture = type(self)("runTest")
+        fixture.setUp()
+        retained_workspace = fixture.workspace
+        try:
+            self.assertIsNotNone(retained_workspace._wrapper_lease)
+        finally:
+            fixture.tearDown()
+        self.assertIsNone(retained_workspace._wrapper_lease)
 
     def scenario_resolved_fixture(self) -> dict[str, dict[str, object]]:
         resolved: dict[str, dict[str, object]] = {}

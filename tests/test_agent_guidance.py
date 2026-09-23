@@ -906,6 +906,7 @@ class AgentGuidanceTests(unittest.TestCase):
                 "references/tooling-issues.md",
                 "references/preparation.md",
                 "references/runtime-verification.md",
+                "references/resource-observation-recovery.md",
                 "scripts/delivery_ledger.py",
             },
         )
