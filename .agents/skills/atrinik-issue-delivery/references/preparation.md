@@ -93,19 +93,31 @@ its required live checks before each protected action.
 
 Before any ledger mutation, run
 `python3 scripts/atrinik_coordinator_context.py --json` and require
-`status: "canonical-linux"` with `authoritative: true`. The bounded,
+`status: "canonical-linux"` or `"native-linux"` with `authoritative: true`. The bounded,
 secret-free probe combines the pinned config with live Linux/POSIX, user,
 Codex, no-follow, mode, and mount checks; runtime markers never authorize it.
 `native-windows`, `windows-cross`, and `unknown-or-unsafe` stop delivery.
+The standalone entry validates its shared source bytes before execution. The
+helper loads that implementation through its retained trusted package snapshot
+and independently proves actual recorded storage/resource/review and concrete
+lease subjects before operational admission and under leases before CAS. Include
+additional retained paths with `--mutable-root PATH` for operator diagnostics;
+those arguments never replace helper-derived ownership or point-of-use proof.
 
-Use exactly two entry modes:
+Use one of these proven entry modes:
 
 - Already in a canonical VS Code devcontainer: retain the current process,
   workspace, bound worktree, ledger, leases and caches; never bootstrap another.
-- Native host: bootstrap/attach once with Docker or the Dev Containers CLI into
+- Windows or unsupported native host: bootstrap/attach once with Docker or the Dev Containers CLI into
   the pinned ordinary Linux image. Thereafter the host performs only approved
   Git/GitHub/commit operations; ownership, ledger, worktree, edit, test, build,
   review and validation run inside the coordinator.
+
+- Supported direct native Linux: follow [the native contract](../../../../docs/LINUX_EXECUTION.md),
+  retaining actual passwd identity, private Codex state and exact dedicated
+  worktree/ledger coordinates. Host administrators/kernel and executing user/code
+  are trusted; the probe is not bare-metal or PID1 executable attestation.
+  An unaccepted authority change never authorizes its own implementation.
 
 An `entry_mode` marker, container name or copied session record is corroboration,
 not authority. Codex never launches or controls VS Code; no executable/URI or
@@ -222,7 +234,7 @@ additional task authority. The session benchmark remains credential/source-free.
 After the canonical probe, authenticated selection and complete collision
 inventory above, run the ledger protocol's public
 `revalidate-current-targets-cas` with the exact helper-returned
-generation and digest. It derives a neutral observation while holding
+generation, digest and canonical ledger `--expected-path`. It derives a neutral observation while holding
 every current bound target's live guards. Preserve immutable initial requests;
 do not manufacture a commit, repeat initial binding, call private helper
 contexts, or use generic CAS/check-reuse as a substitute for live proof.

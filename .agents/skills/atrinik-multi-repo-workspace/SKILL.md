@@ -30,13 +30,7 @@ Inspect before mutation:
 Initialize absent repositories with `init` (`--with classic` adds classic);
 `sync` never clones.
 
-```sh
-./atrinik init [COMPONENT...]
-./atrinik init --with classic
-./atrinik sync
-./atrinik scope create COMPONENT... --name REVIEW --from PROFILE --json
-./atrinik worktree create COMPONENT LABEL --branch TYPE/TOPIC
-```
+See root `AGENTS.md` for initialization commands; scope and worktree primitives follow.
 
 Sync only clean primaries; never alter dirty sources. Classic selectors create
 `workspace/worktrees/classic/LABEL`; prefer atomic scopes.
@@ -108,7 +102,9 @@ state. Migration alone takes the barrier. Published runtimes retain generation/p
 port leases. Completion is bounded/read-only, secret-free, parser-driven before `Workspace`.
 
 A persistent coordinator session belongs to one agent and exact delivery coordinate. Reuse
-requires matching pinned container, mounts, worktree, profile/build roots, and ledger coordinates.
+requires matching native host/user/filesystem or pinned container/mount coordinates,
+plus exact worktree, profile/build roots, and ledger. Follow
+[the Linux execution contract](../../../docs/LINUX_EXECUTION.md).
 Recovery reruns probe, worktree list, ledger inventory/CAS, and leases. Bound idle/lifetime;
 preserve failure evidence; stop only the owned container. Independent sessions need distinct
 worktrees/coordinates, caches, ports, topology/state names, and mutable state.
@@ -123,17 +119,7 @@ characters. Never handcraft saves or expose credentials; use distinct topology/s
 
 ## Validate and hand off
 
-Wrapper commands:
-
-```sh
-./atrinik profile show PROFILE
-./atrinik build COMPONENT --profile PROFILE --test
-./atrinik topology show PROFILE --temporary-state --json
-./atrinik up --name TOPOLOGY --profile PROFILE --temporary-state
-./atrinik ps TOPOLOGY --json
-./atrinik logs TOPOLOGY [server|client] --follow
-./atrinik down TOPOLOGY
-```
+Use the exact profile/build/topology/runtime lifecycle in root `AGENTS.md`.
 
 For native Windows Classic GPU handoff, follow [`docs/WINDOWS_GPU_PREFLIGHT.md`](../../../docs/WINDOWS_GPU_PREFLIGHT.md); reuse Classic package-smoke/D3D12 commands and keep
 package, test-build, native runtime, and Linux coordinator evidence separate.
@@ -156,3 +142,6 @@ or require inventory updates. Follow `docs/PROVENANCE.md`; fail uncertainty.
 
 For wrapper or cross-repository contract changes, load `atrinik-guidance-maintenance`;
 sync guidance and run inventory/validation.
+
+Portable export requires verified released sound and the pinned producer;
+raw source/local-playtest sound cannot be packaged.

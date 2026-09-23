@@ -12,8 +12,10 @@ reuse and review subordinate workers yourself. Inspect actual runtime capacity;
 16 requested worker slots is not guaranteed capacity. Maximize useful parallelism
 within dependency, file/resource ownership and separate heavy-build limits.
 
-Use gh/git outside the sandbox. Start at /home/zoey/dev/atrinik and establish
-the supported canonical Linux coordinator before delivery work. Inventory and
+Use gh/git outside the sandbox. Start at the selected repository and establish
+a live-proven canonical container or accepted native Linux coordinator under
+docs/LINUX_EXECUTION.md before delivery work. A proposed authority change cannot
+authorize its own delivery; retain the previously accepted coordinator boundary. Inventory and
 preserve all existing containers, ledgers, worktrees, dirty patches and active
 deliveries. Never duplicate implementations or treat names, old probes, manifests
 or digests as worktree reuse authority. Each writing leaf uses unchanged

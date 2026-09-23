@@ -48,3 +48,5 @@ release the scope with a fresh preview digest, then reset the scenario only as
 a separate explicit scenario operation. Concurrent scopes may share neither a
 live scenario state nor its operation lease; distinct scenario states progress
 independently and credentials remain outside every scope record and journal.
+
+For a split native client, keep scenario credentials local and out of durable logs and handoffs. Persistence acceptance requires clean stop/restart of the same registered state and verification of the saved player/change; handcrafted state and account creation alone do not prove gameplay persistence.

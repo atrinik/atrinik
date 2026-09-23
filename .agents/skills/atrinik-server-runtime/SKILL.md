@@ -86,3 +86,5 @@ build, state, plugin, network, and gameplay failures separately. Use
 logs, stop the topology, release only its exact scope with a fresh preview when
 applicable, reset only scenario state, and run owner validation. Prove parallel
 startup with readiness/ownership transitions, never an elapsed-time threshold.
+
+An external exported client receives only the explicit host, UDP port and certificate fingerprint, never the private QUIC key or control endpoint. A server container requires its explicit UDP mapping at creation. Stop the client, then wrapper topology, then only the exact owned container. Follow docs/LINUX_EXECUTION.md for separate headless-server, native-client and persistent-state verification.
