@@ -131,10 +131,10 @@ execution on this host.
 
 | Evidence class | Source and limit |
 | --- | --- |
-| CPU/server and headless lifecycle | PR #592 retained a separately reviewed 54-test server build and an actual ready/clean-stop repeat at wrapper `22ca8c90efe960146b8b56329030e8fd0f751200`. Contemporaneous observations excluded graphics/audio access. This was container evidence, not a native build, client connection or persistence test. |
+| CPU/server and headless lifecycle | PR #592 retained a separately reviewed 54-test server build and an actual ready/clean-stop repeat at wrapper `22ca8c90efe960146b8b56329030e8fd0f751200`. Contemporaneous observations excluded graphics/audio access. This establishes container build and headless lifecycle evidence; client connection and persistence need separate tests. |
 | Portable export, providers and relocation | [Portable run 34836143288](https://github.com/atrinik/atrinik/actions/runs/34836143288), wrapper `b519a1baa39fe1ae498545acf3db65d84058f01f`, artifact `10344450829`, was independently inspected. Its 2,870 payload files and 84 ELF objects were checked; relocated execution used a network-disabled container without the original source/build paths. This retains its original source coordinate rather than claiming a new native run. |
 | Actual media decoding | The same portable run decoded 125 PNG images, loaded eight fonts and produced nonempty PCM from 339 released audio paths. These are actual artifact results, not audible playback or hardware gameplay. |
-| Full native Classic toolchain/build | Not qualified here. The host package inventory found 15 exact, 17 missing and nine newer packages against the pinned development lock; CMake and Ninja were absent from the system tool path. The test-only wheels above do not satisfy that full lock. No system package or driver change was performed. Follow [the native toolchain contract](NATIVE_LINUX_TOOLCHAIN.md) on a compatible qualification host. |
+| Build environment | Application builds use pinned devcontainers. The earlier host inventory found 15 exact, 17 missing and nine newer packages against the development lock; that diagnostic does not create a host-build prerequisite. No system package or driver change was performed. The isolated CMake/Ninja fixtures above are retained historical wrapper-test evidence. |
 | Split client/server authenticated connection and wrong-pin refusal | Outstanding parent acceptance; no successful connection or fingerprint-mismatch result is inferred from a ready server. |
 | Persistent player across server restart | Outstanding parent acceptance; temporary-state clean shutdown and external client configuration do not prove saved-player persistence. |
 | Selected hardware renderer and gameplay | Outstanding parent acceptance; neither portable relocation nor a software-rendered launch is substitute evidence. |
@@ -166,5 +166,6 @@ reuse of that bounded integration evidence, not a new native runtime claim.
 Relevant source/input changes require fresh checks before reuse.
 
 This document owns only issue #593's qualification record. Parent #562 remains
-open until its independent build, connectivity, persistence, hardware and audio
-requirements have fresh evidence and the required deliveries are merged.
+open until its devcontainer build, native runtime, connectivity, persistence,
+hardware and audio requirements have fresh evidence and the required deliveries
+are merged.
