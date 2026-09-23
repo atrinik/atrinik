@@ -12893,6 +12893,134 @@ class DeliveryLedgerTests(unittest.TestCase):
             finally:
                 workspace.close()
 
+    def test_canonical_observation_proof_rejects_producer_drift_and_preserves_saves(self):
+        # Public helper tests load accepted code from a disposable primary. Also
+        # exercise the canonical Workspace proof directly, under its real locks.
+        from atrinik_workspace import workspace as workspace_module
+        from atrinik_workspace.model import WorkspaceError
+        root, before, request, _ = self.observation_transaction_fixture("c", live_resources=True)
+        live = Path(next(row["current"]["path"] for row in before.document["artifacts"] if row["kind"] == "worktree"))
+        evidence, _, _ = ledger._observation_request(before.document, request)
+        with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
+            workspace = workspace_module.Workspace(live, backfill_references=False)
+            try:
+                def observe(value):
+                    preparation = workspace_module.Workspace._prepare_delivery_workspace(live, manifest=workspace.manifest)
+                    try:
+                        proof = preparation.plan_observation_correction(before.document["resources"], value)
+                        with workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks(), preparation.admitted():
+                            return proof.observe()
+                    finally:
+                        preparation.close()
+                original = observe(evidence)
+                self.assertEqual(observe(evidence), original)
+                self.assertEqual(original["state"]["disposition"], "false-observation-retired")
+                self.assertNotEqual(original["build"]["path"], original["topology"]["status"]["build_root"])
+                self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+                save = live / "workspace/scenarios/player/state/players/direct-proof.txt"
+                save.parent.mkdir(exist_ok=True)
+                save.write_text("legitimate saved player progress\n")
+                current = {"path": original["topology"]["path"], "lifecycle": "stopped",
+                           "identity_digest": ledger.canonical_object_digest(original["topology"]["status"])}
+                continued = {**evidence, "topology_current": current}
+                fresh = observe(continued)
+                self.assertNotEqual(original["scenario_state"], fresh["scenario_state"])
+                self.assertEqual(ledger._correction_fixed_ownership(original), ledger._correction_fixed_ownership(fresh))
+                self.assertEqual(save.read_text(), "legitimate saved player progress\n")
+                cases = [
+                    (("scenario_output", "path"), str(live / "foreign-scenario")),
+                    (("topology_output", "started_at"), "2000-01-01T00:00:00Z"),
+                    (("topology_output", "state_policy"), {"kind": "temporary"}),
+                    (("build_observation", "exit_code"), 1),
+                    (("build_plan", "tests"), False),
+                    (("build_plan", "build_key"), "f" * 12),
+                    (("build_plan", "execution_sources", "server"), str(live / "foreign-source")),
+                    (("build_plan", "git_observations", "classic", "configuration_sha256"), "f" * 64),
+                    (("topology_plan", "profile"), "foreign-profile"),
+                ]
+                for path, value in cases:
+                    with self.subTest(producer_field=path):
+                        changed = copy.deepcopy(evidence)
+                        parent = changed
+                        for key in path[:-1]:
+                            parent = parent[key]
+                        parent[path[-1]] = value
+                        with self.assertRaises(WorkspaceError):
+                            observe(changed)
+                        self.assertFalse(workspace_module._BUILD_PLAN_GIT.get())
+                        self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+                        self.assertEqual(save.read_text(), "legitimate saved player progress\n")
+                changed = copy.deepcopy(continued)
+                changed["topology_current"]["identity_digest"] = "f" * 64
+                with self.assertRaisesRegex(WorkspaceError, "current recorded stopped observation"):
+                    observe(changed)
+                spec_path = live / "workspace/topologies/stopped-server/spec.json"
+                raw_spec = spec_path.read_bytes()
+                for field, value in (("cwd", str(live)), ("log", str(live / "foreign.log")),
+                                     ("command", ["/bin/true"])):
+                    with self.subTest(service_field=field):
+                        spec = json.loads(raw_spec)
+                        spec["services"]["server"][field] = value
+                        spec_path.write_text(json.dumps(spec))
+                        try:
+                            with self.assertRaises(WorkspaceError):
+                                observe(evidence)
+                        finally:
+                            spec_path.write_bytes(raw_spec)
+                conflated = copy.deepcopy(evidence)
+                conflated["topology_output"]["build_root"] = evidence["build_observation"]["build_root"]
+                with self.assertRaisesRegex(WorkspaceError, "must remain distinct"):
+                    observe(conflated)
+                false_path = workspace.paths.state / "server/false-extra"
+                false_path.mkdir(parents=True)
+                try:
+                    with self.assertRaisesRegex(WorkspaceError, "materialized state"):
+                        observe(evidence)
+                finally:
+                    false_path.rmdir()
+                registry = workspace.paths.states_file
+                raw_registry = registry.read_bytes()
+                for coordinate, refusal in ((live / "workspace/scenarios/player/state", "foreign alias"),
+                                             (false_path, "actually registered")):
+                    registered = json.loads(raw_registry)
+                    registered["states"]["false-extra"] = str(coordinate)
+                    registry.write_text(json.dumps(registered))
+                    try:
+                        with self.assertRaisesRegex(WorkspaceError, refusal):
+                            observe(evidence)
+                    finally:
+                        registry.write_bytes(raw_registry)
+                alias = spec_path.with_name("spec-alias.json")
+                os.link(spec_path, alias)
+                try:
+                    with self.assertRaisesRegex(WorkspaceError, "hard-linked"):
+                        observe(evidence)
+                finally:
+                    alias.unlink()
+                for label in ("extra-key", "endpoint", "profile"):
+                    with self.subTest(spec_identity=label):
+                        spec = json.loads(raw_spec)
+                        if label == "extra-key":
+                            spec["unplanned"] = True
+                        elif label == "endpoint":
+                            spec["endpoint"]["port"] += 1
+                        else:
+                            spec["profile"] = "foreign-profile"
+                        spec_path.write_text(json.dumps(spec))
+                        try:
+                            with self.assertRaises(WorkspaceError):
+                                observe(evidence)
+                        finally:
+                            spec_path.write_bytes(raw_spec)
+                lease = spec_path.parent / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+                with lease.open("rb") as stream:
+                    fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    with self.assertRaises(WorkspaceError):
+                        observe(evidence)
+                self.assertEqual(observe(continued), fresh)
+            finally:
+                workspace.close()
+
     def test_observation_correction_real_split_workspace_forward(self):
         root, before, request, _observation = self.observation_transaction_fixture("o", live_resources=True)
         live = Path(next(row["current"]["path"] for row in before.document["artifacts"] if row["kind"] == "worktree"))
