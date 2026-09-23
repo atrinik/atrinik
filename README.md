@@ -477,6 +477,9 @@ is display-independent: no graphics device, display socket, audio endpoint,
 WSL path, host networking or nested Docker daemon is required to create it.
 The immutable Linux image currently supplies Ubuntu 26.04 userland. This is
 container toolchain evidence, not native Ubuntu/Debian desktop qualification.
+For developer and delivery application compilation, use this pinned CPU-only
+environment for builds and build tests. The host does not need QEMU or a copy
+of the image's exact compiler and development-library set.
 
 Select the configuration explicitly from a terminal with the Dev Containers CLI:
 
@@ -490,18 +493,37 @@ devcontainer up --workspace-folder . --config .devcontainer/windows-wslg/devcont
 devcontainer exec --workspace-folder . --config .devcontainer/windows-wslg/devcontainer.json bash
 ~~~
 
+Inside the ordinary pinned Linux container, initialize the selected Classic
+stack and run its integrated build and tests through the wrapper:
+
+~~~sh
+./atrinik init --with classic
+./atrinik profile show classic --json
+./atrinik build all --profile classic --test
+~~~
+
+Keep the later portable and native stages separate. The ordinary container
+proves its own CPU build environment. The immutable portable producer described
+in [Linux execution](docs/LINUX_EXECUTION.md#portable-client-export) creates the
+movable client; verify that exact exported directory after transfer. The native
+Linux desktop then supplies its own loader, graphics driver, display and audio
+session for gameplay. Running a verified export does not require the host
+compiler package lock or the source-build preflight.
+
 The explicit WSLg configuration retains its graphics, audio and Docker feature
 contract; the Windows cross-build role remains separate. Configuration selection
 does not grant delivery authority: rerun the coordinator probe and the exact
 worktree/ledger/lease checks in the selected session. Existing canonical
 sessions continue in place.
 
-Run `python3 -m atrinik_workspace.linux_platform` inside the selected environment
-before repository operations to check build tools and Git LFS filters without
-consulting display variables. Add `--docker` only for operations that need a
-Docker daemon. A daemon permission failure requires a Docker/user-access fix;
-adding GPU flags or display mounts cannot repair it. The headless default
-does not grant access to the host Docker socket or start a privileged daemon.
+When a selected environment will compile source, run
+`python3 -m atrinik_workspace.linux_platform` there to diagnose its build tools
+and Git LFS filters without consulting display variables. This report does not
+establish delivery authority and is not a prerequisite for running a verified
+portable export. Add `--docker` only for operations that need a Docker daemon.
+A daemon permission failure requires a Docker/user-access fix; adding GPU flags
+or display mounts cannot repair it. The headless default does not grant access
+to the host Docker socket or start a privileged daemon.
 
 For a human developer, open this wrapper repository in VS Code and choose
 **Dev Containers: Reopen in Container** to use the pinned Linux build

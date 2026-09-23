@@ -1,21 +1,52 @@
-# Native Classic developer toolchain
+# Optional direct-host Classic developer toolchain
 
-Use Ubuntu 26.04 amd64 as the complete native developer setup baseline below.
-The package and source versions reproduce the owner contract used by Classic
+The default application compilation and build-test workflow uses the pinned,
+CPU-only ordinary devcontainer described in the README. It needs neither QEMU
+nor an exact host compiler installation. Use this Ubuntu 26.04 amd64 recipe only
+when deliberately building Classic directly on a host. The package and source
+versions reproduce the owner contract used by Classic
 `4998131ad2ae4c9680685fd87e2d85de1dc15fd9` in its Ubuntu 26.04 build container.
 These translated host commands have not yet been qualified on a direct host;
-record that qualification separately under #593 after the authority change is
-accepted. Container CI is evidence for its container environment.
+#593 owns that separate qualification. Container CI is evidence only for its
+selected container environment.
 
 Native authority eligibility on Ubuntu 24.04/26.04 and Debian 12/13 does not
 establish development-library availability on every version. Debian 12 is the
 portable client's glibc 2.36 ABI baseline; its pinned producer builds/tests the
 client only. Debian native client/server compilation and other host versions
 need their own complete dependency and test qualification. Use the pinned
-coordinator/build environment when the host cannot supply the contract below.
-An exported client needs no compiler, development headers or this setup.
+coordinator/build environment for the normal build workflow. This recipe and
+the `linux_platform` build-tool report are not prerequisites for native authority
+eligibility or for verifying and running an exported client. An exported client
+needs its verified payload and host runtime libraries, graphics/display and
+audio capabilities, not a compiler or development headers.
 
-## Install the complete Ubuntu 26.04 contract
+## Default pinned container build and tests
+
+Select the display-independent ordinary configuration, then run the wrapper
+commands inside that exact container:
+
+```sh
+devcontainer up --workspace-folder . --config .devcontainer/devcontainer.json
+devcontainer exec --workspace-folder . --config .devcontainer/devcontainer.json bash
+python3 -m atrinik_workspace.linux_platform
+./atrinik init --with classic
+./atrinik profile show classic --json
+./atrinik build all --profile classic --test
+```
+
+The `linux_platform` result diagnoses build tools and Git LFS filters in this
+selected build environment. It does not grant delivery authority. Preserve the
+repository's hosted wrapper unit CI and native-authority tests as their own
+evidence surfaces.
+
+Portable delivery is another stage: the immutable producer in
+[Linux execution](LINUX_EXECUTION.md#portable-client-export) creates the movable
+client, `./atrinik linux verify` checks the transferred directory, and the native
+desktop supplies the actual graphics and audio runtime. Do not apply the host
+package-lock instructions below merely to launch that verified export.
+
+## Install the optional Ubuntu 26.04 direct-build contract
 
 The host owner performs package installation on the selected development host.
 Use a fresh qualification host if the exact package lock conflicts with installed
@@ -111,12 +142,14 @@ runtime launches; record its exact path in the handoff. It is independent of
 mutable player/configuration state. Do not replace system libraries or run
 `ldconfig` for this prefix.
 
-## Build, test and run through the wrapper
+## Direct-host build, test and headless run
 
-After the native authority implementation is accepted, complete the live probe
-and normal issue/project preparation before delivery work. From the selected
-wrapper checkout, install wrapper test dependencies in its private virtual
-environment as described in [CONTRIBUTING](../CONTRIBUTING.md). Then:
+When a separate direct-host qualification calls for compilation, complete the
+live authority probe and normal issue/project preparation before delivery work.
+The authority proof is independent of whether this optional package recipe was
+installed successfully. From the selected wrapper checkout, install wrapper
+test dependencies in its private virtual environment as described in
+[CONTRIBUTING](../CONTRIBUTING.md). Then:
 
 ```sh
 ./atrinik init --with classic
