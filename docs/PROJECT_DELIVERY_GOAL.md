@@ -13,12 +13,12 @@ reuse and review subordinate workers yourself. Inspect actual runtime capacity;
 within dependency, file/resource ownership and separate heavy-build limits.
 
 Use gh/git outside the sandbox. Start at the selected repository and establish
-a live-proven canonical container or accepted native Linux coordinator under
-docs/LINUX_EXECUTION.md before delivery work. On supported native Linux, develop,
+a live-proven native Linux coordinator under docs/LINUX_EXECUTION.md before
+delivery work. Develop,
 run Git, review and perform lightweight checks in owned local worktrees; use
 pinned CPU containers with owner-isolated persistent caches for application
 builds and toolchain checks. Build-worker lifetime does not own local delivery;
-optional container development and existing bound sessions remain supported.
+already-bound historical containers retain their exact compatibility gates.
 A proposed authority change cannot
 authorize its own delivery; retain the previously accepted coordinator boundary. Inventory and
 preserve all existing containers, ledgers, worktrees, dirty patches and active

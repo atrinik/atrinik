@@ -9,11 +9,9 @@ and keeps signing configuration outside the repository.
 
 - Signing configuration, the passphrase, and the passphrase-protected private
   key belong to the contributor host and personal account.
-- Native host Git is the default place to create and sign commits. Use the
-  Docker/devcontainer for builds, tests, and other container-owned work.
-- An exceptional container commit may forward the host SSH agent through an
-  explicitly supported `SSH_AUTH_SOCK` path and set only the required public
-  signing metadata. Agent forwarding does not copy the private key.
+- Create and sign commits with native host Git in the owned local worktree.
+  Use short-lived pinned containers for builds and toolchain tests; build
+  workers receive no signing agent or credentials.
 - Never copy or bind-mount a private signing key, the private `.ssh` directory,
   or a personal Git configuration containing signing secrets into a source
   tree, image, container, generated state directory, or repository.

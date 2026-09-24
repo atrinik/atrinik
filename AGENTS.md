@@ -38,7 +38,7 @@
   pinned producer. Keep byte, gameplay and audible proof separate.
 - Native Windows Classic GPU preflight: follow `docs/WINDOWS_GPU_PREFLIGHT.md`; keep Linux coordinator and native results separate.
 - Use `atrinik-project-delivery` for parallel projects; legacy `atrinik-program-delivery` remains explicit-only. See `docs/PROJECT_DELIVERY_GOAL.md`.
-- Codex entry modes: native Linux develops in owned worktrees; pinned CPU workers run builds/toolchain checks. Optional development stays inside the canonical VS Code devcontainer; native-host bootstrap remains. See docs/LINUX_EXECUTION.md. Keep context/auth/worktree/ledger/CAS/leases. Windows stays bootstrap/attach or approved Git/GitHub/commits; unaccepted authority cannot authorize itself.
+- Develop, run Git, review and coordinate delivery in owned native Linux worktrees. Pinned CPU workers run builds/toolchain checks with isolated caches; see docs/LINUX_EXECUTION.md. Keep context/auth/worktree/ledger/CAS/leases. Native Windows has no ledger authority; historical containers retain existing recovery gates. Unaccepted authority cannot authorize itself.
 - Codex never launches/controls VS Code; no URIs, GUI automation, nesting or remounting. Reconnect proves owner/host/user, clean worktree, ledger/leases and container image/mounts when applicable. Worker exit preserves native ownership. Isolate mutable state; stop only owned resources. Auth: `docs/COORDINATOR_AUTH.md`.
 - Never replace dirty primaries/remove dirty worktrees or overwrite mutable server data; preserve migration inputs.
 - Cleanup is preview-first; delivery grants none. Keep ledger transactions separate from `./atrinik cleanup`; preserve dirty/detached/locked/active/referenced/uncertain targets; history fails closed.

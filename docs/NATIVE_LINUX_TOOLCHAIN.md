@@ -1,7 +1,7 @@
 # Optional direct-host Classic developer toolchain
 
 The default application compilation and build-test workflow uses the pinned,
-CPU-only ordinary devcontainer described in the README. It needs neither QEMU
+short-lived CPU worker described in [Linux execution](LINUX_EXECUTION.md). It needs neither QEMU
 nor an exact host compiler installation. Use this Ubuntu 26.04 amd64 recipe only
 when deliberately building Classic directly on a host. The package and source
 versions reproduce the owner contract used by Classic
@@ -15,7 +15,7 @@ establish development-library availability on every version. Debian 12 is the
 portable client's glibc 2.36 ABI baseline; its pinned producer builds/tests the
 client only. Debian native client/server compilation and other host versions
 need their own complete dependency and test qualification. Use the pinned
-coordinator/build environment for the normal build workflow. This recipe and
+CPU build worker for the normal build workflow. This recipe and
 the `linux_platform` build-tool report are not prerequisites for native authority
 eligibility or for verifying and running an exported client. An exported client
 needs its verified payload and host runtime libraries, graphics/display and
@@ -23,16 +23,28 @@ audio capabilities, not a compiler or development headers.
 
 ## Default pinned container build and tests
 
-Select the display-independent ordinary configuration, then run the wrapper
-commands inside that exact container:
+Initialize the selected sources in the owned native worktree first:
 
 ```sh
-devcontainer up --workspace-folder . --config .devcontainer/devcontainer.json
-devcontainer exec --workspace-folder . --config .devcontainer/devcontainer.json bash
-python3 -m atrinik_workspace.linux_platform
 ./atrinik init --with classic
 ./atrinik profile show classic --json
-./atrinik build all --profile classic --test
+```
+
+Then follow the [pinned CPU worker composition](LINUX_EXECUTION.md#native-development-with-pinned-cpu-build-workers)
+with the exact bound primary/worktree/common-Git paths, live operational review
+roots and isolated reusable caches. Run the build-tool preflight in that worker:
+
+```sh
+python3 -m atrinik_workspace.linux_platform
+```
+
+Use the same worker image, mounts and toolchain for the integrated Classic plan
+and execution, retaining the returned plan and recording delivery resource
+intent before execution:
+
+```sh
+./atrinik build all --profile classic --test --plan --json
+./atrinik build all --profile classic --test --expected-plan RETURNED_PLAN_SHA256
 ```
 
 The `linux_platform` result diagnoses build tools and Git LFS filters in this
