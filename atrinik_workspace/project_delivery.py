@@ -119,13 +119,14 @@ def parser() -> argparse.ArgumentParser:
     existing.add_argument("coordinate")
     existing.add_argument("--worker", required=True, help="actual retained direct-child runtime worker name")
     existing.add_argument("--runtime-observation", required=True, type=Path,
-                          help="fresh complete runtime inventory and coordinator attestation")
+                          help="fresh complete runtime inventory with explicit handle or active-slot capacity domain")
     existing.add_argument("--heavy-limit", type=int, default=1)
     existing.add_argument("--expected", required=True, type=Path)
     for name in ("plan", "dispatch"):
         cmd = sub.add_parser(name)
-        cmd.add_argument("--capacity", required=True, type=int)
-        cmd.add_argument("--open-workers", type=int, required=True)
+        cmd.add_argument("--capacity", required=True, type=int, help="observed retained-handle limit")
+        cmd.add_argument("--open-workers", type=int, required=True,
+                         help="complete open-handle count, including completed retained workers")
         cmd.add_argument("--heavy-limit", type=int, default=1)
         if name == "dispatch":
             cmd.add_argument("--expected", required=True, type=Path)

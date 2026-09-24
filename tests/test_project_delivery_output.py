@@ -79,6 +79,7 @@ class SnapshotOutputTests(unittest.TestCase):
         os.link(regular, hardlink)
         public = self.wrapper / "public"
         public.mkdir(mode=0o755)
+        public.chmod(0o755)  # Establish the unsafe fixture even under a private native umask.
         for output in (regular, symlink, hardlink, self.root / "project.json", public / "out.json", Path("relative.json")):
             with self.subTest(output=output), patch.object(cli, "run") as run:
                 code, _, _ = self.invoke(["inspect"], output)
@@ -283,6 +284,72 @@ class ExistingReservationOutputTests(unittest.TestCase):
             for worker in workers:
                 if worker.is_alive(): worker.terminate(); worker.join(10)
             result.close(); result.join_thread()
+
+
+class ActiveExistingReservationOutputTests(ExistingReservationOutputTests):
+    """Run the same production CLI/CAS/retry/race contract in the active domain."""
+    def setUp(self):
+        super().setUp()
+        observation = read_input(self.observation)
+        observation["runtime"]["capacity_domain"] = "whole-thread-tree-active"
+        observation["runtime"]["agents"].append(
+            {"agent_name": "/root/retained_extra", "agent_status": {"completed": "Actual retained result"}})
+        self.observation.write_text(json.dumps(observation))
+
+    def test_active_refusals_preserve_durable_bytes_and_publish_no_snapshot(self):
+        initial = self.observation.read_text()
+        changes = [
+            lambda o: o["runtime"].update(capacity=1),
+            lambda o: o["runtime"].update(capacity_domain="unsupported"),
+            lambda o: o["runtime"].update(complete=False),
+            lambda o: o["runtime"]["agents"].pop(1),
+            lambda o: o["runtime"]["agents"].append(o["runtime"]["agents"][0]),
+            lambda o: o["runtime"]["agents"][2].update(agent_status="unknown"),
+            lambda o: o["project"].update(actor="foreign"),
+            lambda o: o["snapshot"].update(digest="f" * 64),
+            lambda o: o.update(observed_at="2020-01-01T00:00:00Z"),
+        ]
+        original_bytes = Path(self.initial["path"]).read_bytes()
+        for index, change in enumerate(changes):
+            with self.subTest(index=index):
+                observation = json.loads(initial); change(observation)
+                self.observation.write_text(json.dumps(observation))
+                output = self.wrapper / f"refused-{index}.json"
+                code, _, _ = self.invoke(self.command, output, True)
+                self.assertEqual(code, 2)
+                self.assertFalse(output.exists())
+                self.assertEqual(Path(self.initial["path"]).read_bytes(), original_bytes)
+                self.assertEqual(Store(self.root).inspect(), self.initial)
+
+    def test_forward_active_reactivation_preserves_parallel_and_merge_gated_work(self):
+        document = self.initial["document"]
+        document["plan"]["nodes"][1]["dependencies"] = [{"id": "atrinik/atrinik#2", "condition": "merged"}]
+        github = cli.GitHub()
+        for observation in github.observations.values(): observation["terminal"] = False
+        expected, _ = Store(self.root).update(self.initial, lambda p: p.update(
+            plan=document["plan"], observations=github.observations))
+        self.expected.write_text(json.dumps(expected))
+        observation = runtime_observation(expected["document"], expected, 18)
+        observation["runtime"].update(capacity_domain="whole-thread-tree-active", capacity=17)
+        observation["runtime"]["agents"].append({"agent_name": "/root/independent/reviewer", "agent_status": "running"})
+        self.observation.write_text(json.dumps(observation))
+        reserved = self.wrapper / "forward-reserved.json"
+        code, result, error = self.invoke(self.command, reserved, True)
+        self.assertEqual((code, error), (0, ""))
+        attempt = result["result"]["attempt"]
+        running = self.wrapper / "forward-running.json"
+        self.assertEqual(self.invoke(["worker", "atrinik/atrinik#2", "--attempt", attempt,
+                                     "--id", "/root/leaf", "--expected", str(reserved)], running)[0], 0)
+        ready = self.wrapper / "forward-ready.json"
+        self.assertEqual(self.invoke(["result", "atrinik/atrinik#2", "--attempt", attempt,
+                                     "--state", "ready", "--evidence", "fresh owned leaf review passed",
+                                     "--expected", str(running)], ready)[0], 0)
+        snapshot = read_input(ready)
+        self.assertEqual(snapshot["document"]["nodes"]["atrinik/atrinik#3"]["state"], "pending")
+        # Legacy scalar planning still honors the actual-merge dependency.
+        code, result, error = self.invoke(["plan", "--capacity", "20", "--open-workers", "19"])
+        self.assertEqual((code, error), (0, ""))
+        self.assertEqual(result["blocked"]["atrinik/atrinik#3"], "dependency")
 
 
 if __name__ == "__main__":

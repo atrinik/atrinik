@@ -17,8 +17,10 @@ does not mutate leaf `program` fields. Leaf issue-mutation restrictions stay
 intact: send tracking requests to the coordinator.
 
 Use the installed agent runtime spawn/send/wait/close tools. Discover their
-actual availability and capacity, include completed-but-open and review workers,
-and close only your finished workers. If no reliable limit is exposed, probe
+actual availability and capacity domain, include completed-but-open and review workers,
+and close only your finished workers when that operation is actually available.
+Never omit retained rows or invent a handle limit from an active-slot limit.
+If no reliable limit is exposed, probe
 capacity incrementally with productive read-only tasks; do not reserve 16 on
 configuration alone. No available spawn tool means serial coordination with
 an explicit limitation, not imaginary parallel delivery.
@@ -59,6 +61,16 @@ python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT inspect
 python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT plan --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit 1
 python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT dispatch --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit 1 --expected /absolute/snapshot.json
 ```
+
+The scalar `plan`/`dispatch` arguments retain their legacy handle-limited
+meaning: `--capacity` is the observed retained-handle limit and `--open-workers`
+is the complete count in that same domain, including completed retained workers.
+They do not support fresh dispatch for an active-slot-only runtime; running
+counts cannot safely replace open handles or establish overlap with bound
+reservations. Use `reserve-existing` for an eligible retained owner. If no
+supported scheduling operation fits a new leaf, the unchanged standalone issue
+delivery fallback retains its own complete gates and an explicit tracking gap;
+it does not create a project dispatch or authorize adopting a live owner.
 
 For repeated operations, save exact snapshots directly and return compact output:
 
@@ -134,8 +146,9 @@ The observation is a trusted coordinator's attestation, not an authenticated
 runtime credential. This adapter uses the collaboration runtime's whole-thread
 tree: obtain a fresh complete `list_agents` response and the actual exposed
 capacity, including the root coordinator and nested/review/completed handles.
-Do not derive capacity from desired parallelism or decrement the open-worker
-count to make space. Only the root dispatcher's own direct children may be
+Do not derive capacity from desired parallelism or decrement the inventory
+to make space. Select the capacity domain from actual runtime evidence. Only
+the root dispatcher's own direct children may be
 selected; nested workers remain with their dispatcher. Use this exact schema,
 replacing every example value with current evidence:
 
@@ -165,6 +178,18 @@ replacing every example value with current evidence:
 }
 ```
 
+The legacy `capacity_domain: "whole-thread-tree"` bounds both retained handles
+and active reservations; its schema and behavior remain unchanged. For a runtime
+that explicitly limits active concurrency, use
+`capacity_domain: "whole-thread-tree-active"` with that actual active limit in
+`capacity`, keeping the same complete whole-thread `agents` array. For example,
+18 retained rows with `capacity: 17` are valid only in this explicit active mode
+and only when the active budget below fits. Both modes require capacity 1–256;
+active mode independently bounds inventory at 4096 rows and the existing 128 KiB
+input-file limit. Unknown domains fail closed; old observations are never
+reinterpreted. This adapter does not assert a separate retained-handle limit
+when the runtime exposes only active capacity.
+
 Retain the actual runtime `agent_name`/`agent_status` rows without rewriting
 statuses. A completed worker has the actual tagged status object
 `{"completed": "result text"}`; selected workers accept that exact shape or
@@ -189,8 +214,16 @@ changing the project. A worker bound to any other node, including a terminal
 node, is unavailable. A running runtime worker with an inactive project
 reservation is inconsistent and must be reconciled first. Dependencies,
 file/resource conflicts, external reservations and heavy-job limits remain
-required. Existing unbound spawn reservations still reserve future handles;
-reactivation adds no open handle and must fit the active capacity budget.
+required. Existing unbound spawn reservations still reserve future starts.
+In legacy mode,
+all retained rows plus unbound starts must also fit the handle limit. In both
+modes, the union of all running agents (including root, nested and independent
+workers), occupied bound worker identities and the selected activation, plus
+every unbound start, must fit `capacity`. Overlapping identities count once;
+disjoint running agents and idle bound reservations each consume a slot.
+Reactivation adds no retained handle. Complete observations remain trusted
+coordinator attestations; a fabricated omission cannot be discovered from JSON
+alone and is never supported.
 
 The result durably binds `reserved`, the existing worker and a fresh attempt,
 including the prior attempt and canonical observation digest in its identity.
