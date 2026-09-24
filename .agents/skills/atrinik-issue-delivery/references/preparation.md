@@ -104,56 +104,46 @@ lease subjects before operational admission and under leases before CAS. Include
 additional retained paths with `--mutable-root PATH` for operator diagnostics;
 those arguments never replace helper-derived ownership or point-of-use proof.
 
-Use one of these proven entry modes:
+### Develop in the owned native worktree
 
-- Already in a canonical VS Code devcontainer: retain the current process,
-  workspace, bound worktree, ledger, leases and caches; never bootstrap another.
-- Windows or unsupported native host: bootstrap/attach once with Docker or the Dev Containers CLI into
-  the pinned ordinary Linux image. Thereafter the host performs only approved
-  Git/GitHub/commit operations; ownership, ledger, worktree, edit, test, build,
-  review and validation run inside the coordinator.
+Use [the native Linux contract](../../../../docs/LINUX_EXECUTION.md), retaining
+actual passwd identity, private Codex state and exact dedicated worktree/ledger
+coordinates. Source editing, Git/GitHub, review, lightweight validation and
+coordination run locally. Application builds and toolchain-dependent checks use
+[short-lived pinned CPU workers](../../../../docs/LINUX_EXECUTION.md), with
+owner-isolated persistent caches. Build-worker lifetime does not own the native
+delivery; no long-lived container or host compiler is required.
 
-- Supported direct native Linux (normal Linux development): follow [the native contract](../../../../docs/LINUX_EXECUTION.md),
-  retaining actual passwd identity, private Codex state and exact dedicated
-  worktree/ledger coordinates. Host administrators/kernel and executing user/code
-  are trusted; the probe is not bare-metal or PID1 executable attestation.
-  An unaccepted authority change never authorizes its own implementation.
+Keep `HOME` unchanged, use private Codex state and start native delivery
+processes with `umask 077` so sources, Git metadata and bytecode retain trusted
+modes. Host administrators/kernel and executing user/code are trusted; the probe
+is not bare-metal or PID1 executable attestation. An unaccepted authority change
+never authorizes its own implementation. Native Windows and unsupported hosts
+do not gain Linux delivery authority from these instructions.
 
-An `entry_mode` marker, container name or copied session record is corroboration,
-not authority. Codex never launches or controls VS Code; no executable/URI or
-GUI automation, nested containers or foreign/stale configured paths.
-Wrapper-required Docker operations retain their own operation contract.
+Reconnect/crash recovery re-proves the live probe, actor, complete inventory,
+exact clean worktree, ledger CAS and leases. Names or stale records never
+authorize adoption of foreign or uncertain dirty work. Parallel deliveries use
+distinct coordinates, worktrees, profiles/build roots, Codex homes, caches,
+ports and topology/state. Stop only owned resources and preserve evidence.
 
-### Reuse one owned delivery session
+An already-bound historical canonical container retains its exact owner,
+container/image/configured mounts, worktree and ledger under the
+[compatibility contract](../../../../docs/LINUX_EXECUTION.md). It does not
+become a native delivery implicitly. Its `entry_mode` and other runtime markers
+never authorize reuse. Codex never launches or controls VS Code; no executable,
+URI, GUI automation, nesting or remounting. Wrapper-required Docker operations
+retain their own operation contract.
 
-Native Linux keeps editing, Git, review and lightweight validation in the bound
-local worktree. Application builds and toolchain-dependent checks use the
-[pinned CPU worker composition](../../../../docs/LINUX_EXECUTION.md),
-with owner-isolated persistent caches. Build-worker lifetime does not own the
-native delivery; no long-lived container or host compiler is required. Keep
-`HOME` unchanged, use private Codex state and start new native work with
-`umask 077` so newly created sources, Git metadata and bytecode retain trusted
-modes. Do not relax ancestry or authentication checks to fit an existing path.
-
-For container development, retain one pinned container per scope and an ignored, secret-free record of its
-agent, ledger, worktree, image/mount/volume identities, lifecycle and cleanup owner.
-In both modes, reconnect/crash recovery re-proves the live probe, actor, complete
-inventory, exact clean worktree, ledger CAS and leases. Names or stale records
-never authorize adoption of foreign or uncertain dirty work. For container
-sessions, also re-prove image/mount identity and bound idle/lifetime to
-30 minutes/12 hours; preserve stopped evidence and
-stop only owned resources. Parallel scopes use distinct coordinates, worktrees,
-profiles/build roots, volumes, Codex homes, caches, ports and topology/state.
-
-Use [mode-specific host GitHub authentication](../../../../docs/COORDINATOR_AUTH.md):
-native delivery uses the standard private store with selectors unset throughout;
-trusted container coordinators use the read-only bind. Build workers receive no credentials.
-The host owns login/refresh/account changes; workers verify actor and required
-repository/Project/package capabilities together before ledger genesis or resume.
-Bundle missing scopes into one host action; do not repeat pending login requests
-or ask again for a task mutation already authorized in the session. Keep
-other mutable credential stores private. Credential availability grants no
-additional task authority. The session benchmark remains credential/source-free.
+Use [host GitHub authentication](../../../../docs/COORDINATOR_AUTH.md): native
+delivery uses the standard private store with selectors unset throughout;
+build workers receive no credentials. Existing historical coordinators retain
+their exact read-only host-auth bind. The host owns login/refresh/account
+changes. Verify actor and required repository/Project/package capabilities
+together before genesis or resume. Bundle missing scopes into one host action;
+do not repeat pending login requests or ask again for an already-authorized
+mutation. Keep other mutable credential stores private. Credential availability
+grants no additional task authority.
 
 ### Claim only explicitly authorized issues
 

@@ -37,7 +37,7 @@ Use its distinct same-owner in-progress admission only for the exact retained
 unfinished client plans; ordinary reuse and target revalidation stay strict.
 
 During an uninterrupted session, retain exact host/user/worktree/ledger handles
-and, for container development, the container/image/mount handles
+and, for an already-bound historical container, its container/image/mount handles
 and helper-returned snapshots in private files. Run deterministic checks and
 extract results in scripts; return compact success/failure and actionable changes
 to the model. Avoid separate model turns for unchanged Docker inspection or

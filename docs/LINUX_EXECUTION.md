@@ -1,16 +1,16 @@
 # Linux execution and authority
 
-Changes to this contract do not authorize their own delivery. Until a maintainer
-accepts the synchronized implementation, proof and guidance, that delivery keeps
-the previously accepted canonical-container boundary. A proposed patch, fixture
-result, environment flag or issue description cannot activate native authority.
+Use the accepted execution probe and delivery helpers unchanged. A proposed
+patch, fixture result, environment flag or issue description cannot authorize
+its own delivery or switch an existing delivery's execution context.
 
 | Host / role | Display | Delivery authority | Evidence |
 | --- | --- | --- | --- |
 | Ubuntu 24.04/26.04 or Debian 12/13, direct systemd host or VM | Optional | `native-linux` after complete live proof | Distribution-specific native tests required |
-| Linux-hosted pinned coordinator | None required | `canonical-linux` after complete live proof | Pinned Ubuntu 26.04 image and per-session proof |
+| Short-lived pinned Linux build worker | None required | No delivery authority | Exact image, source, cache and resource proofs |
+| Already-bound historical Linux coordinator | None required | Existing `canonical-linux` contract after complete live proof | Exact retained image/mount/worktree/ledger coordinates |
 | Optional native Linux client container | Selected X11/Wayland and real GPU | Runtime capability does not grant delivery authority | Selected renderer and gameplay evidence |
-| Windows/WSL2/WSLg pinned coordinator | WSLg optional in explicit desktop config | Canonical container proof only | Keep WSLg and native Windows evidence separate |
+| Retained Windows/WSL2/WSLg desktop composition | Existing WSLg display/audio/GPU mounts | Runtime capability alone grants no authority; existing canonical proof is separate | [Credential-bearing prerequisites](../README.md#pinned-build-and-runtime-containers); keep native Windows evidence separate |
 | Windows cross-build container | None | No ledger authority | MXE package/build evidence only |
 | Native Windows | Native graphics for D3D12 qualification | No Linux ledger authority | Native Windows runtime evidence |
 
@@ -77,8 +77,8 @@ Supported native Linux normally runs editing, Git, delivery helpers, review and
 lightweight Python/guidance checks locally in its bound worktree. Application
 builds and toolchain-dependent tests use the already cached immutable Linux
 image. No mandatory host compiler, QEMU, GUI editor or long-lived coordinator
-container is needed. Optional container development remains supported, and an
-existing container-bound delivery retains its original coordinates.
+container is needed. An already-bound historical container delivery retains
+its original coordinates under the compatibility contract below.
 
 A build worker is an execution resource, not delivery authority. Keep native
 `HOME`, private Codex state, authentication and evidence on the host. Native
@@ -204,8 +204,8 @@ live host/context, authenticated ownership, worktree, ledger and lease proofs
 above. A verified exported client likewise needs runtime loader, display,
 graphics and audio capabilities rather than a source toolchain.
 
-The default application build and build-test path is the pinned CPU-only
-devcontainer in the README. If a developer deliberately chooses a direct-host
+The default application build and build-test path is the short-lived pinned
+CPU worker described above. If a developer deliberately chooses a direct-host
 source build, install the wrapper and source-build front-end dependencies through
 the distribution package manager:
 
@@ -230,23 +230,23 @@ the Vulkan loader, not graphics drivers. Native client execution does not requir
 Docker; a client container additionally requires a working daemon and, for
 NVIDIA, the NVIDIA Container Toolkit.
 
-After the native authority contract is merged and accepted, use the actual
-passwd user's private home/Codex directory and the standard GitHub credential
+Use the actual passwd user's private home/Codex directory and the standard GitHub credential
 store described in [coordinator authentication](COORDINATOR_AUTH.md). Run the
 public coordinator probe before issue/project preparation. Reconnect to the same
 host, user, worktree and ledger; rerun live context, authenticated actor,
 complete collision inventory and the helper's target/CAS/lease proof. A saved
 success document never authorizes reconnect. During delivery of a change to this
-contract, keep the previously accepted canonical container.
+contract, keep that delivery's previously accepted execution context.
 
-## Fresh headless containers and child reaping
+## Build and runtime container prerequisites
 
 Install Docker Engine using the distribution's official instructions for
 [Ubuntu](https://docs.docker.com/engine/install/ubuntu/) or
 [Debian](https://docs.docker.com/engine/install/debian/). An existing installation
 and its resources must be preserved. Configure daemon access through the host
 administrator's chosen supported method; a socket permission failure is a Docker
-access problem, independent of graphics. Install Node.js/npm and the
+access problem, independent of graphics. For the explicit server-runtime or
+cross-build configurations, install Node.js/npm and the
 [Dev Containers CLI](https://code.visualstudio.com/docs/devcontainers/devcontainer-cli)
 in the host user's tool environment, then verify both interfaces:
 
@@ -281,44 +281,34 @@ docker pull ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b
 
 A pull of a public package needs no login. A private-package denial requires the
 host owner to correct that package's access; it is not permission to make a
-package public or pass credentials into the runtime. Keep the separate shared
-read-only coordinator GitHub mount from [COORDINATOR_AUTH.md](COORDINATOR_AUTH.md),
-and never mount the host Docker credential store into build/runtime workers.
-With image access and the isolated-session prerequisites in README satisfied,
-set `HOST_REPO` to the exact reserved checkout and select the Linux headless
-configuration explicitly from the host terminal:
+package public or pass credentials into the runtime. Keep native authentication
+and historical read-only coordinator binds within [COORDINATOR_AUTH.md](COORDINATOR_AUTH.md);
+never mount the host Docker credential store into build/runtime workers.
+For short-lived CPU workers, use the composition above with Docker `--init`.
+Inspect the exact worker's image, mounts and `HostConfig.Init` before starting.
+The small init process forwards signals and reaps orphaned descendants; it
+never replaces wrapper ownership, supervised shutdown or final holder checks.
+The server-runtime, WSLg and cross-build configurations retain their own
+creation and capability contracts below. Configuration parsing alone does not
+prove a fresh worker's lifecycle; retain actual start/exit evidence.
 
-```sh
-devcontainer up --workspace-folder "$HOST_REPO" --config "$HOST_REPO/.devcontainer/devcontainer.json"
-```
+## Existing bound container compatibility
 
-Use the exact container ID returned for that owned session. Before attaching,
-inspect that same container's creation setting:
+An already-bound historical canonical delivery may continue only at its exact
+owner/container/image/configured-mount/worktree/ledger coordinates. Reconnect
+re-proves the live context, authenticated actor, complete inventory, clean
+worktree, public CAS and ordered leases. Its existing read-only host GitHub auth
+bind remains subject to [the authentication contract](COORDINATOR_AUTH.md).
+Names, `entry_mode` and copied or stale records are corroboration only.
 
-```sh
-docker inspect "$CONTAINER_ID" --format '{{.Id}} {{.HostConfig.Init}}'
-```
-
-The Linux configuration sets `init: true`, which makes the Dev Containers CLI
-pass Docker's `--init` option when creating a new container. Docker's small init
-process forwards signals and reaps orphaned child processes. This avoids relying
-on a long-lived shell or `sleep` as PID1 to reap adopted descendants. It does not
-replace the wrapper's ownership, supervised shutdown or final process/holder
-checks, and does not prove that all application processes have stopped.
-
-This creation setting adds no display sockets, GPU devices, audio endpoints or
-new delivery authority. Continue with the existing exact-container coordinator
-probe and terminal workflow before repository work. Configuration parsing and
-wrapper tests do not establish a fresh-container lifecycle result; record that
-smoke evidence separately on a newly reserved isolated session.
-
-An already running container retains its original creation settings. Attaching
-or restarting it does not add an init process. Preserve its exact identity,
-mounts, worktree and ledger; do not remove, recreate or remount it to apply this
-setting. A retained session without init continues under its existing bounded
-child-reaping and shutdown procedures until a separately owned fresh session is
-authorized and verified. Windows/WSLg and cross-build configuration behavior is
-unchanged by this Linux-headless setting.
+Preserve the worktree, ledger, caches, resources and original creation settings;
+never replace, remount, transfer or adopt the delivery implicitly. Existing
+idle/lifetime bounds remain 30 minutes/12 hours, with active holders checked
+before stopping only owned resources. Attaching or restarting does not add
+`--init`, ports or mounts. A failed probe or missing identity stops reuse; it
+never authorizes a new container-development setup. Codex never launches or
+controls VS Code, its executable/URI or GUI automation. No nested coordinator
+or credential/key copying is permitted.
 
 ## Explicit Linux desktop container capabilities
 
@@ -449,11 +439,10 @@ mode, host credentials or a Docker socket to the client.
 
 The public exporter runs in the exact published portable build environment,
 `ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1`.
-This is a separate immutable producer after the ordinary pinned devcontainer
-build/test stage; it is not a substitute coordinator, native authority probe or
-host runtime. Before merge, the automatic
-`Linux portable acceptance` pull-request workflow is the supported actual
-producer route; the retained canonical container has no Docker bridge. Its
+This is a separate immutable producer after the short-lived pinned CPU
+build/test stage; it grants no delivery authority and does not replace the
+native host runtime. Before merge, the automatic `Linux portable acceptance`
+pull-request workflow is the supported actual producer route. Its
 `Portable client build and relocation` job is nonpublishing, limits the producer
 to two CPUs, and serializes heavy runs without cancelling another owner's run.
 The `linux-portable-HEAD_SHA` artifact retains the movable client, exact source

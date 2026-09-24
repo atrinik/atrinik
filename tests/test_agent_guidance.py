@@ -707,51 +707,35 @@ class AgentGuidanceTests(unittest.TestCase):
                 self.assertNotIn("process improvements added: none", text)
                 self.assertNotIn("tooling issues: none", text)
 
-    def test_codex_entry_modes_are_explicit_and_vscode_is_human_only(self) -> None:
+    def test_native_development_guidance_preserves_authority_boundaries(self) -> None:
         paths = [
             ROOT / "AGENTS.md",
             ROOT / "README.md",
             ROOT / "docs/ARCHITECTURE.md",
             ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md",
         ]
-        guidance = {
-            path: read_guidance_contract(path) for path in paths
-        }
-
         for path in paths:
-            normalized = " ".join(guidance[path].split())
-            with self.subTest(path=path.relative_to(ROOT), marker="entry modes"):
-                self.assertIn("entry modes", normalized)
-                self.assertIn("canonical VS Code devcontainer", normalized)
-                self.assertRegex(normalized, r"\binside\b")
-                self.assertRegex(normalized.lower(), r"native[- ]host")
+            text = read_guidance_contract(path)
+            normalized = " ".join(text.split())
+            with self.subTest(path=path.relative_to(ROOT)):
+                self.assertIn("native", normalized.lower())
+                self.assertIn("worktree", normalized)
                 self.assertIn("pinned", normalized)
-                self.assertIn("Codex", normalized)
-            with self.subTest(path=path.relative_to(ROOT), marker="VS Code boundary"):
+                self.assertIn("ledger", normalized)
+                self.assertIn("leases", normalized)
                 self.assertRegex(
                     normalized,
                     r"Codex (?:never|must never) (?:launches|launch|launch or controls)"
                     r"[^.]{0,100}VS Code",
                 )
                 self.assertIn("GUI automation", normalized)
-
-        for path, text in guidance.items():
-            fenced_blocks = re.findall(r"```[^\n]*\n(.*?)```", text, re.DOTALL)
-            for block in fenced_blocks:
-                with self.subTest(
-                    path=path.relative_to(ROOT), marker="executable VS Code launch"
-                ):
-                    self.assertNotRegex(
-                        block,
-                        r"(?im)^\s*(?:code(?:\.cmd)?\b|vscode://|"
-                        r"(?:xdotool|ydotool|osascript|wmctrl)\b)",
-                    )
-
-        skill = guidance[ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"]
-        self.assertIn("entry_mode", skill)
-        self.assertIn("runtime markers never authorize", skill)
-        self.assertIn("Copied or stale session markers", guidance[ROOT / "README.md"])
-        self.assertIn("schema-2", guidance[ROOT / "docs/ARCHITECTURE.md"])
+        execution = (ROOT / "docs/LINUX_EXECUTION.md").read_text()
+        compatibility = execution.split("## Existing bound container compatibility", 1)[1].split("\n## ", 1)[0]
+        for gate in ("authenticated actor", "complete inventory", "clean",
+                     "public CAS", "ordered leases", "30 minutes/12 hours",
+                     "replace, remount, transfer or adopt"):
+            self.assertIn(gate, " ".join(compatibility.split()))
+        self.assertIn("runtime markers never authorize", read_guidance_contract(paths[-1]))
 
     def test_native_windows_gpu_handoff_is_synchronized(self) -> None:
         handoff = ROOT / "docs/WINDOWS_GPU_PREFLIGHT.md"
@@ -777,39 +761,34 @@ class AgentGuidanceTests(unittest.TestCase):
             with self.subTest(path=path.relative_to(ROOT)):
                 self.assertIn("WINDOWS_GPU_PREFLIGHT.md", path.read_text(encoding="utf-8"))
 
-    def test_persistent_session_contract_is_synchronized(self) -> None:
-        readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        architecture = (
-            ROOT / "docs/ARCHITECTURE.md"
-        ).read_text(encoding="utf-8")
-        delivery = read_guidance_contract(ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md")
-        workspace = (
-            ROOT / ".agents/skills/atrinik-multi-repo-workspace/SKILL.md"
-        ).read_text(encoding="utf-8")
-
-        self.assertIn("Agent-owned persistent sessions", readme)
-        self.assertIn("build/sessions/<delivery-slug>.json", readme)
-        self.assertIn("benchmark_devcontainer_session.py", readme)
-        self.assertIn("persistent coordinator session", workspace)
-        self.assertIn("Reuse one owned delivery session", delivery)
-        self.assertIn("Persistent coordinator session contract", architecture)
-
-        normalized = [
-            " ".join(text.split())
-            for text in (readme, architecture, delivery, workspace)
-        ]
-        for text in normalized:
-            with self.subTest(contract="safe parallelism"):
-                self.assertIn("distinct", text)
-                self.assertIn("credentials", text)
-                self.assertIn("mutable", text)
-        for text in normalized[:3]:
-            with self.subTest(contract="bounded lifecycle"):
-                self.assertIn("30 minutes", text)
-                self.assertIn("12 hours", text)
-            with self.subTest(contract="non-authority"):
-                self.assertIn("corroboration", text)
-                self.assertIn("stale", text)
+    def test_container_launch_recipes_are_build_or_runtime_scoped(self) -> None:
+        paths = [ROOT / "README.md", ROOT / "AGENTS.md", ROOT / "CONTRIBUTING.md"]
+        paths.extend(sorted((ROOT / "docs").glob("*.md")))
+        paths.extend(sorted((ROOT / ".agents/skills").glob("*/SKILL.md")))
+        paths.extend(sorted((ROOT / ".agents/skills").glob("*/references/*.md")))
+        allowed_configs = (
+            ".devcontainer/server-runtime.json",
+            ".devcontainer/windows-cross/devcontainer.json",
+        )
+        for path in paths:
+            # Qualification is immutable historical evidence, not a current recipe.
+            if path.name == "NATIVE_LINUX_QUALIFICATION.md":
+                continue
+            text = path.read_text(encoding="utf-8")
+            blocks = re.findall(r"(?:```|~~~)[^\n]*\n(.*?)(?:```|~~~)", text, re.DOTALL)
+            for block in blocks:
+                commands = block.replace("\\\n", " ")
+                for line in commands.splitlines():
+                    if re.match(r"\s*devcontainer\s+(?:up|exec)\b", line):
+                        with self.subTest(path=path.relative_to(ROOT), command=line):
+                            self.assertTrue(any(config in line for config in allowed_configs))
+                    with self.subTest(path=path.relative_to(ROOT), command=line):
+                        self.assertNotRegex(line, r"^\s*(?:code(?:\.cmd)?\b|vscode://|(?:xdotool|ydotool|osascript|wmctrl)\b)")
+            with self.subTest(path=path.relative_to(ROOT)):
+                self.assertNotIn("Dev Containers: Reopen in Container", text)
+                self.assertNotIn("Dev Containers: Rebuild Container", text)
+        auth = (ROOT / "docs/COORDINATOR_AUTH.md").read_text()
+        self.assertNotRegex(auth, r"gh auth token[^\n]*\|")
 
     def test_native_delivery_is_independent_of_build_worker_lifetime(self) -> None:
         paths = (
@@ -842,8 +821,8 @@ class AgentGuidanceTests(unittest.TestCase):
                           "no dirty-work adoption or ledger rewriting"):
             self.assertIn(invariant, execution)
         # The concrete worker arguments expose neither coordinator credentials
-        # nor a Docker/display/GPU socket. Container development keeps its own
-        # authentication composition and the existing bounded-session assertions.
+        # nor a Docker/display/GPU socket. Historical bound deliveries retain
+        # their separate authentication and compatibility gates.
         arguments = execution.split("BUILD_ARGS=(", 1)[1].split("\n# Create, inspect", 1)[0]
         for forbidden in (".config/gh", ".codex", "docker.sock", "--privileged", "--gpus"):
             self.assertNotIn(forbidden, arguments)
@@ -1720,7 +1699,7 @@ class AgentGuidanceTests(unittest.TestCase):
             "gpgsig",
             "**Verified**",
             "Signed-off-by",
-            "SSH_AUTH_SOCK",
+            "build workers receive no signing agent or credentials",
             "public key",
             "private signing key",
             "verified author email",

@@ -20,11 +20,12 @@ Verify the live parent, repositories, existing children/PRs, dependency graph,
 acceptance and authorized tracking operations before initialization. Reconcile
 native relationships and prose; neither alone proves completeness.
 
-Use a live-proven canonical container or supported native Linux coordinator
-per [the execution contract](../../../docs/LINUX_EXECUTION.md). Supported native Linux
-normally develops locally in owned worktrees and uses pinned CPU containers only
-for application builds/toolchain checks; build-worker lifetime does not own the
-project or leaf delivery. Optional container development remains supported.
+Use a live-proven native Linux coordinator per [the execution
+contract](../../../docs/LINUX_EXECUTION.md). Develop, run Git, review and perform
+lightweight checks in owned local worktrees. Short-lived pinned CPU containers
+with isolated reusable caches run application builds/toolchain checks;
+build-worker lifetime does not own the project or leaf delivery. Already-bound
+historical container deliveries retain their exact compatibility gates.
 Inventory all existing leaf
 ledgers, containers and worktrees before claiming anything. Dirty candidates,
 existing PRs and foreign sessions remain external, not new implementations.

@@ -60,16 +60,17 @@ isolation. The complete support matrix is maintained in
 
 ### Windows host and pinned-container workflow
 
-Use one execution surface for each stage of a Windows review. The ordinary
-pinned Linux devcontainer is the authoritative coordinator, `windows-cross`
-is only the Classic Windows toolchain, and native Windows is the only place
-for final D3D12 execution. Do not mix the replacement/default and Classic
+Use an owned native Linux worktree for development and delivery coordination.
+Short-lived pinned containers supply the build toolchains; `windows-cross`
+is only the Classic Windows toolchain, and native Windows supplies final
+D3D12 execution. Do not mix the replacement/default and Classic
 providers.
 
 | Surface | Shell and working directory | Owns | Proof or handoff |
 | --- | --- | --- | --- |
-| Native Windows host | PowerShell; native checkout for repository-only commands | Bootstrap/attach, native `git` and `gh` authentication, optional SSH signing, commits/pushes, supported repository-management wrapper commands, and final Windows execution | GitHub state and native runtime evidence; never the authoritative delivery ledger |
-| Pinned ordinary Linux devcontainer ([`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json)) | POSIX shell; `/workspaces/atrinik`; `ubuntu` | Coordinator probe, `./atrinik` orchestration, delivery ledger/leases/CAS, dedicated worktrees, source edits, tests, compilation, and package orchestration | `canonical-linux`; authoritative delivery and Linux build evidence |
+| Native Windows host | PowerShell; native checkout for repository-only commands | Native `git` and `gh` authentication, optional SSH signing, commits/pushes, supported repository-management wrapper commands, and final Windows execution | GitHub state and native runtime evidence; never the authoritative delivery ledger |
+| Owned native Linux worktree ([execution contract](docs/LINUX_EXECUTION.md)) | POSIX shell; exact bound local worktree; actual passwd user | Coordinator probe, Git/review, delivery ledger/leases/CAS and source edits | `native-linux` after complete live proof |
+| Short-lived pinned Linux build worker | POSIX shell; same absolute source/worktree paths | Compilation and toolchain tests with isolated reusable caches | Build evidence only; no delivery authority |
 | Pinned `windows-cross` devcontainer ([`.devcontainer/windows-cross/devcontainer.json`](.devcontainer/windows-cross/devcontainer.json)) | POSIX shell; `/workspaces/atrinik`; `vscode` | Classic Windows cross-build and package commands only; no delivery ledger, worktree authority, or GUI | Windows review ZIP plus SHA-256; not runtime proof |
 | Native Windows runtime | PowerShell; a new private extracted bundle directory | Package hash verification, the existing package-smoke script, D3D12 qualification, bounded logs/evidence, and exact-run cleanup | Native Windows package/GPU result; not a Linux-client result |
 
@@ -86,7 +87,7 @@ separate test.
 #### Select and initialize
 
 On a native Windows checkout, use only the supported repository-management
-surface for host inspection or bootstrap:
+surface for host inspection:
 
 ~~~powershell
 Set-Location D:\Dev\atrinik
@@ -96,9 +97,9 @@ python .\atrinik init --with classic
 python .\atrinik status --json
 ~~~
 
-For delivery or Linux-only coordination, enter the pinned ordinary Linux
-devcontainer and continue only when the probe reports
-`canonical-linux` with `authoritative: true`:
+For delivery or Linux-only coordination, use the owned native Linux worktree
+and continue only when the probe reports `native-linux` with
+`authoritative: true`:
 
 ~~~sh
 python3 scripts/atrinik_coordinator_context.py --json
@@ -110,7 +111,9 @@ python3 scripts/atrinik_coordinator_context.py --json
 
 #### Build, test, and capture bounded logs
 
-Run the Classic build and tests in the ordinary pinned Linux devcontainer:
+Run the Classic build and tests in a [short-lived pinned CPU
+worker](docs/LINUX_EXECUTION.md#native-development-with-pinned-cpu-build-workers),
+using the exact planned profile and resource intent:
 
 ~~~sh
 ./atrinik build all --profile classic --test
@@ -211,10 +214,10 @@ if (Test-Path -LiteralPath $ArtifactRoot) {
 | Symptom | Bounded next action |
 | --- | --- |
 | `.\atrinik` is denied or treated as a script | Use `python .\atrinik ...` for the supported native Windows wrapper surface. |
-| CMake/Ninja/MSVC is missing on the host | Return to the ordinary pinned Linux devcontainer; use `windows-cross` for the Classic Windows package. |
-| The coordinator probe reports `native-windows`, `windows-cross`, or `unknown-or-unsafe` | Do not acquire delivery authority there; enter the ordinary pinned Linux devcontainer and rerun the probe. |
+| CMake/Ninja/MSVC is missing on the host | Use the pinned CPU build worker; use `windows-cross` for the Classic Windows package. |
+| The coordinator probe reports `native-windows`, `windows-cross`, or `unknown-or-unsafe` | Do not acquire delivery authority there; use the supported native Linux delivery host and rerun the probe. |
 | Linux SDL/display or graphical launch fails | Record a Linux-only diagnostic and use the Windows ZIP plus the existing native smoke/qualification path; do not relabel it as a Windows runtime failure. |
-| Docker cannot safely mount the source or cache | Bootstrap from the Linux/WSL2 Docker namespace, rerun the canonical probe, and preserve the unsafe path; never substitute an arbitrary primary or stale session path. |
+| Docker cannot safely mount the source or cache | Preserve the unsafe path and diagnose the exact Docker source/cache namespace; never substitute an arbitrary primary or stale session path. |
 | Package hash, manifest, process, or log evidence is missing | Stop, retain the exact private run directory, and repeat the matching-revision preflight with bounded redacted evidence. |
 
 Related coordination: [Docker volume/cache I/O (#538)](https://github.com/atrinik/atrinik/issues/538), [Windows package separation (#535)](https://github.com/atrinik/atrinik/issues/535), [tooling ledger (#536)](https://github.com/atrinik/atrinik/issues/536), and [native Windows GPU preflight (#539)](https://github.com/atrinik/atrinik/issues/539).
@@ -248,60 +251,36 @@ require preservation. New work uses fresh names and a fresh recorded build plan.
 
 ### Issue/PR delivery coordinator
 
-Native Windows is a supported host for editing, native Git and GitHub UI, and
-native D3D12 validation. It is not the authoritative coordinator for the
-issue-delivery ledger because the ledger requires Linux/POSIX locking,
-ordinary locks and durable no-follow filesystem proofs. Use a supported native
-Linux host or the ordinary pinned Linux devcontainer and run this read-only probe before
-initializing or mutating delivery evidence:
+Develop, run Git/GitHub, review and coordinate delivery in an owned native Linux
+worktree under [the execution contract](docs/LINUX_EXECUTION.md). Native Windows
+supports repository commands and D3D12 validation; it has no Linux delivery-ledger
+authority. Before initializing or mutating delivery evidence, run:
 
 ~~~sh
 python3 scripts/atrinik_coordinator_context.py --json
 ~~~
 
-Continue only for `canonical-linux` or `native-linux` with `authoritative: true`.
-The [direct native contract](docs/LINUX_EXECUTION.md) defines the latter. The probe also
-recognizes `native-windows`, `windows-cross`, and `unknown-or-unsafe` with a
-bounded next action. The probe reports an entry mode as a diagnostic, but the
-authoritative result comes only from the complete pinned identity, ownership,
-workspace, ledger, Codex-home, and configured-path contract.
+New native delivery requires `native-linux` with `authoritative: true`, actual
+passwd identity, private Codex state, authenticated ownership and a dedicated
+safe worktree. Keep `HOME` unchanged and authentication selectors unset; use
+`umask 077` for native delivery processes. The probe's `entry_mode` is diagnostic;
+markers never replace filesystem, worktree, ledger/CAS or lease proofs.
+`native-windows`, `windows-cross` and `unknown-or-unsafe` grant no delivery authority.
 
-#### Codex entry modes
+Application builds and toolchain-dependent checks use [short-lived pinned CPU
+workers](docs/LINUX_EXECUTION.md#native-development-with-pinned-cpu-build-workers)
+with isolated reusable caches. Worker exit preserves native delivery ownership.
+Reconnect re-proves context, actor, complete inventory, exact clean worktree,
+ledger/CAS and leases. Parallel deliveries use distinct worktree, cache, port
+and mutable-state coordinates; never adopt foreign or uncertain dirty work.
 
-Delivery supports these proven Codex entry modes:
-
-- **Already inside the canonical VS Code devcontainer:** continue in the
-  current plugin process, workspace, ledger root, worktree, and warm caches.
-  Do not invoke Docker or the Dev Containers CLI merely to create, attach,
-  recreate, remount, or re-enter another container.
-- **Supported native Linux:** use the [direct-host contract](docs/LINUX_EXECUTION.md),
-  actual passwd identity, private Codex home and a dedicated safe worktree.
-  This is the normal supported Linux development path: edit, Git, review and
-  lightweight validation locally; use [pinned CPU build workers](docs/LINUX_EXECUTION.md#native-development-with-pinned-cpu-build-workers)
-  for application builds and toolchain-dependent checks. Existing authentication,
-  filesystem, ledger/CAS and lease gates remain intact.
-- **Windows or unsupported-host bootstrap:** before delivery work, enter or attach to the
-  pinned ordinary Linux devcontainer with Docker or the Dev Containers CLI.
-  The native host may perform only that minimum bootstrap/attach and approved
-  Git/GitHub/commit operations. Wrapper/context, ownership, repository and
-  worktree setup, ledger locks/CAS/leases/recovery, edits, tests, builds,
-  review, and validation all run inside the container.
-
-In every mode, Codex must never launch or control VS Code, invoke `code` or
-`code.cmd`, send a VS Code URI, or use GUI automation. VS Code setup text in
-this README is for a human developer, not an agent handoff. A persistent
-session is reusable only while its owner, host/user, exact worktree and
-delivery-ledger coordinates match. Container sessions additionally retain their
-pinned image, current container and configured mount paths. A secret-free session record may make those facts visible, but it never
-grants authority. Reconnect or crash recovery reruns the probe, exact
-worktree/ledger observation, CAS, and leases before continuing. Bound idle and
-shutdown operations to the owned session, and give parallel sessions distinct
-worktrees, leases, caches, ports, and mutable state. Use native standard host authentication or the container read-only
-host GitHub auth mount as described in
-[coordinator authentication](docs/COORDINATOR_AUTH.md).
-Copied or stale session markers, arbitrary containers, nested coordinators,
-and unsafe bind mounts never grant authority. Keep the `windows-cross` container for
-package/build work and host-bound validation.
+Already-bound historical containers retain only their [existing compatibility
+contract](docs/LINUX_EXECUTION.md#existing-bound-container-compatibility), including
+`canonical-linux` proof and their exact image/mount/worktree/ledger identities.
+Copied or stale session markers are corroboration only. Preserve their resources;
+do not replace, remount or transfer a delivery implicitly. Codex never launches
+or controls VS Code, its executable/URI or GUI automation, and never nests a
+coordinator. A proposed authority change cannot authorize its own delivery.
 
 #### Linux image upgrades
 
@@ -315,126 +294,32 @@ The registry's source/revision labels and build provenance match that producer.
 Independently pinned sound, Classic build, and Windows images retain their
 own release contracts.
 
-An existing container keeps its original image after a source update. From the
-native host, inspect the exact owned container before attaching:
+Each new build worker must use the exact image pin and verified source/cache
+mounts. Historical bound containers retain their original image and recovery
+contract; a tag or previous probe never proves the running image.
 
-~~~sh
-docker inspect "$CONTAINER_ID" --format '{{.Id}} {{.Config.Image}} {{.State.Status}}'
-~~~
-
-Compare that immutable image reference with the checked-out configuration.
-A tag or a previous successful probe does not establish a match. When
-`DEVCONTAINER_IMAGE` is supplied by the terminal launcher, the coordinator
-probe also rejects a stale image and names the required pin; do not change
-that variable to disguise the running image.
-
-Preserve the exact worktree, ledger, mounts, credentials, caches and mutable
-state. Finish active operations before stopping only your owned container.
-For a human editor session, use **Dev Containers: Rebuild Container** for that
-workspace. For terminal bootstrap, pull the exact configuration pin and
-recreate only the stopped owned session using its verified mount and user
-coordinates, then attach as `ubuntu`. Do not replace another worker's
-container, remove volumes, copy a ledger, or recreate managed worktrees.
-Rerun the coordinator probe, worktree inventory and helper ownership/lease
-checks after attaching.
-
-Before initializing LFS-backed repositories in the new terminal or editor
-session, verify the image-provided filters with the fresh user configuration:
+Before initializing LFS-backed sources, verify Git LFS and its required filters
+in the selected source environment:
 
 ~~~sh
 git lfs version
 git config --get filter.lfs.process
 git config --get filter.lfs.required
-./atrinik init
 ~~~
 
-The filter process must be `git-lfs filter-process` and required must be
-`true`; no manual package installation is needed. Check materialized payloads
-after clone, checkout and linked-worktree creation. These source checks do
-not establish runtime export or media hydration, which remains separate.
+The filter process must be `git-lfs filter-process` and required must be `true`.
+Check materialized payloads after clone, checkout and linked-worktree creation.
+These checks do not establish runtime export or media hydration.
 
 #### Shared host GitHub authentication
 
 Native delivery uses the actual passwd user's standard private `~/.config/gh`,
-with authentication selectors unset throughout the delivery. Container delivery
-shares the selected host file-backed GitHub CLI config read-only with trusted coordinators. The ordinary devcontainer mounts
-`$HOME/.config/gh-atrinik` at `/home/ubuntu/.config/gh` and sets `GH_CONFIG_DIR` there.
-Complete the [one-time host setup and capability preflight](docs/COORDINATOR_AUTH.md)
-before bootstrap. Native Docker coordinators use the same mount; workers never
-run login, refresh, logout or account switching against it. Existing coordinators
-keep their current mounts until their owner performs supported recovery.
-
-#### Agent-owned persistent sessions
-
-A native session belongs to one agent and exact host/user, private Codex home,
-worktree, branch and ledger. Its ownership survives a build worker stopping or
-being recreated; fresh context, authentication, clean target/CAS and lease proofs
-remain mandatory on reconnect. Never adopt foreign or uncertain dirty work.
-
-A container development session also retains its exact live container identity.
-A name or copied marker is not a permission token. Keep a small ignored
-record at `build/sessions/<delivery-slug>.json` when a delivery needs
-continuity. The record is corroboration only and must contain no
-credentials, private keys, access tokens, or mutable server data. Record the
-agent identity, delivery scope and ledger, checkout/worktree and branch,
-profile, host/user and live root identities, active services and cleanup owner.
-For container sessions, also record the container name and ID, pinned image
-digest, source mounts, named volumes/targets, start/last-activity times and idle
-deadline. Keep native records independent of build-worker container IDs.
-
-The canonical-container entry mode bootstraps once, then keeps using the
-returned container. Its host runs only bootstrap/attach, exact identity
-inspection, and approved Git/GitHub/commit operations. Direct native Linux
-uses the separate [accepted native authority and execution contract](docs/LINUX_EXECUTION.md);
-a candidate cannot activate that authority for its own delivery. For container
-development, require one exact active container row; ambiguity
-fails closed. After selecting its exact ID, run the coordinator and wrapper
-commands inside that container:
-
-~~~sh
-HOST_REPO="$(pwd)"
-devcontainer up --workspace-folder "$HOST_REPO" --config "$HOST_REPO/.devcontainer/devcontainer.json"
-docker ps --filter "label=devcontainer.local_folder=$HOST_REPO" \
-  --format '{{.ID}}\t{{.Names}}'
-CONTAINER_ID=THE_EXACT_ID_FROM_THE_LIST
-docker exec --workdir /workspaces/atrinik "$CONTAINER_ID" \
-  python3 scripts/atrinik_coordinator_context.py --json
-docker exec --workdir /workspaces/atrinik "$CONTAINER_ID" \
-  ./atrinik worktree list --wrapper-self --json
-~~~
-
-Do not pass a remove-existing option or invoke bootstrap for every command.
-When already inside the canonical container, keep the current process, shell,
-worktree, ledger root, leases, and named build volume; do not start another
-container. On reconnect, inspect the exact ID/name/image/status and rerun the
-coordinator probe, wrapper worktree list, ledger `inventory`, fresh CAS
-proofs, and leases. If the container stopped or disappeared, preserve the
-worktree, report, ledger, and exact volumes; recover once with the pinned
-configuration only after the old container is proven stopped and all
-coordinates are re-proven. Stale metadata never authorizes recovery.
-
-For container development, set an idle deadline of 30 minutes and a maximum
-lifetime of 12 hours by default; record UTC `last_activity_at` and `idle_deadline`. A build
-lease keeps active work from being reclaimed but does not make a session
-immortal. Only the owner may stop an idle session, and an abandoned session
-is retained for fresh liveness and lease checks. Parallel sessions may share
-immutable image layers and read-only inputs, but must use distinct exact
-worktrees, delivery ledgers/coordinates, profiles and build roots, named
-volume namespaces, Codex homes, topology/state names, ports, and mutable caches.
-The host GitHub auth directory is the supported shared read-only exception;
-other mutable credential stores remain private.
-
-For container shutdown, finish or preserve the delivery evidence, then stop only
-the owned exact container:
-
-~~~sh
-docker stop --time 10 "$CONTAINER_ID"
-docker inspect "$CONTAINER_ID" --format '{{.Id}}\t{{.State.Status}}'
-~~~
-
-Leave exact named volumes for an authorized owner to inspect or remove after
-all holders and leases are gone. Never use docker volume prune, broad
-container cleanup, or ./atrinik cleanup --apply during delivery.
+with authentication selectors unset throughout. Complete [host capability
+preflight](docs/COORDINATOR_AUTH.md) before genesis or resume. Build workers
+receive no credentials, Codex state or signing agents. Historical bound
+coordinators retain their exact read-only host-auth bind; workers never log in,
+refresh, log out or switch accounts against it. Authentication grants no
+additional task authority.
 
 ### One-session project delivery
 
@@ -478,94 +363,79 @@ stale, and retry diagnostics. Separate filesystems cannot share that local
 lock and require an explicit coordinator or event handoff. Never copy ledger
 contents into source, CI, release, issue, pull-request, or delivery evidence.
 
-The Atrinik development container supplies the native build dependencies. Run
-all commands below from this repository's root.
+Develop in an owned local worktree and run commands from its repository root.
 
-### Development container
+### Pinned build and runtime containers
 
-The default [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json)
-is display-independent: no graphics device, display socket, audio endpoint,
-WSL path, host networking or nested Docker daemon is required to create it.
-The immutable Linux image currently supplies Ubuntu 26.04 userland. This is
-container toolchain evidence, not native Ubuntu/Debian desktop qualification.
-For developer and delivery application compilation, use this pinned CPU-only
-environment for builds and build tests. The host does not need QEMU or a copy
-of the image's exact compiler and development-library set.
+Use the [short-lived CPU worker composition](docs/LINUX_EXECUTION.md#native-development-with-pinned-cpu-build-workers)
+for application builds and toolchain tests. It preserves exact same-path sources,
+common Git metadata, live operational review directories and resource leases,
+while keeping credentials and Codex state outside the worker. Reuse compatible
+owner-isolated caches across worker exits. The immutable Linux image supplies
+Ubuntu 26.04 userland; this proves its container toolchain, not native desktop
+qualification. No host compiler package lock or QEMU is required.
 
-Select the configuration explicitly from a terminal with the Dev Containers CLI:
-
-~~~sh
-# Linux CPU-only builds, documentation and headless agent work:
-devcontainer up --workspace-folder . --config .devcontainer/devcontainer.json
-devcontainer exec --workspace-folder . --config .devcontainer/devcontainer.json bash
-
-# Windows/WSL2 with WSLg desktop resources:
-devcontainer up --workspace-folder . --config .devcontainer/windows-wslg/devcontainer.json
-devcontainer exec --workspace-folder . --config .devcontainer/windows-wslg/devcontainer.json bash
-~~~
-
-Inside the ordinary pinned Linux container, initialize the selected Classic
-stack and run its integrated build and tests through the wrapper:
+Initialize the selected sources in the native worktree before creating the
+worker; `init` clones only missing repositories and preserves existing checkouts:
 
 ~~~sh
 ./atrinik init --with classic
 ./atrinik profile show classic --json
-./atrinik build all --profile classic --test
 ~~~
 
-Keep the later portable and native stages separate. The ordinary container
-proves its own CPU build environment. The immutable portable producer described
-in [Linux execution](docs/LINUX_EXECUTION.md#portable-client-export) creates the
-movable client; verify that exact exported directory after transfer. The native
-Linux desktop then supplies its own loader, graphics driver, display and audio
-session for gameplay. Running a verified export does not require the host
-compiler package lock or the source-build preflight.
+Inside the exact pinned worker, diagnose the build environment and use the same
+options for plan and execution, recording the returned resource intent first:
 
-The explicit WSLg configuration retains its graphics, audio and Docker feature
-contract; the Windows cross-build role remains separate. Configuration selection
-does not grant delivery authority: rerun the coordinator probe and the exact
-worktree/ledger/lease checks in the selected session. Existing canonical
-sessions continue in place.
+~~~sh
+python3 -m atrinik_workspace.linux_platform
+./atrinik build all --profile classic --test --plan --json
+./atrinik build all --profile classic --test --expected-plan RETURNED_PLAN_SHA256
+~~~
 
-When a selected environment will compile source, run
-`python3 -m atrinik_workspace.linux_platform` there to diagnose its build tools
-and Git LFS filters without consulting display variables. This report does not
-establish delivery authority and is not a prerequisite for running a verified
-portable export. Add `--docker` only for operations that need a Docker daemon.
-A daemon permission failure requires a Docker/user-access fix; adding GPU flags
-or display mounts cannot repair it. The headless default does not grant access
-to the host Docker socket or start a privileged daemon.
+Keep portable export and native gameplay separate. The [immutable portable
+producer](docs/LINUX_EXECUTION.md#portable-client-export) creates the movable
+client. Verify its exact exported directory after transfer; the native desktop
+supplies the loader, driver, display and audio. A verified export requires no
+compiler or source-build preflight.
 
-For a human developer, open this wrapper repository in VS Code and choose
-**Dev Containers: Reopen in Container** to use the pinned Linux build
-environment. Codex does not perform that GUI action or ask another VS Code
-session to reopen the container. On first creation, the container runs
-`./atrinik init`; it clones only missing replacement/default
-repositories and validates existing checkouts without updating or replacing
-them. It never adds classic repositories, the MIT playtester, or the
-MIT-by-default tools repository with its GPL-2.0-or-later `map-checker-qt/`
-exception
-implicitly, and never touches a retained historical `content@1.x` path. The Windows cross-build configuration is available at
-`.devcontainer/windows-cross/devcontainer.json` after the required component
-checkouts have been initialized.
+The retained [Windows/WSL2 WSLg desktop composition](.devcontainer/windows-wslg/devcontainer.json)
+provides `/dev/dxg`, WSL libraries, display/audio endpoints, host networking and
+its Docker feature. It also mounts the pre-existing private
+`$HOME/.config/gh-atrinik` store, `$HOME/.codex-atrinik` and host Git configuration.
+It is a trusted, credential-bearing desktop composition, not the isolated CPU
+worker or a credential-free application runtime.
 
-The wrapper owns these launch configurations because they compose the complete
-development workspace. The standalone `devcontainer` component owns only the
-published Linux and Windows toolchain images they reference.
+An already-provisioned owned WSLg session retains those exact prerequisites,
+image/mounts and [historical compatibility gates](docs/LINUX_EXECUTION.md#existing-bound-container-compatibility).
+Do not expose its credentials to untrusted code or separate runtime services.
+The native standard-store setup does not provision its alternate auth bind;
+this configuration supplies no fresh credential-free WSLg launch recipe. Do not
+copy tokens or recreate a development coordinator to fill that gap. WSLg
+runtime capability and historical canonical-container proof remain distinct
+from direct-native Linux authority; native WSL rejection is unchanged. Native
+Windows package/D3D12 qualification remains a separate supported workflow.
+
+Use the [isolated server runtime](docs/LINUX_EXECUTION.md#independent-headless-server-and-native-client)
+for headless server execution and `.devcontainer/windows-cross/devcontainer.json`
+for the separate Classic Windows toolchain. Runtime/build configuration selection
+grants no delivery authority. Add `--docker` to the build-environment report only
+when an operation needs Docker. A daemon permission failure needs a Docker access
+fix; GPU flags or display mounts cannot repair it.
+
+The wrapper owns the composition files; the standalone `devcontainer` component
+owns the published toolchain images. The historical ordinary composition mounts
+auth/Codex state and is not the credential-free native build-worker recipe.
 
 #### Docker storage topology
 
-The ordinary pinned Linux configuration keeps live source checkouts, registered
-worktrees, `workspace/state`, and the trusted `build/reviews` delivery ledger on
-their Linux-native bind mounts. It mounts `workspace/build` as the named volume
-`atrinik-${devcontainerId}-build-cache` with `volume-nocopy`. The host-side
-`workspace/build` parent is created before the nested mount, and the one-time
-`onCreateCommand` repairs the fresh volume root to the remote user's ownership.
-The wrapper still discovers `workspace/build` through `Paths`, records its normal
-markers and leases there, and applies preview-first cleanup to marker-owned
-contents; the volume itself is never guessed or removed by a broad cleanup.
+Native CPU workers reuse the bound worktree's `workspace/build` and compatible
+compiler/dependency caches. Keep source/common-Git and lease coordinates stable,
+and bind each real operational `build/reviews` directory read-only at its unchanged
+path. Follow the execution contract's exact image, mount, inventory and shared-lock
+proofs before starting. A separately owned volume may back the exact recorded build
+path; never overlay occupied state or copy a source, ledger or credentials into it.
 
-The Windows cross-build configuration uses the same per-container workspace
+The Windows cross-build configuration uses its per-container workspace
 volume. Its Docker package fallback deliberately keeps the private immutable
 source staging root and final package output on bind mounts. It attaches separate
 namespaced named volumes for client/server CMake trees, ccache, and dependency
@@ -593,27 +463,9 @@ python3 scripts/benchmark_devcontainer_storage.py \
 
 The helper uses bounded deterministic input and refuses pre-existing benchmark
 volumes. Use `--keep-volumes` only when the exact reported volume is needed for
-manual inspection. The companion session benchmark measures repeated cold
-starts, warm `docker exec` reuse, forced-stop recovery, and independent
-parallel sessions while recording Docker Desktop/client/server environment
-facts:
-
-~~~sh
-python3 scripts/benchmark_devcontainer_session.py \
-  --output build/storage/devcontainer-session-benchmark.json
-~~~
-
-It creates only exact run-id-scoped benchmark containers and named volumes,
-does not mount source, credentials, or server state, and removes its exact
-temporary volumes unless `--keep-volumes` is requested.
-
-For delivery work on a Windows host, the ordinary configuration is the
-coordinator. Its source/worktree mount, `build/reviews` ledger root, wrapper
-workspace, and `/home/ubuntu/.codex` mount must remain Linux-native or backed
-by a trusted Docker volume with safe ownership, modes, and configured canonical mount path.
-The wrapper probe checks those facts without creating or repairing them; the
-persistent-session and high-I/O volume topology described by #538/#543 must
-preserve the same ledger and cache boundaries.
+manual inspection. These synthetic storage results do not establish delivery
+ownership, build acceptance or runtime behavior. Historical ordinary-container
+cache mounts remain preserved under their existing compatibility contract.
 
 The workspace and container VS Code settings exclude the wrapper-owned
 `workspace/` and top-level `build/` trees from recursive file watching, and the
@@ -1825,7 +1677,7 @@ SPDX reports for that profile also carry the complete immutable coordinate set.
 ## Portable Linux client
 
 [Linux execution and export](docs/LINUX_EXECUTION.md) documents native dependency
-preflight, terminal bootstrap/reconnect, explicit X11/XWayland and GPU/audio
+preflight, native delivery and pinned workers, explicit X11/XWayland and GPU/audio
 selection, the movable Classic client, and a separate persistent headless server.
 The public commands are `./atrinik linux export --profile NAME --output DIRECTORY`
 and `./atrinik linux verify DIRECTORY`. Export requires the pinned portable
@@ -1991,7 +1843,7 @@ refuses a live or otherwise busy state, an incompatible profile/state pairing,
 an existing output file, or a non-Classic profile.
 
 Run the command inside the `windows-cross` devcontainer to use its installed
-toolchain directly. From the ordinary devcontainer or WSL2, the wrapper uses
+toolchain directly. From the native Linux worktree or WSL2, the wrapper uses
 Docker and the digest-pinned image in
 `.devcontainer/windows-cross/devcontainer.json`. After the command succeeds,
 copy the ZIP to Windows, extract it, and double-click `run.bat`. The launcher

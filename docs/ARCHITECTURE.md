@@ -85,7 +85,7 @@ or status operation cannot silently escape its wrapper lease.
 | Initialize/synchronize checkouts, status, profile inspection/publication, path resolution, and worktree inventory | supported | supported with `LockFileEx` and native paths |
 | Build publication, cleanup, repository/content migration, scope/state/scenario mutation | supported | deliberate capability result; requires descriptor-relative filesystem proof |
 | Supervised topology build/start/status/log/stop and direct client/server run | supported when host capabilities pass | deliberate capability result; requires Linux process identity, pidfd, signals, or `/proc` |
-| Issue/PR delivery ledger coordination, locking, CAS, and recovery | supported from a live-proven canonical container or accepted native Linux context under [the execution contract](LINUX_EXECUTION.md) | host editing, native Git/GitHub UI, and D3D12 validation only; not an authoritative ledger coordinator |
+| Issue/PR delivery ledger coordination, locking, CAS, and recovery | supported from a live-proven native Linux context; existing historical bound canonical containers retain [compatibility gates](LINUX_EXECUTION.md#existing-bound-container-compatibility) | host editing, native Git/GitHub UI, and D3D12 validation only; not an authoritative ledger coordinator |
 | Windows review ZIP | supported through the pinned Windows cross-build workflow | use the package workflow from Linux, WSL2, or the `windows-cross` devcontainer |
 | Native Windows Classic GPU preflight | package and test-build handoff only; do not run the graphical client in Linux | native Windows package smoke and existing D3D12 qualification; see [`docs/WINDOWS_GPU_PREFLIGHT.md`](WINDOWS_GPU_PREFLIGHT.md) |
 
@@ -93,9 +93,9 @@ For the end-to-end, copy-pasteable Windows workflow, see
 [`README.md`](../README.md#windows-host-and-pinned-container-workflow).
 Keep that workflow synchronized with this matrix: the native Windows host owns
 Git/GitHub authentication, optional SSH signing, commits, pushes, and final
-native execution; the pinned ordinary Linux devcontainer owns coordinator
-probe, delivery ledger, worktree/CAS, source edits, tests, compilation, and
-package orchestration; and `windows-cross` owns only the Classic Windows
+native execution; the owned native Linux worktree owns coordinator probe,
+delivery ledger, worktree/CAS, source edits and review; short-lived pinned CPU
+workers own compilation/toolchain tests; and `windows-cross` owns only the Classic Windows
 cross-build/package toolchain. A Windows-only package does not configure a
 Linux client unless that client is explicitly selected for a separate test,
 and a Linux graphical run never substitutes for native Windows evidence.
@@ -131,50 +131,33 @@ the kernel and executing user/code are trusted; this is not PID1 executable
 attestation or guaranteed exclusion of administrator-created containers/chroots.
 An ordinary virtual machine can qualify.
 
-Supported native Linux normally keeps editing, Git, review and lightweight
-validation in an owned local worktree, with pinned CPU build workers for
-application builds and toolchain-dependent checks. Codex may also remain inside
-a canonical container or bootstrap/attach its pinned container from a native host. These entry modes preserve the canonical VS Code devcontainer option; container work stays inside it. Schema-2 `entry_mode` remains
-diagnostic only. Windows host work is limited to bootstrap/attach and approved
-Git/GitHub/commit operations. Existing native/container sessions reprove exact
-worktree, ledger/CAS and leases before recovery. Accepting a platform does not
-relax any delivery ownership, authentication or filesystem gate.
+Supported native Linux keeps editing, Git/GitHub, review, coordination and
+lightweight validation in an owned local worktree. Short-lived pinned CPU workers
+run application builds and toolchain-dependent checks with isolated reusable
+caches. Schema-2 `entry_mode` remains diagnostic only. Native Windows retains
+repository commands and runtime qualification, with no Linux ledger authority.
 An unaccepted authority change never authorizes its own implementation.
 
-### Persistent coordinator session contract
+### Owned-worktree continuity
 
-Session continuity is an ownership and identity boundary, not a trust token.
-A secret-free session record may describe the agent identity, delivery scope and
-ledger, host/user, checkout/worktree and profile, live root identities, active
-services and cleanup owner. Container sessions also retain container name/ID,
-pinned image, source mounts, named volumes/targets, timestamps and idle deadline. It is corroboration only:
-the coordinator probe, delivery ledger, worktree, CAS, and leases remain the
-authority. Never store credentials, private keys, access tokens, or mutable
-server data in the record.
+Native delivery ownership survives build-worker exit. Reconnect and crash
+recovery re-prove live context, authenticated actor, complete inventory, exact
+clean worktree, ledger CAS and leases. A saved record is corroboration only;
+stale metadata grants no reuse. Keep credentials, private keys and mutable server
+data outside reports and build inputs.
 
-Reconnect and crash recovery must re-prove live context, authenticated actor,
-workspace, exact clean worktree, complete inventory, ledger CAS and leases.
-Native delivery ownership is independent of build-container lifetime; restarting
-a worker neither invalidates that ownership nor proves reuse. Container
-development additionally re-proves the exact container and mounts. A stopped
-or abandoned session preserves its worktree, ledger, report and exact caches
-until fresh liveness and ownership checks authorize recovery. Container session
-policy bounds idle time to 30 minutes and total lifetime to 12 hours; an
-active build lease prevents reclamation during work but does not make a
-session immortal. Parallel sessions may share immutable image layers and
-read-only inputs, but require distinct exact worktrees, delivery coordinates,
-profiles/build roots, named volume namespaces, ports, topology
-and state names, and mutable caches. Trusted sessions may share the host-owned
-GitHub CLI credential directory through the mode-specific native standard-store
-or container read-only bind contract in [coordinator authentication](COORDINATOR_AUTH.md). The host alone
-changes its login, scopes and active account. Worker-private credential stores
-remain separate. Mount access does not change actor/ledger verification, grant
-issue/Project/release authority, or permit credentials in build inputs or images.
-A read-only bind prevents file changes, not use of the credential for API writes.
-Refresh/rotation requires a fresh actor and capability check before more work.
-Codex never launches or controls VS Code,
-uses its executable or URI, or uses GUI automation; launch-configuration
-instructions are for human operators.
+Parallel deliveries require distinct worktrees, delivery coordinates,
+profiles/build roots, caches, ports and topology/state. Host authentication uses
+[the private standard store](COORDINATOR_AUTH.md); only the host owner changes
+login/scopes/accounts. Build workers receive no credentials or signing agents.
+
+Already-bound historical containers retain exact owner/image/mount/worktree/ledger
+identities and the [existing compatibility contract](LINUX_EXECUTION.md#existing-bound-container-compatibility).
+Preserve their resources; no replacement, remount or implicit native transfer.
+An authentication mount grants no issue/Project/release authority. Read-only
+prevents file changes, not API writes; refresh requires fresh actor/capability
+proof. Codex never launches or controls VS Code, its executable/URI or GUI
+automation, and never nests a coordinator.
 
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,
@@ -331,18 +314,18 @@ workspace/
 
 ## Container storage topology
 
-The pinned ordinary Linux devcontainer mounts only `workspace/build` as the
-per-container named volume
-`atrinik-${devcontainerId}-build-cache`. Source checkouts, managed worktrees,
-`workspace/state`, and the top-level `build/reviews` delivery-ledger root stay
-on the trusted Linux-native source bind. This preserves live editing and
-ledger/worktree identity while moving CMake/Ninja trees, compiler caches, npm
-downloads, and other high-churn generated data away from the slow host bind.
-`volume-nocopy` prevents an accidental image-to-volume copy, and the host
-configuration creates the writable nested parent before Docker attaches the
-volume. The lifecycle ownership hook repairs only a fresh volume root; normal
-wrapper markers, ordered build locks, leases, and preview-first cleanup remain
-the authority for the mounted path.
+Short-lived native build workers retain source, common-Git and lease paths at
+their unchanged absolute coordinates. Operational `build/reviews` directories
+remain visible read-only at their actual path and inode, including reservations
+and directory locks; they are never copied or hidden. Compatible isolated caches
+persist in the bound worktree's `workspace/build`, independently of worker life.
+The [CPU worker composition](LINUX_EXECUTION.md#native-development-with-pinned-cpu-build-workers)
+requires fresh image/mount/inventory and shared-lock proof at execution.
+
+For existing historical ordinary containers, the configured per-container
+`atrinik-${devcontainerId}-build-cache` volume remains at `workspace/build`;
+source/worktrees/state/reviews remain on the original trusted bind. Preserve
+those exact mounts and their existing ownership/lease/cleanup contract.
 
 The Windows Docker package fallback has a separate boundary. Its private
 immutable staging tree is a source bind, and its `packages` result is a host
@@ -360,13 +343,8 @@ does not scan or delete arbitrary Docker volumes. Operators remove an exact
 named volume only after all containers using it are stopped. The bounded
 `scripts/benchmark_devcontainer_storage.py` helper measures bind versus
 volume cold/warm I/O and records interruption, cache reuse, volume removal, and host
-export evidence without mutating source or server state. The companion
-`scripts/benchmark_devcontainer_session.py` helper measures repeated cold
-container starts against warm `docker exec` work, forced-stop recovery on a
-preserved named volume, and independent parallel sessions. Its report records
-pinned image, Docker client/server/driver and Docker Desktop indicators,
-run-scoped resource names, timing comparisons, recovery evidence, and exact
-cleanup outcomes without mounting source, credentials, or server state.
+export evidence without mutating source or server state. Synthetic storage
+benchmarks do not prove delivery authority or runtime acceptance.
 
 ## Path-based filesystem coordinates
 

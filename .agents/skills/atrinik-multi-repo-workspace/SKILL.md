@@ -101,15 +101,16 @@ Gate matching coordinates; multi-source writers retry all-or-none; fail closed o
 state. Migration alone takes the barrier. Published runtimes retain generation/process-tree/state/
 port leases. Completion is bounded/read-only, secret-free, parser-driven before `Workspace`.
 
-A persistent coordinator session owns exact host/user/worktree/profile/build/ledger
-coordinates; container development also retains pinned image/mounts. Native Linux
-normally develops locally with [pinned CPU build workers](../../../docs/LINUX_EXECUTION.md).
-Worker exit preserves native ownership and compatible owned caches. Recovery reruns
-probe, actor, clean worktree, inventory/CAS and leases. Bound container lifetime;
-preserve evidence and stop only owned resources. Independent sessions need distinct
-worktrees/coordinates, caches, ports, topology/state names, and mutable state.
-Use [mode-specific host GitHub auth](../../../docs/COORDINATOR_AUTH.md);
-verify actor/capabilities and keep other credential stores private.
+Use an owned native Linux worktree with exact host/user/profile/build/ledger
+coordinates. Use [short-lived pinned CPU build
+workers](../../../docs/LINUX_EXECUTION.md) and isolated reusable caches for builds
+and toolchain checks. Worker exit preserves native ownership. Recovery reruns
+probe, actor, clean worktree, inventory/CAS and leases. Historical bound containers retain exact image/mounts and compatibility proof;
+never adopt or replace them implicitly. Preserve evidence; stop only owned resources.
+Deliveries need distinct worktrees/coordinates, caches, ports,
+topology/state names and mutable state. Use [host GitHub
+auth](../../../docs/COORDINATOR_AUTH.md); verify actor/capabilities and keep
+credentials outside build workers.
 
 Verify concurrency with distinct worktrees and readiness rendezvous; keep A live through B
 release; count transitions/conflicts; timeouts bound failure, not compiler speed.
