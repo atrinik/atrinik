@@ -61,17 +61,29 @@ CAS, ordered leases, collision checks and recovery rules all still apply.
 Parallel sessions isolate Codex/cache/worktree/state coordinates. Existing
 canonical containers continue without replacement or remount.
 
-Before repository work, run `python3 -m atrinik_workspace.linux_platform` for
-tools and Git LFS filters. Add `--docker` only for Docker operations. Missing
-Docker permission is independent of graphics availability. Tool presence is not
-a proof of complete native build compatibility; run the owner-required build and
-test checks on the selected distribution.
+Before building source in a selected environment, run
+`python3 -m atrinik_workspace.linux_platform` there for a bounded report of
+build tools and Git LFS filters. Add `--docker` only when that build or runtime
+operation needs Docker. The report diagnoses the selected build environment; it
+does not grant `native-linux` or `canonical-linux` authority and is not required
+to verify or run an exported client. Missing Docker permission is independent of
+graphics availability. Tool presence is not proof of complete build
+compatibility; run the owner-required build and test checks in that environment.
 
 
-## Native prerequisites and terminal selection
+## Optional direct-host source builds and native terminal selection
 
-On the supported Debian/Ubuntu systemd distributions, install the native wrapper
-and source-build front-end dependencies through the distribution package manager:
+Native authority eligibility on the supported Debian/Ubuntu systemd
+distributions does not require a compiler, development headers, the exact Ubuntu
+package lock or a successful build preflight. Authority comes from the separate
+live host/context, authenticated ownership, worktree, ledger and lease proofs
+above. A verified exported client likewise needs runtime loader, display,
+graphics and audio capabilities rather than a source toolchain.
+
+The default application build and build-test path is the pinned CPU-only
+devcontainer in the README. If a developer deliberately chooses a direct-host
+source build, install the wrapper and source-build front-end dependencies through
+the distribution package manager:
 
 ```sh
 sudo apt-get update
@@ -81,17 +93,18 @@ python3 -m atrinik_workspace.linux_platform
 ```
 
 For complete Classic client/server/test prerequisites, follow the
-[Ubuntu 26.04 native toolchain recipe](NATIVE_LINUX_TOOLCHAIN.md): exact owner
-package snapshot, user-local pinned audio libraries, wrapper-managed shader
-tools, integrated tests and headless runtime commands. Its source contract is
-container-tested; direct-host qualification is separately recorded after merge.
-The authority distribution list alone does not establish build qualification.
-An exported client needs no compiler or development headers. Mesa hosts need the
-distribution's `mesa-vulkan-drivers`; NVIDIA hosts need the installed proprietary
-driver's matching Vulkan ICD. Preserve a working host driver. The portable image
-contains the Vulkan loader, not graphics drivers. Native client execution does
-not require Docker; a client container additionally requires a working daemon
-and, for NVIDIA, the NVIDIA Container Toolkit.
+[optional Ubuntu 26.04 native toolchain recipe](NATIVE_LINUX_TOOLCHAIN.md): exact
+owner package snapshot, user-local pinned audio libraries, wrapper-managed
+shader tools, integrated tests and headless runtime commands. Its source
+contract is container-tested; direct-host qualification is separately recorded
+under #593. The authority distribution list alone does not establish build
+qualification. This optional recipe is not needed merely to establish native
+authority or run an exported client. Mesa hosts need the distribution's
+`mesa-vulkan-drivers`; NVIDIA hosts need the installed proprietary driver's
+matching Vulkan ICD. Preserve a working host driver. The portable image contains
+the Vulkan loader, not graphics drivers. Native client execution does not require
+Docker; a client container additionally requires a working daemon and, for
+NVIDIA, the NVIDIA Container Toolkit.
 
 After the native authority contract is merged and accepted, use the actual
 passwd user's private home/Codex directory and the standard GitHub credential
@@ -312,7 +325,9 @@ mode, host credentials or a Docker socket to the client.
 
 The public exporter runs in the exact published portable build environment,
 `ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1`.
-It is a build input, not a delivery coordinator. Before merge, the automatic
+This is a separate immutable producer after the ordinary pinned devcontainer
+build/test stage; it is not a substitute coordinator, native authority probe or
+host runtime. Before merge, the automatic
 `Linux portable acceptance` pull-request workflow is the supported actual
 producer route; the retained canonical container has no Docker bridge. Its
 `Portable client build and relocation` job is nonpublishing, limits the producer
@@ -386,6 +401,10 @@ the output. Choose `ATRINIK_CONFIG_DIR` explicitly for isolated clients.
 `linux verify` checks exact bytes, modes and inventory after relocation; actual
 loader, media-decoding, connectivity and per-host qualification remain separate
 acceptance results. Hardware gameplay and audible playback need their own proof.
+Neither `linux verify` nor launcher execution requires the host source-build
+package lock, compiler or `linux_platform` build-tool report. They do require
+the verified complete payload and the native runtime capabilities used by the
+selected test.
 
 ## Independent headless server and native client
 
