@@ -5,7 +5,13 @@
 The coordinator owns scheduling and authorized project tracking, not leaf
 worktrees. Read the existing leaf ledger requirements before delegation. Every
 writing worker remains a complete type-explicit issue/PR delivery, with its own
-safe worktree, ledger and supported environment. The parent session supplies
+safe worktree, ledger and supported environment. Supported native Linux normally
+keeps development/Git/review/lightweight checks local and uses the execution
+contract's pinned CPU workers with owner-isolated persistent caches for builds
+and toolchain checks. Build-worker exit does not transfer or invalidate native
+project/leaf ownership; reconnect still re-proves context, actor, clean worktree,
+ledger/CAS and leases. Optional container development retains its exact image
+and mounts. The parent session supplies
 the user's scoped invocation; this is not a legacy program delegation and
 does not mutate leaf `program` fields. Leaf issue-mutation restrictions stay
 intact: send tracking requests to the coordinator.

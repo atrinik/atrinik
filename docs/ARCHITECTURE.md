@@ -131,8 +131,10 @@ the kernel and executing user/code are trusted; this is not PID1 executable
 attestation or guaranteed exclusion of administrator-created containers/chroots.
 An ordinary virtual machine can qualify.
 
-Codex may remain inside a canonical container, bootstrap/attach its pinned
-container from a native host, or use a proven native Linux host. These entry modes preserve the canonical VS Code devcontainer option; container work stays inside it. Schema-2 `entry_mode` remains
+Supported native Linux normally keeps editing, Git, review and lightweight
+validation in an owned local worktree, with pinned CPU build workers for
+application builds and toolchain-dependent checks. Codex may also remain inside
+a canonical container or bootstrap/attach its pinned container from a native host. These entry modes preserve the canonical VS Code devcontainer option; container work stays inside it. Schema-2 `entry_mode` remains
 diagnostic only. Windows host work is limited to bootstrap/attach and approved
 Git/GitHub/commit operations. Existing native/container sessions reprove exact
 worktree, ledger/CAS and leases before recovery. Accepting a platform does not
@@ -143,25 +145,28 @@ An unaccepted authority change never authorizes its own implementation.
 
 Session continuity is an ownership and identity boundary, not a trust token.
 A secret-free session record may describe the agent identity, delivery scope and
-ledger, checkout/worktree and profile, container name and ID, pinned image,
-source mounts and live identities, named volumes and targets, timestamps,
-idle deadline, active services, and cleanup owner. It is corroboration only:
+ledger, host/user, checkout/worktree and profile, live root identities, active
+services and cleanup owner. Container sessions also retain container name/ID,
+pinned image, source mounts, named volumes/targets, timestamps and idle deadline. It is corroboration only:
 the coordinator probe, delivery ledger, worktree, CAS, and leases remain the
 authority. Never store credentials, private keys, access tokens, or mutable
 server data in the record.
 
-Reconnect and crash recovery must re-prove the current container, mount,
-workspace, exact worktree, ledger CAS, and leases before resuming. A stopped or
-abandoned session preserves its worktree, ledger, report, and exact volumes
-until fresh liveness and ownership checks authorize recovery. Default session
+Reconnect and crash recovery must re-prove live context, authenticated actor,
+workspace, exact clean worktree, complete inventory, ledger CAS and leases.
+Native delivery ownership is independent of build-container lifetime; restarting
+a worker neither invalidates that ownership nor proves reuse. Container
+development additionally re-proves the exact container and mounts. A stopped
+or abandoned session preserves its worktree, ledger, report and exact caches
+until fresh liveness and ownership checks authorize recovery. Container session
 policy bounds idle time to 30 minutes and total lifetime to 12 hours; an
 active build lease prevents reclamation during work but does not make a
 session immortal. Parallel sessions may share immutable image layers and
 read-only inputs, but require distinct exact worktrees, delivery coordinates,
 profiles/build roots, named volume namespaces, ports, topology
 and state names, and mutable caches. Trusted sessions may share the host-owned
-GitHub CLI credential directory through the read-only bind and `GH_CONFIG_DIR`
-contract in [coordinator authentication](COORDINATOR_AUTH.md). The host alone
+GitHub CLI credential directory through the mode-specific native standard-store
+or container read-only bind contract in [coordinator authentication](COORDINATOR_AUTH.md). The host alone
 changes its login, scopes and active account. Worker-private credential stores
 remain separate. Mount access does not change actor/ledger verification, grant
 issue/Project/release authority, or permit credentials in build inputs or images.

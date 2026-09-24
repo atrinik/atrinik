@@ -251,8 +251,8 @@ require preservation. New work uses fresh names and a fresh recorded build plan.
 Native Windows is a supported host for editing, native Git and GitHub UI, and
 native D3D12 validation. It is not the authoritative coordinator for the
 issue-delivery ledger because the ledger requires Linux/POSIX locking,
-ordinary locks, configured mount paths, and durable no-follow filesystem proofs. Open
-the ordinary pinned Linux devcontainer and run this read-only probe before
+ordinary locks and durable no-follow filesystem proofs. Use a supported native
+Linux host or the ordinary pinned Linux devcontainer and run this read-only probe before
 initializing or mutating delivery evidence:
 
 ~~~sh
@@ -276,7 +276,10 @@ Delivery supports these proven Codex entry modes:
   recreate, remount, or re-enter another container.
 - **Supported native Linux:** use the [direct-host contract](docs/LINUX_EXECUTION.md),
   actual passwd identity, private Codex home and a dedicated safe worktree.
-  Existing authentication, filesystem, ledger/CAS and lease gates remain intact.
+  This is the normal supported Linux development path: edit, Git, review and
+  lightweight validation locally; use [pinned CPU build workers](docs/LINUX_EXECUTION.md#native-development-with-pinned-cpu-build-workers)
+  for application builds and toolchain-dependent checks. Existing authentication,
+  filesystem, ledger/CAS and lease gates remain intact.
 - **Windows or unsupported-host bootstrap:** before delivery work, enter or attach to the
   pinned ordinary Linux devcontainer with Docker or the Dev Containers CLI.
   The native host may perform only that minimum bootstrap/attach and approved
@@ -287,14 +290,14 @@ Delivery supports these proven Codex entry modes:
 In every mode, Codex must never launch or control VS Code, invoke `code` or
 `code.cmd`, send a VS Code URI, or use GUI automation. VS Code setup text in
 this README is for a human developer, not an agent handoff. A persistent
-session is reusable only while its owner, pinned image, current
-container/configured mount path, exact worktree, and delivery-ledger coordinates
-match. A secret-free session record may make those facts visible, but it never
+session is reusable only while its owner, host/user, exact worktree and
+delivery-ledger coordinates match. Container sessions additionally retain their
+pinned image, current container and configured mount paths. A secret-free session record may make those facts visible, but it never
 grants authority. Reconnect or crash recovery reruns the probe, exact
 worktree/ledger observation, CAS, and leases before continuing. Bound idle and
 shutdown operations to the owned session, and give parallel sessions distinct
-worktrees, leases, caches, ports, and mutable state. The supported read-only
-host GitHub auth mount is shared as described in
+worktrees, leases, caches, ports, and mutable state. Use native standard host authentication or the container read-only
+host GitHub auth mount as described in
 [coordinator authentication](docs/COORDINATOR_AUTH.md).
 Copied or stale session markers, arbitrary containers, nested coordinators,
 and unsafe bind mounts never grant authority. Keep the `windows-cross` container for
@@ -352,8 +355,9 @@ not establish runtime export or media hydration, which remains separate.
 
 #### Shared host GitHub authentication
 
-Authenticate once on the host, then share its file-backed GitHub CLI config
-read-only with trusted coordinators. The ordinary devcontainer mounts
+Native delivery uses the actual passwd user's standard private `~/.config/gh`,
+with authentication selectors unset throughout the delivery. Container delivery
+shares the selected host file-backed GitHub CLI config read-only with trusted coordinators. The ordinary devcontainer mounts
 `$HOME/.config/gh-atrinik` at `/home/ubuntu/.config/gh` and sets `GH_CONFIG_DIR` there.
 Complete the [one-time host setup and capability preflight](docs/COORDINATOR_AUTH.md)
 before bootstrap. Native Docker coordinators use the same mount; workers never
@@ -362,21 +366,28 @@ keep their current mounts until their owner performs supported recovery.
 
 #### Agent-owned persistent sessions
 
-A session is one agent-owned container plus its exact, live identity; it is
-not a name, a copied marker, or a permission token. Keep a small ignored
+A native session belongs to one agent and exact host/user, private Codex home,
+worktree, branch and ledger. Its ownership survives a build worker stopping or
+being recreated; fresh context, authentication, clean target/CAS and lease proofs
+remain mandatory on reconnect. Never adopt foreign or uncertain dirty work.
+
+A container development session also retains its exact live container identity.
+A name or copied marker is not a permission token. Keep a small ignored
 record at `build/sessions/<delivery-slug>.json` when a delivery needs
 continuity. The record is corroboration only and must contain no
 credentials, private keys, access tokens, or mutable server data. Record the
 agent identity, delivery scope and ledger, checkout/worktree and branch,
-profile, container name and ID, pinned image digest, source mounts and live
-identities, named volumes and targets, start/last-activity times, idle
-deadline, active services, and cleanup owner.
+profile, host/user and live root identities, active services and cleanup owner.
+For container sessions, also record the container name and ID, pinned image
+digest, source mounts, named volumes/targets, start/last-activity times and idle
+deadline. Keep native records independent of build-worker container IDs.
 
 The canonical-container entry mode bootstraps once, then keeps using the
 returned container. Its host runs only bootstrap/attach, exact identity
 inspection, and approved Git/GitHub/commit operations. Direct native Linux
 uses the separate [accepted native authority and execution contract](docs/LINUX_EXECUTION.md);
-a candidate cannot activate that authority for its own delivery. Require one exact active container row; ambiguity
+a candidate cannot activate that authority for its own delivery. For container
+development, require one exact active container row; ambiguity
 fails closed. After selecting its exact ID, run the coordinator and wrapper
 commands inside that container:
 
@@ -402,8 +413,8 @@ worktree, report, ledger, and exact volumes; recover once with the pinned
 configuration only after the old container is proven stopped and all
 coordinates are re-proven. Stale metadata never authorizes recovery.
 
-Set an idle deadline of 30 minutes and a maximum lifetime of 12 hours by
-default; record UTC `last_activity_at` and `idle_deadline`. A build
+For container development, set an idle deadline of 30 minutes and a maximum
+lifetime of 12 hours by default; record UTC `last_activity_at` and `idle_deadline`. A build
 lease keeps active work from being reclaimed but does not make a session
 immortal. Only the owner may stop an idle session, and an abandoned session
 is retained for fresh liveness and lease checks. Parallel sessions may share
@@ -413,8 +424,8 @@ volume namespaces, Codex homes, topology/state names, ports, and mutable caches.
 The host GitHub auth directory is the supported shared read-only exception;
 other mutable credential stores remain private.
 
-For shutdown, finish or preserve the delivery evidence, then stop only the
-owned exact container:
+For container shutdown, finish or preserve the delivery evidence, then stop only
+the owned exact container:
 
 ~~~sh
 docker stop --time 10 "$CONTAINER_ID"
