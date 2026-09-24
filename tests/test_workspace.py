@@ -21901,6 +21901,35 @@ class WorkspaceTests(unittest.TestCase):
                     self.workspace.topology_down(name, timeout=5)
                 original_spec = (root / "spec.json").read_bytes()
                 original_status = (root / "status.json").read_bytes()
+                from atrinik_workspace import cli
+                target = root / "spec.json"
+                opened = workspace_module.open_regular_file
+                def require_nonblocking(path, flags, description, mode=0o600):
+                    if path == target:
+                        self.assertTrue(flags & os.O_NONBLOCK)
+                    return opened(path, flags, description, mode)
+                for malformed in ("fifo", "symlink", "duplicate", "oversized"):
+                    with self.subTest(listener=listener, malformed=malformed):
+                        target.unlink()
+                        if malformed == "fifo":
+                            os.mkfifo(target, 0o600)
+                        elif malformed == "symlink":
+                            target.symlink_to(root / "status.json")
+                        elif malformed == "duplicate":
+                            target.write_text('{"name":"foreign",' + original_spec.decode()[1:])
+                        else:
+                            target.write_bytes(b" " * (4 * 1024 * 1024 + 1))
+                        try:
+                            with mock.patch.object(workspace_module, "open_regular_file", side_effect=require_nonblocking), mock.patch.object(
+                                    cli, "Workspace", return_value=self.workspace), mock.patch.object(self.workspace, "close"):
+                                for arguments in (["ps", name, "--json"], ["dev", "restart", name, "--service", "server"]):
+                                    with redirect_stderr(io.StringIO()) as error:
+                                        self.assertEqual(cli.main(arguments), 1)
+                                    self.assertTrue(error.getvalue().startswith("error:"))
+                            self.assertEqual((root / "status.json").read_bytes(), original_status)
+                        finally:
+                            target.unlink()
+                            target.write_bytes(original_spec)
                 for mutation in ("spec", "status", "both", "argv", "extra-argv"):
                     bad_spec, bad_status = json.loads(original_spec), json.loads(original_status)
                     if mutation in {"spec", "both"}: bad_spec.pop("server_listener")
@@ -22018,10 +22047,17 @@ class WorkspaceTests(unittest.TestCase):
                         root = self.workspace.paths.topologies / name
                         target = root / filename
                         saved = None
+                        snapshot_ready = False
+                        original_status = self.workspace.topology_status
+                        def status_before_snapshot(*args, **kwargs):
+                            nonlocal snapshot_ready
+                            result = original_status(*args, **kwargs)
+                            snapshot_ready = not result["ready"]
+                            return result
                         opened = workspace_module.open_regular_file
                         def replace_snapshot(path, flags, description, mode=0o600):
                             nonlocal saved
-                            if path == target and description == "restart record" and saved is None:
+                            if path == target and description == "topology record" and saved is None and snapshot_ready:
                                 saved = path.read_bytes()
                                 self.assertTrue(flags & os.O_NONBLOCK)
                                 if kind == "fifo":
@@ -22031,7 +22067,8 @@ class WorkspaceTests(unittest.TestCase):
                                     path.write_text('{"duplicate": 1, "duplicate": 2}')
                             return opened(path, flags, description, mode)
                         try:
-                            with mock.patch.object(workspace_module, "open_regular_file", side_effect=replace_snapshot):
+                            with mock.patch.object(workspace_module, "open_regular_file", side_effect=replace_snapshot), mock.patch.object(
+                                    self.workspace, "topology_status", side_effect=status_before_snapshot):
                                 with self.assertRaisesRegex(WorkspaceError, "not a regular file|duplicate JSON key"):
                                     self.workspace.dev_restart(name, "server")
                             self.assertIsNotNone(saved)
@@ -22066,7 +22103,7 @@ class WorkspaceTests(unittest.TestCase):
                     opened = workspace_module.open_regular_file
                     malformed = None
                     def require_nonblocking(path, flags, description, mode=0o600):
-                        if description == "restart record":
+                        if description == "topology record":
                             self.assertTrue(flags & os.O_NONBLOCK)
                         return opened(path, flags, description, mode)
                     def fail_after_spec(path, value):

@@ -2133,6 +2133,28 @@ def open_regular_file(
         raise WorkspaceError(f"cannot open {description} {path}: {error}") from error
 
 
+def _load_topology_record(path: Path) -> dict[str, Any]:
+    """Read one uniquely named topology record without blocking on special files."""
+
+    limit = 4 * 1024 * 1024
+    descriptor = open_regular_file(path, os.O_RDONLY | os.O_NONBLOCK, "topology record")
+    try:
+        with os.fdopen(descriptor, "rb") as stream:
+            opened = os.fstat(stream.fileno())
+            if (opened.st_nlink != 1 or opened.st_size > limit
+                    or descriptor_path(stream.fileno()) != canonical_path(path)):
+                raise WorkspaceError("topology record identity is unsafe")
+            raw = stream.read(limit + 1)
+            if len(raw) > limit or descriptor_path(stream.fileno()) != canonical_path(path):
+                raise WorkspaceError("topology record changed or exceeds its read limit")
+            record = json.loads(raw.decode("utf-8"), object_pairs_hook=_reject_duplicate_keys)
+    except (OSError, UnicodeError, ValueError, RecursionError) as error:
+        raise WorkspaceError(f"cannot read topology record {path}: {error}") from error
+    if not isinstance(record, dict):
+        raise WorkspaceError("topology record is invalid")
+    return record
+
+
 def load_regular_json(path: Path, description: str, *, limit: int = 4 * 1024 * 1024) -> Any:
     """Read one bounded regular JSON file without following links."""
 
@@ -19890,11 +19912,7 @@ class Workspace:
             raise WorkspaceError(f"topology status is invalid: {name}")
         spec_path = root / "spec.json"
         if "server_listener" in status or spec_path.is_file():
-            if spec_path.is_symlink():
-                raise WorkspaceError(f"topology listener spec is invalid: {name}")
-            spec = load_json(spec_path)
-            if not isinstance(spec, dict):
-                raise WorkspaceError(f"topology listener spec is invalid: {name}")
+            spec = _load_topology_record(spec_path)
             validate_server_listener_spec(spec)
             if "server_listener" in status or "server_listener" in spec:
                 if ("server_listener" not in status or "server_listener" not in spec
@@ -20929,27 +20947,13 @@ class Workspace:
                     f"topology {name} has no stopped status to restart"
                 )
 
-            def restart_record(path: Path) -> dict[str, Any]:
-                descriptor = open_regular_file(path, os.O_RDONLY | os.O_NONBLOCK, "restart record")
-                try:
-                    with os.fdopen(descriptor, encoding="utf-8") as stream:
-                        if (os.fstat(stream.fileno()).st_nlink != 1
-                                or descriptor_path(stream.fileno()) != canonical_path(path)):
-                            raise WorkspaceError("restart record identity changed")
-                        record = json.load(stream, object_pairs_hook=_reject_duplicate_keys)
-                except (OSError, UnicodeError, ValueError, RecursionError) as error:
-                    raise WorkspaceError(f"cannot read restart record {path}: {error}") from error
-                if not isinstance(record, dict):
-                    raise WorkspaceError("restart record is invalid")
-                return record
-
-            restart_status_backup = restart_record(status_path) if restarting else None
+            restart_status_backup = _load_topology_record(status_path) if restarting else None
             restart_spec_backup = (
-                restart_record(topology_root / "spec.json") if restarting else None
+                _load_topology_record(topology_root / "spec.json") if restarting else None
             )
             port_record_path = topology_root / TOPOLOGY_PORT_RESERVATION_RECORD
             restart_port_backup = (
-                restart_record(port_record_path)
+                _load_topology_record(port_record_path)
                 if restarting and isinstance(previous.get("port_reservation"), dict)
                 else None
             )
@@ -20992,15 +20996,15 @@ class Workspace:
                     if restart_attempt["retired"]:
                         if status_path.exists() or status_path.is_symlink():
                             raise WorkspaceError("restart status changed before rollback; preserve evidence")
-                    elif restart_record(status_path) != restart_status_backup:
+                    elif _load_topology_record(status_path) != restart_status_backup:
                         raise WorkspaceError("restart status changed before rollback; preserve evidence")
                     spec_path = topology_root / "spec.json"
-                    current_spec = restart_record(spec_path)
+                    current_spec = _load_topology_record(spec_path)
                     if current_spec not in (restart_spec_backup, restart_attempt["spec"]):
                         raise WorkspaceError("restart spec changed before rollback; preserve evidence")
                     current_port = None
                     if restart_attempt["port"] is not None:
-                        current_port = restart_record(port_record_path)
+                        current_port = _load_topology_record(port_record_path)
                         if current_port not in (restart_port_backup, restart_attempt["port"]):
                             raise WorkspaceError("restart port record changed before rollback; preserve evidence")
                     original_generation = restart_status_backup["control"]["generation"]
