@@ -2998,7 +2998,7 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
                 or command[7:] != server_listener_arguments(spec.get("server_listener", "loopback"))):
             raise WorkspaceError("topology service launch differs from its exact server producer")
         plan = evidence["topology_plan"]
-        if current is None and (
+        if (current is None or status.get("control") == original.get("control")) and (
                 plan.get("server_listener", "loopback") != original.get("server_listener", "loopback")
                 or spec.get("server_listener", "loopback") != original.get("server_listener", "loopback")):
             raise WorkspaceError("topology listener differs from original producer plan")

@@ -13033,6 +13033,41 @@ class DeliveryLedgerTests(unittest.TestCase):
             finally:
                 workspace.close()
 
+    def test_listener_retune_requires_a_new_corrected_topology_generation(self):
+        from atrinik_workspace.workspace import Workspace
+        root, before, request, _ = self.observation_transaction_fixture("ls", live_resources=True)
+        corrected = ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+        proof = next(row["correction"] for row in corrected.document["resources"] if "correction" in row)
+        original_proof = ledger.canonical_bytes(proof)
+        admission = {"correction_slot": "server-state", "correction_sha256": ledger.canonical_object_digest(proof),
+                     "planned_slots": request["planned_slots"]}
+        live = Path(next(row["current"]["path"] for row in corrected.document["artifacts"] if row["kind"] == "worktree"))
+        topology = live / "workspace/topologies/stopped-server"
+        spec_path, status_path = topology / "spec.json", topology / "status.json"
+        spec, status = json.loads(spec_path.read_bytes()), json.loads(status_path.read_bytes())
+        original_control, original_runtime = copy.deepcopy(status["control"]), copy.deepcopy(status["runtime"])
+        spec["server_listener"] = status["server_listener"] = "all-ipv4"
+        spec["services"]["server"]["command"].append("--network_stack=ipv4=0.0.0.0")
+        spec_path.write_text(json.dumps(spec)); status_path.write_text(json.dumps(status))
+        with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
+            workspace = Workspace(live, backfill_references=False)
+            try:
+                observed = workspace.topology_status("stopped-server")
+            finally:
+                workspace.close()
+        self.assertEqual(observed["control"], original_control)
+        self.assertEqual(observed["runtime"], original_runtime)
+        candidate = next_generation(corrected)
+        current = next(row["current"] for row in candidate["resources"] if row["kind"] == "topology")
+        current.update(generation=current["generation"] + 1,
+                       history=[*current["history"], current["identity_digest"]],
+                       identity_digest=ledger.canonical_object_digest(observed))
+        recorded = ledger.cas(root, corrected.name, candidate, **cas_arguments(corrected))
+        with self.assertRaisesRegex(ledger.LedgerError, "listener differs from original producer"):
+            ledger.admit_in_progress_targets_cas(root, recorded.name, admission, **cas_arguments(recorded))
+        self.assertEqual(ledger.inspect(root, recorded.name).raw, recorded.raw)
+        self.assertEqual(ledger.canonical_bytes(next(row["correction"] for row in recorded.document["resources"] if "correction" in row)), original_proof)
+
     def test_observation_correction_real_split_workspace_forward(self):
         root, before, request, _observation = self.observation_transaction_fixture("o", live_resources=True)
         live = Path(next(row["current"]["path"] for row in before.document["artifacts"] if row["kind"] == "worktree"))
