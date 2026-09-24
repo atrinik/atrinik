@@ -8145,6 +8145,7 @@ class WorkspaceTests(unittest.TestCase):
     def test_dev_restart_preserves_topology_coordinates_and_selects_one_service(self) -> None:
         initial = {
             "profile": "classic",
+            "server_listener": "all-ipv4",
             "services": {"server": {}, "client": {}},
             "control": {"generation": "a" * 64},
             "supervisor": {"running": True},
@@ -8204,6 +8205,7 @@ class WorkspaceTests(unittest.TestCase):
             ["server", "client"],
             17300,
             "temporary",
+            server_listener="all-ipv4",
             build_services={"server"},
             restart_status=stopped,
             operation_lock_held=True,
@@ -8237,6 +8239,7 @@ class WorkspaceTests(unittest.TestCase):
             ["client"],
             17300,
             state_mode="default",
+            server_listener=None,
             build_services={"client"},
         )
 
@@ -21841,6 +21844,29 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(root / "status.json", record)
         with self.assertRaisesRegex(WorkspaceError, "no provider"):
             self.workspace.topology_status("retired-content")
+
+    def test_listener_input_refuses_before_workspace_or_build_effects(self) -> None:
+        for method in (self.workspace.topology_up, self.workspace._topology_up,
+                       self.workspace.dev_up):
+            for value in (True, False, 1, [], {}, "", "ipv6", "0.0.0.0", "--network_stack=off"):
+                with self.subTest(method=method.__name__, value=value), mock.patch.object(
+                        type(self.workspace.paths), "ensure") as ensure, mock.patch.object(
+                        self.workspace, "_resolved_profile_operation") as resolve:
+                    with self.assertRaisesRegex(WorkspaceError, "server listener"):
+                        method("invalid-listener", "classic", None, ["server"], server_listener=value)
+                    ensure.assert_not_called()
+                    resolve.assert_not_called()
+            for value in ("loopback", "all-ipv4"):
+                with self.subTest(method=method.__name__, value=value), mock.patch.object(
+                        type(self.workspace.paths), "ensure") as ensure:
+                    with self.assertRaisesRegex(WorkspaceError, "requires the server"):
+                        method("invalid-listener", "classic", None, ["client"], server_listener=value)
+                    ensure.assert_not_called()
+        for value in (True, {}, "invalid"):
+            with self.assertRaisesRegex(WorkspaceError, "server listener"):
+                self.workspace.topology_summary("classic", None, ["server"], server_listener=value)
+        self.assertEqual(self.workspace._normalize_server_listener(None, ["server"]), "loopback")
+        self.assertIsNone(self.workspace._normalize_server_listener(None, ["client"]))
 
     def test_client_only_topology_rejects_server_port(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "requires the server"):

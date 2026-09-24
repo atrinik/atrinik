@@ -100,6 +100,8 @@ from .model import (
     profile_key,
     require_keys,
     validate_name,
+    server_listener_arguments,
+    validate_server_listener_spec,
 )
 from .platform_compat import (
     IS_WINDOWS,
@@ -2962,6 +2964,9 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
         spec_keys = {"schema_version", "name", "profile", "stack", "providers", "dependencies",
                      "state", "state_policy", "build_root", "resolved", "endpoint", "control",
                      "runtime", "services", "port_reservation"}
+        if "server_listener" in spec:
+            spec_keys.add("server_listener")
+            validate_server_listener_spec(spec)
         if (set(spec) != spec_keys or set(spec["services"]) != {"server"}
                 or set(status["services"]) != {"server"}):
             raise WorkspaceError("observation correction supports only the exact server topology producer")
@@ -2979,7 +2984,8 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
                 or service["cwd"] != status["services"]["server"]["cwd"]
                 or service["log"] != str(self.topology_path / "server.log")
                 or service["log"] != status["services"]["server"]["log"]
-                or not isinstance(command, list) or len(command) != 7
+                or not isinstance(command, list)
+                or len(command) != 7 + len(server_listener_arguments(spec.get("server_listener", "loopback")))
                 or command[:4] != [str(service_root / "atrinik-server"),
                                     f"--port_quic={spec['endpoint']['port']}",
                                     "--port_mapping=off", "--stun_server=off"]
@@ -2988,9 +2994,14 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
                 or (re.fullmatch(r"--assetspath=/proc/self/fd/[0-9]+", command[5]) is None
                     and (len(runtime["mutable_state_outputs"]) != 1
                          or command[5] != "--assetspath=" + runtime["mutable_state_outputs"][0]))
-                or command[6] != "--no_console"):
+                or command[6] != "--no_console"
+                or command[7:] != server_listener_arguments(spec.get("server_listener", "loopback"))):
             raise WorkspaceError("topology service launch differs from its exact server producer")
         plan = evidence["topology_plan"]
+        if current is None and (
+                plan.get("server_listener", "loopback") != original.get("server_listener", "loopback")
+                or spec.get("server_listener", "loopback") != original.get("server_listener", "loopback")):
+            raise WorkspaceError("topology listener differs from original producer plan")
         for field in ("profile", "build_root", "state", "stack", "providers"):
             if plan.get(field) != status.get(field) or spec.get(field) != status.get(field):
                 raise WorkspaceError("topology plan/spec identity differs from original output")
@@ -8780,6 +8791,8 @@ class Workspace:
         services: list[str] | None = None,
         port: int | None = None,
         state_mode: str | None = None,
+        *,
+        server_listener: str | None = None,
     ) -> dict[str, Any]:
         """Start the same warmable topology root used by :meth:`dev_build`."""
 
@@ -8790,6 +8803,7 @@ class Workspace:
             services,
             port,
             state_mode=state_mode,
+            server_listener=server_listener,
             build_services=set(self._topology_services(services)),
         )
 
@@ -8896,6 +8910,7 @@ class Workspace:
                         services,
                         port,
                         state_mode,
+                        server_listener=initial.get("server_listener"),
                         build_services={service},
                         restart_status=stopped,
                         operation_lock_held=True,
@@ -17172,8 +17187,11 @@ class Workspace:
         state_name: str | None,
         services: list[str] | None = None,
         state_mode: str | None = None,
+        *,
+        server_listener: str | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
+        server_listener = self._normalize_server_listener(server_listener, selected_services)
         state_mode, state_name = self._normalize_topology_state_request(
             state_mode, state_name, selected_services
         )
@@ -17221,6 +17239,7 @@ class Workspace:
                 else None,
             },
             "services": selected_services,
+            **({"server_listener": server_listener} if server_listener is not None else {}),
             "dependencies": sorted(required),
             "providers": {
                 role: stack.providers[role].name for role in sorted(required)
@@ -17247,6 +17266,14 @@ class Workspace:
                 for role, path in sorted(resolved.items())
             },
         }
+
+    @staticmethod
+    def _normalize_server_listener(listener: object, services: list[str]) -> str | None:
+        if listener is not None:
+            server_listener_arguments(listener)
+            if "server" not in services:
+                raise WorkspaceError("--server-listener requires the server service")
+        return (listener or "loopback") if "server" in services else None
 
     @staticmethod
     def _normalize_topology_state_request(
@@ -19761,6 +19788,7 @@ class Workspace:
             "state_policy",
             "shutdown",
             "mutable_state_cleanup",
+            "server_listener",
         }
         topology_schema = status.get("schema_version") if isinstance(status, dict) else None
         current_runtime_record = topology_schema in {
@@ -19854,6 +19882,24 @@ class Workspace:
             and not isinstance(status.get("error"), str)
         ):
             raise WorkspaceError(f"topology status is invalid: {name}")
+        spec_path = root / "spec.json"
+        if "server_listener" in status or spec_path.is_file():
+            if spec_path.is_symlink():
+                raise WorkspaceError(f"topology listener spec is invalid: {name}")
+            spec = load_json(spec_path)
+            if not isinstance(spec, dict):
+                raise WorkspaceError(f"topology listener spec is invalid: {name}")
+            if "server_listener" in status or "server_listener" in spec:
+                if ("server_listener" not in status or "server_listener" not in spec
+                        or status["server_listener"] != spec["server_listener"]
+                        or status.get("control") != spec.get("control")
+                        or status.get("name") != spec.get("name")
+                        or status.get("stack") != "classic"
+                        or status.get("runtime") != spec.get("runtime")
+                        or not isinstance(status.get("endpoint"), dict)
+                        or spec.get("endpoint") != {key: status["endpoint"].get(key) for key in ("host", "port")}):
+                    raise WorkspaceError(f"topology listener status/spec differs: {name}")
+                validate_server_listener_spec(spec)
         if "sound" in status:
             try:
                 validate_sound_record(status["sound"])
@@ -20684,10 +20730,12 @@ class Workspace:
         port: int | None = None,
         state_mode: str | None = None,
         *,
+        server_listener: str | None = None,
         build_services: set[str] | None = None,
     ) -> dict[str, Any]:
-        self.paths.ensure()
         selected_services = self._topology_services(services)
+        server_listener = self._normalize_server_listener(server_listener, selected_services)
+        self.paths.ensure()
         normalized_mode, normalized_state = self._normalize_topology_state_request(
             state_mode, state_name, selected_services
         )
@@ -20739,6 +20787,7 @@ class Workspace:
                     port,
                     normalized_mode,
                     build_services=build_services,
+                    server_listener=server_listener,
                 )
 
     def _topology_resolved_status(
@@ -20774,11 +20823,13 @@ class Workspace:
         port: int | None = None,
         state_mode: str | None = None,
         *,
+        server_listener: str | None = None,
         build_services: set[str] | None = None,
         restart_status: dict[str, Any] | None = None,
         operation_lock_held: bool = False,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
+        server_listener = self._normalize_server_listener(server_listener, selected_services)
         state_mode, state_name = self._normalize_topology_state_request(
             state_mode, state_name, selected_services
         )
@@ -20873,6 +20924,11 @@ class Workspace:
                 if restarting and isinstance(previous, dict)
                 else None
             )
+            restart_spec_backup = (
+                load_json(topology_root / "spec.json")
+                if restart_status_backup is not None
+                else None
+            )
             restart_port_backup = (
                 copy.deepcopy(previous.get("port_reservation"))
                 if isinstance(previous, dict)
@@ -20918,6 +20974,8 @@ class Workspace:
                         or restart_status_backup is None
                     ):
                         return
+                    if restart_spec_backup is not None:
+                        atomic_json(topology_root / "spec.json", restart_spec_backup)
                     atomic_json(status_path, restart_status_backup)
                     if restart_port_backup is not None:
                         atomic_json(
@@ -21323,6 +21381,7 @@ class Workspace:
                                 else runtime_record["mutable_state_outputs"][0]
                             ),
                             "--no_console",
+                            *server_listener_arguments(server_listener),
                         ],
                         "cwd": str(server_runtime),
                         "log": str(topology_root / "server.log"),
@@ -21400,6 +21459,9 @@ class Workspace:
                     "runtime": runtime_record,
                     "services": service_specs,
                 }
+                if server_listener is not None:
+                    spec["server_listener"] = server_listener
+                    validate_server_listener_spec(spec)
                 if scenario_client is not None:
                     spec["scenario_client"] = scenario_client
                 if port_reservation is not None:

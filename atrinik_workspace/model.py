@@ -167,6 +167,47 @@ class WorkspaceError(RuntimeError):
     """A workspace operation cannot be completed safely."""
 
 
+CLASSIC_SERVER_LISTENERS = ("loopback", "all-ipv4")
+
+
+def server_listener_arguments(listener: object) -> list[str]:
+    """Return only the supported Classic listener override, never arbitrary argv."""
+    if not isinstance(listener, str) or listener not in CLASSIC_SERVER_LISTENERS:
+        raise WorkspaceError("server listener must be loopback or all-ipv4")
+    return ["--network_stack=ipv4=0.0.0.0"] if listener == "all-ipv4" else []
+
+
+def validate_server_listener_spec(spec: dict[str, Any]) -> None:
+    """Validate the exact launch grammar for a listener-aware server generation."""
+    arguments = server_listener_arguments(spec.get("server_listener"))
+    services = spec.get("services")
+    runtime = spec.get("runtime")
+    endpoint = spec.get("endpoint")
+    if (not isinstance(services, dict) or "server" not in services
+            or spec.get("stack") != "classic"
+            or not isinstance(runtime, dict) or not isinstance(runtime.get("path"), str)
+            or not isinstance(endpoint, dict) or endpoint.get("host") != "127.0.0.1"
+            or type(endpoint.get("port")) is not int or not 1 <= endpoint["port"] <= 65535):
+        raise WorkspaceError("server listener requires a Classic server endpoint")
+    service = services["server"]
+    root = Path(runtime["path"]) / "server"
+    command = service.get("command") if isinstance(service, dict) else None
+    outputs = runtime.get("mutable_state_outputs")
+    if (not isinstance(service, dict) or service.get("cwd") != str(root)
+            or not isinstance(command, list) or len(command) != 7 + len(arguments)
+            or command[:4] != [str(root / "atrinik-server"),
+                                f"--port_quic={endpoint['port']}",
+                                "--port_mapping=off", "--stun_server=off"]
+            or not isinstance(command[4], str)
+            or re.fullmatch(r"--datapath=/proc/self/fd/[0-9]+", command[4]) is None
+            or not isinstance(command[5], str)
+            or (re.fullmatch(r"--assetspath=/proc/self/fd/[0-9]+", command[5]) is None
+                and (not isinstance(outputs, list) or len(outputs) != 1 or not isinstance(outputs[0], str)
+                     or command[5] != "--assetspath=" + outputs[0]))
+            or command[6] != "--no_console" or command[7:] != arguments):
+        raise WorkspaceError("topology service launch differs from its exact server listener")
+
+
 class AtomicJsonCommitUncertain(WorkspaceError):
     """The JSON replacement is visible but directory durability was not proven."""
 
