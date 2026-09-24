@@ -19883,6 +19883,8 @@ class WorkspaceTests(unittest.TestCase):
         )
         manifest_record = load_json(manifest_path)
         status_record = load_json(status_path)
+        spec_path = status_path.with_name("spec.json")
+        spec_record = load_json(spec_path)
         generation_mode = stat.S_IMODE(generation_root.stat().st_mode)
         manifest_mode = stat.S_IMODE(manifest_path.stat().st_mode)
         try:
@@ -19902,6 +19904,7 @@ class WorkspaceTests(unittest.TestCase):
                 )
             )
             atomic_json(status_path, invalid_status)
+            atomic_json(spec_path, {**spec_record, "runtime": invalid_status["runtime"]})
             with self.assertRaisesRegex(
                 WorkspaceError, "runtime manifest identity is invalid"
             ):
@@ -19911,6 +19914,7 @@ class WorkspaceTests(unittest.TestCase):
             manifest_path.chmod(manifest_mode)
             generation_root.chmod(generation_mode)
             atomic_json(status_path, status_record)
+            atomic_json(spec_path, spec_record)
         self.assertEqual(server_runtime, generation_root / "server")
         self.assertFalse((server_runtime / "maps").is_symlink())
         self.assertEqual(

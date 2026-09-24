@@ -1372,7 +1372,8 @@ def main(arguments: list[str] | None = None) -> int:
                     services,
                     options.port,
                     state_mode=options.state_mode,
-                    server_listener=options.server_listener,
+                    **({"server_listener": options.server_listener}
+                   if options.server_listener is not None else {}),
                 )
                 if options.json:
                     print(json.dumps(status, indent=2, sort_keys=True))
@@ -1422,7 +1423,8 @@ def main(arguments: list[str] | None = None) -> int:
                 state,
                 options.service,
                 state_mode=options.state_mode,
-                server_listener=options.server_listener,
+                **({"server_listener": options.server_listener}
+                   if options.server_listener is not None else {}),
             )
             if options.json:
                 print(json.dumps(summary, indent=2, sort_keys=True))
@@ -1462,7 +1464,8 @@ def main(arguments: list[str] | None = None) -> int:
                 options.service,
                 options.port,
                 state_mode=options.state_mode,
-                server_listener=options.server_listener,
+                **({"server_listener": options.server_listener}
+                   if options.server_listener is not None else {}),
             )
             if options.json:
                 print(json.dumps(status, indent=2, sort_keys=True))

@@ -2998,7 +2998,7 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
                 or command[7:] != server_listener_arguments(spec.get("server_listener", "loopback"))):
             raise WorkspaceError("topology service launch differs from its exact server producer")
         plan = evidence["topology_plan"]
-        if (current is None or status.get("control") == original.get("control")) and (
+        if (current is None or status["control"]["generation"] == original["control"]["generation"]) and (
                 plan.get("server_listener", "loopback") != original.get("server_listener", "loopback")
                 or spec.get("server_listener", "loopback") != original.get("server_listener", "loopback")):
             raise WorkspaceError("topology listener differs from original producer plan")
@@ -20743,9 +20743,6 @@ class Workspace:
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
         server_listener = self._normalize_server_listener(server_listener, selected_services)
-        if server_listener is not None:
-            self._require_classic_contracts(profile_name, {"server"})
-        self.paths.ensure()
         normalized_mode, normalized_state = self._normalize_topology_state_request(
             state_mode, state_name, selected_services
         )
@@ -20763,6 +20760,9 @@ class Workspace:
                 raise WorkspaceError(
                     f"topology name is reserved by scope {scope['name']} with exact profile and state coordinates: {name}"
                 )
+        if server_listener is not None:
+            self._require_classic_contracts(profile_name, {"server"})
+        self.paths.ensure()
         with self._resolved_profile_operation(
             profile_name,
             (

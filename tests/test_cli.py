@@ -896,7 +896,6 @@ class ParserTests(unittest.TestCase):
             ["server", "client"],
             17300,
             state_mode="temporary",
-            server_listener=None,
         )
         output.assert_called_once_with(
             "topology classic-local: started at 127.0.0.1:17300"
@@ -1550,7 +1549,6 @@ class ParserTests(unittest.TestCase):
             ["server"],
             17300,
             state_mode=None,
-            server_listener=None,
         )
         output.assert_called_once_with("topology review: started at 127.0.0.1:17300")
 
@@ -1586,7 +1584,7 @@ class ParserTests(unittest.TestCase):
                 ],
                 "topology_summary",
                 mock.call(
-                    "review", None, ["client"], state_mode="temporary", server_listener=None
+                    "review", None, ["client"], state_mode="temporary"
                 ),
             ),
             (
@@ -1608,7 +1606,6 @@ class ParserTests(unittest.TestCase):
                     ["client"],
                     None,
                     state_mode="temporary",
-                    server_listener=None,
                 ),
             ),
         )
@@ -1760,7 +1757,6 @@ class ParserTests(unittest.TestCase):
             ["server"],
             None,
             state_mode="temporary",
-            server_listener=None,
         )
         workspace.topology_down.assert_called_once_with(
             "review", retain_state=True
@@ -1788,7 +1784,6 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(result, 0)
         workspace_type.return_value.topology_summary.assert_called_once_with(
             "review", "default", ["server"], state_mode=None,
-            server_listener=None,
         )
         self.assertEqual(json.loads(output.call_args.args[0]), summary)
 
