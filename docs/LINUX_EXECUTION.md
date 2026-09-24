@@ -99,10 +99,15 @@ silently copy sources, rewrite gitfiles or substitute another workspace.
 
 Before exposing the namespace, inspect its readable source and Git configuration
 for credentials. Keep native Codex/auth/evidence as private siblings outside it.
-The example masks both ordinary `build/` evidence locations; any other private
-location must also remain outside the mounts or be masked. An empty environment
-alone does not prevent a worker reading mounted credentials. Do not run this
-composition on a broad existing source tree whose private contents are uncertain.
+Keep each actual `build/reviews` operational directory visible read-only at its
+unchanged path and inode, including its ledger, receipts, locks and required
+nonsecret report. The helper locks that directory itself; its live inventory
+protects retained resource reservations during builds. Never hide, copy or mask
+these roots: an invisible root can appear absent and bypass resource protection.
+Use a minimal nonsecret operational report and retain rich private evidence
+outside the namespace. An empty environment alone does not prevent reading
+mounted credentials. Stop if an existing namespace contains private/unrelated
+reports or other files that cannot safely be exposed to this trusted worker.
 
 ```bash
 # Run on the native host, after live ownership and resource planning.
@@ -123,15 +128,20 @@ BUILD_ARGS=(--init --pull never --user "$(id -u):$(id -g)"
   --mount "type=bind,source=$NATIVE_WORKTREE,target=$NATIVE_WORKTREE"
   --mount "type=bind,source=$COMMON_GIT,target=$COMMON_GIT,readonly"
   --mount "type=bind,source=$BUILD_LEASES,target=$BUILD_LEASES"
-  --tmpfs "$NATIVE_PRIMARY/build:ro,nosuid,nodev,mode=000"
-  --tmpfs "$NATIVE_WORKTREE/build:ro,nosuid,nodev,mode=000"
   --workdir "$NATIVE_WORKTREE")
+# Preserve real operational directory locks and atomic ledger replacements.
+for REVIEW_ROOT in "$NATIVE_PRIMARY/build/reviews" "$NATIVE_WORKTREE/build/reviews"; do
+  if [ -d "$REVIEW_ROOT" ]; then
+    BUILD_ARGS+=(--mount "type=bind,source=$REVIEW_ROOT,target=$REVIEW_ROOT,readonly")
+  fi
+done
+# Missing roots must be genuinely absent. Do not create/hide them for this recipe.
 # Create, inspect, then start each exact owned worker. No auth, Codex, Docker
 # socket, display, GPU or audio mounts; no host environment passthrough.
 PLAN_ID=$(docker create "${BUILD_ARGS[@]}" --name "$BUILD_JOB-plan" "$BUILD_IMAGE" \
   bash -c 'umask 077; ./atrinik build server --profile classic --test --plan --json')
 docker inspect "$PLAN_ID" --format '{{.Id}} {{.Image}} {{json .Mounts}} {{json .HostConfig.Tmpfs}}'
-# Verify the exact image and every same-path mount/mask before starting.
+# Verify the exact image and every same-path mount before starting.
 docker start --attach "$PLAN_ID"
 docker inspect "$PLAN_ID" --format '{{.State.Status}} {{.State.ExitCode}}'
 ```
@@ -165,6 +175,13 @@ Distinct concurrent owners use distinct mutable build/cache roots; do not share
 a writable cache merely because image tags match. If a separately owned volume
 is used, mount it at the exact recorded build path and retain its identity across
 workers, without overlaying occupied state or changing Git/lease paths.
+
+Before execution, compare public helper inventory inside the worker with native
+inventory and verify the real review directory inode and shared lock behavior.
+Keep the directory bind across atomic ledger updates; do not bind individual
+ledger files or substitute a saved inventory. Build admission still re-inventories
+reservations at the point of use under its leases. A native preflight never
+substitutes for that worker-side check.
 
 Preserve stopped worker identities, logs and failed output required by the
 resource lifecycle. Stop only an exact owned running worker with a bounded
