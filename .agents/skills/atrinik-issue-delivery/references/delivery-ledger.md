@@ -820,7 +820,8 @@ python3 scripts/delivery_ledger.py worktree-bind-cas \
   "$DELIVERY_REVIEW_ROOT" "$DELIVERY_LEDGER" worktree \
   "$DELIVERY_WORKTREE_LIST" "$DELIVERY_WORKTREE_SAFETY" \
   --expected-generation "$DELIVERY_EXPECTED_GENERATION" \
-  --expected-digest "$DELIVERY_EXPECTED_DIGEST"
+  --expected-digest "$DELIVERY_EXPECTED_DIGEST" \
+  --expected-path "$DELIVERY_EXPECTED_PATH"
 ```
 
 Raw Git has no canonical wrapper create output, so omitting `--create-output`
