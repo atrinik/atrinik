@@ -2141,6 +2141,8 @@ def _load_topology_record(path: Path) -> dict[str, Any]:
     try:
         with os.fdopen(descriptor, "rb") as stream:
             opened = os.fstat(stream.fileno())
+            if opened.st_nlink > 1:
+                raise WorkspaceError("topology record is hard-linked")
             if (opened.st_nlink != 1 or opened.st_size > limit
                     or descriptor_path(stream.fileno()) != canonical_path(path)):
                 raise WorkspaceError("topology record identity is unsafe")
