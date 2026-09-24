@@ -21,7 +21,11 @@ acceptance and authorized tracking operations before initialization. Reconcile
 native relationships and prose; neither alone proves completeness.
 
 Use a live-proven canonical container or supported native Linux coordinator
-per [the execution contract](../../../docs/LINUX_EXECUTION.md). Inventory all existing leaf
+per [the execution contract](../../../docs/LINUX_EXECUTION.md). Supported native Linux
+normally develops locally in owned worktrees and uses pinned CPU containers only
+for application builds/toolchain checks; build-worker lifetime does not own the
+project or leaf delivery. Optional container development remains supported.
+Inventory all existing leaf
 ledgers, containers and worktrees before claiming anything. Dirty candidates,
 existing PRs and foreign sessions remain external, not new implementations.
 The project record schedules work; it never grants worktree/ledger reuse.

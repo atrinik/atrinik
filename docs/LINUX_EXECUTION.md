@@ -71,6 +71,109 @@ graphics availability. Tool presence is not proof of complete build
 compatibility; run the owner-required build and test checks in that environment.
 
 
+## Native development with pinned CPU build workers
+
+Supported native Linux normally runs editing, Git, delivery helpers, review and
+lightweight Python/guidance checks locally in its bound worktree. Application
+builds and toolchain-dependent tests use the already cached immutable Linux
+image. No mandatory host compiler, QEMU, GUI editor or long-lived coordinator
+container is needed. Optional container development remains supported, and an
+existing container-bound delivery retains its original coordinates.
+
+A build worker is an execution resource, not delivery authority. Keep native
+`HOME`, private Codex state, authentication and evidence on the host. Native
+ownership survives worker exit/recreation, while each new execution still
+requires the exact source, input, resource and lease checks. The stock
+`.devcontainer/devcontainer.json` is a development coordinator composition: it
+mounts auth/Codex state, runs initialization and uses `/workspaces/atrinik`.
+It is not a drop-in credential-free worker for a native linked worktree.
+
+For a fresh owned source namespace, use this same-absolute-path composition.
+Obtain `NATIVE_PRIMARY` and `NATIVE_WORKTREE` from the accepted wrapper worktree
+inventory/binding; never infer them from a container name. Initialize the bound
+worktree's default workspace with `./atrinik status --json` locally first. All
+selected component checkouts must be inside this owned namespace; if the profile
+selects an external checkout/common Git directory, explicitly inventory and mount
+that exact source and lease namespace at its unchanged absolute path too. Do not
+silently copy sources, rewrite gitfiles or substitute another workspace.
+
+Before exposing the namespace, inspect its readable source and Git configuration
+for credentials. Keep native Codex/auth/evidence as private siblings outside it.
+The example masks both ordinary `build/` evidence locations; any other private
+location must also remain outside the mounts or be masked. An empty environment
+alone does not prevent a worker reading mounted credentials. Do not run this
+composition on a broad existing source tree whose private contents are uncertain.
+
+```bash
+# Run on the native host, after live ownership and resource planning.
+# These two values are the exact returned, owned coordinates, not examples to adopt.
+NATIVE_PRIMARY=/absolute/owned/primary
+NATIVE_WORKTREE=/absolute/owned/primary/workspace/worktrees/atrinik/owned-label
+BUILD_JOB=atrinik-owned-unique-build
+BUILD_IMAGE=ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8
+COMMON_GIT=$(git -C "$NATIVE_WORKTREE" rev-parse --path-format=absolute --git-common-dir)
+# The wrapper status operation has established this physical lease namespace.
+BUILD_LEASES="$COMMON_GIT/atrinik-resource-leases"
+test -d "$BUILD_LEASES"
+docker image inspect "$BUILD_IMAGE" >/dev/null
+BUILD_ARGS=(--init --pull never --user "$(id -u):$(id -g)"
+  --read-only --cap-drop ALL --security-opt no-new-privileges
+  --tmpfs /tmp:rw,nosuid,nodev,mode=1777
+  --mount "type=bind,source=$NATIVE_PRIMARY,target=$NATIVE_PRIMARY,readonly"
+  --mount "type=bind,source=$NATIVE_WORKTREE,target=$NATIVE_WORKTREE"
+  --mount "type=bind,source=$COMMON_GIT,target=$COMMON_GIT,readonly"
+  --mount "type=bind,source=$BUILD_LEASES,target=$BUILD_LEASES"
+  --tmpfs "$NATIVE_PRIMARY/build:ro,nosuid,nodev,mode=000"
+  --tmpfs "$NATIVE_WORKTREE/build:ro,nosuid,nodev,mode=000"
+  --workdir "$NATIVE_WORKTREE")
+# Create, inspect, then start each exact owned worker. No auth, Codex, Docker
+# socket, display, GPU or audio mounts; no host environment passthrough.
+PLAN_ID=$(docker create "${BUILD_ARGS[@]}" --name "$BUILD_JOB-plan" "$BUILD_IMAGE" \
+  bash -c 'umask 077; ./atrinik build server --profile classic --test --plan --json')
+docker inspect "$PLAN_ID" --format '{{.Id}} {{.Image}} {{json .Mounts}} {{json .HostConfig.Tmpfs}}'
+# Verify the exact image and every same-path mount/mask before starting.
+docker start --attach "$PLAN_ID"
+docker inspect "$PLAN_ID" --format '{{.State.Status}} {{.State.ExitCode}}'
+```
+
+Retain raw successful plan stdout outside the mounted namespace. Require stopped
+status and exit code zero; `docker start --attach` alone is not build acceptance.
+The actual plan supplies the build/source-generation paths and `plan_sha256`.
+Record the required resource intent through the native delivery helper before
+executing. With the same `BUILD_ARGS`, image, worktree, profile and build options,
+create a second uniquely named worker whose command is:
+
+```bash
+./atrinik build server --profile classic --test --expected-plan RETURNED_PLAN_SHA256
+```
+
+Inspect that worker's exact image/mounts before starting it, retain its output
+and require stopped status/zero exit code. Run the build-environment preflight
+`python3 -m atrinik_workspace.linux_platform` in this same composition when
+selecting it for source builds. Plan and execute in the selected container build
+environment, never plan with a different host toolchain. Use the owner-required
+component/profile and tests for the actual task. Package fetches may need network
+access; registry login remains a host action and no credential store is mounted.
+
+The bound worktree's persistent `workspace/build` holds its build outputs and
+wrapper-managed compiler/dependency caches. Its stable owner/path survives
+short-lived workers; image layers are also reused through `--pull never`.
+Keep the same image/toolchain, source/input identities, profile and lease paths.
+The wrapper's build-plan fencing, source generations, cache keys, metadata and
+compatibility checks remain required: a cache hit never proves acceptance.
+Distinct concurrent owners use distinct mutable build/cache roots; do not share
+a writable cache merely because image tags match. If a separately owned volume
+is used, mount it at the exact recorded build path and retain its identity across
+workers, without overlaying occupied state or changing Git/lease paths.
+
+Preserve stopped worker identities, logs and failed output required by the
+resource lifecycle. Stop only an exact owned running worker with a bounded
+`docker stop --time 20 WORKER_ID` after checking its active holders. Do not use
+`--rm`, prune caches, remove volumes or invoke cleanup as part of normal worker
+exit. Cleanup remains separately authorized and preview-first. Reconnect still
+requires fresh native context, actor, inventory, clean worktree, CAS and lease
+proof; this workflow grants no dirty-work adoption or ledger rewriting.
+
 ## Optional direct-host source builds and native terminal selection
 
 Native authority eligibility on the supported Debian/Ubuntu systemd

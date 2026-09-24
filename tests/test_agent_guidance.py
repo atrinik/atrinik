@@ -791,7 +791,7 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertIn("build/sessions/<delivery-slug>.json", readme)
         self.assertIn("benchmark_devcontainer_session.py", readme)
         self.assertIn("persistent coordinator session", workspace)
-        self.assertIn("Reuse one owned devcontainer session", delivery)
+        self.assertIn("Reuse one owned delivery session", delivery)
         self.assertIn("Persistent coordinator session contract", architecture)
 
         normalized = [
@@ -810,6 +810,45 @@ class AgentGuidanceTests(unittest.TestCase):
             with self.subTest(contract="non-authority"):
                 self.assertIn("corroboration", text)
                 self.assertIn("stale", text)
+
+    def test_native_delivery_is_independent_of_build_worker_lifetime(self) -> None:
+        paths = (
+            "AGENTS.md", "README.md", "docs/ARCHITECTURE.md",
+            "docs/LINUX_EXECUTION.md", "docs/COORDINATOR_AUTH.md",
+            "docs/PROJECT_DELIVERY_GOAL.md",
+            ".agents/skills/atrinik-issue-delivery/references/preparation.md",
+            ".agents/skills/atrinik-multi-repo-workspace/SKILL.md",
+            ".agents/skills/atrinik-project-delivery/SKILL.md",
+            ".agents/skills/atrinik-project-delivery/references/coordinator.md",
+        )
+        for path in paths:
+            text = " ".join((ROOT / path).read_text(encoding="utf-8").split())
+            with self.subTest(path=path):
+                self.assertIn("native", text.lower())
+                self.assertIn("worktree", text)
+                self.assertIn("container", text)
+                self.assertNotIn("A session is one agent-owned container", text)
+        preparation = read_guidance_contract(
+            ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
+        )
+        for gate in ("clean worktree", "ledger CAS and leases", "foreign or uncertain dirty work",
+                     "umask 077", "standard private store", "selectors unset throughout"):
+            self.assertIn(gate, " ".join(preparation.split()))
+        execution = (ROOT / "docs/LINUX_EXECUTION.md").read_text(encoding="utf-8")
+        for invariant in ("same-absolute-path", "--pull never", "--expected-plan",
+                          "--git-common-dir", "atrinik-resource-leases", "--cap-drop ALL",
+                          "mode=000", "No mandatory host compiler", "cache keys",
+                          "Distinct concurrent owners", "not a drop-in credential-free worker",
+                          "no dirty-work adoption or ledger rewriting"):
+            self.assertIn(invariant, execution)
+        # The concrete worker arguments expose neither coordinator credentials
+        # nor a Docker/display/GPU socket. Container development keeps its own
+        # authentication composition and the existing bounded-session assertions.
+        arguments = execution.split("BUILD_ARGS=(", 1)[1].split("\n# Create, inspect", 1)[0]
+        for forbidden in (".config/gh", ".codex", "docker.sock", "--privileged", "--gpus"):
+            self.assertNotIn(forbidden, arguments)
+        for required in ("$NATIVE_PRIMARY", "$NATIVE_WORKTREE", "$COMMON_GIT", "$BUILD_LEASES"):
+            self.assertIn(required, arguments)
 
     def test_local_guidance_links_resolve(self) -> None:
         paths = [ROOT / "AGENTS.md"]

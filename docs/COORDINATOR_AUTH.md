@@ -1,9 +1,12 @@
 # Shared host GitHub authentication
 
-Trusted Atrinik coordinators use one host-owned GitHub CLI login through a
-read-only directory bind. Each delivery keeps its own container, worktrees,
-leases, Codex home and mutable caches; it does not need another browser login.
-The target is ubuntu's standard `~/.config/gh`, so the delivery helper's
+Trusted Atrinik coordinators reuse host-owned GitHub CLI authentication. Native
+Linux uses the actual passwd user's standard private store below; container
+coordinators use a read-only directory bind. Each delivery keeps its own
+worktrees, leases, Codex home and mutable caches; container development also
+retains its owned container. A CPU build worker receives no credentials.
+
+For container coordinators, the mount target is ubuntu's standard `~/.config/gh`, so the delivery helper's
 protected environment (which strips `GH_CONFIG_DIR` overrides) and ordinary
 `gh` both use this same login through `HOME`. Do not change the target to an
 arbitrary config path or weaken the helper's environment filtering.
@@ -219,8 +222,9 @@ workers report missing capabilities to that owner instead of starting competing
 OAuth flows. Independent workers consume the prepared host directory and report
 a missing prerequisite without launching their own login flow.
 
-Keep the same owned coordinator through the delivery and human authentication
-wait. Thirty minutes is the idle deadline, not an unconditional process timer
+Keep the same owned native host/user/worktree/ledger through delivery and human
+authentication waits; build-worker exit does not terminate native ownership.
+For container development, retain the same owned coordinator. Thirty minutes is the idle deadline, not an unconditional process timer
 that kills active work; the normal maximum lifetime is twelve hours. Record
 activity/deadlines, honor leases, and stop only owned idle resources. If it stops,
 inspect that exact handle and recover once under the existing contract instead
