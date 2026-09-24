@@ -848,6 +848,7 @@ class AgentGuidanceTests(unittest.TestCase):
         for forbidden in (".config/gh", ".codex", "docker.sock", "--privileged", "--gpus"):
             self.assertNotIn(forbidden, arguments)
         self.assertNotIn("mode=000", arguments)
+        self.assertIn("/tmp:rw,exec,nosuid,nodev,mode=1777", arguments)
         self.assertIn("target=$REVIEW_ROOT,readonly", arguments)
         self.assertIn("never substitutes", " ".join(execution.split()))
         for required in ("$NATIVE_PRIMARY", "$NATIVE_WORKTREE", "$COMMON_GIT", "$BUILD_LEASES", "$REVIEW_ROOT"):

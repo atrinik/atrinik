@@ -123,7 +123,7 @@ test -d "$BUILD_LEASES"
 docker image inspect "$BUILD_IMAGE" >/dev/null
 BUILD_ARGS=(--init --pull never --user "$(id -u):$(id -g)"
   --read-only --cap-drop ALL --security-opt no-new-privileges
-  --tmpfs /tmp:rw,nosuid,nodev,mode=1777
+  --tmpfs /tmp:rw,exec,nosuid,nodev,mode=1777
   --mount "type=bind,source=$NATIVE_PRIMARY,target=$NATIVE_PRIMARY,readonly"
   --mount "type=bind,source=$NATIVE_WORKTREE,target=$NATIVE_WORKTREE"
   --mount "type=bind,source=$COMMON_GIT,target=$COMMON_GIT,readonly"
@@ -175,6 +175,10 @@ Distinct concurrent owners use distinct mutable build/cache roots; do not share
 a writable cache merely because image tags match. If a separately owned volume
 is used, mount it at the exact recorded build path and retain its identity across
 workers, without overlaying occupied state or changing Git/lease paths.
+
+The private temporary filesystem permits execution because compiler probes and
+test fixtures run generated programs there; Docker tmpfs defaults otherwise
+can block these checks. Keep `nosuid,nodev` and the unprivileged user.
 
 Before execution, compare public helper inventory inside the worker with native
 inventory and verify the real review directory inode and shared lock behavior.
