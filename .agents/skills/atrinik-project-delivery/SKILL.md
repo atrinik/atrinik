@@ -35,8 +35,11 @@ migrate their state or reinterpret their `program` authority field.
 ## Run the ready graph
 
 Use `python3 -m atrinik_workspace.project_delivery`, never hand-edit its state.
-Inspect actual runtime worker capacity and existing open workers; a requested
-16 slots is not proof. Reserve ready disjoint lanes before spawning. Record the
+Inspect actual runtime worker capacity domain and complete worker inventory;
+16 requested slots are not proof. Keep active-slot limits distinct from retained-handle limits.
+`reserve-existing` supports an explicit active-slot domain; scalar `plan`/`dispatch`
+retain handle-limited semantics and cannot schedule fresh active-only starts.
+Reserve ready disjoint lanes before spawning. Record the
 actual returned worker ID, exact entry mode/coordinate and attempt immediately.
 If spawning fails or its outcome is uncertain, reconcile before retrying.
 After a supported retry/replan, a pending node with its retired attempt may
