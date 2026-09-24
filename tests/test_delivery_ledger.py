@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import copy
 import base64
-from contextlib import ExitStack, contextmanager, nullcontext
+from contextlib import ExitStack, contextmanager, nullcontext, redirect_stdout
 import fcntl
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -12597,7 +12598,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             self.assertFalse(state.exists())
             self.assertTrue(actual.exists())
 
-    def split_resource_context_setup(self, root, label):
+    def split_resource_context_setup(self, root, label, *, for_correction=False):
         from atrinik_workspace.workspace import Workspace
         root = self.live_base / label / "wrapper/build/reviews"
         original_live_roots = live_roots
@@ -12648,9 +12649,10 @@ class DeliveryLedgerTests(unittest.TestCase):
             if "/comments?" in endpoint:
                 return []
             raise AssertionError(f"unexpected remote observation: {context}")
-        with mock.patch.object(ledger, "_gh_json", side_effect=remote_read):
-            ledger.bind_pr_cas(root, current.name, "pull-request", 500, **cas_arguments(current))
-        current = ledger.inspect(root, current.name)
+        if not for_correction:
+            with mock.patch.object(ledger, "_gh_json", side_effect=remote_read):
+                ledger.bind_pr_cas(root, current.name, "pull-request", 500, **cas_arguments(current))
+            current = ledger.inspect(root, current.name)
         git_run(wrapper, "update-ref", "refs/remotes/origin/" + target["head"]["branch"], head)
         # Candidate worktree implementation must never become recovery authority.
         candidate_code = live / "atrinik_workspace/workspace.py"
@@ -12688,6 +12690,16 @@ class DeliveryLedgerTests(unittest.TestCase):
         (classic / "VERSION").write_text("1.0.0\n")
         (classic / "LICENSE.md").write_text("disposable dependency license fixture\n")
         (classic / "ATTRIBUTIONS.md").write_text("disposable dependency attribution fixture\n")
+        if for_correction:
+            server = classic / "server"
+            for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+                (server / name).write_text("fixture\n")
+            (server / "tools").mkdir()
+            for name in ("keys", "unique-items"):
+                (server / "install_data" / name).mkdir(parents=True)
+                (server / "install_data" / name / ".keep").write_text("fixture\n")
+            for name in ("bans", "motd"):
+                (server / "install_data" / name).write_text("fixture\n")
         git_run(classic, "add", ".")
         git_run(classic, "commit", "-m", "independent Classic dependency")
         dependency_head = git_run(classic, "rev-parse", "HEAD").stdout.strip()
@@ -12700,16 +12712,22 @@ class DeliveryLedgerTests(unittest.TestCase):
                     for method in ("_build_protocol", "_build_library", "_build_server",
                                    "_collect_content", "_stage_resources", "_generate_region_maps"):
                         build_boundary.enter_context(mock.patch.object(workspace, method))
-                    actual = workspace.build("server", "classic", False)
+                    if for_correction:
+                        actual = Path(workspace.build_plan("server", "classic", True)["build_root"])
+                    else:
+                        actual = workspace.build("server", "classic", False)
                 state = workspace.state_add("retained-classic", self.live_base / label / "external-state")
-                metadata = json.loads((actual / ".atrinik-build.json").read_text())
-                resolution = json.loads((actual / ".atrinik-profile-resolution.json").read_text())
-                self.assertEqual(metadata["schema_version"], 4)
-                self.assertEqual(resolution["schema_version"], 3)
-                self.assertEqual(set(metadata["coordinates"]), {"content", "resources", "protocol", "libatrinik", "server"})
+                if not for_correction:
+                    metadata = json.loads((actual / ".atrinik-build.json").read_text())
+                    resolution = json.loads((actual / ".atrinik-profile-resolution.json").read_text())
+                    self.assertEqual(metadata["schema_version"], 4)
+                    self.assertEqual(resolution["schema_version"], 3)
+                    self.assertEqual(set(metadata["coordinates"]), {"content", "resources", "protocol", "libatrinik", "server"})
             finally:
                 workspace.close()
         self.assertFalse(state.exists())
+        if for_correction:
+            return current, roots, live, actual
         # These belong only to S. A mistaken S observation must not pass.
         (storage / "states.json").write_text(json.dumps({"schema_version": 1,
             "states": {"retained-classic": str(storage / "foreign-state")}}))
@@ -12738,6 +12756,588 @@ class DeliveryLedgerTests(unittest.TestCase):
         request = {"slots": ["build", "state", "topology"], "build_outputs": {"build": output},
                    "resource_context": {"kind": "bound-wrapper-worktree", "worktree_slot": "worktree"}}
         return refreshed, request, roots, live, actual, state, registry_bytes
+
+    def observation_transaction_fixture(self, label, *, live_resources=False, executor=True):
+        """Real ledger/Git/CAS fixture; resource proof is a separate tested boundary."""
+        current, roots, live, runtime = self.split_resource_context_setup(Path("/unused"), label, for_correction=True)
+        root = Path(current.path).parent
+        planned = next_generation(current)
+        planned["resources"] = [
+            {"slot_id": slot, "kind": kind, "state": "planned", "current": None,
+             "immutable": {"repository": repository(), "name": name, "path": None}}
+            for slot, kind, name in (
+                ("client-reference", "reference", "portable-client"),
+                ("client-runtime", "runtime", "hardware-client"),
+                ("executor", "runtime", "owned-executor"),
+                ("scenario", "scenario", "player"),
+                ("server-build", "build", "tested-server"),
+                ("server-profile", "profile", "classic"),
+                ("server-state", "state", "false-extra"),
+                ("server-topology", "topology", "stopped-server"),
+            )]
+        if not executor:
+            planned["resources"] = [row for row in planned["resources"] if row["slot_id"] != "executor"]
+        planned = ledger.cas(root, current.name, planned, **cas_arguments(current))
+        scenario = {"name": "player", "state": "scenario-player", "path": str(live / "workspace/scenarios/player"),
+                    "profile": "classic", "preset": "basic-player"}
+        produced = self.produce_observation_resources(live) if live_resources else None
+        if produced:
+            scenario = produced["scenario"]
+            runtime = Path(produced["topology_output"]["build_root"])
+        scenario_raw = json.dumps(scenario, indent=2).encode() + b"\n"
+        state = {"schema_version": 1, "resource": {"slot_id": "server-state", "logical_name": "false-extra", "kind": "state"},
+                 "actual_state": scenario["state"], "actual_scenario": scenario["name"], "actual_path": scenario["path"],
+                 "scenario_show_sha256": ledger.byte_digest(scenario_raw), "profile": "classic", "preset": "basic-player"}
+        tested = live / "workspace/build/profiles/classic-111111111111"
+        plan = {"build_root": str(tested), "tests": True}
+        plan["plan_sha256"] = hashlib.sha256(json.dumps(plan, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if produced:
+            plan = produced["build_plan"]
+            tested = Path(plan["build_root"])
+        plan_raw = json.dumps(plan).encode() + b"\n"
+        result_raw = json.dumps({"build_root": str(tested)}).encode() + b"\n"
+        log = b"54 tests passed\nregion maps generated\n"
+        build = {"resource": {"slot_id": "server-build", "name": "tested-server", "kind": "build"},
+                 "build_root": str(tested), "plan_sha256": plan["plan_sha256"],
+                 "plan_file_sha256": ledger.byte_digest(plan_raw), "result_file_sha256": ledger.byte_digest(result_raw),
+                 "log_sha256": ledger.byte_digest(log), "tests": True, "exit_code": 0, "profile": "classic"}
+        raw = {"state_observation": json.dumps(state).encode(), "scenario_output": scenario_raw,
+               "build_observation": json.dumps(build).encode(), "build_plan": plan_raw,
+               "build_result": result_raw, "build_log": log,
+               "topology_plan": b"{}", "topology_output": json.dumps({"name": "stopped-server", "build_root": str(runtime)}).encode(),
+               "planning_ledger": planned.raw}
+        if produced:
+            for key in ("topology_plan", "topology_output"):
+                raw[key] = json.dumps(produced[key], indent=2).encode() + b"\n"
+        erroneous = next_generation(planned)
+        for row in erroneous["resources"]:
+            slot = row["slot_id"]
+            if slot in {"client-reference", "client-runtime", "server-topology"}:
+                continue
+            payload_key = {"scenario": "scenario_output", "server-state": "state_observation", "server-build": "build_observation"}.get(slot)
+            row["state"] = "created"
+            row["current"] = {**row["immutable"], "generation": 1, "history": [], "external_generation": None,
+                              "identity_digest": ledger.byte_digest(raw[payload_key]) if payload_key else ledger.byte_digest(b"original observation"),
+                              "lifecycle": "stopped" if slot == "executor" else "ready" if slot in {"scenario", "server-state"} else "static"}
+        erroneous = ledger.cas(root, planned.name, erroneous, **cas_arguments(planned))
+        request = {"state_slot": "server-state", "scenario_slot": "scenario", "build_slot": "server-build",
+                   "topology_slot": "server-topology", "planned_slots": ["client-reference", "client-runtime"],
+                   "resource_context": {"kind": "bound-wrapper-worktree", "worktree_slot": "worktree"},
+                   **{key: inline_payload(value) for key, value in raw.items()}}
+        reservation = lambda path: {"reservations": [{"name": path.name, "path": str(path)}]}
+        observation = {"state": {"disposition": "false-observation-retired", "name": "false-extra", "scenario": scenario, "registry": {"schema_version": 1, "states": {scenario["state"]: str(live / "workspace/scenarios/player/state")}}},
+                       "build": {"path": str(tested), "proof": reservation(tested)},
+                       "topology": {"path": str(live / "workspace/topologies/stopped-server"), "status": {"stopped_at": "2026-09-23T00:00:00Z"}, "spec": {}, "runtime_build": reservation(runtime)},
+                       "scenario_state": reservation(live / "workspace/scenarios/player/state")}
+        return root, erroneous, request, observation
+
+    def produce_observation_resources(self, live, *, restart=False, on_running=None):
+        """Use public build/scenario/topology APIs; only game payload production is stubbed."""
+        from atrinik_workspace.workspace import Workspace, MANAGED_MARKER, atomic_json
+        def payload(root, *_args, **_kwargs):
+            binary = root / "build/server"
+            binary.mkdir(parents=True, exist_ok=True)
+            executable = binary / "atrinik-server"
+            executable.write_text("#!/usr/bin/env python3\nimport time\nprint('QUIC certificate SHA-256: " + "a" * 64 + "', flush=True)\nprint('Server ready. Waiting for connections...', flush=True)\nwhile True: time.sleep(0.1)\n")
+            executable.chmod(0o755)
+            for name in ("libplugin_arena.so", "libplugin_python.so"):
+                (binary / name).write_text("fixture library\n")
+            for name, purpose in (("content", "collected-content"), ("resources", "resource-view"), ("client-maps", "region-map-cache")):
+                directory = root / "runtime" / name
+                directory.mkdir(parents=True, exist_ok=True)
+                atomic_json(directory / MANAGED_MARKER, {"schema_version": 1, "purpose": purpose})
+            for name in ("lib", "maps"):
+                (root / "runtime/content" / name).mkdir(exist_ok=True)
+            (root / "runtime/client-maps/incuna_-1.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+            (root / "runtime/client-maps/incuna_-1.def").write_text("pixel_size 4\n")
+            return root / "runtime/content"
+        with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace"), "PYTHONDONTWRITEBYTECODE": "1"}):
+            workspace = Workspace(live, backfill_references=False)
+            try:
+                with ExitStack() as boundary:
+                    for method in ("_build_protocol", "_build_library"):
+                        boundary.enter_context(mock.patch.object(workspace, method))
+                    for method in ("_build_server", "_collect_content", "_stage_resources", "_generate_region_maps"):
+                        boundary.enter_context(mock.patch.object(workspace, method, side_effect=payload))
+                    if restart:
+                        scenario = workspace.scenario_show("player")
+                        plan = tested = None
+                    else:
+                        plan = workspace.build_plan("server", "classic", True)
+                        tested = workspace.build("server", "classic", True, expected_plan=plan["plan_sha256"])
+                        profile = workspace._load_profile("classic", require_file=False)
+                        with workspace._resolved_profile_operation("classic", {"server"}, "scenario fixture source observation") as snapshot:
+                            selected = dict(snapshot.paths())
+                        stack = workspace.manifest.stack("classic")
+                        resolved = {}
+                        for role, path in selected.items():
+                            component = stack.providers[role]
+                            checkout = workspace._selector_root(profile, component)
+                            resolved[role] = {"path": str(path), "checkout_path": str(checkout), "checkout": component.checkout_name,
+                                              "repository": component.repository, "branch": component.branch, "source": component.source,
+                                              "head": git_run(checkout, "rev-parse", "HEAD").stdout.strip(), "dirty": False}
+                        with mock.patch.object(workspace, "_scenario_provision_state", return_value=resolved):
+                            scenario = workspace.scenario_create("player", "classic")
+                    topology_plan = workspace.topology_summary("classic", scenario["state"], ["server"])
+                    try:
+                        up = workspace.topology_up("stopped-server", "classic", scenario["state"], ["server"])
+                        if on_running is not None:
+                            on_running(workspace, up)
+                    finally:
+                        if (workspace.paths.topologies / "stopped-server/status.json").exists():
+                            workspace.topology_down("stopped-server", timeout=5)
+                    if tested is not None:
+                        self.assertNotEqual(str(tested), up["build_root"])
+                    return {"scenario": scenario, "build_plan": plan, "topology_plan": topology_plan,
+                            "topology_output": up, "stopped": workspace.topology_status("stopped-server")}
+            finally:
+                workspace.close()
+
+    def test_canonical_observation_proof_rejects_producer_drift_and_preserves_saves(self):
+        # Public helper tests load accepted code from a disposable primary. Also
+        # exercise the canonical Workspace proof directly, under its real locks.
+        from atrinik_workspace import workspace as workspace_module
+        from atrinik_workspace.model import WorkspaceError
+        root, before, request, _ = self.observation_transaction_fixture("c", live_resources=True)
+        live = Path(next(row["current"]["path"] for row in before.document["artifacts"] if row["kind"] == "worktree"))
+        evidence, _, _ = ledger._observation_request(before.document, request)
+        with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
+            workspace = workspace_module.Workspace(live, backfill_references=False)
+            try:
+                def observe(value):
+                    preparation = workspace_module.Workspace._prepare_delivery_workspace(live, manifest=workspace.manifest)
+                    try:
+                        proof = preparation.plan_observation_correction(before.document["resources"], value)
+                        with workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks(), preparation.admitted():
+                            return proof.observe()
+                    finally:
+                        preparation.close()
+                original = observe(evidence)
+                self.assertEqual(observe(evidence), original)
+                self.assertEqual(original["state"]["disposition"], "false-observation-retired")
+                self.assertNotEqual(original["build"]["path"], original["topology"]["status"]["build_root"])
+                self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+                save = live / "workspace/scenarios/player/state/players/direct-proof.txt"
+                save.parent.mkdir(exist_ok=True)
+                save.write_text("legitimate saved player progress\n")
+                current = {"path": original["topology"]["path"], "lifecycle": "stopped",
+                           "identity_digest": ledger.canonical_object_digest(original["topology"]["status"])}
+                continued = {**evidence, "topology_current": current}
+                fresh = observe(continued)
+                self.assertNotEqual(original["scenario_state"], fresh["scenario_state"])
+                self.assertEqual(ledger._correction_fixed_ownership(original), ledger._correction_fixed_ownership(fresh))
+                self.assertEqual(save.read_text(), "legitimate saved player progress\n")
+                cases = [
+                    (("scenario_output", "path"), str(live / "foreign-scenario")),
+                    (("topology_output", "started_at"), "2000-01-01T00:00:00Z"),
+                    (("topology_output", "state_policy"), {"kind": "temporary"}),
+                    (("build_observation", "exit_code"), 1),
+                    (("build_plan", "tests"), False),
+                    (("build_plan", "build_key"), "f" * 12),
+                    (("build_plan", "execution_sources", "server"), str(live / "foreign-source")),
+                    (("build_plan", "git_observations", "classic", "configuration_sha256"), "f" * 64),
+                    (("topology_plan", "profile"), "foreign-profile"),
+                ]
+                for path, value in cases:
+                    with self.subTest(producer_field=path):
+                        changed = copy.deepcopy(evidence)
+                        parent = changed
+                        for key in path[:-1]:
+                            parent = parent[key]
+                        parent[path[-1]] = value
+                        with self.assertRaises(WorkspaceError):
+                            observe(changed)
+                        self.assertFalse(workspace_module._BUILD_PLAN_GIT.get())
+                        self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+                        self.assertEqual(save.read_text(), "legitimate saved player progress\n")
+                changed = copy.deepcopy(continued)
+                changed["topology_current"]["identity_digest"] = "f" * 64
+                with self.assertRaisesRegex(WorkspaceError, "current recorded stopped observation"):
+                    observe(changed)
+                spec_path = live / "workspace/topologies/stopped-server/spec.json"
+                raw_spec = spec_path.read_bytes()
+                for field, value in (("cwd", str(live)), ("log", str(live / "foreign.log")),
+                                     ("command", ["/bin/true"])):
+                    with self.subTest(service_field=field):
+                        spec = json.loads(raw_spec)
+                        spec["services"]["server"][field] = value
+                        spec_path.write_text(json.dumps(spec))
+                        try:
+                            with self.assertRaises(WorkspaceError):
+                                observe(evidence)
+                        finally:
+                            spec_path.write_bytes(raw_spec)
+                conflated = copy.deepcopy(evidence)
+                conflated["topology_output"]["build_root"] = evidence["build_observation"]["build_root"]
+                with self.assertRaisesRegex(WorkspaceError, "must remain distinct"):
+                    observe(conflated)
+                false_path = workspace.paths.state / "server/false-extra"
+                false_path.mkdir(parents=True)
+                try:
+                    with self.assertRaisesRegex(WorkspaceError, "materialized state"):
+                        observe(evidence)
+                finally:
+                    false_path.rmdir()
+                registry = workspace.paths.states_file
+                raw_registry = registry.read_bytes()
+                for coordinate, refusal in ((live / "workspace/scenarios/player/state", "foreign alias"),
+                                             (false_path, "actually registered")):
+                    registered = json.loads(raw_registry)
+                    registered["states"]["false-extra"] = str(coordinate)
+                    registry.write_text(json.dumps(registered))
+                    try:
+                        with self.assertRaisesRegex(WorkspaceError, refusal):
+                            observe(evidence)
+                    finally:
+                        registry.write_bytes(raw_registry)
+                alias = spec_path.with_name("spec-alias.json")
+                os.link(spec_path, alias)
+                try:
+                    with self.assertRaisesRegex(WorkspaceError, "hard-linked"):
+                        observe(evidence)
+                finally:
+                    alias.unlink()
+                for label in ("extra-key", "endpoint", "profile"):
+                    with self.subTest(spec_identity=label):
+                        spec = json.loads(raw_spec)
+                        if label == "extra-key":
+                            spec["unplanned"] = True
+                        elif label == "endpoint":
+                            spec["endpoint"]["port"] += 1
+                        else:
+                            spec["profile"] = "foreign-profile"
+                        spec_path.write_text(json.dumps(spec))
+                        try:
+                            with self.assertRaises(WorkspaceError):
+                                observe(evidence)
+                        finally:
+                            spec_path.write_bytes(raw_spec)
+                lease = spec_path.parent / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+                with lease.open("rb") as stream:
+                    fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    with self.assertRaises(WorkspaceError):
+                        observe(evidence)
+                self.assertEqual(observe(continued), fresh)
+            finally:
+                workspace.close()
+
+    def test_observation_correction_real_split_workspace_forward(self):
+        root, before, request, _observation = self.observation_transaction_fixture("o", live_resources=True)
+        live = Path(next(row["current"]["path"] for row in before.document["artifacts"] if row["kind"] == "worktree"))
+        def public(command, snapshot, payload):
+            path = self.live_base / "public-request.json"
+            path.write_bytes(ledger.canonical_bytes(payload))
+            arguments = [command, str(root), snapshot.name, str(path),
+                         "--expected-generation", str(snapshot.document["generation"]),
+                         "--expected-digest", snapshot.digest, "--expected-path", snapshot.path]
+            with redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(ledger.main(arguments), 0, output.getvalue())
+            return ledger.inspect(root, snapshot.name)
+        def mutable_bytes():
+            state = live / "workspace/scenarios/player/state"
+            return {str(path.relative_to(state)): hashlib.sha256(path.read_bytes()).hexdigest()
+                    for path in state.rglob("*") if path.is_file()}
+        protected = {row["slot_id"]: ledger.canonical_bytes(row) for row in before.document["resources"]
+                     if row["slot_id"] in request["planned_slots"]}
+        data = mutable_bytes()
+        self.assertTrue(data)
+        self.assertEqual(git_run(live, "status", "--porcelain").stdout, "")
+        primitive = next(row["primitive_request"] for row in before.document["artifacts"] if row["kind"] == "worktree")
+        storage = Path(primitive["roots"]["workspace"]["path"])
+        # A populated primary namespace cannot become resource authority.
+        decoy = storage / "topologies/stopped-server"
+        decoy.mkdir(parents=True, exist_ok=True)
+        (decoy / "status.json").write_text('{"resolved":{},"supervisor":{"liveness":"live"}}\n')
+        wrong_actor = {**before.document["actor"], "node_id": "U_foreign_correction"}
+        with mock.patch.object(ledger, "_authenticated_actor", return_value=wrong_actor):
+            with self.assertRaises(ledger.LedgerError):
+                ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+        stale = {**cas_arguments(before), "expected_digest": "f" * 64}
+        with self.assertRaises(ledger.LedgerError):
+            ledger.correct_resource_observations_cas(root, before.name, request, **stale)
+        self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+        registry = live / "workspace/states.json"
+        original_registry = registry.read_bytes()
+        changed_registry = json.loads(original_registry)
+        changed_registry["states"]["false-extra"] = changed_registry["states"]["scenario-player"]
+        registry.write_text(json.dumps(changed_registry))
+        with self.assertRaises(ledger.LedgerError):
+            ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+        registry.write_bytes(original_registry)
+        self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+        for lock in (live / "workspace/states.lock", live / "workspace/scenarios/.locks/player.lock",
+                     live / "workspace/topologies/stopped-server/operation.lock"):
+            with lock.open("a") as stream:
+                fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+            self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+            self.assertEqual(mutable_bytes(), data)
+        spec_path = live / "workspace/topologies/stopped-server/spec.json"
+        original_spec = spec_path.read_bytes()
+        malformed_spec = json.loads(original_spec)
+        malformed_spec["services"]["server"]["command"].append("--unplanned-argument")
+        spec_path.write_text(json.dumps(malformed_spec))
+        with self.assertRaisesRegex(ledger.LedgerError, "service launch differs"):
+            ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+        spec_path.write_bytes(original_spec)
+        self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+        corrected = public("correct-resource-observations-cas", before, request)
+        proof = next(row["correction"] for row in corrected.document["resources"] if "correction" in row)
+        topology = next(row for row in corrected.document["resources"] if row["kind"] == "topology")
+        self.assertEqual(ledger._release_topology_context(corrected.document, primitive, [topology]),
+                         (str(live), str(live / "workspace")))
+        build_roots = ledger._archive_build_roots({}, corrected.document["resources"])
+        self.assertEqual(len(build_roots), 2)
+        for build_root in build_roots:
+            self.assertEqual(ledger._archive_build_lock_path(corrected.document["resources"], build_root, storage / "build"),
+                             live / "workspace/build/locks" / (build_root.name + ".lock"))
+        with self.assertRaisesRegex(ledger.LedgerError, "runtime resource lacks"):
+            with ledger._release_resource_safety(corrected.document, primitive):
+                self.fail("generic runtime release admitted")
+        with self.assertRaisesRegex(ledger.LedgerError, "runtime resource lacks"):
+            with ledger._archive_live_safety(corrected, {}):
+                self.fail("generic runtime archive admitted")
+        admission = {"correction_slot": "server-state", "correction_sha256": ledger.canonical_object_digest(proof),
+                     "planned_slots": request["planned_slots"]}
+        for snapshot in (corrected,):
+            with self.assertRaisesRegex(ledger.LedgerError, "not bound"):
+                ledger.revalidate_current_targets_cas(root, snapshot.name, **cas_arguments(snapshot))
+            with self.assertRaisesRegex(ledger.LedgerError, "not bound"):
+                ledger.require_reusable_resources(snapshot.document)
+        # A new accepted wrapper revision advances the target independently.
+        # Retained component/build producer bytes and resource intent stay exact.
+        (live / "accepted-recovery-rollout.txt").write_text("accepted helper rollout fixture\n")
+        git_run(live, "add", "accepted-recovery-rollout.txt")
+        git_run(live, "commit", "-m", "accept recovery helper rollout")
+        head = git_run(live, "rev-parse", "HEAD").stdout.strip()
+        candidate = next_generation(corrected)
+        candidate["targets"][0]["head"]["current_sha"] = head
+        candidate["targets"][0]["head"]["lineage"].append(head)
+        for row in candidate["artifacts"]:
+            if row["kind"] in {"branch", "worktree"}:
+                row["current"]["head_sha"] = head
+        refreshed = public("target-refresh-cas", corrected, candidate)
+        self.assertEqual(refreshed.document["resources"], corrected.document["resources"])
+        admitted = public("admit-in-progress-targets-cas", refreshed, admission)
+        self.assertEqual(admitted.document, next_generation(refreshed))
+        for row in admitted.document["resources"]:
+            if row["slot_id"] in protected:
+                self.assertEqual(ledger.canonical_bytes(row), protected[row["slot_id"]])
+        self.assertEqual(mutable_bytes(), data)
+        with self.assertRaisesRegex(ledger.LedgerError, "not bound"):
+            ledger.revalidate_current_targets_cas(root, admitted.name, **cas_arguments(admitted))
+        self.assertEqual(ledger.inventory(root).pending, ())
+        historical_proof = ledger.canonical_bytes(proof)
+        progress = [admitted]
+        def observe_topology(snapshot, status, lifecycle):
+            candidate = next_generation(snapshot)
+            current = next(row for row in candidate["resources"] if row["kind"] == "topology")["current"]
+            current.update(generation=current["generation"] + 1,
+                           history=[*current["history"], current["identity_digest"]],
+                           identity_digest=ledger.canonical_object_digest(status), lifecycle=lifecycle)
+            return public("cas", snapshot, candidate)
+        def gameplay(workspace, status):
+            progress[0] = observe_topology(progress[0], status, "running")
+            with self.assertRaisesRegex(ledger.LedgerError, "unsafe for reuse"):
+                ledger.admit_in_progress_targets_cas(root, progress[0].name, admission, **cas_arguments(progress[0]))
+            save = workspace.paths.scenarios / "player/state/players/persistence-proof.txt"
+            save.parent.mkdir(exist_ok=True)
+            save.write_text("legitimate fixture gameplay progress\n")
+        restarted = self.produce_observation_resources(live, restart=True, on_running=gameplay)
+        stopped = observe_topology(progress[0], restarted["stopped"], "stopped")
+        changed_save = mutable_bytes()
+        self.assertNotEqual(changed_save, data)
+        admitted = public("admit-in-progress-targets-cas", stopped, admission)
+        self.assertEqual(mutable_bytes(), changed_save)
+        self.assertEqual(ledger.canonical_bytes(next(row["correction"] for row in admitted.document["resources"] if "correction" in row)), historical_proof)
+        with self.assertRaisesRegex(ledger.LedgerError, "not bound"):
+            ledger.revalidate_current_targets_cas(root, admitted.name, **cas_arguments(admitted))
+        # External fixture owners complete their original client preparations and
+        # record ordinary first observations; target admission grants none of it.
+        bound = next_generation(admitted)
+        for row in bound["resources"]:
+            if row["slot_id"] in admission["planned_slots"]:
+                row["state"] = "created"
+                row["current"] = {**row["immutable"], "generation": 1, "history": [], "external_generation": None,
+                                  "identity_digest": ledger.byte_digest((row["slot_id"] + " prepared externally").encode()),
+                                  "lifecycle": "static" if row["kind"] == "reference" else "stopped"}
+        bound = public("cas", admitted, bound)
+        admitted = ledger.revalidate_current_targets_cas(root, bound.name, **cas_arguments(bound))
+        self.assertEqual(mutable_bytes(), changed_save)
+        admission = {**admission, "planned_slots": []}
+        # A configured executable must never run during a refused correction
+        # reconnect. Read-only status also preserves the source index bytes.
+        source = live / "resources"
+        marker = self.live_base / "executed-git-helper"
+        for key in ("filter.evil.clean", "filter.evil.process", "core.fsmonitor"):
+            git_run(source, "config", key, "touch " + str(marker))
+        (source / ".git/info/attributes").write_text("* filter=evil\n")
+        index = (source / ".git/index").read_bytes()
+        with self.assertRaises(ledger.LedgerError):
+            ledger.admit_in_progress_targets_cas(root, admitted.name, admission, **cas_arguments(admitted))
+        self.assertFalse(marker.exists())
+        self.assertEqual((source / ".git/index").read_bytes(), index)
+        self.assertEqual(ledger.inspect(root, admitted.name).raw, admitted.raw)
+
+    @contextmanager
+    def observation_transaction_proof(self, document, *, observation_request=None, observations=None, admission_request=None, **kwargs):
+        if admission_request is not None:
+            slots = ledger._inprogress_selection(document, admission_request)
+            ledger.require_reusable_resources(document, _recovery_slots=slots)
+        if observations is not None:
+            observations["observation-correction"] = copy.deepcopy(self.transaction_observation)
+        yield lambda: None
+
+    def test_observation_correction_transaction_preserves_intent_and_strict_reuse(self):
+        root, before, request, observation = self.observation_transaction_fixture("observation-neutral")
+        self.transaction_observation = observation
+        with mock.patch.object(ledger, "_current_targets_live_safety", side_effect=self.observation_transaction_proof):
+            corrected = ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+            for old, new in zip(before.document["resources"], corrected.document["resources"]):
+                self.assertEqual(old["immutable"], new["immutable"])
+                if old["slot_id"].startswith("client-"):
+                    self.assertEqual(old, new)
+            retired = next(row for row in corrected.document["resources"] if row["slot_id"] == "server-state")
+            self.assertEqual(retired["current"], next(row for row in before.document["resources"] if row["slot_id"] == "server-state")["current"])
+            self.assertEqual(ledger._retained_result(retired["correction"]["predecessor"]["payload"], "test"), before.raw)
+            with self.assertRaisesRegex(ledger.LedgerError, "not bound"):
+                ledger.require_reusable_resources(corrected.document)
+            admission = {"correction_slot": "server-state", "correction_sha256": ledger.canonical_object_digest(retired["correction"]),
+                         "planned_slots": request["planned_slots"]}
+            admitted = ledger.admit_in_progress_targets_cas(root, corrected.name, admission, **cas_arguments(corrected))
+            self.assertEqual(admitted.document, next_generation(corrected))
+            with self.assertRaises(ledger.LedgerError):
+                ledger.require_reusable_resources(admitted.document)
+            bad = next_generation(admitted)
+            next(row for row in bad["resources"] if row["slot_id"] == "server-build")["current"]["path"] += "-wrong"
+            with self.assertRaises(ledger.LedgerError):
+                ledger.cas(root, admitted.name, bad, **cas_arguments(admitted))
+
+    def test_observation_correction_generic_cas_and_payload_drift_refuse(self):
+        root, before, request, observation = self.observation_transaction_fixture("observation-forgery")
+        self.transaction_observation = observation
+        for key in ("state_observation", "scenario_output", "build_observation", "build_plan", "build_result", "build_log", "planning_ledger"):
+            bad = copy.deepcopy(request)
+            bad[key] = inline_payload(b"{}\n")
+            with self.subTest(payload=key), self.assertRaises(ledger.LedgerError):
+                ledger.correct_resource_observations_cas(root, before.name, bad, **cas_arguments(before))
+            self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+        with mock.patch.object(ledger, "_current_targets_live_safety", side_effect=self.observation_transaction_proof):
+            def crash(point):
+                if point == "cas:renamed":
+                    raise RuntimeError("crash")
+            with self.assertRaisesRegex(RuntimeError, "crash"):
+                ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before), failpoint=crash)
+            installed = ledger.inspect(root, before.name)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.cas(root, before.name, installed.document, **cas_arguments(before))
+            result = ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+            self.assertEqual(result.raw, installed.raw)
+            self.assertFalse(ledger.inventory(root).pending)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+
+    def test_in_progress_admission_exact_selection_running_and_receipt_refusals(self):
+        root, before, request, observation = self.observation_transaction_fixture("admit-exact")
+        self.transaction_observation = observation
+        with mock.patch.object(ledger, "_current_targets_live_safety", side_effect=self.observation_transaction_proof):
+            corrected = ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+            proof = next(row["correction"] for row in corrected.document["resources"] if "correction" in row)
+            admission = {"correction_slot": "server-state", "correction_sha256": ledger.canonical_object_digest(proof),
+                         "planned_slots": request["planned_slots"]}
+            for selected in ([], ["client-reference"], ["client-reference", "client-reference"],
+                             ["client-reference", "client-runtime", "executor"], ["server-topology"]):
+                with self.subTest(selected=selected), self.assertRaises(ledger.LedgerError):
+                    ledger.admit_in_progress_targets_cas(root, corrected.name, {**admission, "planned_slots": selected}, **cas_arguments(corrected))
+                self.assertEqual(ledger.inspect(root, corrected.name).raw, corrected.raw)
+            running = next_generation(corrected)
+            executor = next(row for row in running["resources"] if row["slot_id"] == "executor")["current"]
+            old_digest = executor["identity_digest"]
+            executor.update(lifecycle="running", identity_digest=ledger.byte_digest(b"new running observation"),
+                            generation=executor["generation"] + 1, history=[old_digest])
+            running = ledger.cas(root, corrected.name, running, **cas_arguments(corrected))
+            with self.assertRaisesRegex(ledger.LedgerError, "unsafe for reuse"):
+                ledger.admit_in_progress_targets_cas(root, running.name, admission, **cas_arguments(running))
+            stopped = next_generation(running)
+            executor = next(row for row in stopped["resources"] if row["slot_id"] == "executor")["current"]
+            executor.update(lifecycle="stopped", history=[*executor["history"], executor["identity_digest"]],
+                            generation=executor["generation"] + 1, identity_digest=ledger.byte_digest(b"new inspected stopped observation"))
+            stopped = ledger.cas(root, running.name, stopped, **cas_arguments(running))
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.admit_in_progress_targets_cas(root, stopped.name, admission, **cas_arguments(stopped), failpoint="cas:renamed")
+            installed = ledger.inspect(root, stopped.name)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.cas(root, stopped.name, installed.document, **cas_arguments(stopped))
+            with self.assertRaises(ledger.LedgerError):
+                ledger.admit_in_progress_targets_cas(root, stopped.name, {**admission, "planned_slots": []}, **cas_arguments(stopped))
+            recovered = ledger.admit_in_progress_targets_cas(root, stopped.name, admission, **cas_arguments(stopped))
+            self.assertEqual(recovered.raw, installed.raw)
+            self.assertEqual(ledger.inventory(root).pending, ())
+            with self.assertRaises(ledger.LedgerError):
+                ledger.admit_in_progress_targets_cas(root, stopped.name, admission, **cas_arguments(stopped))
+
+    def test_observation_correction_competing_writers_publish_once(self):
+        root, before, request, observation = self.observation_transaction_fixture("correction-race")
+        self.transaction_observation = observation
+        barrier = threading.Barrier(2)
+        results, errors = [], []
+        @contextmanager
+        def proof(*args, **kwargs):
+            with self.observation_transaction_proof(*args, **kwargs) as recheck:
+                barrier.wait(timeout=10)
+                yield recheck
+        def writer():
+            try:
+                results.append(ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before)))
+            except ledger.LedgerError as error:
+                errors.append(error)
+        with mock.patch.object(ledger, "_current_targets_live_safety", side_effect=proof):
+            threads = [threading.Thread(target=writer) for _ in range(2)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join(timeout=20)
+                self.assertFalse(thread.is_alive())
+        self.assertEqual(len(results), 1)
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(ledger.inspect(root, before.name).raw, results[0].raw)
+        self.assertEqual(ledger.inventory(root).pending, ())
+
+    def test_corrected_archive_without_runtime_refuses_before_storage_namespace(self):
+        root, before, request, observation = self.observation_transaction_fixture("archive-corrected", executor=False)
+        self.transaction_observation = observation
+        with mock.patch.object(ledger, "_current_targets_live_safety", side_effect=self.observation_transaction_proof):
+            corrected = ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+        with mock.patch.object(ledger, "_load_workspace_module", side_effect=AssertionError("must not enter storage namespace")):
+            with self.assertRaisesRegex(ledger.LedgerError, "correction lacks terminal resource authority"):
+                with ledger._archive_live_safety(corrected, {}):
+                    self.fail("archive admitted unproven correction terminal authority")
+        self.assertEqual(ledger.inspect(root, corrected.name).raw, corrected.raw)
+
+    def test_observation_transactions_reprove_staged_and_installed_retries(self):
+        for operation in ("correction", "admission"):
+            for point in ("cas:receipted", "cas:staged", "cas:proofed", "cas:installed", "cas:receipt-consumed"):
+                with self.subTest(operation=operation, point=point):
+                    root, before, request, observation = self.observation_transaction_fixture(operation + "-" + point.split(":")[1])
+                    self.transaction_observation = observation
+                    with mock.patch.object(ledger, "_current_targets_live_safety", side_effect=self.observation_transaction_proof) as proof_calls:
+                        function = ledger.correct_resource_observations_cas
+                        if operation == "admission":
+                            before = function(root, before.name, request, **cas_arguments(before))
+                            proof = next(row["correction"] for row in before.document["resources"] if "correction" in row)
+                            request = {"correction_slot": "server-state", "correction_sha256": ledger.canonical_object_digest(proof),
+                                       "planned_slots": request["planned_slots"]}
+                            function = ledger.admit_in_progress_targets_cas
+                        with self.assertRaises(ledger.InjectedCrash):
+                            function(root, before.name, request, **cas_arguments(before), failpoint=point)
+                        calls = proof_calls.call_count
+                        result = function(root, before.name, request, **cas_arguments(before))
+                        self.assertGreater(proof_calls.call_count, calls)
+                        self.assertEqual(result.document["generation"], before.document["generation"] + 1)
+                        self.assertEqual(ledger.inventory(root).pending, ())
+                        with self.assertRaises(ledger.LedgerError):
+                            function(root, before.name, request, **cas_arguments(before))
 
     def test_split_resource_context_public_recovery_and_reconnect(self):
         with tempfile.TemporaryDirectory() as temporary:

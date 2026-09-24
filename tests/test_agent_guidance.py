@@ -43,6 +43,20 @@ def read_guidance_contract(path: Path) -> str:
 
 
 class AgentGuidanceTests(unittest.TestCase):
+    def test_observation_recovery_has_distinct_prepublication_protocol(self) -> None:
+        skill = ROOT / ".agents/skills/atrinik-issue-delivery"
+        reference = "resource-observation-recovery.md"
+        for path in (skill / "SKILL.md", skill / "references/preparation.md"):
+            self.assertIn(reference, path.read_text())
+        protocol = (skill / "references" / reference).read_text()
+        for contract in ("correct-resource-observations-cas", "admit-in-progress-targets-cas",
+                         "target-refresh-cas", "revalidate-current-targets-cas",
+                         "Candidate helpers are fixture-only", "byte-identical",
+                         "JSON stdout", "configuration digest", "not a Docker verifier",
+                         "generic external-runtime release/archive limitations"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, protocol)
+
     def test_same_head_reconnect_uses_public_neutral_proof(self) -> None:
         issue = ROOT / ".agents/skills/atrinik-issue-delivery"
         project = ROOT / ".agents/skills/atrinik-project-delivery"
@@ -892,6 +906,7 @@ class AgentGuidanceTests(unittest.TestCase):
                 "references/tooling-issues.md",
                 "references/preparation.md",
                 "references/runtime-verification.md",
+                "references/resource-observation-recovery.md",
                 "scripts/delivery_ledger.py",
             },
         )

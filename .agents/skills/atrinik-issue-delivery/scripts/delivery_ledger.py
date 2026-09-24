@@ -158,20 +158,20 @@ _CREATE_STAGE_RE = re.compile(
 _MIGRATE_STAGE_RE = re.compile(r"^\.(?P<target>.+\.md\.ledger\.json)\.migrate\.tmp$")
 _UPDATE_STAGE_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update"
-    r"(?P<operation>-recover-resources|-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
+    r"(?P<operation>-correct-observations|-admit-targets-[0-9a-f]{64}|-recover-resources|-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g(?P<generation>[0-9]+)-"
     r"from-(?P<digest>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_RECEIPT_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update-proof"
-    r"(?P<operation>-recover-resources|-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
+    r"(?P<operation>-correct-observations|-admit-targets-[0-9a-f]{64}|-recover-resources|-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g"
     r"(?P<generation>[0-9]+)-from-(?P<digest>[0-9a-f]{64})-"
     r"(?:d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-|path-)"
     r"to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_OPERATION_RE = re.compile(
-    r"^(?:|-recover-resources|-revalidate-targets|-refresh-target"
+    r"^(?:|-correct-observations|-admit-targets-[0-9a-f]{64}|-recover-resources|-revalidate-targets|-refresh-target"
     r"|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}"
     r"|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}"
     r"|-recover-identity)$"
@@ -336,6 +336,8 @@ _ATOMIC_BIND_TOKEN = object()
 _TARGET_REFRESH_TOKEN = object()
 _CURRENT_TARGETS_TOKEN = object()
 _RESOURCE_RECOVERY_TOKEN = object()
+_OBSERVATION_CORRECTION_TOKEN = object()
+_INPROGRESS_TARGETS_TOKEN = object()
 _RESOURCE_PROOF_DEPTH = ContextVar("resource_recovery_proof_depth", default=0)
 _SCOPE_RECOVERY_TOKEN = object()
 _IDENTITY_RECOVERY_TOKEN = object()
@@ -412,6 +414,18 @@ class _CurrentTargetsCapability:
 @dataclass(frozen=True)
 class _ResourceRecoveryCapability(_CurrentTargetsCapability):
     """Authority for one helper-derived terminal resource disposition."""
+
+
+@dataclass(frozen=True)
+class _ObservationCorrectionCapability(_CurrentTargetsCapability):
+    """Authority for the exact helper-derived observation correction."""
+
+
+@dataclass(frozen=True)
+class _InProgressTargetsCapability(_CurrentTargetsCapability):
+    """Neutral target proof bound to its exact retained unfinished selection."""
+
+    request_raw: bytes
 
 
 @dataclass(frozen=True)
@@ -6592,19 +6606,254 @@ def _recovered_resource_proof(resource, context):
     return before
 
 
+
+def _prepublication_observation_owner(document):
+    if document["entry_mode"] != "issue" or document["selected_prs"]:
+        raise LedgerError("observation recovery requires an unpublished issue delivery")
+    if any(row["kind"] == "pull_request" and (row["state"] != "planned" or row["current"] is not None)
+           for row in document["artifacts"]):
+        raise LedgerError("observation recovery cannot change publication in progress")
+
+
+def _observation_request(document, request):
+    """Validate retained producer bytes, original planning and exact correction scope."""
+    keys = {"state_slot", "scenario_slot", "build_slot", "topology_slot", "planned_slots",
+            "resource_context", "planning_ledger", "state_observation", "scenario_output",
+            "build_observation", "build_plan", "build_result", "build_log",
+            "topology_plan", "topology_output"}
+    _exact(request, keys, "observation correction request")
+    _prepublication_observation_owner(document)
+    slots = [request[key] for key in ("state_slot", "scenario_slot", "build_slot", "topology_slot")]
+    for slot in slots:
+        _string(slot, "observation correction slot", SLOT_RE)
+    if len(set(slots)) != 4:
+        raise LedgerError("observation correction requires four distinct producer/resource slots")
+    rows = {row["slot_id"]: row for row in document["resources"]}
+    for key, kind in (("state_slot", "state"), ("scenario_slot", "scenario"),
+                      ("build_slot", "build"), ("topology_slot", "topology")):
+        row = rows.get(request[key])
+        if row is None or row["kind"] != kind or row["immutable"]["path"] is not None:
+            raise LedgerError("observation correction resource shape is unsupported")
+        if kind == "topology":
+            if row["state"] != "planned" or row["current"] is not None:
+                raise LedgerError("topology correction requires its genuine unbound plan")
+        elif row["state"] != "created" or row["current"] is None or row["current"]["path"] is not None:
+            raise LedgerError("observation correction requires exact created deferred observations")
+    context = _bound_resource_context(document, request["resource_context"], slots)
+    raw = {key: _retained_result(request[key], "observation correction " + key)
+           for key in keys - {"state_slot", "scenario_slot", "build_slot", "topology_slot", "planned_slots", "resource_context"}}
+    values = {key: _decode(value, "retained " + key) for key, value in raw.items() if key != "build_log"}
+    if any(not isinstance(value, dict) for value in values.values()):
+        raise LedgerError("retained correction evidence must contain JSON objects")
+    planning = validate(values["planning_ledger"])
+    if canonical_bytes(planning) != raw["planning_ledger"] or byte_digest(raw["planning_ledger"]) not in document["history"]:
+        raise LedgerError("original planning ledger is absent from exact predecessor history")
+    for field in ("ledger_id", "actor", "authority", "program", "entry_mode", "issues", "closing_scope"):
+        if planning[field] != document[field]:
+            raise LedgerError("original planning authority differs")
+    planned = {row["slot_id"]: row for row in planning["resources"]}
+    for slot in slots:
+        if (slot not in planned or planned[slot]["state"] != "planned" or planned[slot]["current"] is not None
+                or planned[slot]["kind"] != rows[slot]["kind"] or planned[slot]["immutable"] != rows[slot]["immutable"]):
+            raise LedgerError("resource lacks exact earlier producer intent")
+    inert = _sorted_names(request["planned_slots"], "unfinished client plans", nonempty=False)
+    for slot in inert:
+        row = rows.get(slot)
+        if (row is None or row != planned.get(slot) or row["kind"] not in {"reference", "runtime"}
+                or row["state"] != "planned" or row["current"] is not None
+                or row["immutable"]["path"] is not None
+                or row["immutable"]["repository"] != rows[request["state_slot"]]["immutable"]["repository"]):
+            raise LedgerError("unfinished client intent is not an exact original inert plan")
+    remaining = sorted(row["slot_id"] for row in document["resources"]
+                       if row["state"] == "planned" and row["slot_id"] != request["topology_slot"])
+    if inert != remaining:
+        raise LedgerError("unfinished client selection must exactly cover remaining planned resources")
+    for key, slot in (("state_observation", request["state_slot"]),
+                      ("scenario_output", request["scenario_slot"]),
+                      ("build_observation", request["build_slot"])):
+        if byte_digest(raw[key]) != rows[slot]["current"]["identity_digest"]:
+            raise LedgerError("retained original observation does not match its recorded digest")
+    state = values["state_observation"]
+    scenario = values["scenario_output"]
+    if (state.get("schema_version") != 1 or state.get("resource") != {
+            "slot_id": request["state_slot"], "logical_name": rows[request["state_slot"]]["immutable"]["name"], "kind": "state"}
+            or state.get("actual_state") != scenario.get("state")
+            or state.get("actual_scenario") != scenario.get("name")
+            or state.get("actual_path") != scenario.get("path")
+            or state.get("scenario_show_sha256") != byte_digest(raw["scenario_output"])
+            or scenario.get("name") != rows[request["scenario_slot"]]["immutable"]["name"]
+            or state.get("profile") != scenario.get("profile")
+            or state.get("preset") != scenario.get("preset")):
+        raise LedgerError("false state observation lacks its exact earlier scenario producer")
+    build = values["build_observation"]
+    if (build.get("resource") != {"slot_id": request["build_slot"], "name": rows[request["build_slot"]]["immutable"]["name"], "kind": "build"}
+            or build.get("plan_file_sha256") != byte_digest(raw["build_plan"])
+            or build.get("result_file_sha256") != byte_digest(raw["build_result"])
+            or build.get("log_sha256") != byte_digest(raw["build_log"])
+            or values["build_result"] != {"build_root": build.get("build_root")}):
+        raise LedgerError("tested build lacks exact retained plan/result/log provenance")
+    try:
+        log = raw["build_log"].decode("utf-8")
+    except UnicodeError as error:
+        raise LedgerError("retained build log is not UTF-8") from error
+    if not log.endswith("\n") or not log:
+        raise LedgerError("retained build diagnostic log is incomplete")
+    plan = dict(values["build_plan"])
+    plan_digest = plan.pop("plan_sha256", None)
+    if (plan_digest != build.get("plan_sha256")
+            or hashlib.sha256(json.dumps(plan, sort_keys=True, separators=(",", ":")).encode()).hexdigest() != plan_digest):
+        raise LedgerError("retained build plan execution digest differs")
+    if values["topology_output"].get("name") != rows[request["topology_slot"]]["immutable"]["name"]:
+        raise LedgerError("topology output differs from original planned name")
+    return {**values, **{key: request[key] for key in ("state_slot", "scenario_slot", "build_slot", "topology_slot")}}, context, frozenset(inert)
+
+
+def _observation_projection(before, request, observations):
+    rows = copy.deepcopy(before["resources"])
+    for row in rows:
+        if row["slot_id"] == request["state_slot"]:
+            row["state"] = "retired-observation"
+        elif row["slot_id"] == request["build_slot"]:
+            row["current"]["path"] = _absolute_path(observations["build"]["path"], "corrected tested build path")
+        elif row["slot_id"] == request["topology_slot"]:
+            row["state"] = "created"
+            row["current"] = {**row["immutable"], "path": _absolute_path(observations["topology"]["path"], "corrected topology path"),
+                              "generation": 1, "history": [], "external_generation": None,
+                              "identity_digest": canonical_object_digest(observations["topology"]["status"]), "lifecycle": "stopped"}
+    return rows
+
+
+def _observation_correction_proof(resource, context):
+    proof = _exact(resource["correction"], {"predecessor", "request", "observations", "resource_context"}, context + ".correction")
+    predecessor = _exact(proof["predecessor"], {"generation", "digest", "path", "payload"}, context + ".predecessor")
+    _absolute_path(predecessor["path"], "correction predecessor path")
+    raw = _retained_result(predecessor["payload"], "correction predecessor")
+    before = _decode(raw, "correction predecessor")
+    if any("correction" in row for row in before.get("resources", [])):
+        raise LedgerError("nested observation correction is unsupported")
+    before = validate(before)
+    if (canonical_bytes(before) != raw or byte_digest(raw) != predecessor["digest"]
+            or before["generation"] != predecessor["generation"]):
+        raise LedgerError("observation correction predecessor differs")
+    _values, derived, _inert = _observation_request(before, proof["request"])
+    if derived != proof["resource_context"]:
+        raise LedgerError("observation correction namespace differs")
+    observations = _exact(proof["observations"], {"state", "build", "topology", "scenario_state"}, "correction observations")
+    state = _exact(observations["state"], {"disposition", "name", "scenario", "registry"}, "corrected false observation")
+    build = _exact(observations["build"], {"path", "proof"}, "corrected tested build")
+    topology = _exact(observations["topology"], {"path", "status", "spec", "runtime_build"}, "corrected topology")
+    if (state["disposition"] != "false-observation-retired"
+            or state["name"] != _values["state_observation"]["resource"]["logical_name"]
+            or state["scenario"] != _values["scenario_output"]
+            or build["path"] != _values["build_observation"]["build_root"]
+            or topology["path"] != str(Path(derived["workspace"]) / "topologies" / _values["topology_output"]["name"])):
+        raise LedgerError("correction observations differ from original producer coordinates")
+    for retained in (build["proof"], topology["runtime_build"], observations["scenario_state"]):
+        if not isinstance(retained, dict) or not isinstance(retained.get("reservations"), list) or not retained["reservations"] or len(retained["reservations"]) > 256:
+            raise LedgerError("correction residual reservations are invalid")
+        for reservation in retained["reservations"]:
+            _exact(reservation, {"name", "path"}, "correction reservation")
+            _string(reservation["name"], "correction reservation name", REFERENCE_RE)
+            _absolute_path(reservation["path"], "correction reservation path")
+    expected = next((row for row in _observation_projection(before, proof["request"], proof["observations"])
+                     if row["slot_id"] == resource["slot_id"]), None)
+    actual = {key: value for key, value in resource.items() if key != "correction"}
+    if expected is not None and resource["slot_id"] == proof["request"]["topology_slot"]:
+        anchor, current = expected["current"], resource["current"]
+        if any(current[field] != anchor[field] for field in ("repository", "name", "path", "external_generation")):
+            raise LedgerError("corrected topology changed its original ownership coordinate")
+        if current["generation"] == anchor["generation"]:
+            if current != anchor:
+                raise LedgerError("corrected topology initial observation changed")
+        elif current["generation"] < anchor["generation"] or not current["history"] or current["history"][0] != anchor["identity_digest"]:
+            raise LedgerError("corrected topology lost its original observation lineage")
+        actual = {**actual, "current": anchor}
+    if expected is None or actual != expected:
+        raise LedgerError("observation correction changed an unrelated resource field")
+    return before
+
+
+
+def _correction_fixed_ownership(observations):
+    """Separate immutable provenance from fresh stopped status and save bytes."""
+    fixed = copy.deepcopy(observations)
+    fixed["topology"].pop("status", None)
+    spec = fixed["topology"]["spec"]
+    for field in ("control", "runtime", "port_reservation", "endpoint"):
+        spec.pop(field, None)
+    # Fresh workspace proof validates every generation-local launch argument,
+    # executable/cwd and released lease against the exact recorded status.
+    if "services" in spec:
+        spec["services"] = {name: {"log": service["log"]} for name, service in spec["services"].items()}
+    for row in fixed["topology"]["runtime_build"].get("observations", []):
+        row.get("metadata", {}).pop("last_used_at", None)
+    for row in fixed["scenario_state"].get("observations", []):
+        row.pop("tree_sha256", None)
+    return fixed
+
+
+def _retained_correction(document):
+    corrected = [row for row in document["resources"] if "correction" in row]
+    if not corrected:
+        return None
+    proof = corrected[0]["correction"]
+    before = _observation_correction_proof(corrected[0], "retained observation correction")
+    return before, proof
+
+
+
+def _observation_namespace(document, resource):
+    retained = _retained_correction(document)
+    if retained is None:
+        return None
+    _before, proof = retained
+    linked = {proof["request"][key] for key in ("state_slot", "scenario_slot", "build_slot", "topology_slot")}
+    if resource["slot_id"] in linked:
+        return proof["resource_context"]
+    if (resource["kind"] == "profile" and resource in _before["resources"]
+            and resource["immutable"]["repository"] == next(row["immutable"]["repository"] for row in _before["resources"] if row["slot_id"] == proof["request"]["state_slot"])
+            and resource["immutable"]["name"] == proof["observations"]["state"]["scenario"]["profile"]):
+        return proof["resource_context"]
+    return None
+
+
+def _inprogress_selection(document, request):
+    _exact(request, {"correction_slot", "correction_sha256", "planned_slots"}, "in-progress target request")
+    _prepublication_observation_owner(document)
+    retained = _retained_correction(document)
+    if retained is None:
+        raise LedgerError("in-progress admission requires a proven observation correction")
+    before, proof = retained
+    if (request["correction_slot"] != proof["request"]["state_slot"]
+            or request["correction_sha256"] != canonical_object_digest(proof)):
+        raise LedgerError("in-progress admission correction anchor differs")
+    slots = _sorted_names(request["planned_slots"], "in-progress planned slots", nonempty=False)
+    if not set(slots).issubset(proof["request"]["planned_slots"]):
+        raise LedgerError("in-progress admission selection differs from original unfinished plans")
+    original = {row["slot_id"]: row for row in before["resources"]}
+    current = {row["slot_id"]: row for row in document["resources"]}
+    if slots != sorted(row["slot_id"] for row in document["resources"] if row["state"] == "planned"):
+        raise LedgerError("in-progress admission must select every remaining unfinished plan")
+    for slot in slots:
+        if current.get(slot) != original.get(slot) or current[slot]["kind"] not in {"reference", "runtime"} or current[slot]["current"] is not None:
+            raise LedgerError("in-progress admission changed original inert client intent")
+    return frozenset(slots)
+
+
 def _resource(value: Any, context: str) -> tuple[str, str]:
     scope = isinstance(value, dict) and value.get("kind") == "scope"
     recovered = isinstance(value, dict) and value.get("state") == "recovered"
     item = _exact(
         value,
         {"slot_id", "kind", "state", "immutable", "current"}
-        | ({"request"} if scope else set()) | ({"recovery"} if recovered else set()),
+        | ({"request"} if scope else set()) | ({"recovery"} if recovered else set())
+        | ({"correction"} if isinstance(value, dict) and "correction" in value else set()),
         context,
     )
     slot = _string(item["slot_id"], f"{context}.slot_id", SLOT_RE)
     if item["kind"] not in RESOURCE_KINDS:
         raise LedgerError(f"{context}.kind is invalid")
-    if item["state"] not in ARTIFACT_STATES | {"recovered"}:
+    if item["state"] not in ARTIFACT_STATES | {"recovered", "retired-observation"}:
         raise LedgerError(f"{context}.state is invalid")
     immutable = _resource_identity(
         item["immutable"], f"{context}.immutable", current=False, scope=scope
@@ -6632,7 +6881,11 @@ def _resource(value: Any, context: str) -> tuple[str, str]:
         raise LedgerError(f"{context} planned resource must not have current identity")
     if item["state"] not in {"planned", "recovered"} and current is None:
         raise LedgerError(f"{context} bound resource requires current identity")
-    if current is not None and current[:5] != immutable[:5]:
+    if "correction" in item:
+        _observation_correction_proof(item, context)
+    elif item["state"] == "retired-observation":
+        raise LedgerError("retired observation requires immutable correction proof")
+    if current is not None and current[:5] != immutable[:5] and "correction" not in item:
         raise LedgerError(f"{context} immutable resource identity changed")
     if current is not None:
         lifecycle = current[-1]
@@ -7288,6 +7541,20 @@ def validate(document: Any) -> dict[str, Any]:
             any(row["recovery"].get(field) != proof.get(field) for field in ("predecessor", "slots", "build_outputs", "resource_context")) for row in peers
         ):
             raise LedgerError("resource recovery batch proof is incomplete")
+    corrected = [row for row in item["resources"] if "correction" in row]
+    if corrected:
+        proof = corrected[0]["correction"]
+        predecessor = proof["predecessor"]
+        expected_slots = sorted(proof["request"][key] for key in ("state_slot", "build_slot", "topology_slot"))
+        if sorted(row["slot_id"] for row in corrected) != expected_slots or any(row["correction"] != proof for row in corrected):
+            raise LedgerError("observation correction peer proofs differ")
+        if generation <= predecessor["generation"] or history[predecessor["generation"] - 1] != predecessor["digest"]:
+            raise LedgerError("observation correction predecessor is absent from history")
+        before = _decode(_retained_result(predecessor["payload"], "correction predecessor"), "correction predecessor")
+        for field in ("ledger_id", "actor", "authority", "program", "issues", "entry_mode", "closing_scope"):
+            if item[field] != before[field]:
+                raise LedgerError("observation correction authority changed")
+        _retained_resource_context(item, {"resource_context": proof["resource_context"], "slots": expected_slots})
     migration = item["migration"]
     if migration is not None:
         migration_keys = {
@@ -7491,7 +7758,7 @@ def require_reusable_resources(document: Mapping[str, Any], *, _recovery_slots: 
 
     item = validate(document)
     for resource in item["resources"]:
-        if resource["state"] == "recovered" or resource["slot_id"] in _recovery_slots:
+        if resource["state"] in {"recovered", "retired-observation"} or resource["slot_id"] in _recovery_slots:
             continue
         if resource["state"] == "planned" or resource["current"] is None:
             raise LedgerError(f"resource is not bound for reuse: {resource['slot_id']}")
@@ -9990,6 +10257,19 @@ def _reserved_repository_worktree_paths(
     return paths
 
 
+def _resource_reserved_paths(resource):
+    paths = {identity["path"] for identity in (resource["immutable"], resource["current"])
+             if identity is not None and identity["path"] is not None}
+    if resource["state"] == "recovered":
+        paths.update(row["path"] for row in resource["recovery"]["observation"]["reservations"])
+    if "correction" in resource:
+        observations = resource["correction"]["observations"]
+        paths.update(observations[kind]["path"] for kind in ("build", "topology"))
+        for proof in (observations["build"]["proof"], observations["topology"]["runtime_build"], observations["scenario_state"]):
+            paths.update(row["path"] for row in proof["reservations"])
+    return sorted(paths)
+
+
 def _conflict_keys(snapshot: Snapshot) -> Iterator[tuple[str, tuple[Any, ...]]]:
     document = snapshot.document
     if document["program"] is not None:
@@ -10048,13 +10328,29 @@ def _conflict_keys(snapshot: Snapshot) -> Iterator[tuple[str, tuple[Any, ...]]]:
                     request["label"].casefold(),
                 )
     for slot in document["resources"]:
+        if "correction" in slot:
+            proof = slot["correction"]
+            if slot["current"]["path"] is not None:
+                yield "resource/path", (slot["current"]["path"].casefold(),)
+            if slot["slot_id"] == proof["request"]["state_slot"]:
+                for kind in ("build", "topology"):
+                    yield "resource/path", (proof["observations"][kind]["path"].casefold(),)
+                for value in (proof["observations"]["build"]["proof"],
+                              proof["observations"]["topology"]["runtime_build"],
+                              proof["observations"]["scenario_state"]):
+                    for reservation in value["reservations"]:
+                        yield "resource/path", (reservation["path"].casefold(),)
+        namespace = _observation_namespace(document, slot)
+        if namespace is None and slot["state"] == "recovered":
+            namespace = _retained_resource_context(document, slot["recovery"])
+        namespace_key = (namespace["workspace"].casefold(),) if namespace is not None else ()
         if slot["state"] == "recovered":
             for reservation in slot["recovery"]["observation"]["reservations"]:
-                yield "resource/name", (reservation["name"].casefold(),)
+                yield "resource/name", (reservation["name"].casefold(), *namespace_key)
                 yield "resource/path", (reservation["path"].casefold(),)
         identity = slot["immutable"]
         repository = identity["repository"]
-        yield "resource/name", (identity["name"].casefold(),)
+        yield "resource/name", (identity["name"].casefold(), *namespace_key)
         if identity["path"] is not None:
             yield "resource/path", (identity["path"].casefold(),)
         if slot["kind"] == "scope":
@@ -10073,6 +10369,7 @@ def _reject_overlaps(
     inert_keys: frozenset[tuple[str, str]] = frozenset(),
 ) -> None:
     owners: dict[tuple[str, tuple[Any, ...]], Snapshot] = {}
+    resource_names: dict[str, list[tuple[str | None, Snapshot]]] = {}
     ledger_ids: dict[str, Snapshot] = {}
     repository_coordinates: dict[tuple[str, str], str] = {}
     repository_nodes: dict[str, tuple[str, str]] = {}
@@ -10203,23 +10500,25 @@ def _reject_overlaps(
             )
         ledger_ids[snapshot.document["ledger_id"]] = snapshot
         for resource in snapshot.document["resources"]:
-            candidate_paths = [resource["immutable"]["path"]] if resource["immutable"]["path"] is not None else []
-            if resource["state"] == "recovered":
-                candidate_paths.extend(row["path"] for row in resource["recovery"]["observation"]["reservations"])
+            candidate_paths = _resource_reserved_paths(resource)
             for prior in ledger_ids.values():
                 if prior.name == snapshot.name:
                     continue
                 for retained in prior.document["resources"]:
-                    if retained["state"] != "recovered" and resource["state"] != "recovered":
+                    if retained["state"] != "recovered" and resource["state"] != "recovered" and "correction" not in retained and "correction" not in resource:
                         continue
-                    paths = [retained["immutable"]["path"]] if retained["immutable"]["path"] is not None else []
-                    if retained["state"] == "recovered":
-                        paths.extend(row["path"] for row in retained["recovery"]["observation"]["reservations"])
+                    paths = _resource_reserved_paths(retained)
                     if any(Path(left.casefold()).is_relative_to(Path(right.casefold()))
                            or Path(right.casefold()).is_relative_to(Path(left.casefold()))
                            for left in candidate_paths for right in paths):
                         raise LedgerError("resource ownership overlaps a retained recovery reservation")
         for kind, key in _conflict_keys(snapshot):
+            if kind == "resource/name":
+                namespace = key[1] if len(key) == 2 else None
+                for prior_namespace, prior_owner in resource_names.get(key[0], []):
+                    if prior_owner.name != snapshot.name and (namespace is None or prior_namespace is None or namespace == prior_namespace):
+                        raise LedgerError("resource/name ownership overlap in an equal or unproven namespace")
+                resource_names.setdefault(key[0], []).append((namespace, snapshot))
             prior = owners.get((kind, key))
             if prior is not None and prior.name != snapshot.name:
                 # An operation may present the exact already-installed target twice
@@ -12497,6 +12796,17 @@ def _release_plan(
     return document, raw, byte_digest(raw)
 
 
+def _release_topology_context(document, request, topologies):
+    wrapper_root = request["roots"]["wrapper"]["path"]
+    workspace_root = request["roots"]["workspace"]["path"]
+    contexts = [_observation_namespace(document, resource) for resource in topologies]
+    if any(context is not None for context in contexts):
+        if any(context is None or context != contexts[0] for context in contexts):
+            raise LedgerError("release topology resource namespaces are ambiguous")
+        return contexts[0]["wrapper"], contexts[0]["workspace"]
+    return wrapper_root, workspace_root
+
+
 @contextmanager
 def _release_resource_safety(
     document: Mapping[str, Any], request: Mapping[str, Any] | None
@@ -12518,12 +12828,12 @@ def _release_resource_safety(
         return
     if request is None:
         raise LedgerError("release topology lacks wrapper provenance")
-    wrapper_root = request["roots"]["wrapper"]["path"]
-    workspace_root = request["roots"]["workspace"]["path"]
+    accepted_root = request["roots"]["wrapper"]["path"]
+    wrapper_root, workspace_root = _release_topology_context(document, request, topologies)
     saved = _enter_workspace_environment(workspace_root)
     workspace = None
     try:
-        module = _load_workspace_module(wrapper_root)
+        module = _load_workspace_module(accepted_root)
         context_paths = [row["current"]["path"] for row in topologies]
         def context_check():
             _require_workspace_filesystem_eligibility(module, wrapper_root, workspace_root, context_paths)
@@ -12629,7 +12939,7 @@ def _release_live_safety(
         )
         for resource in document["resources"]:
             current = resource["current"]
-            if resource["state"] == "planned" or current is None:
+            if resource["state"] in {"planned", "retired-observation"} or current is None:
                 continue
             if resource["kind"] == "scope":
                 if current["lifecycle"] != "active":
@@ -12919,6 +13229,12 @@ def _archive_build_roots(
                 continue
             add(Path(item["path"]))
     for resource in resources:
+        if "correction" in resource:
+            proof = resource["correction"]["observations"]["topology"]["runtime_build"]
+            profiles = Path(resource["correction"]["resource_context"]["workspace"]) / "build/profiles"
+            for reservation in proof["reservations"]:
+                if Path(reservation["path"]).parent == profiles:
+                    add(Path(reservation["path"]))
         current = resource["current"]
         if (
             current is not None
@@ -12929,6 +13245,27 @@ def _archive_build_roots(
     return list(roots.values())
 
 
+def _archive_build_lock_path(resources, root: Path, default_builds: Path) -> Path:
+    """Use retained physical resource context, never storage namespace guessing."""
+    contexts = {}
+    for resource in resources:
+        if "correction" not in resource:
+            continue
+        proof = resource["correction"]
+        observed = proof["observations"]
+        roots = {observed["build"]["path"]}
+        roots.update(row["path"] for row in observed["topology"]["runtime_build"]["reservations"])
+        if str(root) in roots:
+            context = proof["resource_context"]
+            contexts[context["workspace"]] = context
+    if len(contexts) > 1:
+        raise LedgerError("archive build has ambiguous resource context")
+    builds = Path(next(iter(contexts))) / "build" if contexts else default_builds
+    if contexts and root.parent != builds / "profiles":
+        raise LedgerError("archive build differs from retained resource context")
+    return builds / "locks" / f"{root.name}.lock"
+
+
 @contextmanager
 def _archive_live_safety(
     snapshot: Snapshot, request: Mapping[str, Any]
@@ -12936,6 +13273,10 @@ def _archive_live_safety(
     """Hold wrapper cleanup coordinates and reprove their terminal state."""
 
     document = snapshot.document
+    if any(row["kind"] == "runtime" and row["current"] is not None for row in document["resources"]):
+        raise LedgerError("archive runtime resource lacks an exact lease mapping")
+    if _retained_correction(document) is not None:
+        raise LedgerError("archive retained observation correction lacks terminal resource authority")
     scopes: dict[str, tuple[Mapping[str, Any], Mapping[str, Any], bytes]] = {}
     wrapper_request: Mapping[str, Any] | None = None
     worktree_requests: list[tuple[Mapping[str, Any], str]] = []
@@ -13084,14 +13425,14 @@ def _archive_live_safety(
             )
         context_paths.extend(_lease_filesystem_subjects(module, workspace, leases))
         for build_root in _archive_build_roots(scopes, document["resources"]):
-            context_paths.extend((str(build_root), str(workspace.paths.builds / "locks" / f"{build_root.name}.lock")))
+            context_paths.extend((str(build_root), str(_archive_build_lock_path(document["resources"], build_root, workspace.paths.builds))))
         context_check()
         with ExitStack() as stack:
             stack.enter_context(workspace._resource_locks(leases, nonblocking=True))
             acquired_build_locks: set[Path] = set()
 
             def acquire_build_lock(root: Path) -> None:
-                lock_path = workspace.paths.builds / "locks" / f"{root.name}.lock"
+                lock_path = _archive_build_lock_path(document["resources"], root, workspace.paths.builds)
                 if lock_path in acquired_build_locks:
                     return
                 lock_path.parent.mkdir(parents=True, exist_ok=True)
@@ -13864,6 +14205,7 @@ def _transition(
     _scope_recovery_capability: _ScopeRecoveryCapability | None = None,
     _identity_recovery_capability: _IdentityRecoveryCapability | None = None,
     _resource_recovery_capability: _ResourceRecoveryCapability | None = None,
+    _observation_correction_capability: _ObservationCorrectionCapability | None = None,
 ) -> None:
     immutable = {
         "schema_version",
@@ -14192,6 +14534,19 @@ def _transition(
             raise LedgerError("scope resources must be reserved by fresh issue-mode create")
     for slot, before in old_resources.items():
         after = new_resources[slot]
+        if "correction" in before or "correction" in after:
+            if before == after:
+                continue
+            if "correction" not in before:
+                if _observation_correction_capability is None:
+                    raise LedgerError("observation correction requires its dedicated immutable transaction")
+                continue
+            if (before.get("correction") != after.get("correction") or before["kind"] != "topology"
+                    or {key: value for key, value in before.items() if key != "current"}
+                    != {key: value for key, value in after.items() if key != "current"}):
+                raise LedgerError("observation correction proof and historical attribution are immutable")
+            # The original corrected topology coordinate is anchored by schema;
+            # ordinary same-coordinate observation lineage below still applies.
         if before["state"] == "recovered" or after["state"] == "recovered":
             if before == after:
                 continue
@@ -14710,12 +15065,43 @@ def _bound_resource_workspace(document, context):
 
 
 @contextmanager
-def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_request=None, observations=None) -> Iterator[Callable[[], None]]:
+def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_request=None, observations=None, observation_request=None, admission_request=None) -> Iterator[Callable[[], None]]:
     """Prepare every current target, then prove under one complete lease union."""
 
     require_reusable_artifacts(document)
     recovery_slots = frozenset(recovery_request["slots"]) if recovery_request else frozenset()
-    require_reusable_resources(document, _recovery_slots=recovery_slots)
+    correction_source = document
+    retained_correction = _retained_correction(document)
+    correction_observations = None
+    if retained_correction is not None:
+        correction_source, retained_proof = retained_correction
+        correction_observations = retained_proof["observations"]
+        if observation_request is not None and observation_request != retained_proof["request"]:
+            raise LedgerError("live correction request differs from installed proof")
+        observation_request = retained_proof["request"]
+    inert = frozenset()
+    correction_evidence = correction_context = None
+    if observation_request is not None:
+        correction_evidence, correction_context, original_inert = _observation_request(correction_source, observation_request)
+        if retained_correction is None:
+            inert = original_inert
+            recovery_slots |= {observation_request["topology_slot"]}
+        # Validate every unchanged wrapper association; a repository match alone
+        # does not grant a second resource's namespace authority.
+        allowed_slots = {observation_request[key] for key in ("state_slot", "scenario_slot", "build_slot", "topology_slot")}
+        original_rows = {row["slot_id"]: row for row in correction_source["resources"]}
+        for row in document["resources"]:
+            if row["slot_id"] in allowed_slots or row["slot_id"] in original_inert:
+                continue
+            if row["kind"] == "runtime":
+                continue  # Ordinary exact observation lifecycle; no Docker verifier.
+            if (row["kind"] != "profile" or row != original_rows.get(row["slot_id"])
+                    or row["immutable"]["repository"] != original_rows[observation_request["state_slot"]]["immutable"]["repository"]
+                    or row["immutable"]["name"] != correction_evidence["scenario_output"]["profile"]):
+                raise LedgerError("unrelated wrapper resource lacks correction namespace provenance")
+    if admission_request is not None:
+        inert = _inprogress_selection(document, admission_request)
+    require_reusable_resources(document, _recovery_slots=recovery_slots | inert)
     changes = []
     for target in document["targets"]:
         matching = [
@@ -14749,8 +15135,23 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
         ]
         resource_proofs = []
         context_checks = []
+        observation_proof = None
+        if correction_evidence is not None:
+            correction_evidence["topology_current"] = next(row["current"] for row in document["resources"] if row["slot_id"] == observation_request["topology_slot"]) if retained_correction is not None else None
+            module, preparation, recheck = stack.enter_context(_bound_resource_workspace(document, correction_context))
+            context_checks.append(recheck)
+            try:
+                observation_proof = preparation.plan_observation_correction(correction_source["resources"], correction_evidence)
+            except Exception as error:
+                raise LedgerError(f"observation correction preparation failed: {error}") from error
+            plans.append((module, preparation, observation_proof.requests))
+            subjects = [str(path) for paths in observation_proof.paths.values() for path in paths]
+            subjects.extend(str(path) for path in observation_proof.plain_locks)
+            _ACTIVE_RESOURCE_SUBJECTS.set(tuple(dict.fromkeys((*_ACTIVE_RESOURCE_SUBJECTS.get(), *subjects))))
         resource_groups = {}
         for row in document["resources"]:
+            if observation_request is not None and row["slot_id"] == observation_request["topology_slot"]:
+                continue
             if row["slot_id"] not in recovery_slots and row["state"] != "recovered":
                 continue
             if row["state"] == "recovered":
@@ -14802,6 +15203,8 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
             stack.enter_context(_current_target_leases(plans))
             for resource_proof in resource_proofs:
                 stack.enter_context(resource_proof.legacy_locks())
+            if observation_proof is not None:
+                stack.enter_context(observation_proof.legacy_locks())
         except Exception as error:
             raise LedgerError(f"current-target union lease admission failed: {error}") from error
 
@@ -14811,6 +15214,24 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
             for check in context_checks:
                 check()
             actual = {}
+            if observation_proof is not None:
+                try:
+                    actual["observation-correction"] = observation_proof.observe()
+                except Exception as error:
+                    raise LedgerError(f"observation correction live proof failed: {error}") from error
+                if correction_observations is not None:
+                    current_fixed = _correction_fixed_ownership(actual["observation-correction"])
+                    original_fixed = _correction_fixed_ownership(correction_observations)
+                    if current_fixed != original_fixed:
+                        def changed_paths(left, right, prefix=""):
+                            if isinstance(left, dict) and isinstance(right, dict):
+                                return [path for key in sorted(set(left) | set(right))
+                                        for path in changed_paths(left.get(key), right.get(key), prefix + "." + key)]
+                            if isinstance(left, list) and isinstance(right, list) and len(left) == len(right):
+                                return [path for index, (a, b) in enumerate(zip(left, right))
+                                        for path in changed_paths(a, b, prefix + f"[{index}]")]
+                            return [prefix] if left != right else []
+                        raise LedgerError("retained observation correction evidence changed: " + ", ".join(changed_paths(current_fixed, original_fixed)[:16]))
             for resource_proof in resource_proofs:
                 try:
                     actual.update(resource_proof.observe())
@@ -14831,6 +15252,11 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
             for proof in proofs:
                 proof()
             fresh = {}
+            if observation_proof is not None:
+                try:
+                    fresh["observation-correction"] = observation_proof.observe()
+                except Exception as error:
+                    raise LedgerError(f"observation correction precommit failed: {error}") from error
             for resource_proof in resource_proofs:
                 try:
                     fresh.update(resource_proof.observe())
@@ -14912,6 +15338,84 @@ def revalidate_current_targets_cas(
             _precommit=prove,
             _current_targets_capability=capability,
         )
+
+
+def correct_resource_observations_cas(root, name, request, *, expected_generation, expected_digest, expected_path, failpoint=None):
+    """Correct only the retained demonstrably false/deferred prepublication shape."""
+    name = _direct_name(name)
+    _integer(expected_generation, "expected_generation")
+    _string(expected_digest, "expected_digest", SHA256_RE)
+    _absolute_path(expected_path, "expected_path")
+    current = inspect(root, name)
+    if _snapshot_matches_identity(current, expected_generation, expected_digest, expected_path):
+        before = current.document
+        if _retained_correction(before) is not None:
+            raise LedgerError("observation correction already exists")
+    elif (current.document["generation"] == expected_generation + 1
+          and current.document["previous_byte_digest"] == expected_digest
+          and _snapshot_matches_identity(current, current.document["generation"], current.digest, expected_path)):
+        retained = _retained_correction(current.document)
+        if retained is None:
+            raise LedgerError("observation correction retry lacks immutable evidence")
+        before, proof = retained
+        if proof["request"] != request or proof["predecessor"]["path"] != expected_path or proof["predecessor"]["digest"] != expected_digest:
+            raise LedgerError("observation correction retry evidence differs")
+    else:
+        raise LedgerError("stale observation correction generation, digest, or path")
+    _evidence, context, _inert = _observation_request(before, request)
+    raw = canonical_bytes(before)
+    observations = {}
+    with _current_targets_live_safety(before, observation_request=request, observations=observations) as prove:
+        actual = observations["observation-correction"]
+        proof = {"predecessor": {"generation": expected_generation, "digest": expected_digest, "path": expected_path,
+                                 "payload": _retained_result_document(raw, "observation predecessor")},
+                 "request": request, "resource_context": context, "observations": actual}
+        prepared = _neutral_successor(before, expected_digest)
+        prepared["resources"] = _observation_projection(before, request, actual)
+        selected = {request[key] for key in ("state_slot", "build_slot", "topology_slot")}
+        for row in prepared["resources"]:
+            if row["slot_id"] in selected:
+                row["correction"] = proof
+        prepared = prepare(prepared)
+        if current.document["generation"] != expected_generation and canonical_bytes(prepared) != current.raw:
+            raise LedgerError("observation correction retry live evidence differs")
+        capability = _ObservationCorrectionCapability(_OBSERVATION_CORRECTION_TOKEN, name, raw, canonical_bytes(prepared),
+                                                      expected_generation, expected_digest, expected_path)
+        return cas(root, name, prepared, expected_generation=expected_generation, expected_digest=expected_digest,
+                   expected_path=expected_path, failpoint=failpoint, _precommit=prove,
+                   _observation_correction_capability=capability)
+
+
+def admit_in_progress_targets_cas(root, name, request, *, expected_generation, expected_digest, expected_path, failpoint=None):
+    """Prove unchanged owned targets while exact original client plans stay inert."""
+    name = _direct_name(name)
+    _integer(expected_generation, "expected_generation")
+    _string(expected_digest, "expected_digest", SHA256_RE)
+    _absolute_path(expected_path, "expected_path")
+    current = inspect(root, name)
+    if _snapshot_matches_identity(current, expected_generation, expected_digest, expected_path):
+        before = current.document
+    elif (current.document["generation"] == expected_generation + 1
+          and current.document["previous_byte_digest"] == expected_digest
+          and _snapshot_matches_identity(current, current.document["generation"], current.digest, expected_path)):
+        before = copy.deepcopy(current.document)
+        before["generation"] -= 1
+        before["history"].pop()
+        before["previous_byte_digest"] = before["history"][-1] if before["history"] else None
+        before = prepare(before)
+        if byte_digest(canonical_bytes(before)) != expected_digest:
+            raise LedgerError("in-progress retry predecessor differs")
+    else:
+        raise LedgerError("stale in-progress generation, digest, or path")
+    _inprogress_selection(before, request)
+    prepared = _neutral_successor(before, expected_digest)
+    capability = _InProgressTargetsCapability(_INPROGRESS_TARGETS_TOKEN, name, canonical_bytes(before), canonical_bytes(prepared),
+                                             expected_generation, expected_digest, expected_path, canonical_bytes(request))
+    with _current_targets_live_safety(prepared, admission_request=request) as prove:
+        return cas(root, name, prepared, expected_generation=expected_generation, expected_digest=expected_digest,
+                   expected_path=expected_path, failpoint=failpoint, _precommit=prove,
+                   _inprogress_targets_capability=capability)
+
 
 def recover_unbound_resources_cas(
     root: Path | str, name: str, request: Mapping[str, Any], *,
@@ -15097,7 +15601,9 @@ def cas(
     _identity_recovery_capability: _IdentityRecoveryCapability | None = None,
     _target_refresh_legacy: bool = False,
     _current_targets_capability: _CurrentTargetsCapability | None = None,
+    _inprogress_targets_capability: _InProgressTargetsCapability | None = None,
     _resource_recovery_capability: _ResourceRecoveryCapability | None = None,
+    _observation_correction_capability: _ObservationCorrectionCapability | None = None,
 ) -> Snapshot:
     name = _direct_name(name)
     prepared = prepare(document)
@@ -15257,6 +15763,42 @@ def cas(
         if expected != prepared:
             raise LedgerError("resource recovery changed unrelated ledger state")
         operation = "-recover-resources"
+    if _observation_correction_capability is not None:
+        capability = _observation_correction_capability
+        if (operation or capability.token is not _OBSERVATION_CORRECTION_TOKEN
+                or capability.name != name or capability.after_raw != raw or _precommit is None
+                or (capability.expected_generation, capability.expected_digest, capability.expected_path)
+                != (expected_generation, expected_digest, expected_path)):
+            raise LedgerError("invalid internal observation correction capability")
+        predecessor = validate(_decode(capability.before_raw, "observation predecessor"))
+        if byte_digest(capability.before_raw) != expected_digest:
+            raise LedgerError("observation correction predecessor digest differs")
+        proof = next(row["correction"] for row in prepared["resources"] if "correction" in row)
+        expected = _neutral_successor(predecessor, expected_digest)
+        expected["resources"] = _observation_projection(predecessor, proof["request"], proof["observations"])
+        selected = {proof["request"][key] for key in ("state_slot", "build_slot", "topology_slot")}
+        for row in expected["resources"]:
+            if row["slot_id"] in selected:
+                row["correction"] = proof
+        if expected != prepared:
+            raise LedgerError("observation correction changed unrelated ledger state")
+        operation = "-correct-observations"
+    if _inprogress_targets_capability is not None:
+        capability = _inprogress_targets_capability
+        if (operation or capability.token is not _INPROGRESS_TARGETS_TOKEN
+                or capability.name != name or capability.after_raw != raw or _precommit is None
+                or (capability.expected_generation, capability.expected_digest, capability.expected_path)
+                != (expected_generation, expected_digest, expected_path)):
+            raise LedgerError("invalid internal in-progress target capability")
+        predecessor = validate(_decode(capability.before_raw, "in-progress predecessor"))
+        if (byte_digest(capability.before_raw) != expected_digest
+                or canonical_bytes(_neutral_successor(predecessor, expected_digest)) != raw):
+            raise LedgerError("in-progress admission is not an exact neutral transition")
+        request = _decode(capability.request_raw, "in-progress request")
+        if canonical_bytes(request) != capability.request_raw:
+            raise LedgerError("in-progress request is not canonical")
+        _inprogress_selection(predecessor, request)
+        operation = "-admit-targets-" + byte_digest(capability.request_raw)
     candidate_digest = byte_digest(raw)
     legacy_stage = (
         f".{name}.update{operation}-g{prepared['generation']}-from-{expected_digest}-"
@@ -15495,6 +16037,9 @@ def cas(
                 and _current_targets_capability.before_raw != current.raw
             ):
                 raise LedgerError("current-target predecessor bytes changed")
+            for capability in (_observation_correction_capability, _inprogress_targets_capability):
+                if capability is not None and capability.before_raw != current.raw:
+                    raise LedgerError("dedicated observation/admission predecessor bytes differ")
             if _resource_recovery_capability is not None and _resource_recovery_capability.before_raw != current.raw:
                 raise LedgerError("resource recovery predecessor bytes changed")
             _transition(
@@ -15506,6 +16051,7 @@ def cas(
                 _scope_recovery_capability=_scope_recovery_capability,
                 _identity_recovery_capability=_identity_recovery_capability,
                 _resource_recovery_capability=_resource_recovery_capability,
+                _observation_correction_capability=_observation_correction_capability,
             )
             if compact:
                 assert receipt_name is not None
@@ -17870,6 +18416,14 @@ def parser() -> argparse.ArgumentParser:
     refresh_parser.add_argument("--expected-generation", required=True, type=int)
     refresh_parser.add_argument("--expected-digest", required=True)
     refresh_parser.add_argument("--expected-path", required=True)
+    for operation in ("correct-resource-observations-cas", "admit-in-progress-targets-cas"):
+        operation_parser = commands.add_parser(operation, help="exact authenticated prepublication recovery/admission")
+        operation_parser.add_argument("root")
+        operation_parser.add_argument("name")
+        operation_parser.add_argument("input", help="bounded no-follow retained-evidence request")
+        operation_parser.add_argument("--expected-generation", required=True, type=int)
+        operation_parser.add_argument("--expected-digest", required=True)
+        operation_parser.add_argument("--expected-path", required=True)
     resource_recovery_parser = commands.add_parser(
         "recover-unbound-resources-cas", help="preserve selected unbound resource plans under live exact CAS")
     resource_recovery_parser.add_argument("root")
@@ -18183,6 +18737,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                     expected_path=arguments.expected_path,
                 ).json()
             )
+        elif arguments.command in {"correct-resource-observations-cas", "admit-in-progress-targets-cas"}:
+            operation = (correct_resource_observations_cas if arguments.command == "correct-resource-observations-cas"
+                         else admit_in_progress_targets_cas)
+            _print(operation(arguments.root, arguments.name, _read_input(arguments.input),
+                             expected_generation=arguments.expected_generation,
+                             expected_digest=arguments.expected_digest, expected_path=arguments.expected_path).json())
         elif arguments.command == "recover-unbound-resources-cas":
             _print(recover_unbound_resources_cas(
                 arguments.root, arguments.name, _read_input(arguments.input),

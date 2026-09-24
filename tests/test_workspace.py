@@ -1002,6 +1002,90 @@ def copy_workspace_fixture(template: Path, destination: Path) -> None:
 
 
 class WorkspaceTests(unittest.TestCase):
+    def test_observation_configuration_requires_exact_flat_stable_origins(self):
+        checkout = self.seeds["resources"]
+        home = self.root / "configuration-home"
+        home.mkdir()
+        original_environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+        original_environment.update(HOME=str(home), XDG_CONFIG_HOME=str(home / ".config"))
+        config = home / ".gitconfig"
+        with mock.patch.dict(os.environ, original_environment, clear=True):
+            expected = workspace_module._read_only_checkout_observation(checkout)["configuration_sha256"]
+            with workspace_module._delivery_default_git_configuration(checkout) as actual:
+                self.assertEqual(actual, expected)
+            for setting in ("[core]\n attributesFile = /missing/attributes\n",
+                            "[core]\n excludesFile = /missing/ignore\n",
+                            "[filter \"lfs\"]\n clean = changed-driver\n"):
+                with self.subTest(setting=setting):
+                    config.write_text(setting)
+                    with workspace_module._delivery_default_git_configuration(checkout) as actual:
+                        self.assertNotEqual(actual, expected)
+                    config.unlink()
+            for include in ("[include]\n path = /must-not-read\n",
+                            "[includeIf \"gitdir:/inactive/\"]\n path = /must-not-read\n"):
+                config.write_text(include)
+                with self.assertRaisesRegex(WorkspaceError, "includes are unsupported"):
+                    with workspace_module._delivery_default_git_configuration(checkout):
+                        self.fail("include accepted")
+                config.unlink()
+            config.symlink_to(checkout / ".git/config")
+            with self.assertRaisesRegex(WorkspaceError, "unsafe Git configuration"):
+                with workspace_module._delivery_default_git_configuration(checkout):
+                    self.fail("symlink accepted")
+            config.unlink()
+            os.link(checkout / ".git/config", config)
+            with self.assertRaisesRegex(WorkspaceError, "unsafe Git configuration"):
+                with workspace_module._delivery_default_git_configuration(checkout):
+                    self.fail("hard link accepted")
+            config.unlink()
+            config.write_text("[core]\n filemode = true\n")
+            with self.assertRaisesRegex(WorkspaceError, "configuration.*changed"):
+                with workspace_module._delivery_default_git_configuration(checkout):
+                    config.write_text("[core]\n filemode = false\n")
+            config.unlink()
+            with self.assertRaisesRegex(WorkspaceError, "configuration.*changed"):
+                with workspace_module._delivery_default_git_configuration(checkout):
+                    config.write_text("[core]\n filemode = false\n")
+
+    def test_observation_configuration_short_reads_fifo_swap_and_ancestors_refuse(self):
+        checkout = self.seeds["resources"]
+        home = self.root / "flat-home"
+        home.mkdir()
+        config = home / ".gitconfig"
+        with mock.patch.dict(os.environ, {"HOME": str(home), "XDG_CONFIG_HOME": str(home / ".config")}):
+            config.write_text("[core]\n filemode = true\n" + "# padding\n" * 32 + "[include]\n path = /never-read\n")
+            read = os.read
+            with mock.patch.object(workspace_module.os, "read", side_effect=lambda fd, count: read(fd, min(count, 7))):
+                with self.assertRaisesRegex(WorkspaceError, "includes are unsupported"):
+                    with workspace_module._delivery_default_git_configuration(checkout):
+                        self.fail("short read hid include suffix")
+            config.write_text("[core]\n filemode = true\n")
+            opened = os.open
+            replaced = False
+            def swap(path, flags, *args, **kwargs):
+                nonlocal replaced
+                if path == ".gitconfig" and not replaced:
+                    self.assertTrue(flags & os.O_NONBLOCK)
+                    replaced = True
+                    config.unlink()
+                    os.mkfifo(config, 0o600)
+                return opened(path, flags, *args, **kwargs)
+            with mock.patch.object(workspace_module.os, "open", side_effect=swap):
+                with self.assertRaisesRegex(WorkspaceError, "changed before read"):
+                    with workspace_module._delivery_default_git_configuration(checkout):
+                        self.fail("FIFO swap accepted")
+            self.assertTrue(replaced)
+            config.unlink()
+            unsafe = self.root / "writable-origin"
+            unsafe.mkdir(mode=0o770)
+            unsafe.chmod(0o770)
+            nested = unsafe / "safe-leaf"
+            nested.mkdir(mode=0o700)
+            with mock.patch.dict(os.environ, {"HOME": str(nested), "XDG_CONFIG_HOME": str(nested / ".config")}):
+                with self.assertRaisesRegex(WorkspaceError, "untrusted.*ancestor"):
+                    with workspace_module._delivery_default_git_configuration(checkout):
+                        self.fail("writable ancestor accepted")
+
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -1025,6 +1109,7 @@ class WorkspaceTests(unittest.TestCase):
         )
         self.environment.start()
         self.workspace = Workspace(self.wrapper)
+        self.addCleanup(self.workspace.close)
         self.seeds = {name: self.root / "seeds" / name for name, _ in COMPONENTS}
         self.origins = {
             name: self.root / "origins" / f"{name}.git" for name, _ in COMPONENTS
@@ -1051,6 +1136,17 @@ class WorkspaceTests(unittest.TestCase):
         self.remote_matcher.stop()
         self.environment.stop()
         self.temporary.cleanup()
+
+    def test_fixture_teardown_releases_retained_workspace_lease(self):
+        # Retain the fixture cycle deliberately: release must not depend on GC.
+        fixture = type(self)("runTest")
+        fixture.setUp()
+        retained_workspace = fixture.workspace
+        try:
+            self.assertIsNotNone(retained_workspace._wrapper_lease)
+        finally:
+            fixture.tearDown()
+        self.assertIsNone(retained_workspace._wrapper_lease)
 
     def scenario_resolved_fixture(self) -> dict[str, dict[str, object]]:
         resolved: dict[str, dict[str, object]] = {}

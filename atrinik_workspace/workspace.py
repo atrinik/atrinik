@@ -2386,6 +2386,10 @@ class _DeliveryWorkspacePreparation:
         self._verify_identity()
         return _DeliveryResourceRecovery(self.__workspace, resources, build_outputs)
 
+    def plan_observation_correction(self, resources, evidence):
+        self._verify_identity()
+        return _DeliveryObservationCorrection(self.__workspace, resources, evidence)
+
     def lease_root(self, request: LeaseRequest) -> Path:
         return self.__workspace._lease_root(request)
 
@@ -2675,6 +2679,375 @@ class _DeliveryResourceRecovery:
             result[slot] = {"kind": kind, "disposition": "residual-preserved" if any(row["exists"] or row.get("registered") for row in rows) else "absent",
                             "observations": rows, "reservations": [unique[key] for key in sorted(unique)]}
         return result
+
+
+@contextmanager
+def _delivery_default_git_configuration(checkout: Path):
+    """Hash only a pinned, flat default Git configuration; never execute it.
+
+    A retained producer with arbitrary GIT_* selectors is unsupported unless its
+    exact digest also matches this bounded default context. Includes are refused
+    before Git reads any config file. Source operations use the read-only planning guard.
+    """
+    environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    environment.update(GIT_OPTIONAL_LOCKS="0", GIT_NO_LAZY_FETCH="1",
+                       GIT_CONFIG_SYSTEM="/etc/gitconfig")
+    home = environment.get("HOME", "")
+    xdg = environment.get("XDG_CONFIG_HOME", str(Path(home) / ".config"))
+    if not Path(home).is_absolute() or not Path(xdg).is_absolute():
+        raise WorkspaceError("unsupported default Git configuration origins")
+    pins = []
+    directory_pins = []
+    descriptors = []
+    def signature(value):
+        return (value.st_dev, value.st_ino, value.st_mode, value.st_uid,
+                value.st_gid, value.st_nlink, value.st_size,
+                value.st_mtime_ns, value.st_ctime_ns)
+    def trusted_directory(path):
+        descriptor = os.open("/", os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
+        descriptors.append(descriptor)
+        for name in path.parts[1:]:
+            child = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=descriptor)
+            descriptors.append(child)
+            status = os.fstat(child)
+            if status.st_uid not in {0, os.geteuid()} or (status.st_mode & 0o022 and not status.st_mode & stat.S_ISVTX):
+                raise WorkspaceError("untrusted Git configuration origin ancestor")
+            directory_pins.append((descriptor, name, child, status))
+            descriptor = child
+        return descriptor
+    def pin(path):
+        path = Path(os.path.normpath(path))
+        if not path.is_absolute():
+            raise WorkspaceError("Git configuration origin must be absolute")
+        parent = path.parent
+        missing = [path.name]
+        while True:
+            try:
+                directory = trusted_directory(parent)
+                break
+            except FileNotFoundError:
+                missing.insert(0, parent.name)
+                parent = parent.parent
+        parent_identity = os.fstat(directory)
+        if parent_identity.st_uid not in {0, os.geteuid()} or (parent_identity.st_mode & 0o022 and not parent_identity.st_mode & stat.S_ISVTX):
+            raise WorkspaceError("untrusted Git configuration origin directory")
+        name = missing[0]
+        try:
+            initial = os.stat(name, dir_fd=directory, follow_symlinks=False)
+        except FileNotFoundError:
+            pins.append((parent, directory, signature(parent_identity), name, None, None))
+            return None
+        if len(missing) != 1 or not stat.S_ISREG(initial.st_mode) or initial.st_nlink != 1 or initial.st_uid not in {0, os.geteuid()} or initial.st_mode & 0o022 or initial.st_size > 1024 * 1024:
+            raise WorkspaceError("unsafe Git configuration origin")
+        descriptor = os.open(name, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+        descriptors.append(descriptor)
+        if signature(os.fstat(descriptor)) != signature(initial):
+            raise WorkspaceError("Git configuration origin changed before read")
+        chunks = []
+        length = 0
+        while True:
+            chunk = os.read(descriptor, min(65536, 1024 * 1024 + 1 - length))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            length += len(chunk)
+            if length > 1024 * 1024:
+                raise WorkspaceError("Git configuration origin exceeds bound")
+        raw = b"".join(chunks)
+        if len(raw) != initial.st_size or signature(os.fstat(descriptor)) != signature(initial):
+            raise WorkspaceError("Git configuration origin changed")
+        pins.append((parent, directory, signature(parent_identity), name, signature(initial), descriptor))
+        return raw
+    def recheck():
+        for parent, name, descriptor, expected in directory_pins:
+            visible = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            opened = os.fstat(descriptor)
+            fields = ("st_dev", "st_ino", "st_mode", "st_uid", "st_gid")
+            if any(getattr(value, field) != getattr(expected, field)
+                   for value in (visible, opened) for field in fields):
+                raise WorkspaceError("Git configuration origin ancestor changed")
+        for parent, directory, parent_expected, name, expected, descriptor in pins:
+            current = _open_directory_nofollow(parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            try:
+                before, after = os.fstat(directory), os.fstat(current)
+                if signature(before) != parent_expected or signature(after) != parent_expected:
+                    raise WorkspaceError("Git configuration directory changed")
+                try:
+                    visible = os.stat(name, dir_fd=current, follow_symlinks=False)
+                except FileNotFoundError:
+                    if expected is not None:
+                        raise WorkspaceError("Git configuration origin disappeared")
+                else:
+                    if expected is None or signature(visible) != expected or signature(os.fstat(descriptor)) != expected:
+                        raise WorkspaceError("Git configuration origin changed")
+            finally:
+                os.close(current)
+    def capture(arguments, raw=None):
+        with inherited_subprocess_handles(active_lock_fds()) as inheritance:
+            result = subprocess.run(arguments, input=raw, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE, env=environment, timeout=30, **inheritance)
+        if result.returncode != 0 or len(result.stdout) > 8 * 1024 * 1024 or len(result.stderr) > 1024 * 1024:
+            raise WorkspaceError("cannot obtain bounded Git configuration digest")
+        return result.stdout
+    def flat(raw):
+        if raw is None:
+            return
+        parsed = capture(["git", "config", "--no-includes", "--null", "--list", "--file", "-"], raw)
+        for row in parsed.split(b"\0"):
+            key = row.split(b"\n", 1)[0].lower()
+            if key == b"include.path" or key.startswith(b"includeif."):
+                raise WorkspaceError("Git configuration includes are unsupported for observation correction")
+    try:
+        # Resolve local admin files without asking Git to read configuration.
+        git_path = checkout / ".git"
+        if git_path.is_symlink():
+            raise WorkspaceError("Git configuration admin is a symlink")
+        if git_path.is_dir():
+            admin = git_path
+        else:
+            raw = pin(git_path)
+            if raw is None or not raw.startswith(b"gitdir: ") or raw.count(b"\n") != 1 or not raw.endswith(b"\n"):
+                raise WorkspaceError("unsupported Git configuration admin")
+            relative = os.fsdecode(raw[8:-1])
+            admin = Path(os.path.normpath(checkout / relative))
+        common_raw = pin(admin / "commondir")
+        if common_raw is None:
+            common = admin
+        else:
+            if common_raw.count(b"\n") != 1 or not common_raw.endswith(b"\n"):
+                raise WorkspaceError("unsupported Git configuration common directory")
+            common = Path(os.path.normpath(admin / os.fsdecode(common_raw[:-1])))
+        origins = (Path("/etc/gitconfig"), Path(xdg) / "git/config", Path(home) / ".gitconfig",
+                   common / "config", admin / "config.worktree")
+        for path in origins:
+            flat(pin(path))
+        recheck()
+        prefix = ["git", "--no-optional-locks", "--no-replace-objects", "-c", "core.fsmonitor=false", "-C", str(checkout)]
+        def digest():
+            recheck()
+            result = hashlib.sha256(capture([*prefix, "config", "--null", "--list"])).hexdigest()
+            recheck()
+            return result
+        initial_digest = digest()
+        yield initial_digest
+        if digest() != initial_digest:
+            raise WorkspaceError("Git configuration changed during observation correction")
+    except (OSError, subprocess.SubprocessError) as error:
+        raise WorkspaceError("cannot prove default Git configuration origins") from error
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+
+
+class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
+    """Read-only proof of one exact mistaken state/build/topology observation."""
+
+    @staticmethod
+    def _json(path):
+        if path.lstat().st_nlink != 1:
+            raise WorkspaceError("observation correction metadata is hard-linked")
+        return _DeliveryResourceRecovery._json(path)
+
+    def __init__(self, workspace, resources, evidence):
+        self.evidence = copy.deepcopy(evidence)
+        self.original_resources = copy.deepcopy(resources)
+        rows = {row["slot_id"]: row for row in resources}
+        self.false_state = rows[evidence["state_slot"]]
+        self.scenario = rows[evidence["scenario_slot"]]
+        self.topology = rows[evidence["topology_slot"]]
+        self.tested_build = rows[evidence["build_slot"]]
+        scenario = evidence["scenario_output"]
+        self.scenario_name = self.scenario["immutable"]["name"]
+        self.state_name = scenario["state"]
+        self.state_path = workspace.paths.scenarios / self.scenario_name / "state"
+        self.topology_path = workspace.paths.topologies / self.topology["immutable"]["name"]
+        self.tested_path = Path(evidence["build_observation"]["build_root"])
+        self.runtime_path = Path(evidence["topology_output"]["build_root"])
+        if self.runtime_path == self.tested_path:
+            raise WorkspaceError("tested and topology-produced builds must remain distinct")
+        # Reuse accepted sealed-build, registry, state and physical-source proofs.
+        synthetic = []
+        for slot, kind, name, path in (
+            ("tested-build", "build", self.tested_path.name, self.tested_path),
+            ("runtime-build", "build", self.runtime_path.name, self.runtime_path),
+            ("scenario-state", "state", self.state_name, self.state_path),
+        ):
+            synthetic.append({"slot_id": slot, "kind": kind,
+                              "immutable": {"name": name, "path": str(path)}})
+        super().__init__(workspace, synthetic, {})
+        self.paths["topology"] = [self.topology_path]
+        self.paths["scenario"] = [self.state_path.parent]
+        self.plain_locks.update({
+            workspace.paths.scenarios / ".locks" / f"{self.scenario_name}.lock",
+            self.topology_path / "operation.lock",
+        })
+        requests = list(self.requests)
+        for kind, coordinate in (("scenario", self.scenario_name),
+                                 ("topology", self.topology["immutable"]["name"]),
+                                 ("profile", scenario["profile"])):
+            requests.append(workspace._lease_request(kind, coordinate, "exclusive", "correct resource observation"))
+        self.requests = tuple(requests)
+
+    def observe(self):
+        token = _BUILD_PLAN_GIT.set(True)
+        try:
+            with ExitStack() as proofs:
+                paths = sorted({coordinate["checkout_path"]
+                                for metadata in self.preliminary.values()
+                                for coordinate in metadata["coordinates"].values()})
+                digests = {path: proofs.enter_context(_delivery_default_git_configuration(Path(path)))
+                           for path in paths}
+                return self._observe_read_only(digests)
+        finally:
+            _BUILD_PLAN_GIT.reset(token)
+
+    def _observe_read_only(self, configuration_digests):
+        base = super().observe()
+        workspace = self.workspace
+        evidence = self.evidence
+        scenario = evidence["scenario_output"]
+        # Bound producer output and registry must name the exact same scenario.
+        if (scenario["name"] != self.scenario_name
+                or scenario["path"] != str(self.state_path.parent)
+                or scenario["state"] != "scenario-" + self.scenario_name
+                or workspace.scenario_show(self.scenario_name) != scenario):
+            raise WorkspaceError("scenario output differs from its exact live producer")
+        registry = self._json(workspace.paths.states_file)
+        false_name = self.false_state["immutable"]["name"]
+        if false_name in registry["states"]:
+            raise WorkspaceError("false state name is actually registered")
+        false_path = workspace.paths.state / "server" / false_name
+        workspace._canonical_state_path(false_path)
+        if false_path.exists() or false_path.is_symlink():
+            raise WorkspaceError("false state name has materialized state")
+        if registry["states"].get(self.state_name) != str(self.state_path):
+            raise WorkspaceError("scenario state registration differs")
+        for role, coordinate in scenario["resolved"].items():
+            root = Path(coordinate["checkout_path"])
+            workspace._canonical_state_path(root)
+            if coordinate.get("dirty") is not False or git(root, "rev-parse", "HEAD", capture=True, trace=False) != coordinate["head"]:
+                raise WorkspaceError("scenario source changed since original producer")
+        status = workspace.topology_status(self.topology["immutable"]["name"])
+        original = evidence["topology_output"]
+        spec = self._json(self.topology_path / "spec.json")
+        if (status.get("name") != original.get("name")
+                or not status.get("stopped_at")
+                or status.get("state") != str(self.state_path)
+                or status.get("profile") != scenario["profile"]
+                or status.get("build_root") != str(self.runtime_path)
+                or status.get("state_policy") != original.get("state_policy")
+                or status.get("resolved") != original.get("resolved")):
+            raise WorkspaceError("topology differs from its retained original generation")
+        current = evidence.get("topology_current")
+        if current is None:
+            if any(status.get(field) != original.get(field) for field in ("control", "runtime", "started_at")):
+                raise WorkspaceError("topology differs from original producer generation")
+        else:
+            digest = hashlib.sha256(json.dumps(status, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode("ascii")).hexdigest()
+            if current["path"] != str(self.topology_path) or current["lifecycle"] != "stopped" or current["identity_digest"] != digest:
+                raise WorkspaceError("topology differs from its current recorded stopped observation")
+        if (workspace._topology_process_tree_active(self.topology_path, status.get("control"))
+                or status.get("supervisor", {}).get("liveness") in {"live", "unreachable"}
+                or any(row.get("running") is True or row.get("status") == "running"
+                       for row in status.get("services", {}).values())):
+            raise WorkspaceError("topology is running or ambiguous")
+        observation = status.get("observation", {})
+        if (observation.get("process_tree_lease") != "released"
+                or observation.get("runtime_bundle_lease") != "released"
+                or not isinstance(observation.get("port_reservation"), dict)
+                or observation["port_reservation"].get("lease") != "released"
+                or observation.get("server_state_lease_owner") is not None
+                or observation.get("repository_layout_lease_owner") is not None):
+            raise WorkspaceError("topology still retains a process, runtime, port or state lease")
+        spec_keys = {"schema_version", "name", "profile", "stack", "providers", "dependencies",
+                     "state", "state_policy", "build_root", "resolved", "endpoint", "control",
+                     "runtime", "services", "port_reservation"}
+        if (set(spec) != spec_keys or set(spec["services"]) != {"server"}
+                or set(status["services"]) != {"server"}):
+            raise WorkspaceError("observation correction supports only the exact server topology producer")
+        for field in spec_keys - {"endpoint", "services"}:
+            if spec[field] != status.get(field):
+                raise WorkspaceError("topology spec differs from current validated status: " + field)
+        if spec["endpoint"] != {key: status["endpoint"][key] for key in ("host", "port")}:
+            raise WorkspaceError("topology spec endpoint differs from current status")
+        service = spec["services"]["server"]
+        command = service.get("command")
+        runtime = status["runtime"]
+        service_root = Path(runtime["path"]) / "server"
+        if (set(service) != {"command", "cwd", "log"}
+                or service["cwd"] != str(service_root)
+                or service["cwd"] != status["services"]["server"]["cwd"]
+                or service["log"] != str(self.topology_path / "server.log")
+                or service["log"] != status["services"]["server"]["log"]
+                or not isinstance(command, list) or len(command) != 7
+                or command[:4] != [str(service_root / "atrinik-server"),
+                                    f"--port_quic={spec['endpoint']['port']}",
+                                    "--port_mapping=off", "--stun_server=off"]
+                or not isinstance(command[4], str) or re.fullmatch(r"--datapath=/proc/self/fd/[0-9]+", command[4]) is None
+                or not isinstance(command[5], str)
+                or (re.fullmatch(r"--assetspath=/proc/self/fd/[0-9]+", command[5]) is None
+                    and (len(runtime["mutable_state_outputs"]) != 1
+                         or command[5] != "--assetspath=" + runtime["mutable_state_outputs"][0]))
+                or command[6] != "--no_console"):
+            raise WorkspaceError("topology service launch differs from its exact server producer")
+        plan = evidence["topology_plan"]
+        for field in ("profile", "build_root", "state", "stack", "providers"):
+            if plan.get(field) != status.get(field) or spec.get(field) != status.get(field):
+                raise WorkspaceError("topology plan/spec identity differs from original output")
+        build_plan = evidence["build_plan"]
+        build = evidence["build_observation"]
+        if (build_plan.get("build_root") != str(self.tested_path)
+                or build_plan.get("profile", {}).get("name") != scenario["profile"]
+                or build_plan.get("tests") is not True
+                or build.get("tests") is not True or build.get("exit_code") != 0
+                or build.get("profile") != scenario["profile"]):
+            raise WorkspaceError("tested build does not match its original successful plan")
+        tested = base["tested-build"]["observations"][0]["metadata"]
+        if build_plan.get("build_key") != tested["key"]:
+            raise WorkspaceError("tested build key differs from original plan")
+        if Manifest.from_value(build_plan.get("manifest")).__dict__ != workspace.manifest.__dict__:
+            raise WorkspaceError("tested build manifest differs from resource workspace")
+        selected_live = {}
+        profile = workspace._load_profile(scenario["profile"], require_file=False)
+        stack = workspace.manifest.stack(profile["stack"])
+        for role, coordinate in tested["coordinates"].items():
+            if build_plan.get("execution_sources", {}).get(role) != coordinate["source_path"]:
+                raise WorkspaceError("tested build execution source differs from original plan")
+            component = stack.providers[role]
+            selected_live[role] = workspace._selector_root(profile, component) / component.source
+        states = workspace._selected_checkout_states(profile, selected_live, include_dirty=True, include_identity=True)
+        if any(row.get("dirty") for row in states.values()):
+            raise WorkspaceError("resource producer source is dirty")
+        if stack.name == "classic":
+            for role in sorted(set(selected_live) & {"client", "server", "protocol", "libatrinik"}):
+                component = stack.providers[role]
+                state = states[component.checkout_name]
+                identities = state.setdefault("package_identity", {})
+                identities["."] = workspace._classic_package_identity(state["path"], state["path"], state["head"], state["dirty"])
+                identities[component.source] = workspace._classic_package_identity(state["path"], selected_live[role], state["head"], state["dirty"])
+        actual_plan = workspace._build_plan_observation(
+            build_plan["target"], scenario["profile"], True, build_plan["targets"],
+            profile, selected_live, states, force_reconfigure=build_plan["force_reconfigure"],
+            use_ccache=build_plan["use_ccache"])
+        # Compare the exact producer configuration hash without running filters.
+        # Read-only Classic identity commands may consult these same pinned
+        # default origins; their existing fixed argv disables fsmonitor.
+        for name, state in states.items():
+            actual_plan["git_observations"][name]["configuration_sha256"] = configuration_digests[str(state["path"])]
+        actual_plan.pop("plan_sha256")
+        actual_plan["plan_sha256"] = hashlib.sha256(json.dumps(
+            actual_plan, sort_keys=True, separators=(",", ":")
+        ).encode()).hexdigest()
+        if actual_plan != build_plan:
+            changed = sorted(key for key in set(actual_plan) | set(build_plan)
+                             if actual_plan.get(key) != build_plan.get(key))
+            raise WorkspaceError("tested build original source/tool/profile plan changed: " + ", ".join(changed))
+        return {"state": {"disposition": "false-observation-retired", "name": false_name,
+                           "scenario": scenario, "registry": registry},
+                "build": {"path": str(self.tested_path), "proof": base["tested-build"]},
+                "topology": {"path": str(self.topology_path), "status": status,
+                             "spec": spec, "runtime_build": base["runtime-build"]},
+                "scenario_state": base["scenario-state"]}
 
 
 class Workspace:

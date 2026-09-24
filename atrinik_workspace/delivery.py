@@ -208,6 +208,21 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
             identity = resource["immutable"]
             if identity["path"] is not None:
                 _add_reference(references, _absolute_path(identity["path"], "resource reservation"), name)
+            if "correction" in resource:
+                proof = resource["correction"]
+                current = resource["current"]
+                if current["path"] is not None:
+                    _add_reference(references, _absolute_path(current["path"], "corrected resource path"), name)
+                if resource["slot_id"] == proof["request"]["state_slot"]:
+                    namespace = proof["resource_context"]["workspace"]
+                    recovered.append({"kind": "state", "name": identity["name"],
+                                      "path": str(Path(namespace) / "state/server" / identity["name"]),
+                                      "workspace": namespace, "ledger": name})
+                    for value in (proof["observations"]["build"]["proof"],
+                                  proof["observations"]["topology"]["runtime_build"],
+                                  proof["observations"]["scenario_state"]):
+                        for reservation in value["reservations"]:
+                            _add_reference(references, _absolute_path(reservation["path"], "correction provenance reservation"), name)
             if resource["state"] == "recovered":
                 for reservation in resource["recovery"]["observation"]["reservations"]:
                     projected = {"kind": resource["kind"], "name": reservation["name"], "path": reservation["path"], "ledger": name}
