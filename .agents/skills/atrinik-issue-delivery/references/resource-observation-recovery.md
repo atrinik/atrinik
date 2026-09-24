@@ -139,3 +139,13 @@ exact server executable/cwd/argument grammar against that generation; only its
 endpoint, generation paths and decimal inherited-descriptor arguments vary.
 Runtime-build `last_used_at` is current usage metadata, not tested-build provenance.
 The complete fresh observations are compared again before publication.
+
+The finite Classic `server_listener` selection is generation-local. New original
+producer plans, specs and output must agree; historical absent fields preserve
+loopback and their exact original argv. A later owner-prepared generation may
+select `all-ipv4` through public `topology show` and `up`, followed by ordinary
+running/stopped observation CAS. Fresh proof checks its exact spec/status and
+seven- or eight-element argv; the historical correction bytes remain unchanged.
+The fixed-provenance comparison excludes only this current selection, while
+full observations must still remain equal across authentication and publication.
+Admission does not authorize retuning a live topology or changing host publication.

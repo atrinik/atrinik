@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 from pathlib import Path
@@ -26,6 +27,35 @@ from atrinik_workspace.process_tree import control_socket_path
 
 
 class ServerReadinessCaptureTests(unittest.TestCase):
+    def test_listener_spec_status_and_exact_command_agree(self) -> None:
+        spec = {"schema_version": 3, "name": "listener", "profile": "classic",
+                "stack": "classic", "providers": {}, "dependencies": ["server"],
+                "state": "/state", "build_root": "/build", "resolved": {},
+                "endpoint": {"host": "127.0.0.1", "port": 17300},
+                "runtime": {"path": "/runtime", "mutable_state_outputs": ["/state/assets"]},
+                "services": {"server": {"cwd": "/runtime/server", "command": [
+                    "/runtime/server/atrinik-server", "--port_quic=17300",
+                    "--port_mapping=off", "--stun_server=off", "--datapath=/proc/self/fd/7",
+                    "--assetspath=/proc/self/fd/8", "--no_console"]}}}
+        legacy = _initial_status(spec, "1")
+        self.assertNotIn("server_listener", legacy)
+        for listener in ("loopback", "all-ipv4"):
+            selected = copy.deepcopy(spec)
+            selected["server_listener"] = listener
+            if listener == "all-ipv4":
+                selected["services"]["server"]["command"].append("--network_stack=ipv4=0.0.0.0")
+            status = _initial_status(selected, "1")
+            self.assertEqual(status["server_listener"], listener)
+            self.assertEqual(status["endpoint"]["host"], "127.0.0.1")
+            for change in ("listener", "command", "endpoint", "service"):
+                bad = copy.deepcopy(selected)
+                if change == "listener": bad["server_listener"] = {}
+                elif change == "command": bad["services"]["server"]["command"].append("--arbitrary=unsafe")
+                elif change == "endpoint": bad["endpoint"]["host"] = "0.0.0.0"
+                else: bad["services"] = {"client": {}}
+                with self.subTest(listener=listener, change=change), self.assertRaises(RuntimeError):
+                    _initial_status(bad, "1")
+
     def test_scenario_client_uses_full_validated_connect_tuple(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

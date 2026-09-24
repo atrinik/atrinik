@@ -88,3 +88,8 @@ applicable, reset only scenario state, and run owner validation. Prove parallel
 startup with readiness/ownership transitions, never an elapsed-time threshold.
 
 An external exported client receives only the explicit host, UDP port and certificate fingerprint, never the private QUIC key or control endpoint. A server container requires its explicit UDP mapping at creation. Stop the client, then wrapper topology, then only the exact owned container. Follow docs/LINUX_EXECUTION.md for separate headless-server, native-client and persistent-state verification.
+
+For Docker-forwarded UDP, use `--server-listener all-ipv4` in both `topology show`
+and `up`/`dev up`; `dev restart` retains it. Keep host publication localhost-only
+and give clients the explicit reachable host, never wildcard `0.0.0.0`.
+Omission preserves loopback; listener options require a server service.
