@@ -8145,6 +8145,7 @@ class WorkspaceTests(unittest.TestCase):
     def test_dev_restart_preserves_topology_coordinates_and_selects_one_service(self) -> None:
         initial = {
             "profile": "classic",
+            "server_listener": "all-ipv4",
             "services": {"server": {}, "client": {}},
             "control": {"generation": "a" * 64},
             "supervisor": {"running": True},
@@ -8204,6 +8205,7 @@ class WorkspaceTests(unittest.TestCase):
             ["server", "client"],
             17300,
             "temporary",
+            server_listener="all-ipv4",
             build_services={"server"},
             restart_status=stopped,
             operation_lock_held=True,
@@ -8237,6 +8239,7 @@ class WorkspaceTests(unittest.TestCase):
             ["client"],
             17300,
             state_mode="default",
+            server_listener=None,
             build_services={"client"},
         )
 
@@ -19880,6 +19883,8 @@ class WorkspaceTests(unittest.TestCase):
         )
         manifest_record = load_json(manifest_path)
         status_record = load_json(status_path)
+        spec_path = status_path.with_name("spec.json")
+        spec_record = load_json(spec_path)
         generation_mode = stat.S_IMODE(generation_root.stat().st_mode)
         manifest_mode = stat.S_IMODE(manifest_path.stat().st_mode)
         try:
@@ -19899,6 +19904,7 @@ class WorkspaceTests(unittest.TestCase):
                 )
             )
             atomic_json(status_path, invalid_status)
+            atomic_json(spec_path, {**spec_record, "runtime": invalid_status["runtime"]})
             with self.assertRaisesRegex(
                 WorkspaceError, "runtime manifest identity is invalid"
             ):
@@ -19908,6 +19914,7 @@ class WorkspaceTests(unittest.TestCase):
             manifest_path.chmod(manifest_mode)
             generation_root.chmod(generation_mode)
             atomic_json(status_path, status_record)
+            atomic_json(spec_path, spec_record)
         self.assertEqual(server_runtime, generation_root / "server")
         self.assertFalse((server_runtime / "maps").is_symlink())
         self.assertEqual(
@@ -21841,6 +21848,308 @@ class WorkspaceTests(unittest.TestCase):
         atomic_json(root / "status.json", record)
         with self.assertRaisesRegex(WorkspaceError, "no provider"):
             self.workspace.topology_status("retired-content")
+
+    def test_listener_lifecycle_collision_tampering_and_restart_rollback(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "listener-rendezvous"
+        rendezvous.mkdir()
+        build = self.workspace.paths.builds / "listener-build"
+        self.make_rendezvous_server_build(build, rendezvous, "listener.bound", peers=1)
+        executable = build / "build/server/atrinik-server"
+        executable.write_text(executable.read_text().replace(
+            "udp.bind(('0.0.0.0', port))",
+            "udp.bind(('0.0.0.0' if '--network_stack=ipv4=0.0.0.0' in sys.argv else '127.0.0.1', port))"))
+        with mock.patch.object(self.workspace, "_build_resolved", return_value=build):
+            for index, listener in enumerate((None, "loopback", "all-ipv4")):
+                name = f"listener-{index}"
+                plan = self.workspace.topology_summary("default", None, ["server"], server_listener=listener)
+                self.assertEqual(plan["server_listener"], listener or "loopback")
+                status = self.workspace.topology_up(name, "default", None, ["server"], server_listener=listener)
+                root = self.workspace.paths.topologies / name
+                spec = load_json(root / "spec.json")
+                self.assertEqual(spec["server_listener"], status["server_listener"])
+                self.assertEqual(status["endpoint"]["host"], "127.0.0.1")
+                self.assertEqual(spec["services"]["server"]["command"][7:],
+                                 ["--network_stack=ipv4=0.0.0.0"] if listener == "all-ipv4" else [])
+                try:
+                    with self.assertRaisesRegex(WorkspaceError, "already running"):
+                        self.workspace.topology_up(name, "default", None, ["server"], server_listener="loopback")
+                    with self.assertRaises(WorkspaceError):
+                        self.workspace.topology_up(f"collision-{index}", "default", None, ["server"],
+                                                   status["endpoint"]["port"],
+                                                   server_listener="loopback" if listener == "all-ipv4" else "all-ipv4")
+                    if listener == "all-ipv4":
+                        restarted = self.workspace.dev_restart(name, "server")
+                        self.assertEqual(restarted["server_listener"], "all-ipv4")
+                        self.assertEqual(restarted["endpoint"], status["endpoint"])
+                        self.assertNotEqual(restarted["control"], status["control"])
+                        spec_before = (root / "spec.json").read_bytes()
+                        popen = workspace_module.subprocess.Popen
+                        def fail_supervisor(command, *args, **kwargs):
+                            if "atrinik_workspace.supervisor" in command:
+                                raise OSError("listener restart launch failure")
+                            return popen(command, *args, **kwargs)
+                        with mock.patch.object(workspace_module.subprocess, "Popen", side_effect=fail_supervisor):
+                            with self.assertRaisesRegex(WorkspaceError, "listener restart launch failure"):
+                                self.workspace.dev_restart(name, "server")
+                        self.assertEqual((root / "spec.json").read_bytes(), spec_before)
+                        self.assertEqual(self.workspace.topology_status(name)["server_listener"], "all-ipv4")
+                finally:
+                    self.workspace.topology_down(name, timeout=5)
+                original_spec = (root / "spec.json").read_bytes()
+                original_status = (root / "status.json").read_bytes()
+                from atrinik_workspace import cli
+                target = root / "spec.json"
+                opened = workspace_module.open_regular_file
+                def require_nonblocking(path, flags, description, mode=0o600):
+                    if path == target:
+                        self.assertTrue(flags & os.O_NONBLOCK)
+                    return opened(path, flags, description, mode)
+                for malformed in ("fifo", "symlink", "duplicate", "oversized"):
+                    with self.subTest(listener=listener, malformed=malformed):
+                        target.unlink()
+                        if malformed == "fifo":
+                            os.mkfifo(target, 0o600)
+                        elif malformed == "symlink":
+                            target.symlink_to(root / "status.json")
+                        elif malformed == "duplicate":
+                            target.write_text('{"name":"foreign",' + original_spec.decode()[1:])
+                        else:
+                            target.write_bytes(b" " * (4 * 1024 * 1024 + 1))
+                        try:
+                            with mock.patch.object(workspace_module, "open_regular_file", side_effect=require_nonblocking), mock.patch.object(
+                                    cli, "Workspace", return_value=self.workspace), mock.patch.object(self.workspace, "close"):
+                                for arguments in (["ps", name, "--json"], ["dev", "restart", name, "--service", "server"]):
+                                    with redirect_stderr(io.StringIO()) as error:
+                                        self.assertEqual(cli.main(arguments), 1)
+                                    self.assertTrue(error.getvalue().startswith("error:"))
+                            self.assertEqual((root / "status.json").read_bytes(), original_status)
+                        finally:
+                            target.unlink()
+                            target.write_bytes(original_spec)
+                for mutation in ("spec", "status", "both", "argv", "extra-argv"):
+                    bad_spec, bad_status = json.loads(original_spec), json.loads(original_status)
+                    if mutation in {"spec", "both"}: bad_spec.pop("server_listener")
+                    if mutation in {"status", "both"}: bad_status.pop("server_listener")
+                    if mutation == "argv": bad_spec["services"]["server"]["command"][2] = "--port_mapping=on"
+                    if mutation == "extra-argv": bad_spec["services"]["server"]["command"].append("--unplanned")
+                    atomic_json(root / "spec.json", bad_spec); atomic_json(root / "status.json", bad_status)
+                    try:
+                        if mutation == "both" and listener != "all-ipv4":
+                            before = (root / "status.json").read_bytes()
+                            self.assertNotIn("server_listener", self.workspace.topology_status(name))
+                            self.assertEqual((root / "status.json").read_bytes(), before)
+                        else:
+                            with self.subTest(listener=listener, mutation=mutation), self.assertRaises(WorkspaceError):
+                                self.workspace.topology_status(name)
+                    finally:
+                        (root / "spec.json").write_bytes(original_spec)
+                        (root / "status.json").write_bytes(original_status)
+
+    def test_listener_restart_failure_boundaries_preserve_exact_generation(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "restart-rendezvous"
+        rendezvous.mkdir()
+        build = self.workspace.paths.builds / "restart-build"
+        self.make_rendezvous_server_build(build, rendezvous, "listener.bound", peers=1)
+        with mock.patch.object(self.workspace, "_build_resolved", return_value=build):
+            for point in ("build", "lease", "spec", "handoff"):
+                name = "restart-" + point
+                original = self.workspace.topology_up(name, "default", None, ["server"], server_listener="all-ipv4")
+                root = self.workspace.paths.topologies / name
+                original_spec = (root / "spec.json").read_bytes()
+                fired = False
+                initialize = workspace_module.initialize_lease
+                atomic = workspace_module.atomic_json
+                handles = workspace_module.inherited_subprocess_handles
+                def fail_lease(descriptor, generation):
+                    nonlocal fired
+                    result = initialize(descriptor, generation)
+                    if not fired:
+                        fired = True
+                        raise OSError("listener lease failpoint")
+                    return result
+                def fail_spec(path, value):
+                    nonlocal fired
+                    atomic(path, value)
+                    if path == root / "spec.json" and not fired:
+                        fired = True
+                        raise OSError("listener spec failpoint")
+                @contextmanager
+                def fail_handoff(descriptors):
+                    nonlocal fired
+                    is_supervisor = any(
+                        os.readlink(f"/proc/self/fd/{fd}") == str(root / "process-tree.lease")
+                        for fd in descriptors
+                    )
+                    with handles(descriptors) as inherited:
+                        yield inherited
+                        if is_supervisor:
+                            fired = True
+                            raise OSError("listener handoff failpoint")
+                patch = (
+                    mock.patch.object(self.workspace, "_build_resolved", side_effect=WorkspaceError("listener build failpoint"))
+                    if point == "build" else
+                    mock.patch.object(workspace_module, "initialize_lease", side_effect=fail_lease)
+                    if point == "lease" else
+                    mock.patch.object(workspace_module, "atomic_json", side_effect=fail_spec)
+                    if point == "spec" else
+                    mock.patch.object(workspace_module, "inherited_subprocess_handles", side_effect=fail_handoff)
+                )
+                try:
+                    with patch, self.assertRaisesRegex((WorkspaceError, OSError), "listener .* failpoint"):
+                        self.workspace.dev_restart(name, "server")
+                    if point == "handoff":
+                        deadline = time.monotonic() + 5
+                        while True:
+                            try:
+                                current = self.workspace.topology_status(name)
+                            except WorkspaceError:
+                                current = {}
+                            if current.get("ready"):
+                                break
+                            if time.monotonic() >= deadline:
+                                self.fail("launched generation failed to publish ready status")
+                            time.sleep(0.01)
+                        self.assertNotEqual(current["control"], original["control"])
+                        self.assertTrue(Path(current["runtime"]["path"]).is_dir())
+                    else:
+                        current = self.workspace.topology_status(name)
+                        self.assertEqual(current["control"], original["control"])
+                        self.assertFalse(current["ready"])
+                        self.assertEqual((root / "spec.json").read_bytes(), original_spec)
+                        self.assertEqual(load_json(root / workspace_module.TOPOLOGY_PORT_RESERVATION_RECORD), current["port_reservation"])
+                    self.assertEqual(current["server_listener"], "all-ipv4")
+                finally:
+                    self.workspace.topology_down(name, timeout=5)
+
+    def test_listener_restart_snapshot_rejects_fifo_and_duplicate_keys(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "snapshot-rendezvous"
+        rendezvous.mkdir()
+        build = self.workspace.paths.builds / "snapshot-build"
+        self.make_rendezvous_server_build(build, rendezvous, "listener.bound", peers=1)
+        with mock.patch.object(self.workspace, "_build_resolved", return_value=build):
+            for filename in ("spec.json", workspace_module.TOPOLOGY_PORT_RESERVATION_RECORD):
+                for kind in ("fifo", "duplicate"):
+                    with self.subTest(filename=filename, kind=kind):
+                        name = "snapshot-" + kind + ("-spec" if filename == "spec.json" else "-port")
+                        initial = self.workspace.topology_up(name, "default", None, ["server"], server_listener="all-ipv4")
+                        root = self.workspace.paths.topologies / name
+                        target = root / filename
+                        saved = None
+                        snapshot_ready = False
+                        original_status = self.workspace.topology_status
+                        def status_before_snapshot(*args, **kwargs):
+                            nonlocal snapshot_ready
+                            result = original_status(*args, **kwargs)
+                            snapshot_ready = not result["ready"]
+                            return result
+                        opened = workspace_module.open_regular_file
+                        def replace_snapshot(path, flags, description, mode=0o600):
+                            nonlocal saved
+                            if path == target and description == "topology record" and saved is None and snapshot_ready:
+                                saved = path.read_bytes()
+                                self.assertTrue(flags & os.O_NONBLOCK)
+                                if kind == "fifo":
+                                    path.unlink()
+                                    os.mkfifo(path, 0o600)
+                                else:
+                                    path.write_text('{"duplicate": 1, "duplicate": 2}')
+                            return opened(path, flags, description, mode)
+                        try:
+                            with mock.patch.object(workspace_module, "open_regular_file", side_effect=replace_snapshot), mock.patch.object(
+                                    self.workspace, "topology_status", side_effect=status_before_snapshot):
+                                with self.assertRaisesRegex(WorkspaceError, "not a regular file|duplicate JSON key"):
+                                    self.workspace.dev_restart(name, "server")
+                            self.assertIsNotNone(saved)
+                        finally:
+                            if saved is not None:
+                                if target.is_fifo():
+                                    target.unlink()
+                                target.write_bytes(saved)
+                            self.workspace.topology_down(name, timeout=5)
+                        current = self.workspace.topology_status(name)
+                        self.assertEqual(current["control"], initial["control"])
+                        self.assertEqual(current["server_listener"], "all-ipv4")
+                        self.assertFalse(current["ready"])
+
+    def test_listener_restart_rollback_preserves_unsafe_published_spec(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "unsafe-rendezvous"
+        rendezvous.mkdir()
+        build = self.workspace.paths.builds / "unsafe-build"
+        self.make_rendezvous_server_build(build, rendezvous, "listener.bound", peers=1)
+        with mock.patch.object(self.workspace, "_build_resolved", return_value=build):
+            for kind in ("fifo", "duplicate"):
+                with self.subTest(kind=kind):
+                    name = "unsafe-" + kind
+                    self.workspace.topology_up(name, "default", None, ["server"], server_listener="all-ipv4")
+                    root = self.workspace.paths.topologies / name
+                    target = root / "spec.json"
+                    atomic = workspace_module.atomic_json
+                    opened = workspace_module.open_regular_file
+                    malformed = None
+                    def require_nonblocking(path, flags, description, mode=0o600):
+                        if description == "topology record":
+                            self.assertTrue(flags & os.O_NONBLOCK)
+                        return opened(path, flags, description, mode)
+                    def fail_after_spec(path, value):
+                        nonlocal malformed
+                        atomic(path, value)
+                        if path == target:
+                            if kind == "fifo":
+                                path.unlink()
+                                os.mkfifo(path, 0o600)
+                            else:
+                                malformed = '{"name":"foreign",' + path.read_text()[1:]
+                                path.write_text(malformed)
+                            raise OSError("published unsafe spec failpoint")
+                    with mock.patch.object(workspace_module, "atomic_json", side_effect=fail_after_spec), mock.patch.object(
+                            workspace_module, "open_regular_file", side_effect=require_nonblocking):
+                        with self.assertRaisesRegex(WorkspaceError, "not a regular file|duplicate JSON key"):
+                            self.workspace.dev_restart(name, "server")
+                    self.assertFalse((root / "status.json").exists())
+                    if kind == "fifo":
+                        self.assertTrue(target.is_fifo())
+                    else:
+                        self.assertEqual(target.read_text(), malformed)
+                    self.assertFalse(workspace_module.lease_locked(root / "process-tree.lease"))
+
+    def test_listener_input_refuses_before_workspace_or_build_effects(self) -> None:
+        for method in (self.workspace.topology_up, self.workspace._topology_up,
+                       self.workspace.dev_up):
+            for value in (True, False, 1, [], {}, "", "ipv6", "0.0.0.0", "--network_stack=off"):
+                with self.subTest(method=method.__name__, value=value), mock.patch.object(
+                        type(self.workspace.paths), "ensure") as ensure, mock.patch.object(
+                        self.workspace, "_resolved_profile_operation") as resolve:
+                    with self.assertRaisesRegex(WorkspaceError, "server listener"):
+                        method("invalid-listener", "classic", None, ["server"], server_listener=value)
+                    ensure.assert_not_called()
+                    resolve.assert_not_called()
+            for value in ("loopback", "all-ipv4"):
+                with self.subTest(method=method.__name__, value=value), mock.patch.object(
+                        type(self.workspace.paths), "ensure") as ensure:
+                    with self.assertRaisesRegex(WorkspaceError, "requires the server"):
+                        method("invalid-listener", "classic", None, ["client"], server_listener=value)
+                    ensure.assert_not_called()
+        for value in (True, {}, "invalid"):
+            with self.assertRaisesRegex(WorkspaceError, "server listener"):
+                self.workspace.topology_summary("classic", None, ["server"], server_listener=value)
+        self.assertEqual(self.workspace._normalize_server_listener(None, ["server"]), "loopback")
+        self.assertIsNone(self.workspace._normalize_server_listener(None, ["client"]))
 
     def test_client_only_topology_rejects_server_port(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "requires the server"):

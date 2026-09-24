@@ -8,7 +8,7 @@ import sys
 from typing import Any
 
 from .completion import mark, protocol, protocol_command, shell_script
-from .model import Manifest, WorkspaceError
+from .model import CLASSIC_SERVER_LISTENERS, Manifest, WorkspaceError
 from .platform_compat import IS_WINDOWS, PlatformCapabilityError, require_linux_capability
 
 
@@ -459,6 +459,10 @@ def parser() -> argparse.ArgumentParser:
         ),
         "none",
     )
+    dev_up.add_argument(
+        "--server-listener", choices=CLASSIC_SERVER_LISTENERS,
+        help="Classic server bind policy (default: loopback); all-ipv4 accepts container-forwarded UDP",
+    )
     dev_up.add_argument("--json", action="store_true")
 
     dev_restart = dev_commands.add_parser(
@@ -519,6 +523,10 @@ def parser() -> argparse.ArgumentParser:
     topology_show.add_argument(
         "--service", choices=["server", "client"], action="append"
     )
+    topology_show.add_argument(
+        "--server-listener", choices=CLASSIC_SERVER_LISTENERS,
+        help="Classic server bind policy (default: loopback); all-ipv4 accepts container-forwarded UDP",
+    )
     topology_show.add_argument("--json", action="store_true")
 
     up = commands.add_parser("up", help="build and start a supervised topology")
@@ -546,6 +554,10 @@ def parser() -> argparse.ArgumentParser:
         help="server UDP port (default: choose an available port)",
     ), "none")
     up.add_argument("--service", choices=["server", "client"], action="append")
+    up.add_argument(
+        "--server-listener", choices=CLASSIC_SERVER_LISTENERS,
+        help="Classic server bind policy (default: loopback); all-ipv4 accepts container-forwarded UDP",
+    )
     up.add_argument("--json", action="store_true")
 
     ps = commands.add_parser("ps", help="show supervised topology processes")
@@ -1360,6 +1372,8 @@ def main(arguments: list[str] | None = None) -> int:
                     services,
                     options.port,
                     state_mode=options.state_mode,
+                    **({"server_listener": options.server_listener}
+                   if options.server_listener is not None else {}),
                 )
                 if options.json:
                     print(json.dumps(status, indent=2, sort_keys=True))
@@ -1409,6 +1423,8 @@ def main(arguments: list[str] | None = None) -> int:
                 state,
                 options.service,
                 state_mode=options.state_mode,
+                **({"server_listener": options.server_listener}
+                   if options.server_listener is not None else {}),
             )
             if options.json:
                 print(json.dumps(summary, indent=2, sort_keys=True))
@@ -1448,6 +1464,8 @@ def main(arguments: list[str] | None = None) -> int:
                 options.service,
                 options.port,
                 state_mode=options.state_mode,
+                **({"server_listener": options.server_listener}
+                   if options.server_listener is not None else {}),
             )
             if options.json:
                 print(json.dumps(status, indent=2, sort_keys=True))

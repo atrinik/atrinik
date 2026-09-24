@@ -18,7 +18,7 @@ from typing import Any, BinaryIO
 
 from .path_identity import canonical_path
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
-from .model import durable_atomic_json
+from .model import durable_atomic_json, validate_server_listener_spec
 from .platform_compat import inherited_subprocess_handles
 from .process_tree import control_socket_path, holders_exist, signal_holders
 from .port_reservation import PortReservationError, validate_held
@@ -272,6 +272,7 @@ def pump_output(
 
 
 def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[str, Any]:
+    validate_server_listener_spec(spec)
     control = spec.get("control")
     generation = control.get("generation") if isinstance(control, dict) else None
     status: dict[str, Any] = {
@@ -305,6 +306,8 @@ def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[st
     }
     if control is not None:
         status["control"] = control
+    if "server_listener" in spec:
+        status["server_listener"] = spec["server_listener"]
     if "runtime" in spec:
         status["runtime"] = spec["runtime"]
     if "stack" in spec or "providers" in spec:

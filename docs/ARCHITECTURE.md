@@ -1441,6 +1441,18 @@ advance. Generation directories stay with the marker-owned topology record so
 the preview-first topology reclamation contract in #397 can remove only an
 inactive, released, fully validated record; malformed, linked, unreachable, or
 retained generations fail closed.
+The optional canonical `server_listener` field binds each new Classic server
+plan/spec/status to `loopback` or `all-ipv4`. Loopback emits the historical
+seven-element server argv; all-ipv4 appends exactly
+`--network_stack=ipv4=0.0.0.0`. Listener-aware records require exact agreement
+between the immutable spec, status, runtime generation and launch grammar.
+Legacy absence remains readable without rewriting historical bytes. Advertised
+client endpoints remain loopback, and port leases remain namespace-wide.
+Development restart carries the listener into the replacement generation; a
+pre-handoff launch failure restores the persisted stopped spec/status and
+process-tree generation while the preparation descriptor is still held.
+After supervisor handoff, failure preserves the new generation for diagnosis.
+
 Topology cleanup exposes the same lifecycle classification in its JSON item
 and accepts exact topology names only when `--scope topologies` is selected.
 Preview and apply use the topology lease, revalidate the classification and

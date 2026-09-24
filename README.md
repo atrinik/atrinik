@@ -1898,6 +1898,21 @@ commands turn that selection into a Compose-like native development stack:
 ./atrinik down TOPOLOGY
 ~~~
 
+Classic server listeners default to `loopback`. For a server in a container
+with an explicitly published UDP port, pass `--server-listener all-ipv4` to
+`topology show`, `up`, or `dev up`. Use the same option when planning and
+starting that generation. The finite choices are `loopback` and `all-ipv4`;
+client-only topologies reject the option. New plans, specs and `ps --json`
+report `server_listener`; old records without it retain their original loopback
+behavior. `dev restart` preserves the selection, and a running topology cannot
+be retuned by another `up`.
+
+`all-ipv4` binds the server inside its container; Docker's host publication is
+separate and must remain `127.0.0.1:HOST_PORT:CONTAINER_PORT/udp` for a same-host
+client. The advertised client `endpoint.host` remains `127.0.0.1`, never
+`0.0.0.0`. Port reservations cover the whole namespace regardless of listener
+choice. See [the independent server recipe](docs/LINUX_EXECUTION.md#independent-headless-server-and-native-client).
+
 Server topologies choose exactly one state policy: `--temporary-state` creates
 a fresh generation-owned state for isolated automation, `--state NAME` selects
 an existing registered persistent state, and `--default-state` explicitly

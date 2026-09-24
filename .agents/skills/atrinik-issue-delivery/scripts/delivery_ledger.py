@@ -6779,7 +6779,7 @@ def _correction_fixed_ownership(observations):
     fixed = copy.deepcopy(observations)
     fixed["topology"].pop("status", None)
     spec = fixed["topology"]["spec"]
-    for field in ("control", "runtime", "port_reservation", "endpoint"):
+    for field in ("control", "runtime", "port_reservation", "endpoint", "server_listener"):
         spec.pop(field, None)
     # Fresh workspace proof validates every generation-local launch argument,
     # executable/cwd and released lease against the exact recorded status.
