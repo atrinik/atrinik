@@ -20930,12 +20930,15 @@ class Workspace:
                 )
 
             def restart_record(path: Path) -> dict[str, Any]:
-                descriptor = open_regular_file(path, os.O_RDONLY, "restart record")
-                with os.fdopen(descriptor, encoding="utf-8") as stream:
-                    if (os.fstat(stream.fileno()).st_nlink != 1
-                            or descriptor_path(stream.fileno()) != canonical_path(path)):
-                        raise WorkspaceError("restart record identity changed")
-                    record = json.load(stream)
+                descriptor = open_regular_file(path, os.O_RDONLY | os.O_NONBLOCK, "restart record")
+                try:
+                    with os.fdopen(descriptor, encoding="utf-8") as stream:
+                        if (os.fstat(stream.fileno()).st_nlink != 1
+                                or descriptor_path(stream.fileno()) != canonical_path(path)):
+                            raise WorkspaceError("restart record identity changed")
+                        record = json.load(stream, object_pairs_hook=_reject_duplicate_keys)
+                except (OSError, UnicodeError, ValueError, RecursionError) as error:
+                    raise WorkspaceError(f"cannot read restart record {path}: {error}") from error
                 if not isinstance(record, dict):
                     raise WorkspaceError("restart record is invalid")
                 return record

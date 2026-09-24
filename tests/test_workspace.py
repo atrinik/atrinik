@@ -22000,6 +22000,97 @@ class WorkspaceTests(unittest.TestCase):
                 finally:
                     self.workspace.topology_down(name, timeout=5)
 
+    def test_listener_restart_snapshot_rejects_fifo_and_duplicate_keys(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "snapshot-rendezvous"
+        rendezvous.mkdir()
+        build = self.workspace.paths.builds / "snapshot-build"
+        self.make_rendezvous_server_build(build, rendezvous, "listener.bound", peers=1)
+        with mock.patch.object(self.workspace, "_build_resolved", return_value=build):
+            for filename in ("spec.json", workspace_module.TOPOLOGY_PORT_RESERVATION_RECORD):
+                for kind in ("fifo", "duplicate"):
+                    with self.subTest(filename=filename, kind=kind):
+                        name = "snapshot-" + kind + ("-spec" if filename == "spec.json" else "-port")
+                        initial = self.workspace.topology_up(name, "default", None, ["server"], server_listener="all-ipv4")
+                        root = self.workspace.paths.topologies / name
+                        target = root / filename
+                        saved = None
+                        opened = workspace_module.open_regular_file
+                        def replace_snapshot(path, flags, description, mode=0o600):
+                            nonlocal saved
+                            if path == target and description == "restart record" and saved is None:
+                                saved = path.read_bytes()
+                                self.assertTrue(flags & os.O_NONBLOCK)
+                                if kind == "fifo":
+                                    path.unlink()
+                                    os.mkfifo(path, 0o600)
+                                else:
+                                    path.write_text('{"duplicate": 1, "duplicate": 2}')
+                            return opened(path, flags, description, mode)
+                        try:
+                            with mock.patch.object(workspace_module, "open_regular_file", side_effect=replace_snapshot):
+                                with self.assertRaisesRegex(WorkspaceError, "not a regular file|duplicate JSON key"):
+                                    self.workspace.dev_restart(name, "server")
+                            self.assertIsNotNone(saved)
+                        finally:
+                            if saved is not None:
+                                if target.is_fifo():
+                                    target.unlink()
+                                target.write_bytes(saved)
+                            self.workspace.topology_down(name, timeout=5)
+                        current = self.workspace.topology_status(name)
+                        self.assertEqual(current["control"], initial["control"])
+                        self.assertEqual(current["server_listener"], "all-ipv4")
+                        self.assertFalse(current["ready"])
+
+    def test_listener_restart_rollback_preserves_unsafe_published_spec(self) -> None:
+        source = self.workspace.paths.repositories / "server"
+        (source / "tools").mkdir()
+        for filename in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
+            (source / filename).write_text("test\n", encoding="utf-8")
+        rendezvous = self.root / "unsafe-rendezvous"
+        rendezvous.mkdir()
+        build = self.workspace.paths.builds / "unsafe-build"
+        self.make_rendezvous_server_build(build, rendezvous, "listener.bound", peers=1)
+        with mock.patch.object(self.workspace, "_build_resolved", return_value=build):
+            for kind in ("fifo", "duplicate"):
+                with self.subTest(kind=kind):
+                    name = "unsafe-" + kind
+                    self.workspace.topology_up(name, "default", None, ["server"], server_listener="all-ipv4")
+                    root = self.workspace.paths.topologies / name
+                    target = root / "spec.json"
+                    atomic = workspace_module.atomic_json
+                    opened = workspace_module.open_regular_file
+                    malformed = None
+                    def require_nonblocking(path, flags, description, mode=0o600):
+                        if description == "restart record":
+                            self.assertTrue(flags & os.O_NONBLOCK)
+                        return opened(path, flags, description, mode)
+                    def fail_after_spec(path, value):
+                        nonlocal malformed
+                        atomic(path, value)
+                        if path == target:
+                            if kind == "fifo":
+                                path.unlink()
+                                os.mkfifo(path, 0o600)
+                            else:
+                                malformed = '{"name":"foreign",' + path.read_text()[1:]
+                                path.write_text(malformed)
+                            raise OSError("published unsafe spec failpoint")
+                    with mock.patch.object(workspace_module, "atomic_json", side_effect=fail_after_spec), mock.patch.object(
+                            workspace_module, "open_regular_file", side_effect=require_nonblocking):
+                        with self.assertRaisesRegex(WorkspaceError, "not a regular file|duplicate JSON key"):
+                            self.workspace.dev_restart(name, "server")
+                    self.assertFalse((root / "status.json").exists())
+                    if kind == "fifo":
+                        self.assertTrue(target.is_fifo())
+                    else:
+                        self.assertEqual(target.read_text(), malformed)
+                    self.assertFalse(workspace_module.lease_locked(root / "process-tree.lease"))
+
     def test_listener_input_refuses_before_workspace_or_build_effects(self) -> None:
         for method in (self.workspace.topology_up, self.workspace._topology_up,
                        self.workspace.dev_up):
