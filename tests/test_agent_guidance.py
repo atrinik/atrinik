@@ -768,7 +768,6 @@ class AgentGuidanceTests(unittest.TestCase):
         paths.extend(sorted((ROOT / ".agents/skills").glob("*/references/*.md")))
         allowed_configs = (
             ".devcontainer/server-runtime.json",
-            ".devcontainer/windows-wslg/devcontainer.json",
             ".devcontainer/windows-cross/devcontainer.json",
         )
         for path in paths:

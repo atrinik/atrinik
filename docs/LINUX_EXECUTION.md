@@ -10,7 +10,7 @@ its own delivery or switch an existing delivery's execution context.
 | Short-lived pinned Linux build worker | None required | No delivery authority | Exact image, source, cache and resource proofs |
 | Already-bound historical Linux coordinator | None required | Existing `canonical-linux` contract after complete live proof | Exact retained image/mount/worktree/ledger coordinates |
 | Optional native Linux client container | Selected X11/Wayland and real GPU | Runtime capability does not grant delivery authority | Selected renderer and gameplay evidence |
-| Windows/WSL2/WSLg desktop runtime | WSLg in explicit desktop config | Runtime capability grants no delivery authority | Keep WSLg and native Windows evidence separate |
+| Retained Windows/WSL2/WSLg desktop composition | Existing WSLg display/audio/GPU mounts | Runtime capability alone grants no authority; existing canonical proof is separate | [Credential-bearing prerequisites](../README.md#pinned-build-and-runtime-containers); keep native Windows evidence separate |
 | Windows cross-build container | None | No ledger authority | MXE package/build evidence only |
 | Native Windows | Native graphics for D3D12 qualification | No Linux ledger authority | Native Windows runtime evidence |
 
@@ -245,8 +245,8 @@ Install Docker Engine using the distribution's official instructions for
 [Debian](https://docs.docker.com/engine/install/debian/). An existing installation
 and its resources must be preserved. Configure daemon access through the host
 administrator's chosen supported method; a socket permission failure is a Docker
-access problem, independent of graphics. For the explicit server-runtime,
-WSLg or cross-build configurations, install Node.js/npm and the
+access problem, independent of graphics. For the explicit server-runtime or
+cross-build configurations, install Node.js/npm and the
 [Dev Containers CLI](https://code.visualstudio.com/docs/devcontainers/devcontainer-cli)
 in the host user's tool environment, then verify both interfaces:
 
@@ -439,11 +439,10 @@ mode, host credentials or a Docker socket to the client.
 
 The public exporter runs in the exact published portable build environment,
 `ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1`.
-This is a separate immutable producer after the ordinary pinned devcontainer
-build/test stage; it is not a substitute coordinator, native authority probe or
-host runtime. Before merge, the automatic
-`Linux portable acceptance` pull-request workflow is the supported actual
-producer route; the retained canonical container has no Docker bridge. Its
+This is a separate immutable producer after the short-lived pinned CPU
+build/test stage; it grants no delivery authority and does not replace the
+native host runtime. Before merge, the automatic `Linux portable acceptance`
+pull-request workflow is the supported actual producer route. Its
 `Portable client build and relocation` job is nonpublishing, limits the producer
 to two CPUs, and serializes heavy runs without cancelling another owner's run.
 The `linux-portable-HEAD_SHA` artifact retains the movable client, exact source

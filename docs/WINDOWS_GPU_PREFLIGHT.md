@@ -22,7 +22,7 @@ Keep these stages separate:
 
 | Stage | Authoritative entry point | What it proves |
 | --- | --- | --- |
-| Cross-build and package | `./atrinik package windows` from the pinned ordinary Linux or `windows-cross` devcontainer | The selected Classic source/profile produced a Windows review ZIP |
+| Cross-build and package | `./atrinik package windows` from the owned native Linux worktree using the pinned Windows producer, or the selected `windows-cross` toolchain worker | The selected Classic source/profile produced a Windows review ZIP |
 | Native package smoke | Classic `tools/ci/smoke_windows_review_bundle.ps1` on Windows | The extracted ZIP has the expected manifest, server lifecycle, launcher, processes, port ownership, and cleanup |
 | Production client log | `client.log` created by the packaged `atrinik.exe` | The package client started from its package working directory and recorded build identity or a startup failure |
 | D3D12 qualification | Classic `gpu-qualification.yml` commands on a Windows GPU host | The existing production-path integration, benchmark JSONL, lifecycle, and readback contracts ran on qualified hardware |
@@ -212,12 +212,22 @@ sanitized evidence into the handoff artifact directory.
 
 ### 1. Build and package in the pinned toolchain
 
-From the ordinary canonical Linux devcontainer, or directly inside the
-pinned `windows-cross` devcontainer:
+Keep development, Git/review and delivery coordination in the owned native
+Linux worktree. Complete its context, authenticated ledger/worktree/CAS and
+lease gates before packaging; native Windows and `windows-cross` have no Linux
+delivery authority. On that native Linux host:
 
 ~~~sh
 python3 scripts/atrinik_coordinator_context.py --json
-./atrinik profile show classic --json
+./atrinik profile show REVIEW_PROFILE --json
+~~~
+
+Run the package command from the selected native worktree to use the pinned
+Windows Docker producer, or directly in the selected pinned `windows-cross`
+toolchain worker. Preserve exact source/profile/state, image, cache and lease
+coordinates; the worker grants no coordination authority:
+
+~~~sh
 ./atrinik package windows \
   --profile REVIEW_PROFILE \
   --state REVIEW_STATE \
@@ -232,7 +242,7 @@ may contain credentials, player data, and the private QUIC identity. Never
 upload the ZIP or raw server state to a public issue, pull request, CI artifact,
 or release.
 
-Do not run the graphical client in the ordinary Linux container. Copy the ZIP
+The Linux build stage does not run or qualify the Windows graphical client. Copy the ZIP
 and the exact selected Classic revision to the Windows qualification host.
 Retain the matching Classic source checkout only for the existing smoke and
 qualification scripts; it is not a second implementation source.

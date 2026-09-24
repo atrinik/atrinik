@@ -398,13 +398,22 @@ client. Verify its exact exported directory after transfer; the native desktop
 supplies the loader, driver, display and audio. A verified export requires no
 compiler or source-build preflight.
 
-The explicit Windows/WSL2 WSLg configuration remains available for desktop
-runtime capabilities:
+The retained [Windows/WSL2 WSLg desktop composition](.devcontainer/windows-wslg/devcontainer.json)
+provides `/dev/dxg`, WSL libraries, display/audio endpoints, host networking and
+its Docker feature. It also mounts the pre-existing private
+`$HOME/.config/gh-atrinik` store, `$HOME/.codex-atrinik` and host Git configuration.
+It is a trusted, credential-bearing desktop composition, not the isolated CPU
+worker or a credential-free application runtime.
 
-~~~sh
-devcontainer up --workspace-folder . --config .devcontainer/windows-wslg/devcontainer.json
-devcontainer exec --workspace-folder . --config .devcontainer/windows-wslg/devcontainer.json bash
-~~~
+An already-provisioned owned WSLg session retains those exact prerequisites,
+image/mounts and [historical compatibility gates](docs/LINUX_EXECUTION.md#existing-bound-container-compatibility).
+Do not expose its credentials to untrusted code or separate runtime services.
+The native standard-store setup does not provision its alternate auth bind;
+this configuration supplies no fresh credential-free WSLg launch recipe. Do not
+copy tokens or recreate a development coordinator to fill that gap. WSLg
+runtime capability and historical canonical-container proof remain distinct
+from direct-native Linux authority; native WSL rejection is unchanged. Native
+Windows package/D3D12 qualification remains a separate supported workflow.
 
 Use the [isolated server runtime](docs/LINUX_EXECUTION.md#independent-headless-server-and-native-client)
 for headless server execution and `.devcontainer/windows-cross/devcontainer.json`
