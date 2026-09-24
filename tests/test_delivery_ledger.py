@@ -12780,7 +12780,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         planned = ledger.cas(root, current.name, planned, **cas_arguments(current))
         scenario = {"name": "player", "state": "scenario-player", "path": str(live / "workspace/scenarios/player"),
                     "profile": "classic", "preset": "basic-player"}
-        produced = self.produce_observation_resources(live) if live_resources else None
+        produced = self.produce_observation_resources(live, legacy_listener=True) if live_resources else None
         if produced:
             scenario = produced["scenario"]
             runtime = Path(produced["topology_output"]["build_root"])
@@ -12831,7 +12831,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                        "scenario_state": reservation(live / "workspace/scenarios/player/state")}
         return root, erroneous, request, observation
 
-    def produce_observation_resources(self, live, *, restart=False, on_running=None):
+    def produce_observation_resources(self, live, *, restart=False, on_running=None, listener=None, legacy_listener=False):
         """Use public build/scenario/topology APIs; only game payload production is stubbed."""
         from atrinik_workspace.workspace import Workspace, MANAGED_MARKER, atomic_json
         def payload(root, *_args, **_kwargs):
@@ -12878,14 +12878,25 @@ class DeliveryLedgerTests(unittest.TestCase):
                                               "head": git_run(checkout, "rev-parse", "HEAD").stdout.strip(), "dirty": False}
                         with mock.patch.object(workspace, "_scenario_provision_state", return_value=resolved):
                             scenario = workspace.scenario_create("player", "classic")
-                    topology_plan = workspace.topology_summary("classic", scenario["state"], ["server"])
+                    topology_plan = workspace.topology_summary("classic", scenario["state"], ["server"], server_listener=listener)
                     try:
-                        up = workspace.topology_up("stopped-server", "classic", scenario["state"], ["server"])
+                        up = workspace.topology_up("stopped-server", "classic", scenario["state"], ["server"], server_listener=listener)
                         if on_running is not None:
                             on_running(workspace, up)
                     finally:
                         if (workspace.paths.topologies / "stopped-server/status.json").exists():
                             workspace.topology_down("stopped-server", timeout=5)
+                    if legacy_listener:
+                        # Materialize the exact pre-listener producer shape in this
+                        # disposable fixture; real retained evidence is never rewritten.
+                        self.assertIsNone(listener)
+                        up.pop("server_listener")
+                        topology_plan.pop("server_listener")
+                        for filename in ("spec.json", "status.json"):
+                            path = workspace.paths.topologies / "stopped-server" / filename
+                            record = json.loads(path.read_bytes())
+                            self.assertEqual(record.pop("server_listener"), "loopback")
+                            atomic_json(path, record)
                     if tested is not None:
                         self.assertNotEqual(str(tested), up["build_root"])
                     return {"scenario": scenario, "build_plan": plan, "topology_plan": topology_plan,
@@ -12933,6 +12944,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                     (("topology_output", "state_policy"), {"kind": "temporary"}),
                     (("build_observation", "exit_code"), 1),
                     (("build_plan", "tests"), False),
+                    (("topology_plan", "server_listener"), "all-ipv4"),
                     (("build_plan", "build_key"), "f" * 12),
                     (("build_plan", "execution_sources", "server"), str(live / "foreign-source")),
                     (("build_plan", "git_observations", "classic", "configuration_sha256"), "f" * 64),
@@ -13144,10 +13156,50 @@ class DeliveryLedgerTests(unittest.TestCase):
             save = workspace.paths.scenarios / "player/state/players/persistence-proof.txt"
             save.parent.mkdir(exist_ok=True)
             save.write_text("legitimate fixture gameplay progress\n")
-        restarted = self.produce_observation_resources(live, restart=True, on_running=gameplay)
+        self.assertNotIn("server_listener", proof["observations"]["topology"]["spec"])
+        restarted = self.produce_observation_resources(live, restart=True, on_running=gameplay, listener="all-ipv4")
+        self.assertEqual(restarted["topology_plan"]["server_listener"], "all-ipv4")
+        self.assertEqual(restarted["stopped"]["server_listener"], "all-ipv4")
+        self.assertEqual(restarted["stopped"]["endpoint"]["host"], "127.0.0.1")
         stopped = observe_topology(progress[0], restarted["stopped"], "stopped")
         changed_save = mutable_bytes()
         self.assertNotEqual(changed_save, data)
+        status_path = spec_path.with_name("status.json")
+        current_spec, current_status = spec_path.read_bytes(), status_path.read_bytes()
+        for mutate in ("missing-status", "missing-spec", "invalid", "argv", "endpoint"):
+            spec, status = json.loads(current_spec), json.loads(current_status)
+            if mutate == "missing-status": status.pop("server_listener")
+            elif mutate == "missing-spec": spec.pop("server_listener")
+            elif mutate == "invalid": spec["server_listener"] = status["server_listener"] = {}
+            elif mutate == "argv": spec["services"]["server"]["command"][-1] = "--network_stack=ipv4=127.0.0.2"
+            else: spec["endpoint"]["host"] = status["endpoint"]["host"] = "0.0.0.0"
+            spec_path.write_text(json.dumps(spec)); status_path.write_text(json.dumps(status))
+            try:
+                with self.subTest(listener_tamper=mutate), self.assertRaises(ledger.LedgerError):
+                    ledger.admit_in_progress_targets_cas(root, stopped.name, admission, **cas_arguments(stopped))
+                self.assertEqual(ledger.inspect(root, stopped.name).raw, stopped.raw)
+            finally:
+                spec_path.write_bytes(current_spec); status_path.write_bytes(current_status)
+        authenticated = ledger._authenticated_actor
+        drifted = False
+        def drift_listener(*args, **kwargs):
+            nonlocal drifted
+            actor = authenticated(*args, **kwargs)
+            if not drifted:
+                drifted = True
+                spec, status = json.loads(current_spec), json.loads(current_status)
+                spec["server_listener"] = status["server_listener"] = "loopback"
+                spec["services"]["server"]["command"].pop()
+                spec_path.write_text(json.dumps(spec)); status_path.write_text(json.dumps(status))
+            return actor
+        try:
+            with mock.patch.object(ledger, "_authenticated_actor", side_effect=drift_listener):
+                with self.assertRaises(ledger.LedgerError):
+                    ledger.admit_in_progress_targets_cas(root, stopped.name, admission, **cas_arguments(stopped))
+            self.assertTrue(drifted)
+            self.assertEqual(ledger.inspect(root, stopped.name).raw, stopped.raw)
+        finally:
+            spec_path.write_bytes(current_spec); status_path.write_bytes(current_status)
         admitted = public("admit-in-progress-targets-cas", stopped, admission)
         self.assertEqual(mutable_bytes(), changed_save)
         self.assertEqual(ledger.canonical_bytes(next(row["correction"] for row in admitted.document["resources"] if "correction" in row)), historical_proof)

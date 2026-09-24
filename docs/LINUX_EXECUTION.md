@@ -438,13 +438,20 @@ desktop in this same Docker host's network namespace reaches the published host
 `127.0.0.1`, while another container requires an independently verified route.
 
 Inside that owned container, prepare and start only the server with registered
-persistent state. No client or audio device is needed:
+persistent state. Select `all-ipv4` in both the public plan and launch so the
+server accepts Docker-forwarded UDP on its container interface. The default
+`loopback` listener only accepts traffic on the container's own loopback;
+Docker publication alone does not change it. This container listener does not
+change the localhost-only host publication or advertise a wildcard destination.
+No host networking, privilege, client, display or audio device is needed:
 
 ```sh
 ./atrinik init classic-server content resources --jobs 2
 ./atrinik state add linux-review
+./atrinik topology show classic --state linux-review --service server \
+  --server-listener all-ipv4 --json
 ./atrinik up --name linux-headless --profile classic \
-  --state linux-review --service server --port 17300
+  --state linux-review --service server --port 17300 --server-listener all-ipv4
 ./atrinik ps linux-headless --json
 ./atrinik logs linux-headless server --tail 100
 ```
@@ -482,7 +489,7 @@ client, then stop the exact server through the wrapper:
 ./atrinik down linux-headless
 ./atrinik ps linux-headless --json
 ./atrinik up --name linux-headless --profile classic \
-  --state linux-review --service server --port 17300
+  --state linux-review --service server --port 17300 --server-listener all-ipv4
 ./atrinik ps linux-headless --json
 ```
 

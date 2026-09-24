@@ -272,8 +272,7 @@ def pump_output(
 
 
 def _initial_status(spec: dict[str, Any], supervisor_start_time: str) -> dict[str, Any]:
-    if "server_listener" in spec:
-        validate_server_listener_spec(spec)
+    validate_server_listener_spec(spec)
     control = spec.get("control")
     generation = control.get("generation") if isinstance(control, dict) else None
     status: dict[str, Any] = {

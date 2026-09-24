@@ -179,12 +179,19 @@ def server_listener_arguments(listener: object) -> list[str]:
 
 def validate_server_listener_spec(spec: dict[str, Any]) -> None:
     """Validate the exact launch grammar for a listener-aware server generation."""
-    arguments = server_listener_arguments(spec.get("server_listener"))
     services = spec.get("services")
+    if "server_listener" not in spec:
+        service = services.get("server") if isinstance(services, dict) else None
+        command = service.get("command") if isinstance(service, dict) else None
+        if isinstance(command, list) and any(
+                isinstance(argument, str) and argument.startswith("--network_stack")
+                for argument in command):
+            raise WorkspaceError("server listener field is required for a network_stack override")
+        return
+    arguments = server_listener_arguments(spec["server_listener"])
     runtime = spec.get("runtime")
     endpoint = spec.get("endpoint")
     if (not isinstance(services, dict) or "server" not in services
-            or spec.get("stack") != "classic"
             or not isinstance(runtime, dict) or not isinstance(runtime.get("path"), str)
             or not isinstance(endpoint, dict) or endpoint.get("host") != "127.0.0.1"
             or type(endpoint.get("port")) is not int or not 1 <= endpoint["port"] <= 65535):

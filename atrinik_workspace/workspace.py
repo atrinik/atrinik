@@ -17190,6 +17190,7 @@ class Workspace:
         *,
         server_listener: str | None = None,
     ) -> dict[str, Any]:
+        requested_listener = server_listener
         selected_services = self._topology_services(services)
         server_listener = self._normalize_server_listener(server_listener, selected_services)
         state_mode, state_name = self._normalize_topology_state_request(
@@ -17198,6 +17199,11 @@ class Workspace:
         requested = set(selected_services)
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
+        if ("server" in selected_services
+                and self.manifest.effective_build(stack.name, stack.providers["server"]) != "classic-server"):
+            if requested_listener is not None:
+                self._require_classic_contracts(profile_name, {"server"})
+            server_listener = None
         resolved = self._resolve_build_profile(profile_name, requested)
         required = set(resolved)
         key = self._profile_build_key(profile_name, resolved)
@@ -19889,17 +19895,19 @@ class Workspace:
             spec = load_json(spec_path)
             if not isinstance(spec, dict):
                 raise WorkspaceError(f"topology listener spec is invalid: {name}")
+            validate_server_listener_spec(spec)
             if "server_listener" in status or "server_listener" in spec:
                 if ("server_listener" not in status or "server_listener" not in spec
                         or status["server_listener"] != spec["server_listener"]
                         or status.get("control") != spec.get("control")
                         or status.get("name") != spec.get("name")
-                        or status.get("stack") != "classic"
                         or status.get("runtime") != spec.get("runtime")
                         or not isinstance(status.get("endpoint"), dict)
                         or spec.get("endpoint") != {key: status["endpoint"].get(key) for key in ("host", "port")}):
                     raise WorkspaceError(f"topology listener status/spec differs: {name}")
-                validate_server_listener_spec(spec)
+                if self.manifest.effective_build(
+                        status.get("stack"), self.manifest.provider(status.get("stack"), "server")) != "classic-server":
+                    raise WorkspaceError(f"topology listener requires a Classic server: {name}")
         if "sound" in status:
             try:
                 validate_sound_record(status["sound"])
@@ -20735,6 +20743,8 @@ class Workspace:
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
         server_listener = self._normalize_server_listener(server_listener, selected_services)
+        if server_listener is not None:
+            self._require_classic_contracts(profile_name, {"server"})
         self.paths.ensure()
         normalized_mode, normalized_state = self._normalize_topology_state_request(
             state_mode, state_name, selected_services
@@ -20919,20 +20929,25 @@ class Workspace:
                     f"topology {name} has no stopped status to restart"
                 )
 
-            restart_status_backup = (
-                copy.deepcopy(previous)
-                if restarting and isinstance(previous, dict)
-                else None
-            )
+            def restart_record(path: Path) -> dict[str, Any]:
+                descriptor = open_regular_file(path, os.O_RDONLY, "restart record")
+                with os.fdopen(descriptor, encoding="utf-8") as stream:
+                    if (os.fstat(stream.fileno()).st_nlink != 1
+                            or descriptor_path(stream.fileno()) != canonical_path(path)):
+                        raise WorkspaceError("restart record identity changed")
+                    record = json.load(stream)
+                if not isinstance(record, dict):
+                    raise WorkspaceError("restart record is invalid")
+                return record
+
+            restart_status_backup = restart_record(status_path) if restarting else None
             restart_spec_backup = (
-                load_json(topology_root / "spec.json")
-                if restart_status_backup is not None
-                else None
+                restart_record(topology_root / "spec.json") if restarting else None
             )
+            port_record_path = topology_root / TOPOLOGY_PORT_RESERVATION_RECORD
             restart_port_backup = (
-                copy.deepcopy(previous.get("port_reservation"))
-                if isinstance(previous, dict)
-                and isinstance(previous.get("port_reservation"), dict)
+                restart_record(port_record_path)
+                if restarting and isinstance(previous.get("port_reservation"), dict)
                 else None
             )
 
@@ -20963,27 +20978,46 @@ class Workspace:
             }
 
             with ExitStack() as stack:
-                restore_restart_status = [restart_status_backup is not None]
+                restart_attempt = {"locked": False, "handoff": False,
+                                   "retired": False, "spec": None, "port": None}
 
                 def restore_stopped_restart_record() -> None:
-                    if not restore_restart_status.pop():
+                    if (restart_status_backup is None or not restart_attempt["locked"]
+                            or restart_attempt["handoff"]
+                            or not (restart_attempt["retired"] or restart_attempt["port"] is not None)):
                         return
-                    if (
-                        status_path.exists()
-                        or status_path.is_symlink()
-                        or restart_status_backup is None
-                    ):
-                        return
-                    if restart_spec_backup is not None:
-                        atomic_json(topology_root / "spec.json", restart_spec_backup)
-                    atomic_json(status_path, restart_status_backup)
-                    if restart_port_backup is not None:
-                        atomic_json(
-                            topology_root / TOPOLOGY_PORT_RESERVATION_RECORD,
-                            restart_port_backup,
-                        )
+                    if restart_attempt["retired"]:
+                        if status_path.exists() or status_path.is_symlink():
+                            raise WorkspaceError("restart status changed before rollback; preserve evidence")
+                    elif restart_record(status_path) != restart_status_backup:
+                        raise WorkspaceError("restart status changed before rollback; preserve evidence")
+                    spec_path = topology_root / "spec.json"
+                    current_spec = restart_record(spec_path)
+                    if current_spec not in (restart_spec_backup, restart_attempt["spec"]):
+                        raise WorkspaceError("restart spec changed before rollback; preserve evidence")
+                    current_port = None
+                    if restart_attempt["port"] is not None:
+                        current_port = restart_record(port_record_path)
+                        if current_port not in (restart_port_backup, restart_attempt["port"]):
+                            raise WorkspaceError("restart port record changed before rollback; preserve evidence")
+                    original_generation = restart_status_backup["control"]["generation"]
+                    if (not process_tree_owner
+                            or descriptor_path(process_tree_fd) != canonical_path(process_tree_path)
+                            or os.fstat(process_tree_fd).st_nlink != 1
+                            or os.pread(process_tree_fd, 66, 0) not in
+                            ((original_generation + "\n").encode(), (generation + "\n").encode())
+                            or holders_exist(process_tree_fd, exclude=(os.getpid(),))):
+                        raise WorkspaceError("restart lease changed before rollback; preserve evidence")
+                    if restart_attempt["retired"]:
+                        initialize_lease(process_tree_fd, original_generation)
+                    if current_spec != restart_spec_backup:
+                        atomic_json(spec_path, restart_spec_backup)
+                    if current_port != restart_port_backup and restart_port_backup is not None:
+                        atomic_json(port_record_path, restart_port_backup)
+                    # Publish the old status only after its complete tuple is restored.
+                    if restart_attempt["retired"]:
+                        atomic_json(status_path, restart_status_backup)
 
-                stack.callback(restore_stopped_restart_record)
                 process_tree_fd = open_regular_file(
                     process_tree_path,
                     os.O_RDWR | os.O_CREAT,
@@ -20995,6 +21029,7 @@ class Workspace:
                     if process_tree_owner
                     else None
                 )
+                stack.callback(restore_stopped_restart_record)
                 try:
                     fcntl.flock(
                         process_tree_fd, fcntl.LOCK_EX | fcntl.LOCK_NB
@@ -21009,6 +21044,7 @@ class Workspace:
                     ) from error
                 if holders_exist(process_tree_fd, exclude=(os.getpid(),)):
                     raise WorkspaceError(f"topology is already running: {name}")
+                restart_attempt["locked"] = True
                 for _attempt in range(16):
                     generation = secrets.token_hex(32)
                     control_path = control_socket_path(topology_root, generation)
@@ -21047,6 +21083,7 @@ class Workspace:
                         "host": "127.0.0.1",
                         "port": port_reservation["port"],
                     }
+                    restart_attempt["port"] = port_reservation
                     atomic_json(
                         topology_root / TOPOLOGY_PORT_RESERVATION_RECORD,
                         port_reservation,
@@ -21435,6 +21472,7 @@ class Workspace:
                 # record and bind/publish the new generation without exposing
                 # old status against rewritten lease contents.
                 status_path.unlink(missing_ok=True)
+                restart_attempt["retired"] = True
                 lease_identity = initialize_lease(process_tree_fd, generation)
                 spec: dict[str, Any] = {
                     "schema_version": TOPOLOGY_STATUS_SCHEMA_VERSION,
@@ -21477,6 +21515,7 @@ class Workspace:
                     raise WorkspaceError(
                         f"topology control endpoint already exists: {control_path}"
                     )
+                restart_attempt["spec"] = spec
                 atomic_json(spec_path, spec)
                 startup_error_path.unlink(missing_ok=True)
 
@@ -21555,9 +21594,10 @@ class Workspace:
                             start_new_session=True,
                             **inheritance,
                         )
-                    published_generation_owner.clear()
-                    published_state_output_owner.clear()
-                    temporary_state_owner.clear()
+                        restart_attempt["handoff"] = True
+                        published_generation_owner.clear()
+                        published_state_output_owner.clear()
+                        temporary_state_owner.clear()
                     os.close(process_tree_owner.pop())
                     if port_reservation_owner:
                         os.close(port_reservation_owner.pop())
@@ -21613,7 +21653,6 @@ class Workspace:
                                 f"topology supervisor failed: {status['error']}"
                             )
                         if status["supervisor"]["running"] and status["ready"]:
-                            restore_restart_status[0] = False
                             process.wait(timeout=2)
                             if superseded_temporary_policy is not None:
                                 try:
