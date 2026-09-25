@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
-      PORTABLE_IMAGE: ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1
+      PORTABLE_IMAGE: ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
