@@ -235,6 +235,14 @@ grants no additional task authority.
 
 ## Revalidate unchanged bound targets on reconnect
 
+The accepted wrapper's admitted live proof can classify internally consistent
+historical scope records from an absent foreign namespace as external when they
+cannot reference the exact candidate. Use ordinary `worktree-observe` and
+`worktree-bind-cas`; do not edit, hide, relocate or release the old scope to obtain
+admission. Malformed, changed/uncertain, overlapping, aliased or present foreign
+coordinates still block. Ordinary scope inspection and cleanup remain strict.
+An unmerged candidate implementation never authorizes another delivery's bind.
+
 After the canonical probe, authenticated selection and complete collision
 inventory above, run the ledger protocol's public
 `revalidate-current-targets-cas` with the exact helper-returned

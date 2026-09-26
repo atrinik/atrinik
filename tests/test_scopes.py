@@ -1660,6 +1660,292 @@ class ScopeLifecycleTests(unittest.TestCase):
         )
         self.assertEqual(journal["status"], "recovery-required")
 
+    def _foreign_delivery_scope(self, name="external", *, foreign=None):
+        self.make_checkout("client")
+        self.workspace.scope_create(["client"], name=name)
+        directory = self.workspace.paths.scopes / name
+        if foreign is None:
+            foreign = Path("/atrinik-absent-scope-tests") / self.root.name
+        replacements = ((str(self.workspace_directory), str(foreign / "workspace")),
+                        (str(self.wrapper), str(foreign / "wrapper")))
+        values = {}
+        for filename in ("scope.json", "creation-journal.json", "reservation.json"):
+            raw = (directory / filename).read_text()
+            for old, new in replacements:
+                raw = raw.replace(old, new)
+            values[filename] = json.loads(raw)
+        digest = scopes_module._canonical_sha256(values["creation-journal.json"]["request"])
+        for filename, value in values.items():
+            value["request_sha256"] = digest
+            atomic_json(directory / filename, value)
+        return directory, values
+
+    def test_delivery_foreign_scope_is_external_without_changing_cleanup(self):
+        directory, values = self._foreign_delivery_scope()
+        before = {path.name: path.read_bytes() for path in directory.iterdir()}
+        with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+            self.assertEqual(proof.external_scopes(self.wrapper), frozenset({"external"}))
+            self.workspace._delivery_scope_proof = proof
+            try:
+                self.assertEqual(self.workspace._scope_source_references(self.wrapper), [])
+            finally:
+                self.workspace._delivery_scope_proof = None
+        self.assertEqual(before, {path.name: path.read_bytes() for path in directory.iterdir()})
+        with self.assertRaisesRegex(WorkspaceError, "scope worktree path is invalid"):
+            self.workspace._scope_reference_records()
+        with self.assertRaisesRegex(WorkspaceError, "scope worktree path is invalid"):
+            self.workspace.scope_show("external")
+
+    def test_delivery_current_scope_keeps_exact_reference(self):
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="current")
+        path = Path(record["worktrees"][0]["path"])
+        with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+            self.assertEqual(proof.external_scopes(path), frozenset())
+            self.workspace._delivery_scope_proof = proof
+            try:
+                self.assertEqual(self.workspace._scope_source_references(path), ["scope:current"])
+            finally:
+                self.workspace._delivery_scope_proof = None
+
+    def test_delivery_foreign_namespace_presence_ancestry_and_absence_races(self):
+        # The system temporary directory may be shared/writable. Use an owned
+        # disposable namespace beneath the checkout to exercise real trusted
+        # ancestors without changing any host or historical scope directory.
+        build = ROOT / "build"
+        build.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix="scope-proof-", dir=build) as temporary:
+            namespace = Path(temporary)
+            foreign = namespace / "foreign"
+            directory, _ = self._foreign_delivery_scope(foreign=foreign)
+            before = {path.name: path.read_bytes() for path in directory.iterdir()}
+
+            with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                for _ in range(2):
+                    self.assertEqual(proof.external_scopes(self.wrapper), frozenset({"external"}))
+
+            foreign.mkdir(mode=0o700)
+            (foreign / "wrapper").mkdir()
+            with self.assertRaisesRegex(WorkspaceError, "namespace exists"):
+                with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                    proof.external_scopes(self.wrapper)
+            (foreign / "wrapper").rmdir()
+
+            foreign.chmod(0o777)
+            try:
+                with self.assertRaisesRegex(WorkspaceError, "ancestry is unsafe"):
+                    with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                        proof.external_scopes(self.wrapper)
+            finally:
+                foreign.chmod(0o700)
+            foreign.rmdir()
+
+            destination = namespace / "destination"
+            destination.mkdir()
+            foreign.symlink_to(destination, target_is_directory=True)
+            with self.assertRaises((WorkspaceError, OSError)):
+                with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                    proof.external_scopes(self.wrapper)
+            self.assertTrue(foreign.is_symlink())
+            foreign.unlink()
+
+            with self.assertRaisesRegex(WorkspaceError, "absent namespace changed"):
+                with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                    proof.external_scopes(self.wrapper)
+                    foreign.mkdir()
+                    proof.recheck()
+            self.assertTrue(foreign.is_dir())
+            self.assertEqual(before, {path.name: path.read_bytes() for path in directory.iterdir()})
+
+    def test_delivery_foreign_scope_rejects_incoherent_coordinates_and_evidence(self):
+        directory, values = self._foreign_delivery_scope()
+        changes = [
+            ("scope.json", "complete coordinate evidence", lambda value: value.update(profile=None)),
+            ("scope.json", "path is not canonical", lambda value: value["profile"].update(path="/foreign/../profile")),
+            ("creation-journal.json", "request digest differs", lambda value: value["request"]["worktrees"][0].update(branch="changed")),
+            ("creation-journal.json", "Git authority is ambiguous", lambda value: value["worktrees"][0].update(common_git_dir="/different/.git")),
+            ("creation-journal.json", "root identity differs", lambda value: value["identities"]["workspace"].update(path="/different/workspace")),
+            ("creation-journal.json", "profile evidence is uncertain", lambda value: value["profile"].update(status="active")),
+        ]
+        for filename, diagnostic, mutate in changes:
+            with self.subTest(diagnostic=diagnostic):
+                replacement = copy.deepcopy(values[filename])
+                mutate(replacement)
+                atomic_json(directory / filename, replacement)
+                before = {path.name: path.read_bytes() for path in directory.iterdir()}
+                with self.assertRaisesRegex(WorkspaceError, diagnostic):
+                    with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                        proof.external_scopes(self.wrapper)
+                self.assertEqual(before, {path.name: path.read_bytes() for path in directory.iterdir()})
+                atomic_json(directory / filename, values[filename])
+
+        unknown = directory / "unrecognized.json"
+        unknown.write_text("{}\n", encoding="utf-8")
+        before = {path.name: path.read_bytes() for path in directory.iterdir()}
+        with self.assertRaisesRegex(WorkspaceError, "unknown evidence"):
+            with scopes_module.DeliveryScopeProof(self.workspace):
+                pass
+        self.assertEqual(before, {path.name: path.read_bytes() for path in directory.iterdir()})
+
+    def test_delivery_foreign_scope_observe_and_atomic_bind_forward_path(self):
+        from tests.test_delivery_ledger import (
+            cas_arguments, git_head, issue_ledger, json_bytes, ledger,
+            live_roots, replace_sha, SHA_A, worktree_list_bytes,
+        )
+
+        directory, _ = self._foreign_delivery_scope()
+        roots = live_roots(self.root / "delivery", "atrinik")
+        retained = Path(roots["workspace"]["path"]) / "scopes" / "external"
+        shutil.copytree(directory, retained)
+        before = {path.name: path.read_bytes() for path in retained.iterdir()}
+        document = issue_ledger(number=623, issue_node="I_foreign_scope",
+            branch="fix/foreign-scope", worktree="/unused/foreign-scope")
+        replace_sha(document, SHA_A, git_head(roots))
+        slot = next(row for row in document["artifacts"] if row["kind"] == "worktree")
+        slot["primitive_request"]["roots"] = roots
+        request = slot["primitive_request"]
+        listing = worktree_list_bytes(request)
+        review = self.root / "reviews"
+        review.mkdir(mode=0o700)
+        with mock.patch.object(ledger, "_require_workspace_filesystem_eligibility"), mock.patch.object(
+                ledger, "_authenticated_actor", side_effect=lambda doc, _context=None: copy.deepcopy(doc["actor"])):
+            initial = ledger.create(review, document)
+            safety = ledger.observe_primitive_worktree(document, "worktree", listing,
+                                                       "2026-09-26T00:00:00Z")
+            ledger.bind_worktree_cas(review, initial.name, "worktree", listing,
+                                    json_bytes(safety), **cas_arguments(initial))
+            bound = ledger.inspect(review, initial.name)
+            self.assertEqual(bound.document["generation"], 2)
+            self.assertEqual(next(row for row in bound.document["artifacts"]
+                                  if row["kind"] == "worktree")["state"], "created")
+            self.assertEqual(ledger.inventory(review).pending, ())
+        self.assertEqual(before, {path.name: path.read_bytes() for path in retained.iterdir()})
+
+    def test_delivery_foreign_scope_rejects_uncertain_or_malformed_evidence(self):
+        directory, values = self._foreign_delivery_scope()
+        changes = [
+            ("creation-journal.json", lambda v: v["worktrees"][0].update(status="preserved-changed")),
+            ("creation-journal.json", lambda v: v["worktrees"][0].update(status="preserved-uncertain")),
+            ("creation-journal.json", lambda v: v.update(status="creating")),
+            ("creation-journal.json", lambda v: v.update(generation="f" * 32)),
+            ("scope.json", lambda v: v.update(request_sha256="f" * 64)),
+            ("scope.json", lambda v: v.update(unknown=True)),
+            ("scope.json", lambda v: v["worktrees"][0].update(path=str(self.wrapper))),
+        ]
+        for filename, mutate in changes:
+            with self.subTest(filename=filename, mutate=mutate):
+                replacement = copy.deepcopy(values[filename]); mutate(replacement)
+                atomic_json(directory / filename, replacement)
+                before = (directory / filename).read_bytes()
+                with self.assertRaises(WorkspaceError):
+                    with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                        proof.external_scopes(self.wrapper)
+                self.assertEqual((directory / filename).read_bytes(), before)
+                atomic_json(directory / filename, values[filename])
+
+    def test_delivery_foreign_scope_refuses_candidate_overlap(self):
+        directory, values = self._foreign_delivery_scope()
+        candidate = Path(values["scope.json"]["worktrees"][0]["path"])
+        with self.assertRaisesRegex(WorkspaceError, "overlaps delivery candidate"):
+            with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                proof.external_scopes(candidate)
+
+    def test_delivery_scope_pins_paths_and_bytes_through_admission(self):
+        directory, values = self._foreign_delivery_scope()
+        path = directory / "scope.json"
+        for change in ("bytes", "replace", "symlink", "directory"):
+            with self.subTest(change=change):
+                with self.assertRaises(WorkspaceError):
+                    with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                        proof.external_scopes(self.wrapper)
+                        if change == "bytes":
+                            path.write_bytes(path.read_bytes() + b" ")
+                        elif change == "replace":
+                            atomic_json(path, values["scope.json"])
+                        elif change == "symlink":
+                            path.unlink(); path.symlink_to(directory / "creation-journal.json")
+                        else:
+                            directory.rename(directory.with_name("moved"))
+                            directory.mkdir()
+                if change == "directory":
+                    directory.rmdir(); directory.with_name("moved").rename(directory)
+                if path.is_symlink():
+                    path.unlink()
+                atomic_json(path, values["scope.json"])
+
+    def test_delivery_scope_bounds_and_duplicate_keys(self):
+        directory, values = self._foreign_delivery_scope()
+        path = directory / "scope.json"
+        for raw in (b"{\"name\":1,\"name\":2}", b" " * (4 * 1024 * 1024 + 1)):
+            with self.subTest(size=len(raw)):
+                path.write_bytes(raw)
+                with self.assertRaises(WorkspaceError):
+                    with scopes_module.DeliveryScopeProof(self.workspace):
+                        pass
+        atomic_json(path, values["scope.json"])
+
+    def test_delivery_foreign_recoverable_journal_and_pending_release(self):
+        directory, values = self._foreign_delivery_scope()
+        (directory / "scope.json").unlink()
+        journal = values["creation-journal.json"]
+        journal.update(status="recovery-required", error="interrupted before publication")
+        atomic_json(directory / "creation-journal.json", journal)
+        before = {path.name: path.read_bytes() for path in directory.iterdir()}
+        with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+            self.assertEqual(proof.external_scopes(self.wrapper), frozenset({"external"}))
+        self.assertEqual(before, {path.name: path.read_bytes() for path in directory.iterdir()})
+        malformed = [
+            ("Git evidence is incomplete", lambda v: v["worktrees"][0].update(common_git_dir=None)),
+            ("profile completion is inconsistent", lambda v: v["profile"].update(sha256={"invalid": True})),
+            ("worktree schema is invalid", lambda v: v["worktrees"][0].update(dirty=True)),
+            ("completion is inconsistent", lambda v: v.update(status="complete")),
+            ("completion is inconsistent", lambda v: v.update(status="rolled-back")),
+            ("legacy identity is malformed", lambda v: v["worktrees"][0].update(path_device=True, path_inode=1)),
+            ("legacy identity is malformed", lambda v: v["profile"].update(path_device=1)),
+        ]
+        for diagnostic, mutate in malformed:
+            with self.subTest(diagnostic=diagnostic):
+                replacement = copy.deepcopy(journal)
+                mutate(replacement)
+                atomic_json(directory / "creation-journal.json", replacement)
+                raw = (directory / "creation-journal.json").read_bytes()
+                with self.assertRaisesRegex(WorkspaceError, diagnostic):
+                    with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                        proof.external_scopes(self.wrapper)
+                self.assertEqual((directory / "creation-journal.json").read_bytes(), raw)
+        atomic_json(directory / "creation-journal.json", journal)
+        for malformed_record in (None, [], False):
+            atomic_json(directory / "scope.json", malformed_record)
+            with self.assertRaisesRegex(WorkspaceError, "completed record is malformed"):
+                with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                    proof.external_scopes(self.wrapper)
+            (directory / "scope.json").unlink()
+        atomic_json(directory / "release-journal.json", {})
+        with self.assertRaisesRegex(WorkspaceError, "incomplete or pending"):
+            with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                proof.external_scopes(self.wrapper)
+
+    def test_delivery_scope_refuses_symlinks_unsafe_modes_and_non_posix(self):
+        directory, _ = self._foreign_delivery_scope()
+        path = directory / "scope.json"
+        mode = path.stat().st_mode & 0o777
+        path.chmod(0o666)
+        with self.assertRaisesRegex(WorkspaceError, "owner/type/mode"):
+            with scopes_module.DeliveryScopeProof(self.workspace):
+                pass
+        path.chmod(mode)
+        saved = directory.with_name("external-saved")
+        directory.rename(saved)
+        directory.symlink_to(saved, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "cannot pin"):
+            with scopes_module.DeliveryScopeProof(self.workspace):
+                pass
+        directory.unlink(); saved.rename(directory)
+        with mock.patch.object(scopes_module.os, "name", "nt"):
+            with self.assertRaisesRegex(WorkspaceError, "POSIX descriptor support"):
+                with scopes_module.DeliveryScopeProof(self.workspace):
+                    pass
+
     def test_recoverable_creation_journal_protects_changed_worktree_from_cleanup(self) -> None:
         self.make_checkout("client")
         path = self.workspace_directory / "worktrees" / "client" / "scope-recoverable"

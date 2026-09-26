@@ -1179,6 +1179,15 @@ therefore does not invalidate a completed scope or retroactively add commands
 to its handoff; every retained entry must still be a valid current coordinate
 and exact command, while removed or edited coordinates fail closed.
 
+Delivery live proof can retain a historical scope from a different, absent
+wrapper/workspace namespace as external evidence when its complete record or
+recoverable journal is internally consistent and cannot reference the selected
+worktree. It pins the bounded records through admission and CAS rechecks;
+candidate overlap, aliases, present foreign namespaces, changed/uncertain
+journals, and pending release evidence still refuse admission. This does not
+adopt or repair the historical scope. Ordinary scope inspection and cleanup
+continue to require their original current-workspace checks.
+
 Creation journals every worktree, profile-reference, profile, and completed
 record publication boundary. A failed transaction removes only exact newly
 created worktrees and profiles that remain clean, unchanged, and unreferenced;
