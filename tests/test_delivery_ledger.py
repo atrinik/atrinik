@@ -13186,7 +13186,71 @@ class DeliveryLedgerTests(unittest.TestCase):
             ledger.advance_retained_dependency_cas(root, declared.name,
                 {**plan_request, "build_plan": inline_payload(json.dumps(bad_plan).encode())}, **cas_arguments(declared))
         self.assertEqual(ledger.inspect(root, declared.name).raw, declared.raw)
+        def canonical_observe(snapshot, mutation=None):
+            # Exercise the owning module as well as the helper's isolated source
+            # snapshot, using the exact evidence produced by its public stages.
+            from atrinik_workspace import workspace as workspace_module
+            source, retained = ledger._retained_correction(snapshot.document)
+            evidence, _, _ = ledger._observation_request(source, retained["request"])
+            evidence["topology_current"] = next(row["current"] for row in snapshot.document["resources"]
+                                                if row["slot_id"] == retained["request"]["topology_slot"])
+            evidence.update(ledger._advance_evidence(snapshot.document, snapshot.document["dependency_advance"]))
+            evidence = copy.deepcopy(evidence)
+            if mutation is not None:
+                mutation(evidence)
+            protected_roots = [live / "workspace/scenarios/player/state"]
+            protected_roots.extend(Path(row["path"]) for proof in
+                (retained["observations"]["build"]["proof"], retained["observations"]["topology"]["runtime_build"])
+                for row in proof["observations"])
+            def protected_bytes():
+                return {str(path): path.read_bytes() for directory in protected_roots
+                        for path in directory.rglob("*") if path.is_file()}
+            original_bytes = protected_bytes()
+            original_ledger = ledger.inspect(root, snapshot.name).raw
+            try:
+                with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
+                    workspace = workspace_module.Workspace(live, backfill_references=False)
+                    preparation = workspace_module.Workspace._prepare_delivery_workspace(live, manifest=workspace.manifest)
+                    try:
+                        proof = preparation.plan_observation_correction(source["resources"], evidence)
+                        with workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks(), preparation.admitted():
+                            return proof.observe()
+                    finally:
+                        preparation.close()
+                        workspace.close()
+            finally:
+                self.assertEqual(protected_bytes(), original_bytes)
+                self.assertEqual(ledger.inspect(root, snapshot.name).raw, original_ledger)
+
         planned = public(declared, plan_request)
+        direct = canonical_observe(planned)
+        self.assertEqual(direct["state"]["scenario"], correction["observations"]["state"]["scenario"])
+        self.assertEqual(direct["build"]["path"], correction["observations"]["build"]["path"])
+        from atrinik_workspace.model import WorkspaceError
+        def mutate_history(value):
+            value["historical_observations"]["build"]["proof"]["observations"][0]["metadata"]["foreign"] = True
+        def missing_history(value):
+            value["historical_observations"]["build"]["proof"]["observations"][0]["exists"] = False
+        def missing_role(value):
+            for field in ("sources", "execution_sources", "source_fingerprints"):
+                value["advance_build_plan"][field].pop(omitted)
+        def wrong_root(value):
+            value["build_plan"]["checkout_states"]["classic"]["path"] += "-foreign"
+        def unrelated_dependency(value):
+            key = next(key for key in value["build_plan"]["checkout_states"] if key != "classic")
+            value["build_plan"]["checkout_states"][key]["head"] = "f" * 40
+        for label, mutation, message in (
+            ("historical metadata", mutate_history, "historical build metadata changed"),
+            ("missing historical provenance", missing_history, "lacks original build metadata"),
+            ("source root", wrong_root, "source root ownership"),
+            ("undeclared dependency", unrelated_dependency, "undeclared dependency"),
+            ("dependency closure", missing_role, "dependency roles"),
+            ("missing plan", lambda value: value.pop("advance_build_plan"), "complete current build plan"),
+            ("premature completion", lambda value: value.update(advance_build_complete=True), "tested build is missing"),
+            ("build root alias", lambda value: value["advance_build_plan"].update(build_root=value["build_observation"]["build_root"]), "collides with retained builds"),
+        ):
+            with self.subTest(canonical_refusal=label), self.assertRaisesRegex(WorkspaceError, message):
+                canonical_observe(planned, mutation)
         self.assertEqual([row for row in planned.document["resources"] if row["slot_id"] != "advanced-build"], resources)
         build = next(row for row in planned.document["resources"] if row["slot_id"] == "advanced-build")
         self.assertEqual(build["immutable"]["path"], plan["build_root"])
@@ -13287,6 +13351,12 @@ class DeliveryLedgerTests(unittest.TestCase):
                     {**topology_request, "topology_plan": inline_payload(json.dumps(forged_plan).encode())}, **cas_arguments(built))
             self.assertEqual(ledger.inspect(root, built.name).raw, built.raw)
         advanced = public(built, topology_request)
+        direct = canonical_observe(advanced)
+        self.assertEqual(direct["topology"]["status"], produced["stopped"])
+        for field, value in (("foreign", True), ("services", ["client"]), ("dependencies", []), ("components", {})):
+            with self.subTest(canonical_topology_refusal=field), self.assertRaisesRegex(WorkspaceError, "complete public producer"):
+                canonical_observe(advanced, lambda evidence, field=field, value=value:
+                                  evidence["advance_topology_plan"].update({field: value}))
         self.assertEqual(next(row["correction"] for row in advanced.document["resources"] if "correction" in row), correction)
         admission = {"correction_slot": correction_request["state_slot"], "correction_sha256": anchor,
                      "planned_slots": [row["slot_id"] for row in advanced.document["resources"] if row["state"] == "planned"]}
@@ -13314,6 +13384,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             history=[*row["current"]["history"], row["current"]["identity_digest"]],
             identity_digest=ledger.canonical_object_digest(restarted["stopped"]))
         stopped = ledger.cas(root, admitted.name, candidate, **cas_arguments(admitted))
+        self.assertEqual(canonical_observe(stopped)["topology"]["status"], restarted["stopped"])
         ledger.admit_in_progress_targets_cas(root, stopped.name, admission, **cas_arguments(stopped))
         self.assertEqual({str(path.relative_to(old_runtime)): path.read_bytes() for path in old_runtime.rglob("*") if path.is_file()}, historical_files)
 
