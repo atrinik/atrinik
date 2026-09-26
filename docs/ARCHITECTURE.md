@@ -1681,3 +1681,11 @@ the namespace-bound completed plan digest; its existing build-key variant is
 and a selected pending ledger transaction blocks the producer. This input proof
 does not attest a Docker executor or confer cleanup authority. See the
 [recovery protocol](../.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).
+
+
+Retained correction dependency advancement can bind one immutable
+`atrinik/content@main` input at declaration, the first plan, or a new `content-plan`/`content-built`
+successor after an already completed build. Live merged-PR provenance and clean
+read-only content source observations are required; historical
+content/build/runtime/state evidence and undeclared dependency inputs remain
+unchanged. See the [retained resource correction protocol](../.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).

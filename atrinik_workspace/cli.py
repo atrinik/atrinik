@@ -370,6 +370,7 @@ def parser() -> argparse.ArgumentParser:
     build.add_argument("--test", action="store_true")
     build_plan = build.add_mutually_exclusive_group()
     build_plan.add_argument("--plan", action="store_true", help="print read-only eventual build coordinates")
+    mark(build.add_argument("--retained-content-input", metavar="COMMIT", help="isolate a retained Classic server build at an exact content commit"), "none")
     mark(build_plan.add_argument("--expected-plan", metavar="SHA256", help="reject changed build inputs before mutation"), "none")
     build.add_argument("--json", action="store_true", help="print a structured build plan or result")
     build.add_argument(
@@ -1330,6 +1331,8 @@ def main(arguments: list[str] | None = None) -> int:
                 force_reconfigure=options.force_reconfigure,
                 use_ccache=not options.no_ccache,
             )
+            if options.retained_content_input is not None:
+                build_arguments["retained_content_input"] = options.retained_content_input
             if options.plan:
                 result = workspace.build_plan(options.target, options.profile,
                                               options.test, **build_arguments)
