@@ -3294,7 +3294,7 @@ class Workspace:
             self._owns_delivery_scope_proof = False
             self._delivery_scope_proof = None
             try:
-                proof.__exit__(None, None, None)
+                proof.__exit__(*sys.exc_info())
             finally:
                 wrapper_lease = self._wrapper_lease
                 self._wrapper_lease = None

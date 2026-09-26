@@ -263,6 +263,8 @@ class DeliveryScopeProof:
         lifecycle = ScopeLifecycle(self.workspace)
         for name, evidence in self.records.items():
             record = evidence.get("scope.json")
+            if "scope.json" in evidence and not isinstance(record, dict):
+                raise WorkspaceError("delivery scope completed record is malformed")
             journal = evidence.get("creation-journal.json")
             request = journal.get("request") if isinstance(journal, dict) else None
             profile = record.get("profile") if isinstance(record, dict) else (

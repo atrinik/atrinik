@@ -1834,6 +1834,12 @@ class ScopeLifecycleTests(unittest.TestCase):
                         proof.external_scopes(self.wrapper)
                 self.assertEqual((directory / "creation-journal.json").read_bytes(), raw)
         atomic_json(directory / "creation-journal.json", journal)
+        for malformed_record in (None, [], False):
+            atomic_json(directory / "scope.json", malformed_record)
+            with self.assertRaisesRegex(WorkspaceError, "completed record is malformed"):
+                with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                    proof.external_scopes(self.wrapper)
+            (directory / "scope.json").unlink()
         atomic_json(directory / "release-journal.json", {})
         with self.assertRaisesRegex(WorkspaceError, "incomplete or pending"):
             with scopes_module.DeliveryScopeProof(self.workspace) as proof:
