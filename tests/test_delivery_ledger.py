@@ -12831,7 +12831,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                        "scenario_state": reservation(live / "workspace/scenarios/player/state")}
         return root, erroneous, request, observation
 
-    def produce_observation_resources(self, live, *, restart=False, on_running=None, listener=None, legacy_listener=False, only_build=False, retained_build_plan=None):
+    def produce_observation_resources(self, live, *, restart=False, on_running=None, listener=None, legacy_listener=False, only_build=False, retained_build_plan=None, retained_content_input=None):
         """Use public build/scenario/topology APIs; only game payload production is stubbed."""
         from atrinik_workspace.workspace import Workspace, MANAGED_MARKER, atomic_json
         def payload(root, *_args, **_kwargs):
@@ -12860,15 +12860,15 @@ class DeliveryLedgerTests(unittest.TestCase):
                     for method in ("_build_server", "_collect_content", "_stage_resources", "_generate_region_maps"):
                         boundary.enter_context(mock.patch.object(workspace, method, side_effect=payload))
                     if only_build:
-                        plan = workspace.build_plan("server", "classic", True)
-                        tested = workspace.build("server", "classic", True, expected_plan=plan["plan_sha256"])
+                        plan = workspace.build_plan("server", "classic", True, retained_content_input=retained_content_input)
+                        tested = workspace.build("server", "classic", True, expected_plan=plan["plan_sha256"], retained_content_input=retained_content_input)
                         return {"build_plan": plan, "build_root": str(tested)}
                     if restart:
                         scenario = workspace.scenario_show("player")
                         plan = tested = None
                     else:
-                        plan = workspace.build_plan("server", "classic", True)
-                        tested = workspace.build("server", "classic", True, expected_plan=plan["plan_sha256"])
+                        plan = workspace.build_plan("server", "classic", True, retained_content_input=retained_content_input)
+                        tested = workspace.build("server", "classic", True, expected_plan=plan["plan_sha256"], retained_content_input=retained_content_input)
                         profile = workspace._load_profile("classic", require_file=False)
                         with workspace._resolved_profile_operation("classic", {"server"}, "scenario fixture source observation") as snapshot:
                             selected = dict(snapshot.paths())
@@ -13079,6 +13079,18 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertEqual(ledger.canonical_bytes(next(row["correction"] for row in recorded.document["resources"] if "correction" in row)), original_proof)
 
     def test_retained_dependency_advance_public_declaration_and_plan(self):
+        self.retained_dependency_advance_forward()
+
+    def test_retained_content_only_advance_preserves_history_and_reconnects(self):
+        self.retained_dependency_advance_forward(content=True, classic_advance=False)
+
+    def test_retained_content_plan_extends_existing_declaration(self):
+        self.retained_dependency_advance_forward(content=True, classic_advance=True)
+
+    def test_retained_content_successor_from_completed_604_build(self):
+        self.retained_dependency_advance_forward(content=True, classic_advance=True, late_content=True)
+
+    def retained_dependency_advance_forward(self, *, content=False, classic_advance=True, late_content=False):
         from atrinik_workspace.workspace import Workspace
         root, before, correction_request, _ = self.observation_transaction_fixture("advance", live_resources=True)
         corrected = ledger.correct_resource_observations_cas(root, before.name, correction_request, **cas_arguments(before))
@@ -13092,7 +13104,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         (classic / "server/README").write_text("new accepted Classic server source\n")
         git_run(classic, "add", "server/README")
         git_run(classic, "commit", "-m", "accepted dependency")
-        new_head = git_run(classic, "rev-parse", "HEAD").stdout.strip()
+        new_head = git_run(classic, "rev-parse", "HEAD").stdout.strip() if classic_advance else old_head
         git_run(classic, "checkout", branch)
         pin_file = primary / "atrinik_workspace/linux_portable.py"
         pin_file.parent.mkdir(exist_ok=True)
@@ -13110,6 +13122,29 @@ class DeliveryLedgerTests(unittest.TestCase):
         correction = next(row["correction"] for row in current.document["resources"] if "correction" in row)
         anchor = ledger.canonical_object_digest(correction)
         request = {"stage": "declare", "correction_sha256": anchor, "build_slot": "advanced-build"}
+        content_request = None
+        if content:
+            content_root = live / "content"
+            content_old = git_run(content_root, "rev-parse", "HEAD").stdout.strip()
+            git_run(content_root, "checkout", "-b", "fixture-accepted")
+            (content_root / "content-fix.txt").write_text("merged Classic-target content correction\n")
+            git_run(content_root, "add", "content-fix.txt")
+            git_run(content_root, "commit", "-m", "accepted content fix")
+            content_new = git_run(content_root, "rev-parse", "HEAD").stdout.strip()
+            git_run(content_root, "checkout", "main")
+            content_request = {"repository": "atrinik/content", "branch": "main", "commit": content_new, "pull_request": 265}
+            remote_content = {"data": {"repository": {"id": "R_content", "ref": {"target": {"oid": content_new}},
+                "pullRequest": {"id": "P_content_265", "state": "MERGED", "baseRefName": "main",
+                    "baseRepository": {"id": "R_content", "nameWithOwner": "atrinik/content"}, "mergeCommit": {"oid": content_new}}}}}
+            def content_observer(arguments, context):
+                self.assertEqual(context, "content merge provenance")
+                self.assertIn("pullRequest(number: 265)", arguments[-1])
+                return copy.deepcopy(remote_content)
+            patcher = mock.patch.object(ledger, "_gh_json", side_effect=content_observer)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+            if not classic_advance and not late_content:
+                request["content_input"] = content_request
         # Completed original plans are no longer inert. A running client must
         # still block every retained advancement before any ledger write.
         candidate = next_generation(current)
@@ -13134,7 +13169,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             with self.assertRaises(ledger.InjectedCrash):
                 ledger.advance_retained_dependency_cas(root, snapshot.name, payload, **cas_arguments(snapshot), failpoint="cas:renamed")
             installed = ledger.inspect(root, snapshot.name)
-            if payload["stage"] == "built":
+            if payload["stage"] in {"built", "content-built"}:
                 from atrinik_workspace.model import WorkspaceError
                 with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
                     workspace = Workspace(live, backfill_references=False)
@@ -13169,14 +13204,40 @@ class DeliveryLedgerTests(unittest.TestCase):
         self.assertEqual(declared.document["resources"], resources)
         self.assertEqual(declared.document["dependency_advance"]["declaration"]["old_classic_head"], old_head)
         git_run(classic, "merge", "--ff-only", new_head)
+        if content and not late_content:
+            git_run(content_root, "merge", "--ff-only", content_new)
         with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
             workspace = Workspace(live, backfill_references=False)
             try:
-                plan = workspace.build_plan("server", "classic", True)
+                plan = workspace.build_plan("server", "classic", True, retained_content_input=content_new if content and not late_content else None)
             finally:
                 workspace.close()
         plan_request = {"stage": "plan", "correction_sha256": anchor,
                         "build_plan": inline_payload(json.dumps(plan, indent=2).encode() + b"\n")}
+        if content and classic_advance and not late_content:
+            plan_request["content_input"] = content_request
+        if content and not late_content:
+            # A content advance is never an arbitrary replacement source row.
+            for field, replacement in (("repository", "atrinik/foreign"), ("branch", "1.x"), ("commit", old_head)):
+                bad_request = copy.deepcopy(plan_request if classic_advance else request)
+                bad_request["content_input"][field] = replacement
+                snapshot = declared if classic_advance else current
+                with self.subTest(content_request=field), self.assertRaises(ledger.LedgerError):
+                    ledger.advance_retained_dependency_cas(root, snapshot.name, bad_request, **cas_arguments(snapshot))
+                self.assertEqual(ledger.inspect(root, declared.name).raw, declared.raw)
+            original_remote = copy.deepcopy(remote_content)
+            remote_content["data"]["repository"]["pullRequest"]["state"] = "OPEN"
+            with self.assertRaises(ledger.LedgerError):
+                ledger.advance_retained_dependency_cas(root, declared.name, plan_request, **cas_arguments(declared))
+            self.assertEqual(ledger.inspect(root, declared.name).raw, declared.raw)
+            remote_content.clear()
+            remote_content.update(original_remote)
+            dirty = content_root / "untracked.txt"
+            dirty.write_text("unverified source")
+            with self.assertRaises(ledger.LedgerError):
+                ledger.advance_retained_dependency_cas(root, declared.name, plan_request, **cas_arguments(declared))
+            self.assertEqual(ledger.inspect(root, declared.name).raw, declared.raw)
+            dirty.unlink()
         bad_plan = copy.deepcopy(plan)
         omitted = next(role for role in ("protocol", "libatrinik") if role in bad_plan["sources"])
         for field in ("sources", "execution_sources", "source_fingerprints"):
@@ -13237,7 +13298,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         def wrong_root(value):
             value["build_plan"]["checkout_states"]["classic"]["path"] += "-foreign"
         def unrelated_dependency(value):
-            key = next(key for key in value["build_plan"]["checkout_states"] if key != "classic")
+            key = next(key for key in value["build_plan"]["checkout_states"] if key not in {"classic", "content"})
             value["build_plan"]["checkout_states"][key]["head"] = "f" * 40
         for label, mutation, message in (
             ("historical metadata", mutate_history, "historical build metadata changed"),
@@ -13264,7 +13325,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         self.assertEqual(next(row["correction"] for row in planned.document["resources"] if "correction" in row), correction)
         with self.assertRaises(ledger.LedgerError):
             ledger.revalidate_current_targets_cas(root, planned.name, **cas_arguments(planned))
-        produced = self.produce_observation_resources(live, only_build=True)
+        produced = self.produce_observation_resources(live, only_build=True, retained_content_input=plan.get("retained_content_input"))
         self.assertEqual(produced["build_plan"], plan)
         result_raw = json.dumps({"build_root": produced["build_root"]}).encode() + b"\n"
         log_raw = b"fixture server tests passed\n"
@@ -13277,6 +13338,69 @@ class DeliveryLedgerTests(unittest.TestCase):
             "build_observation": inline_payload(json.dumps(observation).encode())}
         built = public(planned, built_request)
         self.assertEqual(next(row for row in built.document["resources"] if row["slot_id"] == "advanced-build")["state"], "created")
+        previous_build_files = None
+        if late_content:
+            # The real #604 checkpoint has declare/plan/built already retained.
+            prefix = copy.deepcopy(built.document["dependency_advance"])
+            previous_row = copy.deepcopy(next(row for row in built.document["resources"] if row["slot_id"] == "advanced-build"))
+            previous_root = Path(plan["build_root"])
+            previous_build_files = {str(path.relative_to(previous_root)): path.read_bytes()
+                                    for path in previous_root.rglob("*") if path.is_file()}
+            git_run(content_root, "merge", "--ff-only", content_new)
+            with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
+                workspace = Workspace(live, backfill_references=False)
+                try:
+                    plan = workspace.build_plan("server", "classic", True, retained_content_input=content_new)
+                finally:
+                    workspace.close()
+            self.assertNotEqual(plan["build_root"], str(previous_root))
+            plan_request = {"stage": "content-plan", "correction_sha256": anchor,
+                "content_input": content_request, "build_slot": "content-tested-build",
+                "build_plan": inline_payload(json.dumps(plan, indent=2).encode() + b"\n")}
+            for mutation in ("slot", "head", "provenance", "history", "foreign"):
+                bad = copy.deepcopy(plan_request)
+                if mutation == "slot": bad["build_slot"] = "advanced-build"
+                elif mutation == "head": bad["content_input"]["commit"] = content_old
+                elif mutation == "provenance": del bad["content_input"]
+                elif mutation == "history": bad["correction_sha256"] = "f" * 64
+                else: bad["content_input"]["repository"] = "atrinik/foreign"
+                with self.subTest(late_content_refusal=mutation), self.assertRaises(ledger.LedgerError):
+                    ledger.advance_retained_dependency_cas(root, built.name, bad, **cas_arguments(built))
+                self.assertEqual(ledger.inspect(root, built.name).raw, built.raw)
+            planned = public(built, plan_request)
+            self.assertEqual(planned.document["dependency_advance"]["declaration"], prefix["declaration"])
+            self.assertEqual(planned.document["dependency_advance"]["steps"][:3], prefix["steps"])
+            self.assertEqual(next(row for row in planned.document["resources"] if row["slot_id"] == "advanced-build"), previous_row)
+            with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
+                workspace = Workspace(live, backfill_references=False)
+                try:
+                    with self.assertRaisesRegex(WorkspaceError, "incomplete"):
+                        workspace.topology_summary("classic", "scenario-player", ["server"], retained_build_plan=plan["plan_sha256"])
+                    with self.assertRaisesRegex(WorkspaceError, "immutable historical"):
+                        workspace._guard_retained_build(previous_root)
+                finally:
+                    workspace.close()
+            for slot in ("advanced-build", "content-tested-build"):
+                generic = next_generation(planned)
+                row = next(row for row in generic["resources"] if row["slot_id"] == slot)
+                if row["current"] is not None: row["current"]["identity_digest"] = "a" * 64
+                else: row.update(state="created", current={**row["immutable"], "generation": 1, "history": [], "external_generation": None,
+                                                           "identity_digest": "a" * 64, "lifecycle": "static"})
+                with self.subTest(protected_build=slot), self.assertRaises(ledger.LedgerError):
+                    ledger.cas(root, planned.name, generic, **cas_arguments(planned))
+            produced = self.produce_observation_resources(live, only_build=True, retained_content_input=plan.get("retained_content_input"))
+            self.assertEqual(produced["build_plan"], plan)
+            result_raw = json.dumps({"build_root": produced["build_root"]}).encode() + b"\n"
+            plan_raw = ledger._retained_result(plan_request["build_plan"], "content fixture plan")
+            observation = {"build_root": plan["build_root"], "plan_sha256": plan["plan_sha256"],
+                "plan_file_sha256": ledger.byte_digest(plan_raw), "result_file_sha256": ledger.byte_digest(result_raw),
+                "log_sha256": ledger.byte_digest(log_raw), "tests": True, "exit_code": 0, "profile": "classic"}
+            built_request = {"stage": "content-built", "correction_sha256": anchor, "build_plan": plan_request["build_plan"],
+                "build_result": inline_payload(result_raw), "build_log": inline_payload(log_raw),
+                "build_observation": inline_payload(json.dumps(observation).encode())}
+            built = public(planned, built_request)
+            self.assertEqual(built.document["dependency_advance"]["steps"][:3], prefix["steps"])
+            self.assertEqual(next(row for row in built.document["resources"] if row["slot_id"] == "advanced-build"), previous_row)
         from atrinik_workspace.model import WorkspaceError
         old_runtime = Path(correction["observations"]["topology"]["status"]["build_root"])
         historical_files = {str(path.relative_to(old_runtime)): path.read_bytes() for path in old_runtime.rglob("*") if path.is_file()}
@@ -13330,9 +13454,15 @@ class DeliveryLedgerTests(unittest.TestCase):
             finally:
                 workspace.close()
         self.assertEqual({str(path.relative_to(old_runtime)): path.read_bytes() for path in old_runtime.rglob("*") if path.is_file()}, historical_files)
+        if previous_build_files is not None:
+            self.assertEqual({str(path.relative_to(previous_root)): path.read_bytes()
+                              for path in previous_root.rglob("*") if path.is_file()}, previous_build_files)
         produced = self.produce_observation_resources(live, restart=True, listener="all-ipv4", retained_build_plan=plan["plan_sha256"])
         self.assertNotEqual(produced["stopped"]["build_root"], str(old_runtime))
         self.assertEqual({str(path.relative_to(old_runtime)): path.read_bytes() for path in old_runtime.rglob("*") if path.is_file()}, historical_files)
+        if previous_build_files is not None:
+            self.assertEqual({str(path.relative_to(previous_root)): path.read_bytes()
+                              for path in previous_root.rglob("*") if path.is_file()}, previous_build_files)
         topology_request = {"stage": "topology", "correction_sha256": anchor,
             "topology_plan": inline_payload(json.dumps(produced["topology_plan"]).encode()),
             "topology_output": inline_payload(json.dumps(produced["stopped"]).encode())}
@@ -13361,7 +13491,7 @@ class DeliveryLedgerTests(unittest.TestCase):
         admission = {"correction_slot": correction_request["state_slot"], "correction_sha256": anchor,
                      "planned_slots": [row["slot_id"] for row in advanced.document["resources"] if row["state"] == "planned"]}
         admitted = ledger.admit_in_progress_targets_cas(root, advanced.name, admission, **cas_arguments(advanced))
-        self.assertEqual(len(admitted.document["dependency_advance"]["steps"]), 4)
+        self.assertEqual(len(admitted.document["dependency_advance"]["steps"]), 6 if late_content else 4)
         # Later generations retain their ordinary public observation lineage;
         # the advancement's stopped generation must not freeze reconnect.
         def refuse_dev_without_downtime(workspace, status):
@@ -13387,6 +13517,9 @@ class DeliveryLedgerTests(unittest.TestCase):
         self.assertEqual(canonical_observe(stopped)["topology"]["status"], restarted["stopped"])
         ledger.admit_in_progress_targets_cas(root, stopped.name, admission, **cas_arguments(stopped))
         self.assertEqual({str(path.relative_to(old_runtime)): path.read_bytes() for path in old_runtime.rglob("*") if path.is_file()}, historical_files)
+        if previous_build_files is not None:
+            self.assertEqual({str(path.relative_to(previous_root)): path.read_bytes()
+                              for path in previous_root.rglob("*") if path.is_file()}, previous_build_files)
 
     def test_observation_correction_real_split_workspace_forward(self):
         root, before, request, _observation = self.observation_transaction_fixture("o", live_resources=True)

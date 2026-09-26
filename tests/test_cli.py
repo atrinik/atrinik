@@ -744,6 +744,23 @@ class ParserTests(unittest.TestCase):
             "resources", "default", False, force_reconfigure=False, use_ccache=True, expected_plan="b" * 64)
         workspace_type.return_value.build_plan.assert_not_called()
 
+    def test_retained_content_build_plan_and_execution_forward_same_commit(self) -> None:
+        commit = "c" * 40
+        for planning in (True, False):
+            with self.subTest(planning=planning), mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+                workspace_type.return_value.build_plan.return_value = {"retained_content_input": commit}
+                workspace_type.return_value.build.return_value = Path("/content-build")
+                arguments = ["build", "server", "--profile", "classic", "--test", "--retained-content-input", commit]
+                arguments += ["--plan"] if planning else ["--expected-plan", "d" * 64]
+                with mock.patch("sys.stdout", new_callable=io.StringIO):
+                    self.assertEqual(main(arguments), 0)
+                expected = dict(force_reconfigure=False, use_ccache=True, retained_content_input=commit)
+                if planning:
+                    workspace_type.return_value.build_plan.assert_called_once_with("server", "classic", True, **expected)
+                    workspace_type.return_value.build.assert_not_called()
+                else:
+                    workspace_type.return_value.build.assert_called_once_with("server", "classic", True, expected_plan="d" * 64, **expected)
+
     def test_build_dispatches_cache_controls(self) -> None:
         with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
             workspace_type.return_value.build.return_value = Path("/build")

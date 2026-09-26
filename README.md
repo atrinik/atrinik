@@ -2465,3 +2465,11 @@ Retained corrected Classic deliveries can advance an accepted dependency through
 For those deliveries, `topology show` and `up` require the exact
 `--retained-build-plan SHA256` fence. The runtime gets a distinct plan-derived
 build root, preserving the historical scenario and build evidence.
+
+
+Retained correction dependency advancement can bind one immutable
+`atrinik/content@main` input at declaration, the first plan, or a new `content-plan`/`content-built`
+successor after an already completed build. Live merged-PR provenance and clean
+read-only content source observations are required; historical
+content/build/runtime/state evidence and undeclared dependency inputs remain
+unchanged. See the [retained resource correction protocol](.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).
