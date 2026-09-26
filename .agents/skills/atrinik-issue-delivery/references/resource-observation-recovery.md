@@ -149,3 +149,86 @@ seven- or eight-element argv; the historical correction bytes remain unchanged.
 The fixed-provenance comparison excludes only this current selection, while
 full observations must still remain equal across authentication and publication.
 Admission does not authorize retuning a live topology or changing host publication.
+
+
+## Advance an accepted Classic dependency
+
+After this operation and its wrapper producer merge, the same owner can use
+`advance-retained-dependency-cas` for one bounded Classic source advance. Candidate
+helpers remain fixture-only. This adds `dependency_advance` beside the original
+correction; historical scenario metadata, corrected resources, producer payloads,
+receipts and tested-build attribution stay immutable. It is not a Docker verifier.
+Portable source/image pins are read as literal data from the accepted wrapper
+base's `atrinik_workspace/linux_portable.py`; they do not attest the server build
+worker image or imply runtime, hardware or audible-playback qualification.
+
+Every request has `stage` and the original `correction_sha256`. Invoke each stage
+with the current exact ledger path/generation/digest:
+
+```sh
+python3 scripts/delivery_ledger.py advance-retained-dependency-cas \
+  REVIEW_ROOT LEDGER_NAME REQUEST_JSON \
+  --expected-generation GENERATION --expected-digest SHA256 \
+  --expected-path CANONICAL_LEDGER_PATH
+```
+
+The stages are an append-only prefix; no caller-authored successor is accepted:
+
+1. `declare`: also provide one unused `build_slot`. At the original stopped,
+   clean coordinates the helper derives the physical Classic root, old head,
+   accepted consumer commit, portable image/platform/producer pins and exact
+   existing profile/scenario/topology names. The accepted commit must advance
+   the old source. This records intent; the helper never checks out source.
+2. `plan`: after the owner advances that same clean Classic checkout through its
+   normal source lifecycle, provide exact retained `build_plan` bytes from
+   `./atrinik build server --profile PROFILE --test --plan --json`. The complete
+   producer plan, dependency closure, Git configuration, roots and digest are
+   reproved under the lease union. Only the declared new build slot is appended,
+   planned/null at its derived root. Original source paths and other dependencies
+   remain exact; the historical scenario still names its original source head.
+3. `built`: execute the same server build options with `--expected-plan SHA256`.
+   Retain JSON stdout separately from stderr diagnostics. Supply `build_plan`,
+   `build_result`, `build_log`, and `build_observation` byte envelopes. The decoded
+   observation has exactly `build_root`, `plan_sha256`, `plan_file_sha256`,
+   `result_file_sha256`, `log_sha256`, `tests` (true), `exit_code` (zero), and
+   `profile`. The helper proves live managed build/source-generation metadata
+   and binds only the new tested-build row. It never transfers old test results.
+4. `topology`: obtain a fresh public topology plan and use the same profile,
+   topology name and registered scenario state with the retained plan fence:
+
+   ```sh
+   ./atrinik topology show --profile PROFILE --state SCENARIO_STATE \
+     --service server --server-listener all-ipv4 \
+     --retained-build-plan SHA256 --json
+   ./atrinik up --name TOPOLOGY --profile PROFILE --state SCENARIO_STATE \
+     --service server --server-listener all-ipv4 --port PORT \
+     --retained-build-plan SHA256 --json
+   ```
+
+   Cleanly stop through the owned runtime lifecycle and retain its fresh public
+   stopped status. Provide `topology_plan` and `topology_output` (that stopped
+   status). The helper checks the exact plan/spec/status, resolved sources,
+   scenario state and released process/runtime/port/state leases before advancing
+   the existing topology observation lineage.
+
+Each producer payload uses `{encoding,raw_base64,sha256}`. Ordinary CAS cannot
+introduce/change the envelope or bind its new tested build. In-progress admission
+may select the exact declared build slot while still planned, plus exactly the
+original client slots that remain planned/null. Bound/running resources never
+receive a planned-resource exemption. Strict target revalidation stays strict.
+
+`--retained-build-plan` is available only for that envelope's completed tested
+plan and exact server topology. Its runtime build uses the existing build-key
+variant mechanism with `retained-runtime:PLAN_SHA256`, distinct from both retained
+historical builds and the new tested build. Ordinary up, a different topology
+using the retained profile, and all build callers attempting a historical build
+root refuse. `dev restart` has no retained-plan fence and refuses before stopping
+the running topology; use the owned clean-stop lifecycle and fenced `up` instead.
+A pending transaction on the selected ledger must be recovered before runtime production. The helper does not launch, stop or clean resources.
+
+After an interruption, retry the same stage, original CAS tuple and exact request
+while its `-advance-dependency-REQUEST_SHA256` receipt remains. The retry reproves
+all live inputs and reconstructs the exact predecessor; another request or drift
+refuses without consuming evidence. After receipt consumption the old tuple is
+stale. Later same-input restarts use the same fence and ordinary public stopped
+observation CAS, followed by admission; historical correction bytes never change.

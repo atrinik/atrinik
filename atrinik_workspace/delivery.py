@@ -55,6 +55,7 @@ class ActiveDeliveryEvidence:
     ledgers: tuple[str, ...]
     transition_blockers: tuple[str, ...]
     recovered: tuple[dict[str, str], ...] = ()
+    advances: tuple[dict[str, Any], ...] = ()
 
 
 def _regular_path(path: Path, context: str) -> None:
@@ -142,6 +143,7 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
 
     references: dict[Path, list[str]] = {}
     recovered: list[dict[str, str]] = []
+    advances: list[dict[str, Any]] = []
     active_names: list[str] = []
     for index, snapshot in enumerate(ledgers):
         context = f"delivery-ledger inventory ledgers[{index}]"
@@ -204,6 +206,20 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
                 f"{context}.document.artifacts[{artifact_index}].current.path",
             )
             _add_reference(references, path, name)
+        envelope = document.get("dependency_advance")
+        if envelope is not None:
+            correction = next(resource["correction"] for resource in document["resources"] if "correction" in resource)
+            advances.append({"ledger": name, "envelope": envelope, "context": correction["resource_context"],
+                             "scenario_state": correction["observations"]["state"]["scenario"]["state"],
+                             "historical_builds": [correction["observations"]["build"]["path"],
+                                                   correction["observations"]["topology"]["status"]["build_root"]]})
+            for step in envelope["steps"]:
+                observed = step["observations"]
+                proofs = [observed.get("build"), observed.get("topology", {}).get("runtime_build")]
+                for proof in proofs:
+                    if proof is not None:
+                        for reservation in proof["reservations"]:
+                            _add_reference(references, _absolute_path(reservation["path"], "advanced producer reservation"), name)
         for resource in document.get("resources", []):
             identity = resource["immutable"]
             if identity["path"] is not None:
@@ -266,4 +282,5 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
         tuple(sorted(active_names)),
         tuple(sorted(set(transition_blockers))),
         tuple(recovered),
+        tuple(advances),
     )
