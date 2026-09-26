@@ -10,6 +10,7 @@ from pathlib import PurePosixPath
 from typing import Any
 
 MAX_NODES = 256
+MAX_RUNTIME_AGENTS = 4096
 COORDINATE = re.compile(r"atrinik/[a-z0-9][a-z0-9._-]*#[1-9][0-9]*")
 SHA = re.compile(r"[0-9a-f]{40}")
 STATES = {"pending", "reserved", "running", "blocked", "ready", "merged", "accepted", "external"}
@@ -311,12 +312,16 @@ def reserve_existing(project: dict, ident: str, worker: str, observation: dict,
     # This adapter uses the collaboration runtime's whole-thread tree, including
     # the root coordinator in both inventory and capacity. Nested workers belong
     # to their own dispatcher and cannot be reassigned by this operation.
-    require(runtime["namespace"] == "/root" and runtime["capacity_domain"] == "whole-thread-tree"
-            and runtime["complete"] is True, "incomplete or foreign runtime namespace")
+    require(runtime["namespace"] == "/root" and runtime["complete"] is True,
+            "incomplete or foreign runtime namespace")
+    domain = runtime["capacity_domain"]
+    require(isinstance(domain, str) and domain in {"whole-thread-tree", "whole-thread-tree-active"},
+            "unsupported runtime capacity domain")
     capacity = runtime["capacity"]
     require(type(capacity) is int and 1 <= capacity <= MAX_NODES, "invalid runtime capacity")
-    require(isinstance(runtime["agents"], list) and 1 <= len(runtime["agents"]) <= capacity,
-            "runtime inventory exceeds capacity or is empty")
+    inventory_limit = capacity if domain == "whole-thread-tree" else MAX_RUNTIME_AGENTS
+    require(isinstance(runtime["agents"], list) and 1 <= len(runtime["agents"]) <= inventory_limit,
+            "runtime inventory exceeds its bound or is empty")
     agents = {}
     for agent in runtime["agents"]:
         keys(agent, {"agent_name", "agent_status"}, "runtime agent")
@@ -357,9 +362,11 @@ def reserve_existing(project: dict, ident: str, worker: str, observation: dict,
         require(agents.get(state["worker"]) != "running" or occupied_attempt(state),
                 "running runtime worker has an inactive project reservation")
     unbound = sum(s["worker"] is None for s in active)
-    # Open handles do not increase, but prior unbound spawn reservations still
-    # own future handles. Retained idle handles are not active workers.
-    require(len(agents) + unbound <= capacity, "runtime capacity already reserved for spawning")
+    # Legacy capacity bounds retained handles as well as active slots. An
+    # explicitly active-only runtime does not charge completed/idle handles,
+    # but still reserves every pending start and occupied worker below.
+    if domain == "whole-thread-tree":
+        require(len(agents) + unbound <= capacity, "runtime capacity already reserved for spawning")
     running = {name for name, status in agents.items() if status == "running"}
     require(len(running | bound | {worker}) + unbound <= capacity, "runtime active capacity exhausted")
     occupied = [n for n in project["plan"]["nodes"] if n["id"] != ident and occupies_resources(project, n)]

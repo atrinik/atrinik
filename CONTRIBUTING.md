@@ -1,5 +1,12 @@
 # Contributing
 
+Develop, run Git/GitHub, review and coordinate delivery in owned native Linux
+worktrees. Use [short-lived pinned CPU workers](docs/LINUX_EXECUTION.md) for
+application builds and toolchain-dependent tests, with isolated reusable caches.
+Complete the live context, authentication, dedicated-worktree, ledger/CAS and
+lease gates before delivery work. Native Windows retains repository commands
+and runtime qualification; it has no Linux delivery-ledger authority.
+
 For coordinated multi-issue development, use the [project launcher](docs/PROJECT_DELIVERY_GOAL.md).
 An authorized coordinator may manage its workers, ordinary development and PR
 delivery, plus explicitly scoped assignment/relationships/owned milestone comments
@@ -125,10 +132,10 @@ git config --global commit.gpgsign true
 Leave `commit.gpgsign` unset and use `git commit -S` for per-commit opt-in
 if a global default is not wanted. The private key and signing configuration
 stay on the host. Native host Git is the default place to create and sign
-commits; use a proven native Linux host or the pinned Docker/devcontainer for
-compilation/tests, following [the execution contract](docs/LINUX_EXECUTION.md). An exceptional
-container commit may forward `SSH_AUTH_SOCK` when that workflow explicitly
-supports it, but never copy or mount a private key or private `.ssh` directory.
+commits in the owned worktree. Use short-lived pinned containers for
+compilation/tests, following [the execution contract](docs/LINUX_EXECUTION.md).
+Build workers receive no signing agent or credentials. Never copy or mount a
+private key or private `.ssh` directory.
 
 Verify locally with `git show --show-signature -1` and, if useful, inspect the
 commit object's `gpgsig` header with `git cat-file commit HEAD`. After push,

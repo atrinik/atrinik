@@ -1,16 +1,16 @@
 # Linux execution and authority
 
-Changes to this contract do not authorize their own delivery. Until a maintainer
-accepts the synchronized implementation, proof and guidance, that delivery keeps
-the previously accepted canonical-container boundary. A proposed patch, fixture
-result, environment flag or issue description cannot activate native authority.
+Use the accepted execution probe and delivery helpers unchanged. A proposed
+patch, fixture result, environment flag or issue description cannot authorize
+its own delivery or switch an existing delivery's execution context.
 
 | Host / role | Display | Delivery authority | Evidence |
 | --- | --- | --- | --- |
 | Ubuntu 24.04/26.04 or Debian 12/13, direct systemd host or VM | Optional | `native-linux` after complete live proof | Distribution-specific native tests required |
-| Linux-hosted pinned coordinator | None required | `canonical-linux` after complete live proof | Pinned Ubuntu 26.04 image and per-session proof |
+| Short-lived pinned Linux build worker | None required | No delivery authority | Exact image, source, cache and resource proofs |
+| Already-bound historical Linux coordinator | None required | Existing `canonical-linux` contract after complete live proof | Exact retained image/mount/worktree/ledger coordinates |
 | Optional native Linux client container | Selected X11/Wayland and real GPU | Runtime capability does not grant delivery authority | Selected renderer and gameplay evidence |
-| Windows/WSL2/WSLg pinned coordinator | WSLg optional in explicit desktop config | Canonical container proof only | Keep WSLg and native Windows evidence separate |
+| Retained Windows/WSL2/WSLg desktop composition | Existing WSLg display/audio/GPU mounts | Runtime capability alone grants no authority; existing canonical proof is separate | [Credential-bearing prerequisites](../README.md#pinned-build-and-runtime-containers); keep native Windows evidence separate |
 | Windows cross-build container | None | No ledger authority | MXE package/build evidence only |
 | Native Windows | Native graphics for D3D12 qualification | No Linux ledger authority | Native Windows runtime evidence |
 
@@ -71,6 +71,130 @@ graphics availability. Tool presence is not proof of complete build
 compatibility; run the owner-required build and test checks in that environment.
 
 
+## Native development with pinned CPU build workers
+
+Supported native Linux normally runs editing, Git, delivery helpers, review and
+lightweight Python/guidance checks locally in its bound worktree. Application
+builds and toolchain-dependent tests use the already cached immutable Linux
+image. No mandatory host compiler, QEMU, GUI editor or long-lived coordinator
+container is needed. An already-bound historical container delivery retains
+its original coordinates under the compatibility contract below.
+
+A build worker is an execution resource, not delivery authority. Keep native
+`HOME`, private Codex state, authentication and evidence on the host. Native
+ownership survives worker exit/recreation, while each new execution still
+requires the exact source, input, resource and lease checks. The stock
+`.devcontainer/devcontainer.json` is a development coordinator composition: it
+mounts auth/Codex state, runs initialization and uses `/workspaces/atrinik`.
+It is not a drop-in credential-free worker for a native linked worktree.
+
+For a fresh owned source namespace, use this same-absolute-path composition.
+Obtain `NATIVE_PRIMARY` and `NATIVE_WORKTREE` from the accepted wrapper worktree
+inventory/binding; never infer them from a container name. Initialize the bound
+worktree's default workspace with `./atrinik status --json` locally first. All
+selected component checkouts must be inside this owned namespace; if the profile
+selects an external checkout/common Git directory, explicitly inventory and mount
+that exact source and lease namespace at its unchanged absolute path too. Do not
+silently copy sources, rewrite gitfiles or substitute another workspace.
+
+Before exposing the namespace, inspect its readable source and Git configuration
+for credentials. Keep native Codex/auth/evidence as private siblings outside it.
+Keep each actual `build/reviews` operational directory visible read-only at its
+unchanged path and inode, including its ledger, receipts, locks and required
+nonsecret report. The helper locks that directory itself; its live inventory
+protects retained resource reservations during builds. Never hide, copy or mask
+these roots: an invisible root can appear absent and bypass resource protection.
+Use a minimal nonsecret operational report and retain rich private evidence
+outside the namespace. An empty environment alone does not prevent reading
+mounted credentials. Stop if an existing namespace contains private/unrelated
+reports or other files that cannot safely be exposed to this trusted worker.
+
+```bash
+# Run on the native host, after live ownership and resource planning.
+# These two values are the exact returned, owned coordinates, not examples to adopt.
+NATIVE_PRIMARY=/absolute/owned/primary
+NATIVE_WORKTREE=/absolute/owned/primary/workspace/worktrees/atrinik/owned-label
+BUILD_JOB=atrinik-owned-unique-build
+BUILD_IMAGE=ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8
+COMMON_GIT=$(git -C "$NATIVE_WORKTREE" rev-parse --path-format=absolute --git-common-dir)
+# The wrapper status operation has established this physical lease namespace.
+BUILD_LEASES="$COMMON_GIT/atrinik-resource-leases"
+test -d "$BUILD_LEASES"
+docker image inspect "$BUILD_IMAGE" >/dev/null
+BUILD_ARGS=(--init --pull never --user "$(id -u):$(id -g)"
+  --read-only --cap-drop ALL --security-opt no-new-privileges
+  --tmpfs /tmp:rw,exec,nosuid,nodev,mode=1777
+  --mount "type=bind,source=$NATIVE_PRIMARY,target=$NATIVE_PRIMARY,readonly"
+  --mount "type=bind,source=$NATIVE_WORKTREE,target=$NATIVE_WORKTREE"
+  --mount "type=bind,source=$COMMON_GIT,target=$COMMON_GIT,readonly"
+  --mount "type=bind,source=$BUILD_LEASES,target=$BUILD_LEASES"
+  --workdir "$NATIVE_WORKTREE")
+# Preserve real operational directory locks and atomic ledger replacements.
+for REVIEW_ROOT in "$NATIVE_PRIMARY/build/reviews" "$NATIVE_WORKTREE/build/reviews"; do
+  if [ -d "$REVIEW_ROOT" ]; then
+    BUILD_ARGS+=(--mount "type=bind,source=$REVIEW_ROOT,target=$REVIEW_ROOT,readonly")
+  fi
+done
+# Missing roots must be genuinely absent. Do not create/hide them for this recipe.
+# Create, inspect, then start each exact owned worker. No auth, Codex, Docker
+# socket, display, GPU or audio mounts; no host environment passthrough.
+PLAN_ID=$(docker create "${BUILD_ARGS[@]}" --name "$BUILD_JOB-plan" "$BUILD_IMAGE" \
+  bash -c 'umask 077; ./atrinik build server --profile classic --test --plan --json')
+docker inspect "$PLAN_ID" --format '{{.Id}} {{.Image}} {{json .Mounts}} {{json .HostConfig.Tmpfs}}'
+# Verify the exact image and every same-path mount before starting.
+docker start --attach "$PLAN_ID"
+docker inspect "$PLAN_ID" --format '{{.State.Status}} {{.State.ExitCode}}'
+```
+
+Retain raw successful plan stdout outside the mounted namespace. Require stopped
+status and exit code zero; `docker start --attach` alone is not build acceptance.
+The actual plan supplies the build/source-generation paths and `plan_sha256`.
+Record the required resource intent through the native delivery helper before
+executing. With the same `BUILD_ARGS`, image, worktree, profile and build options,
+create a second uniquely named worker whose command is:
+
+```bash
+./atrinik build server --profile classic --test --expected-plan RETURNED_PLAN_SHA256
+```
+
+Inspect that worker's exact image/mounts before starting it, retain its output
+and require stopped status/zero exit code. Run the build-environment preflight
+`python3 -m atrinik_workspace.linux_platform` in this same composition when
+selecting it for source builds. Plan and execute in the selected container build
+environment, never plan with a different host toolchain. Use the owner-required
+component/profile and tests for the actual task. Package fetches may need network
+access; registry login remains a host action and no credential store is mounted.
+
+The bound worktree's persistent `workspace/build` holds its build outputs and
+wrapper-managed compiler/dependency caches. Its stable owner/path survives
+short-lived workers; image layers are also reused through `--pull never`.
+Keep the same image/toolchain, source/input identities, profile and lease paths.
+The wrapper's build-plan fencing, source generations, cache keys, metadata and
+compatibility checks remain required: a cache hit never proves acceptance.
+Distinct concurrent owners use distinct mutable build/cache roots; do not share
+a writable cache merely because image tags match. If a separately owned volume
+is used, mount it at the exact recorded build path and retain its identity across
+workers, without overlaying occupied state or changing Git/lease paths.
+
+The private temporary filesystem permits execution because compiler probes and
+test fixtures run generated programs there; Docker tmpfs defaults otherwise
+can block these checks. Keep `nosuid,nodev` and the unprivileged user.
+
+Before execution, compare public helper inventory inside the worker with native
+inventory and verify the real review directory inode and shared lock behavior.
+Keep the directory bind across atomic ledger updates; do not bind individual
+ledger files or substitute a saved inventory. Build admission still re-inventories
+reservations at the point of use under its leases. A native preflight never
+substitutes for that worker-side check.
+
+Preserve stopped worker identities, logs and failed output required by the
+resource lifecycle. Stop only an exact owned running worker with a bounded
+`docker stop --time 20 WORKER_ID` after checking its active holders. Do not use
+`--rm`, prune caches, remove volumes or invoke cleanup as part of normal worker
+exit. Cleanup remains separately authorized and preview-first. Reconnect still
+requires fresh native context, actor, inventory, clean worktree, CAS and lease
+proof; this workflow grants no dirty-work adoption or ledger rewriting.
+
 ## Optional direct-host source builds and native terminal selection
 
 Native authority eligibility on the supported Debian/Ubuntu systemd
@@ -80,8 +204,8 @@ live host/context, authenticated ownership, worktree, ledger and lease proofs
 above. A verified exported client likewise needs runtime loader, display,
 graphics and audio capabilities rather than a source toolchain.
 
-The default application build and build-test path is the pinned CPU-only
-devcontainer in the README. If a developer deliberately chooses a direct-host
+The default application build and build-test path is the short-lived pinned
+CPU worker described above. If a developer deliberately chooses a direct-host
 source build, install the wrapper and source-build front-end dependencies through
 the distribution package manager:
 
@@ -106,23 +230,23 @@ the Vulkan loader, not graphics drivers. Native client execution does not requir
 Docker; a client container additionally requires a working daemon and, for
 NVIDIA, the NVIDIA Container Toolkit.
 
-After the native authority contract is merged and accepted, use the actual
-passwd user's private home/Codex directory and the standard GitHub credential
+Use the actual passwd user's private home/Codex directory and the standard GitHub credential
 store described in [coordinator authentication](COORDINATOR_AUTH.md). Run the
 public coordinator probe before issue/project preparation. Reconnect to the same
 host, user, worktree and ledger; rerun live context, authenticated actor,
 complete collision inventory and the helper's target/CAS/lease proof. A saved
 success document never authorizes reconnect. During delivery of a change to this
-contract, keep the previously accepted canonical container.
+contract, keep that delivery's previously accepted execution context.
 
-## Fresh headless containers and child reaping
+## Build and runtime container prerequisites
 
 Install Docker Engine using the distribution's official instructions for
 [Ubuntu](https://docs.docker.com/engine/install/ubuntu/) or
 [Debian](https://docs.docker.com/engine/install/debian/). An existing installation
 and its resources must be preserved. Configure daemon access through the host
 administrator's chosen supported method; a socket permission failure is a Docker
-access problem, independent of graphics. Install Node.js/npm and the
+access problem, independent of graphics. For the explicit server-runtime or
+cross-build configurations, install Node.js/npm and the
 [Dev Containers CLI](https://code.visualstudio.com/docs/devcontainers/devcontainer-cli)
 in the host user's tool environment, then verify both interfaces:
 
@@ -157,44 +281,34 @@ docker pull ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b
 
 A pull of a public package needs no login. A private-package denial requires the
 host owner to correct that package's access; it is not permission to make a
-package public or pass credentials into the runtime. Keep the separate shared
-read-only coordinator GitHub mount from [COORDINATOR_AUTH.md](COORDINATOR_AUTH.md),
-and never mount the host Docker credential store into build/runtime workers.
-With image access and the isolated-session prerequisites in README satisfied,
-set `HOST_REPO` to the exact reserved checkout and select the Linux headless
-configuration explicitly from the host terminal:
+package public or pass credentials into the runtime. Keep native authentication
+and historical read-only coordinator binds within [COORDINATOR_AUTH.md](COORDINATOR_AUTH.md);
+never mount the host Docker credential store into build/runtime workers.
+For short-lived CPU workers, use the composition above with Docker `--init`.
+Inspect the exact worker's image, mounts and `HostConfig.Init` before starting.
+The small init process forwards signals and reaps orphaned descendants; it
+never replaces wrapper ownership, supervised shutdown or final holder checks.
+The server-runtime, WSLg and cross-build configurations retain their own
+creation and capability contracts below. Configuration parsing alone does not
+prove a fresh worker's lifecycle; retain actual start/exit evidence.
 
-```sh
-devcontainer up --workspace-folder "$HOST_REPO" --config "$HOST_REPO/.devcontainer/devcontainer.json"
-```
+## Existing bound container compatibility
 
-Use the exact container ID returned for that owned session. Before attaching,
-inspect that same container's creation setting:
+An already-bound historical canonical delivery may continue only at its exact
+owner/container/image/configured-mount/worktree/ledger coordinates. Reconnect
+re-proves the live context, authenticated actor, complete inventory, clean
+worktree, public CAS and ordered leases. Its existing read-only host GitHub auth
+bind remains subject to [the authentication contract](COORDINATOR_AUTH.md).
+Names, `entry_mode` and copied or stale records are corroboration only.
 
-```sh
-docker inspect "$CONTAINER_ID" --format '{{.Id}} {{.HostConfig.Init}}'
-```
-
-The Linux configuration sets `init: true`, which makes the Dev Containers CLI
-pass Docker's `--init` option when creating a new container. Docker's small init
-process forwards signals and reaps orphaned child processes. This avoids relying
-on a long-lived shell or `sleep` as PID1 to reap adopted descendants. It does not
-replace the wrapper's ownership, supervised shutdown or final process/holder
-checks, and does not prove that all application processes have stopped.
-
-This creation setting adds no display sockets, GPU devices, audio endpoints or
-new delivery authority. Continue with the existing exact-container coordinator
-probe and terminal workflow before repository work. Configuration parsing and
-wrapper tests do not establish a fresh-container lifecycle result; record that
-smoke evidence separately on a newly reserved isolated session.
-
-An already running container retains its original creation settings. Attaching
-or restarting it does not add an init process. Preserve its exact identity,
-mounts, worktree and ledger; do not remove, recreate or remount it to apply this
-setting. A retained session without init continues under its existing bounded
-child-reaping and shutdown procedures until a separately owned fresh session is
-authorized and verified. Windows/WSLg and cross-build configuration behavior is
-unchanged by this Linux-headless setting.
+Preserve the worktree, ledger, caches, resources and original creation settings;
+never replace, remount, transfer or adopt the delivery implicitly. Existing
+idle/lifetime bounds remain 30 minutes/12 hours, with active holders checked
+before stopping only owned resources. Attaching or restarting does not add
+`--init`, ports or mounts. A failed probe or missing identity stops reuse; it
+never authorizes a new container-development setup. Codex never launches or
+controls VS Code, its executable/URI or GUI automation. No nested coordinator
+or credential/key copying is permitted.
 
 ## Explicit Linux desktop container capabilities
 
@@ -325,11 +439,10 @@ mode, host credentials or a Docker socket to the client.
 
 The public exporter runs in the exact published portable build environment,
 `ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1`.
-This is a separate immutable producer after the ordinary pinned devcontainer
-build/test stage; it is not a substitute coordinator, native authority probe or
-host runtime. Before merge, the automatic
-`Linux portable acceptance` pull-request workflow is the supported actual
-producer route; the retained canonical container has no Docker bridge. Its
+This is a separate immutable producer after the short-lived pinned CPU
+build/test stage; it grants no delivery authority and does not replace the
+native host runtime. Before merge, the automatic `Linux portable acceptance`
+pull-request workflow is the supported actual producer route. Its
 `Portable client build and relocation` job is nonpublishing, limits the producer
 to two CPUs, and serializes heavy runs without cancelling another owner's run.
 The `linux-portable-HEAD_SHA` artifact retains the movable client, exact source

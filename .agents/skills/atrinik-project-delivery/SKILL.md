@@ -20,8 +20,13 @@ Verify the live parent, repositories, existing children/PRs, dependency graph,
 acceptance and authorized tracking operations before initialization. Reconcile
 native relationships and prose; neither alone proves completeness.
 
-Use a live-proven canonical container or supported native Linux coordinator
-per [the execution contract](../../../docs/LINUX_EXECUTION.md). Inventory all existing leaf
+Use a live-proven native Linux coordinator per [the execution
+contract](../../../docs/LINUX_EXECUTION.md). Develop, run Git, review and perform
+lightweight checks in owned local worktrees. Short-lived pinned CPU containers
+with isolated reusable caches run application builds/toolchain checks;
+build-worker lifetime does not own the project or leaf delivery. Already-bound
+historical container deliveries retain their exact compatibility gates.
+Inventory all existing leaf
 ledgers, containers and worktrees before claiming anything. Dirty candidates,
 existing PRs and foreign sessions remain external, not new implementations.
 The project record schedules work; it never grants worktree/ledger reuse.
@@ -31,8 +36,11 @@ migrate their state or reinterpret their `program` authority field.
 ## Run the ready graph
 
 Use `python3 -m atrinik_workspace.project_delivery`, never hand-edit its state.
-Inspect actual runtime worker capacity and existing open workers; a requested
-16 slots is not proof. Reserve ready disjoint lanes before spawning. Record the
+Inspect actual runtime worker capacity domain and complete worker inventory;
+16 requested slots are not proof. Keep active-slot limits distinct from retained-handle limits.
+`reserve-existing` supports an explicit active-slot domain; scalar `plan`/`dispatch`
+retain handle-limited semantics and cannot schedule fresh active-only starts.
+Reserve ready disjoint lanes before spawning. Record the
 actual returned worker ID, exact entry mode/coordinate and attempt immediately.
 If spawning fails or its outcome is uncertain, reconcile before retrying.
 After a supported retry/replan, a pending node with its retired attempt may

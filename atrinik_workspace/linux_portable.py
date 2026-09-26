@@ -20,23 +20,23 @@ from typing import Callable
 
 from . import linux_export as export
 
-IMAGE = "ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1"
-PLATFORM_MANIFEST = "sha256:40412cc14527deb333273527681fb0639efef90e68b2ca508844ada38da9f2a6"
-PRODUCER_COMMIT = "aa7e944ec3afcf2eaec434b164618680d514a77b"
-CONSUMER_COMMIT = "4998131ad2ae4c9680685fd87e2d85de1dc15fd9"
+IMAGE = "ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338"
+PLATFORM_MANIFEST = "sha256:7b7f36fef585c5424a56edbe2939a25ab1facbb3dd17a2f3a55980866dd85486"
+PRODUCER_COMMIT = "960b41ced51418892f18fc157373d89444c843db"
+CONSUMER_COMMIT = "d926f6fd0418fb1af9060158c43d8d3ff5252580"
 METADATA_HASHES = {
-    "contract.json": "d450cc76acd7148b80f3b80198d3c11590727df2d70c45db28d740b8e86579db",
+    "contract.json": "865a9d7fc32fae8a73b2ee3d9c1b30be68d2366dd1aed3257ec34a022d07820b",
     "debian-sources.json": "fd83eb65839b76f692b26cb8b333c9baa0f6ce7379e3d6477351ea501342aec4",
-    "installed.json": "ec878ca93bc19bb2b32769abf4170125c22e09e0fdd42fda5fe3c7735033746a",
-    "runtime-abi.json": "66ca8945657990b58fde5ee8c1ea44da1444779ece78738b09640bca65dba2b6",
+    "installed.json": "85b428e078868940da39a7fa7c7e40de386ca33fcb613e3b1f5bd52f1442f435",
+    "runtime-abi.json": "e5bf6972695f1d93779eb964bae73f6015028a4fa8d29ed8c6f180d217a06a13",
     "runtime-sources.json": "ac034c398016886d90d1f8d9601a61040bd760b9c8965c2f258818bf7fa3bf3d",
-    "shader-generation.json": "24e04e4cccb84a1e374485c27d1fe250ed2aaf3033a05fa1219b13f77d406bf0",
+    "shader-generation.json": "f8e18f2a0e4f1357c7bd415d0b5079f056a609eef7c2453cfaae9884ed5e1563",
 }
 # Complete final OCI overlay, independently reconstructed from every layer of
 # PLATFORM_MANIFEST. Canonical JSON is sorted with compact separators; source
 # records contain relative path -> sha256/size/executable. This pins omitted
 # archives/recipes/notices as well as bytes, without a caller-supplied override.
-PRODUCER_FILES_SHA256 = 'da6ee7e46cfb5b254a4811adf65a6056719114a8755f65db3605c2802c9cfc52'
+PRODUCER_FILES_SHA256 = '838e181c5adef32eea3d82478581d72408012ab27e871af77a2bf93dab934729'
 DEBIAN_NOTICES_SHA256 = '6670f1afe9d1face038ae959386c3f264a4b3f05328c493579ea359a8cd2f4e5'
 COMMON_LICENSES_SHA256 = 'cfe52936825faa1cd66a4b17ed41051f5c777c5035c8206eaad4db5b730f2bfd'
 COMMON_LICENSE_NAMES = ('Apache-2.0', 'Artistic', 'BSD', 'CC0-1.0', 'GFDL-1.2', 'GFDL-1.3', 'GPL-1', 'GPL-2', 'GPL-3', 'LGPL-2', 'LGPL-2.1', 'LGPL-3', 'MPL-1.1', 'MPL-2.0')
@@ -79,8 +79,8 @@ HOST_GLIBC = frozenset({"libc.so.6", "libm.so.6", "libpthread.so.0", "libdl.so.2
 # ELF inspector validates the derived bytes; no other search path is normalized.
 PULSE_RECIPE = {
     "id": "debian12-libpulse-origin-v1",
-    "image": "ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1",
-    "platform_manifest": "sha256:40412cc14527deb333273527681fb0639efef90e68b2ca508844ada38da9f2a6",
+    "image": "ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338",
+    "platform_manifest": "sha256:7b7f36fef585c5424a56edbe2939a25ab1facbb3dd17a2f3a55980866dd85486",
     "provider_path": "/usr/lib/x86_64-linux-gnu/libpulse.so.0.24.2",
     "input_sha256": "38b07a06cefcaabd8db3edaddafea0ab5b5d2ee15e8641929f7d07d45fb66d59",
     "output_sha256": "43da0e3a6816292d4c4c973d56d2753e968a28bb020f8b3035e404044513acf2",
