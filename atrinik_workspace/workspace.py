@@ -2448,9 +2448,14 @@ class _DeliveryWorkspacePreparation:
         self._verify_identity()
         self.__admitted = True
         try:
-            yield self.__workspace
-            self._verify_identity()
+            from .scopes import DeliveryScopeProof
+
+            with DeliveryScopeProof(self.__workspace) as proof:
+                self.__workspace._delivery_scope_proof = proof
+                yield self.__workspace
+                self._verify_identity()
         finally:
+            self.__workspace._delivery_scope_proof = None
             self.__admitted = False
 
     @property
@@ -3248,6 +3253,8 @@ class Workspace:
             else Manifest.load(self.paths.repository / "components.json")
         )
         self._wrapper_lease: Any = None
+        self._delivery_scope_proof = None
+        self._owns_delivery_scope_proof = False
         self._build_state = threading.local()
         self._prefix_map_support: dict[
             tuple[str, str, str | None, str | None], bool
@@ -3282,6 +3289,17 @@ class Workspace:
     def close(self) -> None:
         """Release the command-lifetime wrapper and maintenance leases."""
 
+        if self._owns_delivery_scope_proof:
+            proof = self._delivery_scope_proof
+            self._owns_delivery_scope_proof = False
+            self._delivery_scope_proof = None
+            try:
+                proof.__exit__(None, None, None)
+            finally:
+                wrapper_lease = self._wrapper_lease
+                self._wrapper_lease = None
+                if wrapper_lease is not None:
+                    wrapper_lease.__exit__(None, None, None)
         wrapper_lease = self._wrapper_lease
         if wrapper_lease is not None:
             self._wrapper_lease = None
@@ -7012,6 +7030,15 @@ class Workspace:
             raise WorkspaceError("profile inventory authority is ambiguous")
         if profiles_inventory is not None and profiles_directory_fd is None:
             raise WorkspaceError("retained profile inventory has no directory authority")
+        # Primitive binding supplies retained descriptor-bound profile evidence;
+        # all-target admission installs the same scope proof in admitted().
+        # Ordinary cleanup/reference callers never enter this proof boundary.
+        if ((profiles_inventory is not None or profiles_directory_absent)
+                and self._delivery_scope_proof is None):
+            from .scopes import DeliveryScopeProof
+
+            self._delivery_scope_proof = DeliveryScopeProof(self).__enter__()
+            self._owns_delivery_scope_proof = True
         target = source_root.resolve()
         references: list[str] = self._scope_source_references(target)
         for record in self._physical_reference_records():
@@ -7219,13 +7246,18 @@ class Workspace:
     def _scope_source_references(self, target: Path) -> list[str]:
         """Keep complete or recoverable scope inputs visible to cleanup."""
 
+        proof = getattr(self, "_delivery_scope_proof", None)
+        external = frozenset() if proof is None else proof.external_scopes(target)
+        records = self._scope_reference_records(external=external)
+        if proof is not None:
+            proof.recheck()
         return [
             f"scope:{name}"
-            for name, path in self._scope_reference_records()
+            for name, path in records
             if path.resolve(strict=False) == target
         ]
 
-    def _scope_reference_records(self) -> list[tuple[str, Path]]:
+    def _scope_reference_records(self, *, external: frozenset[str] = frozenset()) -> list[tuple[str, Path]]:
         """Return exact source paths retained by complete or recoverable scopes."""
 
         from .scopes import (
@@ -7250,6 +7282,8 @@ class Workspace:
                 raise WorkspaceError(
                     f"cannot prove scope reference directory: {directory}"
                 )
+            if directory.name in external:
+                continue
             record_path = directory / "scope.json"
             journal_path = directory / "creation-journal.json"
             release_path = directory / "release-journal.json"
