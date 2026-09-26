@@ -2458,3 +2458,10 @@ component integration. Replacement repositories run their standalone
 aggregate validations today; wrapper builds still fail with a clear
 unavailable-contract error until their adapters land. The `metaserver-worker`
 wrapper contract runs its complete `npm run check` suite.
+
+
+Retained corrected Classic deliveries can advance an accepted dependency through
+[`advance-retained-dependency-cas`](.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).
+For those deliveries, `topology show` and `up` require the exact
+`--retained-build-plan SHA256` fence. The runtime gets a distinct plan-derived
+build root, preserving the historical scenario and build evidence.

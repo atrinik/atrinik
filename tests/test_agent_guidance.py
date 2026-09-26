@@ -50,6 +50,8 @@ class AgentGuidanceTests(unittest.TestCase):
             self.assertIn(reference, path.read_text())
         protocol = (skill / "references" / reference).read_text()
         for contract in ("correct-resource-observations-cas", "admit-in-progress-targets-cas",
+                         "advance-retained-dependency-cas", "--retained-build-plan", "retained-runtime:PLAN_SHA256",
+                         "`declare`", "`plan`", "`built`", "`topology`",
                          "target-refresh-cas", "revalidate-current-targets-cas",
                          "Candidate helpers are fixture-only", "byte-identical",
                          "JSON stdout", "configuration digest", "not a Docker verifier",

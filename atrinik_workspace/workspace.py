@@ -497,6 +497,22 @@ def run(
 _BUILD_PLAN_GIT = ContextVar("build_plan_git", default=False)
 
 
+def _retained_producer_reads(function):
+    """Fence all source discovery before a retained plan can refuse mutation."""
+    from functools import wraps
+
+    @wraps(function)
+    def guarded(*arguments, **keywords):
+        if keywords.get("retained_build_plan") is None:
+            return function(*arguments, **keywords)
+        token = _BUILD_PLAN_GIT.set(True)
+        try:
+            return function(*arguments, **keywords)
+        finally:
+            _BUILD_PLAN_GIT.reset(token)
+    return guarded
+
+
 def git(
     path: Path, *arguments: str, capture: bool = False, trace: bool = True
 ) -> str:
@@ -2652,7 +2668,20 @@ class _DeliveryResourceRecovery:
                                                 "source": component.source, "checkout_path": str(checkout)}.items():
                             if coordinate.get(field) != expected:
                                 raise WorkspaceError("build residual provider/source association differs")
-                        if git(checkout, "rev-parse", "HEAD", capture=True, trace=False) != coordinate.get("head"):
+                        historical = getattr(self, "_advance_historical", {}).get(str(path))
+                        expected_head = coordinate.get("head")
+                        if historical is not None:
+                            current_metadata = dict(metadata)
+                            original_metadata = dict(historical)
+                            if str(path) in getattr(self, "_advance_usage_metadata", set()):
+                                current_metadata.pop("last_used_at", None)
+                                original_metadata.pop("last_used_at", None)
+                            if current_metadata != original_metadata:
+                                raise WorkspaceError("retained historical build metadata changed")
+                            expected_head = getattr(self, "_advance_heads", {}).get(str(checkout), expected_head)
+                            if git(checkout, "cat-file", "-t", coordinate["head"], capture=True, trace=False) != "commit":
+                                raise WorkspaceError("historical source commit is unavailable")
+                        if git(checkout, "rev-parse", "HEAD", capture=True, trace=False) != expected_head:
                             raise WorkspaceError("build residual source head changed")
                         source = Path(coordinate["source_path"])
                         generation = coordinate.get("source_generation")
@@ -2665,7 +2694,8 @@ class _DeliveryResourceRecovery:
                         elif source != checkout / component.source:
                             raise WorkspaceError("build residual live source differs from selected profile")
                         selected[role] = source
-                    if workspace._profile_build_key(profile_name, selected) != key:
+                    variant = getattr(self, "_advance_runtime_variants", {}).get(str(path), "")
+                    if str(path) not in getattr(self, "_advance_historical", {}) and workspace._profile_build_key(profile_name, selected, variant=variant) != key:
                         raise WorkspaceError("build residual execution key differs from its sources")
                     row.update(metadata=metadata, resolution=resolution, marker=marker)
                     reservations.append({"name": path.name, "path": str(path)})
@@ -2888,7 +2918,10 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
         self.state_path = workspace.paths.scenarios / self.scenario_name / "state"
         self.topology_path = workspace.paths.topologies / self.topology["immutable"]["name"]
         self.tested_path = Path(evidence["build_observation"]["build_root"])
-        self.runtime_path = Path(evidence["topology_output"]["build_root"])
+        self.advance = evidence.get("dependency_advance")
+        original_runtime = Path(evidence["topology_output"]["build_root"])
+        effective_topology = evidence.get("advance_topology_output", evidence["topology_output"])
+        self.runtime_path = Path(effective_topology["build_root"])
         if self.runtime_path == self.tested_path:
             raise WorkspaceError("tested and topology-produced builds must remain distinct")
         # Reuse accepted sealed-build, registry, state and physical-source proofs.
@@ -2900,7 +2933,31 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
         ):
             synthetic.append({"slot_id": slot, "kind": kind,
                               "immutable": {"name": name, "path": str(path)}})
+        if self.advance is not None:
+            if original_runtime != self.runtime_path:
+                synthetic.append({"slot_id": "historical-runtime", "kind": "build",
+                                  "immutable": {"name": original_runtime.name, "path": str(original_runtime)}})
+            plan = evidence.get("advance_build_plan")
+            if plan is not None:
+                planned_path = Path(plan["build_root"])
+                if planned_path in {self.tested_path, original_runtime, self.runtime_path}:
+                    raise WorkspaceError("advanced tested build collides with retained builds")
+                synthetic.append({"slot_id": "advanced-tested-build", "kind": "build",
+                                  "immutable": {"name": planned_path.name, "path": str(planned_path)}})
         super().__init__(workspace, synthetic, {})
+        if self.advance is not None:
+            declaration = self.advance["declaration"]
+            self._advance_heads = {declaration["classic_root"]: declaration["new_classic_head"]}
+            self._advance_runtime_variants = ({str(self.runtime_path): "retained-runtime:" + evidence["advance_build_plan"]["plan_sha256"]}
+                                              if original_runtime != self.runtime_path else {})
+            retained = evidence["historical_observations"]
+            self._advance_historical = {}
+            self._advance_usage_metadata = {row["path"] for row in retained["topology"]["runtime_build"]["observations"]}
+            for proof in (retained["build"]["proof"], retained["topology"]["runtime_build"]):
+                for observation in proof["observations"]:
+                    if observation.get("exists") is not True or not isinstance(observation.get("metadata"), dict):
+                        raise WorkspaceError("advanced dependency lacks original build metadata")
+                    self._advance_historical[observation["path"]] = observation["metadata"]
         self.paths["topology"] = [self.topology_path]
         self.paths["scenario"] = [self.state_path.parent]
         self.plain_locks.update({
@@ -2951,10 +3008,13 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
         for role, coordinate in scenario["resolved"].items():
             root = Path(coordinate["checkout_path"])
             workspace._canonical_state_path(root)
-            if coordinate.get("dirty") is not False or git(root, "rev-parse", "HEAD", capture=True, trace=False) != coordinate["head"]:
+            expected_head = getattr(self, "_advance_heads", {}).get(str(root), coordinate["head"])
+            if coordinate.get("dirty") is not False or git(root, "rev-parse", "HEAD", capture=True, trace=False) != expected_head:
                 raise WorkspaceError("scenario source changed since original producer")
+            if expected_head != coordinate["head"] and git(root, "cat-file", "-t", coordinate["head"], capture=True, trace=False) != "commit":
+                raise WorkspaceError("historical scenario source commit is unavailable")
         status = workspace.topology_status(self.topology["immutable"]["name"])
-        original = evidence["topology_output"]
+        original = evidence.get("advance_topology_output", evidence["topology_output"])
         spec = self._json(self.topology_path / "spec.json")
         if (status.get("name") != original.get("name")
                 or not status.get("stopped_at")
@@ -3021,7 +3081,7 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
                 or command[6] != "--no_console"
                 or command[7:] != server_listener_arguments(spec.get("server_listener", "loopback"))):
             raise WorkspaceError("topology service launch differs from its exact server producer")
-        plan = evidence["topology_plan"]
+        plan = evidence.get("advance_topology_plan", evidence["topology_plan"])
         if (current is None or status["control"]["generation"] == original["control"]["generation"]) and (
                 plan.get("server_listener", "loopback") != original.get("server_listener", "loopback")
                 or spec.get("server_listener", "loopback") != original.get("server_listener", "loopback")):
@@ -3042,11 +3102,58 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
             raise WorkspaceError("tested build key differs from original plan")
         if Manifest.from_value(build_plan.get("manifest")).__dict__ != workspace.manifest.__dict__:
             raise WorkspaceError("tested build manifest differs from resource workspace")
+        if self.advance is None:
+            self._prove_build_plan(build_plan, tested, configuration_digests)
+        else:
+            plan = evidence.get("advance_build_plan")
+            if plan is None:
+                raise WorkspaceError("advanced source requires a complete current build plan")
+            self._prove_build_plan(plan, None, configuration_digests)
+            from .retained_advance import validate_plan
+            declaration = self.advance["declaration"]
+            validate_plan(plan, profile=scenario["profile"], wrapper=str(workspace.paths.repository),
+                          workspace=str(workspace.paths.workspace), classic_root=declaration["classic_root"],
+                          classic_head=declaration["new_classic_head"])
+            old_states = build_plan["checkout_states"]
+            for checkout, state in plan["checkout_states"].items():
+                original_state = old_states.get(checkout)
+                if original_state is None or state["path"] != original_state["path"]:
+                    raise WorkspaceError("advanced plan changes source root ownership")
+                if checkout != "classic" and state != original_state:
+                    raise WorkspaceError("advanced plan changes an undeclared dependency")
+            if set(old_states) != set(plan["checkout_states"]):
+                raise WorkspaceError("advanced plan changes checkout membership")
+            if plan["profile"] != build_plan["profile"] or plan["manifest"] != build_plan["manifest"]:
+                raise WorkspaceError("advanced plan changes original profile or manifest")
+            if evidence.get("advance_build_complete") and base["advanced-tested-build"]["disposition"] != "residual-preserved":
+                raise WorkspaceError("advanced tested build is missing")
+            if "advance_topology_plan" in evidence:
+                producer_plan = workspace._topology_summary_observation(
+                    scenario["profile"], scenario["state"], ["server"], original["state_policy"]["mode"],
+                    server_listener=evidence["advance_topology_plan"].get("server_listener", "loopback"), retained=plan)
+                if producer_plan != evidence["advance_topology_plan"]:
+                    raise WorkspaceError("advanced topology plan differs from complete public producer observation")
+        return {"state": {"disposition": "false-observation-retired", "name": false_name,
+                           "scenario": scenario, "registry": registry},
+                "build": {"path": str(self.tested_path), "proof": base["tested-build"]},
+                "topology": {"path": str(self.topology_path), "status": status,
+                             "spec": spec, "runtime_build": base["runtime-build"]},
+                "scenario_state": base["scenario-state"],
+                **({"advance": {"build": base.get("advanced-tested-build"),
+                                "historical_runtime": base.get("historical-runtime")}} if self.advance is not None else {})}
+
+    def _prove_build_plan(self, build_plan, tested, configuration_digests):
+        workspace = self.workspace
+        scenario = self.evidence["scenario_output"]
         selected_live = {}
         profile = workspace._load_profile(scenario["profile"], require_file=False)
         stack = workspace.manifest.stack(profile["stack"])
-        for role, coordinate in tested["coordinates"].items():
-            if build_plan.get("execution_sources", {}).get(role) != coordinate["source_path"]:
+        roles = workspace._dependency_roles(profile, set(workspace._expand_build_target(build_plan["target"], scenario["profile"])))
+        if set(build_plan["sources"]) != roles or set(build_plan["execution_sources"]) != roles:
+            raise WorkspaceError("build plan omits or adds producer dependency roles")
+        coordinates = tested["coordinates"] if tested is not None else {role: {} for role in roles}
+        for role, coordinate in coordinates.items():
+            if tested is not None and build_plan.get("execution_sources", {}).get(role) != coordinate["source_path"]:
                 raise WorkspaceError("tested build execution source differs from original plan")
             component = stack.providers[role]
             selected_live[role] = workspace._selector_root(profile, component) / component.source
@@ -3077,12 +3184,6 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
             changed = sorted(key for key in set(actual_plan) | set(build_plan)
                              if actual_plan.get(key) != build_plan.get(key))
             raise WorkspaceError("tested build original source/tool/profile plan changed: " + ", ".join(changed))
-        return {"state": {"disposition": "false-observation-retired", "name": false_name,
-                           "scenario": scenario, "registry": registry},
-                "build": {"path": str(self.tested_path), "proof": base["tested-build"]},
-                "topology": {"path": str(self.topology_path), "status": status,
-                             "spec": spec, "runtime_build": base["runtime-build"]},
-                "scenario_state": base["scenario-state"]}
 
 
 class Workspace:
@@ -8881,6 +8982,9 @@ class Workspace:
         else:
             state_mode = "default"
             state_name = None
+        # This command has no retained-plan fence. Refuse before source
+        # materialization or shutdown, and recheck under the source union.
+        self._retained_runtime_plan(name, profile_name, state_name, None)
         endpoint = initial.get("endpoint")
         port = endpoint.get("port") if isinstance(endpoint, dict) else None
 
@@ -8889,6 +8993,7 @@ class Workspace:
             set(TOPOLOGY_SERVICES),
             f"dev restart {name} {service}",
             materialize_clean_primaries=True,
+            before_materialization=lambda *_: self._retained_runtime_plan(name, profile_name, state_name, None),
         ):
             requests = [
                 self._lease_request(
@@ -8975,6 +9080,7 @@ class Workspace:
         build_services: set[str] | None = None,
         generate_region_maps: bool = True,
         portable: bool = False,
+        retained_runtime_plan: str | None = None,
     ) -> Path:
         requested_services = set(targets).intersection(TOPOLOGY_SERVICES)
         selective_build = build_services is not None
@@ -8987,7 +9093,11 @@ class Workspace:
                     "selective build services are outside the requested topology: "
                     + ", ".join(sorted(invalid_services))
                 )
-        if portable:
+        if retained_runtime_plan is not None:
+            if target != "topology" or portable or re.fullmatch(r"[0-9a-f]{64}", retained_runtime_plan) is None:
+                raise WorkspaceError("invalid internal retained runtime producer")
+            key = self._profile_build_key(profile_name, selected, variant="retained-runtime:" + retained_runtime_plan)
+        elif portable:
             from .linux_portable import IMAGE
             key = self._profile_build_key(profile_name, selected, variant="linux-portable:" + IMAGE)
         else:
@@ -8997,6 +9107,7 @@ class Workspace:
         stack = self.manifest.stack(profile["stack"])
         with self._profile_build_lock(root, profile_name):
             self._guard_recovered_resource("build", root, root.name)
+            self._guard_retained_build(root)
             self._force_reconfigure = force_reconfigure
             self._use_ccache = use_ccache
             self._source_view_unchanged = {}
@@ -17205,6 +17316,7 @@ class Workspace:
             "build": build,
         }
 
+    @_retained_producer_reads
     def topology_summary(
         self,
         profile_name: str,
@@ -17213,6 +17325,7 @@ class Workspace:
         state_mode: str | None = None,
         *,
         server_listener: str | None = None,
+        retained_build_plan: str | None = None,
     ) -> dict[str, Any]:
         requested_listener = server_listener
         selected_services = self._topology_services(services)
@@ -17220,6 +17333,18 @@ class Workspace:
         state_mode, state_name = self._normalize_topology_state_request(
             state_mode, state_name, selected_services
         )
+        retained = self._retained_runtime_plan(None, profile_name, state_name, retained_build_plan)
+        if retained is not None:
+            current_plan = self.build_plan("server", profile_name, True,
+                force_reconfigure=retained["force_reconfigure"], use_ccache=retained["use_ccache"])
+            if current_plan != retained:
+                raise WorkspaceError("retained runtime build plan changed before observation")
+        return self._topology_summary_observation(profile_name, state_name, selected_services, state_mode,
+                                                   server_listener=server_listener, retained=retained,
+                                                   requested_listener=requested_listener)
+
+    def _topology_summary_observation(self, profile_name, state_name, selected_services, state_mode,
+                                      *, server_listener, retained=None, requested_listener=None):
         requested = set(selected_services)
         profile = self._load_profile(profile_name, require_file=False)
         stack = self.manifest.stack(profile["stack"])
@@ -17230,7 +17355,8 @@ class Workspace:
             server_listener = None
         resolved = self._resolve_build_profile(profile_name, requested)
         required = set(resolved)
-        key = self._profile_build_key(profile_name, resolved)
+        variant = "retained-runtime:" + retained["plan_sha256"] if retained is not None else ""
+        key = self._profile_build_key(profile_name, resolved, variant=variant)
         checkout_states = self._selected_checkout_states(
             profile, resolved, include_dirty=True
         )
@@ -20749,6 +20875,49 @@ class Workspace:
             "devcontainer before starting the client"
         )
 
+    def _guard_retained_build(self, path):
+        """Fence every build entry point from immutable retained producer roots."""
+        from .delivery import inventory_active_delivery_evidence
+        for root in self._delivery_evidence_roots():
+            for row in inventory_active_delivery_evidence(root).advances:
+                if str(path) in row["historical_builds"]:
+                    raise WorkspaceError("build root is immutable historical retained dependency evidence")
+
+    def _retained_runtime_plan(self, name, profile_name, state_name, expected):
+        """Resolve only a validated same-namespace retained producer declaration."""
+        from .delivery import inventory_active_delivery_evidence
+        if expected is not None and (not isinstance(expected, str) or re.fullmatch(r"[0-9a-f]{64}", expected) is None):
+            raise WorkspaceError("retained runtime plan must be an exact SHA-256 digest")
+        matches = {}
+        for root in self._delivery_evidence_roots():
+            evidence = inventory_active_delivery_evidence(root)
+            for row in evidence.advances:
+                context = row["context"]
+                declaration = row["envelope"]["declaration"]
+                if (context["wrapper"] == str(self.paths.repository) and context["workspace"] == str(self.paths.workspace)
+                        and declaration["profile"] == profile_name):
+                    if "pending:" + row["ledger"] in evidence.transition_blockers:
+                        raise WorkspaceError("retained runtime requires recovery of its pending ledger transaction")
+                    matches[(str(evidence.review_root), row["ledger"])] = row
+        if not matches:
+            if expected is not None:
+                raise WorkspaceError("retained runtime plan has no exact owned declaration")
+            return None
+        if len(matches) != 1:
+            raise WorkspaceError("retained runtime producer ownership is ambiguous")
+        row = next(iter(matches.values()))
+        if name is not None and name != row["envelope"]["declaration"]["topology"]:
+            raise WorkspaceError("retained profile cannot be used by an unrelated topology")
+        if expected is None:
+            raise WorkspaceError("retained topology requires --retained-build-plan; historical runtime builds are immutable")
+        if row["scenario_state"] != state_name or len(row["envelope"]["steps"]) < 3:
+            raise WorkspaceError("retained runtime requires its exact scenario and completed tested build")
+        plan = row["envelope"]["steps"][1]["observations"]["plan"]
+        if plan["plan_sha256"] != expected:
+            raise WorkspaceError("retained runtime plan digest differs from owned producer evidence")
+        return plan
+
+    @_retained_producer_reads
     def topology_up(
         self,
         name: str,
@@ -20759,6 +20928,7 @@ class Workspace:
         state_mode: str | None = None,
         *,
         server_listener: str | None = None,
+        retained_build_plan: str | None = None,
         build_services: set[str] | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
@@ -20782,6 +20952,18 @@ class Workspace:
                 )
         if server_listener is not None:
             self._require_classic_contracts(profile_name, {"server"})
+        retained = self._retained_runtime_plan(name, profile_name, normalized_state, retained_build_plan)
+        if retained is not None and (selected_services != ["server"] or build_services is not None):
+            raise WorkspaceError("retained advancement supports only its exact server producer")
+        def fence(profile, selected, states):
+            fresh = self._retained_runtime_plan(name, profile_name, normalized_state, retained_build_plan)
+            if fresh != retained:
+                raise WorkspaceError("retained producer declaration changed before mutation")
+            if retained is not None:
+                plan = self._build_plan_observation("server", profile_name, True, ["server"], profile, selected, states,
+                    force_reconfigure=retained["force_reconfigure"], use_ccache=retained["use_ccache"])
+                if plan != retained:
+                    raise WorkspaceError("retained runtime build plan changed before mutation")
         self.paths.ensure()
         with self._resolved_profile_operation(
             profile_name,
@@ -20791,6 +20973,7 @@ class Workspace:
                 else set(selected_services)
             ),
             f"prepare topology {name}",
+            before_materialization=fence,
         ):
             requests = [
                 self._lease_request(
@@ -20818,6 +21001,7 @@ class Workspace:
                     normalized_mode,
                     build_services=build_services,
                     server_listener=server_listener,
+                    retained_build_plan=retained_build_plan,
                 )
 
     def _topology_resolved_status(
@@ -20854,6 +21038,7 @@ class Workspace:
         state_mode: str | None = None,
         *,
         server_listener: str | None = None,
+        retained_build_plan: str | None = None,
         build_services: set[str] | None = None,
         restart_status: dict[str, Any] | None = None,
         operation_lock_held: bool = False,
@@ -20873,6 +21058,7 @@ class Workspace:
             if build_services is not None
             else set(selected_services),
         )
+        retained = self._retained_runtime_plan(name, profile_name, state_name, retained_build_plan)
         topology_root = self._topology_directory(name, create=True)
         operation_lock = topology_root / "operation.lock"
         operation_context = (
@@ -21119,6 +21305,7 @@ class Workspace:
                     targets,
                     selected,
                     build_services=build_services,
+                    retained_runtime_plan=retained["plan_sha256"] if retained is not None else None,
                 )
                 resolved_status = self._topology_resolved_status(
                     profile_name, selected

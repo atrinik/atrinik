@@ -527,6 +527,7 @@ def parser() -> argparse.ArgumentParser:
         "--server-listener", choices=CLASSIC_SERVER_LISTENERS,
         help="Classic server bind policy (default: loopback); all-ipv4 accepts container-forwarded UDP",
     )
+    mark(topology_show.add_argument("--retained-build-plan", metavar="SHA256", help="use the exact retained tested-plan runtime producer"), "none")
     topology_show.add_argument("--json", action="store_true")
 
     up = commands.add_parser("up", help="build and start a supervised topology")
@@ -558,6 +559,7 @@ def parser() -> argparse.ArgumentParser:
         "--server-listener", choices=CLASSIC_SERVER_LISTENERS,
         help="Classic server bind policy (default: loopback); all-ipv4 accepts container-forwarded UDP",
     )
+    mark(up.add_argument("--retained-build-plan", metavar="SHA256", help="require the exact retained tested plan and preserve historical runtime builds"), "none")
     up.add_argument("--json", action="store_true")
 
     ps = commands.add_parser("ps", help="show supervised topology processes")
@@ -1423,6 +1425,7 @@ def main(arguments: list[str] | None = None) -> int:
                 state,
                 options.service,
                 state_mode=options.state_mode,
+                **({"retained_build_plan": options.retained_build_plan} if options.retained_build_plan is not None else {}),
                 **({"server_listener": options.server_listener}
                    if options.server_listener is not None else {}),
             )
@@ -1464,6 +1467,7 @@ def main(arguments: list[str] | None = None) -> int:
                 options.service,
                 options.port,
                 state_mode=options.state_mode,
+                **({"retained_build_plan": options.retained_build_plan} if options.retained_build_plan is not None else {}),
                 **({"server_listener": options.server_listener}
                    if options.server_listener is not None else {}),
             )

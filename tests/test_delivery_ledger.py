@@ -12831,7 +12831,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                        "scenario_state": reservation(live / "workspace/scenarios/player/state")}
         return root, erroneous, request, observation
 
-    def produce_observation_resources(self, live, *, restart=False, on_running=None, listener=None, legacy_listener=False):
+    def produce_observation_resources(self, live, *, restart=False, on_running=None, listener=None, legacy_listener=False, only_build=False, retained_build_plan=None):
         """Use public build/scenario/topology APIs; only game payload production is stubbed."""
         from atrinik_workspace.workspace import Workspace, MANAGED_MARKER, atomic_json
         def payload(root, *_args, **_kwargs):
@@ -12859,6 +12859,10 @@ class DeliveryLedgerTests(unittest.TestCase):
                         boundary.enter_context(mock.patch.object(workspace, method))
                     for method in ("_build_server", "_collect_content", "_stage_resources", "_generate_region_maps"):
                         boundary.enter_context(mock.patch.object(workspace, method, side_effect=payload))
+                    if only_build:
+                        plan = workspace.build_plan("server", "classic", True)
+                        tested = workspace.build("server", "classic", True, expected_plan=plan["plan_sha256"])
+                        return {"build_plan": plan, "build_root": str(tested)}
                     if restart:
                         scenario = workspace.scenario_show("player")
                         plan = tested = None
@@ -12878,9 +12882,10 @@ class DeliveryLedgerTests(unittest.TestCase):
                                               "head": git_run(checkout, "rev-parse", "HEAD").stdout.strip(), "dirty": False}
                         with mock.patch.object(workspace, "_scenario_provision_state", return_value=resolved):
                             scenario = workspace.scenario_create("player", "classic")
-                    topology_plan = workspace.topology_summary("classic", scenario["state"], ["server"], server_listener=listener)
+                    topology_plan = workspace.topology_summary("classic", scenario["state"], ["server"], server_listener=listener,
+                                                               retained_build_plan=retained_build_plan)
                     try:
-                        up = workspace.topology_up("stopped-server", "classic", scenario["state"], ["server"], server_listener=listener)
+                        up = workspace.topology_up("stopped-server", "classic", scenario["state"], ["server"], server_listener=listener, retained_build_plan=retained_build_plan)
                         if on_running is not None:
                             on_running(workspace, up)
                     finally:
@@ -13072,6 +13077,316 @@ class DeliveryLedgerTests(unittest.TestCase):
                     ledger.admit_in_progress_targets_cas(root, recorded.name, admission, **cas_arguments(recorded))
                 self.assertEqual(ledger.inspect(root, recorded.name).raw, recorded.raw)
                 self.assertEqual(ledger.canonical_bytes(next(row["correction"] for row in recorded.document["resources"] if "correction" in row)), original_proof)
+
+    def test_retained_dependency_advance_public_declaration_and_plan(self):
+        from atrinik_workspace.workspace import Workspace
+        root, before, correction_request, _ = self.observation_transaction_fixture("advance", live_resources=True)
+        corrected = ledger.correct_resource_observations_cas(root, before.name, correction_request, **cas_arguments(before))
+        worktree = next(row for row in corrected.document["artifacts"] if row["kind"] == "worktree")
+        live = Path(worktree["current"]["path"])
+        primary = Path(worktree["primitive_request"]["roots"]["wrapper"]["path"])
+        classic = live / "classic"
+        old_head = git_run(classic, "rev-parse", "HEAD").stdout.strip()
+        branch = git_run(classic, "branch", "--show-current").stdout.strip()
+        git_run(classic, "checkout", "-b", "fixture-accepted")
+        (classic / "server/README").write_text("new accepted Classic server source\n")
+        git_run(classic, "add", "server/README")
+        git_run(classic, "commit", "-m", "accepted dependency")
+        new_head = git_run(classic, "rev-parse", "HEAD").stdout.strip()
+        git_run(classic, "checkout", branch)
+        pin_file = primary / "atrinik_workspace/linux_portable.py"
+        pin_file.parent.mkdir(exist_ok=True)
+        pin_raw = (ROOT / "atrinik_workspace/linux_portable.py").read_text()
+        from atrinik_workspace.retained_advance import accepted_portable_pins
+        pins = accepted_portable_pins(pin_raw.encode())
+        pin_file.write_text(pin_raw.replace(pins["CONSUMER_COMMIT"], new_head))
+        git_run(primary, "add", "atrinik_workspace/linux_portable.py")
+        git_run(primary, "commit", "-m", "accepted portable consumer declaration")
+        accepted = git_run(primary, "rev-parse", "HEAD").stdout.strip()
+        candidate = next_generation(corrected)
+        candidate["targets"][0]["base"]["current_sha"] = accepted
+        candidate["targets"][0]["base"]["lineage"].append(accepted)
+        current = ledger.target_refresh_cas(root, corrected.name, candidate, **cas_arguments(corrected))
+        correction = next(row["correction"] for row in current.document["resources"] if "correction" in row)
+        anchor = ledger.canonical_object_digest(correction)
+        request = {"stage": "declare", "correction_sha256": anchor, "build_slot": "advanced-build"}
+        # Completed original plans are no longer inert. A running client must
+        # still block every retained advancement before any ledger write.
+        candidate = next_generation(current)
+        runtime = next(row for row in candidate["resources"] if row["slot_id"] == "client-runtime")
+        runtime["state"] = "created"
+        runtime["current"] = {**runtime["immutable"], "generation": 1, "history": [], "external_generation": None,
+                              "identity_digest": "1" * 64, "lifecycle": "running"}
+        running = ledger.cas(root, current.name, candidate, **cas_arguments(current))
+        with self.assertRaisesRegex(ledger.LedgerError, "unsafe for reuse"):
+            ledger.advance_retained_dependency_cas(root, running.name, request, **cas_arguments(running))
+        self.assertEqual(ledger.inspect(root, running.name).raw, running.raw)
+        candidate = next_generation(running)
+        runtime = next(row for row in candidate["resources"] if row["slot_id"] == "client-runtime")["current"]
+        runtime.update(generation=2, history=[runtime["identity_digest"]], identity_digest="2" * 64, lifecycle="stopped")
+        current = ledger.cas(root, running.name, candidate, **cas_arguments(running))
+        resources = copy.deepcopy(current.document["resources"])
+        with mock.patch.object(ledger, "_authenticated_actor", return_value={**current.document["actor"], "node_id": "U_foreign"}):
+            with self.assertRaises(ledger.LedgerError):
+                ledger.advance_retained_dependency_cas(root, current.name, request, **cas_arguments(current))
+        self.assertEqual(ledger.inspect(root, current.name).raw, current.raw)
+        def public(snapshot, payload):
+            with self.assertRaises(ledger.InjectedCrash):
+                ledger.advance_retained_dependency_cas(root, snapshot.name, payload, **cas_arguments(snapshot), failpoint="cas:renamed")
+            installed = ledger.inspect(root, snapshot.name)
+            if payload["stage"] == "built":
+                from atrinik_workspace.model import WorkspaceError
+                with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
+                    workspace = Workspace(live, backfill_references=False)
+                    try:
+                        with self.assertRaisesRegex(WorkspaceError, "pending ledger transaction"):
+                            workspace.topology_up("stopped-server", "classic", "scenario-player", ["server"],
+                                                  retained_build_plan=plan["plan_sha256"])
+                    finally:
+                        workspace.close()
+            with self.assertRaises(ledger.LedgerError):
+                ledger.advance_retained_dependency_cas(root, snapshot.name, {**payload, "correction_sha256": "f" * 64}, **cas_arguments(snapshot))
+            self.assertEqual(ledger.inspect(root, snapshot.name).raw, installed.raw)
+            path = self.live_base / "advance-request.json"
+            path.write_bytes(ledger.canonical_bytes(payload))
+            with redirect_stdout(io.StringIO()) as output:
+                code = ledger.main(["advance-retained-dependency-cas", str(root), snapshot.name, str(path),
+                    "--expected-generation", str(snapshot.document["generation"]), "--expected-digest", snapshot.digest,
+                    "--expected-path", snapshot.path])
+            self.assertEqual(code, 0, output.getvalue())
+            return ledger.inspect(root, snapshot.name)
+        lock = live / "workspace/topologies/stopped-server/operation.lock"
+        with lock.open("a") as stream:
+            fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with self.assertRaises(ledger.LedgerError):
+                ledger.advance_retained_dependency_cas(root, current.name, request, **cas_arguments(current))
+        self.assertEqual(ledger.inspect(root, current.name).raw, current.raw)
+        declared = public(current, request)
+        generic = next_generation(declared)
+        generic["dependency_advance"]["declaration"]["build_slot"] = "other-build"
+        with self.assertRaisesRegex(ledger.LedgerError, "dedicated public transaction"):
+            ledger.cas(root, declared.name, generic, **cas_arguments(declared))
+        self.assertEqual(declared.document["resources"], resources)
+        self.assertEqual(declared.document["dependency_advance"]["declaration"]["old_classic_head"], old_head)
+        git_run(classic, "merge", "--ff-only", new_head)
+        with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
+            workspace = Workspace(live, backfill_references=False)
+            try:
+                plan = workspace.build_plan("server", "classic", True)
+            finally:
+                workspace.close()
+        plan_request = {"stage": "plan", "correction_sha256": anchor,
+                        "build_plan": inline_payload(json.dumps(plan, indent=2).encode() + b"\n")}
+        bad_plan = copy.deepcopy(plan)
+        omitted = next(role for role in ("protocol", "libatrinik") if role in bad_plan["sources"])
+        for field in ("sources", "execution_sources", "source_fingerprints"):
+            bad_plan[field].pop(omitted)
+        bad_plan["plan_sha256"] = ledger.canonical_object_digest({key: value for key, value in bad_plan.items() if key != "plan_sha256"})
+        with self.assertRaisesRegex(ledger.LedgerError, "dependency roles"):
+            ledger.advance_retained_dependency_cas(root, declared.name,
+                {**plan_request, "build_plan": inline_payload(json.dumps(bad_plan).encode())}, **cas_arguments(declared))
+        self.assertEqual(ledger.inspect(root, declared.name).raw, declared.raw)
+        def canonical_observe(snapshot, mutation=None):
+            # Exercise the owning module as well as the helper's isolated source
+            # snapshot, using the exact evidence produced by its public stages.
+            from atrinik_workspace import workspace as workspace_module
+            source, retained = ledger._retained_correction(snapshot.document)
+            evidence, _, _ = ledger._observation_request(source, retained["request"])
+            evidence["topology_current"] = next(row["current"] for row in snapshot.document["resources"]
+                                                if row["slot_id"] == retained["request"]["topology_slot"])
+            evidence.update(ledger._advance_evidence(snapshot.document, snapshot.document["dependency_advance"]))
+            evidence = copy.deepcopy(evidence)
+            if mutation is not None:
+                mutation(evidence)
+            protected_roots = [live / "workspace/scenarios/player/state"]
+            protected_roots.extend(Path(row["path"]) for proof in
+                (retained["observations"]["build"]["proof"], retained["observations"]["topology"]["runtime_build"])
+                for row in proof["observations"])
+            def protected_bytes():
+                return {str(path): path.read_bytes() for directory in protected_roots
+                        for path in directory.rglob("*") if path.is_file()}
+            original_bytes = protected_bytes()
+            original_ledger = ledger.inspect(root, snapshot.name).raw
+            try:
+                with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
+                    workspace = workspace_module.Workspace(live, backfill_references=False)
+                    preparation = workspace_module.Workspace._prepare_delivery_workspace(live, manifest=workspace.manifest)
+                    try:
+                        proof = preparation.plan_observation_correction(source["resources"], evidence)
+                        with workspace._resource_locks(proof.requests, nonblocking=True), proof.legacy_locks(), preparation.admitted():
+                            return proof.observe()
+                    finally:
+                        preparation.close()
+                        workspace.close()
+            finally:
+                self.assertEqual(protected_bytes(), original_bytes)
+                self.assertEqual(ledger.inspect(root, snapshot.name).raw, original_ledger)
+
+        planned = public(declared, plan_request)
+        direct = canonical_observe(planned)
+        self.assertEqual(direct["state"]["scenario"], correction["observations"]["state"]["scenario"])
+        self.assertEqual(direct["build"]["path"], correction["observations"]["build"]["path"])
+        from atrinik_workspace.model import WorkspaceError
+        def mutate_history(value):
+            value["historical_observations"]["build"]["proof"]["observations"][0]["metadata"]["foreign"] = True
+        def missing_history(value):
+            value["historical_observations"]["build"]["proof"]["observations"][0]["exists"] = False
+        def missing_role(value):
+            for field in ("sources", "execution_sources", "source_fingerprints"):
+                value["advance_build_plan"][field].pop(omitted)
+        def wrong_root(value):
+            value["build_plan"]["checkout_states"]["classic"]["path"] += "-foreign"
+        def unrelated_dependency(value):
+            key = next(key for key in value["build_plan"]["checkout_states"] if key != "classic")
+            value["build_plan"]["checkout_states"][key]["head"] = "f" * 40
+        for label, mutation, message in (
+            ("historical metadata", mutate_history, "historical build metadata changed"),
+            ("missing historical provenance", missing_history, "lacks original build metadata"),
+            ("source root", wrong_root, "source root ownership"),
+            ("undeclared dependency", unrelated_dependency, "undeclared dependency"),
+            ("dependency closure", missing_role, "dependency roles"),
+            ("missing plan", lambda value: value.pop("advance_build_plan"), "complete current build plan"),
+            ("premature completion", lambda value: value.update(advance_build_complete=True), "tested build is missing"),
+            ("build root alias", lambda value: value["advance_build_plan"].update(build_root=value["build_observation"]["build_root"]), "collides with retained builds"),
+        ):
+            with self.subTest(canonical_refusal=label), self.assertRaisesRegex(WorkspaceError, message):
+                canonical_observe(planned, mutation)
+        self.assertEqual([row for row in planned.document["resources"] if row["slot_id"] != "advanced-build"], resources)
+        build = next(row for row in planned.document["resources"] if row["slot_id"] == "advanced-build")
+        self.assertEqual(build["immutable"]["path"], plan["build_root"])
+        self.assertEqual(build["state"], "planned")
+        generic = next_generation(planned)
+        row = next(row for row in generic["resources"] if row["slot_id"] == "advanced-build")
+        row.update(state="created", current={**row["immutable"], "generation": 1, "history": [], "external_generation": None,
+                                              "identity_digest": "a" * 64, "lifecycle": "static"})
+        with self.assertRaisesRegex(ledger.LedgerError, "dedicated producer transaction"):
+            ledger.cas(root, planned.name, generic, **cas_arguments(planned))
+        self.assertEqual(next(row["correction"] for row in planned.document["resources"] if "correction" in row), correction)
+        with self.assertRaises(ledger.LedgerError):
+            ledger.revalidate_current_targets_cas(root, planned.name, **cas_arguments(planned))
+        produced = self.produce_observation_resources(live, only_build=True)
+        self.assertEqual(produced["build_plan"], plan)
+        result_raw = json.dumps({"build_root": produced["build_root"]}).encode() + b"\n"
+        log_raw = b"fixture server tests passed\n"
+        plan_raw = ledger._retained_result(plan_request["build_plan"], "fixture plan")
+        observation = {"build_root": plan["build_root"], "plan_sha256": plan["plan_sha256"],
+            "plan_file_sha256": ledger.byte_digest(plan_raw), "result_file_sha256": ledger.byte_digest(result_raw),
+            "log_sha256": ledger.byte_digest(log_raw), "tests": True, "exit_code": 0, "profile": "classic"}
+        built_request = {"stage": "built", "correction_sha256": anchor, "build_plan": plan_request["build_plan"],
+            "build_result": inline_payload(result_raw), "build_log": inline_payload(log_raw),
+            "build_observation": inline_payload(json.dumps(observation).encode())}
+        built = public(planned, built_request)
+        self.assertEqual(next(row for row in built.document["resources"] if row["slot_id"] == "advanced-build")["state"], "created")
+        from atrinik_workspace.model import WorkspaceError
+        old_runtime = Path(correction["observations"]["topology"]["status"]["build_root"])
+        historical_files = {str(path.relative_to(old_runtime)): path.read_bytes() for path in old_runtime.rglob("*") if path.is_file()}
+        with self.assertRaisesRegex(WorkspaceError, "retained-build-plan"):
+            self.produce_observation_resources(live, restart=True, listener="all-ipv4")
+        with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(live / "workspace")}):
+            workspace = Workspace(live, backfill_references=False)
+            try:
+                with self.assertRaisesRegex(WorkspaceError, "unrelated topology"):
+                    workspace.topology_up("different-server", "classic", "scenario-player", ["server"])
+                with self.assertRaisesRegex(WorkspaceError, "digest differs"):
+                    workspace.topology_up("stopped-server", "classic", "scenario-player", ["server"], retained_build_plan="f" * 64)
+                selected = workspace._resolve_build_profile("classic", {"server"})
+                with self.assertRaisesRegex(WorkspaceError, "immutable historical"):
+                    workspace._build_resolved("topology", "classic", False, ["server"], selected)
+                # Configuration drift is refused without first executing a
+                # clean filter/fsmonitor or rewriting Git's source index.
+                marker = self.live_base / "retained-producer-executed-helper"
+                config = classic / ".git/config"
+                attributes = classic / ".git/info/attributes"
+                source_file = classic / "server/README"
+                original_config, original_source = config.read_bytes(), source_file.read_bytes()
+                original_attributes = attributes.read_bytes() if attributes.exists() else None
+                topology_root = live / "workspace/topologies/stopped-server"
+                old_status, old_spec = (topology_root / "status.json").read_bytes(), (topology_root / "spec.json").read_bytes()
+                old_children = sorted(path.name for path in topology_root.iterdir())
+                try:
+                    for key in ("filter.evil.clean", "core.fsmonitor"):
+                        git_run(classic, "config", key, "touch " + str(marker))
+                    attributes.write_text("* filter=evil\n")
+                    source_file.write_bytes(original_source + b"unaccepted dirty source\n")
+                    source_index = (classic / ".git/index").read_bytes()
+                    for operation in ("show", "up"):
+                        with self.subTest(retained_read_guard=operation), self.assertRaises(WorkspaceError):
+                            if operation == "show":
+                                workspace.topology_summary("classic", "scenario-player", ["server"], retained_build_plan=plan["plan_sha256"])
+                            else:
+                                workspace.topology_up("stopped-server", "classic", "scenario-player", ["server"], retained_build_plan=plan["plan_sha256"])
+                        self.assertFalse(marker.exists())
+                        self.assertEqual((classic / ".git/index").read_bytes(), source_index)
+                        self.assertEqual((topology_root / "status.json").read_bytes(), old_status)
+                        self.assertEqual((topology_root / "spec.json").read_bytes(), old_spec)
+                        self.assertEqual(sorted(path.name for path in topology_root.iterdir()), old_children)
+                finally:
+                    config.write_bytes(original_config)
+                    source_file.write_bytes(original_source)
+                    if original_attributes is None:
+                        attributes.unlink()
+                    else:
+                        attributes.write_bytes(original_attributes)
+            finally:
+                workspace.close()
+        self.assertEqual({str(path.relative_to(old_runtime)): path.read_bytes() for path in old_runtime.rglob("*") if path.is_file()}, historical_files)
+        produced = self.produce_observation_resources(live, restart=True, listener="all-ipv4", retained_build_plan=plan["plan_sha256"])
+        self.assertNotEqual(produced["stopped"]["build_root"], str(old_runtime))
+        self.assertEqual({str(path.relative_to(old_runtime)): path.read_bytes() for path in old_runtime.rglob("*") if path.is_file()}, historical_files)
+        topology_request = {"stage": "topology", "correction_sha256": anchor,
+            "topology_plan": inline_payload(json.dumps(produced["topology_plan"]).encode()),
+            "topology_output": inline_payload(json.dumps(produced["stopped"]).encode())}
+        for mutation in ("extra", "services", "dependencies", "components"):
+            forged_plan = copy.deepcopy(produced["topology_plan"])
+            if mutation == "extra":
+                forged_plan["foreign"] = "unrelated"
+            elif mutation == "services":
+                forged_plan["services"] = ["client"]
+            elif mutation == "dependencies":
+                forged_plan["dependencies"] = []
+            else:
+                forged_plan["components"] = {}
+            with self.subTest(topology_plan_mutation=mutation), self.assertRaisesRegex(ledger.LedgerError, "complete public producer"):
+                ledger.advance_retained_dependency_cas(root, built.name,
+                    {**topology_request, "topology_plan": inline_payload(json.dumps(forged_plan).encode())}, **cas_arguments(built))
+            self.assertEqual(ledger.inspect(root, built.name).raw, built.raw)
+        advanced = public(built, topology_request)
+        direct = canonical_observe(advanced)
+        self.assertEqual(direct["topology"]["status"], produced["stopped"])
+        for field, value in (("foreign", True), ("services", ["client"]), ("dependencies", []), ("components", {})):
+            with self.subTest(canonical_topology_refusal=field), self.assertRaisesRegex(WorkspaceError, "complete public producer"):
+                canonical_observe(advanced, lambda evidence, field=field, value=value:
+                                  evidence["advance_topology_plan"].update({field: value}))
+        self.assertEqual(next(row["correction"] for row in advanced.document["resources"] if "correction" in row), correction)
+        admission = {"correction_slot": correction_request["state_slot"], "correction_sha256": anchor,
+                     "planned_slots": [row["slot_id"] for row in advanced.document["resources"] if row["state"] == "planned"]}
+        admitted = ledger.admit_in_progress_targets_cas(root, advanced.name, admission, **cas_arguments(advanced))
+        self.assertEqual(len(admitted.document["dependency_advance"]["steps"]), 4)
+        # Later generations retain their ordinary public observation lineage;
+        # the advancement's stopped generation must not freeze reconnect.
+        def refuse_dev_without_downtime(workspace, status):
+            topology_root = live / "workspace/topologies/stopped-server"
+            status_bytes = (topology_root / "status.json").read_bytes()
+            spec_bytes = (topology_root / "spec.json").read_bytes()
+            with self.assertRaisesRegex(WorkspaceError, "retained-build-plan"):
+                workspace.dev_restart("stopped-server", "server")
+            fresh = workspace.topology_status("stopped-server")
+            self.assertTrue(fresh["supervisor"]["running"])
+            self.assertTrue(fresh["services"]["server"]["running"])
+            self.assertEqual(fresh["control"], status["control"])
+            self.assertEqual((topology_root / "status.json").read_bytes(), status_bytes)
+            self.assertEqual((topology_root / "spec.json").read_bytes(), spec_bytes)
+        restarted = self.produce_observation_resources(live, restart=True, listener="loopback",
+            retained_build_plan=plan["plan_sha256"], on_running=refuse_dev_without_downtime)
+        candidate = next_generation(admitted)
+        row = next(row for row in candidate["resources"] if row["slot_id"] == correction_request["topology_slot"])
+        row["current"].update(generation=row["current"]["generation"] + 1,
+            history=[*row["current"]["history"], row["current"]["identity_digest"]],
+            identity_digest=ledger.canonical_object_digest(restarted["stopped"]))
+        stopped = ledger.cas(root, admitted.name, candidate, **cas_arguments(admitted))
+        self.assertEqual(canonical_observe(stopped)["topology"]["status"], restarted["stopped"])
+        ledger.admit_in_progress_targets_cas(root, stopped.name, admission, **cas_arguments(stopped))
+        self.assertEqual({str(path.relative_to(old_runtime)): path.read_bytes() for path in old_runtime.rglob("*") if path.is_file()}, historical_files)
 
     def test_observation_correction_real_split_workspace_forward(self):
         root, before, request, _observation = self.observation_transaction_fixture("o", live_resources=True)
