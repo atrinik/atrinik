@@ -213,6 +213,8 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
                              "scenario_state": correction["observations"]["state"]["scenario"]["state"],
                              "historical_builds": [correction["observations"]["build"]["path"],
                                                    correction["observations"]["topology"]["status"]["build_root"]]})
+            if "build_slot" in envelope.get("content_input", {}):
+                advances[-1]["historical_builds"].append(envelope["steps"][1]["observations"]["plan"]["build_root"])
             for step in envelope["steps"]:
                 observed = step["observations"]
                 proofs = [observed.get("build"), observed.get("topology", {}).get("runtime_build")]

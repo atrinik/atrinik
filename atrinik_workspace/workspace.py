@@ -2944,16 +2944,31 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
                     raise WorkspaceError("advanced tested build collides with retained builds")
                 synthetic.append({"slot_id": "advanced-tested-build", "kind": "build",
                                   "immutable": {"name": planned_path.name, "path": str(planned_path)}})
+        previous_build = evidence.get("advance_previous_build")
+        if previous_build is not None:
+            previous_path = Path(previous_build["observations"][0]["path"])
+            if str(previous_path) in {row["immutable"]["path"] for row in synthetic}:
+                raise WorkspaceError("content successor aliases previous tested build")
+            synthetic.append({"slot_id": "previous-tested-build", "kind": "build",
+                              "immutable": {"name": previous_path.name, "path": str(previous_path)}})
         super().__init__(workspace, synthetic, {})
         if self.advance is not None:
             declaration = self.advance["declaration"]
             self._advance_heads = {declaration["classic_root"]: declaration["new_classic_head"]}
+            if "content_input" in self.advance:
+                content = self.advance["content_input"]
+                self._advance_heads[content["root"]] = content["new_head"]
             self._advance_runtime_variants = ({str(self.runtime_path): "retained-runtime:" + evidence["advance_build_plan"]["plan_sha256"]}
                                               if original_runtime != self.runtime_path else {})
+            if plan is not None and plan.get("retained_content_input") is not None:
+                self._advance_runtime_variants[plan["build_root"]] = "retained-content:" + plan["retained_content_input"]
             retained = evidence["historical_observations"]
             self._advance_historical = {}
             self._advance_usage_metadata = {row["path"] for row in retained["topology"]["runtime_build"]["observations"]}
-            for proof in (retained["build"]["proof"], retained["topology"]["runtime_build"]):
+            historical_builds = [retained["build"]["proof"], retained["topology"]["runtime_build"]]
+            if previous_build is not None:
+                historical_builds.append(previous_build)
+            for proof in historical_builds:
                 for observation in proof["observations"]:
                     if observation.get("exists") is not True or not isinstance(observation.get("metadata"), dict):
                         raise WorkspaceError("advanced dependency lacks original build metadata")
@@ -3113,13 +3128,17 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
             declaration = self.advance["declaration"]
             validate_plan(plan, profile=scenario["profile"], wrapper=str(workspace.paths.repository),
                           workspace=str(workspace.paths.workspace), classic_root=declaration["classic_root"],
-                          classic_head=declaration["new_classic_head"])
+                          classic_head=declaration["new_classic_head"], content_input=self.advance.get("content_input"))
             old_states = build_plan["checkout_states"]
             for checkout, state in plan["checkout_states"].items():
                 original_state = old_states.get(checkout)
                 if original_state is None or state["path"] != original_state["path"]:
                     raise WorkspaceError("advanced plan changes source root ownership")
-                if checkout != "classic" and state != original_state:
+                if checkout == "content" and "content_input" in self.advance:
+                    expected = {**original_state, "head": self.advance["content_input"]["new_head"]}
+                    if state != expected:
+                        raise WorkspaceError("advanced content plan changes undeclared source provenance")
+                elif checkout != "classic" and state != original_state:
                     raise WorkspaceError("advanced plan changes an undeclared dependency")
             if set(old_states) != set(plan["checkout_states"]):
                 raise WorkspaceError("advanced plan changes checkout membership")
@@ -3140,7 +3159,8 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
                              "spec": spec, "runtime_build": base["runtime-build"]},
                 "scenario_state": base["scenario-state"],
                 **({"advance": {"build": base.get("advanced-tested-build"),
-                                "historical_runtime": base.get("historical-runtime")}} if self.advance is not None else {})}
+                                "historical_runtime": base.get("historical-runtime"),
+                                "previous_build": base.get("previous-tested-build")}} if self.advance is not None else {})}
 
     def _prove_build_plan(self, build_plan, tested, configuration_digests):
         workspace = self.workspace
@@ -3170,7 +3190,7 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
         actual_plan = workspace._build_plan_observation(
             build_plan["target"], scenario["profile"], True, build_plan["targets"],
             profile, selected_live, states, force_reconfigure=build_plan["force_reconfigure"],
-            use_ccache=build_plan["use_ccache"])
+            use_ccache=build_plan["use_ccache"], retained_content_input=build_plan.get("retained_content_input"))
         # Compare the exact producer configuration hash without running filters.
         # Read-only Classic identity commands may consult these same pinned
         # default origins; their existing fixed argv disables fsmonitor.
@@ -8699,7 +8719,7 @@ class Workspace:
 
     def _build_plan_observation(self, target, profile_name, tests, targets,
                                 profile, selected, states, *,
-                                force_reconfigure, use_ccache):
+                                force_reconfigure, use_ccache, retained_content_input=None):
         fresh_states = self._selected_checkout_states(profile, selected, include_dirty=True, include_identity=True)
         if any(any(states.get(name, {}).get(field) != value for field, value in state.items())
                for name, state in fresh_states.items()) or set(fresh_states) != set(states):
@@ -8728,7 +8748,16 @@ class Workspace:
                        if path.is_dir() else _file_digest(path, "build source include"))
                 for name, path in sorted(paths.items())
             }
-        key = self._profile_build_key(profile_name, predicted)
+        variant = ""
+        if retained_content_input is not None:
+            if (target != "server" or tests is not True or profile["stack"] != "classic"
+                    or not isinstance(retained_content_input, str)
+                    or re.fullmatch(r"[0-9a-f]{40}", retained_content_input) is None
+                    or states.get("content", {}).get("head") != retained_content_input
+                    or states["content"].get("dirty") is not False):
+                raise WorkspaceError("retained content input requires its clean exact Classic server commit")
+            variant = "retained-content:" + retained_content_input
+        key = self._profile_build_key(profile_name, predicted, variant=variant)
         plan = {
             "schema_version": 1, "target": target, "profile": profile,
             "tests": tests, "force_reconfigure": force_reconfigure,
@@ -8743,6 +8772,8 @@ class Workspace:
             "builds_root": str(self.paths.builds), "build_key": key,
             "build_root": str(self.paths.builds / "profiles" / f"{profile_name}-{key}"),
         }
+        if retained_content_input is not None:
+            plan["retained_content_input"] = retained_content_input
         plan["plan_sha256"] = hashlib.sha256(json.dumps(
             plan, sort_keys=True, separators=(",", ":")
         ).encode()).hexdigest()
@@ -8777,7 +8808,7 @@ class Workspace:
                     raise WorkspaceError(f"resource is retained by terminal delivery recovery: {kind} {path}")
 
     def build_plan(self, target: str, profile_name: str, tests: bool = False,
-                   *, force_reconfigure: bool = False, use_ccache: bool = True):
+                   *, force_reconfigure: bool = False, use_ccache: bool = True, retained_content_input: str | None = None):
         """Return eventual execution coordinates without publishing build inputs."""
         self._require_planning_workspace()
         targets = self._expand_build_target(target, profile_name)
@@ -8785,7 +8816,7 @@ class Workspace:
         def observe(profile, selected, states):
             observations.append(self._build_plan_observation(
                 target, profile_name, tests, targets, profile, selected, states,
-                force_reconfigure=force_reconfigure, use_ccache=use_ccache))
+                force_reconfigure=force_reconfigure, use_ccache=use_ccache, retained_content_input=retained_content_input))
         token = _BUILD_PLAN_GIT.set(True)
         try:
             with self._resolved_profile_operation(
@@ -8800,8 +8831,10 @@ class Workspace:
     def build(
         self, target: str, profile_name: str, tests: bool, *,
         force_reconfigure: bool = False, use_ccache: bool = True,
-        expected_plan: str | None = None,
+        expected_plan: str | None = None, retained_content_input: str | None = None,
     ) -> Path:
+        if retained_content_input is not None and expected_plan is None:
+            raise WorkspaceError("retained content build requires --expected-plan")
         if expected_plan is not None and not re.fullmatch(r"[0-9a-f]{64}", expected_plan):
             raise WorkspaceError("expected build plan must be a SHA-256 digest")
         if expected_plan is None:
@@ -8816,13 +8849,13 @@ class Workspace:
                 return
             plan = self._build_plan_observation(
                 target, profile_name, tests, targets, profile, selected, states,
-                force_reconfigure=force_reconfigure, use_ccache=use_ccache)
+                force_reconfigure=force_reconfigure, use_ccache=use_ccache, retained_content_input=retained_content_input)
             if expected_plan is not None and plan["plan_sha256"] != expected_plan:
                 raise WorkspaceError("build plan changed before mutation; obtain and record a new plan")
             # Check twice under the same admission before the first publication.
             if self._build_plan_observation(
                 target, profile_name, tests, targets, profile, selected, states,
-                force_reconfigure=force_reconfigure, use_ccache=use_ccache) != plan:
+                force_reconfigure=force_reconfigure, use_ccache=use_ccache, retained_content_input=retained_content_input) != plan:
                 raise WorkspaceError("build inputs changed before mutation")
             admitted.append(plan)
             self.paths.ensure()
@@ -8837,6 +8870,7 @@ class Workspace:
                 return self._build_resolved(
                     target, profile_name, tests, targets, snapshot.paths(),
                     force_reconfigure=force_reconfigure, use_ccache=use_ccache,
+                    **({"retained_content_input": retained_content_input} if retained_content_input is not None else {}),
                 )
 
         finally:
@@ -9081,6 +9115,7 @@ class Workspace:
         generate_region_maps: bool = True,
         portable: bool = False,
         retained_runtime_plan: str | None = None,
+        retained_content_input: str | None = None,
     ) -> Path:
         requested_services = set(targets).intersection(TOPOLOGY_SERVICES)
         selective_build = build_services is not None
@@ -9097,6 +9132,10 @@ class Workspace:
             if target != "topology" or portable or re.fullmatch(r"[0-9a-f]{64}", retained_runtime_plan) is None:
                 raise WorkspaceError("invalid internal retained runtime producer")
             key = self._profile_build_key(profile_name, selected, variant="retained-runtime:" + retained_runtime_plan)
+        elif retained_content_input is not None:
+            if target != "server" or not tests or portable or re.fullmatch(r"[0-9a-f]{40}", retained_content_input) is None:
+                raise WorkspaceError("invalid internal retained content producer")
+            key = self._profile_build_key(profile_name, selected, variant="retained-content:" + retained_content_input)
         elif portable:
             from .linux_portable import IMAGE
             key = self._profile_build_key(profile_name, selected, variant="linux-portable:" + IMAGE)
@@ -17336,7 +17375,7 @@ class Workspace:
         retained = self._retained_runtime_plan(None, profile_name, state_name, retained_build_plan)
         if retained is not None:
             current_plan = self.build_plan("server", profile_name, True,
-                force_reconfigure=retained["force_reconfigure"], use_ccache=retained["use_ccache"])
+                force_reconfigure=retained["force_reconfigure"], use_ccache=retained["use_ccache"], retained_content_input=retained.get("retained_content_input"))
             if current_plan != retained:
                 raise WorkspaceError("retained runtime build plan changed before observation")
         return self._topology_summary_observation(profile_name, state_name, selected_services, state_mode,
@@ -20912,7 +20951,12 @@ class Workspace:
             raise WorkspaceError("retained topology requires --retained-build-plan; historical runtime builds are immutable")
         if row["scenario_state"] != state_name or len(row["envelope"]["steps"]) < 3:
             raise WorkspaceError("retained runtime requires its exact scenario and completed tested build")
-        plan = row["envelope"]["steps"][1]["observations"]["plan"]
+        steps = row["envelope"]["steps"]
+        content_successor = "build_slot" in row["envelope"].get("content_input", {})
+        completed = [step for step in steps if step["stage"] == ("content-built" if content_successor else "built")]
+        if not completed:
+            raise WorkspaceError("retained content successor tested build is incomplete")
+        plan = completed[0]["observations"]["plan"]
         if plan["plan_sha256"] != expected:
             raise WorkspaceError("retained runtime plan digest differs from owned producer evidence")
         return plan
@@ -20961,7 +21005,7 @@ class Workspace:
                 raise WorkspaceError("retained producer declaration changed before mutation")
             if retained is not None:
                 plan = self._build_plan_observation("server", profile_name, True, ["server"], profile, selected, states,
-                    force_reconfigure=retained["force_reconfigure"], use_ccache=retained["use_ccache"])
+                    force_reconfigure=retained["force_reconfigure"], use_ccache=retained["use_ccache"], retained_content_input=retained.get("retained_content_input"))
                 if plan != retained:
                     raise WorkspaceError("retained runtime build plan changed before mutation")
         self.paths.ensure()

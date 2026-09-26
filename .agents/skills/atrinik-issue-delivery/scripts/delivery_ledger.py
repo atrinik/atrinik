@@ -6815,13 +6815,17 @@ def _observation_namespace(document, resource):
         return None
     _before, proof = retained
     envelope = document.get("dependency_advance")
-    if envelope is not None and resource["slot_id"] == envelope["declaration"]["build_slot"]:
-        plan_steps = [step for step in envelope["steps"] if step["stage"] == "plan"]
-        if plan_steps:
-            plan = plan_steps[0]["observations"]["plan"]
-            if resource["kind"] == "build" and resource["immutable"]["path"] == plan["build_root"]:
-                return proof["resource_context"]
-        raise LedgerError("advanced resource lacks declared namespace provenance")
+    if envelope is not None:
+        for slot, stage in ((envelope["declaration"]["build_slot"], "plan"),
+                            (envelope.get("content_input", {}).get("build_slot"), "content-plan")):
+            if resource["slot_id"] != slot:
+                continue
+            plan_steps = [step for step in envelope["steps"] if step["stage"] == stage]
+            if plan_steps:
+                plan = plan_steps[0]["observations"]["plan"]
+                if resource["kind"] == "build" and resource["immutable"]["path"] == plan["build_root"]:
+                    return proof["resource_context"]
+            raise LedgerError("advanced resource lacks declared namespace provenance")
     linked = {proof["request"][key] for key in ("state_slot", "scenario_slot", "build_slot", "topology_slot")}
     if resource["slot_id"] in linked:
         return proof["resource_context"]
@@ -6844,7 +6848,7 @@ def _inprogress_selection(document, request):
         raise LedgerError("in-progress admission correction anchor differs")
     slots = _sorted_names(request["planned_slots"], "in-progress planned slots", nonempty=False)
     envelope = document.get("dependency_advance")
-    advanced_slot = envelope["declaration"]["build_slot"] if envelope is not None else None
+    advanced_slot = _advance_module().build_slot(envelope) if envelope is not None else None
     selected_original = [slot for slot in slots if slot != advanced_slot]
     if not set(selected_original).issubset(proof["request"]["planned_slots"]):
         raise LedgerError("in-progress admission selection differs from original unfinished plans")
@@ -6862,8 +6866,11 @@ def _inprogress_selection(document, request):
 # Deliberately inline the dependency-free schema for standalone inventory. The
 # public helper must never import candidate/cwd code while validating a ledger.
 _ADVANCE_SCHEMA_STAGES = ('declare', 'plan', 'built', 'topology')
+
 _ADVANCE_SCHEMA_PIN_FIELDS = ('CONSUMER_COMMIT', 'PRODUCER_COMMIT', 'IMAGE', 'PLATFORM_MANIFEST', 'METADATA_HASHES', 'PRODUCER_FILES_SHA256')
+
 _ADVANCE_SCHEMA_HEX40 = re.compile('[0-9a-f]{40}')
+
 _ADVANCE_SCHEMA_HEX64 = re.compile('[0-9a-f]{64}')
 
 def _advance_schema_digest(value: Any) -> str:
@@ -6918,9 +6925,11 @@ def _advance_schema_validate_pins(value: Any) -> dict:
         _advance_schema_hex_value(checksum, _ADVANCE_SCHEMA_HEX64, name)
     return value
 
-def _advance_schema_validate_plan(plan: Any, *, profile: str, wrapper: str, workspace: str, classic_root: str, classic_head: str) -> dict:
+def _advance_schema_validate_plan(plan: Any, *, profile: str, wrapper: str, workspace: str, classic_root: str, classic_head: str, content_input: dict | None=None) -> dict:
     """Check the complete public producer shape before its live recomputation."""
     keys = {'schema_version', 'target', 'profile', 'tests', 'force_reconfigure', 'use_ccache', 'targets', 'manifest', 'checkout_states', 'source_fingerprints', 'git_observations', 'sources', 'execution_sources', 'wrapper_root', 'workspace_root', 'builds_root', 'build_key', 'build_root', 'plan_sha256'}
+    if isinstance(plan, dict) and 'retained_content_input' in plan:
+        keys.add('retained_content_input')
     _advance_schema_exact(plan, keys, 'public build plan')
     unsigned = {key: value for key, value in plan.items() if key != 'plan_sha256'}
     if plan['schema_version'] != 1 or isinstance(plan['schema_version'], bool) or plan['target'] != 'server' or (plan['tests'] is not True) or (not isinstance(plan['force_reconfigure'], bool)) or (not isinstance(plan['use_ccache'], bool)) or (not isinstance(plan['profile'], dict)) or (plan['profile'].get('name') != profile) or (plan['profile'].get('stack') != 'classic') or (plan['wrapper_root'] != wrapper) or (plan['workspace_root'] != workspace) or (plan['builds_root'] != workspace + '/build') or (not isinstance(plan['build_key'], str)) or (re.fullmatch('[0-9a-f]{12}', plan['build_key']) is None) or (plan['build_root'] != workspace + '/build/profiles/' + profile + '-' + plan['build_key']) or (_advance_schema_digest(unsigned) != plan['plan_sha256']):
@@ -6928,6 +6937,11 @@ def _advance_schema_validate_plan(plan: Any, *, profile: str, wrapper: str, work
     states = plan['checkout_states']
     if not isinstance(states, dict) or not isinstance(states.get('classic'), dict) or states['classic'].get('path') != classic_root or (states['classic'].get('head') != classic_head) or any((not isinstance(state, dict) or state.get('dirty') is not False for state in states.values())):
         raise LedgerError('retained advance build plan has unverified Classic/source heads')
+    if content_input is not None:
+        _advance_schema_validate_content_input(content_input)
+        content = states.get('content', {})
+        if plan.get('retained_content_input') != content_input['new_head'] or content.get('path') != content_input['root'] or content.get('head') != content_input['new_head'] or (plan['sources'].get('content') != content_input['root']) or (plan['execution_sources'].get('content') != content_input['root']) or (not plan['source_fingerprints'].get('content')) or (plan['git_observations'].get('content', {}).get('clean') is not True):
+            raise LedgerError('retained advance content plan lacks declared read-only source provenance')
     for field in ('manifest', 'source_fingerprints', 'git_observations', 'sources', 'execution_sources'):
         if not isinstance(plan[field], dict) or not plan[field]:
             raise LedgerError('retained advance build plan lacks ' + field)
@@ -6935,9 +6949,42 @@ def _advance_schema_validate_plan(plan: Any, *, profile: str, wrapper: str, work
         raise LedgerError('retained advance build roles differ')
     return plan
 
+def _advance_schema_validate_content_input(value: Any) -> dict:
+    """One immutable content dependency; historical source coordinates stay fixed."""
+    keys = {'repository', 'repository_node_id', 'branch', 'root', 'old_head', 'new_head', 'tree', 'pull_request', 'pull_request_node_id', 'merge_commit'}
+    if isinstance(value, dict) and 'build_slot' in value:
+        keys.add('build_slot')
+        if not isinstance(value['build_slot'], str) or re.fullmatch('[a-z0-9][a-z0-9._-]{0,127}', value['build_slot']) is None:
+            raise LedgerError('retained content successor build slot is invalid')
+    _advance_schema_exact(value, keys, 'content input')
+    if value['repository'] != 'atrinik/content' or value['branch'] != 'main':
+        raise LedgerError('retained advance content repository/branch differs')
+    for field in ('old_head', 'new_head', 'tree', 'merge_commit'):
+        _advance_schema_hex_value(value[field], _ADVANCE_SCHEMA_HEX40, 'content ' + field)
+    for field in ('repository_node_id', 'pull_request_node_id'):
+        if not isinstance(value[field], str) or re.fullmatch('[A-Za-z0-9_=-]{2,256}', value[field]) is None:
+            raise LedgerError('retained advance content provenance identity is invalid')
+    if not isinstance(value['pull_request'], int) or isinstance(value['pull_request'], bool) or value['pull_request'] <= 0 or (value['old_head'] == value['new_head']):
+        raise LedgerError('retained advance content transition lacks merged provenance')
+    root = value['root']
+    if not isinstance(root, str) or not root.startswith('/') or any((part in {'', '.', '..'} for part in root.split('/')[1:])) or any((ord(char) < 32 or ord(char) == 127 for char in root)):
+        raise LedgerError('retained advance content root is not canonical')
+    return value
+
+def _advance_schema_stages(value: dict) -> tuple[str, ...]:
+    return ('declare', 'plan', 'built', 'content-plan', 'content-built', 'topology') if 'build_slot' in value.get('content_input', {}) else _ADVANCE_SCHEMA_STAGES
+
+def _advance_schema_build_slot(value: dict) -> str:
+    return value.get('content_input', {}).get('build_slot', value['declaration']['build_slot'])
+
 def _advance_schema_validate_envelope(value: Any) -> dict:
     """Validate append-only retained records, never infer live authority from them."""
-    value = _advance_schema_exact(value, {'schema_version', 'correction_sha256', 'declaration', 'steps'}, 'envelope')
+    keys = {'schema_version', 'correction_sha256', 'declaration', 'steps'}
+    if isinstance(value, dict) and 'content_input' in value:
+        keys.add('content_input')
+    value = _advance_schema_exact(value, keys, 'envelope')
+    if 'content_input' in value:
+        _advance_schema_validate_content_input(value['content_input'])
     if value['schema_version'] != 1 or isinstance(value['schema_version'], bool):
         raise LedgerError('retained advance envelope version is unsupported')
     _advance_schema_hex_value(value['correction_sha256'], _ADVANCE_SCHEMA_HEX64, 'correction anchor')
@@ -6946,7 +6993,7 @@ def _advance_schema_validate_envelope(value: Any) -> dict:
         _advance_schema_hex_value(declaration[field], _ADVANCE_SCHEMA_HEX40, field)
     _advance_schema_hex_value(declaration['producer_blob_sha256'], _ADVANCE_SCHEMA_HEX64, 'producer blob')
     pins = _advance_schema_validate_pins(declaration['portable_pins'])
-    if declaration['new_classic_head'] != pins['CONSUMER_COMMIT'] or declaration['new_classic_head'] == declaration['old_classic_head']:
+    if declaration['new_classic_head'] != pins['CONSUMER_COMMIT'] or (declaration['new_classic_head'] == declaration['old_classic_head'] and 'content_input' not in value):
         raise LedgerError('retained advance source transition differs from accepted declaration')
     root = declaration['classic_root']
     if not isinstance(root, str) or not root.startswith('/') or any((part in {'', '.', '..'} for part in root.split('/')[1:])):
@@ -6955,12 +7002,12 @@ def _advance_schema_validate_envelope(value: Any) -> dict:
         if not isinstance(declaration[field], str) or re.fullmatch('[a-z0-9][a-z0-9._-]{0,127}', declaration[field]) is None:
             raise LedgerError('retained advance declaration name is invalid')
     steps = value['steps']
-    if not isinstance(steps, list) or not 1 <= len(steps) <= len(_ADVANCE_SCHEMA_STAGES):
+    if not isinstance(steps, list) or not 1 <= len(steps) <= len(_advance_schema_stages(value)):
         raise LedgerError('retained advance steps exceed the bounded lifecycle')
     previous_generation = 0
     for index, step in enumerate(steps):
         _advance_schema_exact(step, {'stage', 'generation', 'predecessor_sha256', 'request', 'observations', 'previous_topology_current'}, 'step')
-        if step['stage'] != _ADVANCE_SCHEMA_STAGES[index] or isinstance(step['generation'], bool) or (not isinstance(step['generation'], int)) or (step['generation'] <= previous_generation):
+        if step['stage'] != _advance_schema_stages(value)[index] or isinstance(step['generation'], bool) or (not isinstance(step['generation'], int)) or (step['generation'] <= previous_generation):
             raise LedgerError('retained advance steps are not an ordered prefix')
         if (step['stage'] == 'topology') != isinstance(step['previous_topology_current'], dict):
             raise LedgerError('retained advance previous topology observation differs from stage')
@@ -6979,12 +7026,16 @@ def _advance_schema_require_append(before: dict | None, after: dict) -> None:
             raise LedgerError('retained advance must begin with a declaration')
         return
     _advance_schema_validate_envelope(before)
-    if {key: val for key, val in before.items() if key != 'steps'} != {key: val for key, val in after.items() if key != 'steps'} or len(after['steps']) != len(before['steps']) + 1 or after['steps'][:-1] != before['steps']:
+    added_content = 'content_input' not in before and 'content_input' in after
+    if added_content and (len(before['steps']), after['steps'][-1]['stage']) not in {(1, 'plan'), (3, 'content-plan')}:
+        raise LedgerError('retained advance content intent must precede build production')
+    compared_after = {key: val for key, val in after.items() if not (added_content and key == 'content_input')}
+    if {key: val for key, val in before.items() if key != 'steps'} != {key: val for key, val in compared_after.items() if key != 'steps'} or len(after['steps']) != len(before['steps']) + 1 or after['steps'][:-1] != before['steps']:
         raise LedgerError('retained advance historical declaration/evidence is immutable')
 
 def _advance_module():
     from types import SimpleNamespace
-    return SimpleNamespace(STAGES=_ADVANCE_SCHEMA_STAGES, accepted_portable_pins=_advance_schema_accepted_portable_pins,
+    return SimpleNamespace(STAGES=_ADVANCE_SCHEMA_STAGES, stages=_advance_schema_stages, build_slot=_advance_schema_build_slot, accepted_portable_pins=_advance_schema_accepted_portable_pins,
                            validate_plan=_advance_schema_validate_plan, validate_envelope=_advance_schema_validate_envelope,
                            require_append=_advance_schema_require_append)
 
@@ -7010,6 +7061,25 @@ def _advance_validate(document):
     if not coordinates or any(row["checkout_path"] != declaration["classic_root"]
                               or row["head"] != declaration["old_classic_head"] for row in coordinates):
         raise LedgerError("dependency advancement changes historical Classic source roots")
+    content = envelope.get("content_input")
+    if content is not None:
+        historical = _advance_content_coordinate(document)
+        if (content["root"] != historical["checkout_path"] or content["old_head"] != historical["head"]):
+            raise LedgerError("content advancement changes historical source roots")
+        declarations = [step for step in envelope["steps"] if "content_input" in step["request"]]
+        if (len(declarations) != 1 or declarations[0]["stage"] not in {"declare", "plan", "content-plan"}
+                or declarations[0]["request"]["content_input"] != {
+                    "repository": content["repository"], "branch": content["branch"],
+                    "commit": content["new_head"], "pull_request": content["pull_request"]}):
+            raise LedgerError("content advancement lacks exact declaration provenance")
+    if content is not None and "build_slot" in content:
+        if (content["build_slot"] == declaration["build_slot"]
+                or declarations[0]["stage"] != "content-plan"
+                or declarations[0]["request"]["build_slot"] != content["build_slot"]):
+            raise LedgerError("content successor changes its declared build slot")
+        previous = _advance_previous_resource(document, envelope)
+        if next((row for row in document["resources"] if row["slot_id"] == previous["slot_id"]), None) != previous:
+            raise LedgerError("content successor changed its preserved tested build resource")
     original_slots = {row["slot_id"] for row in before["resources"]}
     if declaration["build_slot"] in original_slots:
         raise LedgerError("dependency advancement cannot replace a historical resource slot")
@@ -7020,7 +7090,7 @@ def _advance_validate(document):
         _advance_request_shape(step["request"], step["stage"])
         expected_keys = {"declaration": set(), "plan": {"plan", "build"}, "built": {"plan", "build"},
                          "topology": {"plan", "build", "topology", "historical_runtime"}}
-        keys = expected_keys.get(step["stage"], set())
+        keys = expected_keys.get(step["stage"].removeprefix("content-"), set())
         _exact(step["observations"], keys, "advancement live observations")
     return envelope
 
@@ -7033,14 +7103,23 @@ def _advance_request_shape(request, stage=None):
     extras = {"declare": {"build_slot"}, "plan": {"build_plan"},
               "built": {"build_plan", "build_result", "build_log", "build_observation"},
               "topology": {"topology_plan", "topology_output"}}
+    extras["content-plan"] = {"build_plan", "content_input", "build_slot"}
+    extras["content-built"] = extras["built"]
     if stage not in extras or request.get("stage") != stage:
         raise LedgerError("dependency advancement stage is unsupported")
+    if stage in {"declare", "plan", "content-plan"} and "content_input" in request:
+        keys.add("content_input")
+        content = _exact(request["content_input"], {"repository", "branch", "commit", "pull_request"}, "content input request")
+        if content["repository"] != "atrinik/content" or content["branch"] != "main":
+            raise LedgerError("content input must name atrinik/content@main")
+        _string(content["commit"], "content input commit", COMMIT_RE)
+        _integer(content["pull_request"], "content input pull request")
     _exact(request, keys | extras[stage], "dependency advancement request")
     _string(request["correction_sha256"], "advancement correction digest", SHA256_RE)
-    if stage == "declare":
+    if stage in {"declare", "content-plan"}:
         _string(request["build_slot"], "advancement build slot", SLOT_RE)
-    else:
-        for key in extras[stage]:
+    if stage != "declare":
+        for key in extras[stage] - {"content_input", "build_slot"}:
             _retained_result(request[key], "advancement " + key)
     return stage
 
@@ -7051,6 +7130,58 @@ def _advance_git(path, arguments, context, **kwargs):
         return _git(descriptor, arguments, context, **kwargs)
     finally:
         os.close(descriptor)
+
+
+def _advance_content_coordinate(document):
+    proof = _retained_correction(document)[1]
+    coordinates = [row for row in proof["observations"]["state"]["scenario"]["resolved"].values()
+                   if row.get("checkout") == "content"]
+    if (len(coordinates) != 1 or coordinates[0].get("repository") != "atrinik/content"
+            or coordinates[0].get("branch") != "main" or coordinates[0].get("source") != "."
+            or coordinates[0].get("dirty") is not False):
+        raise LedgerError("retained scenario lacks exact clean content@main provenance")
+    return coordinates[0]
+
+
+def _advance_content_provenance(document, request):
+    """Derive immutable content identity from retained ownership and live GitHub."""
+    historical = _advance_content_coordinate(document)
+    root = historical["checkout_path"]
+    query = ("query { repository(owner: \"atrinik\", name: \"content\") { id "
+             "ref(qualifiedName: \"refs/heads/main\") { target { oid } } "
+             "pullRequest(number: " + str(request["pull_request"]) + ") { id state baseRefName "
+             "baseRepository { id nameWithOwner } mergeCommit { oid } } } }")
+    remote = _gh_json(("api", "--hostname", "github.com", "graphql", "-f", "query=" + query), "content merge provenance")
+    try:
+        repository = remote["data"]["repository"]
+        pull = repository["pullRequest"]
+        tip = _string(repository["ref"]["target"]["oid"], "content main head", COMMIT_RE)
+        merge = _string(pull["mergeCommit"]["oid"], "content merge commit", COMMIT_RE)
+        if (pull["state"] != "MERGED" or pull["baseRefName"] != "main"
+                or pull["baseRepository"] != {"id": repository["id"], "nameWithOwner": "atrinik/content"}):
+            raise LedgerError("content input pull request is not merged into its exact repository/main")
+        value = {"repository": "atrinik/content", "repository_node_id": repository["id"], "branch": "main",
+                 "root": root, "old_head": historical["head"], "new_head": request["commit"],
+                 "pull_request": request["pull_request"], "pull_request_node_id": pull["id"], "merge_commit": merge}
+    except (KeyError, TypeError) as error:
+        raise LedgerError("content input lacks live merged repository provenance") from error
+    for arguments in (("config", "--local", "--no-includes", "--get-all", "remote.origin.url"),
+                      ("remote", "get-url", "--all", "origin")):
+        _, raw = _advance_git(root, arguments, "content source origin")
+        lines = raw.decode("utf-8").splitlines()
+        if len(lines) != 1 or _normalized_github_remote(lines[0]) != "atrinik/content":
+            raise LedgerError("content source belongs to a foreign repository")
+    _, branch = _advance_git(root, ("symbolic-ref", "--quiet", "HEAD"), "content source branch")
+    if _one_git_line(branch, "content source branch") != "refs/heads/main":
+        raise LedgerError("content source branch is not main")
+    for predecessor, successor in ((historical["head"], request["commit"]), (merge, request["commit"]), (request["commit"], tip)):
+        code, _ = _advance_git(root, ("merge-base", "--is-ancestor", predecessor, successor), "content accepted ancestry", accepted={0, 1})
+        if code:
+            raise LedgerError("content input is not a verified descendant on accepted main")
+    _, tree = _advance_git(root, ("rev-parse", "--verify", request["commit"] + "^{tree}"), "content immutable tree")
+    value["tree"] = _one_git_line(tree, "content immutable tree")
+    _advance_schema_validate_content_input(value)
+    return value
 
 
 def _advance_declaration(document, request):
@@ -7101,6 +7232,12 @@ def _advance_pin_recheck(document, envelope):
                            declaration["new_classic_head"]), "declared Classic dependency ancestry", accepted={0, 1})
     if code:
         raise LedgerError("declared Classic dependency does not advance its original source")
+    content = envelope.get("content_input")
+    if content is not None:
+        request = {"repository": content["repository"], "branch": content["branch"],
+                   "commit": content["new_head"], "pull_request": content["pull_request"]}
+        if _advance_content_provenance(document, request) != {key: val for key, val in content.items() if key != "build_slot"}:
+            raise LedgerError("retained content input provenance changed")
 
 
 def _advance_evidence(document, envelope, request=None):
@@ -7109,6 +7246,11 @@ def _advance_evidence(document, envelope, request=None):
     requests = {step["stage"]: step["request"] for step in steps}
     if request is not None:
         requests[request["stage"]] = request
+    if "content-plan" in requests:
+        requests["plan"] = requests["content-plan"]
+        requests.pop("built", None)
+        if "content-built" in requests:
+            requests["built"] = requests["content-built"]
     if "plan" not in requests:
         return {}
     proof = _retained_correction(document)[1]
@@ -7117,11 +7259,15 @@ def _advance_evidence(document, envelope, request=None):
     context = proof["resource_context"]
     try:
         _advance_module().validate_plan(plan, profile=declaration["profile"], wrapper=context["wrapper"],
-            workspace=context["workspace"], classic_root=declaration["classic_root"], classic_head=declaration["new_classic_head"])
+            workspace=context["workspace"], classic_root=declaration["classic_root"], classic_head=declaration["new_classic_head"],
+            content_input=envelope.get("content_input"))
     except Exception as error:
         raise LedgerError(str(error)) from error
     evidence = {"dependency_advance": envelope, "advance_build_plan": plan,
                 "historical_observations": proof["observations"], "advance_build_complete": "built" in requests}
+    if "content-plan" in requests:
+        previous = next(step for step in steps if step["stage"] == "built")
+        evidence["advance_previous_build"] = previous["observations"]["build"]
     if "built" in requests:
         built = requests["built"]
         raw = {key: _retained_result(built[key], "advanced " + key)
@@ -7147,9 +7293,14 @@ def _advance_evidence(document, envelope, request=None):
             expected = copy.deepcopy(original)
             if expected.get("checkout") == "classic":
                 expected["head"] = declaration["new_classic_head"]
+            if expected.get("checkout") == "content" and "content_input" in envelope:
+                expected["head"] = envelope["content_input"]["new_head"]
             if output["resolved"][role] != expected:
                 raise LedgerError("advanced topology changes undeclared source coordinates")
-        if output.get("build_root") in {proof["observations"]["build"]["path"], old["build_root"], plan["build_root"]}:
+        retained_roots = {proof["observations"]["build"]["path"], old["build_root"], plan["build_root"]}
+        if "advance_previous_build" in evidence:
+            retained_roots.update(row["path"] for row in evidence["advance_previous_build"]["observations"])
+        if output.get("build_root") in retained_roots:
             raise LedgerError("advanced runtime build aliases retained/tested inputs")
         evidence.update(advance_topology_output=output, advance_topology_plan=topology_plan)
         # The public transaction derives the new observation; it is not a generic
@@ -7160,19 +7311,31 @@ def _advance_evidence(document, envelope, request=None):
     return evidence
 
 
+def _advance_previous_resource(document, envelope):
+    """Reconstruct the earlier completed build from immutable producer evidence."""
+    step = next(row for row in envelope["steps"] if row["stage"] == "built")
+    plan = step["observations"]["plan"]
+    proof = _retained_correction(document)[1]
+    original = next(row for row in document["resources"] if row["slot_id"] == proof["request"]["build_slot"])
+    immutable = {"repository": original["immutable"]["repository"], "name": Path(plan["build_root"]).name, "path": plan["build_root"]}
+    return {"slot_id": envelope["declaration"]["build_slot"], "kind": "build", "state": "created", "immutable": immutable,
+            "current": {**immutable, "generation": 1, "history": [], "external_generation": None,
+                        "identity_digest": canonical_object_digest(step["observations"]["build"]), "lifecycle": "static"}}
+
+
 def _advance_projection(document, envelope, stage, observations):
     result = copy.deepcopy(document)
     result["dependency_advance"] = envelope
     declaration = envelope["declaration"]
     proof = _retained_correction(document)[1]
-    if stage == "plan":
+    if stage in {"plan", "content-plan"}:
         plan = observations["plan"]
         original = next(row for row in document["resources"] if row["slot_id"] == proof["request"]["build_slot"])
-        result["resources"].append({"slot_id": declaration["build_slot"], "kind": "build", "state": "planned", "current": None,
+        result["resources"].append({"slot_id": _advance_module().build_slot(envelope), "kind": "build", "state": "planned", "current": None,
             "immutable": {"repository": original["immutable"]["repository"], "name": Path(plan["build_root"]).name, "path": plan["build_root"]}})
         result["resources"].sort(key=lambda row: row["slot_id"])
-    elif stage == "built":
-        row = next(row for row in result["resources"] if row["slot_id"] == declaration["build_slot"])
+    elif stage in {"built", "content-built"}:
+        row = next(row for row in result["resources"] if row["slot_id"] == _advance_module().build_slot(envelope))
         row["state"] = "created"
         row["current"] = {**row["immutable"], "generation": 1, "history": [], "external_generation": None,
                           "identity_digest": canonical_object_digest(observations["build"]), "lifecycle": "static"}
@@ -7207,10 +7370,12 @@ def advance_retained_dependency_cas(root, name, request, *, expected_generation,
             before.pop("dependency_advance")
         else:
             before["dependency_advance"]["steps"].pop()
-        slot = envelope["declaration"]["build_slot"]
-        if stage == "plan":
+            if stage in {"plan", "content-plan"} and "content_input" in request:
+                before["dependency_advance"].pop("content_input")
+        slot = _advance_module().build_slot(envelope)
+        if stage in {"plan", "content-plan"}:
             before["resources"] = [row for row in before["resources"] if row["slot_id"] != slot]
-        elif stage == "built":
+        elif stage in {"built", "content-built"}:
             row = next(row for row in before["resources"] if row["slot_id"] == slot)
             row.update(state="planned", current=None)
         elif stage == "topology":
@@ -7224,7 +7389,12 @@ def advance_retained_dependency_cas(root, name, request, *, expected_generation,
         raise LedgerError("stale retained advancement generation, digest, or path")
     _prepublication_observation_owner(before)
     prior = _advance_validate(before)
-    index = _advance_module().STAGES.index(stage)
+    order = _advance_module().stages(prior) if prior is not None else _advance_module().STAGES
+    if stage == "content-plan" and prior is not None and "content_input" not in prior:
+        order = ("declare", "plan", "built", "content-plan", "content-built", "topology")
+    if stage not in order:
+        raise LedgerError("retained advancement stage is not the next producer transition")
+    index = order.index(stage)
     if (prior is None and index != 0) or (prior is not None and len(prior["steps"]) != index):
         raise LedgerError("retained advancement stage is not the next producer transition")
     if stage == "declare":
@@ -7236,6 +7406,14 @@ def advance_retained_dependency_cas(root, name, request, *, expected_generation,
         envelope = copy.deepcopy(prior)
         if request["correction_sha256"] != envelope["correction_sha256"]:
             raise LedgerError("retained advancement correction differs")
+    if "content_input" in request:
+        if "content_input" in envelope:
+            raise LedgerError("content input was already declared")
+        envelope["content_input"] = _advance_content_provenance(before, request["content_input"])
+        if stage == "content-plan":
+            if any(row["slot_id"] == request["build_slot"] for row in before["resources"]):
+                raise LedgerError("content successor build slot is already reserved")
+            envelope["content_input"]["build_slot"] = request["build_slot"]
     observations = {}
     with _current_targets_live_safety(before, observations=observations,
                                      advance_envelope=envelope, advance_request=request) as prove:
@@ -14981,7 +15159,7 @@ def _transition(
     for slot, before in old_resources.items():
         after = new_resources[slot]
         advance = old.get("dependency_advance")
-        if (advance is not None and slot == advance["declaration"]["build_slot"]
+        if (advance is not None and slot in {advance["declaration"]["build_slot"], _advance_module().build_slot(advance)}
                 and before != after and _advance_capability is None):
             raise LedgerError("advanced build binding requires its dedicated producer transaction")
         if "correction" in before or "correction" in after:
@@ -15543,9 +15721,14 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
         # does not grant a second resource's namespace authority.
         allowed_slots = {observation_request[key] for key in ("state_slot", "scenario_slot", "build_slot", "topology_slot")}
         original_rows = {row["slot_id"]: row for row in correction_source["resources"]}
-        advanced_slot = effective_advance["declaration"]["build_slot"] if effective_advance is not None else None
+        advanced_slot = _advance_module().build_slot(effective_advance) if effective_advance is not None else None
         for row in document["resources"]:
             if row["slot_id"] in allowed_slots or row["slot_id"] in original_inert:
+                continue
+            if (effective_advance is not None and "build_slot" in effective_advance.get("content_input", {})
+                    and row["slot_id"] == effective_advance["declaration"]["build_slot"]):
+                if row != _advance_previous_resource(document, effective_advance):
+                    raise LedgerError("content successor changed previous build ownership")
                 continue
             if row["slot_id"] == advanced_slot and advance_values:
                 expected_path = advance_values["advance_build_plan"]["build_root"]
@@ -15696,9 +15879,12 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
                 advanced = actual["observation-correction"].pop("advance", None)
                 if advance_values:
                     if installed_advance is not None:
-                        completed = [step for step in installed_advance["steps"] if step["stage"] == "built"]
+                        completed = [step for step in installed_advance["steps"]
+                                     if step["stage"] == ("content-built" if "build_slot" in effective_advance.get("content_input", {}) else "built")]
                         if completed and advanced["build"] != completed[0]["observations"]["build"]:
                             raise LedgerError("advanced tested build changed since its exact producer binding")
+                    if "advance_previous_build" in advance_values and advanced["previous_build"] != advance_values["advance_previous_build"]:
+                        raise LedgerError("content successor changed historical tested-build evidence")
                     actual["dependency-advance"] = {"plan": advance_values["advance_build_plan"], "build": advanced["build"]}
                     if "advance_topology_output" in advance_values:
                         actual["dependency-advance"].update(topology=actual["observation-correction"]["topology"],

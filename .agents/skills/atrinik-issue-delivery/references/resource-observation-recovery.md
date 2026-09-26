@@ -232,3 +232,63 @@ all live inputs and reconstructs the exact predecessor; another request or drift
 refuses without consuming evidence. After receipt consumption the old tuple is
 stale. Later same-input restarts use the same fence and ordinary public stopped
 observation CAS, followed by admission; historical correction bytes never change.
+
+
+### Bind an immutable content input
+
+The same retained owner may additionally declare one read-only `atrinik/content`
+input on `main`. Add `content_input` to the `declare` request, or to the first
+`plan` request when a Classic declaration is already retained. If its tested
+build is already completed, use `content-plan` as described below:
+
+```json
+"content_input": {
+  "repository": "atrinik/content",
+  "branch": "main",
+  "commit": "EXACT_40_HEX_COMMIT",
+  "pull_request": 265
+}
+```
+
+The helper derives the historical source root/head from the original scenario,
+and verifies the live repository and merged PR identities, merge commit,
+accepted-main ancestry, local origin/branch and immutable tree. The commit must
+contain the merged PR and remain reachable from freshly observed `content@main`.
+Fetch required commits through the normal source lifecycle before the request;
+the helper does not fetch or check out source. A content-only advance keeps the
+accepted Classic/portable pins unchanged. A declaration already installed may
+add content only at its first plan, preserving the original declaration and all
+prior steps. For an existing `declare → plan → built` prefix, append `content-plan` with
+`content_input`, exact `build_plan` bytes and a fresh `build_slot`. This keeps
+all three existing steps and the completed build row unchanged. Then append
+`content-built` with the same four producer envelopes as `built`, followed by
+`topology`. The earlier completed tested build joins the immutable historical
+build set and remains independently proved under the lease union. Runtime
+production refuses until the content successor build is complete, and requires
+its exact new plan digest. Later content replacement is unsupported.
+
+Use the explicit content commit fence for both planning and the tested build:
+
+```sh
+./atrinik build server --profile PROFILE --test --retained-content-input COMMIT --plan --json
+./atrinik build server --profile PROFILE --test --retained-content-input COMMIT --expected-plan PLAN_SHA256 --json
+```
+
+The public plan records `retained_content_input`; its deterministic
+`retained-content:COMMIT` build-key variant isolates content-only changes from
+all historical build roots. The commit must equal the clean selected content
+head, and execution requires the exact plan fence. Ordinary builds retain their
+existing keys. Runtime production uses the new completed plan's existing
+`retained-runtime:PLAN_SHA256` variant.
+
+The new plan must use the same content root, a clean declared head, and the
+public producer's read-only content input view, source fingerprints and Git
+observations. Content execution paths remain the exact selected checkout;
+content collection stages its output privately and does not invent a sealed
+Git source-generation path. Historical content,
+scenario, build, runtime, state and receipt bytes remain exact. Resources and
+sound stay unchanged, as do undeclared producer inputs. Every subsequent stage,
+retry and reconnect reproves the merged content provenance and source views;
+missing provenance, foreign roots/repositories/branches or changed history stop
+without rewriting the retained evidence. This is dependency admission only;
+runtime and hardware/audio qualification still belong to the consumer delivery.

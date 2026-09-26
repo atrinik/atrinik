@@ -27,6 +27,108 @@ class RetainedAdvanceSchemaTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "^" + message + "$"):
             operation()
 
+    def content_input(self):
+        return {"repository": "atrinik/content", "repository_node_id": "R_content", "branch": "main",
+                "root": "/workspaces/owner/content", "old_head": "1" * 40, "new_head": "2" * 40,
+                "tree": "3" * 40, "pull_request": 265, "pull_request_node_id": "P_content",
+                "merge_commit": "2" * 40}
+
+    def test_content_only_and_append_to_existing_declaration_preserve_history(self):
+        before = self.envelope()
+        after = copy.deepcopy(before)
+        after["content_input"] = self.content_input()
+        after["steps"].append({"stage": "plan", "generation": 11, "predecessor_sha256": "f" * 64,
+                               "request": {}, "observations": {}, "previous_topology_current": None})
+        advance.require_append(before, after)
+        bad = copy.deepcopy(after)
+        bad["declaration"]["classic_root"] = "/changed/classic"
+        with self.assertRaisesRegex(WorkspaceError, "historical declaration/evidence is immutable"):
+            advance.require_append(before, bad)
+        content_only = self.envelope()
+        content_only["content_input"] = self.content_input()
+        content_only["declaration"]["old_classic_head"] = self.pins["CONSUMER_COMMIT"]
+        advance.require_append(None, content_only)
+        later = copy.deepcopy(after)
+        later["steps"].append({"stage": "built", "generation": 12, "predecessor_sha256": "f" * 64,
+                               "request": {}, "observations": {}, "previous_topology_current": None})
+        later["content_input"]["new_head"] = "4" * 40
+        with self.assertRaisesRegex(WorkspaceError, "historical declaration/evidence is immutable"):
+            advance.require_append(after, later)
+        no_content = copy.deepcopy(after)
+        del no_content["content_input"]
+        with self.assertRaisesRegex(WorkspaceError, "content intent must precede build production"):
+            advance.require_append(no_content, later)
+
+    def test_completed_build_accepts_one_content_successor_only(self):
+        before = self.envelope()
+        for stage, generation in (("plan", 11), ("built", 12)):
+            before["steps"].append({"stage": stage, "generation": generation, "predecessor_sha256": "f" * 64,
+                                    "request": {}, "observations": {}, "previous_topology_current": None})
+        after = copy.deepcopy(before)
+        after["content_input"] = {**self.content_input(), "build_slot": "content-tested-build"}
+        after["steps"].append({"stage": "content-plan", "generation": 13, "predecessor_sha256": "f" * 64,
+                               "request": {}, "observations": {}, "previous_topology_current": None})
+        advance.require_append(before, after)
+        self.assertEqual(advance.build_slot(after), "content-tested-build")
+        self.assertEqual(advance.build_slot(before), "advanced-build")
+        for stage, generation in (("content-built", 14), ("topology", 15)):
+            next_value = copy.deepcopy(after)
+            next_value["steps"].append({"stage": stage, "generation": generation, "predecessor_sha256": "f" * 64,
+                                       "request": {}, "observations": {},
+                                       "previous_topology_current": {} if stage == "topology" else None})
+            advance.require_append(after, next_value)
+            after = next_value
+        bad = copy.deepcopy(after)
+        bad["steps"][4]["stage"] = "built"
+        with self.assertRaisesRegex(WorkspaceError, "ordered prefix"):
+            advance.validate_envelope(bad)
+        for value in ("../foreign", None):
+            bad = copy.deepcopy(after)
+            bad["content_input"]["build_slot"] = value
+            with self.assertRaisesRegex(WorkspaceError, "build slot is invalid"):
+                advance.validate_envelope(bad)
+
+    def test_content_schema_rejects_missing_foreign_or_mutable_provenance(self):
+        content = self.content_input()
+        for field, value in (("repository", "atrinik/foreign"), ("branch", "1.x"),
+                             ("new_head", content["old_head"]), ("new_head", "main"),
+                             ("root", "/owner/../content"), ("root", "/owner/content\n"),
+                             ("pull_request", True), ("pull_request", 0),
+                             ("repository_node_id", ""), ("merge_commit", None)):
+            bad = {**content, field: value}
+            with self.subTest(field=field, value=value), self.assertRaises(WorkspaceError):
+                advance.validate_content_input(bad)
+        for field in content:
+            bad = dict(content)
+            del bad[field]
+            with self.subTest(missing=field), self.assertRaises(WorkspaceError):
+                advance.validate_content_input(bad)
+
+    def test_content_plan_requires_declared_read_only_source(self):
+        content = self.content_input()
+        plan = self.plan()
+        plan["retained_content_input"] = content["new_head"]
+        plan["checkout_states"]["content"] = {"path": content["root"], "head": content["new_head"], "dirty": False}
+        plan["sources"]["content"] = content["root"]
+        plan["execution_sources"]["content"] = content["root"]
+        plan["source_fingerprints"]["content"] = {content["root"]: "a" * 64}
+        plan["git_observations"]["content"] = {"clean": True}
+        def check(value):
+            value["plan_sha256"] = advance.digest({key: val for key, val in value.items() if key != "plan_sha256"})
+            return advance.validate_plan(value, profile="owned-profile", wrapper="/workspaces/owner",
+                                         workspace="/workspaces/owner/workspace", classic_root="/workspaces/owner/classic",
+                                         classic_head=self.pins["CONSUMER_COMMIT"], content_input=content)
+        self.assertEqual(check(plan), plan)
+        for field in ("head", "path"):
+            bad = copy.deepcopy(plan)
+            bad["checkout_states"]["content"][field] = "foreign"
+            with self.subTest(field=field), self.assertRaises(WorkspaceError):
+                check(bad)
+        bad = copy.deepcopy(plan)
+        bad["execution_sources"]["content"] = "/foreign/content"
+        with self.assertRaisesRegex(WorkspaceError, "read-only source provenance"):
+            check(bad)
+
     def test_accepted_pins_are_literals_and_exact_inventory(self):
         self.assertEqual(self.pins["CONSUMER_COMMIT"], "d926f6fd0418fb1af9060158c43d8d3ff5252580")
         for raw in (self.raw + b'\nIMAGE = "duplicate"\n', self.raw.replace(b'IMAGE = "', b'IMAGE = str("', 1),
