@@ -1670,3 +1670,14 @@ Existing state data is recoverable only with its exact prior named registration;
 UID and directory layout alone establish no logical ownership. Source-generation
 quarantine and republication recheck retained reservations under the generation
 mutation lock. Healthy immutable generation reads remain available.
+
+
+Retained corrected Classic deliveries use an additive, append-only dependency
+producer envelope. The public helper derives accepted portable inputs from
+trusted wrapper-base bytes, separately proves complete server build plans, and
+retains historical correction/source/build records. Runtime production requires
+the namespace-bound completed plan digest; its existing build-key variant is
+`retained-runtime:PLAN_SHA256`. All build entry points reject historical roots,
+and a selected pending ledger transaction blocks the producer. This input proof
+does not attest a Docker executor or confer cleanup authority. See the
+[recovery protocol](../.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).

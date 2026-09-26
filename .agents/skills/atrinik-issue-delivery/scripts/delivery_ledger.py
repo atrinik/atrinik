@@ -10,6 +10,7 @@ operations additionally take a stable per-ledger lock.
 from __future__ import annotations
 
 import argparse
+import ast
 import base64
 import binascii
 import copy
@@ -158,20 +159,20 @@ _CREATE_STAGE_RE = re.compile(
 _MIGRATE_STAGE_RE = re.compile(r"^\.(?P<target>.+\.md\.ledger\.json)\.migrate\.tmp$")
 _UPDATE_STAGE_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update"
-    r"(?P<operation>-correct-observations|-admit-targets-[0-9a-f]{64}|-recover-resources|-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
+    r"(?P<operation>-correct-observations|-admit-targets-[0-9a-f]{64}|-advance-dependency-[0-9a-f]{64}|-recover-resources|-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g(?P<generation>[0-9]+)-"
     r"from-(?P<digest>[0-9a-f]{64})-to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_RECEIPT_RE = re.compile(
     r"^\.(?P<target>.+\.md\.ledger\.json)\.update-proof"
-    r"(?P<operation>-correct-observations|-admit-targets-[0-9a-f]{64}|-recover-resources|-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
+    r"(?P<operation>-correct-observations|-admit-targets-[0-9a-f]{64}|-advance-dependency-[0-9a-f]{64}|-recover-resources|-revalidate-targets|-refresh-target|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}|-recover-identity)?"
     r"-g"
     r"(?P<generation>[0-9]+)-from-(?P<digest>[0-9a-f]{64})-"
     r"(?:d(?P<device>[0-9]+)-i(?P<inode>[0-9]+)-|path-)"
     r"to-(?P<candidate>[0-9a-f]{64})\.tmp$"
 )
 _UPDATE_OPERATION_RE = re.compile(
-    r"^(?:|-correct-observations|-admit-targets-[0-9a-f]{64}|-recover-resources|-revalidate-targets|-refresh-target"
+    r"^(?:|-correct-observations|-admit-targets-[0-9a-f]{64}|-advance-dependency-[0-9a-f]{64}|-recover-resources|-revalidate-targets|-refresh-target"
     r"|-bind-(?:worktree|scope|pr)-[a-z0-9][a-z0-9._-]{0,127}"
     r"|-recover-scope-[a-z0-9][a-z0-9._-]{0,127}"
     r"|-recover-identity)$"
@@ -338,6 +339,7 @@ _CURRENT_TARGETS_TOKEN = object()
 _RESOURCE_RECOVERY_TOKEN = object()
 _OBSERVATION_CORRECTION_TOKEN = object()
 _INPROGRESS_TARGETS_TOKEN = object()
+_ADVANCE_TOKEN = object()
 _RESOURCE_PROOF_DEPTH = ContextVar("resource_recovery_proof_depth", default=0)
 _SCOPE_RECOVERY_TOKEN = object()
 _IDENTITY_RECOVERY_TOKEN = object()
@@ -426,6 +428,11 @@ class _InProgressTargetsCapability(_CurrentTargetsCapability):
     """Neutral target proof bound to its exact retained unfinished selection."""
 
     request_raw: bytes
+
+
+@dataclass(frozen=True)
+class _AdvanceCapability(_InProgressTargetsCapability):
+    """Authority for a request-derived retained producer advancement."""
 
 
 @dataclass(frozen=True)
@@ -6807,6 +6814,14 @@ def _observation_namespace(document, resource):
     if retained is None:
         return None
     _before, proof = retained
+    envelope = document.get("dependency_advance")
+    if envelope is not None and resource["slot_id"] == envelope["declaration"]["build_slot"]:
+        plan_steps = [step for step in envelope["steps"] if step["stage"] == "plan"]
+        if plan_steps:
+            plan = plan_steps[0]["observations"]["plan"]
+            if resource["kind"] == "build" and resource["immutable"]["path"] == plan["build_root"]:
+                return proof["resource_context"]
+        raise LedgerError("advanced resource lacks declared namespace provenance")
     linked = {proof["request"][key] for key in ("state_slot", "scenario_slot", "build_slot", "topology_slot")}
     if resource["slot_id"] in linked:
         return proof["resource_context"]
@@ -6828,16 +6843,420 @@ def _inprogress_selection(document, request):
             or request["correction_sha256"] != canonical_object_digest(proof)):
         raise LedgerError("in-progress admission correction anchor differs")
     slots = _sorted_names(request["planned_slots"], "in-progress planned slots", nonempty=False)
-    if not set(slots).issubset(proof["request"]["planned_slots"]):
+    envelope = document.get("dependency_advance")
+    advanced_slot = envelope["declaration"]["build_slot"] if envelope is not None else None
+    selected_original = [slot for slot in slots if slot != advanced_slot]
+    if not set(selected_original).issubset(proof["request"]["planned_slots"]):
         raise LedgerError("in-progress admission selection differs from original unfinished plans")
     original = {row["slot_id"]: row for row in before["resources"]}
     current = {row["slot_id"]: row for row in document["resources"]}
     if slots != sorted(row["slot_id"] for row in document["resources"] if row["state"] == "planned"):
         raise LedgerError("in-progress admission must select every remaining unfinished plan")
-    for slot in slots:
+    for slot in selected_original:
         if current.get(slot) != original.get(slot) or current[slot]["kind"] not in {"reference", "runtime"} or current[slot]["current"] is not None:
             raise LedgerError("in-progress admission changed original inert client intent")
     return frozenset(slots)
+
+
+
+# Deliberately inline the dependency-free schema for standalone inventory. The
+# public helper must never import candidate/cwd code while validating a ledger.
+_ADVANCE_SCHEMA_STAGES = ('declare', 'plan', 'built', 'topology')
+_ADVANCE_SCHEMA_PIN_FIELDS = ('CONSUMER_COMMIT', 'PRODUCER_COMMIT', 'IMAGE', 'PLATFORM_MANIFEST', 'METADATA_HASHES', 'PRODUCER_FILES_SHA256')
+_ADVANCE_SCHEMA_HEX40 = re.compile('[0-9a-f]{40}')
+_ADVANCE_SCHEMA_HEX64 = re.compile('[0-9a-f]{64}')
+
+def _advance_schema_digest(value: Any) -> str:
+    return hashlib.sha256(json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(',', ':')).encode('ascii')).hexdigest()
+
+def _advance_schema_exact(value: Any, keys: set[str], label: str) -> dict:
+    if not isinstance(value, dict) or set(value) != keys:
+        raise LedgerError(f'retained advance {label} has an unsupported shape')
+    return value
+
+def _advance_schema_hex_value(value: Any, pattern: re.Pattern, label: str) -> str:
+    if not isinstance(value, str) or pattern.fullmatch(value) is None:
+        raise LedgerError(f'retained advance {label} is invalid')
+    return value
+
+def _advance_schema_accepted_portable_pins(raw: bytes) -> dict:
+    """Read literal pins from a proved accepted Git blob without executing it."""
+    if len(raw) > 1024 * 1024:
+        raise LedgerError('retained advance producer declaration exceeds bound')
+    try:
+        tree = ast.parse(raw.decode('utf-8'))
+    except (UnicodeError, SyntaxError) as error:
+        raise LedgerError('retained advance producer declaration is invalid') from error
+    found = {}
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        names = [target.id for target in node.targets if isinstance(target, ast.Name)]
+        for name in set(names) & set(_ADVANCE_SCHEMA_PIN_FIELDS):
+            if name in found:
+                raise LedgerError('retained advance producer declaration repeats a pin')
+            try:
+                found[name] = ast.literal_eval(node.value)
+            except (ValueError, TypeError) as error:
+                raise LedgerError('retained advance producer pin is not a literal') from error
+    _advance_schema_validate_pins(found)
+    return found
+
+def _advance_schema_validate_pins(value: Any) -> dict:
+    value = _advance_schema_exact(value, set(_ADVANCE_SCHEMA_PIN_FIELDS), 'portable pins')
+    for field in ('CONSUMER_COMMIT', 'PRODUCER_COMMIT'):
+        _advance_schema_hex_value(value[field], _ADVANCE_SCHEMA_HEX40, field)
+    _advance_schema_hex_value(value['PRODUCER_FILES_SHA256'], _ADVANCE_SCHEMA_HEX64, 'producer inventory')
+    if not isinstance(value['IMAGE'], str) or re.fullmatch('ghcr\\.io/atrinik/classic-portable-build@sha256:[0-9a-f]{64}', value['IMAGE']) is None:
+        raise LedgerError('retained advance portable image is not an immutable producer')
+    if not isinstance(value['PLATFORM_MANIFEST'], str) or re.fullmatch('sha256:[0-9a-f]{64}', value['PLATFORM_MANIFEST']) is None:
+        raise LedgerError('retained advance platform manifest is invalid')
+    metadata = value['METADATA_HASHES']
+    required = {'contract.json', 'debian-sources.json', 'installed.json', 'runtime-abi.json', 'runtime-sources.json', 'shader-generation.json'}
+    _advance_schema_exact(metadata, required, 'producer metadata inventory')
+    for name, checksum in metadata.items():
+        _advance_schema_hex_value(checksum, _ADVANCE_SCHEMA_HEX64, name)
+    return value
+
+def _advance_schema_validate_plan(plan: Any, *, profile: str, wrapper: str, workspace: str, classic_root: str, classic_head: str) -> dict:
+    """Check the complete public producer shape before its live recomputation."""
+    keys = {'schema_version', 'target', 'profile', 'tests', 'force_reconfigure', 'use_ccache', 'targets', 'manifest', 'checkout_states', 'source_fingerprints', 'git_observations', 'sources', 'execution_sources', 'wrapper_root', 'workspace_root', 'builds_root', 'build_key', 'build_root', 'plan_sha256'}
+    _advance_schema_exact(plan, keys, 'public build plan')
+    unsigned = {key: value for key, value in plan.items() if key != 'plan_sha256'}
+    if plan['schema_version'] != 1 or isinstance(plan['schema_version'], bool) or plan['target'] != 'server' or (plan['tests'] is not True) or (not isinstance(plan['force_reconfigure'], bool)) or (not isinstance(plan['use_ccache'], bool)) or (not isinstance(plan['profile'], dict)) or (plan['profile'].get('name') != profile) or (plan['profile'].get('stack') != 'classic') or (plan['wrapper_root'] != wrapper) or (plan['workspace_root'] != workspace) or (plan['builds_root'] != workspace + '/build') or (not isinstance(plan['build_key'], str)) or (re.fullmatch('[0-9a-f]{12}', plan['build_key']) is None) or (plan['build_root'] != workspace + '/build/profiles/' + profile + '-' + plan['build_key']) or (_advance_schema_digest(unsigned) != plan['plan_sha256']):
+        raise LedgerError('retained advance build plan differs from declared producer coordinates')
+    states = plan['checkout_states']
+    if not isinstance(states, dict) or not isinstance(states.get('classic'), dict) or states['classic'].get('path') != classic_root or (states['classic'].get('head') != classic_head) or any((not isinstance(state, dict) or state.get('dirty') is not False for state in states.values())):
+        raise LedgerError('retained advance build plan has unverified Classic/source heads')
+    for field in ('manifest', 'source_fingerprints', 'git_observations', 'sources', 'execution_sources'):
+        if not isinstance(plan[field], dict) or not plan[field]:
+            raise LedgerError('retained advance build plan lacks ' + field)
+    if not isinstance(plan['targets'], list) or 'server' not in plan['targets'] or set(plan['sources']) != set(plan['execution_sources']):
+        raise LedgerError('retained advance build roles differ')
+    return plan
+
+def _advance_schema_validate_envelope(value: Any) -> dict:
+    """Validate append-only retained records, never infer live authority from them."""
+    value = _advance_schema_exact(value, {'schema_version', 'correction_sha256', 'declaration', 'steps'}, 'envelope')
+    if value['schema_version'] != 1 or isinstance(value['schema_version'], bool):
+        raise LedgerError('retained advance envelope version is unsupported')
+    _advance_schema_hex_value(value['correction_sha256'], _ADVANCE_SCHEMA_HEX64, 'correction anchor')
+    declaration = _advance_schema_exact(value['declaration'], {'accepted_wrapper_commit', 'producer_blob_sha256', 'portable_pins', 'classic_root', 'old_classic_head', 'new_classic_head', 'profile', 'scenario', 'topology', 'build_slot'}, 'declaration')
+    for field in ('accepted_wrapper_commit', 'old_classic_head', 'new_classic_head'):
+        _advance_schema_hex_value(declaration[field], _ADVANCE_SCHEMA_HEX40, field)
+    _advance_schema_hex_value(declaration['producer_blob_sha256'], _ADVANCE_SCHEMA_HEX64, 'producer blob')
+    pins = _advance_schema_validate_pins(declaration['portable_pins'])
+    if declaration['new_classic_head'] != pins['CONSUMER_COMMIT'] or declaration['new_classic_head'] == declaration['old_classic_head']:
+        raise LedgerError('retained advance source transition differs from accepted declaration')
+    root = declaration['classic_root']
+    if not isinstance(root, str) or not root.startswith('/') or any((part in {'', '.', '..'} for part in root.split('/')[1:])):
+        raise LedgerError('retained advance Classic root is not canonical')
+    for field in ('profile', 'scenario', 'topology', 'build_slot'):
+        if not isinstance(declaration[field], str) or re.fullmatch('[a-z0-9][a-z0-9._-]{0,127}', declaration[field]) is None:
+            raise LedgerError('retained advance declaration name is invalid')
+    steps = value['steps']
+    if not isinstance(steps, list) or not 1 <= len(steps) <= len(_ADVANCE_SCHEMA_STAGES):
+        raise LedgerError('retained advance steps exceed the bounded lifecycle')
+    previous_generation = 0
+    for index, step in enumerate(steps):
+        _advance_schema_exact(step, {'stage', 'generation', 'predecessor_sha256', 'request', 'observations', 'previous_topology_current'}, 'step')
+        if step['stage'] != _ADVANCE_SCHEMA_STAGES[index] or isinstance(step['generation'], bool) or (not isinstance(step['generation'], int)) or (step['generation'] <= previous_generation):
+            raise LedgerError('retained advance steps are not an ordered prefix')
+        if (step['stage'] == 'topology') != isinstance(step['previous_topology_current'], dict):
+            raise LedgerError('retained advance previous topology observation differs from stage')
+        if step['stage'] != 'topology' and step['previous_topology_current'] is not None:
+            raise LedgerError('retained advance has unrelated previous topology evidence')
+        previous_generation = step['generation']
+        _advance_schema_hex_value(step['predecessor_sha256'], _ADVANCE_SCHEMA_HEX64, 'step predecessor')
+        if not isinstance(step['request'], dict) or not isinstance(step['observations'], dict):
+            raise LedgerError('retained advance step evidence is invalid')
+    return value
+
+def _advance_schema_require_append(before: dict | None, after: dict) -> None:
+    _advance_schema_validate_envelope(after)
+    if before is None:
+        if len(after['steps']) != 1:
+            raise LedgerError('retained advance must begin with a declaration')
+        return
+    _advance_schema_validate_envelope(before)
+    if {key: val for key, val in before.items() if key != 'steps'} != {key: val for key, val in after.items() if key != 'steps'} or len(after['steps']) != len(before['steps']) + 1 or after['steps'][:-1] != before['steps']:
+        raise LedgerError('retained advance historical declaration/evidence is immutable')
+
+def _advance_module():
+    from types import SimpleNamespace
+    return SimpleNamespace(STAGES=_ADVANCE_SCHEMA_STAGES, accepted_portable_pins=_advance_schema_accepted_portable_pins,
+                           validate_plan=_advance_schema_validate_plan, validate_envelope=_advance_schema_validate_envelope,
+                           require_append=_advance_schema_require_append)
+
+
+def _advance_validate(document):
+    envelope = document.get("dependency_advance")
+    if envelope is None:
+        return None
+    try:
+        _advance_module().validate_envelope(envelope)
+    except Exception as error:
+        raise LedgerError(str(error)) from error
+    retained = _retained_correction(document)
+    if retained is None or canonical_object_digest(retained[1]) != envelope["correction_sha256"]:
+        raise LedgerError("dependency advancement has no exact retained correction anchor")
+    before, proof = retained
+    declaration = envelope["declaration"]
+    scenario = proof["observations"]["state"]["scenario"]
+    if (declaration["profile"] != scenario["profile"] or declaration["scenario"] != scenario["name"]
+            or declaration["topology"] != proof["observations"]["topology"]["status"]["name"]):
+        raise LedgerError("dependency advancement changes historical scenario/topology ownership")
+    coordinates = [row for row in scenario["resolved"].values() if row.get("checkout") == "classic"]
+    if not coordinates or any(row["checkout_path"] != declaration["classic_root"]
+                              or row["head"] != declaration["old_classic_head"] for row in coordinates):
+        raise LedgerError("dependency advancement changes historical Classic source roots")
+    original_slots = {row["slot_id"] for row in before["resources"]}
+    if declaration["build_slot"] in original_slots:
+        raise LedgerError("dependency advancement cannot replace a historical resource slot")
+    for step in envelope["steps"]:
+        generation = step["generation"]
+        if generation >= document["generation"] or document["history"][generation - 1] != step["predecessor_sha256"]:
+            raise LedgerError("dependency advancement predecessor is absent from exact history")
+        _advance_request_shape(step["request"], step["stage"])
+        expected_keys = {"declaration": set(), "plan": {"plan", "build"}, "built": {"plan", "build"},
+                         "topology": {"plan", "build", "topology", "historical_runtime"}}
+        keys = expected_keys.get(step["stage"], set())
+        _exact(step["observations"], keys, "advancement live observations")
+    return envelope
+
+
+def _advance_request_shape(request, stage=None):
+    if not isinstance(request, dict):
+        raise LedgerError("dependency advancement request must be an object")
+    stage = request.get("stage") if stage is None else stage
+    keys = {"stage", "correction_sha256"}
+    extras = {"declare": {"build_slot"}, "plan": {"build_plan"},
+              "built": {"build_plan", "build_result", "build_log", "build_observation"},
+              "topology": {"topology_plan", "topology_output"}}
+    if stage not in extras or request.get("stage") != stage:
+        raise LedgerError("dependency advancement stage is unsupported")
+    _exact(request, keys | extras[stage], "dependency advancement request")
+    _string(request["correction_sha256"], "advancement correction digest", SHA256_RE)
+    if stage == "declare":
+        _string(request["build_slot"], "advancement build slot", SLOT_RE)
+    else:
+        for key in extras[stage]:
+            _retained_result(request[key], "advancement " + key)
+    return stage
+
+
+def _advance_git(path, arguments, context, **kwargs):
+    descriptor = _directory_fd(Path(path))
+    try:
+        return _git(descriptor, arguments, context, **kwargs)
+    finally:
+        os.close(descriptor)
+
+
+def _advance_declaration(document, request):
+    retained = _retained_correction(document)
+    if retained is None:
+        raise LedgerError("dependency advancement requires retained observation correction")
+    _before, proof = retained
+    if canonical_object_digest(proof) != request["correction_sha256"]:
+        raise LedgerError("dependency advancement correction anchor differs")
+    context = proof["resource_context"]
+    worktree = next(row for row in document["artifacts"] if row["slot_id"] == context["worktree_slot"])
+    target = next(row for row in document["targets"] if row["repository"] == worktree["immutable"]["repository"]
+                  and row["head"]["branch"] == worktree["immutable"]["branch"])
+    accepted = target["base"]["current_sha"]
+    _, raw = _advance_git(worktree["current"]["path"], ("show", accepted + ":atrinik_workspace/linux_portable.py"),
+                  "accepted portable dependency declaration")
+    try:
+        pins = _advance_module().accepted_portable_pins(raw)
+    except Exception as error:
+        raise LedgerError(str(error)) from error
+    scenario = proof["observations"]["state"]["scenario"]
+    coordinates = [row for row in scenario["resolved"].values() if row.get("checkout") == "classic"]
+    if not coordinates or len({(row["checkout_path"], row["head"]) for row in coordinates}) != 1:
+        raise LedgerError("retained scenario lacks one physical Classic source")
+    classic = coordinates[0]
+    return {"accepted_wrapper_commit": accepted, "producer_blob_sha256": byte_digest(raw), "portable_pins": pins,
+            "classic_root": classic["checkout_path"], "old_classic_head": classic["head"],
+            "new_classic_head": pins["CONSUMER_COMMIT"], "profile": scenario["profile"],
+            "scenario": scenario["name"], "topology": proof["observations"]["topology"]["status"]["name"],
+            "build_slot": request["build_slot"]}
+
+
+def _advance_pin_recheck(document, envelope):
+    proof = _retained_correction(document)[1]
+    worktree = next(row for row in document["artifacts"] if row["slot_id"] == proof["resource_context"]["worktree_slot"])
+    target = next(row for row in document["targets"] if row["repository"] == worktree["immutable"]["repository"]
+                  and row["head"]["branch"] == worktree["immutable"]["branch"])
+    declaration = envelope["declaration"]
+    code, _ = _advance_git(worktree["current"]["path"], ("merge-base", "--is-ancestor", declaration["accepted_wrapper_commit"],
+                    target["base"]["current_sha"]), "accepted dependency declaration ancestry", accepted={0, 1})
+    if code:
+        raise LedgerError("dependency declaration is not in the accepted target base")
+    _, raw = _advance_git(worktree["current"]["path"], ("show", declaration["accepted_wrapper_commit"] + ":atrinik_workspace/linux_portable.py"),
+                  "retained portable dependency declaration")
+    if byte_digest(raw) != declaration["producer_blob_sha256"] or _advance_module().accepted_portable_pins(raw) != declaration["portable_pins"]:
+        raise LedgerError("accepted dependency declaration bytes changed")
+    code, _ = _advance_git(declaration["classic_root"], ("merge-base", "--is-ancestor", declaration["old_classic_head"],
+                           declaration["new_classic_head"]), "declared Classic dependency ancestry", accepted={0, 1})
+    if code:
+        raise LedgerError("declared Classic dependency does not advance its original source")
+
+
+def _advance_evidence(document, envelope, request=None):
+    """Derive the effective producer inputs; no caller-supplied resource paths."""
+    steps = envelope["steps"]
+    requests = {step["stage"]: step["request"] for step in steps}
+    if request is not None:
+        requests[request["stage"]] = request
+    if "plan" not in requests:
+        return {}
+    proof = _retained_correction(document)[1]
+    plan = _decode(_retained_result(requests["plan"]["build_plan"], "advanced build plan"), "advanced build plan")
+    declaration = envelope["declaration"]
+    context = proof["resource_context"]
+    try:
+        _advance_module().validate_plan(plan, profile=declaration["profile"], wrapper=context["wrapper"],
+            workspace=context["workspace"], classic_root=declaration["classic_root"], classic_head=declaration["new_classic_head"])
+    except Exception as error:
+        raise LedgerError(str(error)) from error
+    evidence = {"dependency_advance": envelope, "advance_build_plan": plan,
+                "historical_observations": proof["observations"], "advance_build_complete": "built" in requests}
+    if "built" in requests:
+        built = requests["built"]
+        raw = {key: _retained_result(built[key], "advanced " + key)
+               for key in ("build_plan", "build_result", "build_log", "build_observation")}
+        observation = _decode(raw["build_observation"], "advanced build observation")
+        if (built["build_plan"] != requests["plan"]["build_plan"]
+                or _decode(raw["build_result"], "advanced build result") != {"build_root": plan["build_root"]}
+                or observation != {"build_root": plan["build_root"], "plan_sha256": plan["plan_sha256"],
+                    "plan_file_sha256": byte_digest(raw["build_plan"]), "result_file_sha256": byte_digest(raw["build_result"]),
+                    "log_sha256": byte_digest(raw["build_log"]), "tests": True, "exit_code": 0, "profile": declaration["profile"]}
+                or not raw["build_log"].endswith(b"\n")):
+            raise LedgerError("advanced tested build lacks its exact fenced producer evidence")
+    if "topology" in requests:
+        topology = requests["topology"]
+        output = _decode(_retained_result(topology["topology_output"], "advanced topology output"), "advanced topology output")
+        topology_plan = _decode(_retained_result(topology["topology_plan"], "advanced topology plan"), "advanced topology plan")
+        old = proof["observations"]["topology"]["status"]
+        if (output.get("name") != declaration["topology"] or output.get("profile") != declaration["profile"]
+                or output.get("state") != old["state"] or output.get("state_policy") != old["state_policy"]
+                or not isinstance(output.get("resolved"), dict) or set(output["resolved"]) != set(old["resolved"])):
+            raise LedgerError("advanced topology changes retained ownership/state")
+        for role, original in old["resolved"].items():
+            expected = copy.deepcopy(original)
+            if expected.get("checkout") == "classic":
+                expected["head"] = declaration["new_classic_head"]
+            if output["resolved"][role] != expected:
+                raise LedgerError("advanced topology changes undeclared source coordinates")
+        if output.get("build_root") in {proof["observations"]["build"]["path"], old["build_root"], plan["build_root"]}:
+            raise LedgerError("advanced runtime build aliases retained/tested inputs")
+        evidence.update(advance_topology_output=output, advance_topology_plan=topology_plan)
+        # The public transaction derives the new observation; it is not a generic
+        # CAS exemption for arbitrary topology digests.
+        current = next(row["current"] for row in document["resources"] if row["slot_id"] == proof["request"]["topology_slot"])
+        if request is not None and request["stage"] == "topology":
+            evidence["topology_current"] = {**current, "identity_digest": canonical_object_digest(output), "lifecycle": "stopped"}
+    return evidence
+
+
+def _advance_projection(document, envelope, stage, observations):
+    result = copy.deepcopy(document)
+    result["dependency_advance"] = envelope
+    declaration = envelope["declaration"]
+    proof = _retained_correction(document)[1]
+    if stage == "plan":
+        plan = observations["plan"]
+        original = next(row for row in document["resources"] if row["slot_id"] == proof["request"]["build_slot"])
+        result["resources"].append({"slot_id": declaration["build_slot"], "kind": "build", "state": "planned", "current": None,
+            "immutable": {"repository": original["immutable"]["repository"], "name": Path(plan["build_root"]).name, "path": plan["build_root"]}})
+        result["resources"].sort(key=lambda row: row["slot_id"])
+    elif stage == "built":
+        row = next(row for row in result["resources"] if row["slot_id"] == declaration["build_slot"])
+        row["state"] = "created"
+        row["current"] = {**row["immutable"], "generation": 1, "history": [], "external_generation": None,
+                          "identity_digest": canonical_object_digest(observations["build"]), "lifecycle": "static"}
+    elif stage == "topology":
+        row = next(row for row in result["resources"] if row["slot_id"] == proof["request"]["topology_slot"])
+        current = row["current"]
+        row["current"] = {**current, "generation": current["generation"] + 1,
+            "history": [*current["history"], current["identity_digest"]],
+            "identity_digest": canonical_object_digest(observations["topology"]["status"]), "lifecycle": "stopped"}
+    return result
+
+
+def advance_retained_dependency_cas(root, name, request, *, expected_generation, expected_digest, expected_path, failpoint=None):
+    """Append one live-proved producer stage without rewriting correction history."""
+    stage = _advance_request_shape(request)
+    current = inspect(root, name)
+    retry = False
+    if _snapshot_matches_identity(current, expected_generation, expected_digest, expected_path):
+        before = current.document
+    elif (current.document["generation"] == expected_generation + 1
+          and current.document["previous_byte_digest"] == expected_digest
+          and _snapshot_matches_identity(current, current.document["generation"], current.digest, expected_path)):
+        envelope = _advance_validate(current.document)
+        if envelope is None or envelope["steps"][-1]["request"] != request:
+            raise LedgerError("retained advancement retry has different evidence")
+        step = envelope["steps"][-1]
+        before = copy.deepcopy(current.document)
+        before["generation"] -= 1
+        before["history"].pop()
+        before["previous_byte_digest"] = before["history"][-1] if before["history"] else None
+        if stage == "declare":
+            before.pop("dependency_advance")
+        else:
+            before["dependency_advance"]["steps"].pop()
+        slot = envelope["declaration"]["build_slot"]
+        if stage == "plan":
+            before["resources"] = [row for row in before["resources"] if row["slot_id"] != slot]
+        elif stage == "built":
+            row = next(row for row in before["resources"] if row["slot_id"] == slot)
+            row.update(state="planned", current=None)
+        elif stage == "topology":
+            topology_slot = _retained_correction(before)[1]["request"]["topology_slot"]
+            next(row for row in before["resources"] if row["slot_id"] == topology_slot)["current"] = step["previous_topology_current"]
+        before = prepare(before)
+        if byte_digest(canonical_bytes(before)) != expected_digest:
+            raise LedgerError("retained advancement retry predecessor differs")
+        retry = True
+    else:
+        raise LedgerError("stale retained advancement generation, digest, or path")
+    _prepublication_observation_owner(before)
+    prior = _advance_validate(before)
+    index = _advance_module().STAGES.index(stage)
+    if (prior is None and index != 0) or (prior is not None and len(prior["steps"]) != index):
+        raise LedgerError("retained advancement stage is not the next producer transition")
+    if stage == "declare":
+        envelope = {"schema_version": 1, "correction_sha256": request["correction_sha256"],
+                    "declaration": _advance_declaration(before, request), "steps": []}
+        if any(row["slot_id"] == request["build_slot"] for row in before["resources"]):
+            raise LedgerError("advanced build slot is already reserved")
+    else:
+        envelope = copy.deepcopy(prior)
+        if request["correction_sha256"] != envelope["correction_sha256"]:
+            raise LedgerError("retained advancement correction differs")
+    observations = {}
+    with _current_targets_live_safety(before, observations=observations,
+                                     advance_envelope=envelope, advance_request=request) as prove:
+        live = observations.get("dependency-advance", {})
+        step = {"stage": stage, "generation": expected_generation, "predecessor_sha256": expected_digest,
+                "request": copy.deepcopy(request), "observations": live,
+                "previous_topology_current": copy.deepcopy(next(row["current"] for row in before["resources"]
+                    if row["slot_id"] == _retained_correction(before)[1]["request"]["topology_slot"])) if stage == "topology" else None}
+        envelope["steps"].append(step)
+        try:
+            _advance_module().require_append(prior, envelope)
+        except Exception as error:
+            raise LedgerError(str(error)) from error
+        prepared = _advance_projection(_neutral_successor(before, expected_digest), envelope, stage, live)
+        prepared = prepare(prepared)
+        if retry and canonical_bytes(prepared) != current.raw:
+            raise LedgerError("retained advancement retry live observations changed")
+        capability = _AdvanceCapability(_ADVANCE_TOKEN, name, canonical_bytes(before), canonical_bytes(prepared),
+                                         expected_generation, expected_digest, expected_path, canonical_bytes(request))
+        return cas(root, name, prepared, expected_generation=expected_generation, expected_digest=expected_digest,
+                   expected_path=expected_path, failpoint=failpoint, _precommit=prove, _advance_capability=capability)
 
 
 def _resource(value: Any, context: str) -> tuple[str, str]:
@@ -6968,7 +7387,7 @@ def validate(document: Any) -> dict[str, Any]:
             "previous_byte_digest",
             "history",
             "migration",
-        },
+        } | ({"dependency_advance"} if isinstance(document, dict) and "dependency_advance" in document else set()),
         "ledger",
     )
     if (
@@ -7555,6 +7974,7 @@ def validate(document: Any) -> dict[str, Any]:
             if item[field] != before[field]:
                 raise LedgerError("observation correction authority changed")
         _retained_resource_context(item, {"resource_context": proof["resource_context"], "slots": expected_slots})
+    _advance_validate(item)
     migration = item["migration"]
     if migration is not None:
         migration_keys = {
@@ -10270,8 +10690,20 @@ def _resource_reserved_paths(resource):
     return sorted(paths)
 
 
+def _advance_reserved_paths(document):
+    paths = set()
+    for step in document.get("dependency_advance", {}).get("steps", []):
+        observations = step["observations"]
+        for proof in (observations.get("build"), observations.get("topology", {}).get("runtime_build")):
+            if proof is not None:
+                paths.update(row["path"] for row in proof["reservations"])
+    return paths
+
+
 def _conflict_keys(snapshot: Snapshot) -> Iterator[tuple[str, tuple[Any, ...]]]:
     document = snapshot.document
+    for path in sorted(_advance_reserved_paths(document)):
+        yield "resource/path", (path.casefold(),)
     if document["program"] is not None:
         master = document["program"]["master_issue"]
         yield "program/master-position", (
@@ -10499,6 +10931,17 @@ def _reject_overlaps(
                 f"ledger identity is duplicated by {prior_id.name} and {snapshot.name}"
             )
         ledger_ids[snapshot.document["ledger_id"]] = snapshot
+        advanced_paths = _advance_reserved_paths(document)
+        for prior in ledger_ids.values():
+            if prior.name == snapshot.name:
+                continue
+            prior_advanced = _advance_reserved_paths(prior.document)
+            current_paths = {path for row in document["resources"] for path in _resource_reserved_paths(row)} | advanced_paths
+            prior_paths = {path for row in prior.document["resources"] for path in _resource_reserved_paths(row)} | prior_advanced
+            for lefts, rights in ((advanced_paths, prior_paths), (current_paths, prior_advanced)):
+                if any(Path(left.casefold()).is_relative_to(Path(right.casefold()))
+                       or Path(right.casefold()).is_relative_to(Path(left.casefold())) for left in lefts for right in rights):
+                    raise LedgerError("resource ownership overlaps retained advancement provenance")
         for resource in snapshot.document["resources"]:
             candidate_paths = _resource_reserved_paths(resource)
             for prior in ledger_ids.values():
@@ -14206,7 +14649,10 @@ def _transition(
     _identity_recovery_capability: _IdentityRecoveryCapability | None = None,
     _resource_recovery_capability: _ResourceRecoveryCapability | None = None,
     _observation_correction_capability: _ObservationCorrectionCapability | None = None,
+    _advance_capability: _AdvanceCapability | None = None,
 ) -> None:
+    if old.get("dependency_advance") != new.get("dependency_advance") and _advance_capability is None:
+        raise LedgerError("retained dependency advancement requires its dedicated public transaction")
     immutable = {
         "schema_version",
         "ledger_id",
@@ -14534,6 +14980,10 @@ def _transition(
             raise LedgerError("scope resources must be reserved by fresh issue-mode create")
     for slot, before in old_resources.items():
         after = new_resources[slot]
+        advance = old.get("dependency_advance")
+        if (advance is not None and slot == advance["declaration"]["build_slot"]
+                and before != after and _advance_capability is None):
+            raise LedgerError("advanced build binding requires its dedicated producer transaction")
         if "correction" in before or "correction" in after:
             if before == after:
                 continue
@@ -15065,10 +15515,13 @@ def _bound_resource_workspace(document, context):
 
 
 @contextmanager
-def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_request=None, observations=None, observation_request=None, admission_request=None) -> Iterator[Callable[[], None]]:
+def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_request=None, observations=None, observation_request=None, admission_request=None, advance_envelope=None, advance_request=None) -> Iterator[Callable[[], None]]:
     """Prepare every current target, then prove under one complete lease union."""
 
     require_reusable_artifacts(document)
+    installed_advance = _advance_validate(document)
+    effective_advance = advance_envelope if advance_envelope is not None else installed_advance
+    advance_values = _advance_evidence(document, effective_advance, advance_request) if effective_advance is not None else {}
     recovery_slots = frozenset(recovery_request["slots"]) if recovery_request else frozenset()
     correction_source = document
     retained_correction = _retained_correction(document)
@@ -15090,8 +15543,18 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
         # does not grant a second resource's namespace authority.
         allowed_slots = {observation_request[key] for key in ("state_slot", "scenario_slot", "build_slot", "topology_slot")}
         original_rows = {row["slot_id"]: row for row in correction_source["resources"]}
+        advanced_slot = effective_advance["declaration"]["build_slot"] if effective_advance is not None else None
         for row in document["resources"]:
             if row["slot_id"] in allowed_slots or row["slot_id"] in original_inert:
+                continue
+            if row["slot_id"] == advanced_slot and advance_values:
+                expected_path = advance_values["advance_build_plan"]["build_root"]
+                if (row["kind"] != "build" or row["immutable"] != {
+                        "repository": original_rows[observation_request["build_slot"]]["immutable"]["repository"],
+                        "name": Path(expected_path).name, "path": expected_path}):
+                    raise LedgerError("advanced build resource lacks its exact producer namespace")
+                if row["state"] == "planned" and (advance_request is not None or admission_request is not None):
+                    inert |= {advanced_slot}
                 continue
             if row["kind"] == "runtime":
                 continue  # Ordinary exact observation lifecycle; no Docker verifier.
@@ -15100,7 +15563,15 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
                     or row["immutable"]["name"] != correction_evidence["scenario_output"]["profile"]):
                 raise LedgerError("unrelated wrapper resource lacks correction namespace provenance")
     if admission_request is not None:
-        inert = _inprogress_selection(document, admission_request)
+        inert |= _inprogress_selection(document, admission_request)
+    if advance_request is not None:
+        original_document, original_proof = _retained_correction(document)
+        original_rows = {row["slot_id"]: row for row in original_document["resources"]}
+        for row in document["resources"]:
+            if row["slot_id"] in original_proof["request"]["planned_slots"] and row["state"] == "planned":
+                if row != original_rows[row["slot_id"]] or row["current"] is not None:
+                    raise LedgerError("advancement changed original unfinished client intent")
+                inert |= {row["slot_id"]}
     require_reusable_resources(document, _recovery_slots=recovery_slots | inert)
     changes = []
     for target in document["targets"]:
@@ -15138,6 +15609,7 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
         observation_proof = None
         if correction_evidence is not None:
             correction_evidence["topology_current"] = next(row["current"] for row in document["resources"] if row["slot_id"] == observation_request["topology_slot"]) if retained_correction is not None else None
+            correction_evidence.update(advance_values)
             module, preparation, recheck = stack.enter_context(_bound_resource_workspace(document, correction_context))
             context_checks.append(recheck)
             try:
@@ -15214,14 +15686,42 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
             for check in context_checks:
                 check()
             actual = {}
+            if effective_advance is not None:
+                _advance_pin_recheck(document, effective_advance)
             if observation_proof is not None:
                 try:
                     actual["observation-correction"] = observation_proof.observe()
                 except Exception as error:
                     raise LedgerError(f"observation correction live proof failed: {error}") from error
+                advanced = actual["observation-correction"].pop("advance", None)
+                if advance_values:
+                    if installed_advance is not None:
+                        completed = [step for step in installed_advance["steps"] if step["stage"] == "built"]
+                        if completed and advanced["build"] != completed[0]["observations"]["build"]:
+                            raise LedgerError("advanced tested build changed since its exact producer binding")
+                    actual["dependency-advance"] = {"plan": advance_values["advance_build_plan"], "build": advanced["build"]}
+                    if "advance_topology_output" in advance_values:
+                        actual["dependency-advance"].update(topology=actual["observation-correction"]["topology"],
+                                                           historical_runtime=advanced["historical_runtime"])
+                elif effective_advance is not None:
+                    actual["dependency-advance"] = {}
                 if correction_observations is not None:
                     current_fixed = _correction_fixed_ownership(actual["observation-correction"])
                     original_fixed = _correction_fixed_ownership(correction_observations)
+                    if advance_values and "advance_topology_output" in advance_values:
+                        historical_runtime = advanced["historical_runtime"]
+                        if historical_runtime is None:
+                            raise LedgerError("advanced topology lost historical runtime proof")
+                        old_runtime = copy.deepcopy(correction_observations["topology"]["runtime_build"])
+                        current_runtime = copy.deepcopy(historical_runtime)
+                        for retained_build in (old_runtime, current_runtime):
+                            for row in retained_build["observations"]:
+                                row["metadata"].pop("last_used_at", None)
+                        if old_runtime != current_runtime:
+                            raise LedgerError("advanced topology changed historical runtime evidence")
+                        current_fixed["topology"]["runtime_build"] = original_fixed["topology"]["runtime_build"]
+                        for field in ("build_root", "resolved"):
+                            current_fixed["topology"]["spec"][field] = original_fixed["topology"]["spec"][field]
                     if current_fixed != original_fixed:
                         def changed_paths(left, right, prefix=""):
                             if isinstance(left, dict) and isinstance(right, dict):
@@ -15255,6 +15755,14 @@ def _current_targets_live_safety(document: Mapping[str, Any], *, recovery_reques
             if observation_proof is not None:
                 try:
                     fresh["observation-correction"] = observation_proof.observe()
+                    advanced = fresh["observation-correction"].pop("advance", None)
+                    if advance_values:
+                        fresh["dependency-advance"] = {"plan": advance_values["advance_build_plan"], "build": advanced["build"]}
+                        if "advance_topology_output" in advance_values:
+                            fresh["dependency-advance"].update(topology=fresh["observation-correction"]["topology"],
+                                                              historical_runtime=advanced["historical_runtime"])
+                    elif effective_advance is not None:
+                        fresh["dependency-advance"] = {}
                 except Exception as error:
                     raise LedgerError(f"observation correction precommit failed: {error}") from error
             for resource_proof in resource_proofs:
@@ -15604,6 +16112,7 @@ def cas(
     _inprogress_targets_capability: _InProgressTargetsCapability | None = None,
     _resource_recovery_capability: _ResourceRecoveryCapability | None = None,
     _observation_correction_capability: _ObservationCorrectionCapability | None = None,
+    _advance_capability: _AdvanceCapability | None = None,
 ) -> Snapshot:
     name = _direct_name(name)
     prepared = prepare(document)
@@ -15799,6 +16308,25 @@ def cas(
             raise LedgerError("in-progress request is not canonical")
         _inprogress_selection(predecessor, request)
         operation = "-admit-targets-" + byte_digest(capability.request_raw)
+    if _advance_capability is not None:
+        capability = _advance_capability
+        if (operation or capability.token is not _ADVANCE_TOKEN or capability.name != name
+                or capability.after_raw != raw or _precommit is None
+                or (capability.expected_generation, capability.expected_digest, capability.expected_path)
+                != (expected_generation, expected_digest, expected_path)):
+            raise LedgerError("invalid internal dependency advancement capability")
+        predecessor = validate(_decode(capability.before_raw, "advancement predecessor"))
+        if byte_digest(capability.before_raw) != expected_digest:
+            raise LedgerError("dependency advancement predecessor differs")
+        request = _decode(capability.request_raw, "advancement request")
+        envelope = prepared["dependency_advance"]
+        step = envelope["steps"][-1]
+        if step["request"] != request:
+            raise LedgerError("advancement capability request differs")
+        expected = _advance_projection(_neutral_successor(predecessor, expected_digest), envelope, request["stage"], step["observations"])
+        if expected != prepared:
+            raise LedgerError("dependency advancement changes unrelated ledger state")
+        operation = "-advance-dependency-" + byte_digest(capability.request_raw)
     candidate_digest = byte_digest(raw)
     legacy_stage = (
         f".{name}.update{operation}-g{prepared['generation']}-from-{expected_digest}-"
@@ -16037,7 +16565,7 @@ def cas(
                 and _current_targets_capability.before_raw != current.raw
             ):
                 raise LedgerError("current-target predecessor bytes changed")
-            for capability in (_observation_correction_capability, _inprogress_targets_capability):
+            for capability in (_observation_correction_capability, _inprogress_targets_capability, _advance_capability):
                 if capability is not None and capability.before_raw != current.raw:
                     raise LedgerError("dedicated observation/admission predecessor bytes differ")
             if _resource_recovery_capability is not None and _resource_recovery_capability.before_raw != current.raw:
@@ -16052,6 +16580,7 @@ def cas(
                 _identity_recovery_capability=_identity_recovery_capability,
                 _resource_recovery_capability=_resource_recovery_capability,
                 _observation_correction_capability=_observation_correction_capability,
+                _advance_capability=_advance_capability,
             )
             if compact:
                 assert receipt_name is not None
@@ -18416,7 +18945,7 @@ def parser() -> argparse.ArgumentParser:
     refresh_parser.add_argument("--expected-generation", required=True, type=int)
     refresh_parser.add_argument("--expected-digest", required=True)
     refresh_parser.add_argument("--expected-path", required=True)
-    for operation in ("correct-resource-observations-cas", "admit-in-progress-targets-cas"):
+    for operation in ("correct-resource-observations-cas", "admit-in-progress-targets-cas", "advance-retained-dependency-cas"):
         operation_parser = commands.add_parser(operation, help="exact authenticated prepublication recovery/admission")
         operation_parser.add_argument("root")
         operation_parser.add_argument("name")
@@ -18737,9 +19266,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                     expected_path=arguments.expected_path,
                 ).json()
             )
-        elif arguments.command in {"correct-resource-observations-cas", "admit-in-progress-targets-cas"}:
+        elif arguments.command in {"correct-resource-observations-cas", "admit-in-progress-targets-cas", "advance-retained-dependency-cas"}:
             operation = (correct_resource_observations_cas if arguments.command == "correct-resource-observations-cas"
-                         else admit_in_progress_targets_cas)
+                         else advance_retained_dependency_cas if arguments.command == "advance-retained-dependency-cas" else admit_in_progress_targets_cas)
             _print(operation(arguments.root, arguments.name, _read_input(arguments.input),
                              expected_generation=arguments.expected_generation,
                              expected_digest=arguments.expected_digest, expected_path=arguments.expected_path).json())

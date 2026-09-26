@@ -2311,3 +2311,13 @@ cannot change it. Collision, direct mutation and cleanup protection retain the
 resource namespace and all dependency-generation reservations. Same textual names
 in another namespace gain no ownership from this association. Existing proofs
 without a context retain their original interpretation and bytes.
+
+
+### Retained Classic dependency producer advancement
+
+Use the four-stage `advance-retained-dependency-cas` protocol in
+[resource observation recovery](resource-observation-recovery.md)
+for a same-owner corrected delivery. Its additive envelope retains original
+producer evidence, binds a complete current server plan and a separately tested
+build, and admits a distinct stopped runtime producer. Runtime commands require
+`--retained-build-plan`; generic CAS and ordinary up grant no such authority.

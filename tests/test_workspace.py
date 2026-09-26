@@ -8215,7 +8215,14 @@ class WorkspaceTests(unittest.TestCase):
             {"server", "client"},
             "dev restart classic-local server",
             materialize_clean_primaries=True,
+            before_materialization=mock.ANY,
         )
+        fence = resolved.call_args.kwargs["before_materialization"]
+        self.assertTrue(callable(fence))
+        with mock.patch.object(self.workspace, "_retained_runtime_plan", side_effect=WorkspaceError("retained producer appeared")) as recheck:
+            with self.assertRaisesRegex(WorkspaceError, "retained producer appeared"):
+                fence({}, {}, {})
+        recheck.assert_called_once_with("classic-local", "classic", "scenario-issue-519", None)
 
     def test_dev_up_delegates_to_warmable_topology_root(self) -> None:
         result = {"name": "classic-local", "ready": True}

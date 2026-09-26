@@ -342,3 +342,12 @@ does not itself prove worktree leases or transfer ownership. Generic CAS,
 stored check-reuse flags and private helper contexts grant no reconnect proof.
 Use the accepted helper only; a proposed helper change cannot authorize its
 own reconnect or another paused worker before that change is actually merged.
+
+
+For an accepted Classic dependency needed by a retained corrected child, use the
+issue helper's `advance-retained-dependency-cas` stages and the corresponding
+`--retained-build-plan` runtime producer fence. Follow
+[resource observation recovery](../../atrinik-issue-delivery/references/resource-observation-recovery.md).
+Keep the child's original namespace, scenario and producer history; candidate
+helpers are fixture-only and a new dependency never authorizes overwriting its
+historical runtime build. Portable image pins do not attest a server build image.
