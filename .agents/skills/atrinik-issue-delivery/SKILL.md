@@ -18,9 +18,10 @@ goal only when explicitly asked. Program delegation remains issue-mode-only.
 ## Choose the route
 
 For new source-only work, follow [source delivery](../../../docs/SOURCE_DELIVERY.md).
-It is the canonical start/resume procedure: resolve the physical owner, verify
-the selected GitHub coordinates and push authority, check local branch/worktree
-collisions, then use an ordinary owned Git worktree. This route requires no
+It is the canonical start/resume procedure: resolve the physical owner and task
+coordinate, check local branch/worktree collisions, then use an ordinary owned
+Git worktree. Verify live GitHub identity and push authority before publication,
+not before local drafting. This route requires no
 schema ledger, global inventory, managed scope, runtime, or unrelated resource
 admission. Follow its dirty-resume and blocker rules at the affected operation.
 
