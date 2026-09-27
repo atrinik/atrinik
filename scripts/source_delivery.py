@@ -73,9 +73,12 @@ def identity(root: Path) -> dict:
     owned(root)
     owned(gitdir)
     owned(common)
+    branch_ref = git(root, "symbolic-ref", "--quiet", "HEAD")
+    if not branch_ref.startswith("refs/heads/"):
+        raise SourceError("Source HEAD must identify a local branch")
     return {"worktree": str(root), "gitdir": str(gitdir), "common_dir": str(common),
             "repository": registered(root)[0]["worktree"],
-            "branch": git(root, "symbolic-ref", "--quiet", "--short", "HEAD"),
+            "branch": branch_ref.removeprefix("refs/heads/"),
             "head": git(root, "rev-parse", "--verify", "HEAD")}
 
 

@@ -181,6 +181,15 @@ class SourceDeliveryTests(unittest.TestCase):
         self.assertEqual(self.invoke()[0], 0)
         self.assertEqual(self.invoke("resume")[0], 0)
 
+    def test_tag_with_branch_name_does_not_change_branch_identity(self):
+        self.git("tag", "work/source")
+        code, result = self.invoke()
+        self.assertEqual(code, 0, result)
+        self.assertEqual(result["branch"], "work/source")
+        code, result = self.invoke("resume")
+        self.assertEqual(code, 0, result)
+        self.assertEqual(result["branch"], "work/source")
+
 
 if __name__ == "__main__":
     unittest.main()
