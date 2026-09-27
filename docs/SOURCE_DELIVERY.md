@@ -61,8 +61,12 @@ repeat with `--allow-dirty`. That flag is an explicit ownership assertion, not
 proof that unknown edits belong to the caller. Unknown ownership, conflicts or
 unexpected changes require inspection; never reset, clean or overwrite them.
 Worktrees without a matching source receipt are not adopted by this helper.
-Use their existing workflow or prepare a separate noncompeting repair after
-resolving ownership. A failed create preserves partial resources for inspection.
+The helper is a convenience, not a new mandatory authority service: an ordinary
+Git worktree created directly for this task can continue after checking its
+assignment, owner, common Git directory, registration, branch, recorded base and
+preserved diff. Do not manufacture a receipt or reinterpret an existing bound
+delivery as ordinary source work. Unknown ownership still requires resolution.
+A failed create preserves partial resources for inspection.
 
 ## Repair without circular admission
 
