@@ -11,6 +11,7 @@ import sys
 import time
 from collections.abc import Callable, Sequence
 from typing import Any
+from urllib.parse import urlsplit
 
 
 SUCCESS = {"SUCCESS"}
@@ -26,14 +27,26 @@ FAILURE = {
     "STARTUP_FAILURE",
     "TIMED_OUT",
 }
+GRAPHQL_QUERY = """query($owner:String!,$name:String!,$number:Int!){
+  repository(owner:$owner,name:$name){pullRequest(number:$number){
+    headRefOid baseRefOid baseRefName
+    commits(last:1){nodes{commit{oid statusCheckRollup{contexts(first:100){
+      totalCount pageInfo{hasNextPage} nodes{
+        __typename
+        ... on CheckRun{name status conclusion}
+        ... on StatusContext{context state}
+      }
+    }}}}}
+  }}
+}"""
 
 
 class SnapshotUnavailable(Exception):
     """A sanitized failure to obtain or decode a GitHub snapshot."""
 
 
-class PinDrift(Exception):
-    """The pull request no longer identifies the pinned revision."""
+class SnapshotOverflow(Exception):
+    """The bounded GraphQL snapshot omitted check contexts."""
 
 
 def validate_timing(timeout: float, interval: float, command_timeout: float) -> None:
@@ -48,6 +61,38 @@ def validate_timing(timeout: float, interval: float, command_timeout: float) -> 
 
 
 @dataclass(frozen=True)
+class Target:
+    owner: str
+    repo: str
+    number: int
+
+
+def parse_target(pr: str, repo: str) -> Target:
+    parts = repo.split("/")
+    if len(parts) != 2 or any(not part or not part.isascii() or
+                              not all(char.isalnum() or char in "-_." for char in part)
+                              for part in parts):
+        raise ValueError("--repo must be OWNER/REPO")
+    owner, name = parts
+    if pr.isascii() and pr.isdecimal():
+        number_text = pr
+    else:
+        url = urlsplit(pr)
+        path = [part for part in url.path.split("/") if part]
+        if (url.scheme != "https" or url.hostname != "github.com" or url.port is not None or
+                url.username is not None or url.password is not None or url.query or url.fragment or
+                len(path) != 4 or path[2] != "pull" or path[0].casefold() != owner.casefold() or
+                path[1].casefold() != name.casefold() or not path[3].isascii() or
+                not path[3].isdecimal()):
+            raise ValueError("PR must be a positive number or matching canonical GitHub PR URL")
+        number_text = path[3]
+    number = int(number_text)
+    if number <= 0:
+        raise ValueError("PR number must be positive")
+    return Target(owner, name, number)
+
+
+@dataclass(frozen=True)
 class Snapshot:
     head: str
     base_oid: str
@@ -55,30 +100,54 @@ class Snapshot:
     checks: tuple[dict[str, Any], ...]
 
     @classmethod
-    def from_json(cls, value: Any) -> "Snapshot":
-        if not isinstance(value, dict):
+    def from_graphql(cls, value: Any) -> "Snapshot":
+        if not isinstance(value, dict) or value.get("errors"):
             raise SnapshotUnavailable
-        head = value.get("headRefOid")
-        base_oid = value.get("baseRefOid")
-        base_ref = value.get("baseRefName")
-        checks = value.get("statusCheckRollup")
+        try:
+            pull = value["data"]["repository"]["pullRequest"]
+            commit_nodes = pull["commits"]["nodes"]
+            commit = commit_nodes[0]["commit"]
+            rollup = commit["statusCheckRollup"]
+            contexts = None if rollup is None else rollup["contexts"]
+        except (KeyError, IndexError, TypeError):
+            raise SnapshotUnavailable from None
+        head = pull.get("headRefOid")
+        base_oid = pull.get("baseRefOid")
+        base_ref = pull.get("baseRefName")
+        if contexts is None:
+            checks: Any = []
+            total = 0
+        else:
+            checks = contexts.get("nodes")
+            total = contexts.get("totalCount")
+            page_info = contexts.get("pageInfo")
+            if (not isinstance(total, int) or isinstance(total, bool) or not isinstance(page_info, dict) or
+                    not isinstance(page_info.get("hasNextPage"), bool)):
+                raise SnapshotUnavailable
+            if total > 100 or page_info["hasNextPage"]:
+                raise SnapshotOverflow
         if not all(isinstance(item, str) and item for item in (head, base_oid, base_ref)):
             raise SnapshotUnavailable
-        if not isinstance(checks, list) or not all(isinstance(item, dict) for item in checks):
+        if commit.get("oid") != head:
+            raise SnapshotUnavailable
+        if (not isinstance(checks, list) or total != len(checks) or
+                not all(isinstance(item, dict) for item in checks)):
             raise SnapshotUnavailable
         return cls(head, base_oid, base_ref, tuple(checks))
 
 
 def fetch_snapshot(
-    pr: str,
-    repo: str,
+    target: Target,
     timeout: float,
     *,
     runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
 ) -> Snapshot:
     command = [
-        "gh", "pr", "view", pr, "--repo", repo, "--json",
-        "headRefOid,baseRefOid,baseRefName,statusCheckRollup",
+        "gh", "api", "graphql", "--method", "POST",
+        "-f", f"query={GRAPHQL_QUERY}",
+        "-f", f"owner={target.owner}",
+        "-f", f"name={target.repo}",
+        "-F", f"number={target.number}",
     ]
     try:
         result = runner(
@@ -93,9 +162,13 @@ def fetch_snapshot(
     if result.returncode != 0:
         raise SnapshotUnavailable
     try:
-        return Snapshot.from_json(json.loads(result.stdout))
+        return Snapshot.from_graphql(json.loads(result.stdout))
     except (json.JSONDecodeError, SnapshotUnavailable):
         raise SnapshotUnavailable from None
+
+
+def emit_line(message: str) -> None:
+    print(message, flush=True)
 
 
 def check_name(check: dict[str, Any]) -> str | None:
@@ -156,10 +229,13 @@ def wait_for_checks(
     runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
     monotonic: Callable[[], float] = time.monotonic,
     sleep: Callable[[float], None] = time.sleep,
-    emit: Callable[[str], None] = print,
+    emit: Callable[[str], None] = emit_line,
 ) -> int:
     """Wait for the explicitly named checks and return zero after two fresh successes."""
     validate_timing(timeout, interval, command_timeout)
+    target = parse_target(pr, repo)
+    if not expected:
+        raise ValueError("at least one expected check is required")
     deadline = monotonic() + timeout
     initial_base: tuple[str, str] | None = None
     last_summary: str | None = None
@@ -178,11 +254,13 @@ def wait_for_checks(
 
         try:
             snapshot = fetch_snapshot(
-                pr,
-                repo,
+                target,
                 max(0.001, min(command_timeout, remaining)),
                 runner=runner,
             )
+        except SnapshotOverflow:
+            emit("result: failure (more than 100 check contexts; snapshot is incomplete)")
+            return 1
         except SnapshotUnavailable:
             summary = "snapshot: unavailable"
             if summary != last_summary:
@@ -253,11 +331,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = argument_parser.parse_args(argv)
     try:
         validate_timing(args.timeout, args.interval, args.command_timeout)
+        parse_target(args.pr, args.repo)
     except ValueError as error:
         argument_parser.error(str(error))
     expected = tuple(dict.fromkeys(args.expect))
     if any(not name.strip() for name in expected):
-        parser().error("--expect values must not be empty")
+        argument_parser.error("--expect values must not be empty")
     return wait_for_checks(
         args.pr,
         args.repo,

@@ -35,12 +35,21 @@ def check(name, status="COMPLETED", conclusion="SUCCESS"):
 
 
 def snapshot(*checks, head="head", base="base", base_ref="main"):
-    return {
+    contexts = {
+        "totalCount": len(checks),
+        "pageInfo": {"hasNextPage": False},
+        "nodes": list(checks),
+    }
+    pull = {
         "headRefOid": head,
         "baseRefOid": base,
         "baseRefName": base_ref,
-        "statusCheckRollup": list(checks),
+        "commits": {"nodes": [{"commit": {
+            "oid": head,
+            "statusCheckRollup": {"contexts": contexts},
+        }}]},
     }
+    return {"data": {"repository": {"pullRequest": pull}}}
 
 
 class Runner:
@@ -59,12 +68,13 @@ class Runner:
 
 
 class WaitPrChecksTests(unittest.TestCase):
-    def run_wait(self, responses, *, expected=("build",), timeout=3, expected_base=None):
+    def run_wait(self, responses, *, expected=("build",), timeout=3, expected_base=None,
+                 pr="7", repo="owner/repo"):
         clock = Clock()
         output = []
         runner = Runner(responses)
         result = watcher.wait_for_checks(
-            "7", "owner/repo", "head", expected,
+            pr, repo, "head", expected,
             expected_base=expected_base,
             timeout=timeout,
             interval=1,
@@ -86,6 +96,15 @@ class WaitPrChecksTests(unittest.TestCase):
             "result: success (all mandatory checks passed on the pinned head and base)",
         ])
         self.assertLessEqual(runner.calls[0][1]["timeout"], 2)
+        command = runner.calls[0][0]
+        self.assertEqual(command[:5], ["gh", "api", "graphql", "--method", "POST"])
+        self.assertIn("owner=owner", command)
+        self.assertIn("name=repo", command)
+        self.assertIn("number=7", command)
+        query = next(value.removeprefix("query=") for value in command if value.startswith("query="))
+        self.assertIn("baseRefOid", query)
+        self.assertIn("contexts(first:100)", query)
+        self.assertNotIn("pr view", " ".join(command))
 
     def test_unchanged_pending_summary_is_suppressed(self):
         pending = snapshot(check("build", "IN_PROGRESS", None))
@@ -143,6 +162,54 @@ class WaitPrChecksTests(unittest.TestCase):
         self.assertEqual(output.count("snapshot: unavailable"), 1)
         self.assertFalse(any("secret" in line or "private" in line for line in output))
         self.assertTrue(all(0 < call[1]["timeout"] <= 2 for call in runner.calls))
+
+    def test_incomplete_or_wrong_commit_rollup_fails_closed(self):
+        overflow = snapshot(check("build"))
+        contexts = overflow["data"]["repository"]["pullRequest"]["commits"]["nodes"][0]["commit"]["statusCheckRollup"]["contexts"]
+        contexts["totalCount"] = 101
+        contexts["pageInfo"]["hasNextPage"] = True
+        result, output, runner = self.run_wait([overflow])
+        self.assertEqual(result, 1)
+        self.assertIn("snapshot is incomplete", output[-1])
+        self.assertEqual(len(runner.calls), 1)
+
+        mismatch = snapshot(check("build"))
+        mismatch["data"]["repository"]["pullRequest"]["commits"]["nodes"][0]["commit"]["oid"] = "other"
+        result, output, _ = self.run_wait([mismatch], timeout=1)
+        self.assertEqual(result, 1)
+        self.assertIn("snapshot: unavailable", output)
+
+    def test_pr_url_must_match_repo_and_target_is_validated_before_gh(self):
+        value = snapshot(check("build"))
+        result, _, runner = self.run_wait(
+            [value, value],
+            pr="https://github.com/OWNER/REPO/pull/7",
+        )
+        self.assertEqual(result, 0)
+        self.assertIn("number=7", runner.calls[0][0])
+
+        invalid = (
+            ("https://github.com/other/repo/pull/7", "owner/repo"),
+            ("https://example.com/owner/repo/pull/7", "owner/repo"),
+            ("https://github.com/owner/repo/pull/7?token=secret", "owner/repo"),
+            ("0", "owner/repo"),
+            ("7", "owner/repo/extra"),
+        )
+        for pr, repo in invalid:
+            with self.subTest(pr=pr, repo=repo):
+                calls = []
+                with self.assertRaises(ValueError):
+                    watcher.wait_for_checks(
+                        pr, repo, "head", ("build",),
+                        runner=lambda *args, **kwargs: calls.append((args, kwargs)),
+                        sleep=lambda seconds: calls.append(("sleep", seconds)),
+                    )
+                self.assertEqual(calls, [])
+
+    def test_default_emitter_flushes(self):
+        with mock.patch("builtins.print") as printed:
+            watcher.emit_line("changed")
+        printed.assert_called_once_with("changed", flush=True)
 
     def test_status_context_is_supported_and_all_duplicate_names_must_succeed(self):
         context = {"__typename": "StatusContext", "context": "build", "state": "SUCCESS"}
