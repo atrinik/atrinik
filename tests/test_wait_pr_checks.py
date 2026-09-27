@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
+import math
 from pathlib import Path
 import subprocess
 import sys
 import unittest
+from unittest import mock
 
 
 SCRIPT = Path(__file__).parent.parent / "scripts" / "wait_pr_checks.py"
@@ -151,6 +154,34 @@ class WaitPrChecksTests(unittest.TestCase):
         result, output, _ = self.run_wait([mixed], timeout=1)
         self.assertEqual(result, 1)
         self.assertIn("checks: build=pending", output)
+
+    def test_invalid_timing_never_invokes_gh_or_sleep(self):
+        for option in ("timeout", "interval", "command_timeout"):
+            for value in (0, -1, math.inf, -math.inf, math.nan):
+                with self.subTest(option=option, value=value):
+                    calls = []
+                    arguments = {"timeout": 1, "interval": 1, "command_timeout": 1}
+                    arguments[option] = value
+                    with self.assertRaisesRegex(ValueError, "finite and positive"):
+                        watcher.wait_for_checks(
+                            "7", "owner/repo", "head", ("build",),
+                            runner=lambda *args, **kwargs: calls.append((args, kwargs)),
+                            sleep=lambda seconds: calls.append(("sleep", seconds)),
+                            **arguments,
+                        )
+                    self.assertEqual(calls, [])
+
+    def test_cli_rejects_non_finite_timing_before_waiting(self):
+        base = ["7", "--repo", "owner/repo", "--expected-head", "head", "--expect", "build"]
+        for option in ("--timeout", "--interval", "--command-timeout"):
+            for value in ("nan", "inf", "-inf"):
+                with self.subTest(option=option, value=value):
+                    with mock.patch.object(watcher, "wait_for_checks") as wait:
+                        with mock.patch("sys.stderr", new=io.StringIO()):
+                            with self.assertRaises(SystemExit) as raised:
+                                watcher.main([*base, f"{option}={value}"])
+                    self.assertEqual(raised.exception.code, 2)
+                    wait.assert_not_called()
 
 
 if __name__ == "__main__":

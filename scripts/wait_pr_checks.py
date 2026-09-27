@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import json
+import math
 import subprocess
 import sys
 import time
@@ -33,6 +34,17 @@ class SnapshotUnavailable(Exception):
 
 class PinDrift(Exception):
     """The pull request no longer identifies the pinned revision."""
+
+
+def validate_timing(timeout: float, interval: float, command_timeout: float) -> None:
+    values = {
+        "timeout": timeout,
+        "interval": interval,
+        "command_timeout": command_timeout,
+    }
+    invalid = [name for name, value in values.items() if not math.isfinite(value) or value <= 0]
+    if invalid:
+        raise ValueError("timing values must be finite and positive: " + ", ".join(invalid))
 
 
 @dataclass(frozen=True)
@@ -146,7 +158,8 @@ def wait_for_checks(
     sleep: Callable[[float], None] = time.sleep,
     emit: Callable[[str], None] = print,
 ) -> int:
-    """Return zero only after two consecutive, pinned, all-success snapshots."""
+    """Wait for the explicitly named checks and return zero after two fresh successes."""
+    validate_timing(timeout, interval, command_timeout)
     deadline = monotonic() + timeout
     initial_base: tuple[str, str] | None = None
     last_summary: str | None = None
@@ -220,8 +233,9 @@ def wait_for_checks(
 
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(
-        description="Wait read-only for mandatory PR checks on an exact head and stable base. "
-                    "Skipped and neutral checks are failures.",
+        description="Wait read-only for the explicitly named mandatory PR checks on an exact "
+                    "head and stable base. Unnamed reported checks are ignored; skipped and "
+                    "neutral named checks are failures.",
     )
     result.add_argument("pr", help="pull request number or URL")
     result.add_argument("--repo", required=True, metavar="OWNER/REPO")
@@ -235,9 +249,12 @@ def parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = parser().parse_args(argv)
-    if args.timeout <= 0 or args.interval <= 0 or args.command_timeout <= 0:
-        parser().error("--timeout, --interval, and --command-timeout must be positive")
+    argument_parser = parser()
+    args = argument_parser.parse_args(argv)
+    try:
+        validate_timing(args.timeout, args.interval, args.command_timeout)
+    except ValueError as error:
+        argument_parser.error(str(error))
     expected = tuple(dict.fromkeys(args.expect))
     if any(not name.strip() for name in expected):
         parser().error("--expect values must not be empty")
