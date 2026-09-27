@@ -226,10 +226,15 @@ class DeliveryScopeProof:
         return Path(value)
 
     @staticmethod
-    def _legacy_pair(value, first, second):
+    def _legacy_pair(value, first, second, *, allow_null=False):
         present = {first, second} & set(value)
-        if present and (present != {first, second} or any(
-                type(value[key]) is not int or value[key] < 0 for key in present)):
+        if not present:
+            return
+        if present != {first, second}:
+            raise WorkspaceError("foreign scope legacy identity is malformed")
+        if allow_null and all(value[key] is None for key in present):
+            return
+        if any(type(value[key]) is not int or value[key] < 0 for key in present):
             raise WorkspaceError("foreign scope legacy identity is malformed")
 
     @staticmethod
@@ -482,7 +487,13 @@ class DeliveryScopeProof:
                 if (not row_keys.issubset(retained)
                         or not set(retained).issubset(row_keys | {"path_device", "path_inode"})):
                     raise WorkspaceError("foreign scope worktree schema is invalid")
-                self._legacy_pair(retained, "path_device", "path_inode")
+                planned_row = retained["status"] == "planned"
+                self._legacy_pair(
+                    retained,
+                    "path_device",
+                    "path_inode",
+                    allow_null=planned_row,
+                )
                 checkout = self.workspace.manifest.by_checkout.get(planned.get("checkout"))
                 if checkout is None:
                     raise WorkspaceError("foreign scope checkout is unknown")
@@ -497,7 +508,10 @@ class DeliveryScopeProof:
                 if path == candidate or path in candidate.parents or candidate in path.parents:
                     raise WorkspaceError("foreign scope overlaps delivery candidate")
                 common = retained.get("common_git_dir")
-                if ((retained["status"] == "planned" and (common is not None or "path_device" in retained))
+                if ((planned_row and (
+                        common is not None
+                        or ("path_device" in retained
+                            and retained["path_device"] is not None)))
                         or (retained["status"] != "planned" and not isinstance(common, str))):
                     raise WorkspaceError("foreign scope Git evidence is incomplete")
                 if common is not None and self._path(common) != primary / ".git":
@@ -547,13 +561,21 @@ class DeliveryScopeProof:
                         "created", "planned", "rolled-back", "reference-published"
                     }):
                 raise WorkspaceError("foreign scope profile evidence is uncertain")
-            self._legacy_pair(journal_profile, "path_device", "path_inode")
+            planned_profile = journal_profile["status"] == "planned"
+            self._legacy_pair(
+                journal_profile,
+                "path_device",
+                "path_inode",
+                allow_null=planned_profile,
+            )
             profile_digest = journal_profile["sha256"]
             if ((profile_digest is not None and (not isinstance(profile_digest, str)
                                                  or _HEX64.fullmatch(profile_digest) is None))
                     or (journal_profile["status"] == "created" and profile_digest is None)
-                    or (journal_profile["status"] == "planned"
-                        and (profile_digest is not None or "path_device" in journal_profile))
+                    or (planned_profile and (
+                        profile_digest is not None
+                        or ("path_device" in journal_profile
+                            and journal_profile["path_device"] is not None)))
                     or (journal_profile["status"] in {"created", "reference-published"}
                         and any(row["status"] != "created" for row in rows))
                     or (journal["status"] == "rolled-back"
