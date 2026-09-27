@@ -58,7 +58,8 @@ class SourceDeliveryTests(unittest.TestCase):
         self.assertEqual(result["base"], self.base)
         self.assertEqual(result["branch"], "work/source")
         self.assertEqual(result["worktree"], str(self.target))
-        self.assertEqual(result["repository"], str(self.repository / ".git"))
+        self.assertEqual(result["repository"], str(self.repository))
+        self.assertEqual(result["common_dir"], str(self.repository / ".git"))
         self.assertEqual(journal.read_text(), "unrelated incomplete diagnostic")
         self.assertEqual((self.repository / "source.txt").read_text(), "primary edits\n")
         self.assertEqual((self.target / "source.txt").read_text(), "original\n")
@@ -173,6 +174,12 @@ class SourceDeliveryTests(unittest.TestCase):
         code, result = self.invoke("resume", dirty=True)
         self.assertEqual(code, 0, result)
         self.assertTrue(result["dirty"])
+
+    def test_group_writable_source_does_not_gate_private_destination(self):
+        self.repository.chmod(0o775)
+        (self.repository / ".git").chmod(0o775)
+        self.assertEqual(self.invoke()[0], 0)
+        self.assertEqual(self.invoke("resume")[0], 0)
 
 
 if __name__ == "__main__":

@@ -39,7 +39,7 @@ def git(root: Path, *args: str) -> str:
     return result.stdout.rstrip("\n")
 
 
-def checked_path(value: str, *, absent: bool = False) -> Path:
+def checked_path(value: str, *, absent: bool = False, protect: bool = False) -> Path:
     path = Path(os.path.abspath(value))
     # Reject aliases rather than silently following them into another resource.
     private_ancestor = False
@@ -52,7 +52,7 @@ def checked_path(value: str, *, absent: bool = False) -> Path:
             raise SourceError(f"Missing directory: {part}") from None
         if not stat.S_ISDIR(info.st_mode):
             raise SourceError(f"Directory or ancestor is not a real directory: {part}")
-        if not private_ancestor and info.st_mode & 0o022 and not info.st_mode & stat.S_ISVTX:
+        if protect and not private_ancestor and info.st_mode & 0o022 and not info.st_mode & stat.S_ISVTX:
             raise SourceError(f"Directory permits unrelated writers: {part}")
         if info.st_uid == os.geteuid() and not info.st_mode & 0o077:
             private_ancestor = True
@@ -73,7 +73,8 @@ def identity(root: Path) -> dict:
     owned(root)
     owned(gitdir)
     owned(common)
-    return {"worktree": str(root), "gitdir": str(gitdir), "repository": str(common),
+    return {"worktree": str(root), "gitdir": str(gitdir), "common_dir": str(common),
+            "repository": registered(root)[0]["worktree"],
             "branch": git(root, "symbolic-ref", "--quiet", "--short", "HEAD"),
             "head": git(root, "rev-parse", "--verify", "HEAD")}
 
@@ -115,7 +116,7 @@ def status(root: Path) -> bool:
 def start(args: argparse.Namespace) -> dict:
     source = checked_path(args.repository)
     origin = identity(source)
-    target = checked_path(args.worktree, absent=True)
+    target = checked_path(args.worktree, absent=True, protect=True)
     owned(target.parent)
     if target.exists():
         raise SourceError("Worktree path already exists; preserve it and choose a fresh path")
@@ -144,7 +145,7 @@ def start(args: argparse.Namespace) -> dict:
         git(source, "worktree", "add", "-b", args.branch, "--", str(target), base)
         result = identity(target)
         assert_registered(target, args.branch)
-        if result["repository"] != origin["repository"] or result["head"] != base:
+        if result["common_dir"] != origin["common_dir"] or result["head"] != base:
             raise SourceError("Created Git identity changed during source preparation")
         result.update(base=base, owner=args.owner, uid=os.geteuid(), host=socket.gethostname())
         receipt = Path(result["gitdir"]) / RECEIPT
@@ -160,9 +161,9 @@ def start(args: argparse.Namespace) -> dict:
 
 
 def resume(args: argparse.Namespace) -> dict:
-    target = checked_path(args.worktree)
+    target = checked_path(args.worktree, protect=True)
     result = identity(target)
-    if result["gitdir"] == result["repository"]:
+    if result["gitdir"] == result["common_dir"]:
         raise SourceError("Primary checkout cannot be resumed as a dedicated source worktree")
     assert_registered(target, args.branch)
     receipt = Path(result["gitdir"]) / RECEIPT
@@ -179,7 +180,7 @@ def resume(args: argparse.Namespace) -> dict:
     if not isinstance(saved, dict):
         raise SourceError("Invalid source creation receipt")
     base = base_commit(target, args.base)
-    expected = {key: result[key] for key in ("worktree", "gitdir", "repository", "branch")}
+    expected = {key: result[key] for key in ("worktree", "gitdir", "common_dir", "repository", "branch")}
     expected.update(base=base, owner=args.owner, uid=os.geteuid(), host=socket.gethostname())
     if result["branch"] != args.branch or any(saved.get(key) != value for key, value in expected.items()):
         raise SourceError("Source owner, base, branch or Git identity differs from creation receipt")
