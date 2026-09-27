@@ -27,10 +27,13 @@ ownership belongs in the plan and every task packet. Existing dirty worktrees,
 bound deliveries, and foreign sessions remain external until their owner hands
 them off through an applicable supported protocol.
 
-Use `python3 -m atrinik_workspace.project_delivery` for durable project state;
-do not hand-edit it. The project record schedules work but grants neither Git
-worktree reuse nor external authority. See the protocol for command and recovery
-details.
+For a new project, keep a compact private milestone plan and coordinate ordinary
+Git ownership from live repository and PR evidence. Do not initialize the
+stateful project helper merely because work spans several issues or a leaf uses
+its own resource protocol. Resume the helper for an existing stateful project,
+or opt into it for a new project only when its durable scheduler/journal is
+actually useful. Never hand-edit helper state. Neither plan form grants Git
+worktree reuse or external authority; see the protocol for the two routes.
 
 Expose all ready, disjoint work up to actual runtime capacity. Keep model-worker
 capacity separate from CPU/GPU/build limits, dependencies, file ownership, and
@@ -52,8 +55,9 @@ compact task packet with the goal, acceptance, exact repository/base/branch and
 owned paths, dependencies, authority limits, relevant instructions, validation,
 and stop boundary. Keep credentials and private recovery data out of packets.
 Workers may create narrowly required code, fixtures, tests, commits, and PR
-preparation to repair an in-scope source failure; that exception never
-self-authorizes live runtime, deployment, merge, or external mutation.
+preparation to repair an in-scope source failure. That exception does not
+independently grant live runtime, deployment, merge, or external mutations
+beyond the user's existing authorization.
 
 ## Converge and hand off
 

@@ -18,6 +18,11 @@ source-only work. An isolated build container does not own delivery. Preserve
 existing bound delivery, ledger, shared-runtime, and resource protocols without
 migrating them.
 
+For a new project, use a compact private milestone plan; do not initialize the
+stateful project helper merely because the work spans multiple issues or a leaf
+uses its own resource protocol. Resume existing helper state, or opt into it only
+when its durable scheduler or tracking journal is specifically useful.
+
 Manage and reuse workers directly. Continue implementation, tests, review,
 commits, and authorized PR preparation through integrated validation and an
 independent final review. Continue unaffected lanes when one is blocked. Do not

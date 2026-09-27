@@ -22,10 +22,11 @@ reviews, and runs lightweight checks in an owned native Linux worktree; pinned
 CPU containers may run isolated builds without owning the delivery.
 
 The source-repair exception permits narrowly necessary code, fixtures, tests,
-commits, and PR preparation. It never grants live runtime mutation, deployment,
-merge, issue edits, or other external writes.
+commits, and PR preparation. It does not independently grant live runtime
+mutation, deployment, merge, issue edits, or other external writes beyond the
+user's existing authorization.
 
-## Establish the project
+## Use lightweight coordination by default
 
 Observe the parent and complete relevant issue/PR graph, acceptance criteria,
 repositories, default/base heads, current worktrees, existing deliveries, shared
@@ -33,8 +34,34 @@ resources, and granted tracking/publication operations. Reconcile both native
 relationships and prose. Mark foreign or uncertain work as external; do not
 assign it to a new writer.
 
-Author a private plan from [the maintained template](../assets/project-plan.json).
-For every node record:
+For a new project, author a compact private milestone plan from live Git and PR
+evidence. It records the goal and acceptance, completed artifacts and the
+revision/environment where evidence is valid, remaining dependencies, exact
+repository/worktree/path ownership, authority limits, and the next runnable
+action. Update it at meaningful milestones. Ordinary source coordination needs
+no `project_delivery` initialization, coordinator probe, lock, snapshot, or CAS.
+A project with several issues, repositories, or a leaf that needs its own live
+resource protocol can still use this lightweight route; apply the stricter
+protocol only to that leaf or resource operation.
+
+Schedule ready nonconflicting lanes directly from the plan and actual runtime
+capacity. Maintain the same ownership, dependency, blocker, review, evidence,
+and authorization rules below without translating them into helper state.
+Record each result and exact revision in the milestone plan. For a blocked lane,
+record the concrete operation/resource/conflict, its relevance, and the event
+that makes retry useful; keep unaffected lanes moving. Route findings to the
+owner, reuse related workers, and refresh evidence after relevant drift.
+
+## Resume or explicitly choose stateful coordination
+
+Resume `python3 -m atrinik_workspace.project_delivery` when the project already
+owns that state. A new project may opt in only when its durable CAS scheduler or
+tracking journal provides concrete value; multi-issue scope alone is not a
+reason. Once chosen, keep its checks for that project and do not silently migrate
+between lightweight and stateful records.
+
+For the stateful route, author a private plan from [the maintained
+template](../assets/project-plan.json). For every node record:
 
 - an exact type-explicit coordinate and repository;
 - dependencies (`ready`, `merged`, or `accepted`; prefer `merged` unless an
@@ -43,22 +70,22 @@ For every node record:
 - shared resources, heavy-job classification, and external ownership; and
 - testable acceptance with explicit owner nodes.
 
-Permissions are an explicit subset of the user's authority. Authorization
+Helper permissions are an explicit subset of the user's authority. Authorization
 carries across the stated project scope; do not repeatedly ask for the same
 ordinary in-scope action. A real external restriction, unavailable identity, or
 scope expansion must be escalated rather than inferred away.
 
-Initialize state only after the plan is live-verified:
+Initialize newly opted-in state only after the plan is live-verified:
 
 ```sh
 python3 -m atrinik_workspace.project_delivery init --plan /absolute/plan.json --authority USER_SESSION_REFERENCE
 python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT inspect
 ```
 
-The returned ignored directory is the durable project root. The helper owns its
-state; never hand-edit, delete, or adopt a lock-only/partial root. A second
-`init` cannot take it over. Resume only the same authorized session or a proven
-takeover after reconciling every worker and owned resource.
+The returned ignored directory is the durable stateful project root. The helper
+owns its state; never hand-edit, delete, or adopt a lock-only/partial root. A
+second `init` cannot take it over. Resume only the same authorized session or a
+proven takeover after reconciling every worker and owned resource.
 
 For compact repeated operations, write every full snapshot to a new file in an
 owned mode-0700 directory:
@@ -73,7 +100,7 @@ retrying; it never authorizes repetition. `plan` and `terminal` do not emit a
 snapshot. Use `--help` for exact command argument order rather than copying a
 stale recipe.
 
-## Schedule useful work
+## Schedule stateful work
 
 Observe the runtime's actual capacity domain and complete worker inventory.
 Expose all ready disjoint lanes that fit it. Do not invent a small worker cap or
@@ -112,7 +139,7 @@ Use the source contract's canonical watcher entry for CI or remote transitions;
 do not reproduce its commands here. A model should wake for a decision, failure,
 meaningful state change, or completion—not repeatedly poll unchanged state.
 
-## Results, blockers, and recovery
+## Stateful results and recovery
 
 Record `result COORD --attempt ATTEMPT --state ready|blocked --evidence TEXT`
 only after checking the exact revision and result. Worker prose alone is not
@@ -191,10 +218,14 @@ foreign work.
 
 ## Tracking and completion
 
-Coordinator tracking is distinct from leaf implementation authority. Journal
-only authorized assignment, actor-owned milestone comments, native links and
-dependencies, deduplicated missing-child creation, existing Project Status
-updates, and parent closure:
+Coordinator tracking is distinct from leaf implementation authority. In the
+lightweight route, perform authorized tracking through the ordinary supported
+API and record its live result in the milestone plan; no helper root or snapshot
+is required. Limit either route to authorized assignment, actor-owned milestone
+comments, native links and dependencies, deduplicated missing-child creation,
+existing Project Status updates, and parent closure.
+
+For the stateful route, journal those operations before applying them:
 
 ```sh
 python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT tracking plan --kind KIND --target COORD --payload /absolute/payload.json --expected /absolute/private/current.json
@@ -205,7 +236,8 @@ Supported kinds remain `assign`, `comment`, `link`, `dependency`,
 `create-child`, `project-status`, and `close-parent`. Preserve human text and
 other assignees; do not force-reparent or duplicate work. Resolve live Project
 IDs and current status options instead of borrowing IDs. After creating a child,
-replan and establish its relationship before dispatch.
+establish its relationship before dispatch; also `replan` helper state when
+using the stateful route.
 
 The journal writes planned -> in-flight -> bound. A lost response uses
 `tracking reconcile`, which observes and never reposts. Cancel only an unstarted
@@ -221,8 +253,9 @@ Before completion, refresh the whole graph and heads, run relevant integrated
 checks, and obtain an independent final review. Preserve producer interfaces,
 tests, and the plan asset schema unless compatibility is demonstrated. Every
 criterion needs current evidence; relevant head, base, dependency, environment,
-or graph drift invalidates it. Use `terminal` to enumerate gaps, not as proof
-that live observations are fresh.
+or graph drift invalidates it. In the stateful route, use `terminal` to enumerate
+helper gaps, not as proof that live observations are fresh. The lightweight
+route enumerates the same gaps directly in its milestone plan.
 
 Closing references belong only on the canonical closing delivery. Merge,
 deployment, and parent closure each require their own granted authority. If an
