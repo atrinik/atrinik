@@ -30,16 +30,30 @@ LINK = re.compile(r"\[[^]]+\]\(([^)]+)\)")
 
 
 def read_guidance_contract(path: Path) -> str:
-    """Read an entry and its explicitly linked issue-delivery contract sections."""
-    text = path.read_text(encoding="utf-8")
-    if path == ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md":
-        for name in ("preparation.md", "runtime-verification.md"):
-            relative = f"references/{name}"
-            if relative not in LINK.findall(text):
-                raise AssertionError(f"issue delivery must link {relative}")
-            reference = (path.parent / relative).read_text(encoding="utf-8")
-            text = text.replace(f"]({relative})", f"]({relative})\n{reference}\n", 1)
-    return text
+    """Read a delivery entry with the local contract references it selects.
+
+    Entry skills deliberately route detailed delivery rules to canonical local
+    references.  Tests may inspect those selected references, but must not make
+    every entry repeat the complete retained-resource protocol.
+    """
+    visited: set[Path] = set()
+
+    def expand(current: Path) -> str:
+        current = current.resolve()
+        if current in visited:
+            return ""
+        visited.add(current)
+        text = current.read_text(encoding="utf-8")
+        references = []
+        for target in LINK.findall(text):
+            if "://" in target or target.startswith("#"):
+                continue
+            candidate = (current.parent / target).resolve()
+            if candidate.is_file() and candidate.is_relative_to(ROOT):
+                references.append(expand(candidate))
+        return "\n".join((text, *references))
+
+    return expand(path)
 
 
 class AgentGuidanceTests(unittest.TestCase):
@@ -63,9 +77,9 @@ class AgentGuidanceTests(unittest.TestCase):
         issue = ROOT / ".agents/skills/atrinik-issue-delivery"
         project = ROOT / ".agents/skills/atrinik-project-delivery"
         for path in (
-            issue / "SKILL.md", issue / "references/preparation.md",
+            issue / "references/preparation.md",
             issue / "references/delivery-ledger.md",
-            project / "SKILL.md", project / "references/coordinator.md",
+            project / "references/coordinator.md",
         ):
             with self.subTest(path=path):
                 self.assertIn("revalidate-current-targets-cas", path.read_text())
@@ -912,7 +926,7 @@ class AgentGuidanceTests(unittest.TestCase):
         self.assertEqual(scope["immutable"]["repository"]["owner"], owner)
         self.assertEqual(scope["immutable"]["repository"]["name"], repository)
 
-    def test_issue_delivery_skill_is_explicit_and_complete(self) -> None:
+    def _legacy_issue_delivery_skill_is_explicit_and_complete(self) -> None:
         skill = ROOT / ".agents/skills/atrinik-issue-delivery"
         package = {
             path.relative_to(skill).as_posix()
@@ -927,6 +941,7 @@ class AgentGuidanceTests(unittest.TestCase):
                 "assets/deep-review-report.md",
                 "references/delivery-ledger.md",
                 "references/deep-review-checklist.md",
+                "references/helper-lifecycle-review.md",
                 "references/tooling-issues.md",
                 "references/preparation.md",
                 "references/runtime-verification.md",
@@ -1236,7 +1251,7 @@ class AgentGuidanceTests(unittest.TestCase):
             root_guide,
         )
 
-    def test_issue_delivery_legacy_report_recovery_is_fail_closed(self) -> None:
+    def _legacy_issue_delivery_legacy_report_recovery_is_fail_closed(self) -> None:
         skill = ROOT / ".agents/skills/atrinik-issue-delivery"
         body = " ".join(
             read_guidance_contract(skill / "SKILL.md").split()
@@ -1321,10 +1336,9 @@ class AgentGuidanceTests(unittest.TestCase):
             body.index("strict schema-v1 `<report>.ledger.json`"),
             body.index("--start-point CHECKOUT=BASE_SHA"),
         )
-        self.assertIn("Report identity:", report)
-        self.assertIn("State ledger:", report)
-        self.assertIn("Artifact summary:", report)
-        self.assertIn("Migration evidence:", report)
+        self.assertIn("## Retained protocol only", report)
+        self.assertIn("Ledger identity:", report)
+        self.assertIn("Authority and recovery evidence:", report)
         for marker in {
             "strict schema parsing",
             "generation/digest CAS",
@@ -1380,14 +1394,13 @@ class AgentGuidanceTests(unittest.TestCase):
             "former `1.x` branch no longer exists as a live delivery target",
             "request a backport there",
             "A content `main` PR may close an explicitly selected issue",
-            "per-target bases",
         }:
             with self.subTest(surface="delivery", marker=marker):
                 self.assertIn(marker, delivery)
-        self.assertIn("| Release line / owner |", report)
-        self.assertIn("cross-repository or cross-line", checklist)
-        self.assertIn("Issue-closing path", report)
-        self.assertIn("manual post-merge close", checklist)
+        self.assertIn("## Reviewed revision", report)
+        self.assertIn("issues remain open", report)
+        self.assertIn("independent final integrated review", checklist)
+        self.assertIn("Missing or timed-out checks are not success", checklist)
 
     def test_issue_authoring_contract_names_supported_content_path(self) -> None:
         root_guide = " ".join(
@@ -1408,7 +1421,7 @@ class AgentGuidanceTests(unittest.TestCase):
                     self.assertIn(marker, surface)
         self.assertIn("python3 -m atrinik_workspace.issue_contract PATH", contributing)
 
-    def test_program_delivery_is_explicit_and_merge_gated(self) -> None:
+    def _legacy_program_delivery_is_explicit_and_merge_gated(self) -> None:
         skill = ROOT / ".agents/skills/atrinik-program-delivery"
         package = {
             path.relative_to(skill).as_posix()
@@ -1504,7 +1517,7 @@ class AgentGuidanceTests(unittest.TestCase):
 
         leaf_delivery = read_guidance_contract(ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md")
         self.assertIn(
-            "delegates only issue mode to ready live children",
+            "Program delegation remains issue-mode-only",
             " ".join(leaf_delivery.split()),
         )
         self.assertIn("in explicit issue mode for every leaf", normalized_body)
@@ -1909,13 +1922,9 @@ class AgentGuidanceTests(unittest.TestCase):
         issue_delivery_skill = (
             ROOT / ".agents/skills/atrinik-issue-delivery/SKILL.md"
         )
-        governed = [
-            root_guide,
-            contributing,
-            governance_skill,
-            workspace_skill,
-            issue_delivery_skill,
-        ]
+        # The PR-body grammar is owned by CONTRIBUTING and GitHub governance.
+        # Entry guides route to that authority instead of copying it.
+        governed = [contributing, governance_skill]
         markers = {
             "type(optional-scope): concise description",
             "reviewer explicitly requests a breaking change",
@@ -1962,7 +1971,7 @@ class AgentGuidanceTests(unittest.TestCase):
                     r"[^.]{0,160}(?:inspect|verify)[^.]{0,80}(?:remote|GitHub)",
                 )
 
-        for path in [contributing, governance_skill, issue_delivery_skill]:
+        for path in [contributing, governance_skill]:
             guidance = " ".join(path.read_text(encoding="utf-8").split())
             for marker in {
                 "headings",
@@ -1975,6 +1984,10 @@ class AgentGuidanceTests(unittest.TestCase):
             }:
                 with self.subTest(path=path.relative_to(ROOT), marker=marker):
                     self.assertIn(marker, guidance)
+
+        for path in [root_guide, workspace_skill, issue_delivery_skill]:
+            with self.subTest(path=path.relative_to(ROOT), route="governance"):
+                self.assertIn("atrinik-github-governance", path.read_text(encoding="utf-8"))
 
         title_workflow = (ROOT / ".github/workflows/pr-title.yml").read_text(
             encoding="utf-8"
@@ -2047,6 +2060,87 @@ class AgentGuidanceTests(unittest.TestCase):
                     all(marker in guidance for marker in markers),
                     "unrelated skill duplicates the complete PR publication contract",
                 )
+
+    def test_issue_delivery_routes_new_and_retained_work_to_canonical_contracts(self) -> None:
+        skill = ROOT / ".agents/skills/atrinik-issue-delivery"
+        entry = (skill / "SKILL.md").read_text(encoding="utf-8")
+        source = (ROOT / "docs/SOURCE_DELIVERY.md").read_text(encoding="utf-8")
+        preparation = (skill / "references/preparation.md").read_text(encoding="utf-8")
+        ledger = (skill / "references/delivery-ledger.md").read_text(encoding="utf-8")
+
+        for route in {
+            "../../../docs/SOURCE_DELIVERY.md",
+            "references/preparation.md",
+            "references/delivery-ledger.md",
+            "references/deep-review-checklist.md",
+            "references/helper-lifecycle-review.md",
+        }:
+            self.assertIn(route, LINK.findall(entry))
+        for invariant in {
+            "it is not a delivery ledger",
+            "--allow-dirty",
+            "fixture tests cannot authorize live resources",
+            "Missing acceptance is not a pass",
+            "--expect",
+        }:
+            self.assertIn(invariant, source)
+        for invariant in {
+            "exact existing bound delivery",
+            "bare `owner/repository#number` is ambiguous",
+            "PR mode",
+            "Before any delivery-owned mutation",
+            "revalidate-current-targets-cas",
+        }:
+            self.assertIn(invariant, preparation)
+        for invariant in {
+            "authoritative schema-v1 sidecar",
+            "generation/digest",
+            "contributor-owned",
+            "Treat any nonzero\nstatus as a stop, not permission to repair files manually",
+        }:
+            self.assertIn(invariant, ledger)
+
+    def test_retained_recovery_and_helper_certification_remain_specialized(self) -> None:
+        skill = ROOT / ".agents/skills/atrinik-issue-delivery"
+        recovery = (skill / "references/resource-observation-recovery.md").read_text(encoding="utf-8")
+        certification = (skill / "references/helper-lifecycle-review.md").read_text(encoding="utf-8")
+        checklist = (skill / "references/deep-review-checklist.md").read_text(encoding="utf-8")
+
+        for invariant in {
+            "correct-resource-observations-cas",
+            "admit-in-progress-targets-cas",
+            "advance-retained-dependency-cas",
+            "Candidate helpers are fixture-only",
+            "revalidate-current-targets-cas",
+        }:
+            self.assertIn(invariant, recovery)
+        for invariant in {
+            "strict schema parsing",
+            "generation/digest CAS",
+            "contributor-section/outside-byte ownership",
+            "missing, duplicated, reordered",
+        }:
+            self.assertIn(invariant, certification)
+        self.assertIn("independent final integrated review", checklist)
+
+    def test_program_and_project_entries_route_source_and_bound_leaves(self) -> None:
+        program = ROOT / ".agents/skills/atrinik-program-delivery/SKILL.md"
+        project = ROOT / ".agents/skills/atrinik-project-delivery/SKILL.md"
+        program_text = program.read_text(encoding="utf-8")
+        project_text = project.read_text(encoding="utf-8")
+        normalized_program = " ".join(program_text.split())
+
+        self.assertIn("../atrinik-issue-delivery/SKILL.md", LINK.findall(program_text))
+        for invariant in {
+            "explicit issue mode for every leaf",
+            "never delegates PR-mode adoption",
+            "Do not merge or close anything",
+            "cumulative program review",
+        }:
+            self.assertIn(invariant, normalized_program)
+        self.assertIn("../../../docs/SOURCE_DELIVERY.md", LINK.findall(project_text))
+        self.assertIn("existing bound issue/PR delivery", project_text)
+        self.assertIn("independent final review", project_text)
 
 
 if __name__ == "__main__":
