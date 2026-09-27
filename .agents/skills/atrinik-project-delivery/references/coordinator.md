@@ -1,353 +1,231 @@
 # Project operator protocol
 
-## Authority, state and recovery
+Use this protocol for an authorized multi-issue project. It coordinates work; it
+does not broaden product scope, repository ownership, external write authority,
+merge authority, or deployment authority.
 
-The coordinator owns scheduling and authorized project tracking, not leaf
-worktrees. Read the existing leaf ledger requirements before delegation. Every
-writing worker remains a complete type-explicit issue/PR delivery, with its own
-safe worktree, ledger and supported environment. Supported native Linux normally
-keeps development/Git/review/lightweight checks local and uses the execution
-contract's pinned CPU workers with owner-isolated persistent caches for builds
-and toolchain checks. Build-worker exit does not transfer or invalidate native
-project/leaf ownership; reconnect still re-proves context, actor, clean worktree,
-ledger/CAS and leases. Already-bound historical containers retain their exact
-image/mounts under the execution contract; no new container-development setup
-is implied. The parent session supplies
-the user's scoped invocation; this is not a legacy program delegation and
-does not mutate leaf `program` fields. Leaf issue-mutation restrictions stay
-intact: send tracking requests to the coordinator.
+## Select the leaf contract
 
-Use the installed agent runtime spawn/send/wait/close tools. Discover their
-actual availability and capacity domain, include completed-but-open and review workers,
-and close only your finished workers when that operation is actually available.
-Never omit retained rows or invent a handle limit from an active-slot limit.
-If no reliable limit is exposed, probe
-capacity incrementally with productive read-only tasks; do not reserve 16 on
-configuration alone. No available spawn tool means serial coordination with
-an explicit limitation, not imaginary parallel delivery.
+For new source-only work, the coordinator creates an ordinary owned Git worktree
+and follows [`docs/SOURCE_DELIVERY.md`](../../../../docs/SOURCE_DELIVERY.md). A
+new source leaf does not need a delivery ledger merely because it is part of a
+project.
 
-Inspect wrapper status, manifests, nearest guides, complete review-ledger
-inventory, foreign containers/active worktrees, live issue/PR graph and exact
-candidate diff/head identities. Record private recovery paths for dirty work;
-never copy it into a new implementation without supported explicit adoption.
-Do not add a live session as a writable node. Mark it `external:true`, with
-its actual file/resource reservations, until externally completed. Separate
-filesystems require the existing supported handoff; copying state is not it.
+Keep the applicable existing protocol when a leaf is already bound to an issue
+delivery, worktree, ledger, native/container environment, shared runtime, lease,
+or other resource. Do not copy its patch into a fresh leaf, rewrite its state, or
+use the simpler source path as a migration. A retained unchanged issue target
+still uses `revalidate-current-targets-cas`; a project snapshot is not live
+lease, actor, worktree, or resource proof. Historical container deliveries keep
+their accepted image/mount and recovery gates. New work normally develops,
+reviews, and runs lightweight checks in an owned native Linux worktree; pinned
+CPU containers may run isolated builds without owning the delivery.
 
-The CLI derives an ignored project directory from the canonical wrapper and
-parent. Keep its returned path, actor, session authority and snapshot generation/digest pair in
-the private handoff. A second `init` cannot adopt it. Resume only the same
-authorized session or an explicit takeover after proving the old owner stopped,
-rerunning the live probe/ledger/worktree/lease checks and reconciling every
-recorded worker with the runtime. There is no automated takeover command.
-Never delete a lock-only/partial root or hand-edit a record to make it reusable.
+The source-repair exception permits narrowly necessary code, fixtures, tests,
+commits, and PR preparation. It never grants live runtime mutation, deployment,
+merge, issue edits, or other external writes.
 
-## Commands and plan
+## Establish the project
 
-Author a private plan using [the template](../assets/project-plan.json).
-Replace example coordinates with verified live values. List every physical
-repository, exact type-explicit node, normalized repository-relative reads and
-writes (`.` reserves the whole repository), shared resource names, dependencies,
-heavy-job flag and external ownership. Dependency conditions mean merge-ready
-(`ready`), actually merged/completed (`merged`), or accepted integration
-(`accepted`); default to `merged` when publishing a stack is not explicitly
-part of scope. Acceptance lists real testable outcomes and their owner nodes.
-Permissions are an explicit subset, never inferred from issue prose.
+Observe the parent and complete relevant issue/PR graph, acceptance criteria,
+repositories, default/base heads, current worktrees, existing deliveries, shared
+resources, and granted tracking/publication operations. Reconcile both native
+relationships and prose. Mark foreign or uncertain work as external; do not
+assign it to a new writer.
 
-Run from the supported coordinator with Git/GitHub outside the sandbox:
+Author a private plan from [the maintained template](../assets/project-plan.json).
+For every node record:
+
+- an exact type-explicit coordinate and repository;
+- dependencies (`ready`, `merged`, or `accepted`; prefer `merged` unless an
+  authorized stacked delivery requires another condition);
+- normalized repository-relative reads and writes (`.` owns the repository);
+- shared resources, heavy-job classification, and external ownership; and
+- testable acceptance with explicit owner nodes.
+
+Permissions are an explicit subset of the user's authority. Authorization
+carries across the stated project scope; do not repeatedly ask for the same
+ordinary in-scope action. A real external restriction, unavailable identity, or
+scope expansion must be escalated rather than inferred away.
+
+Initialize state only after the plan is live-verified:
 
 ```sh
 python3 -m atrinik_workspace.project_delivery init --plan /absolute/plan.json --authority USER_SESSION_REFERENCE
 python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT inspect
-python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT plan --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit 1
-python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT dispatch --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit 1 --expected /absolute/snapshot.json
 ```
 
-The scalar `plan`/`dispatch` arguments retain their legacy handle-limited
-meaning: `--capacity` is the observed retained-handle limit and `--open-workers`
-is the complete count in that same domain, including completed retained workers.
-They do not support fresh dispatch for an active-slot-only runtime; running
-counts cannot safely replace open handles or establish overlap with bound
-reservations. Use `reserve-existing` for an eligible retained owner. If no
-supported scheduling operation fits a new leaf, the unchanged standalone issue
-delivery fallback retains its own complete gates and an explicit tracking gap;
-it does not create a project dispatch or authorize adopting a live owner.
+The returned ignored directory is the durable project root. The helper owns its
+state; never hand-edit, delete, or adopt a lock-only/partial root. A second
+`init` cannot take it over. Resume only the same authorized session or a proven
+takeover after reconciling every worker and owned resource.
 
-For repeated operations, save exact snapshots directly and return compact output:
+For compact repeated operations, write every full snapshot to a new file in an
+owned mode-0700 directory:
 
 ```sh
-# Use a private, owned 0700 directory and a NEW absolute file for each result.
 python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT --snapshot-output /absolute/private/step-1.json --compact inspect
-python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT --snapshot-output /absolute/private/step-2.json --compact dispatch --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit HEAVY_LIMIT --expected /absolute/private/step-1.json
 ```
 
-The helper retains complete snapshot bytes in the private file and emits CAS
-metadata plus the actionable result. Tracking output includes only operation
-`id`, `kind`, `target` and `phase`; read the operation in the exported snapshot
-when assessing exact payloads or remote evidence. Compact output alone is never
-proof of retry safety or acceptance. It never overwrites an existing file or
-replaces live ownership checks. Keep full output when needed for diagnosis.
-`plan` and `terminal` do not return snapshots; call them without these flags.
-If a command fails or a CAS is stale, inspect into a fresh file and reconcile
-before retrying; a partial output is never authority to repeat a mutation.
-Default output remains unchanged: save `inspect` stdout directly as the bounded
-expected-snapshot input; mutations return `{snapshot,result}` and `init`
-returns `{root,snapshot}`. If using default output,
-Extract `.snapshot` without editing the authoritative file. Every mutation
-requires the current generation and digest together. Stale CAS
-means inspect and reconsider, not overwrite. Commands below share `--root` and
-`--expected`; use `--help` for exact argument order:
+Every mutation consumes the current generation and digest through `--expected`.
+A stale CAS, lost output, or partial result means inspect and reconcile before
+retrying; it never authorizes repetition. `plan` and `terminal` do not emit a
+snapshot. Use `--help` for exact command argument order rather than copying a
+stale recipe.
 
-- `worker COORD --attempt ATTEMPT --id ACTUAL_ID`: after actual spawn.
-- `result COORD --attempt ATTEMPT --state ready|blocked --evidence TEXT`: after
-  inspecting the exact leaf-ledger/head/report and worker result. Retain actual
-  worker identity for follow-up; no merge/accept claim from a worker.
-- `retry COORD --attempt ATTEMPT --evidence TEXT`: only after runtime proof of
-  non-start/stopped attempt and safe exact leaf recovery. Never abandon a live
-  worker because a timeout elapsed. Unknown spawn outcomes require observation.
-  This also retires a ready worker already closed to free capacity: verify its
-  stopped runtime identity and exact leaf handoff, then reserve a replacement
-  attempt for that same delivery. It is not permission to adopt another ledger.
-- `reopen COORD --attempt ATTEMPT --evidence TEXT --heavy-limit 1`: reactivate
-  the same retained live worker for findings after ready/blocked. Reprove worker,
-  leaf ownership and current head first; resource/dependency gates still apply.
-  Send its newly returned attempt ID to the retained worker and accept only a
-  fresh result for that ID; queued old-head messages cannot complete it.
-  After postmerge invalidation without a live worker, current terminal owner
-  observations plus all fresh criterion attestations restore accepted state.
-- `refresh`: complete live graph/PR observation before scheduling after merges.
-- `replan --plan FILE`: bounded newly discovered scope, never silently drop
-  known nodes, change active boundaries, expand repository/permission authority,
-  or switch issue mode to PR. New scope outside the user's project needs approval.
-- `attest CRITERION --evidence TEXT`: name exact tests, sources/heads and output
-  evidence. The helper binds the current owner observations; it does not run
-  or assess the tests. Re-attest after any relevant drift.
-- `terminal`: list gaps; refresh first. No helper command merges or deploys.
+## Schedule useful work
 
-On resumed sessions, check current worker states before calling `dispatch`.
-Include the exact returned attempt in the spawn message, so runtime history can
-correlate it after a lost spawn response. If the runtime cannot enumerate or
-prove that attempt, leave its reservation blocked; never guess a worker ID.
-If a worker's bound delivery already owns a PR, continue that exact delivery,
-not a second issue-mode claim. If additional independent PR work is needed,
-add a separately authorized type-explicit lane after collision checks.
+Observe the runtime's actual capacity domain and complete worker inventory.
+Expose all ready disjoint lanes that fit it. Do not invent a small worker cap or
+infer available capacity from a requested number. Bound CPU/GPU/build work
+separately from model workers. File ownership, dependencies, shared resources,
+and heavy-job limits remain hard scheduling conflicts.
 
-## Reserve an existing idle worker
-
-Use this operation after `retry` or an eligible `replan` leaves the same leaf
-pending with no bound worker and an exact retained attempt. It does not adopt a
-worker from another leaf or authorize copying patches, credentials or ledgers.
-Ordinary `dispatch` and same-owner `reopen` retain their existing behavior.
+The helper's scalar scheduler uses retained-handle capacity:
 
 ```sh
-python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT --snapshot-output /absolute/private/reserved.json --compact reserve-existing atrinik/atrinik#NUMBER --worker /root/leaf --runtime-observation /absolute/private/runtime.json --heavy-limit 1 --expected /absolute/private/current.json
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT plan --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit HEAVY_LIMIT
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT dispatch --capacity OBSERVED_LIMIT --open-workers OBSERVED_OPEN --heavy-limit HEAVY_LIMIT --expected /absolute/private/current.json
 ```
 
-The observation is a trusted coordinator's attestation, not an authenticated
-runtime credential. This adapter uses the collaboration runtime's whole-thread
-tree: obtain a fresh complete `list_agents` response and the actual exposed
-capacity, including the root coordinator and nested/review/completed handles.
-Do not derive capacity from desired parallelism or decrement the inventory
-to make space. Select the capacity domain from actual runtime evidence. Only
-the root dispatcher's own direct children may be
-selected; nested workers remain with their dispatcher. Use this exact schema,
-replacing every example value with current evidence:
+Do not pass an active-slot count as the scalar retained-handle limit. If the
+runtime exposes only active capacity, no fresh scalar dispatch is supported;
+use an applicable source/issue fallback and record the scheduling gap. The
+unchanged `dispatch` and `reserve-existing` producers return a legacy
+issue-delivery sentence for compatibility. Treat either request as scheduling
+metadata: when authoring the actual task packet, select the source contract for
+a new source-only leaf and retain the issue-delivery instruction only for a leaf
+to which it applies. Reusing a worker never changes that selected leaf contract.
+
+Record each actual spawn promptly with `worker COORD --attempt ATTEMPT --id
+ACTUAL_ID`. Include the returned attempt in the worker packet. An uncertain spawn
+outcome keeps its reservation; observe before retrying or starting a replacement.
+
+Give independent workers compact packets with the exact repository/worktree,
+base and branch, owned paths, goal, acceptance, dependencies, relevant
+instructions, authority limits, validation, and stop boundary. State that other
+workers are active and their edits must be preserved. Prefer `fork_turns="none"`
+when the packet contains all necessary context. Keep private ledger and recovery
+material out of model messages.
+
+Use the source contract's canonical watcher entry for CI or remote transitions;
+do not reproduce its commands here. A model should wake for a decision, failure,
+meaningful state change, or completion—not repeatedly poll unchanged state.
+
+## Results, blockers, and recovery
+
+Record `result COORD --attempt ATTEMPT --state ready|blocked --evidence TEXT`
+only after checking the exact revision and result. Worker prose alone is not
+acceptance. A blocker must name:
+
+1. the concrete operation, resource, or ownership conflict;
+2. why it is relevant to acceptance or a runnable dependency; and
+3. the event or changed evidence that makes retry useful.
+
+Continue unaffected lanes. Route review or test findings to the owner and reuse
+that worker. Use `reopen` for a retained owner and a fresh attempt; old-attempt
+messages cannot satisfy it. Use `retry` only after proving the old attempt never
+started or stopped and the exact leaf is safe to resume. A timeout is not that
+proof.
+
+`reserve-existing` is a compatibility adapter for the same leaf's eligible
+retained idle direct-child worker after `retry` or `replan`. It does not adopt a
+worker or worktree from another leaf. Supply a fresh complete runtime observation
+with the actual root namespace, capacity domain and limit, every retained agent,
+the current project generation/digest/path, project authority, selected worker,
+coordinate, mode, retired attempt, and leaf-correlation evidence. The observation
+must be an owned no-follow file, at most 128 KiB, with a UTC timestamp no more
+than 60 seconds old. Use `whole-thread-tree` for retained-handle capacity or
+`whole-thread-tree-active` only when the runtime explicitly exposes an active
+limit.
+
+The observation schema is:
 
 ```json
 {
   "schema_version": 1,
   "observed_at": "2026-09-12T12:00:00Z",
-  "snapshot": {"generation": 7, "digest": "EXACT_SNAPSHOT_SHA256", "path": "/absolute/project/root/project.json"},
-  "project": {"parent": "atrinik/atrinik#PARENT", "authority": "EXACT_SESSION_AUTHORITY", "actor": "zoeyrose"},
+  "snapshot": {"generation": 7, "digest": "EXACT_SHA256", "path": "/absolute/project.json"},
+  "project": {"parent": "atrinik/atrinik#1", "authority": "EXACT_AUTHORITY", "actor": "actor"},
   "runtime": {
     "namespace": "/root",
-    "capacity_domain": "whole-thread-tree",
-    "capacity": 2,
+    "capacity_domain": "whole-thread-tree-active",
+    "capacity": 17,
     "complete": true,
     "agents": [
       {"agent_name": "/root", "agent_status": "running"},
-      {"agent_name": "/root/leaf", "agent_status": {"completed": "Actual retained result text"}}
+      {"agent_name": "/root/leaf", "agent_status": {"completed": "actual result"}}
     ]
   },
   "selection": {
     "worker": "/root/leaf",
-    "coordinate": "atrinik/atrinik#NUMBER",
+    "coordinate": "atrinik/atrinik#2",
     "entry_mode": "issue",
-    "retired_attempt": "EXACT_PENDING_NODE_ATTEMPT",
-    "evidence": "Actual runtime task history matches this leaf and retired attempt; exact leaf ledger/worktree/head checked."
+    "retired_attempt": "EXACT_ATTEMPT",
+    "evidence": "Fresh runtime and exact leaf ownership correlation."
   }
 }
 ```
 
-The legacy `capacity_domain: "whole-thread-tree"` bounds both retained handles
-and active reservations; its schema and behavior remain unchanged. For a runtime
-that explicitly limits active concurrency, use
-`capacity_domain: "whole-thread-tree-active"` with that actual active limit in
-`capacity`, keeping the same complete whole-thread `agents` array. For example,
-18 retained rows with `capacity: 17` are valid only in this explicit active mode
-and only when the active budget below fits. Both modes require capacity 1–256;
-active mode independently bounds inventory at 4096 rows and the existing 128 KiB
-input-file limit. Unknown domains fail closed; old observations are never
-reinterpreted. This adapter does not assert a separate retained-handle limit
-when the runtime exposes only active capacity.
-
-Retain the actual runtime `agent_name`/`agent_status` rows without rewriting
-statuses. A completed worker has the actual tagged status object
-`{"completed": "result text"}`; selected workers accept that exact shape or
-`"idle"`. The inventory also accepts `"running"`, and refuses plain
-`"completed"`, unknown/interrupted states and malformed or ambiguous objects.
-Completion text is bounded with the input, hashed as part of the raw observation
-and never copied into the project record or returned request. The root must be
-present and running. `complete`, namespace, capacity, selection,
-session and leaf correlation are coordinator attestations, not fields returned
-or cryptographically verified by the runtime. The helper rejects an absent,
-duplicate or mismatched selected identity; it cannot detect a fabricated whole
-attestation. Obtain the selection evidence from actual runtime history and
-fresh leaf ownership checks; never infer ownership from a convenient name.
-
-Keep the observation in an owned regular no-follow file of at most 128 KiB.
-The CLI reads it inside the locked CAS callback, after validating the expected
-snapshot's generation, digest and canonical path. Its UTC timestamp (optionally
-1–6 fractional digits) must be no more than 60 seconds old and not in the
-future. Project actor/authority/parent and selection coordinate/entry mode/
-retired attempt must match exactly. Stale or mismatched evidence fails without
-changing the project. A worker bound to any other node, including a terminal
-node, is unavailable. A running runtime worker with an inactive project
-reservation is inconsistent and must be reconciled first. Dependencies,
-file/resource conflicts, external reservations and heavy-job limits remain
-required. Existing unbound spawn reservations still reserve future starts.
-In legacy mode,
-all retained rows plus unbound starts must also fit the handle limit. In both
-modes, the union of all running agents (including root, nested and independent
-workers), occupied bound worker identities and the selected activation, plus
-every unbound start, must fit `capacity`. Overlapping identities count once;
-disjoint running agents and idle bound reservations each consume a slot.
-Reactivation adds no retained handle. Complete observations remain trusted
-coordinator attestations; a fabricated omission cannot be discovered from JSON
-alone and is never supported.
-
-The result durably binds `reserved`, the existing worker and a fresh attempt,
-including the prior attempt and canonical observation digest in its identity.
-Keep the exact returned snapshot/request. A single trusted dispatcher must
-immediately recheck actual runtime idleness, follow up that exact worker with
-that new attempt and the unchanged leaf delivery authority, and only after the
-runtime accepts the start run `worker COORD --attempt NEW_ATTEMPT --id WORKER`
-with the returned snapshot. Every resumed writing worker still re-proves its
-own issue-delivery ledger, worktree, actor and leases before edits. Runtime
-recheck/follow-up is not atomic with local CAS; no signed runtime or atomic
-activation API is available. Serialize these actions in the owning dispatcher.
-
-Busy, unknown, lost follow-up or lost output preserves the prebound reservation.
-Inspect and reconcile the actual worker/attempt before any further action;
-never automatically retry a follow-up, spawn a replacement, or release its
-resources. `retry` still requires actual non-start/stopped-runtime and exact
-leaf recovery proof. Old-attempt results cannot complete the new reservation.
-
-## GitHub tracking journal
-
-Plan an operation before applying it:
+Use actual runtime rows without rewriting statuses. The root is present and
+running; the selected direct child is exactly `"idle"` or has the tagged
+completed object. Include running, nested, review, and retained workers in the
+complete inventory. The helper rejects stale or mismatched fields but cannot
+detect a fabricated omission, so obtain the evidence from the real runtime and
+current leaf state.
 
 ```sh
-python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT tracking plan --kind comment --target atrinik/atrinik#NUMBER --payload /absolute/comment.json --expected /absolute/snapshot.json
-python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT tracking apply --operation RETURNED_ID --expected /absolute/new-snapshot.json
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT reserve-existing COORD --worker /root/leaf --runtime-observation /absolute/private/runtime.json --heavy-limit HEAVY_LIMIT --expected /absolute/private/current.json
 ```
 
-Supported payloads:
+After reservation, recheck the real worker is idle, follow up that exact worker,
+then bind its new attempt with `worker`. A busy, unknown, or lost follow-up keeps
+the reservation and requires reconciliation. Existing bound writers still run
+their own ledger, actor, worktree, lease, and live-resource checks.
 
-| Kind | Exact payload | Boundary |
-| --- | --- | --- |
-| `assign` | `{"login":"authenticated-actor"}` | Add self, preserve other assignees |
-| `comment` | `{"body":"concise milestone update"}` | New actor-owned marked comment; no human-body rewrite |
-| `link` | `{"issue":"atrinik/repository#N"}` | Target is parent; never force reparent |
-| `dependency` | `{"issue":"atrinik/repository#N"}` | Target is blocked by payload issue; bounded cycle check |
-| `create-child` | `{"repository":"atrinik/owner","title":"...","body":"..."}` | Authorized parent only; complete duplicate search |
-| `project-status` | `{"project":"ID","item":"ID","field":"ID","option":"ID","status":"Review"}` | Existing Atrinik work issue item and Status option only |
-| `close-parent` | `{}` | Authorized terminal parent only |
+Use `refresh` after graph or merge changes, `replan --plan FILE` for bounded
+newly discovered in-scope work, and `attest CRITERION --evidence TEXT` for
+current revision/environment-bound acceptance. Replan must not silently drop
+known nodes, change issue/PR mode, expand repositories or permissions, or absorb
+foreign work.
 
-Resolve Projects IDs from live paginated GraphQL; never paste another issue's
-item or invent a field/option. Supported statuses: In progress, Blocked, Review,
-Done. Done requires observed terminal issue work. Leaf claim already adds its
-issue to the configured Project; the coordinator only updates existing items.
-An already-satisfied operation makes no write; inspect and record the fact.
+## Tracking and completion
 
-After child creation, read its exact result, replan the graph to include it,
-then separately journal its native parent/dependency links. Do not dispatch an
-unlinked ambiguous child. Create only genuinely missing in-scope requirements
-after searching issue titles, bodies, relationships, PRs and existing patches;
-the helper's exact-title check is an additional guard, not semantic deduplication.
+Coordinator tracking is distinct from leaf implementation authority. Journal
+only authorized assignment, actor-owned milestone comments, native links and
+dependencies, deduplicated missing-child creation, existing Project Status
+updates, and parent closure:
 
-The journal records planned → in-flight before one API write → bound by live
-result proof. On a lost response, use `tracking reconcile` with the operation ID
-and fresh expected snapshot. It observes only, never reposts. Missing/ambiguous
-results or incomplete pagination stop that target. An unstarted `planned`
-operation may use `tracking cancel` after live non-application proof, then a
-fresh plan; cancelled history remains preserved. An `in-flight` operation cannot
-cancel or repost: preserve evidence for observation or an external maintainer
-decision. No automated override exists. Keep progress comments to meaningful
-milestones, not polls. Independently satisfied assignment, Project status or relationship
-intents may retire while still `planned`; issue/comment creation with an
-unexpected matching marker remains ambiguous and cannot use that exception.
-Never expose private ledger/tooling content publicly.
+```sh
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT tracking plan --kind KIND --target COORD --payload /absolute/payload.json --expected /absolute/private/current.json
+python3 -m atrinik_workspace.project_delivery --root RETURNED_ROOT tracking apply --operation OPERATION_ID --expected /absolute/private/planned.json
+```
 
-## Merge gates, closure and acceptance
+Supported kinds remain `assign`, `comment`, `link`, `dependency`,
+`create-child`, `project-status`, and `close-parent`. Preserve human text and
+other assignees; do not force-reparent or duplicate work. Resolve live Project
+IDs and current status options instead of borrowing IDs. After creating a child,
+replan and establish its relationship before dispatch.
 
-Keep each leaf's closing keyword under its existing ledger/governance protocol.
-A component PR may say `Closes atrinik/atrinik#N` only when it is the selected
-canonical closing delivery; other companion PRs use non-closing references.
-Do not put a closing keyword for a whole parent on a partial implementation PR.
+The journal writes planned -> in-flight -> bound. A lost response uses
+`tracking reconcile`, which observes and never reposts. Cancel only an unstarted
+planned operation after live non-application proof. An ambiguous or in-flight
+write stops that target pending evidence or an external decision.
 
-After a maintainer merge, refresh the complete graph, verify head/base/merge
-identities, route dependent fixes to their owners, update Project status and
-post concise parent/dependent milestone evidence. Never rewrite contributor PR
-text; the owning leaf updates its own PR through the existing protocol.
+At meaningful milestones, persist the goal and acceptance, completed artifacts,
+revision/environment-bound evidence, remaining dependencies, exact ownership,
+authority limits, and next runnable action. This handoff should let a new
+coordinator continue without user relay or an unnecessary session restart.
 
-The observer conservatively treats every cross-referenced PR as required:
-an unmerged reference, untracked native child, incomplete pagination or closed
-not-planned issue prevents automatic terminal closure. Explain incidental or
-superseded work for human resolution; do not remove evidence to turn it green.
-Every declared acceptance criterion requires current integration evidence.
-All native children and blockers at every declared depth must also be declared
-in the plan, including externally owned work. Acceptance binds transitive native
-and planned requirements, so a grandchild's head/check drift invalidates its
-ancestor's integration evidence. Undeclared required nodes block closure even
-if their issue state is closed.
-Referenced/selected PR checks and legacy statuses must be complete and passing;
-failed, pending or cancelled checks block terminal observation. Neutral/skipped
-checks need applicability evidence in acceptance, just as in leaf delivery.
-Required contexts and app identities come from live classic protection plus
-[applicable inherited branch rules](https://docs.github.com/en/rest/repos/rules#get-rules-for-a-branch).
-Missing required jobs block completion. Unavailable protection data or required
-workflow/deployment/security rules without supported evidence stop automatic
-terminal decisions; no checks returned is not proof that none are required.
-Parent-only PR heads/checks/merge evidence also bind every integration criterion.
-Project Done uses the same fresh complete required graph; a parent's Done status
-additionally requires full acceptance, not only a closed issue.
-Children merged is necessary, not sufficient. Close the authorized parent only
-after these checks; otherwise provide the exact remaining closure action.
+Before completion, refresh the whole graph and heads, run relevant integrated
+checks, and obtain an independent final review. Preserve producer interfaces,
+tests, and the plan asset schema unless compatibility is demonstrated. Every
+criterion needs current evidence; relevant head, base, dependency, environment,
+or graph drift invalidates it. Use `terminal` to enumerate gaps, not as proof
+that live observations are fresh.
 
-Before shipping coordinator changes, run production helper unit/concurrency/
-failure tests, guidance inventory, wrapper validation and a fresh independent
-forward-test using realistic blocked/parallel/merge-gated requests. A fixture
-pilot is not evidence that real workers delivered real project PRs. Keep live
-pilots read-only unless their specific tracking/implementation scope is authorized.
-
-## Same-owner unchanged-target reconnect
-
-A retained issue worker with unchanged current target coordinates must complete
-the issue ledger's public `revalidate-current-targets-cas` proof after
-canonical context, live selection and inventory checks. Retain its exact
-helper-returned generation, digest and canonical ledger path (`--expected-path`).
-Project scheduling renewal
-does not itself prove worktree leases or transfer ownership. Generic CAS,
-stored check-reuse flags and private helper contexts grant no reconnect proof.
-Use the accepted helper only; a proposed helper change cannot authorize its
-own reconnect or another paused worker before that change is actually merged.
-
-
-For an accepted Classic dependency needed by a retained corrected child, use the
-issue helper's `advance-retained-dependency-cas` stages and the corresponding
-`--retained-build-plan` runtime producer fence. Follow
-[resource observation recovery](../../atrinik-issue-delivery/references/resource-observation-recovery.md).
-Keep the child's original namespace, scenario and producer history; candidate
-helpers are fixture-only and a new dependency never authorizes overwriting its
-historical runtime build. Portable image pins do not attest a server build image.
+Closing references belong only on the canonical closing delivery. Merge,
+deployment, and parent closure each require their own granted authority. If an
+external restriction is the last gate, report the exact operation, owner, heads,
+evidence, recovery coordinates, and retry event. Never claim completion from
+child counts, PR status, or a worker summary alone.
