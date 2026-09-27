@@ -61,6 +61,15 @@ CAS, ordered leases, collision checks and recovery rules all still apply.
 Parallel sessions isolate Codex/cache/worktree/state coordinates. Existing
 canonical containers continue without replacement or remount.
 
+A preserved scope may still name a previous container's absent namespace.
+Delivery reference proof can classify its validated, candidate-disjoint evidence
+as external without adopting the old worktrees or changing their bytes. The
+ordinary observation/bind commands retain the current worktree's Git, filesystem,
+lease and CAS checks. Present, overlapping, aliased, malformed or uncertain
+foreign coordinates remain blockers; ordinary scope inspection and cleanup stay
+strict. Do not rewrite the old paths or activate an unmerged helper to resume a
+blocked delivery.
+
 Before building source in a selected environment, run
 `python3 -m atrinik_workspace.linux_platform` there for a bounded report of
 build tools and Git LFS filters. Add `--docker` only when that build or runtime

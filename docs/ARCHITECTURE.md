@@ -481,6 +481,18 @@ evidence remains fail-closed. Complete and recoverable scope journals
 contribute exact cleanup references until release journals prove each worktree
 removed.
 
+The admitted delivery workspace additionally pins a bounded descriptor-relative
+scope inventory until its authority context exits. Only validated complete or
+recoverable records with a consistent, absent foreign wrapper/workspace namespace
+and no candidate overlap may remain external to that delivery's reference set.
+The creation request digest, reservation, journal, original manifest coordinates,
+profile and Git paths must agree. Changed or uncertain rows, present/aliased
+foreign namespaces and release journals refuse this classification. Directory
+membership, file identities/bytes and absent namespace prefixes are rechecked
+before each reference observation and on context exit. Current scopes retain
+their existing live Git, reference and lease checks. Ordinary inspection, recovery
+and cleanup never use the external classification or change historical bytes.
+
 Scope command maps are persisted creation-time snapshots. Validation keeps
 those snapshots stable when the manifest later gains components: newly added
 coordinates are optional for an existing scope, but every retained command
