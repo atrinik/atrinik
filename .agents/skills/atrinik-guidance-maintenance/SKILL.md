@@ -5,8 +5,9 @@ description: Audit and synchronize Atrinik AGENTS.md, skills, README, architectu
 
 # Maintain Atrinik agent guidance
 
-Run from the wrapper root. Stay read-only until evidence identifies drift; do
-not initialize, sync, clean up, launch, or mutate external state for an audit.
+For an audit, stay read-only and report evidenced drift. For requested changes,
+use an owned [source worktree](../../../docs/SOURCE_DELIVERY.md). An audit alone
+does not authorize initialization, synchronization, cleanup or external writes.
 
 ## Gather evidence
 
@@ -32,7 +33,10 @@ not initialize, sync, clean up, launch, or mutate external state for an audit.
   concise imperative body with `agents/openai.yaml`.
 - Put operator behavior in `README.md`, lifecycle/trust invariants in
   `docs/ARCHITECTURE.md`, and contributor checks in `CONTRIBUTING.md`.
-- Remove stale duplication and link to its owner. Edit only evidenced drift and
+- Remove stale duplication and link to its owner. Keep ordinary source entry
+  separate from retained-resource protocols; specialist checks load only when
+  the affected mechanism needs them. Do not turn a historical incident into a
+  universal preflight. Edit only evidenced drift or the requested policy and
   synchronize only surfaces sharing the contract. For skill additions/removals,
   update inventory regressions and UI metadata. Load
   `atrinik-multi-repo-workspace` when the cross-checkout contract itself changes.
@@ -48,8 +52,13 @@ python3 -m atrinik_workspace.guidance_inventory --check
 git diff --check
 ```
 
-Run the active Codex `skill-creator` validator for changed skills. Add
-ShellCheck, actionlint, or builds when relevant; supply-chain is optional. Never claim coverage for unread checkouts.
+Run the active Codex `skill-creator` validator for changed skills. For substantial
+routing or recovery changes, independently exercise realistic task scenarios:
+ordinary source work, isolated helper repair, same-owner interrupted edits,
+an actual resource collision, and missing external acceptance. Use temporary
+fixtures; do not mutate live resources to test guidance. Add ShellCheck,
+actionlint, or builds when relevant; supply-chain is optional. Never claim
+coverage for unread checkouts.
 
 ## Report
 
