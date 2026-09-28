@@ -3,9 +3,13 @@
 Develop, run Git/GitHub, review and coordinate delivery in owned native Linux
 worktrees. Use [short-lived pinned CPU workers](docs/LINUX_EXECUTION.md) for
 application builds and toolchain-dependent tests, with isolated reusable caches.
-Complete the live context, authentication, dedicated-worktree, ledger/CAS and
-lease gates before delivery work. Native Windows retains repository commands
-and runtime qualification; it has no Linux delivery-ledger authority.
+For new source work use [source delivery](docs/SOURCE_DELIVERY.md): an owned
+worktree, scoped collision checks, relevant validation and independent review.
+Ledger admission is not required for isolated editing or fixture tests. Existing
+bound deliveries and shared-resource operations retain their live context,
+authentication, dedicated-worktree, ledger/CAS and lease gates. Native Windows
+retains repository commands and runtime qualification; it has no Linux
+delivery-ledger authority.
 
 For coordinated multi-issue development, use the [project launcher](docs/PROJECT_DELIVERY_GOAL.md).
 An authorized coordinator may manage its workers, ordinary development and PR
@@ -362,4 +366,5 @@ the moved output with original source/build paths unavailable. Record loader and
 media decoding separately from hardware Vulkan gameplay, authenticated QUIC,
 persistent-state restart and audible playback. Preserve distinct Windows/WSLg,
 MXE and native Windows D3D12 evidence. A candidate native authority contract cannot
-authorize its own delivery; activation follows merge and parent acceptance.
+authorize live resource operations; activation follows merge and parent acceptance.
+The isolated source-repair path can prepare and validate that change beforehand.

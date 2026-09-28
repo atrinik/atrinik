@@ -1,6 +1,20 @@
 # Workspace architecture
 
-## Project delivery coordination
+## Source and resource delivery
+
+[Source delivery](SOURCE_DELIVERY.md) uses ordinary owned Git worktrees for new
+code, tests and guidance. `scripts/source_delivery.py` provides local start/resume
+checks and a small creation receipt; it does not grant runtime authority, adopt
+existing deliveries or replace their ledgers. Known same-owner interrupted source
+edits may resume after explicit diff/ownership verification. Candidate tooling can
+be tested with isolated fixtures without authorizing live resources.
+
+`scripts/wait_pr_checks.py` watches a selected PR at a fixed head and base, with
+explicit expected checks and a bounded deadline. Its observations do not merge,
+dispatch or waive acceptance. Source validation, artifact review and external
+runtime acceptance are distinct results.
+
+## Stateful project delivery coordination
 
 `project_coordinator.py` owns the bounded dependency/resource scheduler;
 `project_coordinator_store.py` provides no-follow, stable-lock, generation/digest/
@@ -27,6 +41,8 @@ or deploys.
 See the [operator protocol](../.agents/skills/atrinik-project-delivery/references/coordinator.md)
 for resume rules, bounds and deliberately unsupported ambiguous-write recovery.
 The existing issue and legacy program engines are retained without migration.
+New source-only projects may use the lightweight skill and milestone handoff;
+the stateful scheduler and its bound leaves retain the protocol above.
 
 ## Ownership boundary
 
@@ -94,7 +110,7 @@ For the end-to-end, copy-pasteable Windows workflow, see
 Keep that workflow synchronized with this matrix: the native Windows host owns
 Git/GitHub authentication, optional SSH signing, commits, pushes, and final
 native execution; the owned native Linux worktree owns coordinator probe,
-delivery ledger, worktree/CAS, source edits and review; short-lived pinned CPU
+source edits and review, plus delivery ledger/worktree/CAS for bound operations; short-lived pinned CPU
 workers own compilation/toolchain tests; and `windows-cross` owns only the Classic Windows
 cross-build/package toolchain. A Windows-only package does not configure a
 Linux client unless that client is explicitly selected for a separate test,
@@ -111,7 +127,7 @@ isolation and fail-closed behavior explicit while preserving the stronger
 descriptor-relative implementation on Linux.
 
 The wrapper-owned `scripts/atrinik_coordinator_context.py` probe is the
-delivery entry boundary. It returns `canonical-linux` only when the pinned
+bound-delivery entry boundary. It returns `canonical-linux` only when the pinned
 ordinary devcontainer declaration, live Linux/POSIX runtime/user/Codex facts,
 repository/workspace layout, no-follow ownership and modes, and source,
 ledger, build, and Codex configured mount paths agree. `native-windows` is a stable
@@ -136,11 +152,12 @@ lightweight validation in an owned local worktree. Short-lived pinned CPU worker
 run application builds and toolchain-dependent checks with isolated reusable
 caches. Schema-2 `entry_mode` remains diagnostic only. Native Windows retains
 repository commands and runtime qualification, with no Linux ledger authority.
-An unaccepted authority change never authorizes its own implementation.
+An unaccepted authority change never authorizes live resource operations;
+isolated implementation and fixture tests follow the source-repair path.
 
 ### Owned-worktree continuity
 
-Native delivery ownership survives build-worker exit. Reconnect and crash
+Native delivery ownership survives build-worker exit. Bound-delivery reconnect and crash
 recovery re-prove live context, authenticated actor, complete inventory, exact
 clean worktree, ledger CAS and leases. A saved record is corroboration only;
 stale metadata grants no reuse. Keep credentials, private keys and mutable server

@@ -6,8 +6,9 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
 
 ## Scope and ownership
 
-1. Read `AGENTS.md`, `components.json`, README/architecture, and
-   [repository migration](references/repository-migration.md).
+1. Read `AGENTS.md`, resolve ownership in `components.json`, and read the relevant
+   README/architecture section. Load [repository migration](references/repository-migration.md)
+   only for pre-split layouts.
 2. Resolve each physical checkout and nearest `AGENTS.md`; keep code, tests,
    packages, and releases with their physical owners.
 3. Process/tooling diagnostics are discretionary; skip routine ledger reads,
@@ -19,6 +20,13 @@ components; stacks share `content@main`. `content-1x` and former 1.x are histori
 migration evidence only, never active components or delivery targets.
 
 ## Safe worktrees
+
+New source-only changes use [source delivery](../../../docs/SOURCE_DELIVERY.md).
+The local start/resume helper creates dedicated Git worktrees without a delivery
+ledger; verify task ownership before continuing interrupted dirty edits. Existing
+bound deliveries remain on their original recovery protocol. Use the managed
+scope/worktree instructions below when the task needs those resources, not as a
+prerequisite to an isolated source patch or fixture test.
 
 Inspect before mutation:
 
@@ -32,7 +40,7 @@ Initialize absent repositories with `init` (`--with classic` adds classic);
 
 See root `AGENTS.md` for initialization commands; scope and worktree primitives follow.
 
-Sync only clean primaries; never alter dirty sources. Classic selectors create
+Sync only clean primaries; never alter dirty sources. Managed Classic selectors create
 `workspace/worktrees/classic/LABEL`; prefer atomic scopes.
 
 Selectors are positional; overrides target physical checkout `classic`:
@@ -101,10 +109,10 @@ Gate matching coordinates; multi-source writers retry all-or-none; fail closed o
 state. Migration alone takes the barrier. Published runtimes retain generation/process-tree/state/
 port leases. Completion is bounded/read-only, secret-free, parser-driven before `Workspace`.
 
-Use an owned native Linux worktree with exact host/user/profile/build/ledger
-coordinates. Use [short-lived pinned CPU build
+Use an owned native Linux worktree. Bound resource work retains exact
+host/user/profile/build/ledger coordinates. Use [short-lived pinned CPU build
 workers](../../../docs/LINUX_EXECUTION.md) and isolated reusable caches for builds
-and toolchain checks. Worker exit preserves native ownership. Recovery reruns
+and toolchain checks. Worker exit preserves native ownership. Bound recovery reruns
 probe, actor, clean worktree, inventory/CAS and leases. Historical bound containers retain exact image/mounts and compatibility proof;
 never adopt or replace them implicitly. Preserve evidence; stop only owned resources.
 Deliveries need distinct worktrees/coordinates, caches, ports,
@@ -125,19 +133,15 @@ Use the exact profile/build/topology/runtime lifecycle in root `AGENTS.md`.
 For native Windows Classic GPU handoff, follow [`docs/WINDOWS_GPU_PREFLIGHT.md`](../../../docs/WINDOWS_GPU_PREFLIGHT.md); reuse Classic package-smoke/D3D12 commands and keep
 package, test-build, native runtime, and Linux coordinator evidence separate.
 
-Record prerequisites/actions/results/cleanup and handoff commands; never replace
+Record applicable prerequisites, results and next actions; never replace managed
 wrapper operations with internal executables/generated paths.
 
 ## Publication and policy
 
-Use `atrinik-github-governance` for PRs. Titles use `type(optional-scope): concise description`;
-add ! only when a reviewer explicitly requests a breaking change. PR bodies must be substantive
-rendered GitHub-Flavored Markdown with actual line breaks, never literal `\n` separators. Include
-`Summary`, `Implementation / behavior`, `Validation`, and applicable `Limitations / follow-up`;
-issue-closing line alone is insufficient. preserve contributor-authored text byte-for-byte; change
-only a delivery-owned section when authorized. Feed multi-section bodies by file/stdin; after
-create/edit verify remote body. Semantic-release publishes. Supply-chain diagnostics never gate work
-or require inventory updates. Follow `docs/PROVENANCE.md`; fail uncertainty.
+Use `atrinik-github-governance` for PR publication, contributor-text preservation
+and rendered-body verification. Semantic-release publishes. Supply-chain
+diagnostics never gate work or require inventory updates. Follow
+`docs/PROVENANCE.md`; fail uncertainty.
 
 ## Maintain guidance
 

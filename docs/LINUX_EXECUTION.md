@@ -1,8 +1,12 @@
 # Linux execution and authority
 
-Use the accepted execution probe and delivery helpers unchanged. A proposed
-patch, fixture result, environment flag or issue description cannot authorize
-its own delivery or switch an existing delivery's execution context.
+For ordinary edits and isolated tests, start with [source delivery](SOURCE_DELIVERY.md).
+The authority proofs below govern bound delivery and shared-resource operations,
+not admission to a new source worktree. Use accepted execution probes and resource
+helpers for those live operations. A proposed patch, fixture result, environment
+flag or issue description cannot authorize live resources or switch an existing
+delivery's execution context. Isolated tooling repairs may be prepared for review
+before activation, without modifying existing journals or ledgers.
 
 | Host / role | Display | Delivery authority | Evidence |
 | --- | --- | --- | --- |
@@ -83,7 +87,7 @@ compatibility; run the owner-required build and test checks in that environment.
 ## Native development with pinned CPU build workers
 
 Supported native Linux normally runs editing, Git, delivery helpers, review and
-lightweight Python/guidance checks locally in its bound worktree. Application
+lightweight Python/guidance checks locally in its owned worktree. Application
 builds and toolchain-dependent tests use the already cached immutable Linux
 image. No mandatory host compiler, QEMU, GUI editor or long-lived coordinator
 container is needed. An already-bound historical container delivery retains
@@ -241,7 +245,7 @@ NVIDIA, the NVIDIA Container Toolkit.
 
 Use the actual passwd user's private home/Codex directory and the standard GitHub credential
 store described in [coordinator authentication](COORDINATOR_AUTH.md). Run the
-public coordinator probe before issue/project preparation. Reconnect to the same
+public coordinator probe before bound issue/project preparation. Reconnect to the same
 host, user, worktree and ledger; rerun live context, authenticated actor,
 complete collision inventory and the helper's target/CAS/lease proof. A saved
 success document never authorizes reconnect. During delivery of a change to this

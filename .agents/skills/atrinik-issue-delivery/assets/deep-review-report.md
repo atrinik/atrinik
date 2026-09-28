@@ -1,159 +1,51 @@
-# Deep self-review: `<owner>/<repository> <issue|PR> #<number>`
+# Delivery review: `<owner>/<repository> <issue|PR> #<number>`
 
-This ignored local report tracks human evidence for the complete current-base
-diff. It is never ownership or recovery authority; the strict schema-v1 JSON
-sidecar managed by `scripts/delivery_ledger.py` is authoritative.
-Do not include credentials, confidential material, or unnecessarily actionable
-vulnerability detail. Do not commit or publish this report.
+Optional human evidence template; omit sections that do not help this change.
+Keep it local and uncommitted, without credentials or confidential details.
+This report never grants ownership or recovery authority. For retained bound
+deliveries, the helper-managed schema-v1 JSON ledger remains authoritative and
+the protocol's required report identity/evidence must be preserved.
 
-## Coordinates
+## Reviewed revision
 
-- Entry mode: `<issue|PR>`
-- Selected issue(s): `<URL(s) or none>`
-- Selected pull request(s): `<one URL in PR mode; URL(s) or pending in issue mode>`
-- Claim/linkage state: `<claimed explicit issue | linked issues read-only | none>`
-- Issue-closing path: `<default-branch PR URL, manual post-merge close, or none>`
-- Report identity: `<canonical issue | canonical PR | migrated issue>`
-- State ledger: `<absolute sidecar path; schema v1; generation; SHA-256>`
-- Authority/program: `<kind/reference/actor; exact master/leaf/position or none>`
-- Artifact summary: `<non-authoritative mirror of planned/created/adopted slots>`
-- Migration evidence: `<none or exact source/snapshot/marker paths and hashes>`
-- Review started / last refreshed: `<UTC timestamps>`
+- Selected issue/PR: `<URLs; incidental issues remain read-only>`
+- Repository, branch and owned worktree: `<exact coordinates>`
+- Base / head / merge-base: `<SHAs>`
+- Requirements and complete diff reviewed: `<scope and acceptance criteria>`
+- Independent reviewer: `<reviewer and raw artifacts supplied>`
+- Review result: `<actionable findings or none>`
 
-| Release line / owner | Target / fetched base | Head branch / SHA | Merge base | Worktree | Commits reviewed |
-| --- | --- | --- | --- | --- | --- |
-| `<repository@line>` | `<branch>` / `<sha>` | `<branch>` / `<sha>` | `<sha>` | `<absolute path>` | `<sha and subject list>` |
+## Findings and validation
 
-## Acceptance traceability
-
-| Requirement | Implementation | Tests or verification | Status / evidence |
+| Finding | Location, evidence and impact | Resolution | Validation |
 | --- | --- | --- | --- |
-| `<selected issue or PR requirement>` | `<paths/symbols>` | `<commands/actions>` | `<met/deferred + evidence>` |
+| `<stable ID>` | `<concrete failure or unmet contract>` | `<fix/commit or blocker>` | `<result>` |
 
-## Complete diff inventory
+Optional suggestions: `<separate nonblocking suggestions, or omit>`
 
-- Diff command: `<exact base-to-head command>`
-- Diff summary: `<files, insertions, deletions>`
-- Added: `<paths or none>`
-- Modified: `<paths or none>`
-- Deleted/renamed/mode/binary: `<paths or none>`
-- Cross-repository or cross-line consumers/contracts: `<impact or none>`
-- Generated versus authored files: `<inventory>`
-- Unrelated or formatting-only churn: `<none or explanation>`
-
-## Review rounds
-
-### Round `<n>` — `<head SHA>`
-
-- Reviewer/context: `<independent agent or primary pass; raw inputs supplied>`
-- Scope: `<complete diff and surrounding contracts inspected>`
-- Checklist sections: `<all, or specific applicability notes>`
-- Validation evidence: `<commands and results>`
-- Outcome: `<finding IDs / zero known actionable findings>`
-
-## Findings
-
-Use stable IDs such as `R001`. Severities are `critical`, `high`, `medium`,
-`low`, and non-actionable `note`.
-
-| ID | Severity | Location | Evidence and impact | Proposed resolution | Status | Fixing commit | Validation |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `R001` | `<severity>` | `<path:line or surface>` | `<specific evidence>` | `<concrete fix>` | `<open/fixed/validated/deferred/reopened>` | `<sha or n/a>` | `<command/result or pending>` |
-
-## Focused analyses
-
-### Correctness, recovery, and compatibility
-
-`<edge cases, failures, regressions, platform/mixed-version impact>`
-
-### Architecture, ownership, and future migration
-
-`<physical owner, APIs/protocols/schemas, coupling, replacement/classic impact>`
-
-### Cleanup, simplification, and duplication
-
-- Within this change: `<candidates or none with evidence>`
-- Existing repository helpers: `<reuse candidates or none>`
-- Standard library: `<replacement candidates or none>`
-- Justified new dependencies: `<candidate/cost or none>`
-- Dead/superseded code and docs: `<candidates or none>`
-
-### Tests and verification quality
-
-`<positive/negative/boundary assertions, fixtures, coverage, manual gaps>`
-
-### Concurrency, lifecycle, rollback, and data integrity
-
-`<locks, retries, interruption, atomicity, state ownership, cleanup>`
-
-### Scale and performance
-
-`<complexity, CPU, memory, I/O, network/API, cache, build impact and measurements>`
-
-### Safety, security, privacy, and supply chain
-
-`<trust boundaries, permissions, injection/path risks, secrets, provenance,
-licenses, dependencies, denial-of-service considerations>`
-
-### Operations and human experience
-
-`<logs/errors/progress, developer/operator workflow, cross-platform behavior,
-accessibility/localization, docs and manual verification>`
-
-## Resource discovery and disposition
-
-| Kind | Exact name/coordinates | Reused, created, or preserved | Reason / cleanup rule |
-| --- | --- | --- | --- |
-| Scope/worktree | `<scope slot/name/external generation; producer-linked current path>` | `<disposition>` | `<returned identity/digest and release rule>` |
-| Profile/build | `<value or none>` | `<disposition>` | `<evidence>` |
-| Server/client data | `<value or none>` | `<disposition>` | `<evidence>` |
-| Scenario/state | `<value or none>` | `<disposition>` | `<evidence>` |
-| Topology/services | `<value or none>` | `<disposition>` | `<evidence>` |
-
-## Validation ledger
-
-| Final-head command or check | Result | Evidence / notes |
+| Command/check | Revision and relevant environment | Result |
 | --- | --- | --- |
-| `<command>` | `<pass/fail/not run>` | `<summary and head SHA>` |
+| `<required or relevant validation>` | `<SHA and inputs>` | `<pass/fail/pending>` |
 
-## Manual verification handoff
+Record affected evidence refreshed after a change; unchanged valid evidence need
+not be rerun. Missing or timed-out checks are never success.
 
-- Applicability: `<Classic / replacement / runtime irrelevant and why>`
-- Prerequisites: `<display, tools, profile, automatic scenario login>`
-- Exact commands: `<copy-pasteable lifecycle/test commands>`
-- Feature actions: `<precise reproduction steps>`
-- Expected results: `<observable outcomes>`
-- Repeat: `<safe repeat/reset instructions>`
-- Shutdown and cleanup: `<exact commands; no cleanup apply>`
+## Retained protocol only
 
-## Remote publication evidence
+- Ledger identity: `<path, schema, generation and digest>`
+- Authority and recovery evidence: `<exact retained references>`
+- Resources: `<exact bound identities and disposition>`
+- Remote-write recovery: `<retained intent/result and rendered verification>`
 
-- Body ownership: `<contributor-owned/read-only or delivery-created>`
-- Marker/comment check: `<coordinate-bound marker; complete pagination; actor/match/action>`
-- Target drift: `<none or cancelled intent and replanned ledger generation>`
-- Rendered result: `<body/comment/linkage verification>`
+## Handoff
 
-## Exit audit
+- PR and exact final reviewed coordinates: `<URLs and SHAs>`
+- Acceptance and independent integrated review: `<results>`
+- Expected checks and mergeability: `<verified results at final head>`
+- Runtime applicability: `<why inapplicable, or prerequisites/actions/results>`
+- Relevant resource repeat/shutdown/cleanup commands: `<only when applicable>`
+- Blockers: `<none or concrete unresolved items; human approval if required>`
 
-- [ ] Every requirement is traced.
-- [ ] Every finding is fixed and validated or concretely deferred out of scope.
-- [ ] A fresh complete post-fix review found zero known actionable findings.
-- [ ] No prior finding reopened.
-- [ ] Required validation passed at final committed HEAD.
-- [ ] Live base/head refs and recomputed merge bases still match the reviewed
-      coordinates; every draft became ready only after review, validation, and
-      pre-readiness checks passed with determinate conflict-free mergeability
-      and no non-human blocker other than its draft state.
-- [ ] Rendered PR body, comments/threads, mergeability, and expected checks were
-      rechecked at that same HEAD.
-- [ ] Contributor-owned bodies stayed read-only; marker/comment recovery used a
-      complete inventory, and target drift cancelled stale intents before replan.
-- [ ] Selected issues, if any, remain open; every PR remains unmerged; no
-      self-approval, force-push, destructive reset, credential disclosure, or
-      cleanup apply occurred.
-- [ ] Exact resources, verification, shutdown, repeat, cleanup, and blockers are
-      ready for handoff.
-
-Final known actionable findings: `<zero or list>`
-
-Blockers: `<none or exact blocker>`
+Confirm issues remain open, PRs unmerged, contributor-owned text preserved and
+worktrees/evidence available. Readiness requires passing review, validation and
+expected checks; it grants no merge or cleanup authority.

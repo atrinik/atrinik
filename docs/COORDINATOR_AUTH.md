@@ -2,16 +2,23 @@
 
 Native Linux development, Git/GitHub, review and delivery coordination use the
 actual passwd user's standard private GitHub CLI store. Each delivery retains
-its own worktree, leases, private Codex state and isolated mutable caches.
+its own worktree and isolated mutable caches; bound resource operations also
+retain their leases and private Codex state.
 Short-lived pinned CPU build workers receive no credentials or signing agents.
 Authentication supplies identity and API capabilities, never authorization for
 an issue mutation, merge, release, governance change or other unrequested action.
 
+Local source edits and isolated tests follow [source delivery](SOURCE_DELIVERY.md)
+without a GitHub login or ledger genesis. Before remote operations, verify the
+actor, selected repository and capabilities needed for that operation. Do not
+request Project/package scopes for a source PR that does not use those APIs.
+The protected-helper procedure below applies when using bound delivery helpers.
+
 ## Native authentication and capability preflight
 
 Follow [the accepted native execution contract](LINUX_EXECUTION.md) before
-issue/project preparation. An unaccepted candidate cannot authorize its own
-delivery. Keep `HOME` equal to the actual passwd home. The protected helper uses
+bound issue/project preparation. An unaccepted candidate cannot authorize live
+resource operations. Keep `HOME` equal to the actual passwd home. The protected helper uses
 that user's standard `~/.config/gh`; it intentionally strips `GH_CONFIG_DIR`.
 A working alternate store is not proof that helper authentication works.
 Never change the filter, copy tokens between stores, mount keyrings or introduce
