@@ -2502,5 +2502,6 @@ For a retained producer used by an isolated executor, the
 [public runtime handoff](docs/RUNTIME_HANDOFF.md) publishes an immutable envelope
 in the existing shared build namespace and requires a live coordinator lease on
 every consume. `topology show PROFILE` and `up` accept `--runtime-handoff`,
-`--handoff-issue` and `--handoff-attempt` alongside `--retained-build-plan`.
+`--handoff-issue`, `--handoff-attempt` and independently pinned
+`--handoff-publisher` alongside `--retained-build-plan`.
 Coordinator-private review mounts remain isolated.

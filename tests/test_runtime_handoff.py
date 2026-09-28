@@ -20,7 +20,7 @@ def envelope():
                      "path": "/owned/content", "commit": "d" * 40, "tree": "e" * 40, "sha256": "f" * 64}],
         "artifacts": [{"path": "/owned/workspace/build/profiles/tested/server", "sha256": "1" * 64}],
         "content_sha256": "2" * 64, "issued_at": 1000, "expires_at": 1100,
-        "lease_id": "3" * 64,
+        "lease_id": "3" * 64, "publisher_key": "4" * 64,
     }
     value["commands"] = handoff.commands(value)
     return value
@@ -59,7 +59,7 @@ class EnvelopeTests(unittest.TestCase):
     def test_scalar_schema_and_path_rejections(self):
         cases = [("schema_version", True), ("generation", True), ("generation", 0),
                  ("issued_at", 0), ("expires_at", 2000), ("lease_id", "foreign"),
-                 ("wrapper", "/owned/../foreign"), ("workspace", "/owned//workspace"),
+                 ("wrapper", "/owned/../foreign"), ("wrapper", "//owned/wrapper"), ("workspace", "/owned//workspace"),
                  ("profile", "../other"), ("state", None)]
         for key, new in cases:
             with self.subTest(key=key, new=new):
@@ -83,7 +83,8 @@ class EnvelopeTests(unittest.TestCase):
         value = envelope()
         bound = dict(issue="atrinik/atrinik#604", attempt="a" * 64, wrapper=value["wrapper"],
                      workspace=value["workspace"], profile=value["profile"], topology=value["topology"],
-                     state=value["state"], plan=value["plan"]["sha256"], now=1050)
+                     state=value["state"], plan=value["plan"]["sha256"],
+                     publisher=handoff.publisher_fingerprint(value["publisher_key"]), now=1050)
         handoff.require_binding(value, **bound)
         handoff.require_binding(value, **{**bound, "topology": None})
         for key in bound.keys() - {"now"}:
@@ -108,7 +109,7 @@ from unittest.mock import patch
 from atrinik_workspace.platform_compat import fcntl
 
 
-def serve_fixture(value, ready, authority_path, generation_path):
+def serve_fixture(value, ready, authority_path, generation_path, signer):
     @contextlib.contextmanager
     def guard():
         with open(authority_path, "rb") as authority:
@@ -117,7 +118,7 @@ def serve_fixture(value, ready, authority_path, generation_path):
                 if Path(generation_path).read_text() != str(value["generation"]):
                     raise WorkspaceError("fixture CAS changed")
             yield recheck
-    handoff.publish(value, guard, ready=lambda _result: ready.set())
+    handoff.publish(value, guard, signer=signer, ready=lambda _result: ready.set())
 
 
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux shared-mount handoff contract")
@@ -129,6 +130,8 @@ class PublicLeaseTests(unittest.TestCase):
         self.builds = self.root / "build"
         self.builds.mkdir()
         self.value = envelope()
+        self.signer = handoff.PublisherSigner()
+        self.value["publisher_key"] = self.signer.public_key
         now = int(time.time())
         self.value.update(workspace=str(self.root), issued_at=now, expires_at=now + 60)
         self.value["commands"] = handoff.commands(self.value)
@@ -139,11 +142,12 @@ class PublicLeaseTests(unittest.TestCase):
         self.binding = dict(issue="atrinik/atrinik#604", attempt=self.value["attempt_sha256"],
                             wrapper=self.value["wrapper"], workspace=self.value["workspace"],
                             profile=self.value["profile"], topology=self.value["topology"],
-                            state=self.value["state"], plan=self.value["plan"]["sha256"])
+                            state=self.value["state"], plan=self.value["plan"]["sha256"],
+                            publisher=handoff.publisher_fingerprint(self.signer.public_key))
         self.context = multiprocessing.get_context("fork")
         self.ready = self.context.Event()
         self.process = self.context.Process(target=serve_fixture,
-            args=(self.value, self.ready, self.authority, self.generation))
+            args=(self.value, self.ready, self.authority, self.generation, self.signer))
         self.process.start()
         self.addCleanup(self.stop)
         self.assertTrue(self.ready.wait(5), "publisher did not become ready")
@@ -206,9 +210,9 @@ class PublicLeaseTests(unittest.TestCase):
         raw = (self.directory / "envelope.json").read_bytes()
         with self.assertRaises(WorkspaceError):
             handoff.revoke(self.builds, self.value["lease_id"], issue="atrinik/atrinik#1",
-                           attempt=self.value["attempt_sha256"])
+                           attempt=self.value["attempt_sha256"], publisher=self.binding["publisher"])
         result = handoff.revoke(self.builds, self.value["lease_id"], issue=self.binding["issue"],
-                                attempt=self.binding["attempt"])
+                                attempt=self.binding["attempt"], publisher=self.binding["publisher"])
         self.assertEqual(result["status"], "revoked")
         self.process.join(5)
         self.assertEqual(self.process.exitcode, 0)
@@ -221,7 +225,7 @@ class PublicLeaseTests(unittest.TestCase):
         self.stop()
         self.ready.clear()
         self.process = self.context.Process(target=serve_fixture,
-            args=(self.value, self.ready, self.authority, self.generation))
+            args=(self.value, self.ready, self.authority, self.generation, self.signer))
         self.process.start()
         self.assertTrue(self.ready.wait(5))
         with self.consume() as (_, recheck):
@@ -232,7 +236,7 @@ class PublicLeaseTests(unittest.TestCase):
         def unused():
             yield lambda: None
         with self.assertRaisesRegex(WorkspaceError, "historical"):
-            handoff.publish(changed, unused)
+            handoff.publish(changed, unused, signer=self.signer)
 
     def test_symlinked_namespace_or_envelope_rejected(self):
         self.stop()
@@ -272,13 +276,13 @@ class PublicLeaseTests(unittest.TestCase):
 
     def test_revoked_lease_cannot_be_republished(self):
         handoff.revoke(self.builds, self.value["lease_id"], issue=self.binding["issue"],
-                       attempt=self.binding["attempt"])
+                       attempt=self.binding["attempt"], publisher=self.binding["publisher"])
         self.process.join(5)
         @contextlib.contextmanager
         def unused():
             yield lambda: None
         with self.assertRaisesRegex(WorkspaceError, "permanently revoked"):
-            handoff.publish(self.value, unused)
+            handoff.publish(self.value, unused, signer=self.signer)
 
     def test_executor_death_releases_operation_guard(self):
         admitted = self.context.Event()
@@ -297,6 +301,94 @@ class PublicLeaseTests(unittest.TestCase):
             recheck()
 
 
+    def test_fabricated_noop_publisher_cannot_replace_pinned_helper(self):
+        self.stop()
+        history = self.directory.with_name("history")
+        self.directory.rename(history)
+        attacker = handoff.PublisherSigner()
+        forged = copy.deepcopy(self.value)
+        forged["publisher_key"] = attacker.public_key
+        forged["commands"] = handoff.commands(forged)
+        self.ready.clear()
+        def forge():
+            @contextlib.contextmanager
+            def noop():
+                yield lambda: None
+            handoff.publish(forged, noop, signer=attacker, ready=lambda _: self.ready.set())
+        self.process = self.context.Process(target=forge)
+        self.process.start()
+        self.assertTrue(self.ready.wait(5))
+        with self.assertRaises(WorkspaceError):
+            with self.consume():
+                self.fail("forged publisher reached runtime mutation")
+        self.assertTrue((history / "envelope.json").exists())
+
+    def test_namespace_rename_rejected_inside_active_session(self):
+        with self.assertRaises(WorkspaceError):
+            with self.consume() as (_, recheck):
+                self.directory.rename(self.directory.with_name("renamed"))
+                self.directory.mkdir(mode=0o700)
+                recheck()
+                self.fail("renamed namespace reached runtime mutation")
+
+    def test_parent_namespace_rename_rejected_inside_active_session(self):
+        with self.assertRaises(WorkspaceError):
+            with self.consume() as (_, recheck):
+                namespace = self.directory.parent
+                namespace.rename(namespace.with_name("old-handoffs"))
+                namespace.mkdir(mode=0o700)
+                recheck()
+                self.fail("renamed parent reached runtime mutation")
+
+    def test_namespace_changed_while_waiting_for_proof_is_rejected(self):
+        original = handoff._receive
+        def replace_after_response(connection):
+            response = original(connection)
+            self.directory.rename(self.directory.with_name("replaced-during-proof"))
+            self.directory.mkdir(mode=0o700)
+            return response
+        with self.assertRaises(WorkspaceError):
+            with self.consume() as (_, recheck):
+                with patch.object(handoff, "_receive", side_effect=replace_after_response):
+                    recheck()
+                self.fail("namespace replacement during proof reached mutation")
+
+    def test_fifo_envelope_is_rejected_without_blocking(self):
+        self.stop()
+        path = self.directory / "envelope.json"
+        path.unlink()
+        os.mkfifo(path, 0o600)
+        finished = self.context.Event()
+        def read_fifo():
+            try:
+                with self.consume():
+                    return
+            except WorkspaceError:
+                finished.set()
+        reader = self.context.Process(target=read_fifo)
+        reader.start()
+        try:
+            self.assertTrue(finished.wait(2), "FIFO blocked the public read")
+        finally:
+            if reader.is_alive(): reader.terminate()
+            reader.join(5)
+
+    def test_atime_only_read_change_is_not_content_drift(self):
+        path = self.directory / "envelope.json"
+        before = path.stat()
+        os.utime(path, ns=(before.st_atime_ns - 10_000_000_000, before.st_mtime_ns))
+        with self.consume() as (_, recheck):
+            recheck()
+
+    def test_signed_reply_rejects_nonce_replay_and_signature_forgery(self):
+        expected = {"nonce": "1" * 64, "status": "verified"}
+        packet = {"response": expected, "signature": self.signer.sign(handoff.canonical(expected))}
+        self.assertTrue(handoff.verify_response(packet, self.signer.public_key, expected))
+        self.assertFalse(handoff.verify_response(packet, self.signer.public_key, {**expected, "nonce": "2" * 64}))
+        packet["signature"] = "0" * 128
+        self.assertFalse(handoff.verify_response(packet, self.signer.public_key, expected))
+
+
 class HandoffCliTests(unittest.TestCase):
     def test_exact_consumer_coordinates_are_forwarded(self):
         from atrinik_workspace.cli import main
@@ -306,8 +398,9 @@ class HandoffCliTests(unittest.TestCase):
                 getattr(workspace.return_value, method).return_value = {}
                 self.assertEqual(main([*arguments, "--retained-build-plan", "c" * 64,
                     "--runtime-handoff", "3" * 64, "--handoff-issue", "atrinik/atrinik#604",
-                    "--handoff-attempt", "a" * 64, "--json"]), 0)
+                    "--handoff-attempt", "a" * 64, "--handoff-publisher", "b" * 64, "--json"]), 0)
                 kwargs = getattr(workspace.return_value, method).call_args.kwargs
                 self.assertEqual(kwargs["runtime_handoff"], "3" * 64)
                 self.assertEqual(kwargs["handoff_issue"], "atrinik/atrinik#604")
                 self.assertEqual(kwargs["handoff_attempt"], "a" * 64)
+                self.assertEqual(kwargs["handoff_publisher"], "b" * 64)

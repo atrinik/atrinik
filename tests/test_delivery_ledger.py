@@ -13117,12 +13117,39 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertNotIn(forbidden, raw)
             binding = dict(issue=issue, attempt=value["attempt_sha256"], wrapper=str(live),
                 workspace=str(live / "workspace"), profile=value["profile"], topology=value["topology"],
-                state=value["state"], plan=plan["plan_sha256"])
+                state=value["state"], plan=plan["plan_sha256"],
+                publisher=result["publisher_fingerprint"])
             for _ in range(2):
                 with public.consume(live / "workspace/build", value["lease_id"], binding) as (_, recheck):
                     recheck()
+            image = os.environ.get("ATRINIK_HANDOFF_EXECUTOR_IMAGE")
+            if image:
+                # The disposable executor receives only the wrapper package and
+                # shared public build mount. Its private coordinator root is
+                # absent, rather than hidden by a Python mocking seam.
+                script = (
+                    "import json,pathlib,sys; from atrinik_workspace.runtime_handoff import consume; "
+                    "private=pathlib.Path(sys.argv[1]); assert not private.exists(); "
+                    "binding=json.loads(sys.argv[4]); "
+                    "session=consume(pathlib.Path(sys.argv[2]),sys.argv[3],binding); "
+                    "value,recheck=session.__enter__(); recheck(); session.__exit__(None,None,None); "
+                    "print(json.dumps({'status':'verified','private_review_root':'absent'}))"
+                )
+                command = ["docker", "run", "--rm", "--pull", "never", "--network", "none",
+                    "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+                    "--user", f"{os.getuid()}:{os.getgid()}", "--tmpfs", "/tmp:rw,nosuid,nodev,mode=1777",
+                    "--env", "PYTHONDONTWRITEBYTECODE=1", "--env", "PYTHONPATH=/opt/handoff",
+                    "--mount", f"type=bind,source={ROOT / 'atrinik_workspace'},target=/opt/handoff/atrinik_workspace,readonly",
+                    "--mount", f"type=bind,source={live / 'workspace/build'},target={live / 'workspace/build'},readonly",
+                    image, "python3", "-c", script, str(root), str(live / "workspace/build"),
+                    value["lease_id"], json.dumps(binding)]
+                executed = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                self.assertEqual(executed.returncode, 0, executed.stderr)
+                self.assertEqual(json.loads(executed.stdout), {"status": "verified", "private_review_root": "absent"})
+                print(json.dumps({"handoff_executor_image": image, "package_mount": str(ROOT / "atrinik_workspace"),
+                                  "public_mount": str(live / "workspace/build"), "private_review_root": "absent"}))
             public.revoke(live / "workspace/build", value["lease_id"], issue=issue,
-                          attempt=value["attempt_sha256"])
+                          attempt=value["attempt_sha256"], publisher=binding["publisher"])
             process.join(10)
             self.assertEqual(process.exitcode, 0)
             self.assertEqual(path.read_bytes(), raw)

@@ -6,13 +6,22 @@ Private ledger documents and arbitrary producer payloads never cross this API.
 """
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
+import os
 import re
-from pathlib import PurePosixPath
+import socket
+import stat
+import struct
+import subprocess
+import time
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from .model import WorkspaceError
+from .path_identity import descriptor_path
+from .platform_compat import fcntl
 
 MAX_BYTES = 64 * 1024
 MAX_LIFETIME = 900
@@ -55,7 +64,7 @@ def _integer(value, minimum, maximum, label):
 
 def _path(value):
     if (not isinstance(value, str) or len(value) > 4096 or not value.startswith("/")
-            or str(PurePosixPath(value)) != value or ".." in PurePosixPath(value).parts
+            or value.startswith("//") or str(PurePosixPath(value)) != value or ".." in PurePosixPath(value).parts
             or any(ord(char) < 32 or ord(char) == 127 for char in value)):
         raise WorkspaceError("runtime handoff path is not canonical")
     return value
@@ -67,7 +76,8 @@ def commands(value):
               "--retained-build-plan", value["plan"]["sha256"],
               "--runtime-handoff", value["lease_id"],
               "--handoff-issue", value["issue"]["repository"] + "#" + str(value["issue"]["number"]),
-              "--handoff-attempt", value["attempt_sha256"]]
+              "--handoff-attempt", value["attempt_sha256"],
+              "--handoff-publisher", publisher_fingerprint(value["publisher_key"])]
     return {"inspect": ["./atrinik", "topology", "show", value["profile"], *common, "--json"],
             "start": ["./atrinik", "up", "--name", value["topology"],
                       "--profile", value["profile"], *common, "--json"]}
@@ -76,7 +86,7 @@ def commands(value):
 def validate(value):
     _exact(value, "schema_version issue attempt_sha256 actor_node_id generation ledger_sha256 "
            "wrapper workspace profile topology state plan sources artifacts content_sha256 "
-           "issued_at expires_at lease_id commands", "envelope")
+           "issued_at expires_at lease_id publisher_key commands", "envelope")
     if type(value["schema_version"]) is not int or value["schema_version"] != 1:
         raise WorkspaceError("runtime handoff schema version is unsupported")
     if len(canonical(value)) > MAX_BYTES:
@@ -88,6 +98,7 @@ def validate(value):
     _text(value["actor_node_id"], NODE, "actor identity")
     for field in ("attempt_sha256", "ledger_sha256", "content_sha256", "lease_id"):
         _text(value[field], HEX64, field)
+    _text(value["publisher_key"], HEX64, "publisher public key")
     _integer(value["generation"], 1, 2**53 - 1, "CAS generation")
     for field in ("profile", "topology", "state"):
         _text(value[field], NAME, field)
@@ -159,31 +170,20 @@ def decode(raw):
 
 
 def require_binding(value, *, issue, attempt, wrapper, workspace, profile,
-                    topology, state, plan, now):
+                    topology, state, plan, publisher, now):
     validate(value)
     if (issue != value["issue"]["repository"] + "#" + str(value["issue"]["number"])
             or attempt != value["attempt_sha256"] or wrapper != value["wrapper"]
             or workspace != value["workspace"] or profile != value["profile"]
             or topology not in (None, value["topology"]) or state != value["state"]
-            or plan != value["plan"]["sha256"]):
+            or plan != value["plan"]["sha256"]
+            or publisher != publisher_fingerprint(value["publisher_key"])):
         raise WorkspaceError("runtime handoff exact issue/attempt/source/profile/topology binding differs")
     if not value["issued_at"] <= now < value["expires_at"]:
         raise WorkspaceError("runtime handoff lease is stale or not yet valid")
 
 # The endpoint lives in the existing shared build mount. /proc/self/fd keeps
 # AF_UNIX's pathname limit independent of the length of the owned worktree.
-import contextlib
-import os
-from pathlib import Path
-import socket
-import stat
-import struct
-import time
-
-from .platform_compat import fcntl
-from .path_identity import descriptor_path
-
-
 def _directory(path):
     path = Path(_path(str(path)))
     descriptor = os.open("/", os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
@@ -237,7 +237,7 @@ def public_directory(builds, lease_id, *, create=False):
 
 
 def _read_at(directory, name):
-    descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+    descriptor = os.open(name, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
     try:
         before = os.fstat(descriptor)
         _trusted(before, stat.S_ISREG)
@@ -247,7 +247,7 @@ def _read_at(directory, name):
             raw = stream.read(MAX_BYTES + 1)
         after = os.fstat(descriptor)
         visible = os.stat(name, dir_fd=directory, follow_symlinks=False)
-        if before != after or (after.st_dev, after.st_ino) != (visible.st_dev, visible.st_ino):
+        if _stable(before) != _stable(after) or _stable(after) != _stable(visible):
             raise WorkspaceError("runtime handoff public file changed during read")
         return raw
     finally:
@@ -285,7 +285,7 @@ def _receive(connection):
     raise WorkspaceError("runtime handoff protocol exceeds bound")
 
 
-def publish(value, guard, *, ready=None):
+def publish(value, guard, *, signer, ready=None):
     """Serve a bounded lease; guard holds private CAS authority per connection.
 
     The caller has already proved the complete retained producer under resource
@@ -293,6 +293,8 @@ def publish(value, guard, *, ready=None):
     and yields a recheck callable. No private descriptor crosses the socket.
     """
     validate(value)
+    if not isinstance(signer, PublisherSigner) or signer.public_key != value["publisher_key"]:
+        raise WorkspaceError("runtime handoff publisher signing capability differs")
     raw = canonical(value)
     checksum = hashlib.sha256(raw).hexdigest()
     with public_directory(Path(value["workspace"]) / "build", value["lease_id"], create=True) as directory:
@@ -349,6 +351,7 @@ def publish(value, guard, *, ready=None):
             listener.settimeout(0.25)
             if ready:
                 ready({"lease_id": value["lease_id"], "envelope_sha256": checksum,
+                       "publisher_fingerprint": publisher_fingerprint(value["publisher_key"]),
                        "path": str(Path(value["workspace"]) / "build/runtime-handoffs" / value["lease_id"] / "envelope.json"),
                        "commands": value["commands"]})
             revoked = False
@@ -362,7 +365,9 @@ def publish(value, guard, *, ready=None):
                     try:
                         _peer(connection)
                         request = _receive(connection)
-                        expected = {"operation": "begin", "envelope_sha256": checksum,
+                        nonce = request.get("nonce") if isinstance(request, dict) else None
+                        _text(nonce, HEX64, "challenge nonce")
+                        expected = {"operation": "begin", "nonce": nonce, "envelope_sha256": checksum,
                                     "lease_id": value["lease_id"], "generation": value["generation"],
                                     "ledger_sha256": value["ledger_sha256"]}
                         if request == {**expected, "operation": "revoke"}:
@@ -373,7 +378,8 @@ def publish(value, guard, *, ready=None):
                                 stream.flush(); os.fsync(stream.fileno())
                             os.fsync(directory)
                             revoked = True
-                            _send(connection, {"status": "revoked"})
+                            response = {"status": "revoked", "nonce": nonce, "envelope_sha256": checksum}
+                            _send(connection, {"response": response, "signature": signer.sign(canonical(response))})
                             continue
                         if request != expected:
                             raise WorkspaceError("runtime handoff request has foreign or stale coordinates")
@@ -384,12 +390,16 @@ def publish(value, guard, *, ready=None):
                                 recheck()
                                 if _read_at(directory, "envelope.json") != raw:
                                     raise WorkspaceError("runtime handoff declaration changed")
-                                _send(connection, {"status": "verified", **expected})
+                                _namespace_current(directory, Path(value["workspace"]) / "build", value["lease_id"])
+                                response = {"status": "verified", **expected}
+                                _send(connection, {"response": response, "signature": signer.sign(canonical(response))})
                                 request = _receive(connection)
                                 if request == {"operation": "finish"}:
                                     break
-                                if request != {"operation": "recheck"}:
+                                _exact(request, "operation nonce", "session request")
+                                if request["operation"] != "recheck":
                                     raise WorkspaceError("runtime handoff session request is invalid")
+                                expected["nonce"] = _text(request["nonce"], HEX64, "challenge nonce")
                     except (OSError, WorkspaceError):
                         # Never send private helper exception text to an executor.
                         try:
@@ -423,22 +433,34 @@ def consume(builds, lease_id, binding):
                 after = os.stat("endpoint.sock", dir_fd=directory, follow_symlinks=False)
                 if (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino):
                     raise WorkspaceError("runtime handoff endpoint changed during connection")
-                expected = {"operation": "begin", "envelope_sha256": hashlib.sha256(raw).hexdigest(),
+                expected = {"operation": "begin", "nonce": os.urandom(32).hex(), "envelope_sha256": hashlib.sha256(raw).hexdigest(),
                             "lease_id": lease_id, "generation": value["generation"],
                             "ledger_sha256": value["ledger_sha256"]}
                 _send(connection, expected)
                 def reply():
                     require_binding(value, **binding, now=time.time())
+                    _namespace_current(directory, builds, lease_id)
                     _lease_live(directory, lease_id)
                     visible = os.stat("endpoint.sock", dir_fd=directory, follow_symlinks=False)
                     if (before.st_dev, before.st_ino) != (visible.st_dev, visible.st_ino):
                         raise WorkspaceError("runtime handoff endpoint incarnation changed")
-                    if (_receive(connection) != {"status": "verified", **expected}
+                    packet = _receive(connection)
+                    if (not verify_response(packet, value["publisher_key"], {"status": "verified", **expected})
                             or _read_at(directory, "envelope.json") != raw):
                         raise WorkspaceError("runtime handoff live authority was rejected or changed")
+                    # Verification can block on a live coordinator proof. Fence
+                    # namespace, endpoint and expiry again after its response.
+                    require_binding(value, **binding, now=time.time())
+                    _namespace_current(directory, builds, lease_id)
+                    _lease_live(directory, lease_id)
+                    visible = os.stat("endpoint.sock", dir_fd=directory, follow_symlinks=False)
+                    _trusted(visible, stat.S_ISSOCK)
+                    if (before.st_dev, before.st_ino) != (visible.st_dev, visible.st_ino):
+                        raise WorkspaceError("runtime handoff endpoint incarnation changed")
                 reply()
                 def recheck():
-                    _send(connection, {"operation": "recheck"})
+                    expected["nonce"] = os.urandom(32).hex()
+                    _send(connection, {"operation": "recheck", "nonce": expected["nonce"]})
                     reply()
                 yield value, recheck
                 _send(connection, {"operation": "finish"})
@@ -453,7 +475,7 @@ def _lease_live(directory, lease_id):
         pass
     else:
         raise WorkspaceError("runtime handoff lease was revoked")
-    descriptor = os.open("lease.lock", os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+    descriptor = os.open("lease.lock", os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
     try:
         _trusted(os.fstat(descriptor), stat.S_ISREG)
         if (os.fstat(descriptor).st_nlink != 1
@@ -468,11 +490,12 @@ def _lease_live(directory, lease_id):
         os.close(descriptor)
 
 
-def revoke(builds, lease_id, *, issue, attempt):
+def revoke(builds, lease_id, *, issue, attempt, publisher):
     """Revoke an owned publisher; keep its immutable envelope and lease file."""
     with public_directory(builds, lease_id) as directory:
         value = decode(_read_at(directory, "envelope.json"))
         if (value["lease_id"] != lease_id or value["attempt_sha256"] != attempt
+                or publisher != publisher_fingerprint(value["publisher_key"])
                 or value["issue"]["repository"] + "#" + str(value["issue"]["number"]) != issue):
             raise WorkspaceError("runtime handoff revoke has foreign issue or attempt")
         _lease_live(directory, lease_id)
@@ -480,9 +503,95 @@ def revoke(builds, lease_id, *, issue, attempt):
             connection.settimeout(30)
             connection.connect(f"/proc/self/fd/{directory}/endpoint.sock")
             _peer(connection)
-            _send(connection, {"operation": "revoke", "envelope_sha256": digest(value),
+            nonce = os.urandom(32).hex()
+            _send(connection, {"operation": "revoke", "nonce": nonce, "envelope_sha256": digest(value),
                                "lease_id": lease_id, "generation": value["generation"],
                                "ledger_sha256": value["ledger_sha256"]})
-            if _receive(connection) != {"status": "revoked"}:
+            if not verify_response(_receive(connection), value["publisher_key"],
+                                   {"status": "revoked", "nonce": nonce, "envelope_sha256": digest(value)}):
                 raise WorkspaceError("runtime handoff revocation was rejected")
     return {"lease_id": lease_id, "status": "revoked"}
+
+
+def _stable(metadata):
+    # Access-time updates are observations, not content/authority mutations.
+    return (metadata.st_dev, metadata.st_ino, metadata.st_mode, metadata.st_uid,
+            metadata.st_nlink, metadata.st_size, metadata.st_mtime_ns, metadata.st_ctime_ns)
+
+
+def _namespace_current(directory, builds, lease_id):
+    expected = Path(builds) / "runtime-handoffs" / lease_id
+    if descriptor_path(directory) != str(expected):
+        raise WorkspaceError("runtime handoff namespace path changed")
+    with public_directory(builds, lease_id) as visible:
+        before, after = os.fstat(directory), os.fstat(visible)
+        if (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino):
+            raise WorkspaceError("runtime handoff namespace incarnation changed")
+
+
+_ED25519_PUBLIC_DER = bytes.fromhex("302a300506032b6570032100")
+
+
+def publisher_fingerprint(public_key):
+    _text(public_key, HEX64, "publisher public key")
+    return hashlib.sha256(bytes.fromhex(public_key)).hexdigest()
+
+
+@contextlib.contextmanager
+def _anonymous_bytes(raw):
+    descriptor = os.memfd_create("atrinik-handoff", os.MFD_CLOEXEC)
+    try:
+        os.write(descriptor, raw)
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        yield descriptor
+    finally:
+        os.close(descriptor)
+
+
+def _openssl(arguments, *, input_bytes=None, descriptors=(), verify=False):
+    environment = {key: val for key, val in os.environ.items()
+                   if not key.startswith(("OPENSSL_", "LD_"))}
+    environment["OPENSSL_CONF"] = "/dev/null"
+    try:
+        result = subprocess.run(["/usr/bin/openssl", *arguments], input=input_bytes,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, pass_fds=descriptors,
+            timeout=10, check=False, env=environment)
+    except (OSError, subprocess.SubprocessError) as error:
+        raise WorkspaceError("runtime handoff Ed25519 provider is unavailable") from error
+    if verify:
+        return result.returncode == 0
+    if result.returncode or len(result.stdout) > 4096:
+        raise WorkspaceError("runtime handoff Ed25519 operation failed")
+    return result.stdout
+
+
+class PublisherSigner:
+    """Ephemeral helper-process key; only its public fingerprint leaves memory."""
+    def __init__(self):
+        self._private = _openssl(["genpkey", "-algorithm", "ED25519", "-outform", "DER"])
+        public = _openssl(["pkey", "-inform", "DER", "-pubout", "-outform", "DER"], input_bytes=self._private)
+        if len(public) != 44 or not public.startswith(_ED25519_PUBLIC_DER):
+            raise WorkspaceError("runtime handoff Ed25519 public key is invalid")
+        self.public_key = public[-32:].hex()
+
+    def sign(self, raw):
+        with _anonymous_bytes(self._private) as key, _anonymous_bytes(raw) as message:
+            signature = _openssl(["pkeyutl", "-sign", "-rawin", "-keyform", "DER",
+                "-inkey", f"/proc/self/fd/{key}", "-in", f"/proc/self/fd/{message}"],
+                descriptors=(key, message))
+        if len(signature) != 64:
+            raise WorkspaceError("runtime handoff signature has invalid size")
+        return signature.hex()
+
+
+def verify_response(packet, public_key, expected):
+    if (not isinstance(packet, dict) or set(packet) != {"response", "signature"}
+            or packet["response"] != expected or not isinstance(packet["signature"], str)
+            or re.fullmatch(r"[0-9a-f]{128}", packet["signature"]) is None):
+        return False
+    with _anonymous_bytes(_ED25519_PUBLIC_DER + bytes.fromhex(public_key)) as key, \
+            _anonymous_bytes(canonical(expected)) as message, \
+            _anonymous_bytes(bytes.fromhex(packet["signature"])) as signature:
+        return _openssl(["pkeyutl", "-verify", "-rawin", "-pubin", "-keyform", "DER",
+            "-inkey", f"/proc/self/fd/{key}", "-in", f"/proc/self/fd/{message}",
+            "-sigfile", f"/proc/self/fd/{signature}"], descriptors=(key, message, signature), verify=True)

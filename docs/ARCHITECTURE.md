@@ -1724,8 +1724,11 @@ unchanged. See the [retained resource correction protocol](../.agents/skills/atr
 The [runtime handoff](RUNTIME_HANDOFF.md) is a bounded projection of authenticated
 retained producer evidence, not a second ledger. The immutable public envelope
 contains only issue/attempt/actor/CAS identity, source and artifact digests,
-profile/topology/state coordinates, plan digest/options, a bounded lifetime and
-generated wrapper argv. A publisher-owned Unix socket in the existing shared
+profile/topology/state coordinates, plan digest/options, a bounded lifetime,
+public Ed25519 key and generated wrapper argv. Consumers require an independently
+selected fingerprint from trusted coordinator stdout and verify fresh signed
+nonce challenges; neither a self-declared public key nor the peer UID grants
+authority. A publisher-owned Unix socket in the existing shared
 build namespace performs live verification without passing private descriptors.
 
 The publisher proves complete retained resources before publication. A consumer

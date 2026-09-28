@@ -7474,7 +7474,8 @@ def runtime_handoff_publish(root, name, *, expected_generation, expected_digest,
     with _current_targets_live_safety(document, admission_request=admission) as prove:
         prove()
         now = int(time.time())
-        value = {"schema_version": 1,
+        signer = public.PublisherSigner()
+        value = {"schema_version": 1, "publisher_key": signer.public_key,
                  "issue": {"repository": selected[0]["repository"]["owner"] + "/" + selected[0]["repository"]["name"],
                            "number": selected[0]["number"], "node_id": selected[0]["node_id"]},
                  "attempt_sha256": canonical_object_digest({"ledger_id": document["ledger_id"], "authority": document["authority"]}),
@@ -7488,8 +7489,9 @@ def runtime_handoff_publish(root, name, *, expected_generation, expected_digest,
                  "artifacts": module.runtime_handoff_artifacts([plan["build_root"]]),
                  "content_sha256": public.digest(plan["source_fingerprints"].get("content", {})),
                  "issued_at": now, "expires_at": now + ttl_seconds, "lease_id": lease_id}
-        # An exact interrupted publisher may restart its original unexpired lease;
-        # a new lifetime always needs a distinct lease and immutable envelope.
+        # Signing keys live only in the publisher process. After interruption,
+        # preserve the old envelope and choose a fresh lease; never impersonate
+        # its dead signer or silently replace the public key.
         try:
             with public.public_directory(Path(context["workspace"]) / "build", lease_id) as directory:
                 prior = public.decode(public._read_at(directory, "envelope.json"))
@@ -7500,11 +7502,9 @@ def runtime_handoff_publish(root, name, *, expected_generation, expected_digest,
                 raise
             prior = None
         if prior is not None:
-            value.update(issued_at=prior["issued_at"], expires_at=prior["expires_at"])
+            raise LedgerError("runtime handoff lease was already published; choose a new lease identity")
         value["commands"] = public.commands(value)
         public.validate(value)
-        if prior is not None and prior != value:
-            raise LedgerError("runtime handoff retry differs from its immutable envelope")
         if not value["issued_at"] <= now < value["expires_at"]:
             raise LedgerError("runtime handoff lease is expired; choose a new lease identity")
         prove()
@@ -7534,7 +7534,7 @@ def runtime_handoff_publish(root, name, *, expected_generation, expected_digest,
         sys.stdout.flush()
     with guard():
         pass
-    public.publish(value, guard, ready=ready)
+    public.publish(value, guard, signer=signer, ready=ready)
 
 
 def _resource(value: Any, context: str) -> tuple[str, str]:
