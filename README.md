@@ -2497,3 +2497,11 @@ successor after an already completed build. Live merged-PR provenance and clean
 read-only content source observations are required; historical
 content/build/runtime/state evidence and undeclared dependency inputs remain
 unchanged. See the [retained resource correction protocol](.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).
+
+For a retained producer used by an isolated executor, the
+[public runtime handoff](docs/RUNTIME_HANDOFF.md) publishes an immutable envelope
+in the existing shared build namespace and requires a live coordinator lease on
+every consume. `topology show PROFILE` and `up` accept `--runtime-handoff`,
+`--handoff-issue`, `--handoff-attempt` and independently pinned
+`--handoff-publisher` and `--handoff-endpoint` alongside `--retained-build-plan`.
+Coordinator-private review mounts remain isolated.
