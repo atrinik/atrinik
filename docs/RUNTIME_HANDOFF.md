@@ -72,10 +72,16 @@ rechecks current inventory, pending transitions, issue state, actor and exact CA
 coordinates. It does not reacquire executor-owned source/topology locks. A
 concurrent delivery transition must wait for the consumer operation to finish;
 a busy guard refuses new consumers. No private descriptor crosses the socket.
-The session ends when the wrapper operation finishes, the executor disconnects,
+The publisher keeps its guard across idle startup waits, bounded by the remaining
+lease rather than a separate 30-second timeout. The consumer requires a signed
+completion acknowledgement sent while that guard is still held. The session
+ends when the wrapper operation finishes, the executor disconnects,
 the publisher exits, or the lease expires (maximum 900 seconds). This is startup
 admission, not continuing authority to manage or terminate a running server.
-Normal `ps`, `logs`, `down` and state ownership rules continue to apply.
+Expiry or publisher loss rejects subsequent startup checks and completion; it
+does not report success or perform later wrapper startup mutations. A supervisor
+already spawned before expiry may remain: inspect it with `ps`/`logs` and use
+normal owned `down` recovery. Normal state ownership rules continue to apply.
 
 Revoke the owned publisher from the shared namespace:
 

@@ -184,6 +184,33 @@ class PublicLeaseTests(unittest.TestCase):
                             fcntl.flock(writer, fcntl.LOCK_EX | fcntl.LOCK_NB)
         self.assertEqual((self.directory / "envelope.json").read_bytes(), original)
 
+    def test_benign_operation_over_thirty_seconds_retains_guard_until_signed_finish(self):
+        with self.consume():
+            time.sleep(30.25)
+            with self.authority.open("rb") as writer:
+                with self.assertRaises(BlockingIOError):
+                    fcntl.flock(writer, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        # Completion is authenticated before the caller observes success.
+        with self.authority.open("rb") as writer:
+            fcntl.flock(writer, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+    def test_finish_requires_signed_acknowledgement(self):
+        original = handoff._receive
+        def forge_finish(connection):
+            response = original(connection)
+            if response.get("response", {}).get("status") == "finished":
+                response["signature"] = "0" * 128
+            return response
+        with self.assertRaises(WorkspaceError):
+            with patch.object(handoff, "_receive", side_effect=forge_finish):
+                with self.consume():
+                    pass
+
+    def test_publisher_death_before_finish_is_not_success(self):
+        with self.assertRaises(WorkspaceError):
+            with self.consume():
+                self.stop()
+
     def test_generation_change_is_rejected_before_consume(self):
         self.generation.write_text("8")
         with self.assertRaises(WorkspaceError):
@@ -191,7 +218,7 @@ class PublicLeaseTests(unittest.TestCase):
                 self.fail("stale authority reached runtime mutation")
 
     def test_changed_declaration_and_endpoint_rejected_at_recheck(self):
-        with self.consume() as (_value, recheck):
+        with self.assertRaises(WorkspaceError), self.consume() as (_value, recheck):
             endpoint = self.directory / "endpoint.sock"
             endpoint.unlink()
             with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as replacement:

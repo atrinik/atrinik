@@ -21829,6 +21829,7 @@ class Workspace:
                         raise WorkspaceError(
                             f"server state changed before topology launch: {state}"
                         )
+                _recheck_runtime_handoff()
                 # All fallible preparation is complete. Retire the stopped
                 # record and bind/publish the new generation without exposing
                 # old status against rewritten lease contents.
@@ -22007,6 +22008,7 @@ class Workspace:
                             isinstance(runtime, dict)
                             and runtime.get("generation") == generation
                         ):
+                            _recheck_runtime_handoff()
                             self._clear_runtime_state_output_transaction(
                                 topology_root
                             )
@@ -22016,6 +22018,7 @@ class Workspace:
                             )
                         if status["supervisor"]["running"] and status["ready"]:
                             process.wait(timeout=2)
+                            _recheck_runtime_handoff()
                             if superseded_temporary_policy is not None:
                                 try:
                                     self._remove_superseded_temporary_state(

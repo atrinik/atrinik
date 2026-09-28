@@ -367,7 +367,7 @@ def publish(value, guard, *, signer, ready=None):
                 except socket.timeout:
                     continue
                 with connection:
-                    connection.settimeout(min(30, max(0.1, value["expires_at"] - time.time())))
+                    connection.settimeout(max(0.1, value["expires_at"] - time.time()))
                     try:
                         _peer(connection)
                         request = _receive(connection)
@@ -401,13 +401,21 @@ def publish(value, guard, *, signer, ready=None):
                                     raise WorkspaceError("runtime handoff publisher endpoint changed")
                                 response = {"status": "verified", **expected}
                                 _send(connection, {"response": response, "signature": signer.sign(canonical(response))})
+                                connection.settimeout(max(0.1, value["expires_at"] - time.time()))
                                 request = _receive(connection)
-                                if request == {"operation": "finish"}:
-                                    break
                                 _exact(request, "operation nonce", "session request")
+                                expected["nonce"] = _text(request["nonce"], HEX64, "challenge nonce")
+                                if request["operation"] == "finish":
+                                    if time.time() >= value["expires_at"]:
+                                        raise WorkspaceError("runtime handoff lease expired before completion")
+                                    recheck()
+                                    if endpoint_fingerprint(directory, Path(value["workspace"]) / "build", value["lease_id"]) != endpoint_pin:
+                                        raise WorkspaceError("runtime handoff publisher endpoint changed")
+                                    response = {"status": "finished", **expected}
+                                    _send(connection, {"response": response, "signature": signer.sign(canonical(response))})
+                                    break
                                 if request["operation"] != "recheck":
                                     raise WorkspaceError("runtime handoff session request is invalid")
-                                expected["nonce"] = _text(request["nonce"], HEX64, "challenge nonce")
                     except (OSError, WorkspaceError):
                         # Never send private helper exception text to an executor.
                         try:
@@ -437,7 +445,7 @@ def consume(builds, lease_id, binding):
             _trusted(before, stat.S_ISSOCK)
             connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             with connection:
-                connection.settimeout(30)
+                connection.settimeout(max(0.1, value["expires_at"] - time.time()))
                 connection.connect(f"/proc/self/fd/{directory}/endpoint.sock")
                 _peer(connection)
                 after = os.stat("endpoint.sock", dir_fd=directory, follow_symlinks=False)
@@ -447,7 +455,7 @@ def consume(builds, lease_id, binding):
                             "lease_id": lease_id, "generation": value["generation"],
                             "ledger_sha256": value["ledger_sha256"]}
                 _send(connection, expected)
-                def reply():
+                def reply(status="verified"):
                     require_binding(value, **binding, now=time.time())
                     _namespace_current(directory, builds, lease_id)
                     if endpoint_fingerprint(directory, builds, lease_id) != binding["endpoint"]:
@@ -456,8 +464,9 @@ def consume(builds, lease_id, binding):
                     visible = os.stat("endpoint.sock", dir_fd=directory, follow_symlinks=False)
                     if (before.st_dev, before.st_ino) != (visible.st_dev, visible.st_ino):
                         raise WorkspaceError("runtime handoff endpoint incarnation changed")
+                    connection.settimeout(max(0.1, value["expires_at"] - time.time()))
                     packet = _receive(connection)
-                    if (not verify_response(packet, value["publisher_key"], {"status": "verified", **expected})
+                    if (not verify_response(packet, value["publisher_key"], {"status": status, **expected})
                             or _read_at(directory, "envelope.json") != raw):
                         raise WorkspaceError("runtime handoff live authority was rejected or changed")
                     # Verification can block on a live coordinator proof. Fence
@@ -477,7 +486,9 @@ def consume(builds, lease_id, binding):
                     _send(connection, {"operation": "recheck", "nonce": expected["nonce"]})
                     reply()
                 yield value, recheck
-                _send(connection, {"operation": "finish"})
+                expected["nonce"] = os.urandom(32).hex()
+                _send(connection, {"operation": "finish", "nonce": expected["nonce"]})
+                reply("finished")
         except (OSError, ValueError) as error:
             raise WorkspaceError("runtime handoff publisher is missing, revoked, or unavailable") from error
 
@@ -516,7 +527,7 @@ def revoke(builds, lease_id, *, issue, attempt, publisher, endpoint):
         if endpoint_fingerprint(directory, builds, lease_id) != endpoint:
             raise WorkspaceError("runtime handoff trusted endpoint differs")
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
-            connection.settimeout(30)
+            connection.settimeout(max(0.1, value["expires_at"] - time.time()))
             connection.connect(f"/proc/self/fd/{directory}/endpoint.sock")
             _peer(connection)
             nonce = os.urandom(32).hex()
