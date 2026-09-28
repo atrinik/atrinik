@@ -1718,3 +1718,22 @@ successor after an already completed build. Live merged-PR provenance and clean
 read-only content source observations are required; historical
 content/build/runtime/state evidence and undeclared dependency inputs remain
 unchanged. See the [retained resource correction protocol](../.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).
+
+## Public retained-runtime handoff
+
+The [runtime handoff](RUNTIME_HANDOFF.md) is a bounded projection of authenticated
+retained producer evidence, not a second ledger. The immutable public envelope
+contains only issue/attempt/actor/CAS identity, source and artifact digests,
+profile/topology/state coordinates, plan digest/options, a bounded lifetime and
+generated wrapper argv. A publisher-owned Unix socket in the existing shared
+build namespace performs live verification without passing private descriptors.
+
+The publisher proves complete retained resources before publication. A consumer
+then holds an operation-scoped private ledger guard through startup while its
+normal resource locks protect source and runtime mutation. Rechecks under that
+guard use only inventory, actor, issue and exact CAS proof, avoiding reverse
+acquisition of executor-held resource locks. Consumers independently recompute
+public source/build/artifact evidence and recheck immediately before spawn.
+Publisher loss, revocation, expiry, changed sources or coordinates, unsafe paths
+and pending/ambiguous authority fail closed. Private review mounts, listener
+policy, historical build roots and mutable-state ownership remain unchanged.

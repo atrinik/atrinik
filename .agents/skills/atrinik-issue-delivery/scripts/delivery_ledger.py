@@ -7437,6 +7437,106 @@ def advance_retained_dependency_cas(root, name, request, *, expected_generation,
                    expected_path=expected_path, failpoint=failpoint, _precommit=prove, _advance_capability=capability)
 
 
+
+def runtime_handoff_publish(root, name, *, expected_generation, expected_digest,
+                            expected_path, issue, lease_id, ttl_seconds=300):
+    """Project and serve one live retained producer without exporting a ledger."""
+    current = inspect(root, name)
+    if not _snapshot_matches_identity(current, expected_generation, expected_digest, expected_path):
+        raise LedgerError("stale runtime handoff generation, digest, or path")
+    document = current.document
+    _prepublication_observation_owner(document)
+    selected = [row for row in document["issues"]["explicit"]
+                if f"{row['repository']['owner']}/{row['repository']['name']}#{row['number']}" == issue]
+    if len(selected) != 1:
+        raise LedgerError("runtime handoff requires its exact authenticated issue")
+    envelope = _advance_validate(document)
+    if envelope is None:
+        raise LedgerError("runtime handoff requires a retained producer declaration")
+    completed = [step for step in envelope["steps"] if step["stage"] ==
+                 ("content-built" if "build_slot" in envelope.get("content_input", {}) else "built")]
+    if len(completed) != 1:
+        raise LedgerError("runtime handoff requires one complete tested build")
+    proof = _retained_correction(document)[1]
+    context = proof["resource_context"]
+    wrapper_slot = next(row for row in document["artifacts"] if row["slot_id"] == context["worktree_slot"])
+    wrapper_repository = wrapper_slot["immutable"]["repository"]
+    wrapper_repository = wrapper_repository["owner"] + "/" + wrapper_repository["name"]
+    module = _load_workspace_module(str(Path(__file__).absolute().parents[4]))
+    public = module.runtime_handoff
+    public._integer(ttl_seconds, 1, public.MAX_LIFETIME, "lease duration")
+    public._text(lease_id, public.HEX64, "lease identity")
+    declaration = envelope["declaration"]
+    plan = completed[0]["observations"]["plan"]
+    admission = {"correction_slot": proof["request"]["state_slot"],
+                 "correction_sha256": canonical_object_digest(proof),
+                 "planned_slots": sorted(row["slot_id"] for row in document["resources"] if row["state"] == "planned")}
+    with _current_targets_live_safety(document, admission_request=admission) as prove:
+        prove()
+        now = int(time.time())
+        value = {"schema_version": 1,
+                 "issue": {"repository": selected[0]["repository"]["owner"] + "/" + selected[0]["repository"]["name"],
+                           "number": selected[0]["number"], "node_id": selected[0]["node_id"]},
+                 "attempt_sha256": canonical_object_digest({"ledger_id": document["ledger_id"], "authority": document["authority"]}),
+                 "actor_node_id": document["actor"]["node_id"], "generation": expected_generation,
+                 "ledger_sha256": expected_digest, "wrapper": context["wrapper"], "workspace": context["workspace"],
+                 "profile": declaration["profile"], "topology": declaration["topology"],
+                 "state": proof["observations"]["state"]["scenario"]["state"],
+                 "plan": {"sha256": plan["plan_sha256"], "force_reconfigure": plan["force_reconfigure"],
+                          "use_ccache": plan["use_ccache"], "retained_content_input": plan.get("retained_content_input")},
+                 "sources": module.runtime_handoff_sources(plan, wrapper_repository),
+                 "artifacts": module.runtime_handoff_artifacts([plan["build_root"]]),
+                 "content_sha256": public.digest(plan["source_fingerprints"].get("content", {})),
+                 "issued_at": now, "expires_at": now + ttl_seconds, "lease_id": lease_id}
+        # An exact interrupted publisher may restart its original unexpired lease;
+        # a new lifetime always needs a distinct lease and immutable envelope.
+        try:
+            with public.public_directory(Path(context["workspace"]) / "build", lease_id) as directory:
+                prior = public.decode(public._read_at(directory, "envelope.json"))
+        except FileNotFoundError:
+            prior = None
+        except module.WorkspaceError:
+            if (Path(context["workspace"]) / "build/runtime-handoffs" / lease_id).exists():
+                raise
+            prior = None
+        if prior is not None:
+            value.update(issued_at=prior["issued_at"], expires_at=prior["expires_at"])
+        value["commands"] = public.commands(value)
+        public.validate(value)
+        if prior is not None and prior != value:
+            raise LedgerError("runtime handoff retry differs from its immutable envelope")
+        if not value["issued_at"] <= now < value["expires_at"]:
+            raise LedgerError("runtime handoff lease is expired; choose a new lease identity")
+        prove()
+
+    @contextmanager
+    def guard():
+        # Resource leases above are released before executor admission. Holding
+        # only this read-only ledger guard avoids reacquiring source/topology
+        # locks already held by the executor during its final startup check.
+        with _locked_root(Path(root), nonblocking=True) as directory:
+            def recheck():
+                _require_workspace_filesystem_eligibility(module, context["wrapper"], context["workspace"])
+                inventory_value = _inventory_locked(directory)
+                _require_exact_pending(inventory_value, set())
+                matches = [row for row in inventory_value.ledgers if row.name == name]
+                if len(matches) != 1 or not _snapshot_matches_identity(matches[0], expected_generation, expected_digest, expected_path):
+                    raise LedgerError("runtime handoff ledger changed, was revoked, or is ambiguous")
+                _require_authenticated_actor(document, "runtime handoff lease")
+                live_issue = _gh_json(("issue", "view", str(selected[0]["number"]),
+                    "--repo", value["issue"]["repository"], "--json", "id,state"), "runtime handoff issue")
+                if live_issue != {"id": selected[0]["node_id"], "state": "OPEN"}:
+                    raise LedgerError("runtime handoff issue is closed or changed")
+            recheck()
+            yield recheck
+    def ready(result):
+        _print(result)
+        sys.stdout.flush()
+    with guard():
+        pass
+    public.publish(value, guard, ready=ready)
+
+
 def _resource(value: Any, context: str) -> tuple[str, str]:
     scope = isinstance(value, dict) and value.get("kind") == "scope"
     recovered = isinstance(value, dict) and value.get("state") == "recovered"
@@ -10204,7 +10304,7 @@ def _open_lock(directory: int, name: str) -> int:
 
 
 @contextmanager
-def _locked_root(root: Path) -> Iterator[int]:
+def _locked_root(root: Path, *, nonblocking: bool = False) -> Iterator[int]:
     try:
         directory = _directory_fd(root)
     except OSError as error:
@@ -10213,7 +10313,10 @@ def _locked_root(root: Path) -> Iterator[int]:
         _require_trusted_directory(os.fstat(directory), f"review root {root}")
         # Lock the already-open no-follow directory itself.  Read-only
         # inventory therefore creates no persistent lock artifact.
-        fcntl.flock(directory, fcntl.LOCK_EX)
+        try:
+            fcntl.flock(directory, fcntl.LOCK_EX | (fcntl.LOCK_NB if nonblocking else 0))
+        except BlockingIOError as error:
+            raise LedgerError("delivery review root has a concurrent operation") from error
         opened = os.fstat(directory)
         _require_trusted_directory(opened, f"review root {root}")
         visible = os.stat(Path(os.path.abspath(root)), follow_symlinks=False)
@@ -19139,6 +19242,15 @@ def parser() -> argparse.ArgumentParser:
         operation_parser.add_argument("--expected-generation", required=True, type=int)
         operation_parser.add_argument("--expected-digest", required=True)
         operation_parser.add_argument("--expected-path", required=True)
+    handoff_parser = commands.add_parser("runtime-handoff-publish", help="serve a credential-free bounded retained-runtime lease")
+    handoff_parser.add_argument("root")
+    handoff_parser.add_argument("name")
+    handoff_parser.add_argument("--expected-generation", required=True, type=int)
+    handoff_parser.add_argument("--expected-digest", required=True)
+    handoff_parser.add_argument("--expected-path", required=True)
+    handoff_parser.add_argument("--issue", required=True)
+    handoff_parser.add_argument("--lease-id", required=True)
+    handoff_parser.add_argument("--ttl-seconds", type=int, default=300)
     resource_recovery_parser = commands.add_parser(
         "recover-unbound-resources-cas", help="preserve selected unbound resource plans under live exact CAS")
     resource_recovery_parser.add_argument("root")
@@ -19458,6 +19570,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             _print(operation(arguments.root, arguments.name, _read_input(arguments.input),
                              expected_generation=arguments.expected_generation,
                              expected_digest=arguments.expected_digest, expected_path=arguments.expected_path).json())
+        elif arguments.command == "runtime-handoff-publish":
+            runtime_handoff_publish(arguments.root, arguments.name,
+                expected_generation=arguments.expected_generation,
+                expected_digest=arguments.expected_digest, expected_path=arguments.expected_path,
+                issue=arguments.issue, lease_id=arguments.lease_id, ttl_seconds=arguments.ttl_seconds)
         elif arguments.command == "recover-unbound-resources-cas":
             _print(recover_unbound_resources_cas(
                 arguments.root, arguments.name, _read_input(arguments.input),
