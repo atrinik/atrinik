@@ -269,10 +269,20 @@ def _send(connection, value):
     connection.sendall(raw)
 
 
-def _receive(connection):
+def _receive(connection, *, deadline=None):
+    # recv timeouts are inactivity bounds, so refresh the remaining absolute
+    # budget for every fragment. A slow peer cannot extend a lease by dripping.
+    if deadline is None:
+        deadline = time.monotonic() + 30
     raw = bytearray()
-    while len(raw) <= 4096:
+    while len(raw) < 4096:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise WorkspaceError("runtime handoff protocol deadline expired")
+        connection.settimeout(remaining)
         byte = connection.recv(1)
+        if time.monotonic() >= deadline:
+            raise WorkspaceError("runtime handoff protocol deadline expired")
         if not byte:
             raise WorkspaceError("runtime handoff publisher or executor disconnected")
         raw.extend(byte)
@@ -299,6 +309,7 @@ def publish(value, guard, *, signer, ready=None):
         raise WorkspaceError("runtime handoff publisher signing capability differs")
     raw = canonical(value)
     checksum = hashlib.sha256(raw).hexdigest()
+    lease_deadline = time.monotonic() + max(0, value["expires_at"] - time.time())
     with public_directory(Path(value["workspace"]) / "build", value["lease_id"], create=True) as directory:
         lock = os.open("lease.lock", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC,
                        0o600, dir_fd=directory)
@@ -361,7 +372,7 @@ def publish(value, guard, *, signer, ready=None):
                                                 for argument in arguments]
                                     for operation, arguments in value["commands"].items()}})
             revoked = False
-            while time.time() < value["expires_at"] and not revoked:
+            while time.time() < value["expires_at"] and time.monotonic() < lease_deadline and not revoked:
                 try:
                     connection, _ = listener.accept()
                 except socket.timeout:
@@ -370,7 +381,7 @@ def publish(value, guard, *, signer, ready=None):
                     connection.settimeout(max(0.1, value["expires_at"] - time.time()))
                     try:
                         _peer(connection)
-                        request = _receive(connection)
+                        request = _receive(connection, deadline=lease_deadline)
                         nonce = request.get("nonce") if isinstance(request, dict) else None
                         _text(nonce, HEX64, "challenge nonce")
                         expected = {"operation": "begin", "nonce": nonce, "endpoint_fingerprint": endpoint_pin, "envelope_sha256": checksum,
@@ -402,7 +413,7 @@ def publish(value, guard, *, signer, ready=None):
                                 response = {"status": "verified", **expected}
                                 _send(connection, {"response": response, "signature": signer.sign(canonical(response))})
                                 connection.settimeout(max(0.1, value["expires_at"] - time.time()))
-                                request = _receive(connection)
+                                request = _receive(connection, deadline=lease_deadline)
                                 _exact(request, "operation nonce", "session request")
                                 expected["nonce"] = _text(request["nonce"], HEX64, "challenge nonce")
                                 if request["operation"] == "finish":
@@ -438,6 +449,7 @@ def consume(builds, lease_id, binding):
             if value["lease_id"] != lease_id:
                 raise WorkspaceError("runtime handoff lease path differs")
             require_binding(value, **binding, now=time.time())
+            lease_deadline = time.monotonic() + max(0, value["expires_at"] - time.time())
             _lease_live(directory, lease_id)
             if endpoint_fingerprint(directory, builds, lease_id) != binding["endpoint"]:
                 raise WorkspaceError("runtime handoff trusted endpoint differs")
@@ -465,7 +477,7 @@ def consume(builds, lease_id, binding):
                     if (before.st_dev, before.st_ino) != (visible.st_dev, visible.st_ino):
                         raise WorkspaceError("runtime handoff endpoint incarnation changed")
                     connection.settimeout(max(0.1, value["expires_at"] - time.time()))
-                    packet = _receive(connection)
+                    packet = _receive(connection, deadline=lease_deadline)
                     if (not verify_response(packet, value["publisher_key"], {"status": status, **expected})
                             or _read_at(directory, "envelope.json") != raw):
                         raise WorkspaceError("runtime handoff live authority was rejected or changed")
@@ -523,6 +535,7 @@ def revoke(builds, lease_id, *, issue, attempt, publisher, endpoint):
                 or publisher != publisher_fingerprint(value["publisher_key"])
                 or value["issue"]["repository"] + "#" + str(value["issue"]["number"]) != issue):
             raise WorkspaceError("runtime handoff revoke has foreign issue or attempt")
+        lease_deadline = time.monotonic() + max(0, value["expires_at"] - time.time())
         _lease_live(directory, lease_id)
         if endpoint_fingerprint(directory, builds, lease_id) != endpoint:
             raise WorkspaceError("runtime handoff trusted endpoint differs")
@@ -534,7 +547,7 @@ def revoke(builds, lease_id, *, issue, attempt, publisher, endpoint):
             _send(connection, {"operation": "revoke", "nonce": nonce, "endpoint_fingerprint": endpoint, "envelope_sha256": digest(value),
                                "lease_id": lease_id, "generation": value["generation"],
                                "ledger_sha256": value["ledger_sha256"]})
-            if not verify_response(_receive(connection), value["publisher_key"],
+            if not verify_response(_receive(connection, deadline=lease_deadline), value["publisher_key"],
                                    {"status": "revoked", "nonce": nonce, "endpoint_fingerprint": endpoint, "envelope_sha256": digest(value)}):
                 raise WorkspaceError("runtime handoff revocation was rejected")
     return {"lease_id": lease_id, "status": "revoked"}

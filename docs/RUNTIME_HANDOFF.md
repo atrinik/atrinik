@@ -73,7 +73,8 @@ coordinates. It does not reacquire executor-owned source/topology locks. A
 concurrent delivery transition must wait for the consumer operation to finish;
 a busy guard refuses new consumers. No private descriptor crosses the socket.
 The publisher keeps its guard across idle startup waits, bounded by the remaining
-lease rather than a separate 30-second timeout. The consumer requires a signed
+lease rather than a separate 30-second timeout. Every protocol fragment uses
+the same absolute monotonic deadline, so slow input cannot extend that lease. The consumer requires a signed
 completion acknowledgement sent while that guard is still held. The session
 ends when the wrapper operation finishes, the executor disconnects,
 the publisher exits, or the lease expires (maximum 900 seconds). This is startup

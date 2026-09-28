@@ -79,6 +79,32 @@ class EnvelopeTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "bound"):
             handoff.validate(value)
 
+    def test_slow_fragments_cannot_extend_absolute_protocol_deadline(self):
+        clock = [100.0]
+        class Drip:
+            def __init__(self):
+                self.timeouts = []
+                self.fragments = iter(b"{}\n")
+            def settimeout(self, remaining):
+                self.timeouts.append(remaining)
+            def recv(self, size):
+                clock[0] += 0.6
+                return bytes([next(self.fragments)])
+        peer = Drip()
+        with patch.object(handoff.time, "monotonic", side_effect=lambda: clock[0]):
+            with self.assertRaisesRegex(WorkspaceError, "deadline expired"):
+                handoff._receive(peer, deadline=101.0)
+        self.assertEqual(len(peer.timeouts), 2)
+        self.assertAlmostEqual(peer.timeouts[0], 1.0)
+        self.assertAlmostEqual(peer.timeouts[1], 0.4)
+
+    def test_protocol_rejects_oversized_fragmented_message(self):
+        class Oversized:
+            def settimeout(self, remaining): pass
+            def recv(self, size): return b" "
+        with self.assertRaisesRegex(WorkspaceError, "exceeds bound"):
+            handoff._receive(Oversized())
+
     def test_exact_binding_and_freshness(self):
         value = envelope()
         bound = dict(issue="atrinik/atrinik#604", attempt="a" * 64, wrapper=value["wrapper"],
@@ -196,8 +222,8 @@ class PublicLeaseTests(unittest.TestCase):
 
     def test_finish_requires_signed_acknowledgement(self):
         original = handoff._receive
-        def forge_finish(connection):
-            response = original(connection)
+        def forge_finish(connection, **keywords):
+            response = original(connection, **keywords)
             if response.get("response", {}).get("status") == "finished":
                 response["signature"] = "0" * 128
             return response
@@ -375,8 +401,8 @@ class PublicLeaseTests(unittest.TestCase):
 
     def test_namespace_changed_while_waiting_for_proof_is_rejected(self):
         original = handoff._receive
-        def replace_after_response(connection):
-            response = original(connection)
+        def replace_after_response(connection, **keywords):
+            response = original(connection, **keywords)
             self.directory.rename(self.directory.with_name("replaced-during-proof"))
             self.directory.mkdir(mode=0o700)
             return response
