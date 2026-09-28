@@ -1725,7 +1725,10 @@ The [runtime handoff](RUNTIME_HANDOFF.md) is a bounded projection of authenticat
 retained producer evidence, not a second ledger. The immutable public envelope
 contains only issue/attempt/actor/CAS identity, source and artifact digests,
 profile/topology/state coordinates, plan digest/options, a bounded lifetime,
-public Ed25519 key and generated wrapper argv. Consumers require an independently
+public Ed25519 key and generated wrapper argv. The trusted publisher output also
+pins the socket and public namespace directory incarnations; signed responses
+bind that endpoint to prevent forwarding through a replacement proxy. Consumers
+require an independently
 selected fingerprint from trusted coordinator stdout and verify fresh signed
 nonce challenges; neither a self-declared public key nor the peer UID grants
 authority. A publisher-owned Unix socket in the existing shared

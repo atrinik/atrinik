@@ -553,8 +553,9 @@ def _retained_producer_reads(function):
         issue = keywords.pop("handoff_issue", None)
         attempt = keywords.pop("handoff_attempt", None)
         publisher = keywords.pop("handoff_publisher", None)
+        endpoint = keywords.pop("handoff_endpoint", None)
         expected = keywords.get("retained_build_plan")
-        if handoff is None and (issue is not None or attempt is not None or publisher is not None):
+        if handoff is None and (issue is not None or attempt is not None or publisher is not None or endpoint is not None):
             raise WorkspaceError("handoff issue/attempt requires --runtime-handoff")
         if expected is None and handoff is None:
             return function(*arguments, **keywords)
@@ -572,7 +573,7 @@ def _retained_producer_reads(function):
             profile, state = bound["profile_name"], bound["state_name"]
             binding = dict(issue=issue, attempt=attempt, wrapper=str(workspace.paths.repository),
                            workspace=str(workspace.paths.workspace), profile=profile, topology=name,
-                           state=state, plan=expected, publisher=publisher)
+                           state=state, plan=expected, publisher=publisher, endpoint=endpoint)
             with public.consume(workspace.paths.builds, handoff, binding) as (value, recheck):
                 options = value["plan"]
                 plan = workspace.build_plan("server", profile, True,

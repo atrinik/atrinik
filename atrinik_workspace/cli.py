@@ -529,7 +529,7 @@ def parser() -> argparse.ArgumentParser:
         help="Classic server bind policy (default: loopback); all-ipv4 accepts container-forwarded UDP",
     )
     mark(topology_show.add_argument("--retained-build-plan", metavar="SHA256", help="use the exact retained tested-plan runtime producer"), "none")
-    for flag in ("--runtime-handoff", "--handoff-issue", "--handoff-attempt", "--handoff-publisher"):
+    for flag in ("--runtime-handoff", "--handoff-issue", "--handoff-attempt", "--handoff-publisher", "--handoff-endpoint"):
         mark(topology_show.add_argument(flag, help="exact public retained-runtime handoff coordinate"), "none")
     topology_show.add_argument("--json", action="store_true")
 
@@ -563,7 +563,7 @@ def parser() -> argparse.ArgumentParser:
         help="Classic server bind policy (default: loopback); all-ipv4 accepts container-forwarded UDP",
     )
     mark(up.add_argument("--retained-build-plan", metavar="SHA256", help="require the exact retained tested plan and preserve historical runtime builds"), "none")
-    for flag in ("--runtime-handoff", "--handoff-issue", "--handoff-attempt", "--handoff-publisher"):
+    for flag in ("--runtime-handoff", "--handoff-issue", "--handoff-attempt", "--handoff-publisher", "--handoff-endpoint"):
         mark(up.add_argument(flag, help="exact public retained-runtime handoff coordinate"), "none")
     up.add_argument("--json", action="store_true")
 
@@ -574,6 +574,7 @@ def parser() -> argparse.ArgumentParser:
     mark(revoke.add_argument("--issue", required=True), "none")
     mark(revoke.add_argument("--attempt", required=True), "none")
     mark(revoke.add_argument("--publisher", required=True), "none")
+    mark(revoke.add_argument("--endpoint", required=True), "none")
     ps = commands.add_parser("ps", help="show supervised topology processes")
     mark(ps.add_argument("name", nargs="?"), "topology")
     ps.add_argument("--json", action="store_true")
@@ -1440,7 +1441,7 @@ def main(arguments: list[str] | None = None) -> int:
                 options.service,
                 state_mode=options.state_mode,
                 **({"retained_build_plan": options.retained_build_plan} if options.retained_build_plan is not None else {}),
-                **{key: getattr(options, key) for key in ("runtime_handoff", "handoff_issue", "handoff_attempt", "handoff_publisher")
+                **{key: getattr(options, key) for key in ("runtime_handoff", "handoff_issue", "handoff_attempt", "handoff_publisher", "handoff_endpoint")
                    if getattr(options, key) is not None},
                 **({"server_listener": options.server_listener}
                    if options.server_listener is not None else {}),
@@ -1477,7 +1478,7 @@ def main(arguments: list[str] | None = None) -> int:
             from .runtime_handoff import revoke
             print(json.dumps(revoke(workspace.paths.builds, options.lease_id,
                                     issue=options.issue, attempt=options.attempt,
-                                    publisher=options.publisher), sort_keys=True))
+                                    publisher=options.publisher, endpoint=options.endpoint), sort_keys=True))
         elif options.command == "up":
             name = options.name or options.profile
             state = None if options.state_mode == "temporary" else options.state
@@ -1489,7 +1490,7 @@ def main(arguments: list[str] | None = None) -> int:
                 options.port,
                 state_mode=options.state_mode,
                 **({"retained_build_plan": options.retained_build_plan} if options.retained_build_plan is not None else {}),
-                **{key: getattr(options, key) for key in ("runtime_handoff", "handoff_issue", "handoff_attempt", "handoff_publisher")
+                **{key: getattr(options, key) for key in ("runtime_handoff", "handoff_issue", "handoff_attempt", "handoff_publisher", "handoff_endpoint")
                    if getattr(options, key) is not None},
                 **({"server_listener": options.server_listener}
                    if options.server_listener is not None else {}),

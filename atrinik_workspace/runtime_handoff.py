@@ -77,7 +77,8 @@ def commands(value):
               "--runtime-handoff", value["lease_id"],
               "--handoff-issue", value["issue"]["repository"] + "#" + str(value["issue"]["number"]),
               "--handoff-attempt", value["attempt_sha256"],
-              "--handoff-publisher", publisher_fingerprint(value["publisher_key"])]
+              "--handoff-publisher", publisher_fingerprint(value["publisher_key"]),
+              "--handoff-endpoint", "TRUSTED_COORDINATOR_ENDPOINT"]
     return {"inspect": ["./atrinik", "topology", "show", value["profile"], *common, "--json"],
             "start": ["./atrinik", "up", "--name", value["topology"],
                       "--profile", value["profile"], *common, "--json"]}
@@ -170,7 +171,8 @@ def decode(raw):
 
 
 def require_binding(value, *, issue, attempt, wrapper, workspace, profile,
-                    topology, state, plan, publisher, now):
+                    topology, state, plan, publisher, endpoint, now):
+    _text(endpoint, HEX64, "trusted endpoint fingerprint")
     validate(value)
     if (issue != value["issue"]["repository"] + "#" + str(value["issue"]["number"])
             or attempt != value["attempt_sha256"] or wrapper != value["wrapper"]
@@ -349,11 +351,15 @@ def publish(value, guard, *, signer, ready=None):
             os.chmod("endpoint.sock", 0o600, dir_fd=directory, follow_symlinks=False)
             listener.listen(1)
             listener.settimeout(0.25)
+            endpoint_pin = endpoint_fingerprint(directory, Path(value["workspace"]) / "build", value["lease_id"])
             if ready:
                 ready({"lease_id": value["lease_id"], "envelope_sha256": checksum,
                        "publisher_fingerprint": publisher_fingerprint(value["publisher_key"]),
+                       "endpoint_fingerprint": endpoint_pin,
                        "path": str(Path(value["workspace"]) / "build/runtime-handoffs" / value["lease_id"] / "envelope.json"),
-                       "commands": value["commands"]})
+                       "commands": {operation: [endpoint_pin if argument == "TRUSTED_COORDINATOR_ENDPOINT" else argument
+                                                for argument in arguments]
+                                    for operation, arguments in value["commands"].items()}})
             revoked = False
             while time.time() < value["expires_at"] and not revoked:
                 try:
@@ -367,7 +373,7 @@ def publish(value, guard, *, signer, ready=None):
                         request = _receive(connection)
                         nonce = request.get("nonce") if isinstance(request, dict) else None
                         _text(nonce, HEX64, "challenge nonce")
-                        expected = {"operation": "begin", "nonce": nonce, "envelope_sha256": checksum,
+                        expected = {"operation": "begin", "nonce": nonce, "endpoint_fingerprint": endpoint_pin, "envelope_sha256": checksum,
                                     "lease_id": value["lease_id"], "generation": value["generation"],
                                     "ledger_sha256": value["ledger_sha256"]}
                         if request == {**expected, "operation": "revoke"}:
@@ -378,7 +384,7 @@ def publish(value, guard, *, signer, ready=None):
                                 stream.flush(); os.fsync(stream.fileno())
                             os.fsync(directory)
                             revoked = True
-                            response = {"status": "revoked", "nonce": nonce, "envelope_sha256": checksum}
+                            response = {"status": "revoked", "nonce": nonce, "endpoint_fingerprint": endpoint_pin, "envelope_sha256": checksum}
                             _send(connection, {"response": response, "signature": signer.sign(canonical(response))})
                             continue
                         if request != expected:
@@ -391,6 +397,8 @@ def publish(value, guard, *, signer, ready=None):
                                 if _read_at(directory, "envelope.json") != raw:
                                     raise WorkspaceError("runtime handoff declaration changed")
                                 _namespace_current(directory, Path(value["workspace"]) / "build", value["lease_id"])
+                                if endpoint_fingerprint(directory, Path(value["workspace"]) / "build", value["lease_id"]) != endpoint_pin:
+                                    raise WorkspaceError("runtime handoff publisher endpoint changed")
                                 response = {"status": "verified", **expected}
                                 _send(connection, {"response": response, "signature": signer.sign(canonical(response))})
                                 request = _receive(connection)
@@ -423,6 +431,8 @@ def consume(builds, lease_id, binding):
                 raise WorkspaceError("runtime handoff lease path differs")
             require_binding(value, **binding, now=time.time())
             _lease_live(directory, lease_id)
+            if endpoint_fingerprint(directory, builds, lease_id) != binding["endpoint"]:
+                raise WorkspaceError("runtime handoff trusted endpoint differs")
             before = os.stat("endpoint.sock", dir_fd=directory, follow_symlinks=False)
             _trusted(before, stat.S_ISSOCK)
             connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -433,13 +443,15 @@ def consume(builds, lease_id, binding):
                 after = os.stat("endpoint.sock", dir_fd=directory, follow_symlinks=False)
                 if (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino):
                     raise WorkspaceError("runtime handoff endpoint changed during connection")
-                expected = {"operation": "begin", "nonce": os.urandom(32).hex(), "envelope_sha256": hashlib.sha256(raw).hexdigest(),
+                expected = {"operation": "begin", "nonce": os.urandom(32).hex(), "endpoint_fingerprint": binding["endpoint"], "envelope_sha256": hashlib.sha256(raw).hexdigest(),
                             "lease_id": lease_id, "generation": value["generation"],
                             "ledger_sha256": value["ledger_sha256"]}
                 _send(connection, expected)
                 def reply():
                     require_binding(value, **binding, now=time.time())
                     _namespace_current(directory, builds, lease_id)
+                    if endpoint_fingerprint(directory, builds, lease_id) != binding["endpoint"]:
+                        raise WorkspaceError("runtime handoff trusted endpoint differs")
                     _lease_live(directory, lease_id)
                     visible = os.stat("endpoint.sock", dir_fd=directory, follow_symlinks=False)
                     if (before.st_dev, before.st_ino) != (visible.st_dev, visible.st_ino):
@@ -452,6 +464,8 @@ def consume(builds, lease_id, binding):
                     # namespace, endpoint and expiry again after its response.
                     require_binding(value, **binding, now=time.time())
                     _namespace_current(directory, builds, lease_id)
+                    if endpoint_fingerprint(directory, builds, lease_id) != binding["endpoint"]:
+                        raise WorkspaceError("runtime handoff trusted endpoint differs")
                     _lease_live(directory, lease_id)
                     visible = os.stat("endpoint.sock", dir_fd=directory, follow_symlinks=False)
                     _trusted(visible, stat.S_ISSOCK)
@@ -490,7 +504,7 @@ def _lease_live(directory, lease_id):
         os.close(descriptor)
 
 
-def revoke(builds, lease_id, *, issue, attempt, publisher):
+def revoke(builds, lease_id, *, issue, attempt, publisher, endpoint):
     """Revoke an owned publisher; keep its immutable envelope and lease file."""
     with public_directory(builds, lease_id) as directory:
         value = decode(_read_at(directory, "envelope.json"))
@@ -499,18 +513,46 @@ def revoke(builds, lease_id, *, issue, attempt, publisher):
                 or value["issue"]["repository"] + "#" + str(value["issue"]["number"]) != issue):
             raise WorkspaceError("runtime handoff revoke has foreign issue or attempt")
         _lease_live(directory, lease_id)
+        if endpoint_fingerprint(directory, builds, lease_id) != endpoint:
+            raise WorkspaceError("runtime handoff trusted endpoint differs")
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
             connection.settimeout(30)
             connection.connect(f"/proc/self/fd/{directory}/endpoint.sock")
             _peer(connection)
             nonce = os.urandom(32).hex()
-            _send(connection, {"operation": "revoke", "nonce": nonce, "envelope_sha256": digest(value),
+            _send(connection, {"operation": "revoke", "nonce": nonce, "endpoint_fingerprint": endpoint, "envelope_sha256": digest(value),
                                "lease_id": lease_id, "generation": value["generation"],
                                "ledger_sha256": value["ledger_sha256"]})
             if not verify_response(_receive(connection), value["publisher_key"],
-                                   {"status": "revoked", "nonce": nonce, "envelope_sha256": digest(value)}):
+                                   {"status": "revoked", "nonce": nonce, "endpoint_fingerprint": endpoint, "envelope_sha256": digest(value)}):
                 raise WorkspaceError("runtime handoff revocation was rejected")
     return {"lease_id": lease_id, "status": "revoked"}
+
+
+def endpoint_fingerprint(directory, builds, lease_id):
+    """Pin the socket and its shared namespace, independently of envelope bytes."""
+    _namespace_current(directory, builds, lease_id)
+    root = _directory(builds)
+    descriptors = [root]
+    try:
+        identities = []
+        for name in (None, "runtime-handoffs", lease_id):
+            if name is not None:
+                root = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
+                               dir_fd=root)
+                descriptors.append(root)
+                _trusted(os.fstat(root), stat.S_ISDIR)
+            metadata = os.fstat(root)
+            identities.append([metadata.st_dev, metadata.st_ino])
+        if identities[-1] != [os.fstat(directory).st_dev, os.fstat(directory).st_ino]:
+            raise WorkspaceError("runtime handoff namespace incarnation changed")
+        endpoint = os.stat("endpoint.sock", dir_fd=root, follow_symlinks=False)
+        _trusted(endpoint, stat.S_ISSOCK)
+        identities.append([endpoint.st_dev, endpoint.st_ino, endpoint.st_ctime_ns])
+        return digest(identities)
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
 
 
 def _stable(metadata):

@@ -13099,7 +13099,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 with mock.patch.object(ledger, "_print", side_effect=queue.put), mock.patch.object(
                         ledger, "_gh_json", return_value={"id": selected["node_id"], "state": "OPEN"}):
                     ledger.runtime_handoff_publish(root, snapshot.name, **cas_arguments(snapshot),
-                        issue=issue, lease_id="7" * 64, ttl_seconds=60)
+                        issue=issue, lease_id="7" * 64, ttl_seconds=120)
             except BaseException as error:
                 queue.put({"error": str(error)})
         process = context.Process(target=serve)
@@ -13118,7 +13118,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             binding = dict(issue=issue, attempt=value["attempt_sha256"], wrapper=str(live),
                 workspace=str(live / "workspace"), profile=value["profile"], topology=value["topology"],
                 state=value["state"], plan=plan["plan_sha256"],
-                publisher=result["publisher_fingerprint"])
+                publisher=result["publisher_fingerprint"], endpoint=result["endpoint_fingerprint"])
             for _ in range(2):
                 with public.consume(live / "workspace/build", value["lease_id"], binding) as (_, recheck):
                     recheck()
@@ -13146,10 +13146,35 @@ class DeliveryLedgerTests(unittest.TestCase):
                 executed = subprocess.run(command, capture_output=True, text=True, timeout=30)
                 self.assertEqual(executed.returncode, 0, executed.stderr)
                 self.assertEqual(json.loads(executed.stdout), {"status": "verified", "private_review_root": "absent"})
+                # Execute the emitted wrapper inspection through the real CLI
+                # and decorator too. Only disposable fixture sources, workspace
+                # and Git administration are added, never primary build/reviews.
+                common = Path(git_run(live, "rev-parse", "--path-format=absolute", "--git-common-dir").stdout.strip())
+                arguments = list(result["commands"]["inspect"][1:])
+                arguments[arguments.index("--handoff-publisher") + 1] = result["publisher_fingerprint"]
+                arguments[arguments.index("--handoff-endpoint") + 1] = result["endpoint_fingerprint"]
+                cli_script = (
+                    "import json,pathlib,sys; from atrinik_workspace import cli; "
+                    "assert not pathlib.Path(sys.argv[1]).exists(); "
+                    "cli.ROOT=pathlib.Path(sys.argv[2]); "
+                    "raise SystemExit(cli.main(json.loads(sys.argv[3])))"
+                )
+                cli_command = command[:command.index(image)] + [
+                    "--env", f"ATRINIK_WORKSPACE_DIR={live / 'workspace'}",
+                    "--env", "HOME=/tmp/fixture-home",
+                    "--mount", f"type=bind,source={live},target={live},readonly",
+                    "--mount", f"type=bind,source={live / 'workspace'},target={live / 'workspace'}",
+                    "--mount", f"type=bind,source={common},target={common}",
+                    image, "python3", "-c", cli_script, str(root), str(live), json.dumps(arguments)]
+                inspected = subprocess.run(cli_command, capture_output=True, text=True, timeout=30)
+                self.assertEqual(inspected.returncode, 0, inspected.stderr)
+                self.assertEqual(json.loads(inspected.stdout)["profile"], value["profile"])
                 print(json.dumps({"handoff_executor_image": image, "package_mount": str(ROOT / "atrinik_workspace"),
-                                  "public_mount": str(live / "workspace/build"), "private_review_root": "absent"}))
+                    "public_mount": str(live / "workspace/build"), "private_review_root": "absent",
+                    "cli_fixture_source": str(live), "cli_fixture_workspace": str(live / "workspace"),
+                    "cli_fixture_git": str(common), "wrapper_command": arguments, "wrapper_status": "verified"}))
             public.revoke(live / "workspace/build", value["lease_id"], issue=issue,
-                          attempt=value["attempt_sha256"], publisher=binding["publisher"])
+                          attempt=value["attempt_sha256"], publisher=binding["publisher"], endpoint=binding["endpoint"])
             process.join(10)
             self.assertEqual(process.exitcode, 0)
             self.assertEqual(path.read_bytes(), raw)

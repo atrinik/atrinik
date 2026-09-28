@@ -31,11 +31,15 @@ client plans remain inert and unchanged. The output supplies the envelope path,
 its digest, the lease identity and exact wrapper argument arrays. It never
 contains ledger bytes, private report paths, credentials, worker text or server
 state. The helper creates an ephemeral Ed25519 signing key in process memory
-and emits its public fingerprint separately as `publisher_fingerprint`. Select
-that fingerprint from trusted coordinator stdout and pass it independently as
-`--handoff-publisher`; never select it from an untrusted envelope or its command
+and emits its public fingerprint as `publisher_fingerprint`. A separate
+`endpoint_fingerprint` pins the socket inode and its build, runtime-handoffs and
+lease directory incarnations. Select both values from trusted coordinator
+stdout and pass them independently as `--handoff-publisher` and
+`--handoff-endpoint`; never select them from an untrusted envelope or its command
 array. The consumer verifies a fresh signed challenge at every recheck, so an
-arbitrary same-UID publisher cannot impersonate the selected coordinator. Both
+arbitrary same-UID publisher cannot impersonate the selected coordinator. Every
+signed response binds the independently pinned endpoint; a replacement proxy
+cannot relay proof from another socket while releasing its operation guard. Both
 sides require `/usr/bin/openssl` with Ed25519 support; the private key never
 leaves coordinator memory and anonymous descriptors.
 
@@ -45,11 +49,13 @@ Consume on the preserved isolated executor through the emitted commands:
 ./atrinik topology show PROFILE --state SCENARIO_STATE --service server \
   --retained-build-plan PLAN_SHA256 --runtime-handoff LEASE_ID \
   --handoff-issue OWNER/REPOSITORY#NUMBER --handoff-attempt ATTEMPT_SHA256 \
-  --handoff-publisher TRUSTED_COORDINATOR_FINGERPRINT --json
+  --handoff-publisher TRUSTED_COORDINATOR_FINGERPRINT \
+  --handoff-endpoint TRUSTED_COORDINATOR_ENDPOINT --json
 ./atrinik up --name TOPOLOGY --profile PROFILE --state SCENARIO_STATE --service server \
   --retained-build-plan PLAN_SHA256 --runtime-handoff LEASE_ID \
   --handoff-issue OWNER/REPOSITORY#NUMBER --handoff-attempt ATTEMPT_SHA256 \
-  --handoff-publisher TRUSTED_COORDINATOR_FINGERPRINT --json
+  --handoff-publisher TRUSTED_COORDINATOR_FINGERPRINT \
+  --handoff-endpoint TRUSTED_COORDINATOR_ENDPOINT --json
 ```
 
 `topology show` takes positional `PROFILE`. The default server listener stays
@@ -76,7 +82,7 @@ Revoke the owned publisher from the shared namespace:
 ```sh
 ./atrinik runtime-handoff revoke LEASE_ID \
   --issue OWNER/REPOSITORY#NUMBER --attempt ATTEMPT_SHA256 \
-  --publisher TRUSTED_COORDINATOR_FINGERPRINT
+  --publisher TRUSTED_COORDINATOR_FINGERPRINT --endpoint TRUSTED_COORDINATOR_ENDPOINT
 ```
 
 Revocation serializes behind an admitted operation, then records a durable
@@ -93,7 +99,10 @@ The focused retained-helper test uses disposable fixture repositories and an
 isolated Git configuration; production unsafe-origin checks remain unchanged.
 Set `ATRINIK_HANDOFF_EXECUTOR_IMAGE` to a locally available, digest-pinned Linux
 build image to also exercise signed consume/recheck in a disposable container.
-That fixture mounts only the wrapper Python package and its temporary public
-build namespace read-only, asserts the private review root is absent, and uses
-no network or additional capabilities. It proves transport and isolation; its
-synthetic build payloads do not qualify a Classic runtime.
+Its transport fixture mounts only the wrapper Python package and its temporary
+public build namespace read-only. Its emitted `topology show` command also mounts
+disposable fixture sources read-only and their temporary workspace and Git
+administration for ordinary wrapper locks. Both assert the private review root
+is absent and use no network or additional capabilities. This proves CLI
+admission, source/plan checks, transport and isolation; synthetic build payloads
+do not qualify a Classic runtime.

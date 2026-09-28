@@ -84,7 +84,7 @@ class EnvelopeTests(unittest.TestCase):
         bound = dict(issue="atrinik/atrinik#604", attempt="a" * 64, wrapper=value["wrapper"],
                      workspace=value["workspace"], profile=value["profile"], topology=value["topology"],
                      state=value["state"], plan=value["plan"]["sha256"],
-                     publisher=handoff.publisher_fingerprint(value["publisher_key"]), now=1050)
+                     publisher=handoff.publisher_fingerprint(value["publisher_key"]), endpoint="5" * 64, now=1050)
         handoff.require_binding(value, **bound)
         handoff.require_binding(value, **{**bound, "topology": None})
         for key in bound.keys() - {"now"}:
@@ -152,6 +152,11 @@ class PublicLeaseTests(unittest.TestCase):
         self.addCleanup(self.stop)
         self.assertTrue(self.ready.wait(5), "publisher did not become ready")
         self.directory = self.builds / "runtime-handoffs" / self.value["lease_id"]
+        self.pin_endpoint()
+
+    def pin_endpoint(self):
+        with handoff.public_directory(self.builds, self.value["lease_id"]) as directory:
+            self.binding["endpoint"] = handoff.endpoint_fingerprint(directory, self.builds, self.value["lease_id"])
 
     def stop(self):
         if self.process.is_alive():
@@ -210,9 +215,9 @@ class PublicLeaseTests(unittest.TestCase):
         raw = (self.directory / "envelope.json").read_bytes()
         with self.assertRaises(WorkspaceError):
             handoff.revoke(self.builds, self.value["lease_id"], issue="atrinik/atrinik#1",
-                           attempt=self.value["attempt_sha256"], publisher=self.binding["publisher"])
+                           attempt=self.value["attempt_sha256"], publisher=self.binding["publisher"], endpoint=self.binding["endpoint"])
         result = handoff.revoke(self.builds, self.value["lease_id"], issue=self.binding["issue"],
-                                attempt=self.binding["attempt"], publisher=self.binding["publisher"])
+                                attempt=self.binding["attempt"], publisher=self.binding["publisher"], endpoint=self.binding["endpoint"])
         self.assertEqual(result["status"], "revoked")
         self.process.join(5)
         self.assertEqual(self.process.exitcode, 0)
@@ -228,6 +233,7 @@ class PublicLeaseTests(unittest.TestCase):
             args=(self.value, self.ready, self.authority, self.generation, self.signer))
         self.process.start()
         self.assertTrue(self.ready.wait(5))
+        self.pin_endpoint()
         with self.consume() as (_, recheck):
             recheck()
         self.stop()
@@ -276,7 +282,7 @@ class PublicLeaseTests(unittest.TestCase):
 
     def test_revoked_lease_cannot_be_republished(self):
         handoff.revoke(self.builds, self.value["lease_id"], issue=self.binding["issue"],
-                       attempt=self.binding["attempt"], publisher=self.binding["publisher"])
+                       attempt=self.binding["attempt"], publisher=self.binding["publisher"], endpoint=self.binding["endpoint"])
         self.process.join(5)
         @contextlib.contextmanager
         def unused():
@@ -353,6 +359,50 @@ class PublicLeaseTests(unittest.TestCase):
                     recheck()
                 self.fail("namespace replacement during proof reached mutation")
 
+    def test_moved_leaf_under_replacement_parent_is_rejected(self):
+        with self.assertRaises(WorkspaceError):
+            with self.consume() as (_, recheck):
+                namespace = self.directory.parent
+                old = namespace.with_name("old-parent")
+                namespace.rename(old)
+                namespace.mkdir(mode=0o700)
+                (old / self.value["lease_id"]).rename(self.directory)
+                recheck()
+                self.fail("original leaf under foreign parent reached mutation")
+
+    def test_relay_endpoint_cannot_release_guard_then_admit_consumer(self):
+        ready = self.context.Event()
+        def relay():
+            with handoff.public_directory(self.builds, self.value["lease_id"]) as directory:
+                os.rename("endpoint.sock", "original.sock", src_dir_fd=directory, dst_dir_fd=directory)
+                with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as listener:
+                    listener.bind(f"/proc/self/fd/{directory}/endpoint.sock")
+                    os.chmod("endpoint.sock", 0o600, dir_fd=directory)
+                    listener.listen(1)
+                    listener.settimeout(2)
+                    ready.set()
+                    try:
+                        incoming, _ = listener.accept()
+                    except socket.timeout:
+                        return
+                    with incoming, socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as genuine:
+                        genuine.connect(f"/proc/self/fd/{directory}/original.sock")
+                        handoff._send(genuine, handoff._receive(incoming))
+                        signed = handoff._receive(genuine)
+                        genuine.close()  # Release coordinator guard before forwarding.
+                        handoff._send(incoming, signed)
+        proxy = self.context.Process(target=relay)
+        proxy.start()
+        try:
+            self.assertTrue(ready.wait(5))
+            with self.assertRaises(WorkspaceError):
+                with self.consume():
+                    self.fail("relay admitted consumer without coordinator guard")
+        finally:
+            proxy.join(3)
+            if proxy.is_alive(): proxy.terminate(); proxy.join(5)
+        self.assertEqual(proxy.exitcode, 0)
+
     def test_fifo_envelope_is_rejected_without_blocking(self):
         self.stop()
         path = self.directory / "envelope.json"
@@ -398,9 +448,10 @@ class HandoffCliTests(unittest.TestCase):
                 getattr(workspace.return_value, method).return_value = {}
                 self.assertEqual(main([*arguments, "--retained-build-plan", "c" * 64,
                     "--runtime-handoff", "3" * 64, "--handoff-issue", "atrinik/atrinik#604",
-                    "--handoff-attempt", "a" * 64, "--handoff-publisher", "b" * 64, "--json"]), 0)
+                    "--handoff-attempt", "a" * 64, "--handoff-publisher", "b" * 64, "--handoff-endpoint", "c" * 64, "--json"]), 0)
                 kwargs = getattr(workspace.return_value, method).call_args.kwargs
                 self.assertEqual(kwargs["runtime_handoff"], "3" * 64)
                 self.assertEqual(kwargs["handoff_issue"], "atrinik/atrinik#604")
                 self.assertEqual(kwargs["handoff_attempt"], "a" * 64)
                 self.assertEqual(kwargs["handoff_publisher"], "b" * 64)
+                self.assertEqual(kwargs["handoff_endpoint"], "c" * 64)
