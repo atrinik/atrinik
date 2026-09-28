@@ -1681,7 +1681,12 @@ class ScopeLifecycleTests(unittest.TestCase):
         return directory, values
 
     def _foreign_recovered_delivery_scope(
-        self, *, status: str, name: str = "external", legacy: bool = False
+        self,
+        *,
+        status: str,
+        name: str = "external",
+        legacy: bool = False,
+        planned_legacy_null_identities: bool = False,
     ):
         self.make_checkout("client")
         failure = WorkspaceError("producer recovery seed failure")
@@ -1691,12 +1696,22 @@ class ScopeLifecycleTests(unittest.TestCase):
             with self.assertRaisesRegex(WorkspaceError, "producer recovery seed failure"):
                 self.workspace.scope_create(["client"], name=name)
         if status == "required":
-            with mock.patch.dict(
-                os.environ,
-                {SCOPE_FAILURE_BOUNDARIES_ENV: "worktree:client"},
-            ):
+            if planned_legacy_null_identities:
+                retry = mock.patch.object(
+                    self.workspace,
+                    "_create_worktree",
+                    side_effect=WorkspaceError("producer retained worktree failure"),
+                )
+                expected_error = "producer retained worktree failure"
+            else:
+                retry = mock.patch.dict(
+                    os.environ,
+                    {SCOPE_FAILURE_BOUNDARIES_ENV: "worktree:client"},
+                )
+                expected_error = "recovery inputs were preserved"
+            with retry:
                 with self.assertRaisesRegex(
-                    WorkspaceError, "recovery inputs were preserved"
+                    WorkspaceError, expected_error
                 ):
                     self.workspace.scope_create(["client"], name=name)
         elif status == "complete":
@@ -1722,6 +1737,15 @@ class ScopeLifecycleTests(unittest.TestCase):
                 raw = raw.replace(old, new)
             values[path.name] = json.loads(raw)
         journal = values["creation-journal.json"]
+        if planned_legacy_null_identities:
+            self.assertEqual(status, "required")
+            self.assertTrue(
+                all(row["status"] == "planned" for row in journal["worktrees"])
+            )
+            self.assertEqual(journal["profile"]["status"], "planned")
+            for row in journal["worktrees"]:
+                row.update(path_device=None, path_inode=None)
+            journal["profile"].update(path_device=None, path_inode=None)
         digest = scopes_module._canonical_sha256(journal["request"])
         for value in values.values():
             if isinstance(value, dict) and "request_sha256" in value:
@@ -1929,6 +1953,155 @@ class ScopeLifecycleTests(unittest.TestCase):
         self._assert_delivery_scope_forwarding(
             directory, issue_number=627, issue_node="I_foreign_recovery_required"
         )
+
+    def test_delivery_foreign_planned_null_identities_observe_and_bind_preserve_bytes(self):
+        directory, values = self._foreign_recovered_delivery_scope(
+            status="required", planned_legacy_null_identities=True
+        )
+        journal = values["creation-journal.json"]
+        self.assertEqual(
+            (journal["status"], journal["recovery"]["status"]),
+            ("recovery-required", "required"),
+        )
+        self.assertEqual(
+            (journal["worktrees"][0]["path_device"], journal["worktrees"][0]["path_inode"]),
+            (None, None),
+        )
+        self.assertEqual(
+            (journal["profile"]["path_device"], journal["profile"]["path_inode"]),
+            (None, None),
+        )
+        before = {path.name: path.read_bytes() for path in directory.iterdir()}
+        with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+            self.assertEqual(
+                proof.external_scopes(self.wrapper), frozenset({"external"})
+            )
+        self.assertEqual(
+            before, {path.name: path.read_bytes() for path in directory.iterdir()}
+        )
+        self._assert_delivery_scope_forwarding(
+            directory,
+            issue_number=629,
+            issue_node="I_foreign_planned_null_identities",
+        )
+        self.assertEqual(
+            before, {path.name: path.read_bytes() for path in directory.iterdir()}
+        )
+
+    def test_delivery_foreign_planned_null_identities_reject_malformed_variants(self):
+        directory, values = self._foreign_recovered_delivery_scope(
+            status="required", planned_legacy_null_identities=True
+        )
+        journal = values["creation-journal.json"]
+
+        def omit_row_inode(value):
+            value["worktrees"][0].pop("path_inode")
+
+        def omit_profile_inode(value):
+            value["profile"].pop("path_inode")
+
+        changes = [
+            omit_row_inode,
+            lambda value: value["worktrees"][0].update(path_inode=1),
+            lambda value: value["worktrees"][0].update(
+                path_device=True, path_inode=False
+            ),
+            lambda value: value["worktrees"][0].update(path_device=-1, path_inode=-1),
+            lambda value: value["worktrees"][0].update(
+                path_device="unknown", path_inode="unknown"
+            ),
+            omit_profile_inode,
+            lambda value: value["profile"].update(path_inode=1),
+            lambda value: value["profile"].update(path_device=True, path_inode=False),
+            lambda value: value["profile"].update(path_device=-1, path_inode=-1),
+            lambda value: value["profile"].update(
+                path_device="unknown", path_inode="unknown"
+            ),
+            lambda value: value["identities"]["workspace"].update(
+                device=None, inode=None
+            ),
+            lambda value: value["recovery"]["observed_identities"]["scope"].update(
+                device=None, inode=None
+            ),
+        ]
+        for mutate in changes:
+            with self.subTest(mutate=mutate):
+                replacement = copy.deepcopy(journal)
+                mutate(replacement)
+                atomic_json(directory / "creation-journal.json", replacement)
+                before = (directory / "creation-journal.json").read_bytes()
+                with self.assertRaisesRegex(WorkspaceError, "legacy identity"):
+                    with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                        proof.external_scopes(self.wrapper)
+                self.assertEqual(
+                    (directory / "creation-journal.json").read_bytes(), before
+                )
+
+        non_planned = [
+            lambda value: value["worktrees"][0].update(
+                status="rolled-back",
+                common_git_dir=value["worktrees"][0]["primary_path"] + "/.git",
+            ),
+            lambda value: value["worktrees"][0].update(
+                status="created",
+                common_git_dir=value["worktrees"][0]["primary_path"] + "/.git",
+            ),
+            lambda value: value["profile"].update(status="rolled-back"),
+            lambda value: value["profile"].update(status="created"),
+        ]
+        for mutate in non_planned:
+            with self.subTest(non_planned=mutate):
+                replacement = copy.deepcopy(journal)
+                mutate(replacement)
+                atomic_json(directory / "creation-journal.json", replacement)
+                with self.assertRaisesRegex(WorkspaceError, "legacy identity"):
+                    with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                        proof.external_scopes(self.wrapper)
+
+        planned_integers = [
+            lambda value: value["worktrees"][0].update(
+                path_device=1, path_inode=2
+            ),
+            lambda value: value["profile"].update(path_device=1, path_inode=2),
+        ]
+        for mutate in planned_integers:
+            with self.subTest(planned_integers=mutate):
+                replacement = copy.deepcopy(journal)
+                mutate(replacement)
+                atomic_json(directory / "creation-journal.json", replacement)
+                with self.assertRaises(WorkspaceError):
+                    with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                        proof.external_scopes(self.wrapper)
+
+    def test_delivery_foreign_completed_records_reject_null_legacy_identities(self):
+        directory, values = self._foreign_delivery_scope()
+        journal = values["creation-journal.json"]
+        record = values["scope.json"]
+        changes = [
+            ("creation-journal.json", journal, lambda value: value["worktrees"][0].update(
+                path_device=None, path_inode=None
+            )),
+            ("creation-journal.json", journal, lambda value: value["profile"].update(
+                path_device=None, path_inode=None
+            )),
+            ("scope.json", record, lambda value: value["worktrees"][0].update(
+                path_device=None, path_inode=None
+            )),
+            ("scope.json", record, lambda value: value["profile"].update(
+                path_device=None, path_inode=None
+            )),
+        ]
+        for filename, original, mutate in changes:
+            with self.subTest(filename=filename, mutate=mutate):
+                replacement = copy.deepcopy(original)
+                mutate(replacement)
+                atomic_json(directory / filename, replacement)
+                before = (directory / filename).read_bytes()
+                with self.assertRaisesRegex(WorkspaceError, "legacy identity"):
+                    with scopes_module.DeliveryScopeProof(self.workspace) as proof:
+                        proof.external_scopes(self.wrapper)
+                self.assertEqual((directory / filename).read_bytes(), before)
+                atomic_json(directory / filename, original)
 
     def test_delivery_foreign_scope_rejects_uncertain_or_malformed_evidence(self):
         directory, values = self._foreign_delivery_scope()
