@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import secrets
+import stat
 from typing import Any, TYPE_CHECKING
 
 from .locking import LockBusyError, exclusive_lock
@@ -33,6 +34,9 @@ SCOPE_RELEASE_SCHEMA_VERSION = 1
 SCOPE_FAILURE_BOUNDARIES_ENV = "ATRINIK_SCOPE_FAIL_AFTER"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _HEX64 = re.compile(r"[0-9a-f]{64}")
+_UTC_TIMESTAMP = re.compile(
+    r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?Z"
+)
 _LEGACY_IDENTITY_FIELDS = {
     "device",
     "inode",
@@ -99,6 +103,520 @@ def _mapping(values: list[str], context: str) -> dict[str, str]:
             raise WorkspaceError(f"{context} repeats checkout: {key}")
         result[key] = value
     return result
+
+
+class DeliveryScopeProof:
+    """Pinned read-only scope evidence for one admitted delivery operation.
+
+    Foreign namespaces must be absent, internally coherent, and disjoint from
+    the candidate. They remain external evidence; this never admits their
+    worktrees, releases their reservations, or changes cleanup behavior.
+    """
+
+    def __init__(self, workspace):
+        self.workspace = workspace
+        self.root = workspace.paths.scopes
+        self.stack = ExitStack()
+        self.directories = []
+        self.files = []
+        self.absences = []
+        self.records = {}
+        self.total = 0
+        self.external_namespaces = set()
+
+    @staticmethod
+    def _identity(info):
+        return (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_gid,
+                info.st_size, info.st_mtime_ns, info.st_ctime_ns, info.st_nlink)
+
+    @staticmethod
+    def _trusted(info, *, directory=False):
+        kind = stat.S_ISDIR if directory else stat.S_ISREG
+        if (not kind(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_mode & 0o022 or (not directory and info.st_nlink != 1)):
+            raise WorkspaceError("delivery scope evidence owner/type/mode is unsafe")
+
+    def _directory(self, path, parent=None):
+        from .model import _open_directory_nofollow
+        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+        descriptor = (_open_directory_nofollow(path, flags) if parent is None
+                      else os.open(path.name, flags, dir_fd=parent))
+        self.stack.callback(os.close, descriptor)
+        info = os.fstat(descriptor)
+        self._trusted(info, directory=True)
+        names = tuple(sorted(os.listdir(descriptor)))
+        if len(names) > 4096:
+            raise WorkspaceError("delivery scope inventory exceeds bound")
+        self.directories.append((path, parent, descriptor, self._identity(info), names))
+        return descriptor, names
+
+    def _file(self, parent, name):
+        from .workspace import _reject_duplicate_keys
+        descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+        self.stack.callback(os.close, descriptor)
+        info = os.fstat(descriptor)
+        self._trusted(info)
+        if info.st_size > 4 * 1024 * 1024:
+            raise WorkspaceError("delivery scope evidence exceeds bound")
+        raw = os.pread(descriptor, info.st_size + 1, 0)
+        self.total += len(raw)
+        if self.total > 32 * 1024 * 1024 or len(raw) != info.st_size:
+            raise WorkspaceError("delivery scope inventory exceeds bound or changed")
+        self.files.append((parent, name, descriptor, self._identity(info), raw))
+        return json.loads(raw, object_pairs_hook=_reject_duplicate_keys)
+
+    def __enter__(self):
+        if os.name != "posix" or any(not hasattr(os, name) for name in (
+                "O_DIRECTORY", "O_NOFOLLOW", "O_CLOEXEC", "pread")):
+            raise WorkspaceError("delivery scope proof requires POSIX descriptor support")
+        try:
+            if not self.root.exists() and not self.root.is_symlink():
+                self.absences.append(self.root)
+            else:
+                root_fd, names = self._directory(self.root)
+                for name in names:
+                    validate_name(name, "scope evidence name")
+                    directory, entries = self._directory(self.root / name, root_fd)
+                    if any(entry not in {"scope.json", "creation-journal.json", "reservation.json", "release-journal.json"}
+                           for entry in entries):
+                        raise WorkspaceError("delivery scope contains unknown evidence")
+                    self.records[name] = {entry: self._file(directory, entry) for entry in entries}
+            self.recheck()
+            return self
+        except (OSError, ValueError, RecursionError) as error:
+            self.stack.close()
+            raise WorkspaceError(f"cannot pin delivery scope evidence: {error}") from error
+        except BaseException:
+            self.stack.close()
+            raise
+
+    def __exit__(self, kind, value, traceback):
+        try:
+            if kind is None:
+                self.recheck()
+        finally:
+            self.stack.close()
+
+    def recheck(self):
+        try:
+            for path in self.absences:
+                if path.exists() or path.is_symlink():
+                    raise WorkspaceError("delivery scope absent namespace changed")
+            for path, parent, descriptor, identity, names in self.directories:
+                visible = os.stat(path if parent is None else path.name,
+                                  dir_fd=parent, follow_symlinks=False)
+                if (self._identity(visible) != identity
+                        or self._identity(os.fstat(descriptor)) != identity
+                        or tuple(sorted(os.listdir(descriptor))) != names):
+                    raise WorkspaceError("delivery scope directory identity changed")
+            for parent, name, descriptor, identity, raw in self.files:
+                if (self._identity(os.stat(name, dir_fd=parent, follow_symlinks=False)) != identity
+                        or self._identity(os.fstat(descriptor)) != identity
+                        or os.pread(descriptor, len(raw) + 1, 0) != raw):
+                    raise WorkspaceError("delivery scope evidence changed")
+        except OSError as error:
+            raise WorkspaceError("delivery scope evidence path changed") from error
+
+    @staticmethod
+    def _path(value):
+        if (not isinstance(value, str) or not value.startswith("/") or value == "/"
+                or str(Path(value)) != value or ".." in Path(value).parts
+                or any(ord(char) < 32 or ord(char) == 127 for char in value)):
+            raise WorkspaceError("foreign scope path is not canonical")
+        return Path(value)
+
+    @staticmethod
+    def _legacy_pair(value, first, second, *, allow_null=False):
+        present = {first, second} & set(value)
+        if not present:
+            return
+        if present != {first, second}:
+            raise WorkspaceError("foreign scope legacy identity is malformed")
+        if allow_null and all(value[key] is None for key in present):
+            return
+        if any(type(value[key]) is not int or value[key] < 0 for key in present):
+            raise WorkspaceError("foreign scope legacy identity is malformed")
+
+    @staticmethod
+    def _timestamp(value, context):
+        if not isinstance(value, str) or _UTC_TIMESTAMP.fullmatch(value) is None:
+            raise WorkspaceError(f"foreign scope {context} is invalid")
+        try:
+            parsed = datetime.fromisoformat(value.removesuffix("Z") + "+00:00")
+        except ValueError as error:
+            raise WorkspaceError(f"foreign scope {context} is invalid") from error
+        if parsed.utcoffset() != timezone.utc.utcoffset(parsed):
+            raise WorkspaceError(f"foreign scope {context} is invalid")
+        return parsed
+
+    def _recorded_identity(self, value, path, context, *, checkout=None):
+        required = {"path"} | ({"checkout"} if checkout is not None else set())
+        allowed = required | {"kind", "device", "inode"}
+        if (not isinstance(value, dict) or not required.issubset(value)
+                or not set(value).issubset(allowed)
+                or value.get("path") != str(path)
+                or value.get("kind", "directory") != "directory"
+                or (checkout is not None and value.get("checkout") != checkout)):
+            raise WorkspaceError(f"foreign scope {context} differs")
+        self._legacy_pair(value, "device", "inode")
+
+    def _recovery(self, journal, reservation, request, foreign_workspace, name):
+        recovery = journal["recovery"]
+        if recovery is None:
+            return None
+        base_keys = {
+            "status", "started_at", "source_status", "source_error",
+            "source_rollback", "observed_identities",
+        }
+        status = recovery.get("status") if isinstance(recovery, dict) else None
+        expected_keys = base_keys | ({"completed_at"} if status == "complete" else set())
+        if (not isinstance(recovery, dict) or set(recovery) != expected_keys
+                or (journal["status"], status) not in {
+                    ("recovery-required", "required"), ("complete", "complete")
+                }
+                or recovery.get("source_status") not in {
+                    "rolled-back", "recovery-required"
+                }
+                or (recovery.get("source_error") is not None
+                    and not isinstance(recovery["source_error"], str))
+                or not isinstance(recovery.get("source_rollback"), list)
+                or not all(isinstance(item, str) for item in recovery["source_rollback"])
+                or recovery.get("source_rollback") != journal["rollback"]):
+            raise WorkspaceError("foreign scope recovery lifecycle is uncertain")
+        reserved_at = self._timestamp(reservation["reserved_at"], "reservation time")
+        started_at = self._timestamp(recovery["started_at"], "recovery start time")
+        updated_at = self._timestamp(journal["updated_at"], "journal update time")
+        if not reserved_at <= started_at <= updated_at:
+            raise WorkspaceError("foreign scope recovery timestamps are inconsistent")
+        if status == "complete":
+            completed_at = self._timestamp(
+                recovery["completed_at"], "recovery completion time"
+            )
+            if completed_at < started_at or completed_at > updated_at:
+                raise WorkspaceError("foreign scope recovery timestamps are inconsistent")
+
+        identities = recovery["observed_identities"]
+        if (not isinstance(identities, dict)
+                or set(identities) != {"workspace", "scope", "repositories"}
+                or not isinstance(identities["repositories"], list)
+                or len(identities["repositories"]) != len(request["worktrees"])):
+            raise WorkspaceError("foreign scope recovery identities are invalid")
+        self._recorded_identity(
+            identities["workspace"], foreign_workspace,
+            "recovery workspace identity",
+        )
+        self._recorded_identity(
+            identities["scope"], foreign_workspace / "scopes" / name,
+            "recovery scope identity",
+        )
+        seen = set()
+        for identity, row in zip(identities["repositories"], request["worktrees"]):
+            if (not isinstance(row, dict) or not isinstance(row.get("checkout"), str)
+                    or not isinstance(row.get("primary_path"), str)):
+                raise WorkspaceError("foreign scope recovery repository membership is invalid")
+            checkout = row["checkout"]
+            if checkout in seen:
+                raise WorkspaceError("foreign scope recovery repository membership is invalid")
+            seen.add(checkout)
+            self._recorded_identity(
+                identity, Path(row["primary_path"]),
+                "recovery repository identity", checkout=checkout,
+            )
+        if seen != {row["checkout"] for row in request["worktrees"]}:
+            raise WorkspaceError("foreign scope recovery repository membership is invalid")
+        return status
+
+    @staticmethod
+    def _request_from_record(record):
+        try:
+            worktrees = record["worktrees"]
+            profile = record["profile"]
+            if not isinstance(worktrees, list) or not all(
+                    isinstance(row, dict) for row in worktrees):
+                raise KeyError
+            return {
+                "name": record["name"],
+                "base_profile": record["base_profile"],
+                "stack": record["stack"],
+                "requested_components": record["requested_components"],
+                "profile": {"name": profile["name"], "path": profile["path"]},
+                "topology": record["topology"],
+                "state_policy": record["state_policy"],
+                "worktrees": [
+                    {
+                        key: row[key]
+                        for key in (
+                            "checkout", "repository", "logical_components", "label",
+                            "branch", "start_point", "commit", "tree", "path",
+                            "primary_path",
+                        )
+                    }
+                    for row in worktrees
+                ],
+            }
+        except (KeyError, TypeError) as error:
+            raise WorkspaceError("foreign scope legacy recovery record is invalid") from error
+
+    def _absent_namespace(self, path):
+        # Every existing prefix is pinned without following symlinks. Presence
+        # of the foreign namespace would require its own live ownership proof.
+        if path in self.external_namespaces:
+            return
+        descriptor = os.open("/", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        self.stack.callback(os.close, descriptor)
+        prefix = Path("/")
+        for part in path.parts[1:]:
+            prefix /= part
+            try:
+                child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                                dir_fd=descriptor)
+            except FileNotFoundError:
+                self.absences.append(prefix)
+                self.external_namespaces.add(path)
+                return
+            self.stack.callback(os.close, child)
+            info = os.fstat(child)
+            if info.st_uid not in {0, os.geteuid()} or info.st_mode & 0o022:
+                raise WorkspaceError("foreign scope namespace ancestry is unsafe")
+            # Pin existing named ancestors as well as the first absent name.
+            identity = self._identity(info)
+            self.directories.append((prefix, descriptor, child, identity,
+                                     tuple(sorted(os.listdir(child)))))
+            descriptor = child
+        raise WorkspaceError("foreign scope namespace exists; live safety is uncertain")
+
+    def external_scopes(self, candidate):
+        self.recheck()
+        external = set()
+        lifecycle = ScopeLifecycle(self.workspace)
+        for name, evidence in self.records.items():
+            record = evidence.get("scope.json")
+            if "scope.json" in evidence and not isinstance(record, dict):
+                raise WorkspaceError("delivery scope completed record is malformed")
+            journal = evidence.get("creation-journal.json")
+            request = journal.get("request") if isinstance(journal, dict) else None
+            legacy_recovery = False
+            if (request is None and isinstance(record, dict)
+                    and isinstance(journal, dict)
+                    and journal.get("status") == "complete"
+                    and isinstance(journal.get("recovery"), dict)
+                    and journal["recovery"].get("status") == "complete"
+                    and "identities" not in journal):
+                request = self._request_from_record(record)
+                legacy_recovery = True
+            profile = record.get("profile") if isinstance(record, dict) else (
+                request.get("profile") if isinstance(request, dict) else None)
+            if not isinstance(profile, dict):
+                raise WorkspaceError("delivery scope lacks complete coordinate evidence")
+            profile_path = self._path(profile.get("path"))
+            foreign_workspace = profile_path.parent.parent
+            if foreign_workspace == self.workspace.paths.workspace:
+                continue
+            if (profile_path != foreign_workspace / "profiles" / f"scope-{name}.json"
+                    or not isinstance(journal, dict) or not isinstance(request, dict)
+                    or "release-journal.json" in evidence):
+                raise WorkspaceError("foreign scope evidence is incomplete or pending")
+            reservation = evidence.get("reservation.json")
+            journal_keys = {
+                "schema_version", "name", "generation", "request_sha256", "request",
+                "status", "updated_at", "identities", "boundaries", "worktrees",
+                "profile", "rollback", "error", "recovery",
+            }
+            if legacy_recovery:
+                journal_keys -= {"request", "identities"}
+            if (not isinstance(reservation, dict)
+                    or set(reservation) != {"schema_version", "name", "generation", "request_sha256", "reserved_at"}
+                    or type(reservation["schema_version"]) is not int or reservation["schema_version"] != 1
+                    or not isinstance(journal.get("worktrees"), list) or not journal["worktrees"]
+                    or journal.get("status") not in {"complete", "recovery-required", "rolled-back"}
+                    or set(journal) != journal_keys):
+                raise WorkspaceError("foreign scope reservation or journal is uncertain")
+            reserved_at = self._timestamp(
+                reservation["reserved_at"], "reservation time"
+            )
+            updated_at = self._timestamp(journal["updated_at"], "journal update time")
+            if updated_at < reserved_at:
+                raise WorkspaceError("foreign scope journal timestamps are inconsistent")
+            if any(journal.get(key) != reservation[key] for key in ("schema_version", "name", "generation", "request_sha256")):
+                raise WorkspaceError("foreign scope journal identity differs")
+            if (journal["name"] != name or _canonical_sha256(request) != journal["request_sha256"]
+                    or not isinstance(request.get("worktrees"), list) or not request["worktrees"]):
+                raise WorkspaceError("foreign scope request digest differs")
+            if (type(journal["schema_version"]) is not int
+                    or not isinstance(journal["boundaries"], list)
+                    or not all(isinstance(item, str) for item in journal["boundaries"])
+                    or not isinstance(journal["rollback"], list)
+                    or not all(isinstance(item, str) for item in journal["rollback"])
+                    or (journal["error"] is not None and not isinstance(journal["error"], str))):
+                raise WorkspaceError("foreign scope journal lifecycle is uncertain")
+            recovery_status = self._recovery(
+                journal, reservation, request, foreign_workspace, name
+            )
+            rows = journal["worktrees"]
+            if (len(rows) != len(request["worktrees"])
+                    or any(not isinstance(row, dict) or row.get("status") not in {"created", "planned", "rolled-back"}
+                           for row in rows)):
+                raise WorkspaceError("foreign scope worktree is changed or uncertain")
+            created_prefix = True
+            saw_uncreated = False
+            for row in rows:
+                if row["status"] == "created":
+                    if saw_uncreated:
+                        created_prefix = False
+                else:
+                    saw_uncreated = True
+            if (not created_prefix
+                    or (record is None and journal["status"] == "complete")
+                    or (journal["status"] == "rolled-back"
+                        and any(row["status"] == "created" for row in rows))
+                    or (journal["status"] == "complete"
+                        and any(row["status"] != "created" for row in rows))
+                    or (recovery_status == "complete" and record is None)):
+                raise WorkspaceError("foreign scope journal completion is inconsistent")
+            if ((journal["status"] == "complete" and journal["error"] is not None
+                 and recovery_status != "complete")
+                    or (journal["status"] in {"recovery-required", "rolled-back"}
+                        and not isinstance(journal["error"], str))):
+                raise WorkspaceError("foreign scope retained error is uncertain")
+            wrappers = set()
+            proof_rows = []
+            for retained, planned in zip(rows, request["worktrees"]):
+                if not isinstance(planned, dict) or any(retained.get(k) != v for k, v in planned.items()):
+                    raise WorkspaceError("foreign scope worktree request differs")
+                row_keys = set(planned) | {"status", "common_git_dir"}
+                if (not row_keys.issubset(retained)
+                        or not set(retained).issubset(row_keys | {"path_device", "path_inode"})):
+                    raise WorkspaceError("foreign scope worktree schema is invalid")
+                planned_row = retained["status"] == "planned"
+                self._legacy_pair(
+                    retained,
+                    "path_device",
+                    "path_inode",
+                    allow_null=planned_row,
+                )
+                checkout = self.workspace.manifest.by_checkout.get(planned.get("checkout"))
+                if checkout is None:
+                    raise WorkspaceError("foreign scope checkout is unknown")
+                primary = self._path(planned.get("primary_path"))
+                wrapper = primary
+                for _ in Path(checkout.path).parts:
+                    wrapper = wrapper.parent
+                if wrapper / checkout.path != primary:
+                    raise WorkspaceError("foreign scope primary coordinates differ")
+                wrappers.add(wrapper)
+                path = self._path(planned.get("path"))
+                if path == candidate or path in candidate.parents or candidate in path.parents:
+                    raise WorkspaceError("foreign scope overlaps delivery candidate")
+                common = retained.get("common_git_dir")
+                if ((planned_row and (
+                        common is not None
+                        or ("path_device" in retained
+                            and retained["path_device"] is not None)))
+                        or (retained["status"] != "planned" and not isinstance(common, str))):
+                    raise WorkspaceError("foreign scope Git evidence is incomplete")
+                if common is not None and self._path(common) != primary / ".git":
+                    raise WorkspaceError("foreign scope Git authority is ambiguous")
+                proof_rows.append({**planned, "common_git_dir": common or str(primary / ".git"), "created_by_scope": True})
+            if len(wrappers) != 1:
+                raise WorkspaceError("foreign scope has ambiguous wrapper roots")
+            foreign_wrapper = wrappers.pop()
+            if foreign_wrapper == self.workspace.paths.repository:
+                raise WorkspaceError("foreign scope shares current wrapper coordinates")
+            for path in (foreign_wrapper, foreign_workspace):
+                if path == candidate or path in candidate.parents or candidate in path.parents:
+                    raise WorkspaceError("foreign scope namespace overlaps delivery candidate")
+            identities = journal.get("identities")
+            if identities is None and not legacy_recovery:
+                raise WorkspaceError("foreign scope root identities are invalid")
+            if identities is not None:
+                if (not isinstance(identities, dict)
+                        or set(identities) != {"workspace", "scope", "repositories"}
+                        or not isinstance(identities["repositories"], list)
+                        or len(identities["repositories"]) != len(rows)):
+                    raise WorkspaceError("foreign scope root identities are invalid")
+                self._recorded_identity(
+                    identities["workspace"], foreign_workspace, "root identity"
+                )
+                self._recorded_identity(
+                    identities["scope"], foreign_workspace / "scopes" / name,
+                    "root identity",
+                )
+                seen_identities = set()
+                for identity, row in zip(identities["repositories"], rows):
+                    if (not isinstance(identity, dict)
+                            or identity.get("checkout") in seen_identities):
+                        raise WorkspaceError("foreign scope primary identity differs")
+                    seen_identities.add(identity.get("checkout"))
+                    self._recorded_identity(
+                        identity, Path(row["primary_path"]), "primary identity",
+                        checkout=row["checkout"],
+                    )
+            journal_profile = journal["profile"]
+            if (not isinstance(journal_profile, dict)
+                    or not {"name", "path", "status", "sha256"}.issubset(journal_profile)
+                    or not set(journal_profile).issubset({"name", "path", "status", "sha256", "path_device", "path_inode"})
+                    or journal_profile["name"] != profile["name"]
+                    or journal_profile["path"] != str(profile_path)
+                    or journal_profile["status"] not in {
+                        "created", "planned", "rolled-back", "reference-published"
+                    }):
+                raise WorkspaceError("foreign scope profile evidence is uncertain")
+            planned_profile = journal_profile["status"] == "planned"
+            self._legacy_pair(
+                journal_profile,
+                "path_device",
+                "path_inode",
+                allow_null=planned_profile,
+            )
+            profile_digest = journal_profile["sha256"]
+            if ((profile_digest is not None and (not isinstance(profile_digest, str)
+                                                 or _HEX64.fullmatch(profile_digest) is None))
+                    or (journal_profile["status"] == "created" and profile_digest is None)
+                    or (planned_profile and (
+                        profile_digest is not None
+                        or ("path_device" in journal_profile
+                            and journal_profile["path_device"] is not None)))
+                    or (journal_profile["status"] in {"created", "reference-published"}
+                        and any(row["status"] != "created" for row in rows))
+                    or (journal["status"] == "rolled-back"
+                        and journal_profile["status"] in {"created", "reference-published"})
+                    or (journal["status"] == "complete"
+                        and journal_profile["status"] != "created")):
+                raise WorkspaceError("foreign scope profile completion is inconsistent")
+            if record is None:
+                # Validate the original producer request using the same strict
+                # record grammar, without claiming a completed live worktree.
+                record = lifecycle._record(request, journal["request_sha256"], journal["generation"],
+                    reservation["reserved_at"], proof_rows, "0" * 64)
+                record["cleanup"] = {"policy": "explicit-preview-first",
+                    "journal": str(foreign_workspace / "scopes" / name / "creation-journal.json"),
+                    "release_journal": str(foreign_workspace / "scopes" / name / "release-journal.json")}
+            elif (journal["status"] not in {"complete", "recovery-required"}
+                    or any(row["status"] != "created" for row in rows)
+                    or journal_profile["status"] != "created"
+                    or journal_profile["sha256"] != profile.get("sha256")
+                    or any(record.get(key) != journal[key] for key in ("name", "generation", "request_sha256"))):
+                raise WorkspaceError("foreign completed scope has uncertain journal")
+            if type(record.get("schema_version")) is not int:
+                raise WorkspaceError("foreign scope schema is invalid")
+            self._timestamp(record.get("created_at"), "record creation time")
+            if record.get("created_at") != reservation["reserved_at"]:
+                raise WorkspaceError("foreign scope record timestamp differs")
+            lifecycle._validate_record(record, name, coordinate_roots=(foreign_wrapper, foreign_workspace))
+            for row in [record["profile"], *record["worktrees"]]:
+                self._legacy_pair(row, "path_device", "path_inode")
+            expected_rows = [{key: row[key] for key in planned} for row, planned in zip(record["worktrees"], request["worktrees"])]
+            if expected_rows != request["worktrees"]:
+                raise WorkspaceError("foreign scope record differs from journal request")
+            if evidence.get("scope.json") is not None and any(
+                    record_row["common_git_dir"] != journal_row["common_git_dir"]
+                    for record_row, journal_row in zip(record["worktrees"], rows)):
+                raise WorkspaceError("foreign scope Git evidence differs")
+            self._absent_namespace(foreign_wrapper)
+            self._absent_namespace(foreign_workspace)
+            external.add(name)
+        self.recheck()
+        return frozenset(external)
 
 
 class ScopeLifecycle:
@@ -1391,7 +1909,13 @@ class ScopeLifecycle:
         self._validate_record(value, name)
         return value
 
-    def _validate_record(self, value: Any, name: str) -> None:
+    def _validate_record(
+        self, value: Any, name: str, *, coordinate_roots: tuple[Path, Path] | None = None
+    ) -> None:
+        # External delivery evidence is validated against its original lexical
+        # namespace. Ordinary show/recovery/cleanup always use current roots.
+        wrapper, workspace = coordinate_roots or (self.paths.repository, self.paths.workspace)
+        validate_name(name, "scope name")
         if not isinstance(value, dict):
             raise WorkspaceError(f"scope record is invalid: {name}")
         expected = {
@@ -1461,12 +1985,14 @@ class ScopeLifecycle:
             )
             if row.get("logical_components") != expected_components:
                 raise WorkspaceError(f"scope logical checkout coverage is invalid: {name}")
-            expected_path = self.paths.worktrees / checkout / row["label"]
+            validate_name(row["label"], "scope worktree label")
+            expected_path = workspace / "worktrees" / checkout / row["label"]
             if Path(row["path"]) != expected_path:
                 raise WorkspaceError(f"scope worktree path is invalid: {name}")
-            if Path(row["primary_path"]) != self.workspace._primary_path(
-                self.workspace.manifest.by_checkout[checkout]
-            ):
+            primary = (self.workspace._primary_path(self.workspace.manifest.by_checkout[checkout])
+                       if coordinate_roots is None else
+                       wrapper / self.workspace.manifest.by_checkout[checkout].path)
+            if Path(row["primary_path"]) != primary:
                 raise WorkspaceError(f"scope primary checkout path is invalid: {name}")
         profile = value.get("profile")
         topology = value.get("topology")
@@ -1479,7 +2005,7 @@ class ScopeLifecycle:
             or not set(profile).issubset(expected_profile | legacy_profile)
         ):
             raise WorkspaceError(f"scope profile record is invalid: {name}")
-        if profile.get("path") != str(self.paths.profiles / f"{profile.get('name')}.json"):
+        if profile.get("path") != str(workspace / "profiles" / f"{profile.get('name')}.json"):
             raise WorkspaceError(f"scope profile path is invalid: {name}")
         if profile.get("name") != f"scope-{name}":
             raise WorkspaceError(f"scope profile name is invalid: {name}")
@@ -1489,7 +2015,7 @@ class ScopeLifecycle:
             not isinstance(topology, dict)
             or set(topology) != {"name", "path"}
             or not isinstance(topology.get("name"), str)
-            or topology.get("path") != str(self.paths.topologies / topology["name"])
+            or topology.get("path") != str(workspace / "topologies" / topology["name"])
         ):
             raise WorkspaceError(f"scope topology record is invalid: {name}")
         if (
@@ -1562,8 +2088,8 @@ class ScopeLifecycle:
             not isinstance(cleanup, dict)
             or set(cleanup) != {"policy", "journal", "release_journal"}
             or cleanup.get("policy") != "explicit-preview-first"
-            or cleanup.get("journal") != str(self._journal_path(name))
-            or cleanup.get("release_journal") != str(self._release_path(name))
+            or cleanup.get("journal") != str(workspace / "scopes" / name / "creation-journal.json")
+            or cleanup.get("release_journal") != str(workspace / "scopes" / name / "release-journal.json")
         ):
             raise WorkspaceError(f"scope cleanup coordinates are invalid: {name}")
         request = {
@@ -1611,7 +2137,7 @@ class ScopeLifecycle:
         }
         if value["commands"] != canonical_commands:
             raise WorkspaceError(f"scope commands do not match exact coordinates: {name}")
-        if value["cleanup"] != canonical["cleanup"]:
+        if coordinate_roots is None and value["cleanup"] != canonical["cleanup"]:
             raise WorkspaceError(f"scope cleanup does not match exact coordinates: {name}")
 
         def forbidden_key(candidate: Any) -> bool:

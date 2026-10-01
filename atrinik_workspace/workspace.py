@@ -33,7 +33,7 @@ import time
 from typing import Any, Callable, Iterator, TextIO
 import zipfile
 
-from . import coordinator_context
+from . import coordinator_context, runtime_handoff
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
 from .docker_storage import windows_package_volume_mounts
@@ -495,6 +495,52 @@ def run(
 
 
 _BUILD_PLAN_GIT = ContextVar("build_plan_git", default=False)
+_RUNTIME_HANDOFF = ContextVar("runtime_handoff", default=None)
+
+
+def runtime_handoff_sources(plan, wrapper_repository):
+    """Project only immutable source coordinates from a proved public plan."""
+    from . import runtime_handoff as public
+    manifest = Manifest.from_value(plan["manifest"])
+    repositories = {checkout.name: checkout.repository for checkout in manifest.checkouts}
+    states = dict(plan["checkout_states"])
+    states["wrapper"] = {"path": plan["wrapper_root"]}
+    repositories["wrapper"] = wrapper_repository
+    result = []
+    for name, state in sorted(states.items()):
+        path = Path(state["path"])
+        if not _read_only_checkout_observation(path)["clean"]:
+            raise WorkspaceError("runtime handoff source is dirty")
+        commit = git(path, "rev-parse", "HEAD", capture=True, trace=False)
+        tree = git(path, "rev-parse", "HEAD^{tree}", capture=True, trace=False)
+        branch = git(path, "symbolic-ref", "--short", "HEAD", capture=True, trace=False)
+        if "head" in state and state["head"] != commit:
+            raise WorkspaceError("runtime handoff source commit changed")
+        fingerprints = {role: {key: (_tree_digest(Path(key), {".git"}, bounded_symlinks=True)
+                                     if Path(key).is_dir() else _file_digest(Path(key), "runtime handoff source"))
+                               for key in paths if Path(key) == path or path in Path(key).parents}
+                        for role, paths in plan["source_fingerprints"].items()}
+        result.append({"checkout": name, "repository": repositories[name], "branch": branch,
+                       "path": str(path), "commit": commit, "tree": tree,
+                       "sha256": public.digest(fingerprints if name != "wrapper" else {"tree": tree})})
+    return result
+
+
+def runtime_handoff_artifacts(paths):
+    return [{"path": path, "sha256": _tree_digest(Path(path), set(), bounded_symlinks=True)}
+            for path in sorted(set(paths))]
+
+
+def _recheck_runtime_handoff():
+    active = _RUNTIME_HANDOFF.get()
+    if active is None:
+        return
+    value, recheck, plan = active
+    wrapper = next(row["repository"] for row in value["sources"] if row["checkout"] == "wrapper")
+    if (runtime_handoff_sources(plan, wrapper) != value["sources"]
+            or runtime_handoff_artifacts([row["path"] for row in value["artifacts"]]) != value["artifacts"]):
+        raise WorkspaceError("runtime handoff source or artifact digest changed")
+    recheck()
 
 
 def _retained_producer_reads(function):
@@ -503,11 +549,44 @@ def _retained_producer_reads(function):
 
     @wraps(function)
     def guarded(*arguments, **keywords):
-        if keywords.get("retained_build_plan") is None:
+        handoff = keywords.pop("runtime_handoff", None)
+        issue = keywords.pop("handoff_issue", None)
+        attempt = keywords.pop("handoff_attempt", None)
+        publisher = keywords.pop("handoff_publisher", None)
+        endpoint = keywords.pop("handoff_endpoint", None)
+        expected = keywords.get("retained_build_plan")
+        if handoff is None and (issue is not None or attempt is not None or publisher is not None or endpoint is not None):
+            raise WorkspaceError("handoff issue/attempt requires --runtime-handoff")
+        if expected is None and handoff is None:
             return function(*arguments, **keywords)
         token = _BUILD_PLAN_GIT.set(True)
         try:
-            return function(*arguments, **keywords)
+            if handoff is None:
+                return function(*arguments, **keywords)
+            from . import runtime_handoff as public
+            workspace = arguments[0]
+            if any((root / "build/reviews").exists() for root in workspace._delivery_evidence_roots()):
+                raise WorkspaceError("runtime handoff consume requires the isolated executor without private review mounts")
+            from inspect import signature
+            bound = signature(function).bind(*arguments, **keywords).arguments
+            name = bound.get("name")
+            profile, state = bound["profile_name"], bound["state_name"]
+            binding = dict(issue=issue, attempt=attempt, wrapper=str(workspace.paths.repository),
+                           workspace=str(workspace.paths.workspace), profile=profile, topology=name,
+                           state=state, plan=expected, publisher=publisher, endpoint=endpoint)
+            with public.consume(workspace.paths.builds, handoff, binding) as (value, recheck):
+                options = value["plan"]
+                plan = workspace.build_plan("server", profile, True,
+                    force_reconfigure=options["force_reconfigure"], use_ccache=options["use_ccache"],
+                    retained_content_input=options["retained_content_input"])
+                if plan["plan_sha256"] != expected:
+                    raise WorkspaceError("runtime handoff build plan changed")
+                active = _RUNTIME_HANDOFF.set((value, recheck, plan))
+                try:
+                    _recheck_runtime_handoff()
+                    return function(*arguments, **keywords)
+                finally:
+                    _RUNTIME_HANDOFF.reset(active)
         finally:
             _BUILD_PLAN_GIT.reset(token)
     return guarded
@@ -2448,9 +2527,14 @@ class _DeliveryWorkspacePreparation:
         self._verify_identity()
         self.__admitted = True
         try:
-            yield self.__workspace
-            self._verify_identity()
+            from .scopes import DeliveryScopeProof
+
+            with DeliveryScopeProof(self.__workspace) as proof:
+                self.__workspace._delivery_scope_proof = proof
+                yield self.__workspace
+                self._verify_identity()
         finally:
+            self.__workspace._delivery_scope_proof = None
             self.__admitted = False
 
     @property
@@ -3248,6 +3332,8 @@ class Workspace:
             else Manifest.load(self.paths.repository / "components.json")
         )
         self._wrapper_lease: Any = None
+        self._delivery_scope_proof = None
+        self._owns_delivery_scope_proof = False
         self._build_state = threading.local()
         self._prefix_map_support: dict[
             tuple[str, str, str | None, str | None], bool
@@ -3282,6 +3368,17 @@ class Workspace:
     def close(self) -> None:
         """Release the command-lifetime wrapper and maintenance leases."""
 
+        if self._owns_delivery_scope_proof:
+            proof = self._delivery_scope_proof
+            self._owns_delivery_scope_proof = False
+            self._delivery_scope_proof = None
+            try:
+                proof.__exit__(*sys.exc_info())
+            finally:
+                wrapper_lease = self._wrapper_lease
+                self._wrapper_lease = None
+                if wrapper_lease is not None:
+                    wrapper_lease.__exit__(None, None, None)
         wrapper_lease = self._wrapper_lease
         if wrapper_lease is not None:
             self._wrapper_lease = None
@@ -7012,6 +7109,15 @@ class Workspace:
             raise WorkspaceError("profile inventory authority is ambiguous")
         if profiles_inventory is not None and profiles_directory_fd is None:
             raise WorkspaceError("retained profile inventory has no directory authority")
+        # Primitive binding supplies retained descriptor-bound profile evidence;
+        # all-target admission installs the same scope proof in admitted().
+        # Ordinary cleanup/reference callers never enter this proof boundary.
+        if ((profiles_inventory is not None or profiles_directory_absent)
+                and self._delivery_scope_proof is None):
+            from .scopes import DeliveryScopeProof
+
+            self._delivery_scope_proof = DeliveryScopeProof(self).__enter__()
+            self._owns_delivery_scope_proof = True
         target = source_root.resolve()
         references: list[str] = self._scope_source_references(target)
         for record in self._physical_reference_records():
@@ -7219,13 +7325,18 @@ class Workspace:
     def _scope_source_references(self, target: Path) -> list[str]:
         """Keep complete or recoverable scope inputs visible to cleanup."""
 
+        proof = getattr(self, "_delivery_scope_proof", None)
+        external = frozenset() if proof is None else proof.external_scopes(target)
+        records = self._scope_reference_records(external=external)
+        if proof is not None:
+            proof.recheck()
         return [
             f"scope:{name}"
-            for name, path in self._scope_reference_records()
+            for name, path in records
             if path.resolve(strict=False) == target
         ]
 
-    def _scope_reference_records(self) -> list[tuple[str, Path]]:
+    def _scope_reference_records(self, *, external: frozenset[str] = frozenset()) -> list[tuple[str, Path]]:
         """Return exact source paths retained by complete or recoverable scopes."""
 
         from .scopes import (
@@ -7250,6 +7361,8 @@ class Workspace:
                 raise WorkspaceError(
                     f"cannot prove scope reference directory: {directory}"
                 )
+            if directory.name in external:
+                continue
             record_path = directory / "scope.json"
             journal_path = directory / "creation-journal.json"
             release_path = directory / "release-journal.json"
@@ -20925,6 +21038,14 @@ class Workspace:
     def _retained_runtime_plan(self, name, profile_name, state_name, expected):
         """Resolve only a validated same-namespace retained producer declaration."""
         from .delivery import inventory_active_delivery_evidence
+        active = _RUNTIME_HANDOFF.get()
+        if active is not None:
+            value, recheck, plan = active
+            if (name not in (None, value["topology"]) or profile_name != value["profile"]
+                    or state_name != value["state"] or expected != value["plan"]["sha256"]):
+                raise WorkspaceError("runtime handoff producer coordinates changed")
+            recheck()
+            return plan
         if expected is not None and (not isinstance(expected, str) or re.fullmatch(r"[0-9a-f]{64}", expected) is None):
             raise WorkspaceError("retained runtime plan must be an exact SHA-256 digest")
         matches = {}
@@ -21708,6 +21829,7 @@ class Workspace:
                         raise WorkspaceError(
                             f"server state changed before topology launch: {state}"
                         )
+                _recheck_runtime_handoff()
                 # All fallible preparation is complete. Retire the stopped
                 # record and bind/publish the new generation without exposing
                 # old status against rewritten lease contents.
@@ -21824,6 +21946,7 @@ class Workspace:
                     with inherited_subprocess_handles(
                         tuple(inherited_locks)
                     ) as inheritance:
+                        _recheck_runtime_handoff()
                         process = subprocess.Popen(
                             command,
                             cwd=self.paths.repository,
@@ -21885,6 +22008,7 @@ class Workspace:
                             isinstance(runtime, dict)
                             and runtime.get("generation") == generation
                         ):
+                            _recheck_runtime_handoff()
                             self._clear_runtime_state_output_transaction(
                                 topology_root
                             )
@@ -21894,6 +22018,7 @@ class Workspace:
                             )
                         if status["supervisor"]["running"] and status["ready"]:
                             process.wait(timeout=2)
+                            _recheck_runtime_handoff()
                             if superseded_temporary_policy is not None:
                                 try:
                                     self._remove_superseded_temporary_state(

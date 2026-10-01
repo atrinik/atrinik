@@ -222,6 +222,17 @@ ledger authorizes that holder. Extra components, malformed selectors, invalid
 profile metadata, and every other uncertainty fail closed. Observation and
 binding never rewrite the historical profile.
 
+Within delivery reference proof, a complete or recoverable scope from an absent
+foreign wrapper/workspace namespace may remain external if its bounded original
+record, request digest, reservation and journal agree and cannot reference the
+candidate. Descriptor-relative reads retain no-follow owner/type checks, exact
+directory membership and file bytes through observation and CAS rechecks.
+Present foreign namespaces, aliases, overlap, malformed or changed/uncertain
+journals and release evidence fail closed. Current scopes retain their live
+checks; ordinary scope inspection and cleanup never use this classification.
+Use the unchanged public observation/bind/revalidation commands only after this
+wrapper support is merged; never rewrite historical coordinates for admission.
+
 Delivery opens `profiles` as a direct no-follow child of the pinned workspace
 root, caps its inventory at 4096 entries and 32 MiB of JSON, and reads candidate JSON relative to
 that descriptor. It snapshots and rechecks the exact sorted entry names plus

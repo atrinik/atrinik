@@ -197,7 +197,7 @@ The stages are an append-only prefix; no caller-authored successor is accepted:
    topology name and registered scenario state with the retained plan fence:
 
    ```sh
-   ./atrinik topology show --profile PROFILE --state SCENARIO_STATE \
+   ./atrinik topology show PROFILE --state SCENARIO_STATE \
      --service server --server-listener all-ipv4 \
      --retained-build-plan SHA256 --json
    ./atrinik up --name TOPOLOGY --profile PROFILE --state SCENARIO_STATE \
@@ -292,3 +292,11 @@ retry and reconnect reproves the merged content provenance and source views;
 missing provenance, foreign roots/repositories/branches or changed history stop
 without rewriting the retained evidence. This is dependency admission only;
 runtime and hardware/audio qualification still belong to the consumer delivery.
+
+For isolated executors that cannot read private delivery evidence, use the
+[public runtime handoff](../../../../docs/RUNTIME_HANDOFF.md) after its helper is
+accepted. `runtime-handoff-publish` projects the exact completed retained tested
+plan and serves a bounded live verification lease in the existing shared build
+namespace. Preserve the private review mounts, original ledger and all historical
+envelopes. Use `topology show PROFILE` with the emitted issue/attempt and plan
+arguments; a copied envelope without its live publisher never authorizes startup.

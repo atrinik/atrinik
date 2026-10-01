@@ -1,6 +1,16 @@
-# Delivery preparation and recovery
+# Retained-resource delivery preparation and recovery
 
-Read on first entry, recovery, or coordinate/authority drift; retain the proven
+Read only for an exact existing bound delivery or work requiring the retained
+ledger/resource protocol. New source-only issue/PR work follows
+[source delivery](../../../../docs/SOURCE_DELIVERY.md), using ordinary owned Git
+worktrees and scoped collision checks. These complete-inventory and prebinding
+requirements are not universal source-work prerequisites. A blocker here stops
+the relevant retained operation/resource, not unrelated fresh source work.
+Never silently migrate an existing bound delivery to the ordinary route.
+Isolated tooling repair can prepare and test its PR under the source route;
+candidate code cannot grant itself live authority or admit retained resources.
+
+For this retained route, read on first entry, recovery, or coordinate/authority drift; retain the proven
 coordinate packet during an uninterrupted session. The helper still performs
 its required live checks before each protected action.
 
@@ -234,6 +244,14 @@ grants no additional task authority.
 
 
 ## Revalidate unchanged bound targets on reconnect
+
+The accepted wrapper's admitted live proof can classify internally consistent
+historical scope records from an absent foreign namespace as external when they
+cannot reference the exact candidate. Use ordinary `worktree-observe` and
+`worktree-bind-cas`; do not edit, hide, relocate or release the old scope to obtain
+admission. Malformed, changed/uncertain, overlapping, aliased or present foreign
+coordinates still block. Ordinary scope inspection and cleanup remain strict.
+An unmerged candidate implementation never authorizes another delivery's bind.
 
 After the canonical probe, authenticated selection and complete collision
 inventory above, run the ledger protocol's public

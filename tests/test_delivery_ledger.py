@@ -13078,6 +13078,113 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertEqual(ledger.inspect(root, recorded.name).raw, recorded.raw)
                 self.assertEqual(ledger.canonical_bytes(next(row["correction"] for row in recorded.document["resources"] if "correction" in row)), original_proof)
 
+    def test_runtime_handoff_retained_public_forward(self):
+        # Fixture-only defaults: production deliberately rejects writable host
+        # Git origins, and this forward test must not adopt the user's config.
+        fixture_home = self.live_base / "handoff-home"
+        fixture_home.mkdir(mode=0o700)
+        with mock.patch.dict(os.environ, {"HOME": str(fixture_home),
+                                         "XDG_CONFIG_HOME": str(fixture_home / ".config")}):
+            self.retained_dependency_advance_forward(handoff=True)
+
+    def runtime_handoff_forward_fixture(self, root, snapshot, live, plan):
+        import multiprocessing
+        from atrinik_workspace import runtime_handoff as public
+        selected = snapshot.document["issues"]["explicit"][0]
+        issue = f"{selected['repository']['owner']}/{selected['repository']['name']}#{selected['number']}"
+        context = multiprocessing.get_context("fork")
+        queue = context.Queue()
+        def serve():
+            try:
+                with mock.patch.object(ledger, "_print", side_effect=queue.put), mock.patch.object(
+                        ledger, "_gh_json", return_value={"id": selected["node_id"], "state": "OPEN"}):
+                    ledger.runtime_handoff_publish(root, snapshot.name, **cas_arguments(snapshot),
+                        issue=issue, lease_id="7" * 64, ttl_seconds=120)
+            except BaseException as error:
+                queue.put({"error": str(error)})
+        process = context.Process(target=serve)
+        process.start()
+        try:
+            result = queue.get(timeout=30)
+            self.assertNotIn("error", result, result.get("error"))
+            path = Path(result["path"])
+            raw = path.read_bytes()
+            value = public.decode(raw)
+            self.assertEqual(value["generation"], snapshot.document["generation"])
+            self.assertEqual(value["ledger_sha256"], snapshot.digest)
+            self.assertEqual(value["plan"]["sha256"], plan["plan_sha256"])
+            for forbidden in (str(root).encode(), b"raw_base64", b"build_log", b"private_worker_result"):
+                self.assertNotIn(forbidden, raw)
+            binding = dict(issue=issue, attempt=value["attempt_sha256"], wrapper=str(live),
+                workspace=str(live / "workspace"), profile=value["profile"], topology=value["topology"],
+                state=value["state"], plan=plan["plan_sha256"],
+                publisher=result["publisher_fingerprint"], endpoint=result["endpoint_fingerprint"])
+            for _ in range(2):
+                with public.consume(live / "workspace/build", value["lease_id"], binding) as (_, recheck):
+                    recheck()
+            image = os.environ.get("ATRINIK_HANDOFF_EXECUTOR_IMAGE")
+            if image:
+                # The disposable executor receives only the wrapper package and
+                # shared public build mount. Its private coordinator root is
+                # absent, rather than hidden by a Python mocking seam.
+                script = (
+                    "import json,pathlib,sys; from atrinik_workspace.runtime_handoff import consume; "
+                    "private=pathlib.Path(sys.argv[1]); assert not private.exists(); "
+                    "binding=json.loads(sys.argv[4]); "
+                    "session=consume(pathlib.Path(sys.argv[2]),sys.argv[3],binding); "
+                    "value,recheck=session.__enter__(); recheck(); session.__exit__(None,None,None); "
+                    "print(json.dumps({'status':'verified','private_review_root':'absent'}))"
+                )
+                command = ["docker", "run", "--rm", "--pull", "never", "--network", "none",
+                    "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+                    "--user", f"{os.getuid()}:{os.getgid()}", "--tmpfs", "/tmp:rw,nosuid,nodev,mode=1777",
+                    "--env", "PYTHONDONTWRITEBYTECODE=1", "--env", "PYTHONPATH=/opt/handoff",
+                    "--mount", f"type=bind,source={ROOT / 'atrinik_workspace'},target=/opt/handoff/atrinik_workspace,readonly",
+                    "--mount", f"type=bind,source={live / 'workspace/build'},target={live / 'workspace/build'},readonly",
+                    image, "python3", "-c", script, str(root), str(live / "workspace/build"),
+                    value["lease_id"], json.dumps(binding)]
+                executed = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                self.assertEqual(executed.returncode, 0, executed.stderr)
+                self.assertEqual(json.loads(executed.stdout), {"status": "verified", "private_review_root": "absent"})
+                # Execute the emitted wrapper inspection through the real CLI
+                # and decorator too. Only disposable fixture sources, workspace
+                # and Git administration are added, never primary build/reviews.
+                common = Path(git_run(live, "rev-parse", "--path-format=absolute", "--git-common-dir").stdout.strip())
+                arguments = list(result["commands"]["inspect"][1:])
+                arguments[arguments.index("--handoff-publisher") + 1] = result["publisher_fingerprint"]
+                arguments[arguments.index("--handoff-endpoint") + 1] = result["endpoint_fingerprint"]
+                cli_script = (
+                    "import json,pathlib,sys; from atrinik_workspace import cli; "
+                    "assert not pathlib.Path(sys.argv[1]).exists(); "
+                    "cli.ROOT=pathlib.Path(sys.argv[2]); "
+                    "raise SystemExit(cli.main(json.loads(sys.argv[3])))"
+                )
+                cli_command = command[:command.index(image)] + [
+                    "--env", f"ATRINIK_WORKSPACE_DIR={live / 'workspace'}",
+                    "--env", "HOME=/tmp/fixture-home",
+                    "--mount", f"type=bind,source={live},target={live},readonly",
+                    "--mount", f"type=bind,source={live / 'workspace'},target={live / 'workspace'}",
+                    "--mount", f"type=bind,source={common},target={common}",
+                    image, "python3", "-c", cli_script, str(root), str(live), json.dumps(arguments)]
+                inspected = subprocess.run(cli_command, capture_output=True, text=True, timeout=30)
+                self.assertEqual(inspected.returncode, 0, inspected.stderr)
+                self.assertEqual(json.loads(inspected.stdout)["profile"], value["profile"])
+                print(json.dumps({"handoff_executor_image": image, "package_mount": str(ROOT / "atrinik_workspace"),
+                    "public_mount": str(live / "workspace/build"), "private_review_root": "absent",
+                    "cli_fixture_source": str(live), "cli_fixture_workspace": str(live / "workspace"),
+                    "cli_fixture_git": str(common), "wrapper_command": arguments, "wrapper_status": "verified"}))
+            public.revoke(live / "workspace/build", value["lease_id"], issue=issue,
+                          attempt=value["attempt_sha256"], publisher=binding["publisher"], endpoint=binding["endpoint"])
+            process.join(10)
+            self.assertEqual(process.exitcode, 0)
+            self.assertEqual(path.read_bytes(), raw)
+            self.assertEqual(ledger.inspect(root, snapshot.name).raw, snapshot.raw)
+        finally:
+            if process.is_alive():
+                process.terminate()
+            process.join(5)
+            queue.close()
+
     def test_retained_dependency_advance_public_declaration_and_plan(self):
         self.retained_dependency_advance_forward()
 
@@ -13090,7 +13197,7 @@ class DeliveryLedgerTests(unittest.TestCase):
     def test_retained_content_successor_from_completed_604_build(self):
         self.retained_dependency_advance_forward(content=True, classic_advance=True, late_content=True)
 
-    def retained_dependency_advance_forward(self, *, content=False, classic_advance=True, late_content=False):
+    def retained_dependency_advance_forward(self, *, content=False, classic_advance=True, late_content=False, handoff=False):
         from atrinik_workspace.workspace import Workspace
         root, before, correction_request, _ = self.observation_transaction_fixture("advance", live_resources=True)
         corrected = ledger.correct_resource_observations_cas(root, before.name, correction_request, **cas_arguments(before))
@@ -13401,6 +13508,8 @@ class DeliveryLedgerTests(unittest.TestCase):
             built = public(planned, built_request)
             self.assertEqual(built.document["dependency_advance"]["steps"][:3], prefix["steps"])
             self.assertEqual(next(row for row in built.document["resources"] if row["slot_id"] == "advanced-build"), previous_row)
+        if handoff:
+            self.runtime_handoff_forward_fixture(root, built, live, plan)
         from atrinik_workspace.model import WorkspaceError
         old_runtime = Path(correction["observations"]["topology"]["status"]["build_root"])
         historical_files = {str(path.relative_to(old_runtime)): path.read_bytes() for path in old_runtime.rglob("*") if path.is_file()}

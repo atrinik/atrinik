@@ -1,109 +1,91 @@
 ---
 name: atrinik-project-delivery
-description: Coordinate Atrinik multi-issue projects with parallel workers, dependencies, recovery, and scoped GitHub tracking; retain issue delivery for individual leaves.
+description: Coordinate an authorized Atrinik multi-issue project across repositories with parallel owned worktrees, dependencies, review, and acceptance. Use issue delivery instead for a single existing issue or PR.
 ---
 
 # Coordinate an Atrinik project
 
-Own one authorized parent and its acceptance criteria through delivery and
-integration. Launch and manage workers yourself; do not ask the user to relay
-messages, launch chats, or exchange commits. Create a persistent goal only on
-explicit request. Automatic skill selection is not write authority.
+Own the authorized project through verified acceptance. Launch, direct, reuse,
+and review workers yourself; do not ask the user to relay messages or restart a
+session merely to cross a milestone. Create a persistent goal only when the user
+explicitly requests one. Skill selection is not write authority.
 
-## Establish authority and readiness
+Read [the operator protocol](references/coordinator.md). Use
+`atrinik-multi-repo-workspace` when wrapper topology, profiles, or managed
+worktrees change. Use the canonical [source delivery contract](../../../docs/SOURCE_DELIVERY.md)
+for each new source-only leaf. Invoke `atrinik-issue-delivery` only for an
+existing bound issue/PR delivery or an operation that needs its ledger, shared
+runtime, or resource protocol; never silently migrate existing state.
+New source work normally uses an owned native Linux worktree; an isolated build
+container may run toolchain checks without owning the delivery.
 
-Read `atrinik-multi-repo-workspace`, the live `atrinik-issue-delivery` entry,
-and [the operator protocol](references/coordinator.md). Writing leaves load the
-issue preparation/ledger procedure for their own exact coordinate; retain proven
-session handles instead of rereading unchanged procedures on each dispatch.
-Verify the live parent, repositories, existing children/PRs, dependency graph,
-acceptance and authorized tracking operations before initialization. Reconcile
-native relationships and prose; neither alone proves completeness.
+## Plan and delegate
 
-Use a live-proven native Linux coordinator per [the execution
-contract](../../../docs/LINUX_EXECUTION.md). Develop, run Git, review and perform
-lightweight checks in owned local worktrees. Short-lived pinned CPU containers
-with isolated reusable caches run application builds/toolchain checks;
-build-worker lifetime does not own the project or leaf delivery. Already-bound
-historical container deliveries retain their exact compatibility gates.
-Inventory all existing leaf
-ledgers, containers and worktrees before claiming anything. Dirty candidates,
-existing PRs and foreign sessions remain external, not new implementations.
-The project record schedules work; it never grants worktree/ledger reuse.
-Keep issue delivery and legacy program delivery unchanged as fallbacks; do not
-migrate their state or reinterpret their `program` authority field.
+Verify the live parent, acceptance, repository ownership, issue/PR graph,
+dependencies, existing work, and granted external operations. Exact repository
+ownership belongs in the plan and every task packet. Existing dirty worktrees,
+bound deliveries, and foreign sessions remain external until their owner hands
+them off through an applicable supported protocol.
 
-## Run the ready graph
+For a new project, keep a compact private milestone plan and coordinate ordinary
+Git ownership from live repository and PR evidence. Do not initialize the
+stateful project helper merely because work spans several issues or a leaf uses
+its own resource protocol. Resume the helper for an existing stateful project,
+or opt into it for a new project only when its durable scheduler/journal is
+actually useful. Never hand-edit helper state. Neither plan form grants Git
+worktree reuse or external authority; see the protocol for the two routes.
 
-Use `python3 -m atrinik_workspace.project_delivery`, never hand-edit its state.
-Inspect actual runtime worker capacity domain and complete worker inventory;
-16 requested slots are not proof. Keep active-slot limits distinct from retained-handle limits.
-`reserve-existing` supports an explicit active-slot domain; scalar `plan`/`dispatch`
-retain handle-limited semantics and cannot schedule fresh active-only starts.
-Reserve ready disjoint lanes before spawning. Record the
-actual returned worker ID, exact entry mode/coordinate and attempt immediately.
-If spawning fails or its outcome is uncertain, reconcile before retrying.
-After a supported retry/replan, a pending node with its retired attempt may
-reserve its own retained idle direct-child worker through `reserve-existing`.
-Follow the operator protocol's fresh runtime observation and exact snapshot
-requirements. Keep the returned reservation until a live runtime recheck and
-accepted follow-up; then record the exact worker and new attempt as running.
-A lost response preserves the reservation and never authorizes another spawn.
+Expose all ready, disjoint work up to actual runtime capacity. Keep model-worker
+capacity separate from CPU/GPU/build limits, dependencies, file ownership, and
+shared-resource conflicts. Prefer:
 
-Each writing worker explicitly invokes `$atrinik-issue-delivery` for its one
-selected issue or PR. It completes the existing authenticated genesis,
-inventory, safe dedicated worktree binding and exact-coordinate gates before
-edits/tests. Never share a writing worktree or credential/cache namespace.
-An existing PR needs explicit PR-mode authority; do not adopt it as new issue
-work. Reserve shared files/resources; subdivide only when ownership permits.
-Use additional read-only workers for exploration, tests and independent review;
-count them against actual capacity. Fill available capacity with useful ready
-work; do not impose an arbitrary low worker cap. Limit heavy builds separately
-using measured resource contention.
+- GPT-6 Astra for architecture, ambiguity, security/concurrency decisions, and
+  independent integrated review;
+- GPT-5.6 Sol for ordinary implementation;
+- Terra for narrow tests and mechanical refactors; and
+- Luna for bounded extraction or inventory.
 
-Use compact task packets with exact ownership, base/head, paths, acceptance,
-container/ledger handles, validation commands, and granted/pending/rejected
-authorization; omit inherited conversation
-when raw task evidence suffices. Choose models per task: capable reasoning for
-architecture or security-sensitive review, an efficient coding model for bounded
-implementation/tests, and a lighter model for deterministic extraction. Preserve
-output quality and independent review; expand context or model when needed.
-Use an available capable model when a preferred model is unavailable; report the
-fallback. Every worker reads applicable mandatory instructions, including
-read-only extractors with a narrow task-source scope.
-Run waits, JSON extraction and repetitive I/O in tools/scripts. Use the operator
-protocol's snapshot output to keep CAS documents out of model messages. Process
-and tooling diagnostics never gate scheduling or require routine reporting.
+Use an available sufficiently capable model if a preference is unavailable,
+and escalate when uncertainty or failed approaches require stronger reasoning.
+Reuse a related worker for follow-up instead of growing unrelated history.
 
-Route findings to the owning worker, reuse it for fixes, and keep independent
-ready lanes moving. Workers deliver through final-head validation and fresh
-whole-diff review, not merely PR creation or one green run. Verify their live
-leaf-ledger/report and remote head evidence before recording results; worker
-prose alone is not acceptance. Integrate through owned PR branches, with ordinary
-commits and refreshed base/head evidence; never force-push or bypass leaf gates.
+Each writing worker owns one repository worktree and a disjoint path or branch.
+Tell it other workers are active and that it must preserve their changes. Send a
+compact task packet with the goal, acceptance, exact repository/base/branch and
+owned paths, dependencies, authority limits, relevant instructions, validation,
+and stop boundary. Keep credentials and private recovery data out of packets.
+Workers may create narrowly required code, fixtures, tests, commits, and PR
+preparation to repair an in-scope source failure. That exception does not
+independently grant live runtime, deployment, merge, or external mutations
+beyond the user's existing authorization.
 
-## Maintain scoped tracking and finish
+## Converge and hand off
 
-Routine local fixes, tests, reviews, commits, ordinary pushes and necessary
-in-scope PR deliveries need no repeated approval when project delivery is
-authorized. Coordinator tracking is separate from leaf permissions: use the
-journal only for authorized assignment, owned progress comments, native links,
-dependencies, bounded missing-child creation and existing Project Status.
-Preserve human text; never force reparent, unassign others or duplicate issues.
+Keep unaffected lanes moving. A blocker report must identify the concrete
+operation, resource or conflict, explain why it matters, and name the event that
+makes retry useful. Do not repeatedly poll unchanged state; use a watcher or a
+pending tool call where available.
 
-After observed merges, refresh parents/dependants, invalidate stale integration
-evidence, update tracking, and run newly unblocked lanes. Retain one canonical
-closing PR per leaf; parent references are non-closing until all requirements
-are fulfilled. Readiness is not merge authority. Stop for merge/deployment
-approval, unavailable authentication, uncertain ownership or expanded scope;
-continue unaffected work first. Never bypass policy or copy credentials.
+Treat worker output as provisional. Route findings to the owning worker, then
+run integrated validation and an independent final review. Preserve project
+producer interfaces, tests, and plan schema unless compatibility evidence proves
+a removal safe. Readiness is not merge or deployment authority.
 
-Close a parent only with explicit closure authority, fresh complete graph/PR
-observations and criterion-by-criterion terminal evidence. Otherwise hand off
-the exact remaining closure action. Report delivered PRs and heads, acceptance,
-remaining gates, external owners, recovery root and next runnable lanes. Do not
-claim completion while only child counts or PR status look finished.
+At every milestone, leave a compact durable plan containing:
 
-For unchanged bound targets on reconnect, use the public
-`revalidate-current-targets-cas` generation/digest proof in the issue-delivery
-ledger protocol; saved safety fields or generic CAS are not live lease proof.
+- goal and acceptance;
+- completed artifacts and valid evidence, including revision/environment;
+- remaining dependencies and exact ownership;
+- authority limits; and
+- the next runnable action.
+
+Refresh evidence after relevant base, head, dependency, environment, or graph
+changes. Close the parent only with explicit closure authority and current
+criterion-by-criterion terminal evidence. Otherwise report exact remaining
+actions, owners, recovery coordinates, and runnable lanes without claiming the
+project complete.
+
+Existing bound deliveries retain their accepted reconnect and resource gates.
+For an unchanged retained issue target, use the issue-delivery ledger's public
+`revalidate-current-targets-cas` proof; project scheduling does not replace live
+lease, worktree, actor, or resource checks.

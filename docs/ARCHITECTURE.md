@@ -1,6 +1,20 @@
 # Workspace architecture
 
-## Project delivery coordination
+## Source and resource delivery
+
+[Source delivery](SOURCE_DELIVERY.md) uses ordinary owned Git worktrees for new
+code, tests and guidance. `scripts/source_delivery.py` provides local start/resume
+checks and a small creation receipt; it does not grant runtime authority, adopt
+existing deliveries or replace their ledgers. Known same-owner interrupted source
+edits may resume after explicit diff/ownership verification. Candidate tooling can
+be tested with isolated fixtures without authorizing live resources.
+
+`scripts/wait_pr_checks.py` watches a selected PR at a fixed head and base, with
+explicit expected checks and a bounded deadline. Its observations do not merge,
+dispatch or waive acceptance. Source validation, artifact review and external
+runtime acceptance are distinct results.
+
+## Stateful project delivery coordination
 
 `project_coordinator.py` owns the bounded dependency/resource scheduler;
 `project_coordinator_store.py` provides no-follow, stable-lock, generation/digest/
@@ -27,6 +41,8 @@ or deploys.
 See the [operator protocol](../.agents/skills/atrinik-project-delivery/references/coordinator.md)
 for resume rules, bounds and deliberately unsupported ambiguous-write recovery.
 The existing issue and legacy program engines are retained without migration.
+New source-only projects may use the lightweight skill and milestone handoff;
+the stateful scheduler and its bound leaves retain the protocol above.
 
 ## Ownership boundary
 
@@ -94,7 +110,7 @@ For the end-to-end, copy-pasteable Windows workflow, see
 Keep that workflow synchronized with this matrix: the native Windows host owns
 Git/GitHub authentication, optional SSH signing, commits, pushes, and final
 native execution; the owned native Linux worktree owns coordinator probe,
-delivery ledger, worktree/CAS, source edits and review; short-lived pinned CPU
+source edits and review, plus delivery ledger/worktree/CAS for bound operations; short-lived pinned CPU
 workers own compilation/toolchain tests; and `windows-cross` owns only the Classic Windows
 cross-build/package toolchain. A Windows-only package does not configure a
 Linux client unless that client is explicitly selected for a separate test,
@@ -111,7 +127,7 @@ isolation and fail-closed behavior explicit while preserving the stronger
 descriptor-relative implementation on Linux.
 
 The wrapper-owned `scripts/atrinik_coordinator_context.py` probe is the
-delivery entry boundary. It returns `canonical-linux` only when the pinned
+bound-delivery entry boundary. It returns `canonical-linux` only when the pinned
 ordinary devcontainer declaration, live Linux/POSIX runtime/user/Codex facts,
 repository/workspace layout, no-follow ownership and modes, and source,
 ledger, build, and Codex configured mount paths agree. `native-windows` is a stable
@@ -136,11 +152,12 @@ lightweight validation in an owned local worktree. Short-lived pinned CPU worker
 run application builds and toolchain-dependent checks with isolated reusable
 caches. Schema-2 `entry_mode` remains diagnostic only. Native Windows retains
 repository commands and runtime qualification, with no Linux ledger authority.
-An unaccepted authority change never authorizes its own implementation.
+An unaccepted authority change never authorizes live resource operations;
+isolated implementation and fixture tests follow the source-repair path.
 
 ### Owned-worktree continuity
 
-Native delivery ownership survives build-worker exit. Reconnect and crash
+Native delivery ownership survives build-worker exit. Bound-delivery reconnect and crash
 recovery re-prove live context, authenticated actor, complete inventory, exact
 clean worktree, ledger CAS and leases. A saved record is corroboration only;
 stale metadata grants no reuse. Keep credentials, private keys and mutable server
@@ -480,6 +497,18 @@ reference conflicts; changed, dirty, checked-out, ambiguous, or uncertain
 evidence remains fail-closed. Complete and recoverable scope journals
 contribute exact cleanup references until release journals prove each worktree
 removed.
+
+The admitted delivery workspace additionally pins a bounded descriptor-relative
+scope inventory until its authority context exits. Only validated complete or
+recoverable records with a consistent, absent foreign wrapper/workspace namespace
+and no candidate overlap may remain external to that delivery's reference set.
+The creation request digest, reservation, journal, original manifest coordinates,
+profile and Git paths must agree. Changed or uncertain rows, present/aliased
+foreign namespaces and release journals refuse this classification. Directory
+membership, file identities/bytes and absent namespace prefixes are rechecked
+before each reference observation and on context exit. Current scopes retain
+their existing live Git, reference and lease checks. Ordinary inspection, recovery
+and cleanup never use the external classification or change historical bytes.
 
 Scope command maps are persisted creation-time snapshots. Validation keeps
 those snapshots stable when the manifest later gains components: newly added
@@ -1689,3 +1718,28 @@ successor after an already completed build. Live merged-PR provenance and clean
 read-only content source observations are required; historical
 content/build/runtime/state evidence and undeclared dependency inputs remain
 unchanged. See the [retained resource correction protocol](../.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).
+
+## Public retained-runtime handoff
+
+The [runtime handoff](RUNTIME_HANDOFF.md) is a bounded projection of authenticated
+retained producer evidence, not a second ledger. The immutable public envelope
+contains only issue/attempt/actor/CAS identity, source and artifact digests,
+profile/topology/state coordinates, plan digest/options, a bounded lifetime,
+public Ed25519 key and generated wrapper argv. The trusted publisher output also
+pins the socket and public namespace directory incarnations; signed responses
+bind that endpoint to prevent forwarding through a replacement proxy. Consumers
+require an independently
+selected fingerprint from trusted coordinator stdout and verify fresh signed
+nonce challenges; neither a self-declared public key nor the peer UID grants
+authority. A publisher-owned Unix socket in the existing shared
+build namespace performs live verification without passing private descriptors.
+
+The publisher proves complete retained resources before publication. A consumer
+then holds an operation-scoped private ledger guard through startup while its
+normal resource locks protect source and runtime mutation. Rechecks under that
+guard use only inventory, actor, issue and exact CAS proof, avoiding reverse
+acquisition of executor-held resource locks. Consumers independently recompute
+public source/build/artifact evidence and recheck immediately before spawn.
+Publisher loss, revocation, expiry, changed sources or coordinates, unsafe paths
+and pending/ambiguous authority fail closed. Private review mounts, listener
+policy, historical build roots and mutable-state ownership remain unchanged.

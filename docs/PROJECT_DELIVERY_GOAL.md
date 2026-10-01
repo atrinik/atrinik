@@ -1,50 +1,37 @@
-# One-session project delivery launcher
+# Project delivery launcher
 
-Replace `PARENT` and the repository scope below before submitting. Do not list
-already-owned work as new worker assignments. This instruction file is a
-launcher, not authorization to select a project on its own.
+Replace the placeholders before submitting. This starts a bounded project; it
+does not select scope or grant external mutations on its own.
 
 ```text
-/goal Use $atrinik-project-delivery to deliver parent issue atrinik/atrinik#PARENT
-and its in-scope dependencies across REPOSITORIES. Read the live skill and
-coordinator protocol in full. Run this project in one session: launch, manage,
-reuse and review subordinate workers yourself. Inspect actual runtime capacity;
-16 requested worker slots is not guaranteed capacity. Maximize useful parallelism
-within dependency, file/resource ownership and separate heavy-build limits.
+/goal Use $atrinik-project-delivery to deliver PARENT across REPOSITORIES.
 
-Use gh/git outside the sandbox. Start at the selected repository and establish
-a live-proven native Linux coordinator under docs/LINUX_EXECUTION.md before
-delivery work. Develop,
-run Git, review and perform lightweight checks in owned local worktrees; use
-pinned CPU containers with owner-isolated persistent caches for application
-builds and toolchain checks. Build-worker lifetime does not own local delivery;
-already-bound historical containers retain their exact compatibility gates.
-A proposed authority change cannot
-authorize its own delivery; retain the previously accepted coordinator boundary. Inventory and
-preserve all existing containers, ledgers, worktrees, dirty patches and active
-deliveries. Never duplicate implementations or treat names, old probes, manifests
-or digests as worktree reuse authority. Each writing leaf uses unchanged
-$atrinik-issue-delivery with explicit ENTRY_MODE and coordinate, and binds its
-own dedicated safe worktree before edits/tests. No writing from primaries,
-unbound paths or foreign/uncertain worktrees; no bypass if a gate fails.
+Acceptance: ACCEPTANCE.
+Authority: AUTHORIZED_TRACKING_AND_PUBLICATION_ACTIONS.
+Stop before: MERGE_DEPLOYMENT_OR_OTHER_UNAUTHORIZED_ACTIONS.
 
-Autonomously implement and fix in-scope problems, test, review, commit, ordinarily
-push and open the necessary owner-repository PRs. Manage workers and integration;
-do not ask me to launch chats or relay results. Continue each leaf through fresh
-final-diff review and applicable final-head checks, not just PR creation.
+Verify repository ownership, the live dependency/issue/PR graph, existing work,
+and actual runtime capacity. Run ready disjoint lanes in parallel, with separate
+limits for model workers and expensive builds. Give each writing worker one
+owned native Linux worktree and exact paths; use docs/SOURCE_DELIVERY.md for new
+source-only work. An isolated build container does not own delivery. Preserve
+existing bound delivery, ledger, shared-runtime, and resource protocols without
+migrating them.
 
-Authorize scoped coordinator tracking: add the authenticated assignee, maintain
-native parent/dependency links, create genuinely missing in-scope children after
-deduplication, publish concise owned milestone comments and update existing
-Project statuses. Preserve contributor text and existing owners. Keep canonical
-closing references correct. Reconcile parent/dependent issues and PRs after
-observed merges. Close the parent only after all required deliveries are merged
-and every acceptance criterion is verified; otherwise state the remaining gate.
+For a new project, use a compact private milestone plan; do not initialize the
+stateful project helper merely because the work spans multiple issues or a leaf
+uses its own resource protocol. Resume existing helper state, or opt into it only
+when its durable scheduler or tracking journal is specifically useful.
 
-Do not merge PRs, deploy, bypass policy, force-push, destructively clean up,
-copy credentials, reparent foreign issues or expand product scope without
-approval. Continue unaffected lanes while resolving bounded in-scope failures.
-If only approval or an external access/ownership action remains, hand off exact
-PR heads, evidence, blockers and recovery/resume coordinates. Do not claim the
-project finished while acceptance or required deliveries remain.
+Manage and reuse workers directly. Continue implementation, tests, review,
+commits, and authorized PR preparation through integrated validation and an
+independent final review. Continue unaffected lanes when one is blocked. Do not
+repeatedly poll unchanged state or ask me to relay worker messages.
+
+At milestones, preserve a compact durable plan with goal and acceptance,
+completed artifacts, valid revision-bound evidence, remaining dependencies,
+exact ownership, authority limits, and the next runnable action. Do not claim
+completion until every criterion has current evidence. If external approval or
+access is all that remains, hand off the exact operation, owner, heads, evidence,
+recovery coordinates, and retry event.
 ```

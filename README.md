@@ -21,6 +21,16 @@ contains the logical
 builds, profiles, and default state live under the ignored `workspace/`
 directory.
 
+## Source changes and pull requests
+
+Use [source delivery](docs/SOURCE_DELIVERY.md) for new code, tests and guidance:
+an owned worktree, scoped collision checks, applicable validation and independent
+review. The start/resume helper supports known interrupted source edits; a bounded
+PR watcher reports check changes without repeated manual polling. Broken delivery
+tooling can be repaired against isolated fixtures without admitting live resources.
+Existing bound deliveries and managed build/runtime operations retain their
+original helper, lease and recovery contracts.
+
 ## Requirements
 
 - Python 3.11 or newer and Git
@@ -74,9 +84,10 @@ providers.
 | Pinned `windows-cross` devcontainer ([`.devcontainer/windows-cross/devcontainer.json`](.devcontainer/windows-cross/devcontainer.json)) | POSIX shell; `/workspaces/atrinik`; `vscode` | Classic Windows cross-build and package commands only; no delivery ledger, worktree authority, or GUI | Windows review ZIP plus SHA-256; not runtime proof |
 | Native Windows runtime | PowerShell; a new private extracted bundle directory | Package hash verification, the existing package-smoke script, D3D12 qualification, bounded logs/evidence, and exact-run cleanup | Native Windows package/GPU result; not a Linux-client result |
 
-The host may commit or push only from the exact delivery-bound worktree
-reported by `./atrinik worktree list`; never use the primary checkout for a
-delivery edit or commit. Never mount a private signing key into a container.
+The host may commit or push only from its exact owned source worktree, or the
+delivery-bound worktree reported by `./atrinik worktree list` for an existing
+bound delivery; never use the primary checkout for a delivery edit or commit.
+Never mount a private signing key into a container.
 Do not run native CMake, Ninja, MSVC, or a graphical client as part of a
 pinned-container delivery. Conversely, do not run Linux-only build, topology,
 state, scenario, cleanup, or ledger operations from PowerShell. A
@@ -97,7 +108,7 @@ python .\atrinik init --with classic
 python .\atrinik status --json
 ~~~
 
-For delivery or Linux-only coordination, use the owned native Linux worktree
+For bound delivery or Linux-only resource coordination, use the owned native Linux worktree
 and continue only when the probe reports `native-linux` with
 `authoritative: true`:
 
@@ -249,7 +260,10 @@ cleanup. Mutable build/state/topology admission also refuses retained coordinate
 ledger release/archive remains unavailable while those reservations
 require preservation. New work uses fresh names and a fresh recorded build plan.
 
-### Issue/PR delivery coordinator
+### Bound issue/PR delivery coordinator
+
+This section covers existing bound deliveries and operations that use the
+stateful delivery helpers. New source work follows [source delivery](docs/SOURCE_DELIVERY.md).
 
 Develop, run Git/GitHub, review and coordinate delivery in an owned native Linux
 worktree under [the execution contract](docs/LINUX_EXECUTION.md). Native Windows
@@ -260,7 +274,7 @@ authority. Before initializing or mutating delivery evidence, run:
 python3 scripts/atrinik_coordinator_context.py --json
 ~~~
 
-New native delivery requires `native-linux` with `authoritative: true`, actual
+New bound native delivery requires `native-linux` with `authoritative: true`, actual
 passwd identity, private Codex state, authenticated ownership and a dedicated
 safe worktree. Keep `HOME` unchanged and authentication selectors unset; use
 `umask 077` for native delivery processes. The probe's `entry_mode` is diagnostic;
@@ -280,7 +294,7 @@ contract](docs/LINUX_EXECUTION.md#existing-bound-container-compatibility), inclu
 Copied or stale session markers are corroboration only. Preserve their resources;
 do not replace, remount or transfer a delivery implicitly. Codex never launches
 or controls VS Code, its executable/URI or GUI automation, and never nests a
-coordinator. A proposed authority change cannot authorize its own delivery.
+coordinator. A proposed authority change cannot authorize live resource operations.
 
 #### Linux image upgrades
 
@@ -327,9 +341,10 @@ Use [`atrinik-project-delivery`](.agents/skills/atrinik-project-delivery/SKILL.m
 for multi-issue work. Copy the [complete goal launcher](docs/PROJECT_DELIVERY_GOAL.md),
 select the real parent/repository scope, and let one coordinator launch and manage
 workers. It schedules independent lanes against actual worker capacity, retains
-foreign deliveries, and routes each writing leaf through unchanged issue delivery.
+foreign deliveries, and routes each writing leaf by source or retained-resource
+scope. New source work needs no scheduler/ledger admission.
 The [operator protocol](.agents/skills/atrinik-project-delivery/references/coordinator.md)
-defines commands, recovery, scoped tracking and acceptance. Legacy program delivery
+defines retained-state commands, recovery, scoped tracking and acceptance. Legacy program delivery
 and individual issue delivery remain available; there is no implicit migration.
 
 Routine authorized local development and minor project tracking do not need
@@ -1178,6 +1193,15 @@ Scope command maps are creation-time snapshots. A later manifest addition
 therefore does not invalidate a completed scope or retroactively add commands
 to its handoff; every retained entry must still be a valid current coordinate
 and exact command, while removed or edited coordinates fail closed.
+
+Delivery live proof can retain a historical scope from a different, absent
+wrapper/workspace namespace as external evidence when its complete record or
+recoverable journal is internally consistent and cannot reference the selected
+worktree. It pins the bounded records through admission and CAS rechecks;
+candidate overlap, aliases, present foreign namespaces, changed/uncertain
+journals, and pending release evidence still refuse admission. This does not
+adopt or repair the historical scope. Ordinary scope inspection and cleanup
+continue to require their original current-workspace checks.
 
 Creation journals every worktree, profile-reference, profile, and completed
 record publication boundary. A failed transaction removes only exact newly
@@ -2473,3 +2497,11 @@ successor after an already completed build. Live merged-PR provenance and clean
 read-only content source observations are required; historical
 content/build/runtime/state evidence and undeclared dependency inputs remain
 unchanged. See the [retained resource correction protocol](.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).
+
+For a retained producer used by an isolated executor, the
+[public runtime handoff](docs/RUNTIME_HANDOFF.md) publishes an immutable envelope
+in the existing shared build namespace and requires a live coordinator lease on
+every consume. `topology show PROFILE` and `up` accept `--runtime-handoff`,
+`--handoff-issue`, `--handoff-attempt` and independently pinned
+`--handoff-publisher` and `--handoff-endpoint` alongside `--retained-build-plan`.
+Coordinator-private review mounts remain isolated.
