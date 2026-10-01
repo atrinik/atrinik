@@ -114,18 +114,24 @@ class GitHub:
         for status in statuses:  # GitHub returns newest status first.
             latest.setdefault(status["context"], status["state"])
         missing = []
+        passing = True
         for wanted in required:
-            matched = any(r.get("name") == wanted["context"] and
-                          (wanted["app_id"] in {None, -1} or r.get("app", {}).get("id") == wanted["app_id"])
-                          for r in runs)
+            matched = [r for r in runs if r.get("name") == wanted["context"] and
+                       (wanted["app_id"] in {None, -1} or r.get("app", {}).get("id") == wanted["app_id"])]
+            status = latest.get(wanted["context"])
             if not matched and not (wanted["app_id"] in {None, -1} and wanted["context"] in latest):
                 missing.append(wanted)
-        return {"complete": True,
-                "passing": not missing and all(r["status"] == "completed" and r["conclusion"] in
-                               {"success", "neutral", "skipped"} for r in runs)
-                and all(value == "success" for value in latest.values()),
-                "runs": [{"id": r["id"], "status": r["status"], "conclusion": r["conclusion"]} for r in runs],
-                "statuses": latest, "required": required, "missing": missing}
+            # Both surfaces must pass when a required context has runs and a
+            # commit status. A status cannot satisfy an app-bound requirement.
+            passing = passing and all(r["status"] == "completed" and r["conclusion"] in
+                                      {"success", "neutral", "skipped"} for r in matched)
+            passing = passing and (wanted["context"] not in latest or status == "success")
+        return {"complete": True, "passing": not missing and passing,
+                "runs": [{"id": r["id"], "name": r.get("name"), "app_id": r.get("app", {}).get("id"),
+                          "status": r["status"], "conclusion": r["conclusion"]} for r in runs],
+                "statuses": latest,
+                "status_history": [{"context": s["context"], "state": s["state"]} for s in statuses],
+                "required": required, "missing": missing}
 
     def observe(self, ident: str, mode: str) -> dict:
         value = self.request(route(ident, "pulls" if mode == "PR" else "issues"))
