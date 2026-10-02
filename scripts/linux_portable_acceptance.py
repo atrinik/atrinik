@@ -59,6 +59,31 @@ def require_headless():
         raise RuntimeError("CPU acceptance must not receive GPU devices")
 
 
+def prepare_sources():
+    """Create fresh CI-owned primaries at the qualified revisions."""
+    # Export snapshots are deliberately limited to primary selectors. Never
+    # reset a rolling checkout: this bootstrap owns only absent destinations.
+    for name in SOURCE_COMMITS:
+        destination = Path(name)
+        if destination.exists() or destination.is_symlink():
+            raise RuntimeError("acceptance requires an absent dependency: " + name)
+    for name, expected in SOURCE_COMMITS.items():
+        Path(name).mkdir()
+        run(["git", "init", "-b", "main", name])
+        run(["git", "-C", name, "remote", "add", "origin",
+             "https://github.com/atrinik/" + name + ".git"])
+        run(["git", "-C", name, "fetch", "--no-tags", "origin", "main"])
+        run(["git", "-C", name, "checkout", "-b", "main", expected])
+        if run(["git", "-C", name, "rev-parse", "HEAD"]).strip() != expected:
+            raise RuntimeError("qualified source changed: " + name)
+        if run(["git", "-C", name, "status", "--porcelain"]):
+            raise RuntimeError("dirty qualified dependency: " + name)
+    run(["./atrinik", "init", "classic-client", "sound", "--jobs", "2"])
+    profile = "linux-portable-acceptance"
+    run(["./atrinik", "profile", "create", profile, "--from", "classic"])
+    return profile
+
+
 def build(output, evidence):
     require_headless()
     os.sched_setaffinity(0, sorted(os.sched_getaffinity(0))[:2])
@@ -66,16 +91,9 @@ def build(output, evidence):
     wrapper_head = run(["git", "rev-parse", "HEAD"]).strip()
     if run(["git", "status", "--porcelain"]):
         raise RuntimeError("acceptance requires a clean wrapper checkout")
-    run(["./atrinik", "init", "classic-client", "sound", "--jobs", "2"])
-    # The producer deliberately fails on source drift: update the qualified
-    # producer and its checked-in recipe together instead of relabeling bytes.
-    for name, expected in SOURCE_COMMITS.items():
-        if run(["git", "-C", name, "rev-parse", "HEAD"]).strip() != expected:
-            raise RuntimeError("qualified source changed: " + name)
-        if run(["git", "-C", name, "status", "--porcelain"]):
-            raise RuntimeError("dirty dependency: " + name)
-    profile = "linux-portable-acceptance"
-    run(["./atrinik", "profile", "create", profile, "--from", "classic"])
+    # The qualified consumer is fixed even when dependency main branches move.
+    # Advancing these pins still requires a matching qualified producer recipe.
+    profile = prepare_sources()
     arguments = ["./atrinik", "profile", "sound-mode", profile, "released"]
     flags = {
         "repository": "repository", "tag": "tag", "product_version": "product-version",

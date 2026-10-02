@@ -22,9 +22,11 @@ reviews, and runs lightweight checks in an owned native Linux worktree; pinned
 CPU containers may run isolated builds without owning the delivery.
 
 The source-repair exception permits narrowly necessary code, fixtures, tests,
-commits, and PR preparation. It does not independently grant live runtime
-mutation, deployment, merge, issue edits, or other external writes beyond the
-user's existing authorization.
+commits, PR preparation, and authorized bounded repair of local launch or
+coordination blockers. Follow [local recovery](../../../../docs/LOCAL_RECOVERY.md)
+for the latter. It does not independently grant live runtime mutation,
+deployment, merge, issue edits, or other external writes beyond the user's
+existing authorization.
 
 ## Use lightweight coordination by default
 
@@ -86,6 +88,14 @@ The returned ignored directory is the durable stateful project root. The helper
 owns its state; never hand-edit, delete, or adopt a lock-only/partial root. A
 second `init` cannot take it over. Resume only the same authorized session or a
 proven takeover after reconciling every worker and owned resource.
+
+If that local state blocks authorized work and supported inspection/recovery
+cannot proceed, use [local recovery](../../../../docs/LOCAL_RECOVERY.md) for the
+blocked coordinate. Establish fresh task identity and ownership, coordinate
+exclusively, prove no live process owns the root, and preserve or quarantine the
+original evidence before establishing fresh local metadata. Never edit or adopt
+the original root, infer ownership from its path or lock, transfer a worker or
+resource, or replay an uncertain operation. Continue unaffected lanes.
 
 For compact repeated operations, write every full snapshot to a new file in an
 owned mode-0700 directory:

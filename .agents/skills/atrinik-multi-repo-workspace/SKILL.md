@@ -15,15 +15,15 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
    writes and status lines. If recording a useful observation, use
    `./atrinik agent-ledger update`; reporting errors never block delivery.
 
-Checkouts are ignored repositories. One `classic` worktree holds five `classic-*`
-components; stacks share `content@main`. `content-1x` and former 1.x are historical
-migration evidence only, never active components or delivery targets.
+Ignored checkouts retain physical ownership. One `classic` worktree holds all
+`classic-*` components; stacks share `content@main`. Never target historical 1.x.
+
+Repair local blockers under [local recovery](../../../docs/LOCAL_RECOVERY.md).
 
 ## Safe worktrees
 
 New source-only changes use [source delivery](../../../docs/SOURCE_DELIVERY.md).
-The local start/resume helper creates dedicated Git worktrees without a delivery
-ledger; verify task ownership before continuing interrupted dirty edits. Existing
+The source helper creates owned Git worktrees; verify interrupted edits. Existing
 bound deliveries remain on their original recovery protocol. Use the managed
 scope/worktree instructions below when the task needs those resources, not as a
 prerequisite to an isolated source patch or fixture test.
@@ -37,8 +37,6 @@ Inspect before mutation:
 
 Initialize absent repositories with `init` (`--with classic` adds classic);
 `sync` never clones.
-
-See root `AGENTS.md` for initialization commands; scope and worktree primitives follow.
 
 Sync only clean primaries; never alter dirty sources. Managed Classic selectors create
 `workspace/worktrees/classic/LABEL`; prefer atomic scopes.
@@ -54,7 +52,8 @@ Selectors are positional; overrides target physical checkout `classic`:
 Never use `classic-client=` as an override. `scope-<name>` is immutable
 profile/topology; non-canonical `--topology` fails before publication. Compare
 `requested_components`, topology, and checkout with ledger request; failed binds
-recover only through the helper, never by editing/deleting ledger state.
+recover through the helper; if its own bookkeeping is broken, follow local
+recovery without inventing ledger state.
 
 Retry rolled-back named creates only after branch-only Git/LFS failure. Wrapper proves
 generation/digest, rows/roots, base/head, and no coordinate conflict; drift/uncertainty
