@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from contextlib import ExitStack, nullcontext
+from contextlib import ExitStack, chdir, nullcontext
 
 import hashlib
 import io
@@ -625,6 +625,84 @@ class PortablePublicationTests(unittest.TestCase):
         import runpy
         return runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
 
+    def test_qualified_bootstrap_selects_pinned_commit_after_main_advances(self):
+        ns = self.acceptance_namespace()
+        upstream = self.root / "upstream"
+        upstream.mkdir()
+        def git(*args):
+            return subprocess.run(["git", *map(str, args)], check=True, text=True,
+                                  capture_output=True).stdout.strip()
+        git("-C", upstream, "init", "--initial-branch=main")
+        git("-C", upstream, "config", "user.name", "Fixture")
+        git("-C", upstream, "config", "user.email", "fixture@example.invalid")
+        (upstream / "source").write_text("qualified\n")
+        git("-C", upstream, "add", "source")
+        git("-C", upstream, "-c", "commit.gpgsign=false", "commit", "-m", "qualified")
+        qualified = git("-C", upstream, "rev-parse", "HEAD")
+        (upstream / "source").write_text("new main\n")
+        git("-C", upstream, "-c", "commit.gpgsign=false", "commit", "-am", "advance")
+        self.assertNotEqual(qualified, git("-C", upstream, "rev-parse", "HEAD"))
+        workspace = self.root / "workspace"
+        workspace.mkdir()
+        wrapper_calls = []
+        def local_run(arguments):
+            if arguments[0] == "./atrinik":
+                wrapper_calls.append(arguments)
+                return ""
+            if "fetch" in arguments:
+                # Redirect only fixture transport; preserve the canonical origin.
+                arguments = ["git", "-c", "url." + str(upstream) + ".insteadOf=https://github.com/atrinik/classic.git",
+                             "-c", "url." + str(upstream) + ".insteadOf=https://github.com/atrinik/sound.git",
+                             *arguments[1:]]
+            return ns["run"](arguments)
+        with chdir(workspace), mock.patch.dict(ns["initialize_qualified_sources"].__globals__, {
+                "run": local_run, "SOURCE_COMMITS": {"classic": qualified, "sound": qualified}}):
+            ns["initialize_qualified_sources"]()
+        self.assertEqual(len(wrapper_calls), 1)
+        for name in ("classic", "sound"):
+            repo = workspace / name
+            self.assertEqual(git("-C", repo, "rev-parse", "HEAD"), qualified)
+            self.assertEqual(git("-C", repo, "branch", "--show-current"), "main")
+            self.assertEqual(git("-C", repo, "status", "--porcelain"), "")
+            self.assertEqual(git("-C", repo, "remote", "get-url", "origin"),
+                             "https://github.com/atrinik/" + name + ".git")
+            self.assertEqual((repo / "source").read_text(), "qualified\n")
+
+    def test_qualified_bootstrap_refuses_all_occupied_destinations_before_writing(self):
+        ns = self.acceptance_namespace()
+        for kind in ("directory", "file", "symlink"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory(dir=self.root) as directory:
+                root = Path(directory)
+                target = root / "sound"
+                if kind == "directory":
+                    target.mkdir()
+                elif kind == "file":
+                    target.write_text("preserve me")
+                else:
+                    target.symlink_to(root / "absent")
+                runner = mock.Mock()
+                with chdir(root), mock.patch.dict(ns["initialize_qualified_sources"].__globals__, {"run": runner}):
+                    with self.assertRaisesRegex(RuntimeError, "already exists: sound"):
+                        ns["initialize_qualified_sources"]()
+                runner.assert_not_called()
+                self.assertFalse((root / "classic").exists())
+                self.assertTrue(target.exists() or target.is_symlink())
+
+    def test_qualified_bootstrap_fetch_failure_stops_before_export_or_repinning(self):
+        ns = self.acceptance_namespace()
+        calls = []
+        def fail_fetch(arguments):
+            calls.append(arguments)
+            if "fetch" in arguments:
+                raise subprocess.CalledProcessError(128, arguments)
+            return ""
+        with chdir(self.root), mock.patch.dict(ns["initialize_qualified_sources"].__globals__, {"run": fail_fetch}):
+            with self.assertRaises(subprocess.CalledProcessError):
+                ns["initialize_qualified_sources"]()
+        self.assertEqual(calls[-1][-1], portable.CONSUMER_COMMIT)
+        self.assertFalse(any("checkout" in call or call[0] == "./atrinik" for call in calls))
+        self.assertFalse((self.root / "sound").exists())
+
     def test_failed_export_capture_preserves_bounded_logs_and_exit_status(self):
         ns = self.acceptance_namespace()
         command = [sys.executable, "-c", "import sys; print('provider rejected'); print('strict ELF failure', file=sys.stderr); sys.exit(23)"]
@@ -661,6 +739,7 @@ class PortablePublicationTests(unittest.TestCase):
                 return ns["SOURCE_COMMITS"].get(arguments[2], "a" * 40) + "\n" if "-C" in arguments else "a" * 40 + "\n"
             return ""
         with mock.patch.dict(globals_, {"require_headless": lambda: None, "run": fake_run,
+                              "initialize_qualified_sources": lambda: None,
                               "capture_export": mock.Mock(side_effect=failure),
                               "collect_build_evidence": mock.Mock(side_effect=RuntimeError("collector failed"))}), \
              mock.patch.object(os, "sched_setaffinity"), \

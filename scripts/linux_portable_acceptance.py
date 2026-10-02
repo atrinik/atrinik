@@ -59,6 +59,29 @@ def require_headless():
         raise RuntimeError("CPU acceptance must not receive GPU devices")
 
 
+def initialize_qualified_sources():
+    """Create only fresh CI primaries at the producer's immutable inputs."""
+    # Check every destination before creating any repository. Never rewind or
+    # repoint an existing checkout, including a dangling symlink.
+    for name in SOURCE_COMMITS:
+        if Path(name).exists() or Path(name).is_symlink():
+            raise RuntimeError("qualified source destination already exists: " + name)
+    for name, expected in SOURCE_COMMITS.items():
+        Path(name).mkdir()
+        run(["git", "-C", name, "init", "--initial-branch=main"])
+        run(["git", "-C", name, "remote", "add", "origin",
+             "https://github.com/atrinik/" + name + ".git"])
+        run(["git", "-C", name, "fetch", "--no-tags", "origin", expected])
+        run(["git", "-C", name, "checkout", "-b", "main", expected])
+    # Retain the wrapper's canonical remote/primary identity validation.
+    run(["./atrinik", "init", "classic-client", "sound", "--jobs", "2"])
+    for name, expected in SOURCE_COMMITS.items():
+        if run(["git", "-C", name, "rev-parse", "HEAD"]).strip() != expected:
+            raise RuntimeError("qualified source changed: " + name)
+        if run(["git", "-C", name, "status", "--porcelain"]):
+            raise RuntimeError("dirty dependency: " + name)
+
+
 def build(output, evidence):
     require_headless()
     os.sched_setaffinity(0, sorted(os.sched_getaffinity(0))[:2])
@@ -66,14 +89,7 @@ def build(output, evidence):
     wrapper_head = run(["git", "rev-parse", "HEAD"]).strip()
     if run(["git", "status", "--porcelain"]):
         raise RuntimeError("acceptance requires a clean wrapper checkout")
-    run(["./atrinik", "init", "classic-client", "sound", "--jobs", "2"])
-    # The producer deliberately fails on source drift: update the qualified
-    # producer and its checked-in recipe together instead of relabeling bytes.
-    for name, expected in SOURCE_COMMITS.items():
-        if run(["git", "-C", name, "rev-parse", "HEAD"]).strip() != expected:
-            raise RuntimeError("qualified source changed: " + name)
-        if run(["git", "-C", name, "status", "--porcelain"]):
-            raise RuntimeError("dirty dependency: " + name)
+    initialize_qualified_sources()
     profile = "linux-portable-acceptance"
     run(["./atrinik", "profile", "create", profile, "--from", "classic"])
     arguments = ["./atrinik", "profile", "sound-mode", profile, "released"]
