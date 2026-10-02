@@ -59,6 +59,27 @@ def require_headless():
         raise RuntimeError("CPU acceptance must not receive GPU devices")
 
 
+def prepare_sources():
+    """Select the qualified revisions without moving rolling primary branches."""
+    run(["./atrinik", "init", "classic-client", "sound", "--jobs", "2"])
+    for name in SOURCE_COMMITS:
+        if run(["git", "-C", name, "status", "--porcelain"]):
+            raise RuntimeError("dirty dependency: " + name)
+    profile = "linux-portable-acceptance"
+    run(["./atrinik", "profile", "create", profile, "--from", "classic"])
+    for name, expected in SOURCE_COMMITS.items():
+        run(["./atrinik", "worktree", "create", name, profile,
+             "--branch", "ci/" + profile, "--from", expected])
+        run(["./atrinik", "profile", "set", profile, name, "--worktree", profile])
+        component = "classic-client" if name == "classic" else name
+        selected = run(["./atrinik", "path", component, "--profile", profile]).strip()
+        if run(["git", "-C", selected, "rev-parse", "HEAD"]).strip() != expected:
+            raise RuntimeError("qualified source changed: " + name)
+        if run(["git", "-C", selected, "status", "--porcelain"]):
+            raise RuntimeError("dirty qualified dependency: " + name)
+    return profile
+
+
 def build(output, evidence):
     require_headless()
     os.sched_setaffinity(0, sorted(os.sched_getaffinity(0))[:2])
@@ -66,16 +87,9 @@ def build(output, evidence):
     wrapper_head = run(["git", "rev-parse", "HEAD"]).strip()
     if run(["git", "status", "--porcelain"]):
         raise RuntimeError("acceptance requires a clean wrapper checkout")
-    run(["./atrinik", "init", "classic-client", "sound", "--jobs", "2"])
-    # The producer deliberately fails on source drift: update the qualified
-    # producer and its checked-in recipe together instead of relabeling bytes.
-    for name, expected in SOURCE_COMMITS.items():
-        if run(["git", "-C", name, "rev-parse", "HEAD"]).strip() != expected:
-            raise RuntimeError("qualified source changed: " + name)
-        if run(["git", "-C", name, "status", "--porcelain"]):
-            raise RuntimeError("dirty dependency: " + name)
-    profile = "linux-portable-acceptance"
-    run(["./atrinik", "profile", "create", profile, "--from", "classic"])
+    # The qualified consumer is fixed even when dependency main branches move.
+    # Advancing these pins still requires a matching qualified producer recipe.
+    profile = prepare_sources()
     arguments = ["./atrinik", "profile", "sound-mode", profile, "released"]
     flags = {
         "repository": "repository", "tag": "tag", "product_version": "product-version",

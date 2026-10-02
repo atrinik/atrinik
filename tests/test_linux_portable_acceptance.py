@@ -625,6 +625,68 @@ class PortablePublicationTests(unittest.TestCase):
         import runpy
         return runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
 
+    def test_acceptance_selects_pinned_worktrees_after_primary_advances(self):
+        ns = self.acceptance_namespace()
+        selected = {}
+        pins = {}
+        tips = {}
+
+        def git(root, *arguments):
+            return subprocess.run(["git", "-C", str(root), *arguments], check=True,
+                                  capture_output=True, text=True).stdout
+
+        for name in ("classic", "sound"):
+            root = self.root / name
+            root.mkdir()
+            git(root, "init", "-b", "main")
+            git(root, "config", "user.name", "Tests")
+            git(root, "config", "user.email", "tests@example.invalid")
+            git(root, "-c", "commit.gpgsign=false", "commit", "--allow-empty", "-m", "qualified")
+            pins[name] = git(root, "rev-parse", "HEAD").strip()
+            git(root, "-c", "commit.gpgsign=false", "commit", "--allow-empty", "-m", "new main")
+            tips[name] = git(root, "rev-parse", "HEAD").strip()
+
+        def run(arguments):
+            if arguments[0] == "git":
+                root = Path(arguments[2])
+                return git(root if root.is_absolute() else self.root / root, *arguments[3:])
+            if arguments[1:3] == ["worktree", "create"]:
+                name = arguments[3]
+                selected[name] = self.root / (name + "-qualified")
+                git(self.root / name, "worktree", "add", "-b", arguments[6],
+                    str(selected[name]), arguments[8])
+            if arguments[1] == "path":
+                name = "classic" if arguments[2] == "classic-client" else arguments[2]
+                return str(selected[name]) + "\n"
+            return ""
+
+        with mock.patch.dict(ns["prepare_sources"].__globals__, {"run": run, "SOURCE_COMMITS": pins}):
+            self.assertEqual(ns["prepare_sources"](), "linux-portable-acceptance")
+        for name, pin in pins.items():
+            self.assertEqual(git(selected[name], "rev-parse", "HEAD").strip(), pin)
+            self.assertEqual(git(self.root / name, "rev-parse", "HEAD").strip(), tips[name])
+            self.assertEqual(git(self.root / name, "branch", "--show-current").strip(), "main")
+            self.assertEqual(git(self.root / name, "status", "--porcelain"), "")
+
+    def test_acceptance_refuses_dirty_or_incorrect_selected_sources(self):
+        for failure in ("primary", "selected", "head"):
+            with self.subTest(failure=failure):
+                ns = self.acceptance_namespace()
+                pin = ns["SOURCE_COMMITS"]["classic"]
+                def run(arguments):
+                    if arguments[1] == "path":
+                        return "selected"
+                    if "rev-parse" in arguments:
+                        return "0" * 40 if failure == "head" else pin
+                    if "status" in arguments and arguments[2] == failure:
+                        return " M dirty"
+                    if failure == "primary" and "status" in arguments and arguments[2] == "classic":
+                        return " M dirty"
+                    return ""
+                with mock.patch.dict(ns["prepare_sources"].__globals__, {"run": run}):
+                    with self.assertRaisesRegex(RuntimeError, "dirty|qualified source changed"):
+                        ns["prepare_sources"]()
+
     def test_failed_export_capture_preserves_bounded_logs_and_exit_status(self):
         ns = self.acceptance_namespace()
         command = [sys.executable, "-c", "import sys; print('provider rejected'); print('strict ELF failure', file=sys.stderr); sys.exit(23)"]
@@ -657,6 +719,8 @@ class PortablePublicationTests(unittest.TestCase):
         globals_ = ns["build"].__globals__
         failure = subprocess.CalledProcessError(19, ["./atrinik", "linux", "export"])
         def fake_run(arguments, **kwargs):
+            if arguments[1] == "path":
+                return "classic" if arguments[2] == "classic-client" else arguments[2]
             if arguments[0] == "git" and "rev-parse" in arguments:
                 return ns["SOURCE_COMMITS"].get(arguments[2], "a" * 40) + "\n" if "-C" in arguments else "a" * 40 + "\n"
             return ""

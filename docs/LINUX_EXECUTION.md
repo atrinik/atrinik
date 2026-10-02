@@ -289,7 +289,7 @@ docker pull ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de
 For portable export, pull its separate producer only when needed:
 
 ```sh
-docker pull ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1
+docker pull ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338
 ```
 
 A pull of a public package needs no login. A private-package denial requires the
@@ -451,7 +451,7 @@ mode, host credentials or a Docker socket to the client.
 ## Portable client export
 
 The public exporter runs in the exact published portable build environment,
-`ghcr.io/atrinik/classic-portable-build@sha256:df72e2ece5edeaee584a1b8eb30e523c6154a0adae7a1fea5e954ed6bc9dbae1`.
+`ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338`.
 This is a separate immutable producer after the short-lived pinned CPU
 build/test stage; it grants no delivery authority and does not replace the
 native host runtime. Before merge, the automatic `Linux portable acceptance`
@@ -465,7 +465,12 @@ The final runtime process has neither credentials nor original source/build
 mounts, and its network, display, GPU and audio endpoints are absent.
 
 Its current full-commit consumer
-guard requires Classic `4998131ad2ae4c9680685fd87e2d85de1dc15fd9`.
+guard requires Classic `d926f6fd0418fb1af9060158c43d8d3ff5252580`.
+The CI driver selects this revision and the released sound revision in owned
+managed worktrees through its `linux-portable-acceptance` profile. Primary
+branches may advance independently; the selected commits must still match the
+qualification pins and remain clean. Advancing the pins requires qualifying
+the producer recipe and consumer together.
 Use a clean Classic profile with verified released sound matching its selected
 sound source commit, and a new absolute destination
 whose parent is owned by the invoking user and not writable by other users.
