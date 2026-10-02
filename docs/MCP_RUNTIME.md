@@ -29,6 +29,9 @@ pagination and bounded per-record failures. It scans at most 1,000 approvals,
 returns at most 50 records, and fingerprints the observation and authorization
 identity into its cursor. A malformed record does not suppress healthy records.
 A changed publication or authorization makes an old cursor unusable.
+Pages shrink when needed to fit the 32 KiB serialized result ceiling. The next
+cursor advances by the number actually returned, preserving complete traversal
+without requiring callers to guess a smaller page size.
 
 `runtime_status` selects one exact approved topology and returns its source
 coordinate separately from the recorded runtime source coordinates, approved

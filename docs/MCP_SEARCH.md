@@ -91,13 +91,18 @@ forbidden segments, symlinks in every path component, special or disappearing
 files, archives, cache/generated directories, literal-backslash path aliases,
 and names that contain secret-assignment forms. Ripgrep's ignore rules remain
 active; the common `.git`, `workspace`, `build`, credential, password, secret,
-and environment exclusions are enforced again on returned paths.
+and environment exclusions are enforced again on returned paths. The canonical
+source selector also excludes credential-like filenames and suffixes before
+inventory admission or opening, including `.env.local`, `credentials.json`,
+`secrets.toml`, and `private.key`.
 
 Selected files are also checked against Git in bounded batches. An
 `assume-unchanged` or `skip-worktree` index flag invalidates the coordinate. For
 a clean snapshot, the bytes of every opened descriptor must hash to the regular
 blob recorded for that path at the pinned commit. Dirty snapshots retain their
 context-service dirty fingerprint, while still rejecting hidden index flags.
+Both clean and dirty snapshots require every selected path to exist in Git's
+index; untracked files cannot supply search results.
 Clean working-tree transformations whose bytes differ from the pinned blob
 (such as CRLF checkout normalization) fail explicitly as
 `UNSUPPORTED_OPERATION`; the search layer does not run clean/smudge filters.
