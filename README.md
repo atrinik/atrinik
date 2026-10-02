@@ -998,6 +998,10 @@ when every managed resource retains the same canonical path. New records omit
 filesystem device, inode, and ctime fields; readers accept those fields in
 older records as ignored compatibility metadata.
 
+Integrated Classic immutable dependency sources use a managed per-profile
+producer cache outside the resettable CMake binary directory. A failed configure
+can be retried with verified cached inputs when downloads are unavailable.
+
 The former `migrate filesystem` command and `--confirm-remount` workflow have
 been removed. Continue with the ordinary command for the affected resource.
 Path normalization, no-follow access, symlink and object-type rejection,
@@ -1010,6 +1014,13 @@ The current classic client command opens a graphical application. Verify that
 the devcontainer display forwarding socket is live before launching it. Use
 `--dry-run` to build and print either launch command without starting the
 process.
+
+Non-Git wrapper roots use their own lease namespace and never inherit an
+ancestor checkout; linked worktrees share their actual common Git namespace.
+
+For task-blocking local tooling or metadata failures, follow
+[local recovery](docs/LOCAL_RECOVERY.md). Authorized bounded repairs preserve
+evidence and active ownership, then retry the public wrapper operation.
 
 ### Manual verification handoffs
 
@@ -1762,6 +1773,19 @@ keeping its login and source profile stable:
 Reset refuses a running or otherwise locked state and validates the ownership
 marker, state registration, state shape, and credential permissions before it
 replaces anything. External and shared states are never scenario reset targets.
+For a repeatable Brynknot idle reproduction, use a Classic server build that
+supports the server-owned `brynknot-idle` preset:
+
+~~~sh
+./atrinik scenario create brynknot-review --profile maps-review --preset brynknot-idle
+./atrinik up --name brynknot-review --profile maps-review --state scenario-brynknot-review
+~~~
+
+This preset places the character and savebed on `/shattered_islands/world_0_70`
+at `(20, 8)`, preserves the world clock, and adds no special item. `basic-player`
+continues to use normal first-login placement. Stop the topology before resetting
+`brynknot-review`; account and save creation remain owned by the server provisioner.
+
 Do not create static account or player fixtures; add a tested server-owned
 preset if a future reproduction needs more than `basic-player`. The Classic
 server also owns `lighting-radiance-day`, `lighting-radiance-dawn`, and

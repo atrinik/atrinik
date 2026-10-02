@@ -383,6 +383,21 @@ class CompletionTests(unittest.TestCase):
             ("candidates", ["feature"]),
         )
 
+    def test_brynknot_scenario_is_completed_without_reading_credentials(self) -> None:
+        root = self.workspace / "scenarios" / "brynknot"
+        self.write_json(self.workspace / "states.json", {
+            "schema_version": 1, "states": {"scenario-brynknot": str(root / "state")},
+        })
+        record = self.scenario_record("brynknot")
+        record["preset"] = "brynknot-idle"
+        self.write_json(root / "scenario.json", record)
+        self.write_json(root / completion.MANAGED_MARKER,
+                        {"schema_version": 1, "purpose": "test-scenario"})
+        with mock.patch("atrinik_workspace.completion._json", wraps=completion._json) as load:
+            self.assertEqual(self.candidates("scenario", "show", "bry"),
+                             ("candidates", ["brynknot"]))
+        self.assertNotIn(root / "password", [call.args[0] for call in load.call_args_list])
+
     def test_state_scenario_and_topology_records_refresh_without_secrets(self) -> None:
         self.write_json(
             self.workspace / "states.json",

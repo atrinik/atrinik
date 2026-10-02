@@ -1086,7 +1086,8 @@ class CheckObservationTests(unittest.TestCase):
         gh = GitHub()
         required = [{"context": "ci", "app_id": 17}, {"context": "docs", "app_id": None}]
         for runs in ([], [{"id": 1, "name": "ci", "app": {"id": 17}, "status": "completed", "conclusion": "success"}],
-                     [{"id": 1, "name": "ci", "app": {"id": 9}, "status": "completed", "conclusion": "success"}]):
+                     [{"id": 1, "name": "ci", "app": {"id": 9}, "status": "completed", "conclusion": "success"},
+                      {"id": 2, "name": "docs", "status": "completed", "conclusion": "success"}]):
             with patch.object(gh, "required_checks", return_value=required), patch.object(gh, "pages", side_effect=[runs, []]):
                 result = gh.checks("atrinik/atrinik", "a" * 40, "main")
             self.assertFalse(result["passing"])
@@ -1129,19 +1130,91 @@ class CheckObservationTests(unittest.TestCase):
                 with self.assertRaises(ProjectError):
                     prepare_operation(p, fake, "close-parent", "atrinik/atrinik#1", {})
 
-    def test_failed_or_pending_checks_block_terminal(self):
-        for state, conclusion in (("completed", "failure"), ("in_progress", None), ("completed", "cancelled")):
+    def test_failed_or_pending_required_checks_block_terminal(self):
+        for state, conclusion in (("completed", "failure"), ("in_progress", None),
+                                  ("queued", None), ("completed", "cancelled"),
+                                  ("completed", "timed_out")):
             with self.subTest(state=state, conclusion=conclusion):
                 gh = GitHub()
-                with patch.object(gh, "pages", side_effect=[
-                    [{"id": 1, "status": state, "conclusion": conclusion}], []]):
+                required = [{"context": "ci", "app_id": 17}]
+                runs = [{"id": 1, "name": "ci", "app": {"id": 17},
+                         "status": state, "conclusion": conclusion}]
+                with patch.object(gh, "required_checks", return_value=required), patch.object(
+                        gh, "pages", side_effect=[runs, []]):
                     self.assertFalse(gh.checks("atrinik/atrinik", "a" * 40, "main")["passing"])
+
+    def test_optional_diagnostics_do_not_block_merged_pr_or_issue(self):
+        gh = GitHub()
+        required = [{"context": "Integration validation", "app_id": 17},
+                    {"context": "Conventional PR title", "app_id": None}]
+        runs = [{"id": 1, "name": "Integration validation", "app": {"id": 17},
+                 "status": "completed", "conclusion": "success"},
+                {"id": 2, "name": "codecov/patch", "app": {"id": 9},
+                 "status": "completed", "conclusion": "failure"},
+                {"id": 3, "name": "optional analysis", "app": {"id": 9},
+                 "status": "in_progress", "conclusion": None, "output": {"text": "unretained details"}}]
+        statuses = [{"context": "Conventional PR title", "state": "success"},
+                    {"context": "codecov/project", "state": "failure", "description": "unretained details"}]
+        pr = {"number": 9, "node_id": "PR_9", "state": "closed", "merged_at": "date",
+              "html_url": "https://github.com/atrinik/atrinik/pull/9", "merge_commit_sha": "c" * 40,
+              "head": {"sha": "a" * 40}, "base": {"sha": "b" * 40, "ref": "main"}}
+        issue = {"number": 2, "node_id": "I_2", "state": "closed", "state_reason": "completed",
+                 "html_url": "https://github.com/atrinik/atrinik/issues/2"}
+        timeline = [{"source": {"issue": {"pull_request": {"url": "present"},
+                                         "html_url": pr["html_url"]}}}]
+        for mode, ident, requests, pages in (
+                ("PR", "atrinik/atrinik#9", [pr], [runs, statuses]),
+                ("issue", "atrinik/atrinik#2", [issue, pr], [timeline, runs, statuses, [], []])):
+            with self.subTest(mode=mode), patch.object(gh, "required_checks", return_value=required), patch.object(
+                    gh, "request", side_effect=requests), patch.object(gh, "pages", side_effect=pages):
+                observed = gh.observe(ident, mode)
+            self.assertTrue(observed["terminal"])
+            checks = observed["checks"] if mode == "PR" else observed["references"][pr["html_url"]]["checks"]
+            self.assertEqual(checks["runs"], [
+                {"id": 1, "name": "Integration validation", "app_id": 17,
+                 "status": "completed", "conclusion": "success"},
+                {"id": 2, "name": "codecov/patch", "app_id": 9,
+                 "status": "completed", "conclusion": "failure"},
+                {"id": 3, "name": "optional analysis", "app_id": 9,
+                 "status": "in_progress", "conclusion": None}])
+            self.assertEqual(checks["status_history"], [
+                {"context": "Conventional PR title", "state": "success"},
+                {"context": "codecov/project", "state": "failure"}])
+            self.assertEqual(checks["statuses"]["codecov/project"], "failure")
+            self.assertEqual(checks["missing"], [])
+
+    def test_required_status_failure_blocks_even_with_successful_run(self):
+        for app_id in (None, -1, 17):
+            for state in ("failure", "error", "pending", None):
+                for with_run in (False, True):
+                    with self.subTest(app_id=app_id, state=state, with_run=with_run):
+                        gh = GitHub()
+                        required = [{"context": "ci", "app_id": app_id}]
+                        runs = [{"id": 1, "name": "ci", "app": {"id": 17},
+                                 "status": "completed", "conclusion": "success"}] if with_run else []
+                        with patch.object(gh, "required_checks", return_value=required), patch.object(
+                                gh, "pages", side_effect=[runs, [{"context": "ci", "state": state}]]):
+                            self.assertFalse(gh.checks("atrinik/atrinik", "a" * 40, "main")["passing"])
+
+    def test_status_cannot_satisfy_app_bound_required_check(self):
+        gh = GitHub()
+        with patch.object(gh, "required_checks", return_value=[{"context": "ci", "app_id": 17}]), patch.object(
+                gh, "pages", side_effect=[[], [{"context": "ci", "state": "success"}]]):
+            result = gh.checks("atrinik/atrinik", "a" * 40, "main")
+        self.assertFalse(result["passing"])
+        self.assertEqual(result["missing"], [{"context": "ci", "app_id": 17}])
 
     def test_superseded_status_does_not_block_success(self):
         gh = GitHub()
-        with patch.object(gh, "pages", side_effect=[[], [
-            {"context": "ci", "state": "success"}, {"context": "ci", "state": "failure"}]]):
-            self.assertTrue(gh.checks("atrinik/atrinik", "a" * 40, "main")["passing"])
+        statuses = [{"context": "ci", "state": "success"}, {"context": "ci", "state": "failure"}]
+        for app_id in (None, -1):
+            with self.subTest(app_id=app_id), patch.object(
+                    gh, "required_checks", return_value=[{"context": "ci", "app_id": app_id}]), patch.object(
+                    gh, "pages", side_effect=[[], statuses]):
+                result = gh.checks("atrinik/atrinik", "a" * 40, "main")
+            self.assertTrue(result["passing"])
+            self.assertEqual(result["statuses"], {"ci": "success"})
+            self.assertEqual(result["status_history"], statuses)
 
     def test_collection_total_must_match_complete_scan(self):
         gh = GitHub()

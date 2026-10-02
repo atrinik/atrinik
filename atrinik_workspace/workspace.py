@@ -226,6 +226,7 @@ SCENARIO_KEYS = {
 SCENARIO_SCHEMA_VERSION = 4
 SCENARIO_PRESETS = {
     "basic-player": {"archetype": "human_male"},
+    "brynknot-idle": {"archetype": "human_male"},
     "lighting-radiance-day": {"archetype": "human_male"},
     "lighting-radiance-dawn": {"archetype": "human_male"},
     "lighting-radiance-night": {"archetype": "human_male"},
@@ -3552,24 +3553,22 @@ class Workspace:
             self._assert_lease_namespace_identity(cached)
             return cached
         fallback = getattr(self, "_fallback_lease_namespace", None)
-        if isinstance(fallback, Path) and not (
-            self.paths.repository / ".git"
-        ).exists():
+        git_marker = self.paths.repository / ".git"
+        has_git_marker = git_marker.exists() or git_marker.is_symlink()
+        if isinstance(fallback, Path) and not has_git_marker:
             self._assert_lease_namespace_identity(fallback)
             return fallback
-        try:
+        if has_git_marker:
             anchor = self._git_common_directory(
-                self.paths.repository, trace=False
+                self.paths.repository, trace=False, discover=False
             )
-        except WorkspaceError:
+        else:
             # Unit fixtures and a not-yet-materialized wrapper still need a
-            # stable pre-Git anchor. A production wrapper is itself a checkout.
-            git_marker = self.paths.repository / ".git"
-            if git_marker.exists() or git_marker.is_symlink():
-                raise
+            # stable pre-Git anchor. Never let Git's parent discovery borrow an
+            # enclosing checkout's namespace for a nested non-Git wrapper.
             anchor = self.paths.repository.resolve(strict=False)
         namespace = anchor / "atrinik-resource-leases"
-        if (self.paths.repository / ".git").exists():
+        if has_git_marker:
             if isinstance(fallback, Path) and fallback != namespace:
                 raise WorkspaceError(
                     "wrapper Git identity materialized after workspace construction; "
@@ -8486,10 +8485,13 @@ class Workspace:
         return remote
 
     @staticmethod
-    def _git_common_directory(path: Path, *, trace: bool = True) -> Path:
+    def _git_common_directory(
+        path: Path, *, trace: bool = True, discover: bool = True
+    ) -> Path:
         value = Path(
             git(
                 path,
+                *([] if discover else ["--git-dir", str(path / ".git")]),
                 "rev-parse",
                 "--git-common-dir",
                 capture=True,
@@ -12481,6 +12483,12 @@ class Workspace:
         build_services: set[str] | None = None,
         gpu_shader: dict[str, Any] | None = None,
     ) -> None:
+        # Keep verified dependency downloads outside the disposable CMake tree.
+        # The caller holds the profile build lease for this producer as well.
+        dependency_cache = root / "producers" / "classic-dependency-cache"
+        managed_directory(
+            dependency_cache, self.paths.builds, "classic-dependency-cache"
+        )
         checkout = selected["client"].parent.resolve()
         view = self._profile_source_view(
             root,
@@ -12544,6 +12552,7 @@ class Workspace:
             "-DENABLE_WARNING_ERRORS=ON",
             "-DPACKAGE_TYPE=none",
             "-DENABLE_PYTHON_PLUGIN=ON",
+            f"-DATRINIK_DEPENDENCY_CACHE_DIR={dependency_cache}",
             *self._classic_identity_arguments(selected["client"], integrated=True),
         ]
         if gpu_shader is not None:
