@@ -97,8 +97,10 @@ re-evaluate the SDK if transport/client support expands.
 Requests, scans, subprocess output, resources and results obey contract v1.
 Malformed JSON, duplicate keys, oversized frames, unknown fields and methods
 fail without reflecting caller values. Git commands are fixed internal reads,
-use pinned directory descriptors, disable optional locks and external diff/
-textconv/fsmonitor, and are killed on cancellation or deadline. EOF cancels
+use pinned directory descriptors, disable optional locks, replacement objects,
+lazy fetching and external diff/textconv/fsmonitor, reject configured clean or
+process filters, and are killed on cancellation or deadline. Git must support
+`--no-lazy-fetch`; unsupported Git versions fail closed. EOF cancels
 outstanding requests. No shell, network, runtime control or source write method
 is registered. Source/guidance text remains untrusted data.
 

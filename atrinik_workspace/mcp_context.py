@@ -80,13 +80,16 @@ def _digest(value: object) -> str:
     return hashlib.sha256(canonical_json(value)).hexdigest()
 
 
-def _git(root: Path, *arguments: str, maximum: int = MAX_BYTES) -> bytes:
+def _git(root: Path, *arguments: str, maximum: int = MAX_BYTES, _missing_ok: bool = False) -> bytes:
     """Fixed internal Git reads, bounded while running, pinned checkout descriptor."""
     check_request()
+    if arguments and arguments[0] in {"status", "diff", "ls-files"}:
+        check_git_read_policy(root)
     with directory(root) as fd:
         environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
-        environment.update(GIT_OPTIONAL_LOCKS="0", GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL="/dev/null", LC_ALL="C")
-        command = ["git", "--no-optional-locks", "-c", "core.fsmonitor=false", "-c", "core.untrackedCache=false",
+        environment.update(GIT_OPTIONAL_LOCKS="0", GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL="/dev/null",
+                           GIT_NO_REPLACE_OBJECTS="1", GIT_NO_LAZY_FETCH="1", GIT_TERMINAL_PROMPT="0", LC_ALL="C")
+        command = ["git", "--no-optional-locks", "--no-lazy-fetch", "-c", "core.fsmonitor=false", "-c", "core.untrackedCache=false",
                    "-c", "diff.external=", "-C", f"/proc/self/fd/{fd}", *arguments]
         try:
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
@@ -111,7 +114,8 @@ def _git(root: Path, *arguments: str, maximum: int = MAX_BYTES) -> bytes:
                     chunks.extend(data)
                     if len(chunks) > maximum:
                         raise ContractError("LIMIT_EXCEEDED", "Git observation exceeds limit")
-            if process.wait(timeout=max(0.01, deadline - time.monotonic())):
+            returncode = process.wait(timeout=max(0.01, deadline - time.monotonic()))
+            if returncode and not (_missing_ok and returncode == 1):
                 raise ContractError("NOT_FOUND", "Git coordinate unavailable")
             return bytes(chunks)
         finally:
@@ -119,6 +123,14 @@ def _git(root: Path, *arguments: str, maximum: int = MAX_BYTES) -> bytes:
                 process.kill()
             process.wait()
             process.stdout.close()
+
+
+def check_git_read_policy(root: Path) -> None:
+    """Reject executable local content filters before worktree-oriented Git reads."""
+    configured = _git(root, "config", "--null", "--get-regexp",
+                      r"^filter\..*\.(clean|process)$", _missing_ok=True)
+    if configured:
+        raise ContractError("FORBIDDEN", "external content filters are unavailable to inspection")
 
 
 def _text(data: bytes) -> str:
@@ -300,6 +312,15 @@ class ContextService:
 
     def resolve(self, profile: str = "default", component: str | None = None,
                 role: str | None = None, worktree: str | None = None) -> Snapshot:
+        """Fence the whole observation, including branch/configuration/registry state."""
+        before = self._resolve_once(profile, component, role, worktree)
+        after = self._resolve_once(profile, component, role, worktree)
+        if before.identity != after.identity:
+            raise ContractError("STALE_COORDINATE", "workspace inputs changed during observation")
+        return after
+
+    def _resolve_once(self, profile: str = "default", component: str | None = None,
+                      role: str | None = None, worktree: str | None = None) -> Snapshot:
         check_request()
         manifest, paths, manifest_digest = self._model()
         selected_profile = self._profile(manifest, paths, profile)
@@ -374,7 +395,7 @@ class ContextService:
         coordinate = Coordinate.from_mapping({"repository": repository, "branch": branch, "commit": head,
             "worktree": _digest([repository, str(root)]), "dirty_fingerprint": dirty_fingerprint(status, diff)})
         identity = {**coordinate.json(), "manifest": manifest_digest, "profile": _digest(selected_profile),
-                    "registry": registry_digest, "authorization": _digest(self.authorization_identity),
+                    "registry": registry_digest, "origin": _digest(origin), "authorization": _digest(self.authorization_identity),
                     "schema_version": SCHEMA_VERSION, "provider_version": PROVIDER_VERSION,
                     "root_identity": inode, "selection": metadata}
         if (_text(_git(root, "rev-parse", "--verify", "HEAD")) != head
@@ -480,7 +501,7 @@ class ContextService:
         if kind == "states":
             try:
                 raw = _safe_read(paths.workspace, "states.json")
-                registry = json.loads(raw)
+                registry = json.loads(raw, object_pairs_hook=_unique_object)
                 if not isinstance(registry, dict) or registry.get("schema_version") != 1 or not isinstance(registry.get("states"), dict):
                     raise ContractError("INCOMPLETE", "invalid states registry")
                 if len(registry["states"]) > 1000:

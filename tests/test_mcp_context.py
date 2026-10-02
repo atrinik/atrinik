@@ -221,3 +221,47 @@ class ContextFixture(unittest.TestCase):
         git(self.root, "update-index", "--assume-unchanged", "sample.txt")
         (self.root / "sample.txt").write_text("hidden change\n")
         self.assertCode("FORBIDDEN", lambda: self.service.resolve().read("sample.txt"))
+
+    def test_whole_observation_fences_same_commit_branch_switch(self):
+        from atrinik_workspace.mcp_context import _git
+        changed = False
+        def observe(root, *args, **kwargs):
+            nonlocal changed
+            value = _git(root, *args, **kwargs)
+            if args == ("rev-parse", "--abbrev-ref", "HEAD") and not changed:
+                changed = True
+                git(root, "checkout", "-b", "review")
+            return value
+        with patch("atrinik_workspace.mcp_context._git", side_effect=observe):
+            self.assertCode("STALE_COORDINATE", self.service.resolve)
+
+    def test_whole_observation_fences_manifest_change(self):
+        from atrinik_workspace.mcp_context import _git
+        changed = False
+        def observe(root, *args, **kwargs):
+            nonlocal changed
+            value = _git(root, *args, **kwargs)
+            if args == ("rev-parse", "--abbrev-ref", "HEAD") and not changed:
+                changed = True
+                manifest = root / "components.json"
+                manifest.write_bytes(manifest.read_bytes() + b"\n")
+            return value
+        with patch("atrinik_workspace.mcp_context._git", side_effect=observe):
+            self.assertCode("STALE_COORDINATE", self.service.resolve)
+
+    def test_replace_refs_cannot_substitute_clean_blob_identity(self):
+        old = git(self.root, "rev-parse", "HEAD:sample.txt")
+        replacement = subprocess.run(["git", "-C", str(self.root), "hash-object", "-w", "--stdin"],
+                                     input=b"replacement\n", check=True, capture_output=True).stdout.decode().strip()
+        git(self.root, "replace", old, replacement)
+        self.assertEqual(self.service.resolve().read("sample.txt"), b"original\n")
+
+    def test_inspection_never_executes_configured_clean_filters(self):
+        sentinel = self.root / "filter-sentinel"
+        (self.root / ".gitattributes").write_text("sample.txt filter=fixture\n")
+        git(self.root, "add", ".gitattributes")
+        git(self.root, "commit", "-m", "attributes fixture")
+        git(self.root, "config", "filter.fixture.clean", "touch filter-sentinel; cat")
+        (self.root / "sample.txt").write_text("changed to trigger clean filter\n")
+        self.assertCode("FORBIDDEN", self.service.resolve)
+        self.assertFalse(sentinel.exists())
