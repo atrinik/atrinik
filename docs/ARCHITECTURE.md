@@ -673,6 +673,11 @@ worktrees, Git branches/objects, profiles, topology/state, or runtime resources.
 This reduces each completed delivery to one bounded record and permits explicit
 eventual reclamation before the review-root entry/byte limits are exhausted.
 
+Integrated Classic immutable-source inputs live in the profile
+`producers/classic-dependency-cache`, under its build-root lease. Resetting an
+incomplete CMake binary tree preserves this independently owned cache; managed
+path checks reject symlinks and unmarked directories before configuration.
+
 Ordinary operations use fair exact-coordinate leases. Workspace-local
 coordinates live below `workspace/leases/`; physical Git-administration,
 source, port, and persistent-reference coordination lives below the wrapper's
