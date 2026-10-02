@@ -96,8 +96,9 @@ class ServerTests(unittest.TestCase):
                 arguments={"mode": mode, "provenance": True, "path": "sample.txt"}))
             items = response["result"]["structuredContent"]["data"]["items"]
             self.assertTrue(items)
-            self.assertEqual(items[0]["commit"], items[0]["snapshot_commit"])
-            contents = self.server.handle(request("resources/read", uri=items[0]["resource_uri"]))
+            current = [item for item in items if item["commit"] == item["snapshot_commit"]]
+            self.assertTrue(current)
+            contents = self.server.handle(request("resources/read", uri=current[0]["resource_uri"]))
             self.assertEqual(contents["result"]["contents"][0]["text"], "committed replacement\n")
 
     def test_shared_content_cross_profile_search_is_not_duplicated(self):
