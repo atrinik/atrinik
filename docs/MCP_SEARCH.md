@@ -6,6 +6,14 @@ resolved from the canonical component manifest and a configured profile or
 worktree selector. A tool request cannot provide a host path, add a repository,
 enable network access, or cause an index to persist.
 
+## Host prerequisite
+
+Install `ripgrep` (`rg`) on the Linux host running this adapter. Ubuntu/Debian
+hosts can use `sudo apt-get install ripgrep`. The wrapper test-shard workflow
+installs it explicitly rather than assuming it is in the hosted runner image.
+A missing executable returns `UNSUPPORTED_OPERATION`; it never changes the
+source selection or falls back to a broader filesystem scan.
+
 ## Request and modes
 
 The engine accepts a closed request object with `mode`, `query`,

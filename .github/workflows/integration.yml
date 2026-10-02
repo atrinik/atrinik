@@ -31,6 +31,11 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
           python-version: "3.13"
+      - name: Install source-search prerequisite
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends ripgrep
+          rg --version
       - name: Install coverage tooling
         run: python3 -m pip install --requirement requirements-dev.txt
       - name: Preflight provenance revision anchors

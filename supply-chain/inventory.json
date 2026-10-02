@@ -3635,6 +3635,39 @@
       ]
     },
     {
+      "id": "system/github-actions-source-search",
+      "name": "Hosted Linux source-search prerequisite",
+      "kind": "system-package-set",
+      "owner": "atrinik",
+      "scope": [
+        "atrinik"
+      ],
+      "required": true,
+      "version": "ubuntu-24.04-distribution-managed",
+      "version_source": ".github/workflows/integration.yml",
+      "license": "MIT",
+      "source_url": "https://github.com/BurntSushi/ripgrep",
+      "locator": "github-actions-ubuntu-ripgrep",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "Ubuntu APT installs ripgrep explicitly on ephemeral test-shard runners",
+      "update_cadence_days": 30,
+      "update_mechanism": "Ubuntu package updates and runner version probe",
+      "eol_response": "Update the hosted Ubuntu release and search prerequisite together",
+      "validation": "rg --version and real bounded source-search tests",
+      "disposition": "isolate",
+      "packages": [
+        "ripgrep"
+      ],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/integration.yml",
+          "contains": "sudo apt-get install --yes --no-install-recommends ripgrep"
+        }
+      ]
+    },
+    {
       "id": "system/idn2",
       "name": "GNU Libidn2",
       "kind": "system-library",
