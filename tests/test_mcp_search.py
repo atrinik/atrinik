@@ -66,6 +66,7 @@ class SearchTest(unittest.TestCase):
                 cwd=root,
                 check=True,
             )
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
         self.coordinate_one = Coordinate(
             "atrinik/one", "main", "1" * 40, "main", "4" * 64
         )
@@ -110,6 +111,90 @@ class SearchTest(unittest.TestCase):
             "timeout_ms": timeout_ms,
         }
 
+    def test_dirty_search_rejects_untracked_content_and_match_oracles(self):
+        subprocess.run(["git", "add", "src/code.rs"], cwd=self.one, check=True)
+        (self.one / "src" / "code.rs").write_text("DirtyTrackedMarker\n", encoding="utf-8")
+        tracked = search(self.request(query="DirtyTrackedMarker"), [self.snapshots[0]],
+                         authorization_identity="fixture-reader")
+        self.assertEqual(len(tracked["items"]), 1)
+        (self.one / "untracked.txt").write_text("UntrackedMarker\n", encoding="utf-8")
+        for mode, query in (("exact", "UntrackedMarker"), ("regex", "Untracked.*"),
+                            ("path", "untracked"), ("filename", "untracked")):
+            with self.subTest(mode=mode), self.assertRaisesRegex(ContractError, "STALE_COORDINATE"):
+                search(self.request(mode=mode, query=query), [self.snapshots[0]],
+                       authorization_identity="fixture-reader")
+
+    def test_credential_paths_are_excluded_before_open_and_matching(self):
+        paths = (".env.local", "credentials.json", "secrets.toml", "passwords.txt",
+                 "private.key", "certificate.pem", "bundle.p12", "CREDENTIALS.JSON",
+                 "nested/secrets.toml", "nested/credentials.json/source.txt")
+        for path in paths:
+            target = self.one / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("CredentialMarker\n", encoding="utf-8")
+        subprocess.run(["git", "add", "."], cwd=self.one, check=True)
+        original = mcp_search._open_regular
+        opened = []
+
+        def observe(descriptor, path):
+            opened.append(path)
+            return original(descriptor, path)
+
+        with mock.patch.object(mcp_search, "_open_regular", side_effect=observe):
+            for mode, query in (("exact", "CredentialMarker"), ("regex", "Credential.*"),
+                                ("path", "credentials"), ("filename", "private.key")):
+                with self.subTest(mode=mode):
+                    result = search(self.request(mode=mode, query=query), [self.snapshots[0]],
+                                    authorization_identity="fixture-reader")
+                    self.assertEqual(result["items"], [])
+        self.assertFalse(set(opened) & set(paths))
+        for path in paths:
+            for mode in ("history", "blame"):
+                with self.subTest(path=path, mode=mode), self.assertRaisesRegex(ContractError, "FORBIDDEN"):
+                    search({**self.request(mode=mode, query=""), "path": path, "provenance": True},
+                           [self.snapshots[0]], authorization_identity="fixture-reader")
+            self.assertIsNone(mcp_search._historical_component_path(self.snapshots[0], path))
+
+    def test_server_search_cannot_reveal_excluded_dirty_or_untracked_bytes(self):
+        from atrinik_workspace.mcp_server import ContextServer
+        from tests import test_mcp_context as fixture
+        from tests.test_mcp_server import request
+
+        fixture.ContextFixture.setUp(self)
+        server = ContextServer(self.service)
+        for name in (".env.local", "credentials.json", "private.key"):
+            (self.root / name).write_text("CommittedCredentialMarker\n")
+        fixture.git(self.root, "add", ".")
+        fixture.git(self.root, "commit", "-m", "credential fixture")
+        for name in (".env.local", "credentials.json", "private.key"):
+            (self.root / name).write_text("DirtyCredentialMarker\n")
+        (self.root / "sample.txt").write_text("TrackedMarker\n")
+        for mode, query in (("exact", "DirtyCredentialMarker"), ("regex", "DirtyCredential.*"),
+                            ("filename", "credentials"), ("path", ".env.local")):
+            response = server.handle(request("tools/call", name="atrinik_search",
+                                            arguments={"mode": mode, "query": query}))
+            self.assertEqual(response["result"]["structuredContent"]["data"]["items"], [])
+        response = server.handle(request("tools/call", name="atrinik_search",
+                                        arguments={"mode": "exact", "query": "TrackedMarker"}))
+        self.assertEqual(len(response["result"]["structuredContent"]["data"]["items"]), 1)
+        for payload in ("UntrackedMarker", "ChangedUntrackedMarker"):
+            (self.root / "untracked.txt").write_text(payload)
+            response = server.handle(request("tools/call", name="atrinik_search",
+                                            arguments={"mode": "exact", "query": payload}))
+            self.assertEqual(response["error"]["data"]["code"], "STALE_COORDINATE")
+            self.assertNotIn(payload, canonical_json(response).decode())
+
+    def test_credential_component_source_is_rejected_before_inventory(self):
+        scoped = _Snapshot(
+            coordinate=self.coordinate_one, root=self.one, identity=self.snapshots[0].identity,
+            metadata={**self.snapshots[0].metadata, "source": "credentials.json"},
+            probe=self.probe_one,
+        )
+        with mock.patch.object(mcp_search, "_capture") as capture:
+            with self.assertRaisesRegex(ContractError, "FORBIDDEN"):
+                search(self.request(), [scoped], authorization_identity="fixture-reader")
+        capture.assert_not_called()
+
     def test_exact_search_is_cross_repository_revision_qualified_and_compact(self):
         result = search(self.request(), self.snapshots, authorization_identity="fixture-reader")
         self.assertEqual(len(result["items"]), 3)
@@ -139,6 +224,7 @@ class SearchTest(unittest.TestCase):
         (self.one / ".cache" / "Packet.txt").write_text("fixture", encoding="utf-8")
         (self.one / "Packet.zip").write_text("fixture", encoding="utf-8")
 
+        subprocess.run(["git", "add", "docs"], cwd=self.one, check=True)
         path_result = search(
             self.request(mode="path", query="docs/Packet"),
             [self.snapshots[0]],
@@ -164,6 +250,7 @@ class SearchTest(unittest.TestCase):
     def test_pagination_is_deterministic_and_bound_to_full_identity(self):
         for index in range(75):
             (self.one / "src" / f"record-{index:03}.txt").write_text("Needle\n", encoding="utf-8")
+        subprocess.run(["git", "add", "src"], cwd=self.one, check=True)
         request = self.request(query="Needle", page_size=17)
         first = search(request, [self.snapshots[0]], authorization_identity="fixture-reader")
         paths = [item["path"] for item in first["items"]]
@@ -311,6 +398,7 @@ class SearchTest(unittest.TestCase):
     def test_deterministic_inventory_cap_does_not_skip_between_pages(self):
         for index in range(1001):
             (self.one / f"file-{index:04}.txt").write_text("fixture", encoding="utf-8")
+        subprocess.run(["git", "add", "."], cwd=self.one, check=True)
         request = self.request(mode="filename", query="file-", page_size=1)
         first = search(request, [self.snapshots[0]], authorization_identity="fixture-reader")
         second = search(
@@ -325,6 +413,7 @@ class SearchTest(unittest.TestCase):
     def test_component_source_subdirectory_is_the_only_search_root(self):
         (self.one / "outside.txt").write_text("ScopedNeedle", encoding="utf-8")
         (self.one / "src" / "inside.txt").write_text("ScopedNeedle", encoding="utf-8")
+        subprocess.run(["git", "add", "src"], cwd=self.one, check=True)
         scoped = _Snapshot(
             coordinate=self.coordinate_one,
             root=self.one,
@@ -369,6 +458,7 @@ class SearchTest(unittest.TestCase):
                 ["git", "init", "-q", "-b", "main"], cwd=root, check=True
             )
             (root / "answer.txt").write_text("KnownAnswerMarker\n", encoding="utf-8")
+            subprocess.run(["git", "add", "answer.txt"], cwd=root, check=True)
             coordinate = Coordinate(
                 repository,
                 "main",
@@ -410,6 +500,7 @@ class SearchTest(unittest.TestCase):
         (self.one / "server").mkdir()
         (self.one / "client" / "answer.txt").write_text("SharedHeadMarker\n", encoding="utf-8")
         (self.one / "server" / "answer.txt").write_text("SharedHeadMarker\n", encoding="utf-8")
+        subprocess.run(["git", "add", "client", "server"], cwd=self.one, check=True)
         snapshots = []
         for component in ("classic-client", "classic-server"):
             source = component.removeprefix("classic-")
@@ -445,6 +536,8 @@ class SearchTest(unittest.TestCase):
             (self.one / "src" / f"many-{file_index:02}.txt").write_text(
                 payload, encoding="utf-8"
             )
+
+        subprocess.run(["git", "add", "src"], cwd=self.one, check=True)
 
         def capture_keys():
             records, incomplete = mcp_search._content_records(
@@ -613,7 +706,7 @@ class SearchTest(unittest.TestCase):
             metadata=snapshot.metadata,
             probe=_Probe(dirty_coordinate),
         )
-        with self.assertRaisesRegex(ContractError, "FORBIDDEN"):
+        with self.assertRaisesRegex(ContractError, "STALE_COORDINATE"):
             search(
                 {**history_request, "path": "[ab].txt"},
                 [dirty_snapshot],

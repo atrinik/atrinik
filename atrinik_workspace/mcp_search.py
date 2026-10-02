@@ -99,8 +99,10 @@ def _source_root(snapshot: ResolvedSnapshot) -> Path:
         raise ContractError("INTERNAL", "resolved source identity is invalid")
     if source == ".":
         return snapshot.root
+    from atrinik_workspace.mcp_context import _source_selector
+
     contract = load_json(CONTRACT_PATH)
-    relative = PurePosixPath(source.replace("\\", "/"))
+    relative = _source_selector(source)
     forbidden = set(contract["forbidden_path_segments"]) | set(
         _SEARCH_FORBIDDEN_SEGMENTS
     )
@@ -180,7 +182,12 @@ def _safe_relative(root: Path, raw: str) -> str | None:
         or redact(raw) != raw
     ):
         return None
-    relative = PurePosixPath(raw)
+    from atrinik_workspace.mcp_context import _source_selector
+
+    try:
+        relative = _source_selector(raw)
+    except ContractError:
+        return None
     contract = load_json(CONTRACT_PATH)
     forbidden = set(contract["forbidden_path_segments"]) | set(
         _SEARCH_FORBIDDEN_SEGMENTS
@@ -538,10 +545,10 @@ def _validate_descriptor_batch(
                 "STALE_COORDINATE", "source index hides selected file changes"
             )
 
+    if set(index_entries) != set(checkout_paths):
+        raise ContractError("STALE_COORDINATE", "selected source contains an untracked file")
     if snapshot.coordinate.dirty_fingerprint is not None:
         return
-    if set(index_entries) != set(checkout_paths):
-        raise ContractError("STALE_COORDINATE", "clean source contains an untracked file")
     tree_output, return_code, limited = _git_capture(
         snapshot,
         ["ls-tree", "-r", "-z", snapshot.coordinate.commit, "--", *checkout_paths],
@@ -974,7 +981,12 @@ def _historical_component_path(
         or redact(checkout_path) != checkout_path
     ):
         return None
-    relative = PurePosixPath(checkout_path)
+    from atrinik_workspace.mcp_context import _source_selector
+
+    try:
+        relative = _source_selector(checkout_path)
+    except ContractError:
+        return None
     contract = load_json(CONTRACT_PATH)
     forbidden = set(contract["forbidden_path_segments"]) | set(
         _SEARCH_FORBIDDEN_SEGMENTS
