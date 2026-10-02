@@ -205,10 +205,14 @@ class Snapshot:
     def read(self, path: str, max_bytes: int = MAX_BYTES) -> bytes:
         _source_selector(path)
         self.assert_current()
-        tracked = _git(self.root, "ls-files", "-z", "--", ":(literal)" + path).split(b"\0")
-        if path.encode() not in tracked:
-            raise ContractError("FORBIDDEN", "resource is not tracked source")
+        tracked = _git(self.root, "ls-files", "-v", "-z", "--", ":(literal)" + path).split(b"\0")
+        if b"H " + path.encode() not in tracked:
+            raise ContractError("FORBIDDEN", "resource is untracked or has hidden index flags")
         payload = _safe_read(self.root, path, max_bytes)
+        if self.coordinate.dirty_fingerprint is None:
+            immutable = _git(self.root, "cat-file", "blob", self.coordinate.commit + ":" + path, maximum=max_bytes)
+            if immutable != payload:
+                raise ContractError("STALE_COORDINATE", "source differs from recorded clean commit")
         self.assert_current()
         return payload
 

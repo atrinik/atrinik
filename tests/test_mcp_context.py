@@ -216,3 +216,8 @@ class ContextFixture(unittest.TestCase):
             self.assertEqual(result["items"][0]["name"], "demo")
             self.assertNotIn("SYNTHETIC_SECRET", json.dumps(result))
             self.assertNotIn("/not-opened", json.dumps(result))
+
+    def test_hidden_index_changes_cannot_masquerade_as_clean_source(self):
+        git(self.root, "update-index", "--assume-unchanged", "sample.txt")
+        (self.root / "sample.txt").write_text("hidden change\n")
+        self.assertCode("FORBIDDEN", lambda: self.service.resolve().read("sample.txt"))
