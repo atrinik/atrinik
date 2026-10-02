@@ -1777,6 +1777,19 @@ keeping its login and source profile stable:
 Reset refuses a running or otherwise locked state and validates the ownership
 marker, state registration, state shape, and credential permissions before it
 replaces anything. External and shared states are never scenario reset targets.
+For a repeatable Brynknot idle reproduction, use a Classic server build that
+supports the server-owned `brynknot-idle` preset:
+
+~~~sh
+./atrinik scenario create brynknot-review --profile maps-review --preset brynknot-idle
+./atrinik up --name brynknot-review --profile maps-review --state scenario-brynknot-review
+~~~
+
+This preset places the character and savebed on `/shattered_islands/world_0_70`
+at `(20, 8)`, preserves the world clock, and adds no special item. `basic-player`
+continues to use normal first-login placement. Stop the topology before resetting
+`brynknot-review`; account and save creation remain owned by the server provisioner.
+
 Do not create static account or player fixtures; add a tested server-owned
 preset if a future reproduction needs more than `basic-player`. The Classic
 server also owns `lighting-radiance-day`, `lighting-radiance-dawn`, and
