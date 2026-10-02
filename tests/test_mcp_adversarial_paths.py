@@ -120,6 +120,9 @@ class AdversarialMcpPaths(unittest.TestCase):
         for source in (1, "/absolute", "../escape", "build/output"):
             snapshot.metadata = {"source": source}
             self.assert_code("INTERNAL", lambda: search._source_root(snapshot))
+        for source in (".env.local", "credentials.json", "nested/secrets.toml", "private.key"):
+            snapshot.metadata = {"source": source}
+            self.assert_code("FORBIDDEN", lambda: search._source_root(snapshot))
         for cancellation in (object(),):
             self.assert_code("INVALID_ARGUMENT", lambda: search._cancelled(cancellation))
         event = threading.Event()

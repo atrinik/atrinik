@@ -102,7 +102,7 @@ def _source_root(snapshot: ResolvedSnapshot) -> Path:
     from atrinik_workspace.mcp_context import _source_selector
 
     contract = load_json(CONTRACT_PATH)
-    relative = _source_selector(source)
+    relative = PurePosixPath(source.replace("\\", "/"))
     forbidden = set(contract["forbidden_path_segments"]) | set(
         _SEARCH_FORBIDDEN_SEGMENTS
     )
@@ -111,6 +111,9 @@ def _source_root(snapshot: ResolvedSnapshot) -> Path:
         for part in relative.parts
     ):
         raise ContractError("INTERNAL", "resolved source identity is invalid")
+    # Malformed provider metadata retains its internal-error contract. Apply
+    # the shared credential policy before the selected source is inventoried.
+    relative = _source_selector(source)
     return snapshot.root.joinpath(*relative.parts)
 
 
