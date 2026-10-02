@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from contextlib import ExitStack, nullcontext
+from contextlib import ExitStack, chdir, nullcontext
 
 import hashlib
 import io
@@ -625,67 +625,111 @@ class PortablePublicationTests(unittest.TestCase):
         import runpy
         return runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
 
-    def test_acceptance_selects_pinned_worktrees_after_primary_advances(self):
+    def test_acceptance_pinned_primaries_produce_immutable_export_sources(self):
+        from atrinik_workspace.workspace import Workspace
         ns = self.acceptance_namespace()
-        selected = {}
-        pins = {}
-        tips = {}
+        origins, pins, tips = {}, {}, {}
+        shutil.copyfile(Path(__file__).parents[1] / "components.json", self.root / "components.json")
 
         def git(root, *arguments):
             return subprocess.run(["git", "-C", str(root), *arguments], check=True,
                                   capture_output=True, text=True).stdout
 
         for name in ("classic", "sound"):
-            root = self.root / name
+            root = self.root / (name + "-origin")
             root.mkdir()
+            origins[name] = root
             git(root, "init", "-b", "main")
             git(root, "config", "user.name", "Tests")
             git(root, "config", "user.email", "tests@example.invalid")
-            git(root, "-c", "commit.gpgsign=false", "commit", "--allow-empty", "-m", "qualified")
+            files = ["README"]
+            if name == "classic":
+                files += ["client/README", "protocol/README", "libatrinik/README",
+                          "cmake/AtrinikVersion.cmake", "LICENSE.md", "ATTRIBUTIONS.md",
+                          "server/dependencies.lock.json"]
+            for filename in files:
+                path = root / filename
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('set(ATRINIK_DEVELOPMENT_VERSION "5.1.0")\n'
+                                if filename.endswith("AtrinikVersion.cmake") else "qualified source\n")
+            git(root, "add", ".")
+            git(root, "-c", "commit.gpgsign=false", "commit", "-m", "qualified")
             pins[name] = git(root, "rev-parse", "HEAD").strip()
-            git(root, "-c", "commit.gpgsign=false", "commit", "--allow-empty", "-m", "new main")
+            (root / "new.txt").write_text("unqualified main advancement\n")
+            git(root, "add", ".")
+            git(root, "-c", "commit.gpgsign=false", "commit", "-m", "new main")
             tips[name] = git(root, "rev-parse", "HEAD").strip()
 
         def run(arguments):
             if arguments[0] == "git":
-                root = Path(arguments[2])
-                return git(root if root.is_absolute() else self.root / root, *arguments[3:])
-            if arguments[1:3] == ["worktree", "create"]:
-                name = arguments[3]
-                selected[name] = self.root / (name + "-qualified")
-                git(self.root / name, "worktree", "add", "-b", arguments[6],
-                    str(selected[name]), arguments[8])
-            if arguments[1] == "path":
-                name = "classic" if arguments[2] == "classic-client" else arguments[2]
-                return str(selected[name]) + "\n"
+                # Supply fixture fetch bytes, preserving the canonical origin
+                # used by the real wrapper's checkout validation.
+                if "fetch" in arguments:
+                    arguments = [str(origins[arguments[2]]) if arg == "origin" else arg
+                                 for arg in arguments]
+                return subprocess.run(arguments, check=True, capture_output=True, text=True).stdout
+            workspace = Workspace(self.root)
+            try:
+                if arguments[1] == "init":
+                    workspace.initialize(["classic-client", "sound"], jobs=2)
+                else:
+                    workspace.create_profile(arguments[3], "classic")
+            finally:
+                workspace.close()
             return ""
 
-        with mock.patch.dict(ns["prepare_sources"].__globals__, {"run": run, "SOURCE_COMMITS": pins}):
-            self.assertEqual(ns["prepare_sources"](), "linux-portable-acceptance")
+        with chdir(self.root), mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": str(self.root / "workspace")}), \
+             mock.patch.dict(ns["prepare_sources"].__globals__, {"run": run, "SOURCE_COMMITS": pins}):
+            profile = ns["prepare_sources"]()
+            workspace = Workspace(self.root)
+            try:
+                # Exercise the same real immutable-generation boundary used by
+                # export_client, without invoking a compiler or producer image.
+                with workspace._resolved_profile_operation(
+                    profile, {"client"}, "portable fixture export", materialize_clean_primaries=True
+                ) as snapshot:
+                    states = snapshot.checkout_states()
+                    for source in snapshot.paths().values():
+                        record = workspace._source_generation_record(source)
+                        self.assertIsNotNone(record)
+                        workspace._validate_source_generation_git_closure(
+                            Path(states[record["checkout"]]["path"]), source.parent,
+                            record["source_tree"], record["tree"], record["source_includes"])
+            finally:
+                workspace.close()
         for name, pin in pins.items():
-            self.assertEqual(git(selected[name], "rev-parse", "HEAD").strip(), pin)
-            self.assertEqual(git(self.root / name, "rev-parse", "HEAD").strip(), tips[name])
-            self.assertEqual(git(self.root / name, "branch", "--show-current").strip(), "main")
-            self.assertEqual(git(self.root / name, "status", "--porcelain"), "")
+            primary = self.root / name
+            self.assertEqual(git(primary, "rev-parse", "HEAD").strip(), pin)
+            self.assertEqual(git(primary, "branch", "--show-current").strip(), "main")
+            self.assertEqual(git(primary, "remote", "get-url", "origin").strip(),
+                             "https://github.com/atrinik/" + name + ".git")
+            self.assertEqual(git(primary, "status", "--porcelain"), "")
+            self.assertEqual(git(origins[name], "rev-parse", "HEAD").strip(), tips[name])
 
-    def test_acceptance_refuses_dirty_or_incorrect_selected_sources(self):
-        for failure in ("primary", "selected", "head"):
-            with self.subTest(failure=failure):
+    def test_acceptance_refuses_existing_dependency_paths_before_mutation(self):
+        for kind in ("directory", "file", "dangling-symlink"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as directory, chdir(directory):
                 ns = self.acceptance_namespace()
-                pin = ns["SOURCE_COMMITS"]["classic"]
-                def run(arguments):
-                    if arguments[1] == "path":
-                        return "selected"
-                    if "rev-parse" in arguments:
-                        return "0" * 40 if failure == "head" else pin
-                    if "status" in arguments and arguments[2] == failure:
-                        return " M dirty"
-                    if failure == "primary" and "status" in arguments and arguments[2] == "classic":
-                        return " M dirty"
-                    return ""
-                with mock.patch.dict(ns["prepare_sources"].__globals__, {"run": run}):
-                    with self.assertRaisesRegex(RuntimeError, "dirty|qualified source changed"):
+                existing = Path("sound")
+                if kind == "directory":
+                    existing.mkdir()
+                    (existing / "dirty.txt").write_text("preserve")
+                elif kind == "file":
+                    existing.write_text("preserve")
+                else:
+                    existing.symlink_to("missing")
+                runner = mock.Mock()
+                with mock.patch.dict(ns["prepare_sources"].__globals__, {"run": runner}):
+                    with self.assertRaisesRegex(RuntimeError, "absent dependency: sound"):
                         ns["prepare_sources"]()
+                runner.assert_not_called()
+                self.assertFalse(Path("classic").exists())
+                if kind == "directory":
+                    self.assertEqual((existing / "dirty.txt").read_text(), "preserve")
+                elif kind == "file":
+                    self.assertEqual(existing.read_text(), "preserve")
+                else:
+                    self.assertTrue(existing.is_symlink())
 
     def test_failed_export_capture_preserves_bounded_logs_and_exit_status(self):
         ns = self.acceptance_namespace()
@@ -725,6 +769,7 @@ class PortablePublicationTests(unittest.TestCase):
                 return ns["SOURCE_COMMITS"].get(arguments[2], "a" * 40) + "\n" if "-C" in arguments else "a" * 40 + "\n"
             return ""
         with mock.patch.dict(globals_, {"require_headless": lambda: None, "run": fake_run,
+                              "prepare_sources": lambda: "linux-portable-acceptance",
                               "capture_export": mock.Mock(side_effect=failure),
                               "collect_build_evidence": mock.Mock(side_effect=RuntimeError("collector failed"))}), \
              mock.patch.object(os, "sched_setaffinity"), \

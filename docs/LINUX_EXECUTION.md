@@ -466,11 +466,11 @@ mounts, and its network, display, GPU and audio endpoints are absent.
 
 Its current full-commit consumer
 guard requires Classic `d926f6fd0418fb1af9060158c43d8d3ff5252580`.
-The CI driver selects this revision and the released sound revision in owned
-managed worktrees through its `linux-portable-acceptance` profile. Primary
-branches may advance independently; the selected commits must still match the
-qualification pins and remain clean. Advancing the pins requires qualifying
-the producer recipe and consumer together.
+The CI driver creates fresh primary checkouts at this revision and the released
+sound revision for its `linux-portable-acceptance` profile. It refuses existing
+dependency paths and never resets rolling primary branches. The exporter
+materializes immutable generations from these clean primary selectors. Advancing
+the pins requires qualifying the producer recipe and consumer together.
 Use a clean Classic profile with verified released sound matching its selected
 sound source commit, and a new absolute destination
 whose parent is owned by the invoking user and not writable by other users.

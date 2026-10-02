@@ -60,23 +60,27 @@ def require_headless():
 
 
 def prepare_sources():
-    """Select the qualified revisions without moving rolling primary branches."""
-    run(["./atrinik", "init", "classic-client", "sound", "--jobs", "2"])
+    """Create fresh CI-owned primaries at the qualified revisions."""
+    # Export snapshots are deliberately limited to primary selectors. Never
+    # reset a rolling checkout: this bootstrap owns only absent destinations.
     for name in SOURCE_COMMITS:
+        destination = Path(name)
+        if destination.exists() or destination.is_symlink():
+            raise RuntimeError("acceptance requires an absent dependency: " + name)
+    for name, expected in SOURCE_COMMITS.items():
+        Path(name).mkdir()
+        run(["git", "init", "-b", "main", name])
+        run(["git", "-C", name, "remote", "add", "origin",
+             "https://github.com/atrinik/" + name + ".git"])
+        run(["git", "-C", name, "fetch", "--no-tags", "origin", "main"])
+        run(["git", "-C", name, "checkout", "-b", "main", expected])
+        if run(["git", "-C", name, "rev-parse", "HEAD"]).strip() != expected:
+            raise RuntimeError("qualified source changed: " + name)
         if run(["git", "-C", name, "status", "--porcelain"]):
-            raise RuntimeError("dirty dependency: " + name)
+            raise RuntimeError("dirty qualified dependency: " + name)
+    run(["./atrinik", "init", "classic-client", "sound", "--jobs", "2"])
     profile = "linux-portable-acceptance"
     run(["./atrinik", "profile", "create", profile, "--from", "classic"])
-    for name, expected in SOURCE_COMMITS.items():
-        run(["./atrinik", "worktree", "create", name, profile,
-             "--branch", "ci/" + profile, "--from", expected])
-        run(["./atrinik", "profile", "set", profile, name, "--worktree", profile])
-        component = "classic-client" if name == "classic" else name
-        selected = run(["./atrinik", "path", component, "--profile", profile]).strip()
-        if run(["git", "-C", selected, "rev-parse", "HEAD"]).strip() != expected:
-            raise RuntimeError("qualified source changed: " + name)
-        if run(["git", "-C", selected, "status", "--porcelain"]):
-            raise RuntimeError("dirty qualified dependency: " + name)
     return profile
 
 
