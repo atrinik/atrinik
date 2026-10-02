@@ -1,0 +1,55 @@
+{
+  "$schema": "./config.schema.json",
+  "evidence_kind": "real-pilot",
+  "expected_head": null,
+  "pilot_enabled": false,
+  "profiles": [
+    {
+      "enabled": false,
+      "evaluation_only": false,
+      "owner": "atrinik/atrinik#351",
+      "profile_id": "context",
+      "revision": "candidate-pending-real-pilot",
+      "runtime_opt_in": false,
+      "server_id": "atrinik-context"
+    },
+    {
+      "enabled": false,
+      "evaluation_only": false,
+      "owner": "atrinik/atrinik#352",
+      "profile_id": "search",
+      "revision": "candidate-pending-real-pilot",
+      "runtime_opt_in": false,
+      "server_id": "atrinik-search"
+    },
+    {
+      "enabled": false,
+      "evaluation_only": false,
+      "owner": "atrinik/content-toolkit#20",
+      "profile_id": "content",
+      "revision": "candidate-pending-real-pilot",
+      "runtime_opt_in": false,
+      "server_id": "content-semantics"
+    },
+    {
+      "enabled": false,
+      "evaluation_only": false,
+      "owner": "atrinik/atrinik#355",
+      "profile_id": "runtime-status",
+      "revision": "candidate-pending-real-pilot",
+      "runtime_opt_in": false,
+      "server_id": "atrinik-observe-status"
+    },
+    {
+      "enabled": false,
+      "evaluation_only": true,
+      "owner": "atrinik/atrinik#354",
+      "profile_id": "external-evaluation",
+      "revision": "evaluation-pending-real-pilot",
+      "runtime_opt_in": false,
+      "server_id": "maintained-connector-evaluation"
+    }
+  ],
+  "schema_version": "atrinik.mcp.pilot-config/v1",
+  "trust_root": "."
+}
