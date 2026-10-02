@@ -18192,6 +18192,59 @@ class WorkspaceTests(unittest.TestCase):
         preparation.close()
         self.assertFalse(record.exists())
 
+    def test_nested_non_git_wrapper_keeps_lease_namespace_local(self) -> None:
+        self.workspace.close()
+        command("git", "init", "-b", "main", cwd=self.root)
+        ancestor_namespace = self.root / ".git" / "atrinik-resource-leases"
+        ancestor_namespace.mkdir()
+        sentinel = ancestor_namespace / "untouched"
+        sentinel.write_text("ancestor-owned registry", encoding="utf-8")
+
+        nested = Workspace(self.wrapper)
+        self.addCleanup(nested.close)
+        try:
+            self.assertEqual(
+                nested._lease_namespace,
+                self.wrapper / "atrinik-resource-leases",
+            )
+            # Exercise registry publication as well as namespace resolution.
+            nested.create_profile("nested")
+        finally:
+            nested.close()
+
+        self.assertEqual(list(ancestor_namespace.iterdir()), [sentinel])
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "ancestor-owned registry")
+
+    def test_wrapper_invalid_git_marker_never_uses_fallback_namespace(self) -> None:
+        self.workspace.close()
+        command("git", "init", "-b", "main", cwd=self.root)
+        git_marker = self.wrapper / ".git"
+        for marker_kind in ("invalid-file", "empty-directory", "dangling-symlink"):
+            with self.subTest(marker_kind=marker_kind):
+                if marker_kind == "invalid-file":
+                    git_marker.write_text("not a Git marker", encoding="utf-8")
+                elif marker_kind == "empty-directory":
+                    git_marker.mkdir()
+                else:
+                    git_marker.symlink_to(self.root / "missing-git-directory")
+                try:
+                    # Both a cached fallback and fresh construction fail closed.
+                    with self.assertRaises(WorkspaceError):
+                        _ = self.workspace._lease_namespace
+                    with self.assertRaises(WorkspaceError):
+                        Workspace(self.wrapper)
+                finally:
+                    if marker_kind == "empty-directory":
+                        git_marker.rmdir()
+                    else:
+                        git_marker.unlink()
+        self.assertFalse((self.root / ".git" / "atrinik-resource-leases").exists())
+
+    def test_wrapper_git_materialization_requires_fresh_workspace(self) -> None:
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        with self.assertRaisesRegex(WorkspaceError, "Git identity materialized"):
+            _ = self.workspace._lease_namespace
+
     def test_wrapper_worktrees_share_common_git_lease_namespace(self) -> None:
         self.workspace.close()
         command("git", "init", "-b", "main", cwd=self.wrapper)
