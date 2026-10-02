@@ -5,68 +5,6 @@
   "profiles": [
     {
       "authorization": {
-        "credential_environment": [
-          "GITHUB_PERSONAL_ACCESS_TOKEN"
-        ],
-        "resource_allowlist": {
-          "organization": "atrinik",
-          "repositories": "selected Atrinik repositories only"
-        },
-        "scope": [
-          "repository contents:read",
-          "metadata:read",
-          "issues:read",
-          "pull requests:read",
-          "actions:read",
-          "projects:read"
-        ]
-      },
-      "catalog": {
-        "budget_status": "unmeasured-until-pilot",
-        "maximum_visible_tools": 12,
-        "tools": [
-          "actions_get",
-          "actions_list",
-          "get_commit",
-          "get_file_contents",
-          "issue_read",
-          "list_issues",
-          "list_pull_requests",
-          "list_releases",
-          "projects_get",
-          "projects_list",
-          "pull_request_read",
-          "ui_get"
-        ]
-      },
-      "data_boundary": [
-        "public-source",
-        "operational-metadata"
-      ],
-      "decision": "configure",
-      "fallback": "gh read-only API and web views under atrinik-github-governance",
-      "failure_behavior": "Fail closed on a repository outside the credential allowlist, missing scope, cancellation, timeout, outage, pagination drift, oversized result, or version drift. Never retry a write because no write tool is registered.",
-      "id": "github-read-only",
-      "implementation": {
-        "license": "MIT",
-        "maintainer": "GitHub",
-        "repository": "https://github.com/github/github-mcp-server",
-        "revision": "85598ba6e1256f7ebf4867b95d63b833c4549264",
-        "update_owner": "atrinik/atrinik#354",
-        "version": "v1.12.2"
-      },
-      "required_flags": [
-        "stdio",
-        "--read-only",
-        "--lockdown-mode",
-        "--features=remote_mcp_ui_apps",
-        "--tools=actions_get,actions_list,get_commit,get_file_contents,issue_read,list_issues,list_pull_requests,list_releases,projects_get,projects_list,pull_request_read,ui_get"
-      ],
-      "status": "documentation-reviewed; offline profile-policy tests pass, but the synthetic acceptance vectors and external known answers remain unexecuted",
-      "trust": "Issue, comment, review, workflow-log, release, and source content is untrusted data. Preserve repository, URL, full revision, observation time, and incomplete state in every retained result. Lockdown mode reduces exposure but is not an authorization boundary."
-    },
-    {
-      "authorization": {
         "credential_environment": [],
         "resource_allowlist": {
           "origins": [

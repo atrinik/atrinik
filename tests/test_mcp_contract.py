@@ -514,6 +514,7 @@ class McpContractTests(unittest.TestCase):
         rows = {row["id"]: row for row in matrix["rows"]}
         self.assertEqual(rows["atrinik-context"]["decision"], "build")
         self.assertEqual(rows["atrinik-observe-logs"]["decision"], "defer")
+        self.assertNotIn("github-maintained-connector", rows)
         self.assertEqual(
             rows["generic-filesystem-shell-memory-vector"]["decision"], "reject"
         )

@@ -69,7 +69,6 @@ def validate_documents(
     if len(identifiers) != len(set(identifiers)):
         raise ProfileError("profile identifiers must be unique")
     if set(identifiers) != {
-        "github-read-only",
         "browser-verification",
         "cloudflare-operational",
         "grafana-prometheus-dashboard-read-only",
@@ -127,11 +126,6 @@ def validate_documents(
         ):
             raise ProfileError(f"{profile['id']} has an invalid credential name")
 
-    github = next(profile for profile in profiles if profile["id"] == "github-read-only")
-    if "--read-only" not in github["required_flags"]:
-        raise ProfileError("GitHub must use the upstream read-only gate")
-    if "--features=remote_mcp_ui_apps" not in github["required_flags"]:
-        raise ProfileError("GitHub ui_get requires its upstream feature gate")
     browser = next(
         profile for profile in profiles if profile["id"] == "browser-verification"
     )

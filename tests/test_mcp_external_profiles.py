@@ -39,15 +39,17 @@ class McpExternalProfileTests(unittest.TestCase):
 
     def test_profiles_pass_offline_safety_validation(self) -> None:
         result = self.validator.validate()
-        self.assertEqual(result["profiles"], 4)
-        self.assertEqual(result["acceptance_cases"], 4)
+        self.assertEqual(result["profiles"], 3)
+        self.assertEqual(result["acceptance_cases"], 3)
         self.assertEqual(result["adversarial_cases"], 8)
 
     def test_templates_are_opt_in_and_secret_free(self) -> None:
         template = (PROFILE_ROOT / "templates" / "codex.config.toml.example").read_text(
             encoding="utf-8"
         )
-        self.assertEqual(template.count("enabled = false"), 3)
+        self.assertEqual(template.count("enabled = false"), 2)
+        self.assertNotIn("github-mcp-server", template)
+        self.assertNotIn("GITHUB_PERSONAL_ACCESS_TOKEN", template)
         self.assertNotIn("TOKEN =", template)
         self.assertNotIn("PASSWORD =", template)
         self.assertNotIn("API_KEY =", template)
@@ -55,10 +57,8 @@ class McpExternalProfileTests(unittest.TestCase):
     def test_machine_decisions_match_safety_boundary(self) -> None:
         profiles = {profile["id"]: profile for profile in self.document["profiles"]}
         self.assertFalse(self.document["live_acceptance"])
+        self.assertNotIn("github-read-only", profiles)
         self.assertEqual(profiles["cloudflare-operational"]["decision"], "reject")
-        self.assertIn(
-            "--read-only", profiles["github-read-only"]["required_flags"]
-        )
         self.assertIn(
             "--disable-write",
             profiles["grafana-prometheus-dashboard-read-only"]["required_flags"],

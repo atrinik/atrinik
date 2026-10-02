@@ -36,16 +36,6 @@
   "cases": [
     {
       "assertions": [
-        "cross-repository parent and sub-issue relationships are complete",
-        "Project fields, pull request, reviews, checks, workflow failure, release, milestone, and source revision retain URLs and full revisions",
-        "no remote object changes"
-      ],
-      "id": "github-hierarchy-review-checks",
-      "profile": "github-read-only",
-      "synthetic": true
-    },
-    {
-      "assertions": [
         "loopback and one approved preview remain inside the origin allowlist",
         "bounded DOM, accessibility, console, network, CSP, screenshots, responsive, performance, no-JavaScript, and reduced-motion evidence",
         "profile contains no stored credentials and performs no form submission"

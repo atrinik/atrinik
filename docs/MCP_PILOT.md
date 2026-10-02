@@ -17,7 +17,8 @@ evidence below are available and independently reviewed.
 | Content semantics (`content-semantics`) | Candidate, pending real pilot | content-toolkit#20; toolkit catalog/query/validation |
 | Runtime status (`atrinik-observe-status`) | Separately opt-in, disabled by default | #355; exact wrapper profile/topology/`ps` observations |
 | Runtime logs | Deferred until redaction is proved | #355; separately authorized bounded wrapper logs |
-| GitHub, browser, Cloudflare | External evaluation only, disabled by default | #354 and physical owners; `gh`, browser, provider tools under existing authority |
+| GitHub | Existing host integration; outside the external-profile pilot | `atrinik-github-governance`; host GitHub plugin with `gh` and Git fallbacks, no additional server or credential |
+| Browser, Cloudflare | External evaluation only, disabled by default | #354 and physical owners; browser and provider tools under existing authority |
 | Generic filesystem/shell/memory servers, eager all-worktree indexes, global vector databases, hosted source upload | Rejected | No broader substitute for an unavailable candidate |
 
 These names identify capabilities, not necessarily MCP wire tool names. The
@@ -203,8 +204,9 @@ no runtime lifecycle action, account change, publication, deployment, or source
 mutation. A config validation pass does not prove its observations are real.
 
 Repeat the [six known-answer cases](../mcp/contract/v1/fixtures/workloads.json)
-and the following real exercises with enabled and fully disabled configurations
-on identical revisions and effective permissions:
+and the following real exercises on identical revisions and effective
+permissions. Compare candidate MCP surfaces with enabled and fully disabled
+configurations; run the GitHub case through the existing host integration:
 
 | Domain | Known answer and required real evidence |
 | --- | --- |
@@ -212,7 +214,7 @@ on identical revisions and effective permissions:
 | Replacement Go/Rust/Proto | Trace `DirectorySnapshot` from Protobuf and generated Go through Go server and Rust client. Record each physical owner and full revision plus its checks. An unavailable replacement capability must not fall back to Classic. |
 | Astro | Resolve downloads page, data/assets and website-owned checks. Use a real page review change, run repository validation, and capture browser-visible evidence in an isolated task browser context. |
 | Shared content | Investigate a real map, archetype, quest, dialogue/lore, asset and provenance relationship; produce a dry-run change plan on `atrinik/content@main` or a named review worktree based on `main`. Read-only Classic compatibility/consumption evidence must identify a supported Classic-target artifact whose full source commit equals the exercised content commit exactly. Record artifact format and target; a short hash, branch label or approximate match fails. |
-| GitHub | Investigate a real cross-repository issue/PR/check chain, including parent/sub-issues, Project state, reviews and checks. Bound repositories and fields; record observation time, source identity and zero mutations. |
+| GitHub | Use the host GitHub plugin, with bounded `gh` and Git fallbacks, to investigate a real cross-repository issue/PR/check chain, including parent/sub-issues, Project state, reviews and checks. Add no server or credential. Bound repositories and fields; record observation time, source identity and zero mutations. |
 | Runtime | Diagnose an already authorized isolated runtime through exact profile, checkout/worktree, topology, state, scenario and service identities. Observe bounded status and prove zero mutations. Logs remain deferred; fixture log commands do not authorize a log MCP capability. |
 
 Record correctness, wrong-root/branch/provider incidents, calls, retries,
@@ -252,7 +254,9 @@ reuse; discovery cache hints cannot relax this rule. Restart only the owned
 server to discard memory caches; never delete source or runtime state to clear
 an index. Persistent or cross-worktree indexes require a separate decision.
 
-Local source servers need no ambient external credentials. External evaluation
+Local source servers need no ambient external credentials. GitHub observations
+use the existing host plugin and established host authentication; they do not
+create a dedicated external-profile credential. Other external evaluation
 requires a dedicated least-privilege read-only grant and explicit repository,
 origin, account and environment allowlists. Keep OAuth or bearer credentials in
 the client's host-managed secret facility, never TOML, fixtures or reports.
