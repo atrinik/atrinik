@@ -75,8 +75,10 @@ live/unreachable, retained, or unrelated evidence blocks release.
 The wrapper uses a short generation-derived endpoint in the shared workspace
 and binds both process-tree and immutable runtime-bundle leases to the exact
 generation and file identities. Missing, replaced, linked, or malformed
-current generations, manifests, or lease files are unsafe and must remain
-untouched for fail-closed diagnosis. Never edit a published generation; rebuild
+current generations, manifests, or lease files require diagnosis before use.
+Repair task-blocking local metadata under [local recovery](../../../docs/LOCAL_RECOVERY.md),
+preserving evidence and current ownership; do not rewrite a live generation.
+Never edit a published generation; rebuild
 the profile while it is live only to verify that its recorded manifest digest
 and runtime bytes remain unchanged.
 
