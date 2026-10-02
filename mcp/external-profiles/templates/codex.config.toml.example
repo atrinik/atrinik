@@ -1,0 +1,32 @@
+# Copy only the profile needed for the current task into user-level Codex
+# configuration. Every server remains disabled until its separate pilot is
+# authorized and its environment variables are present in the launching shell.
+
+[mcp_servers.atrinik_github_read_only]
+command = "github-mcp-server"
+args = ["stdio", "--read-only", "--lockdown-mode", "--features=remote_mcp_ui_apps", "--tools=actions_get,actions_list,get_commit,get_file_contents,issue_read,list_issues,list_pull_requests,list_releases,projects_get,projects_list,pull_request_read,ui_get"]
+env_vars = ["GITHUB_PERSONAL_ACCESS_TOKEN"]
+enabled = false
+required = false
+startup_timeout_sec = 10
+tool_timeout_sec = 5
+enabled_tools = ["actions_get", "actions_list", "get_commit", "get_file_contents", "issue_read", "list_issues", "list_pull_requests", "list_releases", "projects_get", "projects_list", "pull_request_read", "ui_get"]
+
+[mcp_servers.atrinik_browser_verification]
+command = "npx"
+args = ["--yes", "chrome-devtools-mcp@1.10.1", "--headless=true", "--isolated=true", "--allowed-url-pattern=http://127.0.0.1:*", "--allowed-url-pattern=http://localhost:*", "--allowed-url-pattern=https://*.pages.dev", "--allowed-url-pattern=https://atrinik.org", "--allowed-url-pattern=https://*.atrinik.org", "--category-input=false", "--category-memory=false", "--category-extensions=false", "--category-experimental-third-party=false", "--category-experimental-webmcp=false", "--category-pwa=false", "--javascript-evaluation=false", "--performance-crux=false", "--redact-network-headers=true", "--screenshot-max-width=1600", "--screenshot-max-height=1200", "--usage-statistics=false"]
+enabled = false
+required = false
+startup_timeout_sec = 30
+tool_timeout_sec = 5
+enabled_tools = ["close_page", "emulate", "get_console_message", "get_network_request", "list_console_messages", "list_network_requests", "navigate_page", "new_page", "resize_page", "take_screenshot", "take_snapshot", "wait_for"]
+
+[mcp_servers.atrinik_grafana_read_only]
+command = "mcp-grafana"
+args = ["--enabled-tools=prometheus,dashboard", "--disable-write"]
+env_vars = ["GRAFANA_URL", "GRAFANA_SERVICE_ACCOUNT_TOKEN", "GRAFANA_ORG_ID"]
+enabled = false
+required = false
+startup_timeout_sec = 10
+tool_timeout_sec = 5
+enabled_tools = ["get_dashboard_by_uid", "get_dashboard_panel_queries", "get_dashboard_property", "get_dashboard_summary", "list_dashboard_versions", "list_prometheus_label_names", "list_prometheus_label_values", "list_prometheus_metric_metadata", "list_prometheus_metric_names", "query_prometheus", "query_prometheus_histogram"]

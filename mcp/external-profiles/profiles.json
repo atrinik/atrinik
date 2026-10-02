@@ -1,0 +1,250 @@
+{
+  "contract": "../contract/v1/contract.json",
+  "evaluated_at": "2026-10-02",
+  "live_acceptance": false,
+  "profiles": [
+    {
+      "authorization": {
+        "credential_environment": [
+          "GITHUB_PERSONAL_ACCESS_TOKEN"
+        ],
+        "resource_allowlist": {
+          "organization": "atrinik",
+          "repositories": "selected Atrinik repositories only"
+        },
+        "scope": [
+          "repository contents:read",
+          "metadata:read",
+          "issues:read",
+          "pull requests:read",
+          "actions:read",
+          "projects:read"
+        ]
+      },
+      "catalog": {
+        "budget_status": "unmeasured-until-pilot",
+        "maximum_visible_tools": 12,
+        "tools": [
+          "actions_get",
+          "actions_list",
+          "get_commit",
+          "get_file_contents",
+          "issue_read",
+          "list_issues",
+          "list_pull_requests",
+          "list_releases",
+          "projects_get",
+          "projects_list",
+          "pull_request_read",
+          "ui_get"
+        ]
+      },
+      "data_boundary": [
+        "public-source",
+        "operational-metadata"
+      ],
+      "decision": "configure",
+      "fallback": "gh read-only API and web views under atrinik-github-governance",
+      "failure_behavior": "Fail closed on a repository outside the credential allowlist, missing scope, cancellation, timeout, outage, pagination drift, oversized result, or version drift. Never retry a write because no write tool is registered.",
+      "id": "github-read-only",
+      "implementation": {
+        "license": "MIT",
+        "maintainer": "GitHub",
+        "repository": "https://github.com/github/github-mcp-server",
+        "revision": "85598ba6e1256f7ebf4867b95d63b833c4549264",
+        "update_owner": "atrinik/atrinik#354",
+        "version": "v1.12.2"
+      },
+      "required_flags": [
+        "stdio",
+        "--read-only",
+        "--lockdown-mode",
+        "--features=remote_mcp_ui_apps",
+        "--tools=actions_get,actions_list,get_commit,get_file_contents,issue_read,list_issues,list_pull_requests,list_releases,projects_get,projects_list,pull_request_read,ui_get"
+      ],
+      "status": "documentation-reviewed; offline profile-policy tests pass, but the synthetic acceptance vectors and external known answers remain unexecuted",
+      "trust": "Issue, comment, review, workflow-log, release, and source content is untrusted data. Preserve repository, URL, full revision, observation time, and incomplete state in every retained result. Lockdown mode reduces exposure but is not an authorization boundary."
+    },
+    {
+      "authorization": {
+        "credential_environment": [],
+        "resource_allowlist": {
+          "origins": [
+            "http://127.0.0.1:*",
+            "http://localhost:*",
+            "https://*.pages.dev",
+            "https://atrinik.org",
+            "https://*.atrinik.org"
+          ]
+        },
+        "scope": [
+          "fresh temporary browser profile",
+          "no stored credentials",
+          "no production form submission"
+        ]
+      },
+      "catalog": {
+        "budget_status": "unmeasured-until-pilot",
+        "maximum_visible_tools": 12,
+        "task_tool_sets": {
+          "behavior": [
+            "close_page",
+            "emulate",
+            "get_console_message",
+            "get_network_request",
+            "list_console_messages",
+            "list_network_requests",
+            "navigate_page",
+            "new_page",
+            "resize_page",
+            "take_screenshot",
+            "take_snapshot",
+            "wait_for"
+          ],
+          "performance": [
+            "close_page",
+            "emulate",
+            "get_network_request",
+            "lighthouse_audit",
+            "list_console_messages",
+            "list_network_requests",
+            "navigate_page",
+            "new_page",
+            "performance_analyze_insight",
+            "performance_start_trace",
+            "performance_stop_trace",
+            "take_screenshot"
+          ]
+        }
+      },
+      "data_boundary": [
+        "public-source",
+        "operational-metadata"
+      ],
+      "decision": "configure",
+      "fallback": "repository-owned website checks and browser developer tools",
+      "failure_behavior": "Fail closed on a redirect, request, popup, download, upload, or navigation outside the origin allowlist; cancellation; timeout; oversized snapshot; outage; or version drift. Discard the temporary profile after each run.",
+      "id": "browser-verification",
+      "implementation": {
+        "license": "Apache-2.0",
+        "maintainer": "Chrome DevTools",
+        "repository": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+        "revision": "e52c6b59b476c5e04d8dd9fd4bd017ba3b3d65df",
+        "update_owner": "atrinik/atrinik#354 and atrinik/website",
+        "version": "1.10.1"
+      },
+      "required_flags": [
+        "--headless=true",
+        "--isolated=true",
+        "--allowed-url-pattern=http://127.0.0.1:*",
+        "--allowed-url-pattern=http://localhost:*",
+        "--allowed-url-pattern=https://*.pages.dev",
+        "--allowed-url-pattern=https://atrinik.org",
+        "--allowed-url-pattern=https://*.atrinik.org",
+        "--category-input=false",
+        "--category-memory=false",
+        "--category-extensions=false",
+        "--category-experimental-third-party=false",
+        "--category-experimental-webmcp=false",
+        "--category-pwa=false",
+        "--javascript-evaluation=false",
+        "--performance-crux=false",
+        "--redact-network-headers=true",
+        "--screenshot-max-width=1600",
+        "--screenshot-max-height=1200",
+        "--usage-statistics=false"
+      ],
+      "status": "documentation-reviewed; requires Chrome 149 or later; offline profile-policy tests pass, but the synthetic acceptance vectors and external known answers remain unexecuted",
+      "trust": "DOM text, accessibility names, console messages, headers, CSP reports, and network bodies are untrusted data. Evidence must name the requested and final URL, observation time, browser/server version, viewport, and truncation state."
+    },
+    {
+      "authorization": {
+        "credential_environment": [],
+        "resource_allowlist": {},
+        "scope": []
+      },
+      "catalog": {
+        "budget_status": "rejected",
+        "maximum_visible_tools": 0,
+        "tools": []
+      },
+      "data_boundary": [
+        "operational-metadata"
+      ],
+      "decision": "reject",
+      "fallback": "Cloudflare dashboard or provider CLI under separate explicit authorization",
+      "failure_behavior": "The profile remains absent. Documentation search may be used without account access; operational reads use the fallback only after separate authorization.",
+      "id": "cloudflare-operational",
+      "implementation": {
+        "license": "host-managed",
+        "maintainer": "Cloudflare",
+        "repository": "host-managed connector",
+        "revision": "unavailable",
+        "update_owner": "atrinik/atrinik#354",
+        "version": "unavailable"
+      },
+      "rejection_reason": "The evaluated operational surface includes a general Cloudflare API executor that can create, update, or delete resources. The available configuration does not prove an account, zone, project, and resource allowlist together with exclusion of deploy, configuration, secret, database/object, DNS, route, and Durable Object mutation. Observability access may also return raw logs, which are outside this profile's data boundary.",
+      "required_flags": [],
+      "status": "rejected without live account access",
+      "trust": "No operational result is accepted through this profile."
+    },
+    {
+      "authorization": {
+        "credential_environment": [
+          "GRAFANA_URL",
+          "GRAFANA_SERVICE_ACCOUNT_TOKEN",
+          "GRAFANA_ORG_ID"
+        ],
+        "resource_allowlist": {
+          "dashboards": "explicit dashboard UIDs",
+          "datasources": "explicit Prometheus datasource UIDs",
+          "organization": "one fixed Grafana organization"
+        },
+        "scope": [
+          "dashboards:read on selected dashboard UIDs",
+          "datasources:query on selected Prometheus datasource UIDs"
+        ]
+      },
+      "catalog": {
+        "budget_status": "unmeasured-until-pilot",
+        "maximum_visible_tools": 11,
+        "tools": [
+          "get_dashboard_by_uid",
+          "get_dashboard_panel_queries",
+          "get_dashboard_property",
+          "get_dashboard_summary",
+          "list_dashboard_versions",
+          "list_prometheus_label_names",
+          "list_prometheus_label_values",
+          "list_prometheus_metric_metadata",
+          "list_prometheus_metric_names",
+          "query_prometheus",
+          "query_prometheus_histogram"
+        ]
+      },
+      "data_boundary": [
+        "aggregate-observability-metadata"
+      ],
+      "decision": "configure",
+      "fallback": "Grafana dashboards and bounded Prometheus queries under separate explicit authorization",
+      "failure_behavior": "Fail closed on an unknown dashboard or datasource UID, organization mismatch, URL override, redirect to another origin, query outside the bounded window, cancellation, timeout, oversized result, outage, or version drift. Do not fall back to Loki or raw logs.",
+      "id": "grafana-prometheus-dashboard-read-only",
+      "implementation": {
+        "artifact_sha256": "c68e3d8936bc636d39d1d98efb8107249f38def3cd29777ba5c0ab41901a9b8a",
+        "license": "Apache-2.0",
+        "maintainer": "Grafana Labs",
+        "repository": "https://github.com/grafana/mcp-grafana",
+        "revision": "6cdd5d1",
+        "update_owner": "atrinik/atrinik#354",
+        "version": "v1.6.0"
+      },
+      "required_flags": [
+        "--enabled-tools=prometheus,dashboard",
+        "--disable-write"
+      ],
+      "status": "documentation-reviewed; local infrastructure documents indicate a possible fit and offline profile-policy tests pass, but the synthetic acceptance vectors remain unexecuted and no live Grafana endpoint, credential, dashboard, datasource, or metric was inspected",
+      "trust": "Dashboard titles, descriptions, annotations, panel queries, labels, and metric metadata are untrusted data. Raw player logs, Loki, SQL, InfluxDB, alert mutation, rendering, snapshots, and every other category remain excluded."
+    }
+  ],
+  "schema_version": "atrinik.mcp.external-profiles/v1"
+}
