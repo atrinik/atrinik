@@ -12482,6 +12482,12 @@ class Workspace:
         build_services: set[str] | None = None,
         gpu_shader: dict[str, Any] | None = None,
     ) -> None:
+        # Keep verified dependency downloads outside the disposable CMake tree.
+        # The caller holds the profile build lease for this producer as well.
+        dependency_cache = root / "producers" / "classic-dependency-cache"
+        managed_directory(
+            dependency_cache, self.paths.builds, "classic-dependency-cache"
+        )
         checkout = selected["client"].parent.resolve()
         view = self._profile_source_view(
             root,
@@ -12545,6 +12551,7 @@ class Workspace:
             "-DENABLE_WARNING_ERRORS=ON",
             "-DPACKAGE_TYPE=none",
             "-DENABLE_PYTHON_PLUGIN=ON",
+            f"-DATRINIK_DEPENDENCY_CACHE_DIR={dependency_cache}",
             *self._classic_identity_arguments(selected["client"], integrated=True),
         ]
         if gpu_shader is not None:
