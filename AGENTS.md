@@ -73,9 +73,10 @@
   `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse follows `docs/PROVENANCE.md` and its registry; rights/identity/temporal/
   authorship/scope uncertainty fails closed.
-- Supply-chain inventory, license reports, and audits are optional diagnostics. Never
-  require catalog updates or use findings to block work, PR readiness, or delivery.
-  Keep Actions/images immutable; no submodules. Only root workflows/Dependabot are active.
+- Optional supply-chain/license diagnostics never gate work/PR readiness/delivery or
+  require catalog updates. Keep standard locks/integrity manifests; avoid redundant
+  version assertions. Keep Actions/images immutable; no submodules. Only root
+  workflows/Dependabot are active.
 - New content/Classic issues name `content@main` and its Classic-target artifact; no live
   1.x branch/checkout/release label/maintenance line/publication target/backport destination
   exists; historical evidence is immutable.

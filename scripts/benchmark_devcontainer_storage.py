@@ -25,11 +25,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from atrinik_workspace.docker_storage import volume_namespace
+from atrinik_workspace.jsonc import loads as jsonc_loads
 from atrinik_workspace.model import WorkspaceError
-DEFAULT_WINDOWS_IMAGE = (
-    "ghcr.io/atrinik/windows-build:1.2.1@sha256:"
-    "d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb"
-)
 NAMESPACE_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,62}$")
 RUN_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,30}$")
 PURPOSE_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
@@ -66,6 +63,19 @@ sleep 30
 
 class BenchmarkError(RuntimeError):
     """The benchmark cannot safely continue."""
+
+
+def _configured_image(relative_path: str) -> str:
+    config = jsonc_loads((ROOT / relative_path).read_text(encoding="utf-8"))
+    image = config.get("image")
+    if not isinstance(image, str):
+        raise BenchmarkError(f"{relative_path} must define an image")
+    return image
+
+
+DEFAULT_WINDOWS_IMAGE = _configured_image(
+    ".devcontainer/windows-cross/devcontainer.json"
+)
 
 
 def _validate_image(image: str) -> str:
