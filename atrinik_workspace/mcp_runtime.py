@@ -23,6 +23,39 @@ MAX_BYTES = 256 * 1024
 _NAME = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}\Z")
 _HASH = re.compile(r"[0-9a-f]{64}\Z")
 _STATES = frozenset({"starting", "running", "stopped", "exited", "failed"})
+_REVISION = re.compile(r"[0-9a-f]{40}(?:[0-9a-f]{24})?\Z")
+
+
+def _coordinates(value: object, manifest) -> list[dict]:
+    """Project recorded source identities; never return private checkout paths."""
+    if not isinstance(value, dict) or not 1 <= len(value) <= 50:
+        raise ContractError("INCOMPLETE", "runtime source identities are invalid")
+    results = []
+    for component, record in sorted(value.items()):
+        if (not isinstance(component, str) or not _NAME.fullmatch(component)
+                or not isinstance(record, dict)):
+            raise ContractError("INCOMPLETE", "runtime source identity is invalid")
+        expected = manifest.by_name.get(component)
+        if expected is None or any(record.get(key) != getattr(expected, attribute) for key, attribute in
+                (("repository", "repository"), ("checkout", "checkout_name"),
+                 ("branch", "branch"), ("source", "source"))):
+            raise ContractError("FORBIDDEN", "runtime source is outside configured manifest")
+        for key in ("checkout", "repository", "branch", "source", "checkout_path"):
+            item = record.get(key)
+            if (not isinstance(item, str) or not 1 <= len(item) <= 512
+                    or any(ord(char) < 32 or ord(char) == 127 for char in item)):
+                raise ContractError("INCOMPLETE", "runtime source identity is invalid")
+        if (not re.fullmatch(r"atrinik/[a-zA-Z0-9_.-]+", record["repository"])
+                or not _NAME.fullmatch(record["checkout"])
+                or not isinstance(record.get("head"), str)
+                or not _REVISION.fullmatch(record["head"])
+                or type(record.get("dirty")) is not bool
+                or record["source"].startswith("/") or ".." in Path(record["source"]).parts):
+            raise ContractError("INCOMPLETE", "runtime source identity is invalid")
+        results.append({"component": component, **{key: record[key] for key in
+                        ("checkout", "repository", "branch", "source", "head", "dirty")},
+                        "worktree_identity": hashlib.sha256(record["checkout_path"].encode()).hexdigest()})
+    return results
 
 
 @dataclass(frozen=True)
@@ -137,7 +170,7 @@ class RuntimeService:
             raise ContractError("INVALID_ARGUMENT", "runtime approval catalog is invalid")
 
     def status(self, topology: str, *, timeout_ms: int = 5000,
-               cancelled: Callable[[], bool] | None = None) -> dict:
+               cancelled: Callable[[], bool] | None = None, _fences: list | None = None) -> dict:
         start = time.monotonic()
         if not self.enabled:
             raise ContractError("UNAUTHORIZED", "runtime observations are disabled")
@@ -175,6 +208,35 @@ class RuntimeService:
         for key in ("resolved", "state", "state_policy", "runtime", "providers", "stack", "control"):
             if key not in spec or status.get(key) != spec[key]:
                 raise ContractError("STALE_COORDINATE", "runtime identity differs")
+        sources = _coordinates(spec["resolved"], self.context.manifest())
+        runtime = spec["runtime"]
+        generation_root = root / "generations" / approval.generation
+        if (not isinstance(runtime, dict) or runtime.get("schema_version") != 1
+                or runtime.get("generation") != approval.generation
+                or runtime.get("path") != str(generation_root)
+                or not isinstance(runtime.get("manifest_sha256"), str)
+                or not _HASH.fullmatch(runtime["manifest_sha256"])):
+            raise ContractError("INCOMPLETE", "runtime build identity is invalid")
+        generation_marker_path = generation_root / ".atrinik-workspace-managed.json"
+        generation_marker_bytes = _read(generation_marker_path, check)
+        if _decode(generation_marker_bytes) != {"schema_version": 1, "purpose": "immutable-runtime-generation"}:
+            raise ContractError("FORBIDDEN", "runtime generation ownership is unverified")
+        manifest_path = generation_root / "manifest.json"
+        manifest_bytes = _read(manifest_path, check)
+        if hashlib.sha256(manifest_bytes).hexdigest() != runtime["manifest_sha256"]:
+            raise ContractError("STALE_COORDINATE", "runtime build publication changed")
+        manifest = _decode(manifest_bytes)
+        build = manifest.get("build")
+        trees = manifest.get("source_trees")
+        if (manifest.get("schema_version") != 1 or manifest.get("generation") != approval.generation
+                or manifest.get("profile") != approval.profile or manifest.get("resolved") != spec["resolved"]
+                or not isinstance(build, dict) or not isinstance(build.get("metadata_sha256"), str)
+                or not _HASH.fullmatch(build["metadata_sha256"])
+                or not isinstance(trees, dict) or set(trees) != set(spec["resolved"])
+                or any(not isinstance(value, str) or not _REVISION.fullmatch(value) for value in trees.values())):
+            raise ContractError("INCOMPLETE", "runtime build publication is invalid")
+        build_record = {"generation": approval.generation, "manifest_sha256": runtime["manifest_sha256"],
+                        "metadata_sha256": build["metadata_sha256"], "source_trees": trees}
         services = status.get("services")
         approved_services = spec.get("services")
         if (not isinstance(services, dict) or not isinstance(approved_services, dict)
@@ -183,20 +245,41 @@ class RuntimeService:
                 or type(status.get("ready")) is not bool):
             raise ContractError("INCOMPLETE", "runtime service publication is malformed")
         counts = {state: 0 for state in sorted(_STATES)}
-        for service in services.values():
+        service_records = {}
+        for name, service in services.items():
             if (not isinstance(service, dict) or not isinstance(service.get("status"), str)
                     or service.get("status") not in _STATES
                     or service.get("generation") != approval.generation):
                 raise ContractError("INCOMPLETE", "runtime service publication is malformed")
             counts[service["status"]] += 1
+            exit_code = service.get("exit_code")
+            if exit_code is not None and (type(exit_code) is not int or not -255 <= exit_code <= 65535):
+                raise ContractError("INCOMPLETE", "runtime exit publication is invalid")
+            service_records[name] = {"status": service["status"], "exit_code": exit_code}
+        shutdown = status.get("shutdown")
+        if shutdown is not None and (not isinstance(shutdown, dict)
+                or any(type(shutdown.get(key)) is not bool for key in ("clean", "control_requested"))):
+            raise ContractError("INCOMPLETE", "runtime shutdown publication is invalid")
+        shutdown_record = None if shutdown is None else {key: shutdown[key] for key in ("clean", "control_requested")}
+        paths.extend((generation_marker_path, manifest_path))
+        payloads.extend((generation_marker_bytes, manifest_bytes))
         for path, previous in zip(paths, payloads):
             if _read(path, check) != previous:
                 raise ContractError("STALE_COORDINATE", "runtime publication changed")
         snapshot.assert_current()
         check()
-        return {
+        if _fences is not None:
+            def fence(handoff_check):
+                snapshot.assert_current()
+                for path, previous in zip(paths, payloads):
+                    if _read(path, handoff_check) != previous:
+                        raise ContractError("STALE_COORDINATE", "runtime publication changed")
+                snapshot.assert_current()
+            _fences.append(fence)
+        result = {
             "schema_version": SCHEMA_VERSION, "provider_version": PROVIDER_VERSION,
             "coordinate": snapshot.coordinate.json(),
+            "runtime_sources": sources, "build_record": build_record,
             "topology": approval.name, "profile": approval.profile,
             "generation": approval.generation, "spec_sha256": approval.spec_sha256,
             "freshness": {"observed_at": datetime.now(timezone.utc).isoformat(),
@@ -205,11 +288,14 @@ class RuntimeService:
             "service_counts": counts, "expected_services": len(approved_services),
             "state_identity": hashlib.sha256(canonical_json(spec["state"])).hexdigest(),
             "build_identity": hashlib.sha256(canonical_json(spec["runtime"])).hexdigest(),
-            "services": sorted(approved_services),
+            "services": service_records, "shutdown": shutdown_record,
             "redactions": ["paths", "commands", "environment", "process-identifiers", "logs", "private-state"],
             "bounds": {"file_bytes": MAX_BYTES, "timeout_ms": timeout_ms},
             "incomplete": len(services) != len(approved_services), "truncated": False,
         }
+        if len(canonical_json(result)) > 32768:
+            raise ContractError("LIMIT_EXCEEDED", "runtime result exceeds byte limit")
+        return result
 
 
     def list(self, *, page_size: int = 25, cursor: str | None = None,
@@ -233,19 +319,21 @@ class RuntimeService:
         check()
         records = []
         fingerprints = []
+        fences = []
         for name in sorted(self.approvals):
             remaining = timeout_ms - int((time.monotonic() - start) * 1000)
             if remaining <= 0:
                 raise ContractError("TIMEOUT", "runtime listing timed out")
             try:
-                record = self.status(name, timeout_ms=remaining, cancelled=cancelled)
+                record = self.status(name, timeout_ms=remaining, cancelled=cancelled, _fences=fences)
                 stable = {key: value for key, value in record.items()
                           if key not in {"freshness", "bounds"}}
                 stable["status_sha256"] = record["freshness"]["status_sha256"]
                 fingerprints.append(stable)
                 records.append({key: record[key] for key in (
                     "topology", "profile", "generation", "coordinate", "state_identity",
-                    "build_identity", "services", "recorded_ready", "incomplete")})
+                    "build_identity", "runtime_sources", "build_record", "services", "shutdown",
+                    "recorded_ready", "incomplete")})
             except ContractError as error:
                 if error.code in {"CANCELLED", "TIMEOUT"}:
                     raise
@@ -254,15 +342,9 @@ class RuntimeService:
                 fingerprints.append(record)
         # A later observation must not hide a publication replaced earlier in
         # this listing. Recheck every successful observation at the handoff.
-        for observed in fingerprints:
+        for fence in fences:
             check()
-            if "error" in observed:
-                continue
-            directory = self.runtime_root / "topologies" / observed["topology"]
-            for filename, digest in (("spec.json", observed["spec_sha256"]),
-                                     ("status.json", observed["status_sha256"])):
-                if hashlib.sha256(_read(directory / filename, check)).hexdigest() != digest:
-                    raise ContractError("STALE_COORDINATE", "runtime listing changed")
+            fence(check)
         identity = {"records": fingerprints,
                     "approvals": [vars(self.approvals[name]) for name in sorted(self.approvals)],
                     "authorization_identity": self.context.authorization_identity,

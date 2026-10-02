@@ -22,17 +22,24 @@ identity into its cursor. A malformed record does not suppress healthy records.
 A changed publication or authorization makes an old cursor unusable.
 
 `runtime_status` selects one exact approved topology and returns its source
-coordinate, approved profile/generation, recorded readiness, fixed service-state
-counts, service names, opaque state/build identities, observation time and
+coordinate separately from the recorded runtime source coordinates, approved
+profile/generation, recorded readiness, per-service states and exit codes,
+clean-shutdown facts, opaque state/worktree identities, observation time and
 publication fingerprints. This reports the supervisor's **published status**;
 it does not assert current process health or probe PIDs, ports, sockets or the
 network. Missing process publications remain incomplete. Freshness has zero TTL.
 The existing `./atrinik ps NAME --json` remains the authoritative live workflow.
 
-The adapter reads only the topology ownership marker, spec and status. It opens
+The immutable generation manifest supplies the full source commits, tree hashes,
+generation manifest digest and build metadata digest. Its fixed registered path
+and ownership marker are verified; private build paths and outputs stay private.
+
+The adapter reads the topology ownership marker, spec, status and immutable
+generation marker/manifest. It opens
 all ancestors and regular files without following links, caps each file at
-256 KiB, compares descriptor and visible identities, rereads the three files,
-and fences source identity before returning. Cancellation and the five-second
+256 KiB, compares descriptor and visible identities, rereads the publications,
+and fences source identity before returning. Listings recheck every retained
+source snapshot and publication at handoff. Cancellation and the five-second
 deadline are checked throughout reading; structured listings stay within 32 KiB.
 No `Workspace` instance, state initialization, leases, writes, process controls,
 arbitrary paths, commands or networks are used. Source-context failures remain

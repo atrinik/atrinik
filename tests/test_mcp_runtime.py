@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -28,6 +29,10 @@ class Context:
     def resolve(self, **kwargs):
         return Snapshot()
 
+    def manifest(self):
+        return SimpleNamespace(by_name={"classic-server": SimpleNamespace(
+            repository="atrinik/classic", checkout_name="classic", branch="main", source="server")})
+
 
 class RuntimeTests(unittest.TestCase):
     def setUp(self):
@@ -45,8 +50,21 @@ class RuntimeTests(unittest.TestCase):
                 "control": {"generation": "test-generation", "socket": "/synthetic/private.sock"},
                 "state": "/synthetic/private-state", "state_policy": {}, "runtime": {},
                 "providers": {"server": "classic-server"}, "stack": "classic",
-                "resolved": {"classic": {"head": "b" * 40}},
+                "resolved": {"classic-server": {"head": "b" * 40, "repository": "atrinik/classic",
+                    "checkout": "classic", "branch": "main", "source": "server", "dirty": False,
+                    "checkout_path": "/synthetic/classic", "path": "/synthetic/classic/server"}},
                 "services": {"server": {"command": ["SENTINEL_ENV_SECRET"], "cwd": "/private"}}}
+        generation = directory / "generations/test-generation"
+        generation.mkdir(parents=True)
+        (generation / ".atrinik-workspace-managed.json").write_text(json.dumps(
+            {"schema_version": 1, "purpose": "immutable-runtime-generation"}))
+        manifest = {"schema_version": 1, "profile": "classic", "generation": "test-generation",
+                    "resolved": spec["resolved"], "build": {"metadata_sha256": "c" * 64},
+                    "source_trees": {"classic-server": "d" * 40}}
+        manifest_bytes = json.dumps(manifest).encode()
+        (generation / "manifest.json").write_bytes(manifest_bytes)
+        spec["runtime"] = {"schema_version": 1, "generation": "test-generation", "path": str(generation),
+                           "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest()}
         payload = json.dumps(spec).encode()
         (directory / "spec.json").write_bytes(payload)
         status = {**spec, "ready": True, "password": "SENTINEL_PASSWORD", "player": "SENTINEL_PLAYER",
@@ -77,6 +95,8 @@ class RuntimeTests(unittest.TestCase):
             result = self.service.status("demo")
         self.assertEqual(result["service_counts"]["running"], 1)
         self.assertEqual(result["freshness"]["ttl_ms"], 0)
+        self.assertEqual(result["runtime_sources"][0]["head"], "b" * 40)
+        self.assertEqual(result["build_record"]["metadata_sha256"], "c" * 64)
         encoded = json.dumps(result)
         for forbidden in ("SENTINEL", "/synthetic", "99001", "/synthetic/private-state"):
             self.assertNotIn(forbidden, encoded)
@@ -149,6 +169,36 @@ class RuntimeTests(unittest.TestCase):
     def test_duplicate_approvals_rejected(self):
         self.assert_code("INVALID_ARGUMENT", lambda: RuntimeService(
             self.context, approvals=(self.approval, self.approval)))
+
+    def test_service_exit_and_clean_shutdown_are_associated(self):
+        path = self.root / "workspace/topologies/demo/status.json"
+        status = json.loads(path.read_text())
+        status["services"]["server"].update(status="exited", exit_code=137)
+        status["shutdown"] = {"clean": False, "control_requested": False, "private": "SENTINEL"}
+        path.write_text(json.dumps(status))
+        result = self.service.status("demo")
+        self.assertEqual(result["services"]["server"], {"status": "exited", "exit_code": 137})
+        self.assertEqual(result["shutdown"], {"clean": False, "control_requested": False})
+        self.assertNotIn("SENTINEL", json.dumps(result))
+
+    def test_list_rechecks_source_and_ownership_at_handoff(self):
+        import atrinik_workspace.mcp_runtime as runtime
+        original = self.service.status
+        def revoke_source(*args, **kwargs):
+            result = original(*args, **kwargs)
+            Snapshot.assert_current = lambda _: (_ for _ in ()).throw(
+                ContractError("STALE_COORDINATE", "source changed"))
+            return result
+        with patch.object(Snapshot, "assert_current", Snapshot.assert_current):
+            with patch.object(self.service, "status", side_effect=revoke_source):
+                self.assert_code("STALE_COORDINATE", lambda: self.service.list())
+        def revoke_marker(*args, **kwargs):
+            result = original(*args, **kwargs)
+            path = self.root / "workspace/topologies/demo/.atrinik-workspace-managed.json"
+            path.write_text("{}")
+            return result
+        with patch.object(self.service, "status", side_effect=revoke_marker):
+            self.assert_code("STALE_COORDINATE", lambda: self.service.list())
 
     def test_replaced_publication_during_read(self):
         import atrinik_workspace.mcp_runtime as runtime
