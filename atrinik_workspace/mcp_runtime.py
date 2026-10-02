@@ -15,7 +15,9 @@ import stat
 import time
 from typing import Callable
 
-from atrinik_workspace.mcp_contract import ContractError, canonical_json, guard_request, paginate
+from atrinik_workspace.mcp_contract import (
+    ContractError, canonical_json, decode_cursor, encode_cursor, guard_request, paginate,
+)
 
 SCHEMA_VERSION = "atrinik.mcp.runtime/v1"
 PROVIDER_VERSION = "atrinik-observe/1"
@@ -389,8 +391,20 @@ class RuntimeService:
                       incomplete=any(record["incomplete"] for record in result["items"]),
                       redactions=["paths", "commands", "environment", "process-identifiers", "logs", "private-state"],
                       bounds={"scanned_records": 1000, "page_records": 50, "timeout_ms": timeout_ms})
-        if len(canonical_json(result)) > 32768:
-            raise ContractError("LIMIT_EXCEEDED", "runtime result exceeds byte limit")
+        offset = decode_cursor(cursor, identity) if cursor else 0
+        # A record-count page can exceed the byte budget even when each status
+        # fits. Recalculate all page metadata before measuring the next candidate,
+        # including a cursor newly needed when shortening the final page.
+        while len(canonical_json(result)) > 32768:
+            check()
+            if len(result["items"]) <= 1:
+                raise ContractError("LIMIT_EXCEEDED", "runtime result exceeds byte limit")
+            result["items"].pop()
+            result["returned_records"] = len(result["items"])
+            next_offset = offset + result["returned_records"]
+            result["next_cursor"] = encode_cursor(next_offset, identity)
+            result["truncated"] = True
+            result["incomplete"] = any(record["incomplete"] for record in result["items"])
         check()
         return result
 

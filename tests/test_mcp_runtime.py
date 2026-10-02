@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from atrinik_workspace.mcp_contract import ContractError, Coordinate
+from atrinik_workspace.mcp_contract import ContractError, Coordinate, canonical_json
 from atrinik_workspace.mcp_runtime import RuntimeApproval, RuntimeService, MAX_BYTES
 
 
@@ -43,7 +43,7 @@ class RuntimeTests(unittest.TestCase):
         self.approval = self.fixture("demo")
         self.service = RuntimeService(self.context, approvals=(self.approval,), enabled=True)
 
-    def fixture(self, name):
+    def fixture(self, name, *, resolved=None):
         directory = self.root / "workspace" / "topologies" / name
         directory.mkdir(parents=True)
         spec = {"schema_version": 3, "name": name, "profile": "classic",
@@ -54,13 +54,15 @@ class RuntimeTests(unittest.TestCase):
                     "checkout": "classic", "branch": "main", "source": "server", "dirty": False,
                     "checkout_path": "/synthetic/classic", "path": "/synthetic/classic/server"}},
                 "services": {"server": {"command": ["SENTINEL_ENV_SECRET"], "cwd": "/private"}}}
+        if resolved is not None:
+            spec["resolved"] = resolved
         generation = directory / "generations/test-generation"
         generation.mkdir(parents=True)
         (generation / ".atrinik-workspace-managed.json").write_text(json.dumps(
             {"schema_version": 1, "purpose": "immutable-runtime-generation"}))
         manifest = {"schema_version": 1, "profile": "classic", "generation": "test-generation",
                     "resolved": spec["resolved"], "build": {"metadata_sha256": "c" * 64},
-                    "source_trees": {"classic-server": "d" * 40}}
+                    "source_trees": {component: "d" * 40 for component in spec["resolved"]}}
         manifest_bytes = json.dumps(manifest).encode()
         (generation / "manifest.json").write_bytes(manifest_bytes)
         spec["runtime"] = {"schema_version": 1, "generation": "test-generation", "path": str(generation),
@@ -185,6 +187,77 @@ class RuntimeTests(unittest.TestCase):
         status["ready"] = False
         path.write_text(json.dumps(status))
         self.assert_code("STALE_CURSOR", lambda: service.list(page_size=25, cursor=first["next_cursor"]))
+
+    def test_multicomponent_pages_fit_and_progress_without_duplicates(self):
+        components = ("server", "client", "metaserver", "common", "resources")
+        resolved = {"classic-" + name: {
+            "head": "b" * 40, "repository": "atrinik/classic", "checkout": "classic",
+            "branch": "main", "source": name, "dirty": False,
+            "checkout_path": "/synthetic/classic", "path": "/synthetic/classic/" + name,
+        } for name in components}
+        manifest = SimpleNamespace(by_name={key: SimpleNamespace(
+            repository=value["repository"], checkout_name=value["checkout"],
+            branch=value["branch"], source=value["source"])
+            for key, value in resolved.items()})
+        approvals = [self.fixture(f"large-{i:03}", resolved=resolved) for i in range(27)]
+        service = RuntimeService(self.context, approvals=approvals, enabled=True)
+        with patch.object(self.context, "manifest", return_value=manifest):
+            expected = [service.status(approval.name) for approval in approvals]
+            first = service.list()
+            self.assertLess(first["returned_records"], 25)
+            records = []
+            page = first
+            for _ in range(len(approvals)):
+                self.assertLessEqual(len(canonical_json(page)), 32768)
+                self.assertEqual(page["returned_records"], len(page["items"]))
+                self.assertGreater(page["returned_records"], 0)
+                self.assertEqual(page["total_records"], len(approvals))
+                self.assertEqual(page["truncated"], page["next_cursor"] is not None)
+                self.assertFalse(page["incomplete"])
+                records.extend(page["items"])
+                if page["next_cursor"] is None:
+                    break
+                page = service.list(cursor=page["next_cursor"])
+            else:
+                self.fail("runtime pagination did not terminate")
+            self.assertEqual(len(records), len(approvals))
+            self.assertEqual({item["topology"] for item in records},
+                             {approval.name for approval in approvals})
+            by_name = {item["topology"]: item for item in records}
+            for status in expected:
+                for field in ("runtime_sources", "build_record"):
+                    self.assertEqual(by_name[status["topology"]][field], status[field])
+            self.assert_code("STALE_CURSOR", lambda: service.list(
+                page_size=24, cursor=first["next_cursor"]))
+            path = self.root / "workspace/topologies/large-026/status.json"
+            status = json.loads(path.read_text())
+            status["ready"] = False
+            path.write_text(json.dumps(status))
+            self.assert_code("STALE_CURSOR", lambda: service.list(cursor=first["next_cursor"]))
+
+    def test_oversized_record_remains_a_bounded_failure(self):
+        resolved = {f"component-{i:02}": {
+            "head": "b" * 40, "repository": "atrinik/classic", "checkout": "classic",
+            "branch": "b" * 512, "source": "server", "dirty": False,
+            "checkout_path": "/synthetic/classic",
+        } for i in range(50)}
+        manifest = self.context.manifest()
+        manifest.by_name.update({key: SimpleNamespace(
+            repository=value["repository"], checkout_name=value["checkout"],
+            branch=value["branch"], source=value["source"])
+            for key, value in resolved.items()})
+        approval = self.fixture("oversized", resolved=resolved)
+        service = RuntimeService(self.context, approvals=(self.approval, approval), enabled=True)
+        with patch.object(self.context, "manifest", return_value=manifest):
+            self.assert_code("LIMIT_EXCEEDED", lambda: service.status("oversized"))
+            result = service.list()
+        self.assertLessEqual(len(canonical_json(result)), 32768)
+        self.assertEqual(result["returned_records"], 2)
+        self.assertIsNone(result["next_cursor"])
+        self.assertTrue(result["incomplete"])
+        by_name = {item["topology"]: item for item in result["items"]}
+        self.assertNotIn("error", by_name["demo"])
+        self.assertEqual(by_name["oversized"]["error"], "LIMIT_EXCEEDED")
 
     def test_duplicate_approvals_rejected(self):
         self.assert_code("INVALID_ARGUMENT", lambda: RuntimeService(
