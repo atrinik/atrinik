@@ -87,15 +87,18 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(contents["result"]["contents"][0]["text"], "original\n")
 
     def test_provenance_at_head_reads_committed_bytes_in_dirty_checkout(self):
+        (self.root / "sample.txt").write_text("committed replacement\n")
+        fixture.git(self.root, "add", "sample.txt")
+        fixture.git(self.root, "commit", "-m", "update sample")
         (self.root / "sample.txt").write_text("dirty replacement\n")
         for mode in ("history", "blame"):
             response = self.server.handle(request("tools/call", name="atrinik_search",
                 arguments={"mode": mode, "provenance": True, "path": "sample.txt"}))
             items = response["result"]["structuredContent"]["data"]["items"]
             self.assertTrue(items)
-            for item in items:
-                contents = self.server.handle(request("resources/read", uri=item["resource_uri"]))
-                self.assertEqual(contents["result"]["contents"][0]["text"], "original\n")
+            self.assertEqual(items[0]["commit"], items[0]["snapshot_commit"])
+            contents = self.server.handle(request("resources/read", uri=items[0]["resource_uri"]))
+            self.assertEqual(contents["result"]["contents"][0]["text"], "committed replacement\n")
 
     def test_shared_content_cross_profile_search_is_not_duplicated(self):
         fixture.repository(self.root / "content", "atrinik/content")
