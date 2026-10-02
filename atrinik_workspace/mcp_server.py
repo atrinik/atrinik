@@ -17,9 +17,10 @@ from pathlib import Path
 import sys
 import threading
 from typing import Any, Callable
+from urllib.parse import unquote, urlsplit
 
-from .mcp_context import ContextService, Snapshot, check_request, request_scope
-from .mcp_contract import ContractError, canonical_json, enforce_context_budget, guard_request, load_json, SCHEMA_ROOT
+from .mcp_context import ContextService, Snapshot, check_request, request_scope, _git, _source_selector
+from .mcp_contract import ContractError, canonical_json, enforce_context_budget, guard_request, load_json, redact, SCHEMA_ROOT
 
 PROTOCOL_VERSION = "2026-07-28"
 VERSION_KEY = "io.modelcontextprotocol/protocolVersion"
@@ -112,19 +113,23 @@ class Tool:
     description: str
     input_schema: dict
     handler: Callable[[dict], dict]
+    output_schema: dict | None = None
+    data_classification: str = "public-source"
 
     def catalog(self):
         return {"name": self.name, "description": self.description, "inputSchema": self.input_schema,
-                "outputSchema": CONTEXT_OUTPUT_SCHEMA if self.name.startswith("context_") else OUTPUT_SCHEMA,
+                "outputSchema": self.output_schema or (CONTEXT_OUTPUT_SCHEMA if self.name.startswith("context_") else OUTPUT_SCHEMA),
                 "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}}
 
 
 class ContextServer:
-    def __init__(self, service: ContextService, extra_tools=()):
+    def __init__(self, service: ContextService, extra_tools=(), *, include_context_tools=True,
+                 server_name="atrinik-context"):
         self.service = service
-        self.resources: OrderedDict[str, tuple[Snapshot, str | None]] = OrderedDict()
+        self.server_name = server_name
+        self.resources: OrderedDict[str, tuple[Snapshot, str | None, str | None]] = OrderedDict()
         self.resource_lock = threading.Lock()
-        self.tools = {tool.name: tool for tool in (
+        context_tools = (
             Tool("context_describe", "Describe one profile's components, providers and build adapters.",
                  object_schema({"profile": STRING, **PAGING}), lambda args: service.describe(**args)),
             Tool("context_resolve", "Resolve an exact manifest selector to a fresh physical source coordinate.",
@@ -138,8 +143,18 @@ class ContextServer:
                  object_schema(SELECTION), self.guidance),
             Tool("context_changes", "List tracked changed paths with manifest impact, without untracked contents.",
                  object_schema({**SELECTION, **PAGING}), lambda args: service.changes(**args)),
-            *extra_tools)}
-        if len(self.tools) != 6 + len(extra_tools):
+        )
+        search_tools = (Tool("atrinik_search", "Search selected manifest coordinates; Git provenance requires explicit opt-in.",
+            object_schema({
+                "selections": {"type": "array", "maxItems": 8, "items": object_schema(SELECTION)},
+                "mode": {"type": "string", "enum": ["exact", "regex", "path", "filename", "symbols", "references", "history", "blame"]},
+                "query": {"type": "string", "maxLength": 1024}, "case_sensitive": {"type": "boolean"},
+                **PAGING, "timeout_ms": {"type": "integer", "minimum": 1, "maximum": 5000},
+                "provenance": {"type": "boolean"}, "path": STRING,
+                "line": {"type": "integer", "minimum": 1, "maximum": 1000000}}, ("mode",)), self.search),)
+        selected_tools = (*context_tools, *search_tools, *extra_tools) if include_context_tools else tuple(extra_tools)
+        self.tools = {tool.name: tool for tool in selected_tools}
+        if len(self.tools) != len(selected_tools):
             raise ContractError("INVALID_ARGUMENT", "duplicate tool registration")
         enforce_context_budget(visible_tools=len(self.tools), schema_bytes=len(canonical_json(self.catalog())),
                                server_instruction_bytes=len(INSTRUCTIONS.encode()), result_bytes=0)
@@ -147,11 +162,11 @@ class ContextServer:
     def catalog(self):
         return [self.tools[name].catalog() for name in sorted(self.tools)]
 
-    def resource(self, snapshot, path=None):
-        token = hashlib.sha256(canonical_json([snapshot.identity, path])).hexdigest()
+    def resource(self, snapshot, path=None, revision=None):
+        token = hashlib.sha256(canonical_json([snapshot.identity, path, revision])).hexdigest()
         uri = "atrinik://context/" + token
         with self.resource_lock:
-            self.resources[uri] = (snapshot, path)
+            self.resources[uri] = (snapshot, path, revision)
             self.resources.move_to_end(uri)
             while len(self.resources) > 128:
                 self.resources.popitem(last=False)
@@ -168,6 +183,47 @@ class ContextServer:
         if result["snapshot"] != snapshot.json()["snapshot"]:
             raise ContractError("STALE_COORDINATE", "guidance coordinate changed")
         result["resources"] = [self.resource(snapshot, path) for path in result["guidance"]]
+        return result
+
+    def search(self, args):
+        from .mcp_search import search
+        selections = args.get("selections", [{}])
+        if not selections:
+            raise ContractError("INVALID_ARGUMENT", "at least one source selection is required")
+        observed = [self.service.resolve(**selector) for selector in selections]
+        selected = []
+        content = set()
+        for snapshot in observed:
+            key = canonical_json([snapshot.coordinate.json(), snapshot.metadata.get("source")])
+            if snapshot.coordinate.repository == "atrinik/content":
+                if key in content:
+                    continue
+                content.add(key)
+            selected.append(snapshot)
+        request = {"case_sensitive": True, "page_size": 20, "timeout_ms": 5000,
+                   **{key: value for key, value in args.items() if key != "selections"}}
+        result = search(request, selected, authorization_identity=self.service.authorization_identity,
+                        cancellation=lambda: check_request() or False, routine_bytes=28672)
+        for item in result["items"]:
+            snapshot = next((candidate for candidate in selected
+                if candidate.coordinate.repository == item["repository"]
+                and candidate.coordinate.worktree == item["worktree"]
+                and candidate.metadata.get("component") == item["component"]), None)
+            if snapshot is None:
+                raise ContractError("INCOMPLETE", "search resource identity is invalid")
+            uri = urlsplit(item["resource_uri"])
+            parts = uri.path.lstrip("/").split("/")
+            if (uri.scheme != "atrinik" or uri.netloc != "atrinik" or uri.query or uri.fragment
+                    or len(parts) < 3 or "atrinik/" + parts[0] != snapshot.coordinate.repository
+                    or not re.fullmatch(r"[0-9a-f]{40}", parts[1])):
+                raise ContractError("INCOMPLETE", "search resource identity is invalid")
+            path = "/".join(unquote(part) for part in parts[2:])
+            _source_selector(path)
+            revision = None if parts[1] == snapshot.coordinate.commit else parts[1]
+            item["resource_uri"] = self.resource(snapshot, path, revision)["uri"]
+        result["selected_profiles"] = sorted({snapshot.metadata.get("profile", "default") for snapshot in observed})
+        for snapshot in observed:
+            snapshot.assert_current()
         return result
 
     def dispatch(self, method, params):
@@ -195,23 +251,35 @@ class ContextServer:
                 selected = self.resources.get(uri)
             if selected is None:
                 raise ContractError("NOT_FOUND", "resource unavailable or evicted")
-            snapshot, path = selected
+            snapshot, path, revision = selected
             snapshot.assert_current()
             if path is None:
                 payload = canonical_json(snapshot.json()).decode()
             else:
                 try:
-                    payload = snapshot.read(path).decode("utf-8")
+                    if revision is None:
+                        payload = snapshot.read(path).decode("utf-8")
+                    else:
+                        _source_selector(path)
+                        entry = _git(snapshot.root, "--literal-pathspecs", "ls-tree", "-z", revision, "--", path)
+                        if not entry.startswith((b"100644 blob ", b"100755 blob ")) or len(entry.split(b"\0")) != 2:
+                            raise ContractError("FORBIDDEN", "historical resource is not regular")
+                        payload = _git(snapshot.root, "show", revision + ":" + path, maximum=65536).decode("utf-8")
                 except UnicodeError as error:
                     raise ContractError("FORBIDDEN", "binary resource unavailable") from error
-            return {"contents": [{"uri": uri, "mimeType": "text/plain" if path else "application/json", "text": payload}]}
+            snapshot.assert_current()
+            if "\x00" in payload:
+                raise ContractError("FORBIDDEN", "binary resource unavailable")
+            safe = redact(payload)
+            return {"contents": [{"uri": uri, "mimeType": "text/plain" if path else "application/json", "text": safe,
+                                   "_meta": {"atrinik/redacted": safe != payload}}]}
         name = params.get("name")
         if not isinstance(name, str) or name not in self.tools:
             raise ContractError("UNSUPPORTED_OPERATION", "tool unavailable")
         tool = self.tools[name]
         arguments = params.get("arguments", {})
         validate(arguments, tool.input_schema)
-        guard_request(action="inspect", selector=None, data_classification="public-source",
+        guard_request(action="inspect", selector=None, data_classification=tool.data_classification,
                       input_bytes=len(canonical_json(arguments)), requested_records=arguments.get("page_size", 20),
                       timeout_ms=5000)
         result = {"schema_version": "atrinik.context.result/v1", "data": tool.handler(arguments)}
@@ -257,13 +325,20 @@ class ContextServer:
             with request_scope(cancelled):
                 result = self.dispatch(request.get("method"), params)
             result.update(resultType="complete", _meta={"io.modelcontextprotocol/serverInfo":
-                          {"name": "atrinik-context", "version": "1.0.0"}})
+                          {"name": self.server_name, "version": "1.0.0"}})
             response["result"] = result
         except ContractError as error:
             response["error"] = {"code": -32601 if error.code == "UNSUPPORTED_OPERATION" else -32602,
                                  "message": error.safe_message, "data": {"code": error.code}}
         except Exception:
             response["error"] = {"code": -32603, "message": "Inspection failed", "data": {"code": "INTERNAL"}}
+        # Bound the complete serialized wire frame, including escaping and RPC
+        # metadata. Progressive resource reads have the common hard 64 KiB cap.
+        maximum = 65536 if isinstance(request, dict) and request.get("method") == "resources/read" else 32768
+        if len(canonical_json(response)) + 1 > maximum:
+            response = {"jsonrpc": "2.0", "id": request_id if valid_id else None,
+                        "error": {"code": -32602, "message": "Response exceeds wire byte limit",
+                                  "data": {"code": "LIMIT_EXCEEDED"}}}
         return response
 
 

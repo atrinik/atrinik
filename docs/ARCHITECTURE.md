@@ -1562,7 +1562,7 @@ Profiles do not provide a security sandbox.
 
 MCP information access has a separate versioned contract under
 `mcp/contract/v1`; no production server is enabled by that contract alone.
-Future local adapters receive an explicit configured root and resolve only
+Local context/search adapters receive an explicit configured root and resolve only
 manifest or wrapper-registry identities. MCP Roots, implicit CWD, caller paths,
 tool annotations, prompts, and confirmation UI are not authorization. Every
 result is revision/worktree/dirty/authorization-qualified, schema-validated,
@@ -1570,6 +1570,15 @@ deterministically paginated, and hard-capped. Reads use descriptor-relative
 no-follow regular-file inspection, and initial caches are bounded memory whose
 keys include every effective parameter and identity. Source, guidance, authored
 content, issues, comments, logs, and tool metadata remain untrusted data.
+
+The context stdio adapter uses the pure inspection API in `mcp_context`,
+without constructing the lease-producing operational workspace. Source search
+uses selected immutable snapshots, fixed read-only Git/`rg` operations and
+descriptor-bound files; resources retain source fences and bounded transport
+frames. Runtime publication observation is a separate approval-configured
+server. It reports recorded source/build/service facts, not live process health;
+it cannot control services or read logs. See [context](MCP_CONTEXT.md),
+[search](MCP_SEARCH.md), [runtime](MCP_RUNTIME.md), and [pilot](MCP_PILOT.md).
 
 The contract admits read-only compare, inspect, list, read, search, and validate
 operations. It excludes arbitrary paths, credentials, mutable state, ignored or

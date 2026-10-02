@@ -170,7 +170,8 @@ class RuntimeService:
             raise ContractError("INVALID_ARGUMENT", "runtime approval catalog is invalid")
 
     def status(self, topology: str, *, timeout_ms: int = 5000,
-               cancelled: Callable[[], bool] | None = None, _fences: list | None = None) -> dict:
+               cancelled: Callable[[], bool] | None = None, _fences: list | None = None,
+               _snapshot=None, _aggregate=False) -> dict:
         start = time.monotonic()
         if not self.enabled:
             raise ContractError("UNAUTHORIZED", "runtime observations are disabled")
@@ -188,9 +189,10 @@ class RuntimeService:
         approval = self.approvals.get(topology)
         if approval is None:
             raise ContractError("UNAUTHORIZED", "runtime identity is not approved")
-        snapshot = self.context.resolve(profile=approval.profile)
+        snapshot = _snapshot if _snapshot is not None else self.context.resolve(profile=approval.profile)
         check()
-        snapshot.assert_current()
+        if not _aggregate:
+            snapshot.assert_current()
         root = self.runtime_root / "topologies" / topology
         paths = [root / name for name in (".atrinik-workspace-managed.json", "spec.json", "status.json")]
         payloads = [_read(path, check) for path in paths]
@@ -266,15 +268,18 @@ class RuntimeService:
         for path, previous in zip(paths, payloads):
             if _read(path, check) != previous:
                 raise ContractError("STALE_COORDINATE", "runtime publication changed")
-        snapshot.assert_current()
+        if not _aggregate:
+            snapshot.assert_current()
         check()
         if _fences is not None:
             def fence(handoff_check):
-                snapshot.assert_current()
+                if not _aggregate:
+                    snapshot.assert_current()
                 for path, previous in zip(paths, payloads):
                     if _read(path, handoff_check) != previous:
                         raise ContractError("STALE_COORDINATE", "runtime publication changed")
-                snapshot.assert_current()
+                if not _aggregate:
+                    snapshot.assert_current()
             _fences.append(fence)
         result = {
             "schema_version": SCHEMA_VERSION, "provider_version": PROVIDER_VERSION,
@@ -299,7 +304,9 @@ class RuntimeService:
 
 
     def list(self, *, page_size: int = 25, cursor: str | None = None,
-             timeout_ms: int = 5000, cancelled: Callable[[], bool] | None = None) -> dict:
+             timeout_ms: int = 5000, cancelled: Callable[[], bool] | None = None,
+             name_prefix: str | None = None, profile: str | None = None,
+             state_identity: str | None = None, service_state: str | None = None) -> dict:
         """List only explicitly approved registered publications, never scan disk."""
         if not self.enabled:
             raise ContractError("UNAUTHORIZED", "runtime observations are disabled")
@@ -310,6 +317,13 @@ class RuntimeService:
             raise ContractError("LIMIT_EXCEEDED", "runtime page size is invalid")
         if cursor is not None and (not isinstance(cursor, str) or len(cursor) > 1024):
             raise ContractError("INVALID_ARGUMENT", "runtime cursor is invalid")
+        for selector in (name_prefix, profile):
+            if selector is not None and (not isinstance(selector, str) or not _NAME.fullmatch(selector)):
+                raise ContractError("INVALID_ARGUMENT", "runtime filter is invalid")
+        if state_identity is not None and (not isinstance(state_identity, str) or not _HASH.fullmatch(state_identity)):
+            raise ContractError("INVALID_ARGUMENT", "runtime state filter is invalid")
+        if service_state is not None and service_state not in _STATES:
+            raise ContractError("INVALID_ARGUMENT", "runtime service filter is invalid")
         start = time.monotonic()
         def check():
             if cancelled is not None and cancelled():
@@ -320,16 +334,27 @@ class RuntimeService:
         records = []
         fingerprints = []
         fences = []
+        snapshots = {}
         for name in sorted(self.approvals):
+            approval = self.approvals[name]
+            if ((name_prefix is not None and not name.startswith(name_prefix))
+                    or (profile is not None and profile != approval.profile)):
+                continue
             remaining = timeout_ms - int((time.monotonic() - start) * 1000)
             if remaining <= 0:
                 raise ContractError("TIMEOUT", "runtime listing timed out")
             try:
-                record = self.status(name, timeout_ms=remaining, cancelled=cancelled, _fences=fences)
+                if approval.profile not in snapshots:
+                    snapshots[approval.profile] = self.context.resolve(profile=approval.profile)
+                record = self.status(name, timeout_ms=remaining, cancelled=cancelled, _fences=fences,
+                                     _snapshot=snapshots[approval.profile], _aggregate=True)
                 stable = {key: value for key, value in record.items()
                           if key not in {"freshness", "bounds"}}
                 stable["status_sha256"] = record["freshness"]["status_sha256"]
                 fingerprints.append(stable)
+                if ((state_identity is not None and record["state_identity"] != state_identity)
+                        or (service_state is not None and not record["service_counts"][service_state])):
+                    continue
                 records.append({key: record[key] for key in (
                     "topology", "profile", "generation", "coordinate", "state_identity",
                     "build_identity", "runtime_sources", "build_record", "services", "shutdown",
@@ -342,14 +367,22 @@ class RuntimeService:
                 fingerprints.append(record)
         # A later observation must not hide a publication replaced earlier in
         # this listing. Recheck every successful observation at the handoff.
+        for snapshot in snapshots.values():
+            check()
+            snapshot.assert_current()
         for fence in fences:
             check()
             fence(check)
+        for snapshot in snapshots.values():
+            check()
+            snapshot.assert_current()
         identity = {"records": fingerprints,
                     "approvals": [vars(self.approvals[name]) for name in sorted(self.approvals)],
                     "authorization_identity": self.context.authorization_identity,
                     "schema_version": SCHEMA_VERSION, "provider_version": PROVIDER_VERSION,
                     "page_size": page_size}
+        identity["filters"] = {"name_prefix": name_prefix, "profile": profile,
+                               "state_identity": state_identity, "service_state": service_state}
         result = paginate(records, page_size=page_size, cursor=cursor, snapshot_identity=identity)
         result.update(schema_version=SCHEMA_VERSION, provider_version=PROVIDER_VERSION,
                       freshness={"observed_at": datetime.now(timezone.utc).isoformat(), "ttl_ms": 0},
@@ -365,20 +398,36 @@ class RuntimeService:
 def runtime_tools(service: RuntimeService):
     """Explicit transport composition; never called by default context startup."""
     from atrinik_workspace.mcp_server import Tool
+    from atrinik_workspace.mcp_server import object_schema
     from atrinik_workspace.mcp_context import check_request
 
     def active():
         check_request()
         return False
 
+    output = object_schema({
+        "schema_version": {"type": "string", "const": "atrinik.context.result/v1"},
+        "data": {"type": "object", "properties": {
+            "schema_version": {"type": "string", "const": SCHEMA_VERSION},
+            "provider_version": {"type": "string", "const": PROVIDER_VERSION},
+            "freshness": {"type": "object"}, "incomplete": {"type": "boolean"},
+            "redactions": {"type": "array", "maxItems": 16, "items": {"type": "string"}},
+            "bounds": {"type": "object"}},
+            "required": ["schema_version", "provider_version", "freshness", "incomplete", "redactions", "bounds"]}
+    }, ("schema_version", "data"))
+
     return (
         Tool("runtime_status", "Inspect an approved runtime publication; no live process probe.",
              {"type": "object", "properties": {"topology": {"type": "string", "maxLength": 64}},
               "required": ["topology"], "additionalProperties": False},
-             lambda args: service.status(args["topology"], cancelled=active)),
+             lambda args: service.status(args["topology"], cancelled=active), output, "operational-metadata"),
         Tool("runtime_list", "List explicitly approved runtime publications with bounded failures.",
              {"type": "object", "properties": {
                  "page_size": {"type": "integer", "minimum": 1, "maximum": 50},
-                 "cursor": {"type": "string", "maxLength": 1024}}, "additionalProperties": False},
-             lambda args: service.list(**args, cancelled=active)),
+                 "cursor": {"type": "string", "maxLength": 1024},
+                 "name_prefix": {"type": "string", "maxLength": 64},
+                 "profile": {"type": "string", "maxLength": 64},
+                 "state_identity": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                 "service_state": {"type": "string", "enum": sorted(_STATES)}}, "additionalProperties": False},
+             lambda args: service.list(**args, cancelled=active), output, "operational-metadata"),
     )

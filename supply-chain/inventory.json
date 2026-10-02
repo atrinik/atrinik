@@ -2475,20 +2475,26 @@
       "eol_response": "Upgrade, replace, or remove unsupported crates before release",
       "validation": "cargo metadata, locked build/test/Clippy, provenance checks, Trivy, and Syft SBOM",
       "disposition": "retain",
-      "packages": ["sha2"],
+      "packages": ["rustix", "serde", "serde_json", "sha2"],
       "evidence": [
         {"repository":"content-toolkit","path":"Cargo.lock","contains":"version = 4"},
         {"repository":"content-toolkit","path":"Cargo.toml","contains":"[workspace]"},
         {"repository":"content-toolkit","path":"crates/atrinik-artifact/Cargo.toml","contains":"name = \"atrinik-artifact\""},
         {"repository":"content-toolkit","path":"crates/atrinik-catalog/Cargo.toml","contains":"name = \"atrinik-catalog\""},
+        {"repository":"content-toolkit","path":"crates/atrinik-content-mcp/Cargo.toml","contains":"name = \"atrinik-content-mcp\""},
         {"repository":"content-toolkit","path":"crates/atrinik-content/Cargo.toml","contains":"name = \"atrinik-content\""},
         {"repository":"content-toolkit","path":"crates/atrinik-diagnostics/Cargo.toml","contains":"name = \"atrinik-diagnostics\""},
         {"repository":"content-toolkit","path":"crates/atrinik-schema/Cargo.toml","contains":"name = \"atrinik-schema\""},
         {"repository":"content-toolkit","path":"crates/atrinik-source/Cargo.toml","contains":"name = \"atrinik-source\""},
         {"repository":"content-toolkit","path":"crates/atrinik-testkit/Cargo.toml","contains":"name = \"atrinik-testkit\""},
         {"repository":"content-toolkit","path":"crates/atrinik-transaction/Cargo.toml","contains":"name = \"atrinik-transaction\""},
+        {"repository":"content-toolkit","path":"policy/dependencies.json","contains":"\"name\": \"rustix\""},
+        {"repository":"content-toolkit","path":"policy/dependencies.json","contains":"\"name\": \"serde\""},
+        {"repository":"content-toolkit","path":"policy/dependencies.json","contains":"\"name\": \"serde_json\""},
         {"repository":"content-toolkit","path":"policy/dependencies.json","contains":"\"name\": \"sha2\""},
-        {"repository":"content-toolkit","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""}
+        {"repository":"content-toolkit","path":"rust-toolchain.toml","contains":"channel = \"1.97.1\""},
+        {"repository":"content-toolkit","path":"tools/check-dependencies.sh","contains":"direct_dependencies"},
+        {"repository":"content-toolkit","path":"tools/package-licenses.py","contains":"license"}
       ]
     },
     {

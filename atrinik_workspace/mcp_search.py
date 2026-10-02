@@ -302,6 +302,7 @@ def _git_capture(
             [
                 "git",
                 "--no-replace-objects",
+                "--no-lazy-fetch",
                 "--literal-pathspecs",
                 "-c",
                 "core.fsmonitor=false",
@@ -324,6 +325,7 @@ def _git_capture(
                 "GIT_CONFIG_GLOBAL": os.devnull,
                 "GIT_CONFIG_COUNT": "0",
                 "GIT_NO_REPLACE_OBJECTS": "1",
+                "GIT_NO_LAZY_FETCH": "1",
                 "GIT_OPTIONAL_LOCKS": "0",
                 "GIT_TERMINAL_PROMPT": "0",
                 "GIT_ASKPASS": "/bin/false",
@@ -359,6 +361,7 @@ def _check_context_git_policy(
             [
                 "git",
                 "--no-replace-objects",
+                "--no-lazy-fetch",
                 "config",
                 "--local",
                 "--null",
@@ -375,6 +378,7 @@ def _check_context_git_policy(
                 "GIT_CONFIG_GLOBAL": os.devnull,
                 "GIT_CONFIG_COUNT": "0",
                 "GIT_NO_REPLACE_OBJECTS": "1",
+                "GIT_NO_LAZY_FETCH": "1",
                 "GIT_OPTIONAL_LOCKS": "0",
                 "GIT_TERMINAL_PROMPT": "0",
                 "GIT_ASKPASS": "/bin/false",
@@ -1220,11 +1224,14 @@ def search(
     authorization_identity: str,
     cancellation: object = None,
     language_adapters: Mapping[str, SearchAdapter] | None = None,
+    routine_bytes: int = 30720,
 ) -> dict[str, object]:
     """Search only the canonical snapshots supplied by the trusted resolver."""
 
     if not isinstance(request, Mapping):
         raise ContractError("INVALID_ARGUMENT", "search request must be an object")
+    if type(routine_bytes) is not int or not 1024 <= routine_bytes <= 32768:
+        raise ContractError("INVALID_ARGUMENT", "search response budget is invalid")
     allowed = {
         "mode",
         "query",
@@ -1443,7 +1450,7 @@ def search(
 
     # Keep routine results under the stricter 32 KiB context budget without
     # skipping records: shorten this page and move its cursor to the true end.
-    while len(canonical_json(result)) > 32 * 1024 and result["items"]:
+    while len(canonical_json(result)) > routine_bytes and result["items"]:
         result["items"].pop()  # type: ignore[union-attr]
         result["truncation"]["bytes"] = True  # type: ignore[index]
     returned = len(result["items"])

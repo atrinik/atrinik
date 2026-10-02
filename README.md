@@ -552,12 +552,16 @@ through `completion bash|zsh|fish` rather than hand-written against it.
 ### MCP information-access contract
 
 [`mcp/contract/v1`](mcp/contract/v1/README.md) defines the common, versioned
-safety and measurement gates for future Atrinik MCP servers and evaluated
+safety and measurement gates for optional Atrinik MCP servers and evaluated
 connectors. It pins exact coordinates, stable failures, pagination, cache
 identity, hard record/byte/time/context limits, six known-answer domains, an
-adversarial corpus, and build/configure/defer/reject decisions. This repository
-does not yet ship or configure a production MCP server; direct wrapper,
-repository CLI, `rg`, Git, `gh`, and browser workflows remain authoritative.
+adversarial corpus, and build/configure/defer/reject decisions. The Linux
+[context server](docs/MCP_CONTEXT.md) exposes six context tools and
+[revision-aware search](docs/MCP_SEARCH.md). A [separate runtime server](docs/MCP_RUNTIME.md)
+requires explicit approvals and exposes no control or logs. Installation and
+activation remain optional; the [pilot guide](docs/MCP_PILOT.md) records the
+remaining adoption evidence. Direct wrapper, repository CLI, `rg`, Git, `gh`,
+and browser workflows remain authoritative.
 
 Validate or benchmark the contract without installing an MCP SDK:
 

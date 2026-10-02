@@ -27,7 +27,7 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(response["result"]["supportedVersions"], [PROTOCOL_VERSION])
         self.assertEqual(response["result"]["resultType"], "complete")
         tools = self.server.handle(request("tools/list"))["result"]["tools"]
-        self.assertEqual(len(tools), 6)
+        self.assertEqual(len(tools), 7)
         self.assertLess(len(canonical_json(tools)), 32768)
         self.assertTrue(all(tool["inputSchema"]["additionalProperties"] is False for tool in tools))
         self.assertFalse(any("runtime" in tool["name"] or "shell" in tool["name"] for tool in tools))
@@ -39,6 +39,16 @@ class ServerTests(unittest.TestCase):
         self.assertIn("error", self.server.handle({"jsonrpc": "2.0", "id": 1, "method": "initialize"}))
         for method in ("up", "shutdown", "shell", "roots/list"):
             self.assertEqual(self.server.handle(request(method))["error"]["code"], -32601)
+
+    def test_final_wire_bounds_include_rpc_metadata_and_escaped_resources(self):
+        for method, result in (
+                ("tools/list", {"text": "x" * 32700}),
+                ("resources/read", {"contents": [{"text": '"' * 40000}]}),
+                ("tools/list", {"text": "é" * 16400})):
+            with patch.object(self.server, "dispatch", return_value=result):
+                response = self.server.handle(request(method))
+            self.assertEqual(response["error"]["data"]["code"], "LIMIT_EXCEEDED")
+            self.assertLess(len(canonical_json(response)) + 1, 32768)
 
     def test_strict_schema_no_arbitrary_arguments_or_secret_echo(self):
         for arguments in ({"root": "/tmp/secret"}, {"page_size": True}, {"page_size": 51}, {"profile": "bad\nvalue"}):
@@ -59,6 +69,31 @@ class ServerTests(unittest.TestCase):
         (self.root / "sample.txt").write_text("changed\n")
         self.assertEqual(self.server.handle(request("resources/read", uri=uri))["error"]["data"]["code"], "STALE_COORDINATE")
         self.assertIn("error", self.server.handle(request("resources/read", uri="file:///tmp/example")))
+
+    def test_search_and_historical_rename_resources_use_registered_snapshots(self):
+        response = self.server.handle(request("tools/call", name="atrinik_search",
+            arguments={"mode": "exact", "query": "original"}))
+        item = response["result"]["structuredContent"]["data"]["items"][0]
+        contents = self.server.handle(request("resources/read", uri=item["resource_uri"]))
+        self.assertEqual(contents["result"]["contents"][0]["text"], "original\n")
+        fixture.git(self.root, "mv", "sample.txt", "renamed.txt")
+        fixture.git(self.root, "commit", "-m", "rename")
+        response = self.server.handle(request("tools/call", name="atrinik_search",
+            arguments={"mode": "history", "provenance": True, "path": "renamed.txt"}))
+        data = response["result"]["structuredContent"]["data"]
+        self.assertTrue(data["items"])
+        for item in data["items"]:
+            contents = self.server.handle(request("resources/read", uri=item["resource_uri"]))
+            self.assertEqual(contents["result"]["contents"][0]["text"], "original\n")
+
+    def test_shared_content_cross_profile_search_is_not_duplicated(self):
+        fixture.repository(self.root / "content", "atrinik/content")
+        response = self.server.handle(request("tools/call", name="atrinik_search", arguments={
+            "mode": "exact", "query": "original", "selections": [
+                {"profile": "default", "component": "content"}, {"profile": "classic", "component": "content"}]}))
+        data = response["result"]["structuredContent"]["data"]
+        self.assertEqual(len(data["items"]), 1)
+        self.assertEqual(data["selected_profiles"], ["classic", "default"])
 
     def test_cancelled_request_does_not_run_git(self):
         event = threading.Event()

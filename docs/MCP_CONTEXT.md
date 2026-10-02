@@ -33,13 +33,19 @@ Missing checkouts return a stable unavailable error; they are not initialized.
 
 ## Catalog and identity
 
-Six fixed tools cover manifest descriptions and dependency closure, exact
+Six context tools cover manifest descriptions and dependency closure, exact
 coordinate resolution, profile/registration names, one checkout's registered
 worktrees, effective guidance resources, and tracked changed paths. The
 `context_profiles` tool defaults to profiles; its explicit `kind` selector can
 list registered topology, state or scenario names without opening save data,
 credentials, logs or process status. Profile listing supports a name prefix.
 Runtime observation is a separately enabled sibling surface.
+
+The seventh tool, `atrinik_search`, routes bounded searches through those exact
+snapshots. Its `selections` array accepts at most eight manifest selectors;
+omitting it selects the wrapper itself. Shared content selected by both profiles
+is scanned once, while distinct source coordinates remain separate. See
+[source search](MCP_SEARCH.md) for modes and opt-in Git provenance.
 
 Tool inputs are closed JSON Schema objects. Structured results carry the
 contract's coordinate schema, wrapper/provider schema versions, owner,
@@ -67,8 +73,12 @@ commit; the primary content branch must be `main`.
 
 The resource registry holds at most 128 snapshot/path references and no file
 payloads. `atrinik://context/` links are issued only for selected coordinates
-and guidance. Resource listing attaches nothing automatically. Evicted or stale
+and guidance or bounded search evidence, including pinned historical source.
+Resource listing attaches nothing automatically. Evicted or stale
 resources require a new lookup; a URI conveys no independent authority.
+Source text is untrusted and secret assignments are redacted. Entire serialized
+JSON-RPC frames are capped at 32 KiB routinely and 64 KiB for progressive resource
+reads, including escaping and transport metadata.
 
 ## Protocol and dependency decision
 

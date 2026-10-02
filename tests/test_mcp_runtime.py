@@ -88,6 +88,22 @@ class RuntimeTests(unittest.TestCase):
             self.assert_code("UNAUTHORIZED" if name == "99001" else "INVALID_ARGUMENT",
                              lambda: self.service.status(name))
 
+    def test_observe_catalog_is_separate_and_approval_revocation_fails(self):
+        from atrinik_workspace.mcp_observe_server import configured_server
+        from atrinik_workspace.mcp_server import ContextServer
+        path = self.root / "approvals.json"
+        path.write_text(json.dumps({"schema_version": 1, "authorization_identity": "synthetic-actor",
+                                   "approvals": [vars(self.approval)]}))
+        with patch("atrinik_workspace.mcp_observe_server.ContextService", return_value=self.context):
+            observed = configured_server(self.root, path)
+        self.assertEqual({tool["name"] for tool in observed.catalog()}, {"runtime_list", "runtime_status"})
+        routine = ContextServer(self.context)
+        self.assertFalse(any(tool["name"].startswith("runtime_") for tool in routine.catalog()))
+        result = observed.dispatch("tools/call", {"name": "runtime_status", "arguments": {"topology": "demo"}})
+        self.assertEqual(result["structuredContent"]["data"]["runtime_sources"][0]["head"], "b" * 40)
+        path.write_text("{}")
+        self.assert_code("UNAUTHORIZED", lambda: observed.dispatch("tools/list", {}))
+
     def test_safe_projection_and_no_mutation(self):
         before = {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
         with patch("os.kill", side_effect=AssertionError("signal forbidden")), patch(
@@ -169,6 +185,19 @@ class RuntimeTests(unittest.TestCase):
     def test_duplicate_approvals_rejected(self):
         self.assert_code("INVALID_ARGUMENT", lambda: RuntimeService(
             self.context, approvals=(self.approval, self.approval)))
+
+    def test_runtime_filters_are_bounded_and_cursor_bound(self):
+        approvals = [self.approval, self.fixture("other")]
+        service = RuntimeService(self.context, approvals=approvals, enabled=True)
+        result = service.list(name_prefix="demo", profile="classic", service_state="running")
+        self.assertEqual([item["topology"] for item in result["items"]], ["demo"])
+        self.assertEqual(service.list(state_identity="0" * 64)["items"], [])
+        result = service.list(page_size=1)
+        self.assert_code("STALE_CURSOR", lambda: service.list(page_size=1,
+            cursor=result["next_cursor"], service_state="running"))
+        with patch.object(self.context, "resolve", wraps=self.context.resolve) as resolve:
+            service.list()
+        self.assertEqual(resolve.call_count, 1)
 
     def test_service_exit_and_clean_shutdown_are_associated(self):
         path = self.root / "workspace/topologies/demo/status.json"

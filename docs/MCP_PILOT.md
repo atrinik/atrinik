@@ -28,14 +28,15 @@ do not turn capability IDs into guessed tool names.
 
 The context candidate's reviewed catalog is `context_describe`,
 `context_resolve`, `context_profiles`, `context_worktrees`, `context_guidance`
-and `context_changes`. Its launch interface is `python3 -B -m
+and `context_changes`, plus `atrinik_search`. Its launch interface is `python3 -B -m
 atrinik_workspace.mcp_server --root TRUSTED_WRAPPER_ROOT`, where the root is a
 locally verified binding, never a literal placeholder. Clear any inherited
 `ATRINIK_WORKSPACE_DIR` override before launch. The native read-only fallback is
 `python3 -B -m atrinik_workspace.mcp_context --root TRUSTED_WRAPPER_ROOT`
 with `describe`, `resolve`, `profiles`, `worktrees`, `guidance` or `changes`.
-Runtime tool registration remains provisional; require the final integrated
-revision's discovery evidence before enabling its separate candidate.
+The separate `atrinik_workspace.mcp_observe_server` exposes only `runtime_list`
+and `runtime_status` after explicit private approval-file configuration. Require
+the final integrated revision's discovery evidence before enabling it.
 
 Use only a trusted checkout and a reviewed immutable server revision. Trust is
 an operator decision about executable code, its dependency lock, configured

@@ -36,10 +36,11 @@ evaluation, or persistent cross-worktree indexing.
 
 Git provenance is disabled unless the request sets `provenance` to true. Both
 operations pin reads to the snapshot's full commit, reject untracked or unsafe
-paths, disable replacement objects and ambient system/global Git config, and
-return at most 1,000 source records. `history` accepts an optional fixed-string
-subject query. `blame` accepts an optional positive line number and no text
-query. Ordinary searches cannot carry provenance fields.
+paths, disable replacement objects, lazy fetching, and ambient system/global
+Git config, and return at most 1,000 source records. Missing partial-clone objects
+fail locally. `history` accepts an optional fixed-string subject query. `blame`
+accepts an optional positive line number and no text query. Ordinary searches
+cannot carry provenance fields.
 
 Every Git read reuses the context server's Git read policy. A configured local
 clean/process content filter is forbidden before Git inspects source, so a
@@ -109,8 +110,7 @@ truncation flag, and one bounded `INCOMPLETE` failure rather than starting an
 unbounded rescan. Cancellation and timeout are checked between records as well
 as while a subprocess is producing output.
 
-The implementation and its tests are deliberately independent of real user
-worktrees and history. Run the synthetic fixture suite with:
+The tests use synthetic Git repositories. Run the fixture suite with:
 
 ```sh
 python3 -m unittest -v tests.test_mcp_search

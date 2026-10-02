@@ -6,6 +6,15 @@ register its two tools automatically. A trusted host supplies `RuntimeApproval`
 records and explicitly composes `runtime_tools(service)` into its observe
 transport. Tool arguments cannot create approvals, change roots, or enable it.
 
+The separate executable is `python3 -B -m
+atrinik_workspace.mcp_observe_server --root TRUSTED_WRAPPER_ROOT --approvals
+PRIVATE_APPROVAL_FILE`. The approval file uses schema version 1 and contains
+`authorization_identity` and an `approvals` array of the four fields described
+below. It is host configuration, not a committed project file. Its bytes are
+rechecked before and after every request; removal or changes revoke access until
+the server is restarted with reviewed configuration. Observe discovery exposes
+only the two runtime tools. Routine context discovery cannot enable them.
+
 Each approval binds topology name, profile, generation and SHA-256 of the exact
 registered `spec.json` bytes. Review that spec through the ordinary wrapper
 workflow before granting approval. Its digest covers state, scenario, build,
