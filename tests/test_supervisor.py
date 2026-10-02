@@ -11,6 +11,7 @@ import sys
 import tempfile
 import threading
 import time
+from types import SimpleNamespace
 import unittest
 from unittest import mock
 
@@ -228,28 +229,45 @@ class ServerReadinessCaptureTests(unittest.TestCase):
                 os.close(descriptor)
 
     def test_guardian_child_closes_scenario_descriptor(self) -> None:
-        with (
-            mock.patch.object(supervisor_module.os, "pipe2", return_value=(10, 11)),
-            mock.patch.object(supervisor_module.os, "fork", return_value=0),
-            mock.patch.object(supervisor_module.os, "close") as close,
-            mock.patch.object(
-                supervisor_module,
-                "_guardian",
-                side_effect=lambda *_: close.assert_any_call(22),
-            ),
-            mock.patch.object(
-                supervisor_module.os, "_exit", side_effect=RuntimeError("exit")
-            ),
-            self.assertRaisesRegex(RuntimeError, "exit"),
-        ):
-            supervisor_module._start_guardian(
-                20, 21, close_fds=(None, 22)
-            )
+        # Keep guardian doubles local: unrelated resource finalizers can call
+        # os.close during this test and must still release their real handles.
+        guardian_os = SimpleNamespace(**vars(os))
+        with tempfile.TemporaryFile() as unrelated:
+            descriptor = os.dup(unrelated.fileno())
+            descriptor_open = True
+            self.addCleanup(lambda: os.close(descriptor) if descriptor_open else None)
 
-        self.assertEqual(
-            [call.args[0] for call in close.call_args_list],
-            [11, 22],
-        )
+            def fork_child():
+                nonlocal descriptor_open
+                os.close(descriptor)
+                descriptor_open = False
+                return 0
+
+            with (
+                mock.patch.object(supervisor_module, "os", guardian_os),
+                mock.patch.object(guardian_os, "pipe2", return_value=(10, 11)),
+                mock.patch.object(guardian_os, "fork", side_effect=fork_child),
+                mock.patch.object(guardian_os, "close") as close,
+                mock.patch.object(supervisor_module.signal, "signal") as set_signal,
+                mock.patch.object(
+                    supervisor_module,
+                    "_guardian",
+                    side_effect=lambda *_: close.assert_any_call(22),
+                ),
+                mock.patch.object(
+                    guardian_os, "_exit", side_effect=RuntimeError("exit")
+                ),
+                self.assertRaisesRegex(RuntimeError, "exit"),
+            ):
+                supervisor_module._start_guardian(20, 21, close_fds=(None, 22))
+
+            with self.assertRaises(OSError):
+                os.fstat(descriptor)
+            self.assertEqual(close.call_args_list, [mock.call(11), mock.call(22)])
+            self.assertEqual(set_signal.call_args_list, [
+                mock.call(signal.SIGINT, signal.SIG_IGN),
+                mock.call(signal.SIGTERM, signal.SIG_IGN),
+            ])
 
     def test_control_messages_are_bounded_and_may_arrive_in_chunks(self) -> None:
         connection = mock.Mock()
