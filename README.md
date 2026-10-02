@@ -1011,6 +1011,13 @@ the devcontainer display forwarding socket is live before launching it. Use
 `--dry-run` to build and print either launch command without starting the
 process.
 
+Non-Git wrapper roots use their own lease namespace and never inherit an
+ancestor checkout; linked worktrees share their actual common Git namespace.
+
+For task-blocking local tooling or metadata failures, follow
+[local recovery](docs/LOCAL_RECOVERY.md). Authorized bounded repairs preserve
+evidence and active ownership, then retry the public wrapper operation.
+
 ### Manual verification handoffs
 
 Change handoffs should end with a copy-pasteable verification recipe that uses

@@ -677,7 +677,8 @@ Ordinary operations use fair exact-coordinate leases. Workspace-local
 coordinates live below `workspace/leases/`; physical Git-administration,
 source, port, and persistent-reference coordination lives below the wrapper's
 common-Git `atrinik-resource-leases/`, so linked wrapper worktrees and relocated
-state roots cannot split exclusion. Profile, Git-admin, source, topology,
+state roots cannot split exclusion. Non-Git wrapper roots anchor their namespace
+to the wrapper itself, without discovering an ancestor checkout. Profile, Git-admin, source, topology,
 scenario, state, build-root, and cache requests are deduplicated and sorted.
 Multi-source writers retry all-or-none, releasing earlier coordinates before
 waiting on a busy later source. A queued writer precedes later readers only for
