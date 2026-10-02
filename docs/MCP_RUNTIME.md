@@ -1,0 +1,53 @@
+# Opt-in runtime publication observations
+
+`atrinik_workspace.mcp_runtime.RuntimeService` is a separate, disabled-default
+adapter for approved wrapper topology publications. The context server does not
+register its two tools automatically. A trusted host supplies `RuntimeApproval`
+records and explicitly composes `runtime_tools(service)` into its observe
+transport. Tool arguments cannot create approvals, change roots, or enable it.
+
+Each approval binds topology name, profile, generation and SHA-256 of the exact
+registered `spec.json` bytes. Review that spec through the ordinary wrapper
+workflow before granting approval. Its digest covers state, scenario, build,
+source and service identities without disclosing their private values. Restart,
+spec replacement or generation changes require a new explicit approval. The
+optional constructor `runtime_root` selects the host-configured wrapper workspace
+root; otherwise it is `context.root / "workspace"`. Ambient environment variables
+never broaden the root. No deployment, activation or approval is shipped.
+
+`runtime_list` lists only approved registered publications, with deterministic
+pagination and bounded per-record failures. It scans at most 1,000 approvals,
+returns at most 50 records, and fingerprints the observation and authorization
+identity into its cursor. A malformed record does not suppress healthy records.
+A changed publication or authorization makes an old cursor unusable.
+
+`runtime_status` selects one exact approved topology and returns its source
+coordinate, approved profile/generation, recorded readiness, fixed service-state
+counts, service names, opaque state/build identities, observation time and
+publication fingerprints. This reports the supervisor's **published status**;
+it does not assert current process health or probe PIDs, ports, sockets or the
+network. Missing process publications remain incomplete. Freshness has zero TTL.
+The existing `./atrinik ps NAME --json` remains the authoritative live workflow.
+
+The adapter reads only the topology ownership marker, spec and status. It opens
+all ancestors and regular files without following links, caps each file at
+256 KiB, compares descriptor and visible identities, rereads the three files,
+and fences source identity before returning. Cancellation and the five-second
+deadline are checked throughout reading; structured listings stay within 32 KiB.
+No `Workspace` instance, state initialization, leases, writes, process controls,
+arbitrary paths, commands or networks are used. Source-context failures remain
+failures and cannot fall back to another provider.
+
+Output is an allowlisted projection. Paths, commands, environment, process IDs,
+logs and private state fields are never returned. Error messages contain fixed
+text only. Logs are entirely deferred: no log tool or resource is registered,
+and status approvals do not authorize log reads.
+
+Validate using synthetic fixtures, including a 77-record catalog:
+
+```sh
+python3 -m unittest -v tests.test_mcp_runtime
+```
+
+Live comparison requires an independently authorized, unchanged manual topology;
+fixture success grants no authority to create, start, stop or adopt one.
