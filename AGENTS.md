@@ -8,8 +8,8 @@
   Observatory, shared `web-platform`, source-only `deploy-control`; M1
   lacks wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
   playtester; never mix providers.
-- Source changes use [source delivery](docs/SOURCE_DELIVERY.md). Bound delivery
-  and shared-resource operations retain their live Linux authority checks.
+- Use [source delivery](docs/SOURCE_DELIVERY.md). Bound deliveries and shared
+  resources retain live Linux authority checks.
 
 ## Ownership
 
@@ -18,8 +18,7 @@
   policy: `governance/`; diagnostics: `supply-chain/`.
 - Workflows: `.agents/skills/`; composition: `.devcontainer/`; CI/release:
   `.github/`; helpers: `scripts/`.
-- Manifest destinations are ignored repos; `workspace/` and `build/` are ignored
-  generated state omitted from root status.
+- Manifest repos, `workspace/` and `build/` are ignored; root status omits them.
 - Resolve ownership via `components.json` and nearest `AGENTS.md`; keep
   implementation/tests/packages/releases with their physical owner.
 - `classic/` provides `classic-*`; stacks share `content@main`.
