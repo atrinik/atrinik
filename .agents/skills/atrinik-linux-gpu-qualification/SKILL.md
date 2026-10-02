@@ -31,7 +31,7 @@ an environment flag, a CPU worker, or a proposed change.
 The pinned CPU build worker is useful for ordinary compile and toolchain checks,
 but it has no display or GPU mounts and supplies no GPU acceptance. A daily check
 that reports `gpu-hardware-qualification-required`, an emulated or software
-renderer, or an Orion GPU without an actual qualified Linux hardware coordinate
+renderer, or a remote GPU without an actual qualified Linux hardware coordinate
 is a deferral, not passing Vulkan evidence.
 
 Require a visible, real Vulkan device on either the `reference` or `minimum`

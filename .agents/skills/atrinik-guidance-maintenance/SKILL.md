@@ -1,6 +1,6 @@
 ---
 name: atrinik-guidance-maintenance
-description: Audit and synchronize Atrinik AGENTS.md, skills, README, architecture, and contributor guidance after CLI, ownership, layout, safety, or validation changes and during daily, weekly, or other periodic drift reviews.
+description: Synchronize Atrinik agent and contributor guidance after contract changes or during drift reviews.
 ---
 
 # Maintain Atrinik agent guidance

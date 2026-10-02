@@ -1,6 +1,6 @@
 ---
 name: atrinik-issue-delivery
-description: Deliver an explicitly selected Atrinik issue or PR to a reviewed, validated handoff before merge; resume retained bound deliveries through their existing protocol. Explicit invocation only.
+description: Deliver a selected Atrinik issue or PR to a validated handoff; resume bound work through its existing protocol. Explicit invocation only.
 ---
 
 # Deliver an Atrinik issue or pull request
