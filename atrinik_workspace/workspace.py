@@ -226,6 +226,7 @@ SCENARIO_KEYS = {
 SCENARIO_SCHEMA_VERSION = 4
 SCENARIO_PRESETS = {
     "basic-player": {"archetype": "human_male"},
+    "brynknot-idle": {"archetype": "human_male"},
     "lighting-radiance-day": {"archetype": "human_male"},
     "lighting-radiance-dawn": {"archetype": "human_male"},
     "lighting-radiance-night": {"archetype": "human_male"},

@@ -23466,6 +23466,22 @@ class WorkspaceTests(unittest.TestCase):
             {MANAGED_MARKER},
         )
 
+    def test_brynknot_scenario_retains_preset_through_reset(self) -> None:
+        with mock.patch.object(
+            self.workspace, "_scenario_provision_state",
+            return_value=self.scenario_resolved_fixture(),
+        ) as provision:
+            created = self.workspace.scenario_create("brynknot", "default", "brynknot-idle")
+            self.assertEqual(created["preset"], "brynknot-idle")
+            self.assertEqual(created["archetype"], "human_male")
+            reset = self.workspace.scenario_reset("brynknot")
+            self.assertEqual(reset["preset"], "brynknot-idle")
+            self.assertEqual(reset["state"], "scenario-brynknot")
+            self.assertEqual(provision.call_count, 2)
+            for call in provision.call_args_list:
+                self.assertEqual(call.args[0]["preset"], "brynknot-idle")
+            self.assertNotIn("password", self.workspace.scenario_show("brynknot"))
+
     def test_scenario_lifecycle_owns_isolated_state_and_credentials(self) -> None:
         resolved = self.scenario_resolved_fixture()
         with mock.patch.object(
@@ -24124,7 +24140,7 @@ class WorkspaceTests(unittest.TestCase):
             mock.patch.object(
                 self.workspace, "_prepare_server_runtime", return_value=runtime
             ),
-            mock.patch("atrinik_workspace.workspace.run"),
+            mock.patch("atrinik_workspace.workspace.run") as provision,
             mock.patch(
                 "atrinik_workspace.workspace.git", return_value="a" * 40
             ),
@@ -24132,9 +24148,16 @@ class WorkspaceTests(unittest.TestCase):
                 "atrinik_workspace.workspace._is_clean", return_value=True
             ),
         ):
-            resolved = self.workspace._scenario_provision_state(
-                metadata, self.root / "state", self.root / "password"
-            )
+            for preset in ("basic-player", "brynknot-idle"):
+                with self.subTest(preset=preset):
+                    metadata["preset"] = preset
+                    resolved = self.workspace._scenario_provision_state(
+                        metadata, self.root / "state", self.root / "password"
+                    )
+                    arguments = provision.call_args.args[0]
+                    preset_arguments = [arg for arg in arguments if arg.startswith("--provision_preset=")]
+                    self.assertEqual(preset_arguments, [] if preset == "basic-player" else
+                                     ["--provision_preset=brynknot-idle"])
 
         self.assertEqual(set(resolved), required)
         self.assertNotIn("client", resolved)

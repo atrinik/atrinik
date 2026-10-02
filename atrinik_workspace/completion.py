@@ -58,6 +58,7 @@ _SCENARIO_KEYS = {
 _SCENARIO_PRESETS = frozenset(
     {
         "basic-player",
+        "brynknot-idle",
         "lighting-radiance-day",
         "lighting-radiance-dawn",
         "lighting-radiance-night",
