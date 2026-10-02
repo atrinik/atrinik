@@ -40,6 +40,12 @@ does not authorize initialization, synchronization, cleanup or external writes.
   synchronize only surfaces sharing the contract. For skill additions/removals,
   update inventory regressions and UI metadata. Load
   `atrinik-multi-repo-workspace` when the cross-checkout contract itself changes.
+- When recovery wording changes, preserve the distinction in
+  [local recovery](../../../docs/LOCAL_RECOVERY.md): an authorized, bounded
+  local blocker repair requires fresh task identity and ownership, exclusive
+  coordination, a no-live-process fence, and evidence preservation. It grants
+  no external write or live-resource authority. Keep actual collisions,
+  ambiguous ownership, secrets, cleanup, merge, and deployment restrictions.
 
 ## Validate
 
@@ -55,8 +61,9 @@ git diff --check
 Run the active Codex `skill-creator` validator for changed skills. For substantial
 routing or recovery changes, independently exercise realistic task scenarios:
 ordinary source work, isolated helper repair, same-owner interrupted edits,
-an actual resource collision, and missing external acceptance. Use temporary
-fixtures; do not mutate live resources to test guidance. Add ShellCheck,
+missing or damaged local metadata, a live process fence, an actual resource
+collision, and missing external acceptance. Use temporary fixtures; do not
+mutate live resources to test guidance. Add ShellCheck,
 actionlint, or builds when relevant; supply-chain is optional. Never claim
 coverage for unread checkouts.
 

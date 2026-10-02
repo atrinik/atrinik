@@ -471,7 +471,9 @@ sound source commit, and a new absolute destination
 whose parent is owned by the invoking user and not writable by other users.
 The CI driver requires absent Classic and sound checkout destinations, fetches
 the exact qualified commits into fresh primaries, and retains the wrapper's
-canonical remote and clean-source checks. Advancing either repository's `main`
+canonical remote and clean-source checks. The saved `linux-portable-acceptance`
+profile lets the exporter materialize immutable generations from these primary
+selectors. Advancing either repository's `main`
 branch does not change this acceptance recipe; qualifying a new Classic commit
 requires a separately reviewed immutable producer.
 Create `classic-released-audio` with the exact v1.0.0 coordinates in the

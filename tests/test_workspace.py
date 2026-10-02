@@ -7094,6 +7094,7 @@ class WorkspaceTests(unittest.TestCase):
         }
         selected["sound"] = sound
         root = self.workspace.paths.builds / "profiles" / "classic-test"
+        cache = root / "producers" / "classic-dependency-cache"
         root.mkdir(parents=True)
         (root / "runtime" / "content").mkdir(parents=True)
         (root / "runtime" / "resources").mkdir()
@@ -7108,6 +7109,7 @@ class WorkspaceTests(unittest.TestCase):
                 "-DENABLE_WARNING_ERRORS=ON",
                 "-DPACKAGE_TYPE=none",
                 "-DENABLE_PYTHON_PLUGIN=ON",
+                f"-DATRINIK_DEPENDENCY_CACHE_DIR={cache}",
             ],
             True,
         )
@@ -7142,6 +7144,7 @@ class WorkspaceTests(unittest.TestCase):
                     "-DENABLE_WARNING_ERRORS=ON",
                     "-DPACKAGE_TYPE=none",
                     "-DENABLE_PYTHON_PLUGIN=ON",
+                    f"-DATRINIK_DEPENDENCY_CACHE_DIR={cache}",
                 ],
                 False,
                 build_targets=[
@@ -7160,10 +7163,85 @@ class WorkspaceTests(unittest.TestCase):
                     "-DENABLE_WARNING_ERRORS=ON",
                     "-DPACKAGE_TYPE=none",
                     "-DENABLE_PYTHON_PLUGIN=ON",
+                    f"-DATRINIK_DEPENDENCY_CACHE_DIR={cache}",
                 ],
                 False,
                 build_targets=["atrinik"],
             )
+
+    @unittest.skipUnless(
+        all(shutil.which(tool) for tool in ("cmake", "ninja")),
+        "real CMake toolchain is unavailable",
+    )
+    def test_integrated_dependency_cache_survives_failed_configure_retry(self) -> None:
+        checkout = self.root / "classic-cache"
+        selected = {}
+        for role in ("client", "server", "sound"):
+            selected[role] = checkout / role
+            selected[role].mkdir(parents=True)
+        root = self.workspace.paths.builds / "profiles" / "dependency-retry"
+        cache = root / "producers" / "classic-dependency-cache"
+        managed_directory(cache, self.workspace.paths.builds, "classic-dependency-cache")
+        payload = b"verified offline dependency source\n"
+        archive = cache / "dependency.tar"
+        archive.write_bytes(payload)
+        gate = cache / "fail-configure"
+        gate.touch()
+        (checkout / "CMakeLists.txt").write_text(
+            "cmake_minimum_required(VERSION 3.20)\n"
+            "project(dependency_retry NONE)\n"
+            'file(SHA256 "${ATRINIK_DEPENDENCY_CACHE_DIR}/dependency.tar" digest)\n'
+            f'if(NOT digest STREQUAL "{hashlib.sha256(payload).hexdigest()}")\n'
+            '  message(FATAL_ERROR "dependency missing or corrupt")\n'
+            'endif()\n'
+            'if(EXISTS "${ATRINIK_DEPENDENCY_CACHE_DIR}/fail-configure")\n'
+            '  message(FATAL_ERROR "deliberate configure failure")\n'
+            'endif()\n'
+            'file(WRITE "${CMAKE_BINARY_DIR}/consumed.txt" "${digest}")\n',
+            encoding="utf-8",
+        )
+        self.workspace._use_ccache = False
+        with self.assertRaisesRegex(WorkspaceError, "command failed"):
+            self.workspace._build_integrated_classic(root, selected, tests=False)
+        self.assertEqual(archive.read_bytes(), payload)
+        binary = root / "build" / "integrated"
+        stale = binary / "failed-configure-residue"
+        stale.touch()
+        gate.unlink()
+        self.workspace._build_integrated_classic(root, selected, tests=False)
+        self.assertFalse(stale.exists())
+        self.assertEqual(archive.read_bytes(), payload)
+        self.assertEqual(
+            (binary / "consumed.txt").read_text(), hashlib.sha256(payload).hexdigest()
+        )
+        metadata = json.loads((binary / workspace_module.CONFIGURE_METADATA).read_text())
+        self.assertIn(f"-DATRINIK_DEPENDENCY_CACHE_DIR={cache}", str(metadata))
+
+    def test_integrated_dependency_cache_rejects_unsafe_paths(self) -> None:
+        outside = self.root / "outside-cache"
+        outside.mkdir()
+        sentinel = outside / "preserved"
+        sentinel.write_text("owned elsewhere")
+        for kind in ("unmarked", "symlink", "parent-symlink", "wrong-marker"):
+            with self.subTest(kind=kind):
+                root = self.workspace.paths.builds / "profiles" / kind
+                cache = root / "producers" / "classic-dependency-cache"
+                if kind == "parent-symlink":
+                    root.mkdir(parents=True)
+                    (root / "producers").symlink_to(outside, target_is_directory=True)
+                elif kind == "symlink":
+                    cache.parent.mkdir(parents=True)
+                    cache.symlink_to(outside, target_is_directory=True)
+                elif kind == "wrong-marker":
+                    managed_directory(cache, self.workspace.paths.builds, "other-purpose")
+                else:
+                    cache.mkdir(parents=True)
+                with mock.patch.object(self.workspace, "_cmake") as cmake:
+                    with self.assertRaises(WorkspaceError):
+                        self.workspace._build_integrated_classic(root, {}, tests=False)
+                    cmake.assert_not_called()
+                self.assertEqual(sentinel.read_text(), "owned elsewhere")
+                self.assertFalse((outside / "classic-dependency-cache").exists())
 
     def test_classic_gpu_shader_preparation_is_lock_keyed_and_recorded(self) -> None:
         source = self.root / "classic-client"
@@ -18191,6 +18269,59 @@ class WorkspaceTests(unittest.TestCase):
         )
         preparation.close()
         self.assertFalse(record.exists())
+
+    def test_nested_non_git_wrapper_keeps_lease_namespace_local(self) -> None:
+        self.workspace.close()
+        command("git", "init", "-b", "main", cwd=self.root)
+        ancestor_namespace = self.root / ".git" / "atrinik-resource-leases"
+        ancestor_namespace.mkdir()
+        sentinel = ancestor_namespace / "untouched"
+        sentinel.write_text("ancestor-owned registry", encoding="utf-8")
+
+        nested = Workspace(self.wrapper)
+        self.addCleanup(nested.close)
+        try:
+            self.assertEqual(
+                nested._lease_namespace,
+                self.wrapper / "atrinik-resource-leases",
+            )
+            # Exercise registry publication as well as namespace resolution.
+            nested.create_profile("nested")
+        finally:
+            nested.close()
+
+        self.assertEqual(list(ancestor_namespace.iterdir()), [sentinel])
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "ancestor-owned registry")
+
+    def test_wrapper_invalid_git_marker_never_uses_fallback_namespace(self) -> None:
+        self.workspace.close()
+        command("git", "init", "-b", "main", cwd=self.root)
+        git_marker = self.wrapper / ".git"
+        for marker_kind in ("invalid-file", "empty-directory", "dangling-symlink"):
+            with self.subTest(marker_kind=marker_kind):
+                if marker_kind == "invalid-file":
+                    git_marker.write_text("not a Git marker", encoding="utf-8")
+                elif marker_kind == "empty-directory":
+                    git_marker.mkdir()
+                else:
+                    git_marker.symlink_to(self.root / "missing-git-directory")
+                try:
+                    # Both a cached fallback and fresh construction fail closed.
+                    with self.assertRaises(WorkspaceError):
+                        _ = self.workspace._lease_namespace
+                    with self.assertRaises(WorkspaceError):
+                        Workspace(self.wrapper)
+                finally:
+                    if marker_kind == "empty-directory":
+                        git_marker.rmdir()
+                    else:
+                        git_marker.unlink()
+        self.assertFalse((self.root / ".git" / "atrinik-resource-leases").exists())
+
+    def test_wrapper_git_materialization_requires_fresh_workspace(self) -> None:
+        command("git", "init", "-b", "main", cwd=self.wrapper)
+        with self.assertRaisesRegex(WorkspaceError, "Git identity materialized"):
+            _ = self.workspace._lease_namespace
 
     def test_wrapper_worktrees_share_common_git_lease_namespace(self) -> None:
         self.workspace.close()

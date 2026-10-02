@@ -673,11 +673,17 @@ worktrees, Git branches/objects, profiles, topology/state, or runtime resources.
 This reduces each completed delivery to one bounded record and permits explicit
 eventual reclamation before the review-root entry/byte limits are exhausted.
 
+Integrated Classic immutable-source inputs live in the profile
+`producers/classic-dependency-cache`, under its build-root lease. Resetting an
+incomplete CMake binary tree preserves this independently owned cache; managed
+path checks reject symlinks and unmarked directories before configuration.
+
 Ordinary operations use fair exact-coordinate leases. Workspace-local
 coordinates live below `workspace/leases/`; physical Git-administration,
 source, port, and persistent-reference coordination lives below the wrapper's
 common-Git `atrinik-resource-leases/`, so linked wrapper worktrees and relocated
-state roots cannot split exclusion. Profile, Git-admin, source, topology,
+state roots cannot split exclusion. Non-Git wrapper roots anchor their namespace
+to the wrapper itself, without discovering an ancestor checkout. Profile, Git-admin, source, topology,
 scenario, state, build-root, and cache requests are deduplicated and sorted.
 Multi-source writers retry all-or-none, releasing earlier coordinates before
 waiting on a busy later source. A queued writer precedes later readers only for

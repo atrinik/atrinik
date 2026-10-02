@@ -25,4 +25,6 @@ operator recovery step. A missing path, unexpected symlink or type, invalid
 owner or mode, changed content digest or generation, Git drift, active process,
 or lease conflict still fails according to the owning workflow. Do not edit
 managed JSON by hand; use the normal inspect, retry, release, or cleanup command
-for that resource.
+for that resource. If the normal command is itself blocked by recoverable local
+metadata, use [local recovery](LOCAL_RECOVERY.md) to preserve evidence and repair
+the exact coordinate under exclusive coordination before retrying.

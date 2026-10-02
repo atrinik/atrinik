@@ -50,6 +50,7 @@
   source work by verified task ownership, preserving known interrupted edits;
   bound deliveries retain their recovery gates. Worker exit preserves ownership.
   Stop only owned resources. Auth: `docs/COORDINATOR_AUTH.md`.
+- Repair local blockers under [local recovery](docs/LOCAL_RECOVERY.md); preserve evidence and live ownership.
 - Never replace dirty primaries/remove dirty worktrees or overwrite mutable server data; preserve migration inputs.
 - Cleanup is preview-first; delivery grants none. Keep ledger transactions separate from `./atrinik cleanup`; preserve dirty/detached/locked/active/referenced/uncertain targets; history fails closed.
 - Worktrees belong to physical checkouts; `classic`, `classic-*`, and its roles

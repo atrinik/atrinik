@@ -11,7 +11,7 @@ credential change or shared-resource adoption authority.
 | Operation | Entry and evidence |
 | --- | --- |
 | New source change with isolated local tests | Owned Git worktree, recorded base, scoped collision check, validation and independent review |
-| Repair of broken delivery tooling | The same source path; fixture tests cannot authorize live resources |
+| Repair of broken delivery tooling or local launch metadata | The same source path plus [local recovery](LOCAL_RECOVERY.md); fixture tests cannot authorize live resources, and neither can repaired metadata |
 | Resume a source worktree created by the source helper | Match its creation receipt and current Git identity; explicitly confirm ownership of an interrupted dirty diff |
 | Resume an existing bound delivery or operate on its resources | The existing [preparation and recovery protocol](../.agents/skills/atrinik-issue-delivery/references/preparation.md) |
 | Build publication, shared runtime/state, export or cleanup | The owner-specific wrapper command and its live identity, plan, lease and authorization checks |
@@ -68,13 +68,22 @@ preserved diff. Do not manufacture a receipt or reinterpret an existing bound
 delivery as ordinary source work. Unknown ownership still requires resolution.
 A failed create preserves partial resources for inspection.
 
-## Repair without circular admission
+## Repair local blockers without circular admission
 
 Authorization to fix delivery tooling includes preparing the bounded repair in
 a fresh source worktree when the broken admission helper cannot run. State the
 failed operation and the repair scope, preserve existing delivery evidence,
 and reproduce the defect with isolated fixtures. Do not require that same
 broken helper to admit source edits, fixture tests, commits or the repair PR.
+
+When the user authorizes repair of local launch or coordination blockers, follow
+[local recovery](LOCAL_RECOVERY.md). Re-establish the task identity and owned
+coordinates from fresh evidence, coordinate exclusively at the repair point,
+and preserve or quarantine recoverable evidence before changing local metadata.
+Prove that no live process owns the affected state. A repaired marker, lock,
+receipt or directory never fabricates ownership, adopts a resource, or bypasses
+the original live-operation checks. Continue work that does not depend on the
+blocked coordinate.
 
 Independent review must cover the changed trust boundary and negative cases.
 Candidate helpers may run against test-owned fixtures; they must not produce

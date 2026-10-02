@@ -59,7 +59,7 @@ def require_headless():
         raise RuntimeError("CPU acceptance must not receive GPU devices")
 
 
-def initialize_qualified_sources():
+def prepare_sources():
     """Create only fresh CI primaries at the producer's immutable inputs."""
     # Check every destination before creating any repository. Never rewind or
     # repoint an existing checkout, including a dangling symlink.
@@ -80,6 +80,9 @@ def initialize_qualified_sources():
             raise RuntimeError("qualified source changed: " + name)
         if run(["git", "-C", name, "status", "--porcelain"]):
             raise RuntimeError("dirty dependency: " + name)
+    profile = "linux-portable-acceptance"
+    run(["./atrinik", "profile", "create", profile, "--from", "classic"])
+    return profile
 
 
 def build(output, evidence):
@@ -89,9 +92,9 @@ def build(output, evidence):
     wrapper_head = run(["git", "rev-parse", "HEAD"]).strip()
     if run(["git", "status", "--porcelain"]):
         raise RuntimeError("acceptance requires a clean wrapper checkout")
-    initialize_qualified_sources()
-    profile = "linux-portable-acceptance"
-    run(["./atrinik", "profile", "create", profile, "--from", "classic"])
+    # The qualified consumer is fixed even when dependency main branches move.
+    # Advancing these pins still requires a matching qualified producer recipe.
+    profile = prepare_sources()
     arguments = ["./atrinik", "profile", "sound-mode", profile, "released"]
     flags = {
         "repository": "repository", "tag": "tag", "product_version": "product-version",

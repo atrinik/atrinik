@@ -1002,6 +1002,10 @@ when every managed resource retains the same canonical path. New records omit
 filesystem device, inode, and ctime fields; readers accept those fields in
 older records as ignored compatibility metadata.
 
+Integrated Classic immutable dependency sources use a managed per-profile
+producer cache outside the resettable CMake binary directory. A failed configure
+can be retried with verified cached inputs when downloads are unavailable.
+
 The former `migrate filesystem` command and `--confirm-remount` workflow have
 been removed. Continue with the ordinary command for the affected resource.
 Path normalization, no-follow access, symlink and object-type rejection,
@@ -1014,6 +1018,13 @@ The current classic client command opens a graphical application. Verify that
 the devcontainer display forwarding socket is live before launching it. Use
 `--dry-run` to build and print either launch command without starting the
 process.
+
+Non-Git wrapper roots use their own lease namespace and never inherit an
+ancestor checkout; linked worktrees share their actual common Git namespace.
+
+For task-blocking local tooling or metadata failures, follow
+[local recovery](docs/LOCAL_RECOVERY.md). Authorized bounded repairs preserve
+evidence and active ownership, then retry the public wrapper operation.
 
 ### Manual verification handoffs
 
