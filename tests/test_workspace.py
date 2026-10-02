@@ -20408,14 +20408,24 @@ class WorkspaceTests(unittest.TestCase):
             finally:
                 os.close(pidfd)
             deadline = time.monotonic() + 15
-            while time.monotonic() < deadline and (
-                self.workspace.topology_status("server-lease")["observation"][
-                    "process_tree_lease"
-                ]
-                == "retained"
-            ):
+            while time.monotonic() < deadline:
+                try:
+                    orphaned = self.workspace.topology_status("server-lease")
+                except WorkspaceError as error:
+                    # The guardian releases runtime resources before the tree
+                    # barrier; a read spanning that release fails closed.
+                    if str(error) != (
+                        "topology runtime generation lease is not retained: "
+                        "server-lease"
+                    ):
+                        raise
+                    time.sleep(0.05)
+                    continue
+                if orphaned["observation"]["process_tree_lease"] == "released":
+                    break
                 time.sleep(0.05)
-            orphaned = self.workspace.topology_status("server-lease")
+            else:
+                self.fail("crashed topology process tree was not released")
             self.assertFalse(orphaned["supervisor"]["running"])
             self.assertFalse(orphaned["services"]["server"]["running"])
             self.assertTrue(Path(f"/proc/{descendant_pid}").exists())
