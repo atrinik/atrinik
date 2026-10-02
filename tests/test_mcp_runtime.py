@@ -247,6 +247,82 @@ class RuntimeTests(unittest.TestCase):
         with patch.object(runtime, "_read", side_effect=read):
             self.assert_code("STALE_COORDINATE", lambda: self.service.status("demo"))
 
+    def test_malformed_publication_fields_fail_at_their_trust_boundary(self):
+        cases = (
+            ("ownership", "marker", lambda value: value.update(purpose="wrong"), "FORBIDDEN"),
+            ("identity", "status", lambda value: value.update(state="/different"), "STALE_COORDINATE"),
+            ("runtime", "both", lambda value: value["runtime"].update(path="/wrong"), "INCOMPLETE"),
+            ("generation-owner", "generation-marker", lambda value: value.update(purpose="wrong"), "FORBIDDEN"),
+            ("manifest-replaced", "manifest-stale", lambda value: value.update(extra=True), "STALE_COORDINATE"),
+            ("manifest-shape", "manifest", lambda value: value.update(build=[]), "INCOMPLETE"),
+            ("services", "status", lambda value: value.update(services=[]), "INCOMPLETE"),
+            ("service-state", "status", lambda value: value["services"]["server"].update(status="unknown"), "INCOMPLETE"),
+            ("exit-code", "status", lambda value: value["services"]["server"].update(exit_code=True), "INCOMPLETE"),
+            ("shutdown", "status", lambda value: value.update(shutdown={"clean": "yes", "control_requested": False}), "INCOMPLETE"),
+        )
+        for name, target, mutate, expected in cases:
+            with self.subTest(name=name):
+                approval = self.fixture("malformed-" + name)
+                directory = self.root / "workspace/topologies" / approval.name
+                if target == "marker":
+                    path = directory / ".atrinik-workspace-managed.json"
+                    value = json.loads(path.read_text())
+                    mutate(value)
+                    path.write_text(json.dumps(value))
+                elif target == "generation-marker":
+                    path = directory / "generations/test-generation/.atrinik-workspace-managed.json"
+                    value = json.loads(path.read_text())
+                    mutate(value)
+                    path.write_text(json.dumps(value))
+                elif target in {"manifest", "manifest-stale"}:
+                    path = directory / "generations/test-generation/manifest.json"
+                    value = json.loads(path.read_text())
+                    mutate(value)
+                    manifest_payload = json.dumps(value).encode()
+                    path.write_bytes(manifest_payload)
+                    if target == "manifest":
+                        spec_path = directory / "spec.json"
+                        status_path = directory / "status.json"
+                        spec = json.loads(spec_path.read_text())
+                        status = json.loads(status_path.read_text())
+                        digest = hashlib.sha256(manifest_payload).hexdigest()
+                        spec["runtime"]["manifest_sha256"] = digest
+                        status["runtime"]["manifest_sha256"] = digest
+                        payload = json.dumps(spec).encode()
+                        spec_path.write_bytes(payload)
+                        status_path.write_text(json.dumps(status))
+                        approval = RuntimeApproval(approval.name, approval.profile, approval.generation,
+                                                   hashlib.sha256(payload).hexdigest())
+                else:
+                    spec_path = directory / "spec.json"
+                    status_path = directory / "status.json"
+                    spec = json.loads(spec_path.read_text())
+                    status = json.loads(status_path.read_text())
+                    if target == "both":
+                        mutate(spec)
+                        status["runtime"] = spec["runtime"]
+                        payload = json.dumps(spec).encode()
+                        spec_path.write_bytes(payload)
+                        approval = RuntimeApproval(approval.name, approval.profile, approval.generation,
+                                                   hashlib.sha256(payload).hexdigest())
+                    else:
+                        mutate(status)
+                    status_path.write_text(json.dumps(status))
+                service = RuntimeService(self.context, approvals=(approval,), enabled=True)
+                self.assert_code(expected, lambda service=service, name=approval.name: service.status(name))
+
+    def test_runtime_list_rejects_invalid_bounds_and_propagates_stops(self):
+        self.assert_code("UNAUTHORIZED", lambda: RuntimeService(self.context).list())
+        for size in (0, 51):
+            self.assert_code("LIMIT_EXCEEDED", lambda size=size: self.service.list(page_size=size))
+        self.assert_code("INVALID_ARGUMENT", lambda: self.service.list(page_size=True))
+        self.assert_code("INVALID_ARGUMENT", lambda: self.service.list(cursor=1))
+        for kwargs in ({"name_prefix": "bad/name"}, {"profile": 1}, {"state_identity": "bad"},
+                       {"service_state": "unknown"}):
+            self.assert_code("INVALID_ARGUMENT", lambda kwargs=kwargs: self.service.list(**kwargs))
+        self.assert_code("CANCELLED", lambda: self.service.list(cancelled=lambda: True))
+        self.assert_code("TIMEOUT", lambda: self.service.list(timeout_ms=0))
+
 
 if __name__ == "__main__":
     unittest.main()
