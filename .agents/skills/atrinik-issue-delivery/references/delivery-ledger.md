@@ -64,7 +64,12 @@ only helper-modeled link counts.
 
 Every successful command emits JSON. A policy, schema, safety, I/O, or recovery
 failure emits `delivery-ledger: ...` on stderr and exits 2. Treat any nonzero
-status as a stop, not permission to repair files manually.
+status as a stop, not permission to repair files manually. This stops that
+ledger operation. An authorized, separable local blocker may follow
+[local recovery](../../../../docs/LOCAL_RECOVERY.md), but must preserve this
+ledger in place as evidence. Quarantine only the exact affected local artifact
+when that contract permits it; never remove the ledger from collision inventory,
+rewrite, reactivate, or adopt it, or grant authority over its delivery or resources.
 
 ## Use the command surface
 
@@ -1977,7 +1982,12 @@ can corroborate continuity but cannot grant authority or replace bytes.
 Run `inventory` first. If it succeeds with a recognized pending operation,
 resume only the exact operation shown below. If inventory itself rejects debris,
 identity, ownership, bounds, links, modes, or overlap, preserve everything and
-stop for code-level recovery; never improvise file repair.
+stop that ledger operation for code-level recovery; never improvise file repair.
+Continue unaffected work. If an authorized local repair is independent of the
+ledger's delivery/resource authority, use [local recovery](../../../../docs/LOCAL_RECOVERY.md)
+with fresh ownership proof, exclusive coordination and the no-live-process
+fence while preserving the rejected bytes. Quarantine only the exact separable
+local artifact when required; keep the ledger visible to collision inventory.
 
 | Operation/state | Safe recovery |
 | --- | --- |
