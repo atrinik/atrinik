@@ -101,6 +101,10 @@ class RuntimeTests(unittest.TestCase):
         self.assertFalse(any(tool["name"].startswith("runtime_") for tool in routine.catalog()))
         result = observed.dispatch("tools/call", {"name": "runtime_status", "arguments": {"topology": "demo"}})
         self.assertEqual(result["structuredContent"]["data"]["runtime_sources"][0]["head"], "b" * 40)
+        for code in ("CANCELLED", "TIMEOUT"):
+            with patch("atrinik_workspace.mcp_observe_server.check_request",
+                       side_effect=ContractError(code, "request stopped")):
+                self.assert_code(code, lambda: observed.dispatch("tools/list", {}))
         path.write_text("{}")
         self.assert_code("UNAUTHORIZED", lambda: observed.dispatch("tools/list", {}))
 

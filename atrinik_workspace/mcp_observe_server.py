@@ -32,7 +32,9 @@ def configured_server(root: Path, approvals_path: Path, runtime_root: Path | Non
             def authorized():
                 try:
                     current = _read(approvals_path, check_request)
-                except ContractError:
+                except ContractError as error:
+                    if error.code in {"CANCELLED", "TIMEOUT"}:
+                        raise
                     raise ContractError("UNAUTHORIZED", "observation approval is unavailable") from None
                 if current != admitted_bytes:
                     raise ContractError("UNAUTHORIZED", "observation approval changed; restart required")

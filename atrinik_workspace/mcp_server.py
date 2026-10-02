@@ -219,7 +219,7 @@ class ContextServer:
                 raise ContractError("INCOMPLETE", "search resource identity is invalid")
             path = "/".join(unquote(part) for part in parts[2:])
             _source_selector(path)
-            revision = None if parts[1] == snapshot.coordinate.commit else parts[1]
+            revision = parts[1] if request["mode"] in {"history", "blame"} else None
             item["resource_uri"] = self.resource(snapshot, path, revision)["uri"]
         result["selected_profiles"] = sorted({snapshot.metadata.get("profile", "default") for snapshot in observed})
         for snapshot in observed:
