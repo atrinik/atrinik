@@ -9,28 +9,31 @@ separate opt-ins and are not advertised by this server.
 
 ## Docker Compose quickstart
 
-The supported remote deployment uses the released public-source image and
+The supported remote deployment uses the candidate public-source image and
 `deploy/mcp/compose.yaml`; direct host Python startup is only an internal
 diagnostic. Before starting, point public DNS for the chosen hostname at this
 host, allow inbound TCP ports 80 and 443, leave those ports free for Caddy, and
 allow outbound ACME connectivity for certificate issuance.
 
-After a release has verified anonymous pull and its image digest, replace the
-review values below with the public hostname and immutable released image:
+The `linux/amd64` candidate was built from wrapper commit
+`476cf9dad436ce7b5fb89113c46014fcca3b8f77`. Its registry package is still
+private and anonymous pull verification is pending. Replace only the example
+hostname after public verification succeeds:
 
 From the wrapper checkout, start with two commands:
 
 ```sh
-export MCP_DOMAIN=mcp.example.invalid MCP_IMAGE=ghcr.io/atrinik/atrinik-mcp@sha256:REVIEW-DIGEST
+export MCP_DOMAIN=mcp.example.invalid MCP_IMAGE=ghcr.io/atrinik/atrinik-mcp@sha256:e1e8880cc80979813e9ef39fcfe4b6568a7cab48124bbf3b0f02f72b327c4618
 docker compose -f deploy/mcp/compose.yaml up -d
 ```
 
-`mcp.example.invalid` and `REVIEW-DIGEST` are review placeholders, not an image
-availability claim. Set the same values in `deploy/mcp/.env` if the deployment will be
-managed by later Compose invocations without exported variables. The image
-contains the immutable public source view and needs no host source mount,
-runtime clone or update. Do not add player state, private repositories, personal
-configuration, Docker sockets, SSH agents or host credentials.
+`mcp.example.invalid` remains a hostname placeholder. The digest identifies the
+initial candidate; it does not claim public availability. Set the same values in
+`deploy/mcp/.env` if the deployment will be managed by later Compose invocations
+without exported variables. The image contains the immutable public source view
+and needs no host source mount, runtime clone or update. Do not add player state,
+private repositories, personal configuration, Docker sockets, SSH agents or
+host credentials.
 
 The initialization service creates the bearer token in its private Docker
 volume. Retrieve it deliberately from a trusted terminal:

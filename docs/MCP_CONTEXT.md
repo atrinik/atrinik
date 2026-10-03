@@ -10,22 +10,23 @@ commands.
 
 ## Docker quickstart for Codex
 
-The supported public startup is the published Docker image. It contains a
-pinned public corpus of the wrapper plus 19 component repositories and starts a
-Codex-compatible STDIO server without host mounts or runtime network access.
-After a release has verified an anonymous pull and the image digest, replace
-`REVIEW-DIGEST` with that published SHA-256 digest:
+The supported public startup is the Docker image. This `linux/amd64` candidate
+was built from wrapper commit `476cf9dad436ce7b5fb89113c46014fcca3b8f77` and
+contains a pinned public corpus of the wrapper plus 19 component repositories.
+The registry package is still private and anonymous pull verification is
+pending; the command is ready for use after that verification succeeds:
 
 ```sh
 codex mcp add atrinik -- docker run --rm -i --read-only --network none \
   --cap-drop ALL --security-opt no-new-privileges \
   --pids-limit 128 --memory 256m --cpus 2 \
-  ghcr.io/atrinik/atrinik-mcp@sha256:REVIEW-DIGEST stdio
+  ghcr.io/atrinik/atrinik-mcp@sha256:e1e8880cc80979813e9ef39fcfe4b6568a7cab48124bbf3b0f02f72b327c4618 stdio
 ```
 
-`REVIEW-DIGEST` is deliberately non-runnable review text and does not claim that
-the image is available. Do not substitute an unverified tag. The image uses its
-fixed unprivileged UID; adding an arbitrary `--user` can invalidate Git ownership
+The digest identifies the initial candidate; it does not claim public
+availability. Do not substitute a tag. The image starts a Codex-compatible
+STDIO server without host mounts or runtime network access and uses its fixed
+unprivileged UID; adding an arbitrary `--user` can invalidate Git ownership
 checks. Remove the client entry with `codex mcp remove atrinik`; there is no
 database, persistent index or cache to migrate or clean up. This follows the
 official [OpenAI MCP STDIO configuration](https://learn.chatgpt.com/docs/extend/mcp#stdio-servers).
@@ -123,7 +124,7 @@ and its [stdio framing](https://modelcontextprotocol.io/specification/2026-07-28
 Every request declares `io.modelcontextprotocol/protocolVersion` and
 `io.modelcontextprotocol/clientCapabilities` in `params._meta`.
 `server/discover` advertises supported versions and capabilities; successful
-results carry `resultType: complete`. The public image's `stdio` entrypoint uses
+results carry `resultType: complete`. The candidate image's `stdio` entrypoint uses
 the maintained legacy adapter for Codex initialization; the core binding itself
 remains modern-only. Client-provided identities, capabilities and Roots grant
 no access.

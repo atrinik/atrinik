@@ -563,24 +563,25 @@ activation remain optional; the [pilot guide](docs/MCP_PILOT.md) records the
 remaining adoption evidence. Direct wrapper, repository CLI, `rg`, Git, `gh`,
 and browser workflows remain authoritative.
 
-The supported public-source MCP startup is Docker-only. After a release has
-published the image and its anonymous pull and digest have been verified,
-replace `REVIEW-DIGEST` below with that released SHA-256 digest:
+The supported public-source MCP startup is Docker-only. This candidate was
+built from wrapper commit `476cf9dad436ce7b5fb89113c46014fcca3b8f77` for
+`linux/amd64`, but the registry package is still private and anonymous pull
+verification is pending:
 
 ~~~sh
 codex mcp add atrinik -- docker run --rm -i --read-only --network none \
   --cap-drop ALL --security-opt no-new-privileges \
   --pids-limit 128 --memory 256m --cpus 2 \
-  ghcr.io/atrinik/atrinik-mcp@sha256:REVIEW-DIGEST stdio
+  ghcr.io/atrinik/atrinik-mcp@sha256:e1e8880cc80979813e9ef39fcfe4b6568a7cab48124bbf3b0f02f72b327c4618 stdio
 ~~~
 
-`REVIEW-DIGEST` is a review placeholder, not an availability claim. The image
-contains an immutable public corpus of the wrapper plus 19 component
-repositories, so this command needs no host mount, checkout, client wrapper or
-runtime network. See the [context server guide](docs/MCP_CONTEXT.md) for local
-use and [remote MCP guide](docs/MCP_HTTP.md) for the HTTPS Docker Compose
-quickstart. Codex supports both STDIO commands and authenticated Streamable HTTP
-URLs as documented in the official [OpenAI MCP guide](https://learn.chatgpt.com/docs/extend/mcp).
+The digest identifies the initial candidate; it is not yet a public availability
+claim. The image contains an immutable public corpus of the wrapper plus 19
+component repositories, so this command needs no host mount, checkout, client
+wrapper or runtime network. See the [context server guide](docs/MCP_CONTEXT.md)
+for local use and [remote MCP guide](docs/MCP_HTTP.md) for the HTTPS Docker
+Compose quickstart. Codex supports both STDIO commands and authenticated
+Streamable HTTP URLs as documented in the official [OpenAI MCP guide](https://learn.chatgpt.com/docs/extend/mcp).
 
 Validate or benchmark the contract without installing an MCP SDK:
 
