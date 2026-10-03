@@ -144,14 +144,25 @@ class ContextServer:
             Tool("context_changes", "List tracked changed paths with manifest impact, without untracked contents.",
                  object_schema({**SELECTION, **PAGING}), lambda args: service.changes(**args)),
         )
-        search_tools = (Tool("atrinik_search", "Search selected manifest coordinates; Git provenance requires explicit opt-in.",
+        search_tools = (Tool("atrinik_search", "Search manifest-selected source coordinates. Use explicit selections, "
+            "not path, to choose ordinary-search scope. The path and provenance fields are only for history or blame, "
+            "and line is only for blame; provenance modes require provenance=true and path.",
             object_schema({
                 "selections": {"type": "array", "maxItems": 8, "items": object_schema(SELECTION)},
-                "mode": {"type": "string", "enum": ["exact", "regex", "path", "filename", "symbols", "references", "history", "blame"]},
+                "mode": {"type": "string",
+                         "description": "Search operation: exact and regex search contents; path and filename search "
+                                        "source paths; symbols and references use repository adapters; history searches "
+                                        "one file's commits; blame attributes one file's lines.",
+                         "enum": ["exact", "regex", "path", "filename", "symbols", "references", "history", "blame"]},
                 "query": {"type": "string", "maxLength": 1024}, "case_sensitive": {"type": "boolean"},
                 **PAGING, "timeout_ms": {"type": "integer", "minimum": 1, "maximum": 5000},
-                "provenance": {"type": "boolean"}, "path": STRING,
-                "line": {"type": "integer", "minimum": 1, "maximum": 1000000}}, ("mode",)), self.search),)
+                "provenance": {"type": "boolean", "description": "Explicit Git provenance opt-in. Set true for "
+                                                                  "history or blame; reserved for those modes."},
+                "path": {**STRING, "description": "Selected source-relative tracked file required for history or "
+                                                   "blame. Invalid for ordinary search and does not select its scope."},
+                "line": {"type": "integer", "minimum": 1, "maximum": 1000000,
+                         "description": "Optional one-based line selector for blame only; invalid for history and "
+                                        "ordinary search modes."}}, ("mode",)), self.search),)
         selected_tools = (*context_tools, *search_tools, *extra_tools) if include_context_tools else tuple(extra_tools)
         self.tools = {tool.name: tool for tool in selected_tools}
         if len(self.tools) != len(selected_tools):

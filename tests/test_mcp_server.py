@@ -32,6 +32,17 @@ class ServerTests(unittest.TestCase):
         self.assertTrue(all(tool["inputSchema"]["additionalProperties"] is False for tool in tools))
         self.assertFalse(any("runtime" in tool["name"] or "shell" in tool["name"] for tool in tools))
 
+    def test_search_discovery_explains_provenance_only_fields(self):
+        tools = self.server.handle(request("tools/list"))["result"]["tools"]
+        search = next(tool for tool in tools if tool["name"] == "atrinik_search")
+        properties = search["inputSchema"]["properties"]
+        self.assertIn("Use explicit selections, not path", search["description"])
+        self.assertIn("history searches one file's commits", properties["mode"]["description"])
+        self.assertIn("history or blame", properties["provenance"]["description"])
+        self.assertIn("Selected source-relative tracked file", properties["path"]["description"])
+        self.assertIn("Invalid for ordinary search", properties["path"]["description"])
+        self.assertIn("blame only", properties["line"]["description"])
+
     def test_metadata_version_and_unknown_operations(self):
         old = request("server/discover")
         old["params"]["_meta"][VERSION_KEY] = "2025-11-25"
