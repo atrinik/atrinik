@@ -140,7 +140,7 @@ def launch_arguments(value: dict, root: Path, state_name: str | None) -> list[st
         raise WorkspaceError("benchmark route digest changed")
     if report.exists() or report.is_symlink():
         raise WorkspaceError("benchmark report already exists")
-    return ["--live-movement-route", str(route), "--live-movement-report", str(report)]
+    return [f"--live-movement-route={route}", f"--live-movement-report={report}"]
 
 
 def _json_object(pairs):

@@ -289,8 +289,7 @@ def prepare_route(workspace, scenario_name: str, output: Path) -> dict[str, Any]
                         stdout = run_bounded(
                             [
                                 str(executable),
-                                "--content_benchmark_route",
-                                PRODUCER,
+                                f"--content_benchmark_route={PRODUCER}",
                                 f"--assetspath={runtime / 'assets'}",
                             ],
                             timeout=PRODUCER_TIMEOUT_SECONDS,

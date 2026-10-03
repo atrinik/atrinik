@@ -189,7 +189,7 @@ class ScenarioRouteTests(unittest.TestCase):
             list((self.root / "build" / "run" / "server").glob("route-*")), []
         )
         arguments, options = run.call_args
-        self.assertEqual(arguments[0][1:3], ["--content_benchmark_route", "brynknot-v1"])
+        self.assertEqual(arguments[0][1], "--content_benchmark_route=brynknot-v1")
         self.assertEqual(options["timeout"], 60)
         self.assertEqual(options["cwd"], Path(arguments[0][0]).parent)
 

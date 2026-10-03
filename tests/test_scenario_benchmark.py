@@ -149,7 +149,7 @@ class LaunchArgumentTests(unittest.TestCase):
     def test_launch_arguments_returns_only_owned_route_and_report(self) -> None:
         self.assertEqual(
             benchmark.launch_arguments(self.value, self.root, "scenario-brynknot"),
-            ["--live-movement-route", str(self.route), "--live-movement-report", str(self.report)],
+            [f"--live-movement-route={self.route}", f"--live-movement-report={self.report}"],
         )
 
     def test_launch_arguments_requires_exact_fields_private_paths_and_digest(self) -> None:
