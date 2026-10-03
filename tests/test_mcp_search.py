@@ -566,6 +566,36 @@ class SearchTest(unittest.TestCase):
             ["src/code.rs", "src/code.rs"],
         )
 
+    def test_shallow_history_and_blame_fail_closed_in_clone_and_worktree(self):
+        def git(repository, *arguments):
+            return subprocess.run(
+                ["git", "-C", str(repository), *arguments], check=True,
+                capture_output=True, text=True,
+            ).stdout.strip()
+
+        git(self.one, "-c", "user.name=Fixture Author",
+            "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false",
+            "commit", "-qm", "original contribution")
+        git(self.one, "-c", "user.name=Later Fixture Author",
+            "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false",
+            "commit", "--allow-empty", "-qm", "later contribution")
+        shallow = self.root / "shallow"
+        git(self.root, "clone", "-q", "--depth=1", self.one.as_uri(), str(shallow))
+        linked = self.root / "linked"
+        git(shallow, "worktree", "add", "-qb", "linked", str(linked))
+        head = git(shallow, "rev-parse", "HEAD")
+        for repository, branch in ((shallow, "main"), (linked, "linked")):
+            coordinate = Coordinate("atrinik/one", branch, head, branch, None)
+            snapshot = self.snapshot(repository, "one", coordinate, _Probe(coordinate))
+            for mode in ("history", "blame"):
+                with self.subTest(repository=repository.name, mode=mode):
+                    with self.assertRaisesRegex(ContractError, "INCOMPLETE"):
+                        search(
+                            {**self.request(mode=mode, query=""),
+                             "path": "src/code.rs", "provenance": True},
+                            [snapshot], authorization_identity="fixture-reader",
+                        )
+
     def test_git_history_and_blame_require_opt_in_and_stay_revision_bound(self):
         repository = self.root / "provenance"
         repository.mkdir()

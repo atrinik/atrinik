@@ -45,10 +45,13 @@ evaluation, or persistent cross-worktree indexing.
 Git provenance is disabled unless the request sets `provenance` to true. Both
 operations pin reads to the snapshot's full commit, reject untracked or unsafe
 paths, disable replacement objects, lazy fetching, and ambient system/global
-Git config, and return at most 1,000 source records. Missing partial-clone objects
-fail locally. `history` accepts an optional fixed-string subject query. `blame`
-accepts an optional positive line number and no text query. Ordinary searches
-cannot carry provenance fields.
+Git config, and return at most 1,000 source records. Shallow repositories fail
+with `INCOMPLETE` before history or blame attribution; missing partial-clone
+objects fail locally. The official public corpus retains complete history and
+verifies each locked commit belongs to its declared upstream branch before
+assigning the local branch. `history` accepts an optional fixed-string subject
+query. `blame` accepts an optional positive line number and no text query.
+Ordinary searches cannot carry provenance fields.
 
 Every Git read reuses the context server's Git read policy. A configured local
 clean/process content filter is forbidden before Git inspects source, so a

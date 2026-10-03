@@ -3,6 +3,8 @@
 """Fetch only the allowlisted public corpus at full immutable commit IDs.
 
 No host repository, Git configuration, credentials, or working copy is input.
+Pins must belong to the declared upstream branch; complete history is retained
+for opt-in provenance queries.
 """
 from __future__ import annotations
 
@@ -40,13 +42,16 @@ def validate(lock):
     return [dict(wrapper, path='.'), *rows]
 
 
-def fetch(destination, repository, commit):
+def fetch(destination, repository, commit, *, branch='main'):
+    if (repository not in {'atrinik/' + name for name in NAMES | {'atrinik'}}
+            or branch != 'main' or not isinstance(commit, str) or not SHA.fullmatch(commit)):
+        raise ValueError('invalid public source pin')
     # Construct the entire environment; inherited proxies, URL rewrites, credential
     # helpers, templates, hooks, alternate object stores and LFS are never used.
     environment = {'PATH': '/usr/bin:/bin', 'HOME': '/nonexistent', 'LC_ALL': 'C',
                    'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null',
                    'GIT_TERMINAL_PROMPT': '0', 'GIT_LFS_SKIP_SMUDGE': '1'}
-    destination.mkdir(parents=True, exist_ok=True)
+    destination.mkdir(parents=True, exist_ok=False)
     def git(*args):
         return subprocess.run(['git', '-c', 'credential.helper=', '-c', 'core.hooksPath=/dev/null',
                                '-c', 'protocol.allow=never', '-c', 'protocol.https.allow=always',
@@ -55,8 +60,17 @@ def fetch(destination, repository, commit):
                               timeout=600).stdout.decode().strip()
     git('init', '--initial-branch=main', '--template=')
     git('remote', 'add', 'origin', 'https://github.com/' + repository + '.git')
-    git('fetch', '--depth=1', '--no-tags', 'origin', commit)
-    git('checkout', '-B', 'main', 'FETCH_HEAD')
+    upstream = 'refs/remotes/origin/' + branch
+    git('fetch', '--no-tags', 'origin', 'refs/heads/' + branch + ':' + upstream)
+    if git('rev-parse', '--is-shallow-repository') != 'false':
+        raise ValueError('complete source history required')
+    # A raw SHA fetch followed by a local branch label cannot prove membership.
+    # Fetch the actual declared upstream ref, then verify the immutable pin
+    # before assigning any local branch to it (older ancestors remain valid).
+    if git('rev-parse', '--verify', commit + '^{commit}') != commit:
+        raise ValueError('source pin must identify a commit')
+    git('merge-base', '--is-ancestor', commit, upstream)
+    git('checkout', '-B', branch, commit)
     if git('rev-parse', 'HEAD') != commit or git('status', '--porcelain', '--untracked-files=no'):
         raise ValueError('source pin mismatch')
     # The generated Git metadata is public-only. Remove transport-only residue.
@@ -68,7 +82,7 @@ def build(lock, destination):
     if destination.exists():
         raise ValueError('corpus destination must be absent')
     for row in rows:
-        fetch(destination / row['path'], row['repository'], row['commit'])
+        fetch(destination / row['path'], row['repository'], row['commit'], branch=row['branch'])
 
 
 def main():

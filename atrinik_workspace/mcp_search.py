@@ -971,6 +971,14 @@ def _provenance_path(
     )
     if return_code != 0 or limited:
         raise ContractError("FORBIDDEN", "provenance path is not tracked source")
+    output, return_code, limited = _git_capture(
+        snapshot,
+        ["rev-parse", "--is-shallow-repository"],
+        deadline=deadline,
+        cancellation=cancellation,
+    )
+    if return_code != 0 or limited or output.strip() != b"false":
+        raise ContractError("INCOMPLETE", "Git provenance requires non-shallow history")
     return path, checkout_path
 
 
