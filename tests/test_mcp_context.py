@@ -32,6 +32,21 @@ def repository(path, owner="atrinik/atrinik"):
     git(path, "commit", "-m", "fixture")
 
 
+def long_changed_paths(root):
+    directory = root
+    for index in range(6):
+        directory /= ("é" * 70 + '"' * 10 + str(index))
+    directory.mkdir(parents=True)
+    paths = [directory / f"changed-{index:02}.txt" for index in range(50)]
+    for path in paths:
+        path.write_text("original\n")
+    git(root, "add", ".")
+    git(root, "commit", "-m", "long path fixtures")
+    for path in paths:
+        path.write_text("changed\n")
+    return {str(path.relative_to(root)) for path in paths}
+
+
 class ContextFixture(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -147,6 +162,27 @@ class ContextFixture(unittest.TestCase):
         self.assertEqual([item["path"] for item in changes["items"]], ["sample.txt"])
         self.assertEqual(self.service.guidance()["guidance"], ["AGENTS.md"])
         self.assertNotIn("SYNTHETIC_SENTINEL", json.dumps(changes))
+
+    def test_changed_path_pages_shrink_to_bytes_without_skips(self):
+        expected = long_changed_paths(self.root)
+        seen, cursor = [], None
+        while True:
+            page = self.service.changes(page_size=50, cursor=cursor)
+            self.assertLessEqual(len(json.dumps(page).encode()), 32768)
+            self.assertEqual(page["returned_records"], len(page["items"]))
+            self.assertEqual(page["total_records"], len(expected))
+            self.assertEqual(page["truncated"], page["next_cursor"] is not None)
+            self.assertGreater(page["returned_records"], 0)
+            self.assertLess(page["returned_records"], 50)
+            seen.extend(item["path"] for item in page["items"])
+            cursor = page["next_cursor"]
+            if cursor is None:
+                break
+        self.assertEqual(set(seen), expected)
+        self.assertEqual(len(seen), len(expected))
+        first = self.service.changes(page_size=50)
+        (self.root / "sample.txt").write_text("cursor invalidation\n")
+        self.assertCode("STALE_CURSOR", lambda: self.service.changes(page_size=50, cursor=first["next_cursor"]))
 
     def test_origin_mismatch_fails_closed(self):
         git(self.root, "remote", "set-url", "origin", "https://example.invalid/other.git")

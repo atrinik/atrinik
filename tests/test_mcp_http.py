@@ -14,6 +14,7 @@ from unittest.mock import patch
 
 from atrinik_workspace.mcp_http import ConnectionDeadline, Handler, MCPHTTPServer, read_token, tls_context
 from atrinik_workspace.mcp_context import check_request, request_scope
+from atrinik_workspace.mcp_contract import canonical_json
 from atrinik_workspace.mcp_http_health import main as health_check
 from atrinik_workspace.mcp_server import VERSION_KEY, CAPABILITIES_KEY, PROTOCOL_VERSION
 from tests import test_mcp_context as fixture
@@ -104,6 +105,51 @@ class HTTPTests(unittest.TestCase):
             self.assertEqual(self.send(raw=raw, headers=headers, session=session)[0], expected)
         self.assertEqual(self.rpc(None)[0], 400)
         self.assertEqual(self.rpc("unknown")[0], 404)
+
+    def test_http_search_resources_continue_within_wire_limit(self):
+        payload = 'é😀"\\\n' * 24000
+        (self.root / "sample.txt").write_text(payload)
+        fixture.git(self.root, "add", "sample.txt")
+        fixture.git(self.root, "commit", "-m", "large search source fixture")
+        first, second = self.initialize(), self.initialize()
+        response = self.rpc(first, "tools/call", name="atrinik_search",
+                            arguments={"mode": "filename", "query": "sample.txt"})[2]
+        uri = response["result"]["structuredContent"]["data"]["items"][0]["resource_uri"]
+        parts, offset = [], 0
+        while uri:
+            status, _, response = self.rpc(first, "resources/read", uri=uri)
+            self.assertEqual(status, 200)
+            self.assertNotIn("error", response)
+            self.assertLessEqual(len(canonical_json(response)) + 1, 65536)
+            item = response["result"]["contents"][0]
+            self.assertEqual(item["_meta"]["atrinik/offset_characters"], offset)
+            parts.append(item["text"])
+            offset += len(item["text"])
+            uri = item["_meta"]["atrinik/next_uri"]
+            if uri and len(parts) == 1:
+                self.assertEqual(self.rpc(second, "resources/read", uri=uri)[2]["error"]["data"]["code"], "NOT_FOUND")
+        self.assertGreater(len(parts), 2)
+        self.assertEqual("".join(parts), payload)
+
+    def test_http_changes_pages_traverse_long_paths(self):
+        expected = fixture.long_changed_paths(self.root)
+        session = self.initialize()
+        seen, cursor = [], None
+        while True:
+            arguments = {"page_size": 50, **({"cursor": cursor} if cursor else {})}
+            status, _, response = self.rpc(session, "tools/call", name="context_changes", arguments=arguments)
+            self.assertEqual(status, 200)
+            self.assertNotIn("error", response)
+            self.assertLessEqual(len(canonical_json(response)) + 1, 32768)
+            page = response["result"]["structuredContent"]["data"]
+            self.assertEqual(page["returned_records"], len(page["items"]))
+            self.assertEqual(page["truncated"], page["next_cursor"] is not None)
+            seen.extend(item["path"] for item in page["items"])
+            cursor = page["next_cursor"]
+            if cursor is None:
+                break
+        self.assertEqual(set(seen), expected)
+        self.assertEqual(len(seen), len(expected))
 
     def test_resource_and_cancellation_session_isolation(self):
         first, second = self.initialize(), self.initialize()

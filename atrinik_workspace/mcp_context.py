@@ -21,7 +21,7 @@ from types import SimpleNamespace
 from typing import Any
 
 from .mcp_contract import (
-    ContractError, Coordinate, canonical_json, dirty_fingerprint, paginate,
+    ContractError, Coordinate, canonical_json, decode_cursor, dirty_fingerprint, encode_cursor, paginate,
     read_regular, snapshot_fingerprint, validate_selector, _unique_object,
 )
 from .model import Manifest, Paths, WorkspaceError, validate_name
@@ -405,17 +405,27 @@ class ContextService:
         return Snapshot(root, coordinate, identity, metadata, self,
                         {"profile": profile, "component": component, "role": role, "worktree": worktree})
 
-    def _page(self, records, identity, page_size=20, cursor=None):
+    def _page(self, records, identity, page_size=20, cursor=None, *, snapshot=None):
         wrapper = self.resolve()
+        identity = {**identity, "wrapper": wrapper.identity, "authorization": _digest(self.authorization_identity),
+                    "schema": SCHEMA_VERSION, "provider": PROVIDER_VERSION, "page_size": page_size}
         result = paginate(records, page_size=page_size, cursor=cursor,
-                          snapshot_identity={**identity, "wrapper": wrapper.identity, "authorization": _digest(self.authorization_identity),
-                                             "schema": SCHEMA_VERSION, "provider": PROVIDER_VERSION,
-                                             "page_size": page_size})
+                          snapshot_identity=identity)
         wrapper.assert_current()
-        result.update(wrapper.json())
+        result.update((snapshot or wrapper).json())
         result.update(incomplete=any(item.get("incomplete", False) for item in result["items"]))
-        if len(canonical_json(result)) > 32768:
-            raise ContractError("CONTEXT_BUDGET_EXCEEDED", "page exceeds routine result budget")
+        offset = decode_cursor(cursor, identity) if cursor else 0
+        # Reserve room for the tool and RPC envelopes. A shortened final page
+        # gains a cursor, so measure again after updating every pagination field.
+        while len(canonical_json(result)) > 28672:
+            check_request()
+            if len(result["items"]) <= 1:
+                raise ContractError("CONTEXT_BUDGET_EXCEEDED", "record exceeds routine result budget")
+            result["items"].pop()
+            result["returned_records"] = len(result["items"])
+            result["next_cursor"] = encode_cursor(offset + result["returned_records"], identity)
+            result["truncated"] = True
+            result["incomplete"] = any(item.get("incomplete", False) for item in result["items"])
         return result
 
     def describe(self, profile="default", page_size=20, cursor=None):
@@ -566,7 +576,7 @@ class ContextService:
             except (UnicodeError, ContractError):
                 rows.append({"incomplete": True, "error": "FORBIDDEN"})
         snapshot.assert_current()
-        return {**self._page(rows, snapshot.identity, page_size, cursor), **snapshot.json()}
+        return self._page(rows, snapshot.identity, page_size, cursor, snapshot=snapshot)
 
 
 def main(argv=None):

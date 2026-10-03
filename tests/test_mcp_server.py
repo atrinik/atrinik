@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: MIT
 import io
 import json
+import queue
 import threading
 import unittest
 from unittest.mock import patch
 
 from atrinik_workspace.mcp_server import (CAPABILITIES_KEY, VERSION_KEY, PROTOCOL_VERSION,
     ContextServer, Tool, object_schema, serve)
-from atrinik_workspace.mcp_contract import ContractError, canonical_json
+from atrinik_workspace.mcp_contract import ContractError, canonical_json, redact
 from tests import test_mcp_context as fixture
 
 
@@ -80,6 +81,115 @@ class ServerTests(unittest.TestCase):
         (self.root / "sample.txt").write_text("changed\n")
         self.assertEqual(self.server.handle(request("resources/read", uri=uri))["error"]["data"]["code"], "STALE_COORDINATE")
         self.assertIn("error", self.server.handle(request("resources/read", uri="file:///tmp/example")))
+
+    def test_stdio_resource_continuations_reconstruct_escaped_unicode(self):
+        payload = ('é😀"\\\n' * 24000) + 'password=SYNTHETIC_SECRET\n'
+        self.assertLessEqual(len(payload.encode()), 262144)
+        (self.root / "AGENTS.md").write_text(payload)
+        fixture.git(self.root, "add", "AGENTS.md")
+        fixture.git(self.root, "commit", "-m", "large guidance fixture")
+        guidance = self.server.handle(request("tools/call", name="context_guidance", arguments={}))
+        uri = guidance["result"]["structuredContent"]["data"]["resources"][0]["uri"]
+        pending = queue.Queue()
+        pending.put(canonical_json(request("resources/read", uri=uri)) + b"\n")
+        responses = []
+
+        class Input:
+            def readline(self, maximum):
+                return pending.get(timeout=10)
+
+        class Output(io.BytesIO):
+            def write(self, frame):
+                responses.append(json.loads(frame))
+                following = responses[-1].get("result", {}).get("contents", [{}])[0].get("_meta", {}).get("atrinik/next_uri")
+                if following:
+                    followup = request("resources/read", uri=following)
+                    followup["id"] = len(responses) + 1
+                    pending.put(canonical_json(followup) + b"\n")
+                else:
+                    pending.put(b"")
+                return super().write(frame)
+
+        output = Output()
+        serve(self.server, Input(), output)
+        parts, offset, uris = [], 0, set()
+        for response in responses:
+            self.assertNotIn("error", response)
+            self.assertLessEqual(len(canonical_json(response)) + 1, 65536)
+            item = response["result"]["contents"][0]
+            self.assertNotIn(item["uri"], uris)
+            uris.add(item["uri"])
+            self.assertEqual(item["_meta"]["atrinik/offset_characters"], offset)
+            self.assertEqual(item["_meta"]["atrinik/total_characters"], len(redact(payload)))
+            self.assertTrue(item["_meta"]["atrinik/redacted"])
+            parts.append(item["text"])
+            offset += len(item["text"])
+        self.assertGreater(len(parts), 2)
+        self.assertEqual("".join(parts), redact(payload))
+        self.assertNotIn("SYNTHETIC_SECRET", output.getvalue().decode())
+        first = responses[0]["result"]["contents"][0]
+        repeated = self.server.handle(request("resources/read", uri=uri))["result"]["contents"][0]
+        self.assertEqual(repeated, first)
+        continuation = first["_meta"]["atrinik/next_uri"]
+        (self.root / "sample.txt").write_text("changed\n")
+        self.assertEqual(self.server.handle(request("resources/read", uri=continuation))["error"]["data"]["code"], "STALE_COORDINATE")
+
+    def test_historical_resource_continuations_preserve_committed_text(self):
+        payload = 'é"\\\n' * 40000
+        (self.root / "sample.txt").write_text(payload)
+        fixture.git(self.root, "add", "sample.txt")
+        fixture.git(self.root, "commit", "-m", "large historical source fixture")
+        (self.root / "sample.txt").write_text("dirty replacement\n")
+        snapshot = self.service.resolve()
+        uri = self.server.resource(snapshot, "sample.txt", snapshot.coordinate.commit)["uri"]
+        parts = []
+        while uri:
+            response = self.server.handle(request("resources/read", uri=uri))
+            self.assertNotIn("error", response)
+            self.assertLessEqual(len(canonical_json(response)) + 1, 65536)
+            item = response["result"]["contents"][0]
+            parts.append(item["text"])
+            uri = item["_meta"]["atrinik/next_uri"]
+        self.assertGreater(len(parts), 1)
+        self.assertEqual("".join(parts), payload)
+
+    def test_chunking_preserves_source_size_and_binary_rejections(self):
+        for payload, expected in ((b'"' * 262144, None), (b'"' * 262145, "LIMIT_EXCEEDED"),
+                                  (b"binary\x00data", "FORBIDDEN"), (b"\xff", "FORBIDDEN")):
+            with self.subTest(size=len(payload), expected=expected):
+                (self.root / "sample.txt").write_bytes(payload)
+                fixture.git(self.root, "add", "sample.txt")
+                fixture.git(self.root, "commit", "-m", "source boundary fixture")
+                snapshot = self.service.resolve()
+                for revision in (None, snapshot.coordinate.commit):
+                    uri = self.server.resource(snapshot, "sample.txt", revision)["uri"]
+                    response = self.server.handle(request("resources/read", uri=uri))
+                    if expected:
+                        self.assertEqual(response["error"]["data"]["code"], expected)
+                    else:
+                        self.assertNotIn("error", response)
+                        self.assertLessEqual(len(canonical_json(response)) + 1, 65536)
+                        item = response["result"]["contents"][0]
+                        self.assertTrue(item["_meta"]["atrinik/next_uri"])
+                        self.assertEqual(item["_meta"]["atrinik/total_characters"], 262144)
+
+    def test_changes_tool_wire_pages_traverse_long_paths(self):
+        expected = fixture.long_changed_paths(self.root)
+        seen, cursor = [], None
+        while True:
+            arguments = {"page_size": 50, **({"cursor": cursor} if cursor else {})}
+            response = self.server.handle(request("tools/call", name="context_changes", arguments=arguments))
+            self.assertNotIn("error", response)
+            self.assertLessEqual(len(canonical_json(response)) + 1, 32768)
+            page = response["result"]["structuredContent"]["data"]
+            self.assertEqual(page["returned_records"], len(page["items"]))
+            self.assertEqual(page["truncated"], page["next_cursor"] is not None)
+            seen.extend(item["path"] for item in page["items"])
+            cursor = page["next_cursor"]
+            if cursor is None:
+                break
+        self.assertEqual(set(seen), expected)
+        self.assertEqual(len(seen), len(expected))
 
     def test_search_and_historical_rename_resources_use_registered_snapshots(self):
         response = self.server.handle(request("tools/call", name="atrinik_search",

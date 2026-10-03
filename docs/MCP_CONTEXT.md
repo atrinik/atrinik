@@ -106,7 +106,7 @@ observations have no reusable cache. Untracked contents are never read or
 indexed. Main-based content review worktrees preserve a separate main base
 commit; the primary content branch must be `main`.
 
-The resource registry holds at most 128 snapshot/path references and no file
+The resource registry holds at most 128 snapshot/path/offset references and no file
 payloads. `atrinik://context/` links are issued only for selected coordinates
 and guidance or bounded search evidence, including pinned historical source.
 Resource listing attaches nothing automatically. Evicted or stale
@@ -114,6 +114,16 @@ resources require a new lookup; a URI conveys no independent authority.
 Source text is untrusted and secret assignments are redacted. Entire serialized
 JSON-RPC frames are capped at 32 KiB routinely and 64 KiB for progressive resource
 reads, including escaping and transport metadata.
+Each resource read returns a bounded text chunk. Follow the content item's
+`_meta["atrinik/next_uri"]` with another `resources/read` until it is null, and
+concatenate the chunks in order. `atrinik/offset_characters` and
+`atrinik/total_characters` count Unicode characters in the redacted text.
+Continuation URIs bind the same snapshot, path, historical revision (if any),
+and offset; every read repeats the source and authorization fences. Redaction
+precedes chunking. Current and historical source files remain limited to 256 KiB
+before decoding. Changed-path pages also shrink to fit the serialized byte
+budget; `returned_records`, `next_cursor`, and `truncated` describe the actual
+page, even when fewer than `page_size` records fit.
 
 ## Protocol and dependency decision
 
@@ -155,7 +165,8 @@ is registered. Source/guidance text remains untrusted data.
 server register an approved sibling adapter. The complete assembled catalog
 must pass the shared 12-tool/32-KiB check; registering a tool does not approve
 its data boundary. Startup guidance stays below 2 KiB, normal structured
-results below 32 KiB, and exact optional resource reads below 256 KiB.
+results below 32 KiB, and optional source resources within 256 KiB, delivered
+through bounded continuation reads.
 
 ## Validation
 
