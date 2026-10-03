@@ -32,7 +32,8 @@
 - Use `atrinik-multi-repo-workspace` for wrapper ownership/profiles/worktrees/
   migration/cleanup/releases/CLI/layout; add specialists and use
   `atrinik-guidance-maintenance` for audits.
-- Optional MCP: `docs/MCP_CONTEXT.md`; runtime/external profiles stay opt-in.
+- Optional MCP: `docs/MCP_CONTEXT.md`; native HTTPS/Docker setup:
+  `docs/MCP_HTTP.md`. Runtime/external profiles stay opt-in.
 - Use `atrinik-issue-delivery` for an explicitly selected issue or PR; for a
   standalone source goal use `docs/SOURCE_DELIVERY.md`. Both stop before merge.
 - Portable export needs clean Classic sources, verified released sound and the
