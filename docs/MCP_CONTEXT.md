@@ -32,8 +32,21 @@ python3 -B -m atrinik_workspace.mcp_context --root /absolute/trusted/atrinik des
 python3 -B -m atrinik_workspace.mcp_context --root /absolute/trusted/atrinik resolve --profile classic --component classic-client
 ```
 
-`./atrinik`, repository commands, Git and `rg` remain authoritative fallbacks.
-Missing checkouts return a stable unavailable error; they are not initialized.
+## Agent routing
+
+When `atrinik` is connected, prefer its context and bounded search tools for
+workspace navigation, component resolution and effective guidance. Select the
+profile/component explicitly for component search, and read resource URIs returned
+by the tools. See [source search](MCP_SEARCH.md) for bounds and pagination.
+
+A remote endpoint describes its own pinned sources. Compare repository and commit
+with local Git before applying findings to a checkout. Use local files and Git for
+uncommitted changes or a different revision, and local owner workflows for writes,
+builds and runtime operations. An incomplete search is partial evidence, not proof
+of absence: narrow it or follow an available cursor. `./atrinik`, repository
+commands, Git and `rg` remain authoritative fallbacks when MCP is unavailable or
+insufficient. Missing checkouts return a stable unavailable error; they are not
+initialized. Connecting a server does not grant mutation or deployment authority.
 
 ## Catalog and identity
 
