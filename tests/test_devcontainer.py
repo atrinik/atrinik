@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import unittest
 
 from atrinik_workspace.jsonc import loads as jsonc_loads
@@ -12,6 +13,13 @@ ROOT = Path(__file__).resolve().parents[1]
 class DevcontainerTests(unittest.TestCase):
     def load_config(self, relative_path: str) -> dict[str, object]:
         return jsonc_loads((ROOT / relative_path).read_text(encoding="utf-8"))
+
+    def assert_pinned_image(self, image: object, repository: str) -> None:
+        self.assertIsInstance(image, str)
+        self.assertRegex(
+            image,
+            rf"^{re.escape(repository)}(?::[^@\s]+)?@sha256:[0-9a-f]{{64}}$",
+        )
 
     def test_default_configuration_initializes_component_checkouts(self) -> None:
         config = self.load_config(".devcontainer/devcontainer.json")
@@ -35,10 +43,9 @@ class DevcontainerTests(unittest.TestCase):
             config["containerEnv"]["ATRINIK_DOCKER_VOLUME_NAMESPACE"],
             "${devcontainerId}",
         )
-        self.assertEqual(
+        self.assert_pinned_image(
             config["image"],
-            "ghcr.io/atrinik/linux-build:1.10.0@sha256:"
-            "7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8",
+            "ghcr.io/atrinik/linux-build",
         )
         self.assertNotIn("SDL_VIDEODRIVER", config["containerEnv"])
 
@@ -128,10 +135,9 @@ class DevcontainerTests(unittest.TestCase):
             config["containerEnv"]["ATRINIK_DOCKER_VOLUME_NAMESPACE"],
             "${devcontainerId}",
         )
-        self.assertEqual(
+        self.assert_pinned_image(
             config["image"],
-            "ghcr.io/atrinik/windows-build:1.2.1@sha256:"
-            "d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb",
+            "ghcr.io/atrinik/windows-build",
         )
 
     def test_default_feature_lock_matches_configuration(self) -> None:

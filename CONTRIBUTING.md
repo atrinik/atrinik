@@ -272,6 +272,12 @@ branch coverage before publishing the stable `Integration validation` check.
 See [CI performance](docs/CI_PERFORMANCE.md) for the budget, evidence format,
 and comparable-run method.
 
+Keep ecosystem-standard lockfiles and integrity manifests when the ecosystem
+uses them, and keep CI actions and container images on immutable references.
+Do not add custom assertions that duplicate an exact dependency or tool version
+already owned by authoritative configuration. Test configuration coherence,
+supported compatibility ranges, and immutable reference shape instead.
+
 Use [local test execution](docs/LOCAL_TESTING.md) for targeted, serial, or
 process-isolated parallel runs before the complete validation recipe.
 

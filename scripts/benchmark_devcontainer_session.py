@@ -24,13 +24,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from atrinik_workspace.docker_storage import volume_namespace
+from atrinik_workspace.jsonc import loads as jsonc_loads
 from atrinik_workspace.model import WorkspaceError
 
 
-DEFAULT_LINUX_IMAGE = (
-    "ghcr.io/atrinik/linux-build:1.10.0@sha256:"
-    "7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8"
-)
 NAMESPACE_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,62}$")
 RUN_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,30}$")
 ROLE_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,30}$")
@@ -72,6 +69,17 @@ printf 'created=%s reused=%s bytes=%s digest=%s\n' \
 
 class BenchmarkError(RuntimeError):
     """The benchmark cannot safely continue."""
+
+
+def _configured_image(relative_path: str) -> str:
+    config = jsonc_loads((ROOT / relative_path).read_text(encoding="utf-8"))
+    image = config.get("image")
+    if not isinstance(image, str):
+        raise BenchmarkError(f"{relative_path} must define an image")
+    return image
+
+
+DEFAULT_LINUX_IMAGE = _configured_image(".devcontainer/devcontainer.json")
 
 
 def _utc_now() -> str:
