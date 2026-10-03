@@ -31,6 +31,63 @@ MAX_REQUEST = 16384
 SESSION_LIMIT = 32
 SESSION_TTL = 900
 DEADLINE = 5
+PROVIDER_DEADLINE = 5
+RESPONSE_DEADLINE = 1
+
+
+class ConnectionDeadline:
+    """Fence phase transitions against expiry and bound the whole connection."""
+    def __init__(self, request):
+        self.request = request
+        self.lock = threading.Lock()
+        self.total = time.monotonic() + DEADLINE + PROVIDER_DEADLINE + RESPONSE_DEADLINE
+        self.generation = 0
+        self.timer = None
+        self.expired = False
+        self.event = None
+        self.until = self.total
+        self.phase(DEADLINE)
+
+    def phase(self, seconds, *, final=False):
+        with self.lock:
+            now = time.monotonic()
+            if self.expired or now >= self.until:
+                raise TimeoutError("connection deadline exceeded")
+            self.generation += 1
+            if self.timer is not None:
+                self.timer.cancel()
+            remaining = max(0, min(seconds, self.total - now))
+            self.until = now + remaining
+            if final:
+                self.total = min(self.total, self.until)
+            self.request.settimeout(max(0.001, remaining))
+            self.timer = threading.Timer(remaining, self.expire, (self.generation,))
+            self.timer.daemon = True
+            self.timer.start()
+
+    def expire(self, generation):
+        with self.lock:
+            if generation != self.generation or self.expired:
+                return
+            self.expired = True
+            if self.event is not None:
+                self.event.set()
+            try:
+                self.request.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
+
+    def attach(self, event):
+        with self.lock:
+            self.event = event
+            if self.expired or time.monotonic() >= self.until:
+                event.set()
+                raise TimeoutError("connection deadline exceeded")
+
+    def close(self):
+        with self.lock:
+            self.generation += 1
+            self.timer.cancel()
 
 
 def read_token(path):
@@ -117,24 +174,26 @@ class MCPHTTPServer(ThreadingHTTPServer):
             raise
 
     def process_request_thread(self, request, client_address):
-        # A wall clock limit defeats clients that trickle headers/body forever.
-        def expire():
-            try:
-                request.shutdown(socket.SHUT_RDWR)
-            except OSError:
-                pass
-        timer = threading.Timer(DEADLINE, expire)
-        timer.daemon = True
-        timer.start()
-        request.settimeout(DEADLINE)
+        budget = None
         try:
+            budget = ConnectionDeadline(request)
             if self.tls is not None:
-                request = self.tls.wrap_socket(request, server_side=True)
-            super().process_request_thread(request, client_address)
-        except OSError:
-            self.shutdown_request(request)
+                # Publish the TLS socket before starting its potentially slow
+                # handshake: wrap_socket otherwise detaches the timed socket.
+                with budget.lock:
+                    if budget.expired:
+                        raise TimeoutError("connection deadline exceeded")
+                    request = self.tls.wrap_socket(request, server_side=True,
+                                                   do_handshake_on_connect=False)
+                    budget.request = request
+                request.do_handshake()
+            Handler(request, client_address, self, budget=budget)
+        except Exception:
+            self.handle_error(request, client_address)
         finally:
-            timer.cancel()
+            if budget is not None:
+                budget.close()
+            self.shutdown_request(request)
             self.connections.release()
 
     def handle_error(self, request, client_address):
@@ -179,6 +238,10 @@ class Handler(BaseHTTPRequestHandler):
     server_version = "Atrinik"
     sys_version = ""
 
+    def __init__(self, *args, budget):
+        self.budget = budget
+        super().__init__(*args)
+
     def setup(self):
         super().setup()
         self.rfile = HeaderBudget(self.rfile)
@@ -194,6 +257,7 @@ class Handler(BaseHTTPRequestHandler):
         self.reply(code)
 
     def reply(self, status, payload=None, *, session=None, extra=()):
+        self.budget.phase(RESPONSE_DEADLINE)
         body = canonical_json(payload) if payload is not None else b""
         self.close_connection = True
         self.send_response(status)
@@ -301,6 +365,7 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(413)
             return
         raw = self.rfile.read(int(length))
+        self.budget.phase(PROVIDER_DEADLINE + RESPONSE_DEADLINE, final=True)
         try:
             if len(raw) != int(length):
                 raise ValueError()
@@ -370,6 +435,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.reply(503, extra=(("Retry-After", "1"),))
                 return
             try:
+                self.budget.attach(event)
                 result = session.codec.handle(request, event)
             finally:
                 with self.server.lock:
@@ -416,7 +482,9 @@ class Handler(BaseHTTPRequestHandler):
         try:
             # No protocol session or shared cancellation map: duplicate IDs on
             # independent modern requests cannot interfere with each other.
-            result = self.server.modern.handle(request, threading.Event())
+            event = threading.Event()
+            self.budget.attach(event)
+            result = self.server.modern.handle(request, event)
         finally:
             self.server.operations.release()
         status = 404 if result.get("error", {}).get("code") == -32601 else 200

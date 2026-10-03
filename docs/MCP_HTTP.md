@@ -95,8 +95,12 @@ server. Legacy sessions own independent providers, authorization identities, up 
 resource references, and cancellation maps. One session cannot read another's
 issued resources or cancel its requests. Exhausted operation/session capacity
 returns 503 with Retry-After; excess connections close before worker creation.
-Each connection has a five-second wall clock lifetime, including TLS and body
-receipt. Provider work retains its independent five-second deadline. Requests
+TLS, headers and body receipt share a five-second wall clock ingress budget.
+After body receipt, processing has the provider's five-second deadline plus a
+one-second allowance to serialize and send its result or structured timeout.
+Each response also has a one-second wall clock output limit; the complete
+connection is capped at eleven seconds. Transport expiry cancels active work
+and shuts down the socket, including stalled TLS handshakes and output. Requests
 are limited to 16 KiB, routine responses to 32 KiB and resource reads to 64 KiB.
 There is no persisted session cache, replay log or background indexing.
 

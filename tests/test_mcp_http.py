@@ -12,7 +12,8 @@ import time
 import unittest
 from unittest.mock import patch
 
-from atrinik_workspace.mcp_http import MCPHTTPServer, read_token, tls_context
+from atrinik_workspace.mcp_http import ConnectionDeadline, Handler, MCPHTTPServer, read_token, tls_context
+from atrinik_workspace.mcp_context import check_request, request_scope
 from atrinik_workspace.mcp_http_health import main as health_check
 from atrinik_workspace.mcp_server import VERSION_KEY, CAPABILITIES_KEY, PROTOCOL_VERSION
 from tests import test_mcp_context as fixture
@@ -180,6 +181,155 @@ class HTTPTests(unittest.TestCase):
             for _ in range(4):
                 self.http.operations.release()
 
+    def assert_slots_released(self):
+        until = time.monotonic() + 2
+        while time.monotonic() < until:
+            acquired = sum(self.http.connections.acquire(blocking=False) for _ in range(16))
+            for _ in range(acquired):
+                self.http.connections.release()
+            if acquired == 16:
+                break
+            time.sleep(0.01)
+        self.assertEqual(acquired, 16)
+        acquired = sum(self.http.operations.acquire(blocking=False) for _ in range(4))
+        for _ in range(acquired):
+            self.http.operations.release()
+        self.assertEqual(acquired, 4)
+
+    def test_ingress_does_not_consume_provider_or_timeout_response_budget(self):
+        session = self.initialize()
+        for modern in (False, True):
+            for timeout in (False, True):
+                with self.subTest(modern=modern, timeout=timeout):
+                    request = {"jsonrpc": "2.0", "id": 7, "method": "tools/list", "params": {}}
+                    headers = {"Host": "localhost", "Authorization": "Bearer " + TOKEN.decode(),
+                               "Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+                    if modern:
+                        request["params"]["_meta"] = {VERSION_KEY: PROTOCOL_VERSION, CAPABILITIES_KEY: {}}
+                        headers.update({"MCP-Protocol-Version": PROTOCOL_VERSION, "Mcp-Method": "tools/list"})
+                        provider = self.http.modern
+                    else:
+                        headers["MCP-Session-Id"] = session
+                        provider = self.http.sessions[session].provider
+                    body = json.dumps(request).encode()
+                    headers["Content-Length"] = str(len(body))
+                    def dispatch(*args):
+                        time.sleep(0.3)
+                        check_request()
+                        return {"tools": []}
+                    def scope(event):
+                        return request_scope(event, timeout_ms=250 if timeout else 450)
+                    with patch("atrinik_workspace.mcp_http.DEADLINE", 0.35), \
+                            patch("atrinik_workspace.mcp_http.PROVIDER_DEADLINE", 0.45), \
+                            patch("atrinik_workspace.mcp_http.RESPONSE_DEADLINE", 0.2), \
+                            patch("atrinik_workspace.mcp_server.request_scope", side_effect=scope), \
+                            patch.object(provider, "dispatch", side_effect=dispatch):
+                        connection = http.client.HTTPConnection(*self.http.server_address, timeout=2)
+                        try:
+                            started = time.monotonic()
+                            connection.request("POST", "/mcp", headers=headers)
+                            time.sleep(0.15)
+                            connection.send(body)
+                            response = connection.getresponse()
+                            payload = json.loads(response.read())
+                            self.assertEqual(response.status, 200)
+                            if timeout:
+                                self.assertEqual(payload["error"]["data"]["code"], "TIMEOUT")
+                            else:
+                                self.assertEqual(payload["result"]["tools"], [])
+                            self.assertLess(time.monotonic() - started, 1.5)
+                        finally:
+                            connection.close()
+                    self.assert_slots_released()
+
+    def test_expiry_cancels_operation_and_releases_slots(self):
+        session = self.initialize()
+        for modern in (False, True):
+            observed = []
+            def blocked(request, event):
+                observed.append(event.wait(1))
+                return {"jsonrpc": "2.0", "id": 2, "result": {}}
+            provider = self.http.modern if modern else self.http.sessions[session].codec
+            with patch("atrinik_workspace.mcp_http.PROVIDER_DEADLINE", 0.1), \
+                    patch("atrinik_workspace.mcp_http.RESPONSE_DEADLINE", 0.1), \
+                    patch.object(provider, "handle", side_effect=blocked):
+                with self.assertRaises(http.client.RemoteDisconnected):
+                    if modern:
+                        self.send({"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {
+                            "_meta": {VERSION_KEY: PROTOCOL_VERSION, CAPABILITIES_KEY: {}}}},
+                            headers={"MCP-Protocol-Version": PROTOCOL_VERSION, "Mcp-Method": "tools/list"})
+                    else:
+                        self.rpc(session)
+            self.assert_slots_released()
+            self.assertEqual(observed, [True])
+            self.assertEqual(self.http.sessions[session].active, {})
+
+    def test_stalled_response_has_absolute_output_bound(self):
+        session = self.initialize()
+        setup = Handler.setup
+        def small_buffer(handler):
+            setup(handler)
+            handler.connection.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 4096)
+        # Synthetic oversized output forces a blocked send even on loopback.
+        result = {"jsonrpc": "2.0", "id": 2, "result": {"text": "x" * (8 * 1024 * 1024)}}
+        body = json.dumps({"jsonrpc": "2.0", "id": 2, "method": "tools/list"}).encode()
+        with patch("atrinik_workspace.mcp_http.RESPONSE_DEADLINE", 0.1), \
+                patch.object(Handler, "setup", small_buffer), \
+                patch.object(self.http.sessions[session].codec, "handle", return_value=result):
+            with socket.create_connection(self.http.server_address, timeout=2) as connection:
+                connection.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 4096)
+                connection.sendall(("POST /mcp HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer "
+                    + TOKEN.decode() + "\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream"
+                    + "\r\nMCP-Session-Id: " + session + "\r\nContent-Length: " + str(len(body)) + "\r\n\r\n").encode() + body)
+                time.sleep(0.3)
+                self.assert_slots_released()
+
+    def test_body_trickle_does_not_extend_ingress_and_connection_capacity(self):
+        with patch("atrinik_workspace.mcp_http.DEADLINE", 0.2):
+            with socket.create_connection(self.http.server_address, timeout=2) as connection:
+                connection.sendall(("POST /mcp HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer "
+                    + TOKEN.decode() + "\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream"
+                    + "\r\nContent-Length: 100\r\n\r\n{").encode())
+                time.sleep(0.12)
+                connection.sendall(b" ")
+                self.assertEqual(connection.recv(4096), b"")
+        self.assert_slots_released()
+        for _ in range(16):
+            self.http.connections.acquire()
+        try:
+            with socket.create_connection(self.http.server_address, timeout=2) as connection:
+                self.assertEqual(connection.recv(4096), b"")
+        finally:
+            for _ in range(16):
+                self.http.connections.release()
+        self.assert_slots_released()
+
+    def test_stale_expiry_cannot_close_next_phase(self):
+        first, second = socket.socketpair()
+        try:
+            with patch("atrinik_workspace.mcp_http.DEADLINE", 0.3):
+                budget = ConnectionDeadline(first)
+                generation = budget.generation
+                try:
+                    budget.phase(0.5, final=True)
+                    budget.expire(generation)
+                    first.sendall(b"ok")
+                    self.assertEqual(second.recv(2), b"ok")
+                    self.assertFalse(budget.expired)
+                    # A delayed timer callback cannot let an expired phase revive.
+                    budget.until = time.monotonic() - 1
+                    with self.assertRaises(TimeoutError):
+                        budget.phase(0.5)
+                    event = threading.Event()
+                    with self.assertRaises(TimeoutError):
+                        budget.attach(event)
+                    self.assertTrue(event.is_set())
+                finally:
+                    budget.close()
+        finally:
+            first.close()
+            second.close()
+
     def test_tokenfile_rejects_world_access_symlink_and_weak_secret(self):
         path = Path(self.temp.name) / "token"
         path.write_bytes(TOKEN + b"\n")
@@ -214,6 +364,11 @@ class HTTPTests(unittest.TestCase):
         connection.close()
         self.http.allowed_hosts |= {"localhost:" + str(self.http.server_address[1])}
         self.assertEqual(health_check(["--ca-file", str(cert), "--port", str(self.http.server_address[1])]), 0)
+        with patch("atrinik_workspace.mcp_http.DEADLINE", 0.1):
+            with socket.create_connection(self.http.server_address, timeout=2) as stalled:
+                # No ClientHello: TLS must still retain the ingress wall clock limit.
+                self.assertEqual(stalled.recv(4096), b"")
+        self.assert_slots_released()
         key.chmod(0o644)
         with self.assertRaises(ValueError):
             tls_context(cert, key)
