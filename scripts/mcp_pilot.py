@@ -246,10 +246,16 @@ def _clean_head(root: Path, expected: str) -> str:
              "--untracked-files=all", "--ignore-submodules=none"],
             cwd=root, check=True, capture_output=True, timeout=5,
         )
+        index = subprocess.run(
+            ["git", "--no-optional-locks", "ls-files", "-v", "-z", "--", ":/"],
+            cwd=root, check=True, capture_output=True, timeout=5,
+        )
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
         raise PilotError("cannot verify a clean real pilot root") from error
     if status.stdout:
         raise PilotError("real pilot requires a clean root without tracked or untracked changes")
+    if any(record and not record.startswith(b"H ") for record in index.stdout.split(b"\0")):
+        raise PilotError("real pilot source has hidden index flags or an unsupported index entry")
     if _git_head(root) != head:
         raise PilotError("real pilot HEAD changed during source verification")
     return head

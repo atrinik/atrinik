@@ -193,7 +193,7 @@ Prepare a local real configuration conforming to
 server interfaces, exact owned review-worktree selectors, and approved
 read-only account scope. Enabled real runs require the pinned HEAD and a clean
 Git root, checked before and after each adapter execution; tracked and untracked
-changes fail closed, while ignored artifacts are allowed. Configured Python
+changes and hidden index flags fail closed, while ignored artifacts are allowed. Configured Python
 interpreters (`python3` or `python3.11`) are resolved from PATH and must be
 available; the harness does not substitute its own interpreter.
 Keep the configuration in task-owned ignored state. Validate it,

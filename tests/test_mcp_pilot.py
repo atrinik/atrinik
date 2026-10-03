@@ -172,6 +172,32 @@ class McpPilotTests(unittest.TestCase):
                         self.assertEqual(result["source"]["commit"], config["expected_head"])
                     self.assertEqual(run.call_count, 1)
 
+    def test_real_pilot_rejects_hidden_index_changes_before_and_after_adapter(self):
+        for flag in ("--assume-unchanged", "--skip-worktree"):
+            for after in (False, True):
+                with self.subTest(flag=flag, after=after), tempfile.TemporaryDirectory() as temporary:
+                    directory = Path(temporary)
+                    root, config, workloads = self.repository_fixture(directory)
+                    path = self.write_config(directory, config)
+                    def hide_change():
+                        subprocess.run(["git", "-C", str(root), "update-index", flag, "tracked.py"],
+                                       check=True, capture_output=True)
+                        (root / "tracked.py").write_text("value = 2\n")
+                        status = subprocess.run(["git", "-C", str(root), "status", "--porcelain=v1"],
+                                                check=True, capture_output=True)
+                        self.assertEqual(status.stdout, b"")
+                    def adapter(*args, **kwargs):
+                        hide_change()
+                        return {}, {"return_code": 0, "bounded_parse_valid": True}
+                    if not after:
+                        hide_change()
+                    with mock.patch.object(pilot, "ROOT", root), mock.patch.object(pilot, "WORKLOADS", workloads), \
+                            mock.patch.object(pilot, "SCENARIOS", ("enabled",)), \
+                            mock.patch.object(pilot, "_run_adapter", side_effect=adapter) as run:
+                        with self.assertRaisesRegex(pilot.PilotError, "hidden index flags"):
+                            pilot.run_pilot(path, enable_real_pilot=True)
+                        self.assertEqual(run.call_count, 1 if after else 0)
+
     def test_synthetic_run_requires_no_git_and_preserves_selected_interpreter(self):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
