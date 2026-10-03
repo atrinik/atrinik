@@ -15010,10 +15010,12 @@ class Workspace:
         return prepare_route(self, name, output)
 
     def scenario_benchmark(
-        self, name: str, run_name: str, route: Path, timeout: int | None = None
+        self, name: str, run_name: str, route: Path, timeout: int | None = None,
+        *, capture: bool = False, lighting_phase: str | None = None,
     ) -> dict[str, Any]:
         from .scenario_benchmark import run_benchmark
-        return run_benchmark(self, name, run_name, route, timeout)
+        return run_benchmark(self, name, run_name, route, timeout,
+                             capture=capture, lighting_phase=lighting_phase)
 
     def scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()

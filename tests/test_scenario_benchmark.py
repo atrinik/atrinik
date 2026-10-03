@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import binascii
 import hashlib
 import json
 import os
 from pathlib import Path
 import stat
+import struct
 import sys
 import tempfile
 import time
 import unittest
 from unittest import mock
+import zlib
 
 from atrinik_workspace.model import MANAGED_MARKER, WorkspaceError
 from atrinik_workspace import scenario_benchmark as benchmark
@@ -40,6 +43,35 @@ def valid_summary(route: dict, source: dict) -> dict:
         "presented_frames": 3,
         "gpu_backend": "OpenGL",
         "gpu_device": "fixture GPU",
+    }
+
+
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+
+
+def png_chunk(kind: bytes, data: bytes) -> bytes:
+    checksum = binascii.crc32(data, binascii.crc32(kind)) & 0xFFFFFFFF
+    return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", checksum)
+
+
+def png_fixture(width: int = 8, height: int = 6) -> bytes:
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0)
+    scanlines = b"".join(b"\x00" + b"\x00\x00\x00\xff" * width for _ in range(height))
+    return (
+        PNG_SIGNATURE
+        + png_chunk(b"IHDR", ihdr)
+        + png_chunk(b"IDAT", zlib.compress(scanlines))
+        + png_chunk(b"IEND", b"")
+    )
+
+
+def capture_record(path: Path, payload: bytes, width: int = 8, height: int = 6) -> dict:
+    return {
+        "path": str(path),
+        "size_bytes": len(payload),
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "width": width,
+        "height": height,
     }
 
 
@@ -182,6 +214,41 @@ class LaunchArgumentTests(unittest.TestCase):
         self.report.symlink_to(self.route)
         with self.assertRaises(WorkspaceError):
             benchmark.launch_arguments(self.value, self.root, "scenario-brynknot")
+
+    def test_launch_arguments_uses_only_fixed_capture_paths_and_lighting_flag(self) -> None:
+        for phase in ("day", "new-moon", "full-moon"):
+            with self.subTest(phase=phase):
+                value = dict(self.value, capture="true", lighting_phase=phase)
+                self.assertEqual(
+                    benchmark.launch_arguments(value, self.root, "scenario-brynknot"),
+                    [
+                        f"--live-movement-route={self.route}",
+                        f"--live-movement-report={self.report}",
+                        f"--live-movement-initial-capture={self.evidence / 'initial.png'}",
+                        f"--live-movement-final-capture={self.evidence / 'final.png'}",
+                        f"--live-movement-lighting-phase={phase}",
+                    ],
+                )
+
+    def test_launch_arguments_rejects_capture_outputs_that_already_exist(self) -> None:
+        value = dict(self.value, capture="true")
+        for filename in ("initial.png", "final.png"):
+            with self.subTest(filename=filename):
+                path = self.evidence / filename
+                path.symlink_to(self.route)
+                with self.assertRaisesRegex(WorkspaceError, "capture already exists"):
+                    benchmark.launch_arguments(value, self.root, "scenario-brynknot")
+                path.unlink()
+
+    def test_launch_arguments_rejects_phase_without_capture_and_unknown_phase(self) -> None:
+        invalid = (
+            dict(self.value, lighting_phase="day"),
+            dict(self.value, capture="true", lighting_phase="twilight"),
+            dict(self.value, capture="false"),
+        )
+        for value in invalid:
+            with self.subTest(value=value), self.assertRaises(WorkspaceError):
+                benchmark.launch_arguments(value, self.root, "scenario-brynknot")
 
 
 class RouteProvenanceTests(unittest.TestCase):
@@ -369,6 +436,121 @@ class VerifyReportTests(unittest.TestCase):
                 benchmark.verify_report(self.verifier, self.route, self.report, self.expected, self.source)
 
 
+class VerifyCaptureTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory(dir="/tmp")
+        self.evidence = Path(self.temporary.name) / "benchmark"
+        self.evidence.mkdir(mode=0o700)
+        self.payload = png_fixture()
+        self.summary = {"status": "success", "captures": {}}
+        for kind in ("initial", "final"):
+            path = self.evidence / f"{kind}.png"
+            path.write_bytes(self.payload)
+            path.chmod(0o600)
+            self.summary["captures"][kind] = capture_record(path, self.payload)
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def test_verify_captures_accepts_exact_owned_png_pair(self) -> None:
+        benchmark.verify_captures(self.summary, self.evidence, True)
+
+    def test_verify_captures_rejects_missing_or_malformed_pair(self) -> None:
+        invalid = (
+            {"status": "success"},
+            {"status": "success", "captures": None},
+            {"status": "success", "captures": {"initial": self.summary["captures"]["initial"]}},
+            {"status": "success", "captures": dict(self.summary["captures"], extra={})},
+        )
+        for summary in invalid:
+            with self.subTest(summary=summary), self.assertRaisesRegex(
+                WorkspaceError, "both requested benchmark captures"
+            ):
+                benchmark.verify_captures(summary, self.evidence, True)
+
+        malformed = json.loads(json.dumps(self.summary))
+        malformed["captures"]["initial"] = "not a record"
+        with self.assertRaisesRegex(WorkspaceError, "path differs"):
+            benchmark.verify_captures(malformed, self.evidence, True)
+
+    def test_verify_captures_rejects_unrequested_capture_metadata(self) -> None:
+        benchmark.verify_captures({"status": "success"}, self.evidence, False)
+        with self.assertRaisesRegex(WorkspaceError, "unrequested"):
+            benchmark.verify_captures(self.summary, self.evidence, False)
+
+    def test_verify_captures_rejects_path_hash_size_and_dimensions(self) -> None:
+        invalid_records = {
+            "path": {"path": str(self.evidence / "other.png")},
+            "hash": {"sha256": "0" * 64},
+            "size": {"size_bytes": len(self.payload) + 1},
+            "width": {"width": 9},
+            "height": {"height": 7},
+            "boolean dimension": {"width": True},
+        }
+        for label, changes in invalid_records.items():
+            with self.subTest(label=label):
+                summary = json.loads(json.dumps(self.summary))
+                summary["captures"]["initial"].update(changes)
+                with self.assertRaises(WorkspaceError):
+                    benchmark.verify_captures(summary, self.evidence, True)
+
+    def test_verify_captures_rejects_invalid_png_and_symlink(self) -> None:
+        initial = self.evidence / "initial.png"
+        initial.chmod(0o600)
+        initial.write_bytes(b"not a PNG")
+        initial.chmod(0o600)
+        summary = json.loads(json.dumps(self.summary))
+        summary["captures"]["initial"] = capture_record(initial, b"not a PNG")
+        with self.assertRaisesRegex(WorkspaceError, "PNG"):
+            benchmark.verify_captures(summary, self.evidence, True)
+
+        initial.unlink()
+        initial.symlink_to(self.evidence / "final.png")
+        summary["captures"]["initial"] = capture_record(initial, self.payload)
+        with self.assertRaises(WorkspaceError):
+            benchmark.verify_captures(summary, self.evidence, True)
+
+    def test_verify_captures_rejects_structurally_invalid_png(self) -> None:
+        valid = png_fixture()
+        ihdr_end = 8 + 4 + 4 + 13 + 4
+        malformed = {
+            "truncated chunk": valid[:-2],
+            "missing IDAT": valid[:ihdr_end] + png_chunk(b"IEND", b""),
+            "missing IEND": valid[:-12],
+            "trailing data": valid + b"trailing",
+            "excessive chunk length": (
+                valid[:ihdr_end] + struct.pack(">I", 0xFFFFFFFF) + b"IDAT"
+            ),
+        }
+        bad_crc = bytearray(valid)
+        bad_crc[ihdr_end - 1] ^= 0x01
+        malformed["bad CRC"] = bytes(bad_crc)
+
+        initial = self.evidence / "initial.png"
+        for label, payload in malformed.items():
+            with self.subTest(label=label):
+                initial.chmod(0o600)
+                initial.write_bytes(payload)
+                initial.chmod(0o600)
+                summary = json.loads(json.dumps(self.summary))
+                summary["captures"]["initial"] = capture_record(initial, payload)
+                with self.assertRaisesRegex(WorkspaceError, "PNG"):
+                    benchmark.verify_captures(summary, self.evidence, True)
+
+    def test_verify_captures_enforces_private_mode_and_64_mib_bound(self) -> None:
+        initial = self.evidence / "initial.png"
+        initial.chmod(0o622)
+        with self.assertRaisesRegex(WorkspaceError, "owner, type, mode, or size"):
+            benchmark.verify_captures(self.summary, self.evidence, True)
+
+        initial.chmod(0o600)
+        with initial.open("wb") as stream:
+            stream.truncate(benchmark.MAX_CAPTURE_BYTES + 1)
+        initial.chmod(0o600)
+        with self.assertRaisesRegex(WorkspaceError, "owner, type, mode, or size"):
+            benchmark.verify_captures(self.summary, self.evidence, True)
+
+
 class FakePaths:
     def __init__(self, workspace: Path) -> None:
         self.workspace = workspace
@@ -383,13 +565,21 @@ class FakeWorkspace:
     def _guard_recovered_resource(self, kind, root, name):
         pass
 
-    def __init__(self, root: Path, *, create_report: bool = True, dirty: bool = False) -> None:
+    def __init__(
+        self,
+        root: Path,
+        *,
+        create_report: bool = True,
+        create_captures: bool = True,
+        dirty: bool = False,
+    ) -> None:
         self.paths = FakePaths(root / "workspace")
         self.paths.ensure()
         self.client = root / "client"
         (self.client / "tools").mkdir(parents=True)
         write_private(self.client / "tools" / "verify_live_movement.py", b"print('{}')\n")
         self.create_report = create_report
+        self.create_captures = create_captures
         self.dirty = dirty
         self.statuses: list[dict] = []
         self.launch = None
@@ -426,6 +616,11 @@ class FakeWorkspace:
             report = Path(self.launch["report"])
             report.write_text('{"terminal":true}\n', encoding="utf-8")
             report.chmod(0o600)
+        if self.create_captures and self.launch.get("capture") == "true":
+            for kind in ("initial", "final"):
+                path = Path(self.launch["report"]).with_name(f"{kind}.png")
+                path.write_bytes(png_fixture())
+                path.chmod(0o600)
         source = {"source": "client", "path": str(self.client), "head": "1" * 40, "dirty": self.dirty}
         return {"control": {"generation": "generation-1"}, "resolved": {"client": source}}
 
@@ -459,11 +654,34 @@ class RunBenchmarkTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temporary.cleanup()
 
-    def run_success(self, workspace: FakeWorkspace) -> dict:
+    def run_success(
+        self,
+        workspace: FakeWorkspace,
+        *,
+        capture: bool = False,
+        lighting_phase: str | None = None,
+    ) -> dict:
         route = benchmark.parse_route(ROUTE)
         native = valid_summary(route, {"head": "1" * 40})
+        if capture:
+            evidence = workspace.paths.topologies / "bench" / "benchmark"
+            payload = png_fixture()
+            native["captures"] = {
+                kind: capture_record(evidence / f"{kind}.png", payload)
+                for kind in ("initial", "final")
+            }
+        if lighting_phase is not None:
+            native["identity"] = {"lighting_phase": lighting_phase}
         with mock.patch.object(benchmark, "verify_report", return_value=native):
-            return benchmark.run_benchmark(workspace, "brynknot", "bench", self.route, timeout=2)
+            return benchmark.run_benchmark(
+                workspace,
+                "brynknot",
+                "bench",
+                self.route,
+                timeout=2,
+                capture=capture,
+                lighting_phase=lighting_phase,
+            )
 
     def test_run_benchmark_reserves_fresh_private_topology_and_records_evidence(self) -> None:
         workspace = FakeWorkspace(self.root)
@@ -481,6 +699,80 @@ class RunBenchmarkTests(unittest.TestCase):
         durable = (evidence / "summary.json").read_text(encoding="utf-8")
         self.assertNotIn("fixture-password-must-not-be-durable", durable)
         self.assertNotIn("password", result)
+
+    def test_run_benchmark_capture_uses_fixed_outputs_and_selected_lighting(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        result = self.run_success(workspace, capture=True, lighting_phase="full-moon")
+        evidence = workspace.paths.topologies / "bench" / "benchmark"
+        self.assertEqual(result["status"], "success")
+        self.assertTrue(result["capture_requested"])
+        self.assertEqual(result["lighting_phase"], "full-moon")
+        self.assertEqual(workspace.launch["capture"], "true")
+        self.assertEqual(workspace.launch["lighting_phase"], "full-moon")
+        self.assertEqual(set(result["native"]["captures"]), {"initial", "final"})
+        for kind in ("initial", "final"):
+            path = evidence / f"{kind}.png"
+            self.assertEqual(result["native"]["captures"][kind]["path"], str(path))
+            self.assertEqual(path.read_bytes(), png_fixture())
+        self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
+
+    def test_run_benchmark_rejects_lighting_without_capture_or_unknown_phase(self) -> None:
+        invalid = ((False, "day"), (True, "twilight"))
+        for capture, phase in invalid:
+            with self.subTest(capture=capture, phase=phase), tempfile.TemporaryDirectory(
+                dir="/tmp"
+            ) as directory:
+                workspace = FakeWorkspace(Path(directory))
+                with self.assertRaisesRegex(WorkspaceError, "lighting phase requires capture"):
+                    benchmark.run_benchmark(
+                        workspace,
+                        "brynknot",
+                        "bench",
+                        self.route,
+                        timeout=2,
+                        capture=capture,
+                        lighting_phase=phase,
+                    )
+                self.assertFalse((workspace.paths.topologies / "bench").exists())
+                self.assertEqual(workspace.down_calls, [])
+
+    def test_run_benchmark_requested_capture_missing_fails_and_cleans_up(self) -> None:
+        workspace = FakeWorkspace(self.root, create_captures=False)
+        with self.assertRaisesRegex(WorkspaceError, "cannot read bounded benchmark input"):
+            self.run_success(workspace, capture=True, lighting_phase="day")
+        self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
+        summary = json.loads(
+            (workspace.paths.topologies / "bench" / "benchmark" / "summary.json").read_text()
+        )
+        self.assertEqual(summary["status"], "failure")
+
+    def test_run_benchmark_rejects_missing_or_wrong_native_lighting_identity(self) -> None:
+        identities = (("missing", None), ("wrong", {"lighting_phase": "day"}))
+        for label, identity in identities:
+            with self.subTest(label=label), tempfile.TemporaryDirectory(dir="/tmp") as directory:
+                workspace = FakeWorkspace(Path(directory))
+                route = benchmark.parse_route(ROUTE)
+                native = valid_summary(route, {"head": "1" * 40})
+                evidence = workspace.paths.topologies / "bench" / "benchmark"
+                payload = png_fixture()
+                native["captures"] = {
+                    kind: capture_record(evidence / f"{kind}.png", payload)
+                    for kind in ("initial", "final")
+                }
+                if identity is not None:
+                    native["identity"] = identity
+                with mock.patch.object(benchmark, "verify_report", return_value=native):
+                    with self.assertRaisesRegex(WorkspaceError, "native lighting phase differs"):
+                        benchmark.run_benchmark(
+                            workspace,
+                            "brynknot",
+                            "bench",
+                            self.route,
+                            timeout=2,
+                            capture=True,
+                            lighting_phase="full-moon",
+                        )
+                self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
 
     def test_recovery_reservation_denial_creates_no_topology(self) -> None:
         workspace = FakeWorkspace(self.root)

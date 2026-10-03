@@ -654,6 +654,16 @@ def parser() -> argparse.ArgumentParser:
         "path",
     )
     mark(scenario_benchmark.add_argument("--timeout", type=int), "none")
+    scenario_benchmark.add_argument(
+        "--capture",
+        action="store_true",
+        help="capture fixed initial and final benchmark PNG evidence",
+    )
+    scenario_benchmark.add_argument(
+        "--lighting-phase",
+        choices=["day", "new-moon", "full-moon"],
+        help="set a fixed server lighting phase before captured movement",
+    )
     scenario_benchmark.add_argument("--json", action="store_true")
 
     supply_chain = commands.add_parser(
@@ -814,6 +824,13 @@ def main(arguments: list[str] | None = None) -> int:
     if raw_arguments and raw_arguments[0] == protocol_command():
         return protocol(root_parser, ROOT, raw_arguments[1:])
     options = root_parser.parse_args(raw_arguments)
+    if (
+        options.command == "scenario"
+        and options.scenario_command == "benchmark"
+        and options.lighting_phase is not None
+        and not options.capture
+    ):
+        root_parser.error("--lighting-phase requires --capture")
     workspace: Any = None
     command_maintenance: Any = None
     try:
@@ -1702,11 +1719,17 @@ def main(arguments: list[str] | None = None) -> int:
                 else:
                     print(f"scenario route {options.name}: {options.output}")
             else:
+                benchmark_options = {}
+                if options.capture:
+                    benchmark_options["capture"] = True
+                if options.lighting_phase is not None:
+                    benchmark_options["lighting_phase"] = options.lighting_phase
                 summary = workspace.scenario_benchmark(
                     options.name,
                     options.run_name,
                     options.route,
                     options.timeout,
+                    **benchmark_options,
                 )
                 if options.json:
                     print(json.dumps(summary, indent=2, sort_keys=True))

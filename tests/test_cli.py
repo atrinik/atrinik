@@ -2030,6 +2030,69 @@ class ParserTests(unittest.TestCase):
                     ]
                 )
 
+    def test_scenario_benchmark_capture_dispatches_requested_options(self) -> None:
+        summary = {
+            "name": "brynknot-run",
+            "status": "success",
+            "evidence": "/workspace/topologies/brynknot-run/benchmark",
+        }
+        cases = (
+            (["--capture"], {"capture": True}),
+            (
+                ["--capture", "--lighting-phase", "full-moon"],
+                {"capture": True, "lighting_phase": "full-moon"},
+            ),
+        )
+        for extra, expected in cases:
+            with self.subTest(extra=extra), mock.patch(
+                "atrinik_workspace.cli.Workspace"
+            ) as workspace_type, mock.patch("builtins.print"):
+                workspace_type.return_value.scenario_benchmark.return_value = summary
+                result = main(
+                    [
+                        "scenario", "benchmark", "brynknot-review",
+                        "--name", "brynknot-run",
+                        "--route", "/tmp/brynknot.xml",
+                        *extra,
+                    ]
+                )
+
+            self.assertEqual(result, 0)
+            workspace_type.return_value.scenario_benchmark.assert_called_once_with(
+                "brynknot-review",
+                "brynknot-run",
+                Path("/tmp/brynknot.xml"),
+                None,
+                **expected,
+            )
+
+    def test_scenario_benchmark_lighting_requires_capture_before_workspace(self) -> None:
+        with mock.patch(
+            "atrinik_workspace.cli.Workspace"
+        ) as workspace_type, mock.patch("sys.stderr", new_callable=io.StringIO):
+            with self.assertRaises(SystemExit) as raised:
+                main(
+                    [
+                        "scenario", "benchmark", "brynknot-review",
+                        "--name", "brynknot-run",
+                        "--route", "/tmp/brynknot.xml",
+                        "--lighting-phase", "day",
+                    ]
+                )
+
+        self.assertEqual(raised.exception.code, 2)
+        workspace_type.assert_not_called()
+        with mock.patch("sys.stderr", new_callable=io.StringIO):
+            with self.assertRaises(SystemExit):
+                parser().parse_args(
+                    [
+                        "scenario", "benchmark", "brynknot-review",
+                        "--name", "brynknot-run",
+                        "--route", "/tmp/brynknot.xml",
+                        "--capture", "--lighting-phase", "dawn",
+                    ]
+                )
+
     def test_scenario_list_human_output_identifies_inert_records(self) -> None:
         summaries = [
             {

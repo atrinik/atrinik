@@ -1793,6 +1793,10 @@ it through a fresh supervised server/client topology with an absolute route path
 ./atrinik scenario route brynknot-review --output /tmp/brynknot-route.xml
 ./atrinik scenario benchmark brynknot-review --name brynknot-run \
   --route /tmp/brynknot-route.xml --json
+./atrinik scenario benchmark brynknot-review --name brynknot-capture \
+  --route /tmp/brynknot-route.xml --capture --json
+./atrinik scenario benchmark brynknot-review --name brynknot-full-moon \
+  --route /tmp/brynknot-route.xml --capture --lighting-phase full-moon --json
 ~~~
 
 `scenario route` is an offline, absent-only export. It uses the fixed
@@ -1809,6 +1813,22 @@ never reset. Success requires every real movement checkpoint to publish the
 expected map position and every checkpoint to have presented-frame coverage.
 The report records per-frame CPU time and GPU host submission/presentation
 timings; those GPU values are host timings, not hardware GPU execution duration.
+The baseline command remains unchanged when capture flags are absent.
+
+`--capture` requests both fixed private evidence files,
+`benchmark/initial.png` and `benchmark/final.png`. Each must be an exclusive,
+hash-validated PNG of at most 64 MiB; a run requesting capture fails unless both
+are present. Capture happens outside the measured walking interval while
+remaining inside the global and step deadlines. Its manifest records
+`started_utc_us` and the complete pinned native source/content identity.
+
+`--lighting-phase` accepts only `day`, `new-moon`, or `full-moon` and
+requires `--capture`. Before the first checkpoint, the client sends the one
+fixed normal server command and waits for a fresh MAP update, primary
+presentation, and clock observation. The runtime operator must first verify the
+isolated default operator privilege used for this lighting run. A rejected
+command fails within the existing bounds. The wrapper does not grant operator
+privilege or edit accounts, player saves, or scenario state.
 
 Failures return nonzero and retain bounded evidence for diagnosis. Route input
 is limited to 8 MiB and 50,000 checkpoints, runtime is limited to one hour, and

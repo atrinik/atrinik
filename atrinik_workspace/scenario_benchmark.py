@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import binascii
 import json
 import math
 import os
@@ -12,6 +13,7 @@ import secrets
 import selectors
 import signal
 import stat
+import struct
 import subprocess
 import sys
 import time
@@ -21,6 +23,8 @@ from .model import MANAGED_MARKER, SCHEMA_VERSION, WorkspaceError, atomic_json, 
 
 MAX_ROUTE_BYTES = 8 * 1024 * 1024
 MAX_REPORT_BYTES = 128 * 1024 * 1024
+MAX_CAPTURE_BYTES = 64 * 1024 * 1024
+LIGHTING_PHASES = {"day", "new-moon", "full-moon"}
 MAX_VERIFIER_BYTES = 512 * 1024
 MAX_SUMMARY_BYTES = 1024 * 1024
 LAUNCH_KEYS = {"scenario", "nonce", "route_sha256", "route", "report"}
@@ -119,10 +123,15 @@ def _write_new(path: Path, data: bytes) -> None:
 
 
 def launch_arguments(value: dict, root: Path, state_name: str | None) -> list[str]:
-    if not isinstance(value, dict) or set(value) != LAUNCH_KEYS:
+    if not isinstance(value, dict) or set(value) not in (
+            LAUNCH_KEYS, LAUNCH_KEYS | {"capture"}, LAUNCH_KEYS | {"capture", "lighting_phase"}):
         raise WorkspaceError("invalid scenario benchmark launch fields")
     if any(not isinstance(item, str) for item in value.values()):
         raise WorkspaceError("invalid scenario benchmark launch values")
+    if "capture" in value and value["capture"] != "true":
+        raise WorkspaceError("invalid benchmark capture request")
+    if "lighting_phase" in value and value["lighting_phase"] not in LIGHTING_PHASES:
+        raise WorkspaceError("invalid benchmark lighting phase")
     validate_name(value["scenario"], "scenario name")
     if state_name != "scenario-" + value["scenario"] or re.fullmatch(r"[a-f0-9]{32}", value["nonce"]) is None:
         raise WorkspaceError("benchmark does not match its scenario-owned state")
@@ -140,7 +149,16 @@ def launch_arguments(value: dict, root: Path, state_name: str | None) -> list[st
         raise WorkspaceError("benchmark route digest changed")
     if report.exists() or report.is_symlink():
         raise WorkspaceError("benchmark report already exists")
-    return [f"--live-movement-route={route}", f"--live-movement-report={report}"]
+    arguments = [f"--live-movement-route={route}", f"--live-movement-report={report}"]
+    if "capture" in value:
+        for kind in ("initial", "final"):
+            path = evidence / f"{kind}.png"
+            if path.exists() or path.is_symlink():
+                raise WorkspaceError("benchmark capture already exists")
+            arguments.append(f"--live-movement-{kind}-capture={path}")
+    if "lighting_phase" in value:
+        arguments.append(f"--live-movement-lighting-phase={value['lighting_phase']}")
+    return arguments
 
 
 def _json_object(pairs):
@@ -258,8 +276,95 @@ def validate_source_provenance(root: Path, sources: dict) -> None:
             raise WorkspaceError("route producer differs from the selected source generation")
 
 
-def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout: int | None = None) -> dict:
+def png_dimensions(payload: bytes) -> tuple[int, int]:
+    """Validate the complete bounded PNG chunk stream without decoding pixels."""
+    if len(payload) > MAX_CAPTURE_BYTES or payload[:8] != b"\x89PNG\r\n\x1a\n":
+        raise WorkspaceError("benchmark capture is not a bounded PNG")
+    offset = 8
+    dimensions = None
+    color_type = None
+    palette = False
+    image_bytes = 0
+    image_started = False
+    image_closed = False
+    while offset < len(payload):
+        if len(payload) - offset < 12:
+            raise WorkspaceError("benchmark PNG chunk is truncated")
+        length = struct.unpack_from(">I", payload, offset)[0]
+        kind = payload[offset + 4:offset + 8]
+        end = offset + 12 + length
+        if (end > len(payload) or re.fullmatch(rb"[A-Za-z]{4}", kind) is None
+                or kind[2] & 0x20):
+            raise WorkspaceError("benchmark PNG chunk length or type is invalid")
+        data = memoryview(payload)[offset + 8:offset + 8 + length]
+        expected_crc = struct.unpack_from(">I", payload, offset + 8 + length)[0]
+        actual_crc = binascii.crc32(data, binascii.crc32(kind)) & 0xffffffff
+        if actual_crc != expected_crc:
+            raise WorkspaceError("benchmark PNG chunk CRC differs")
+        if dimensions is None and kind != b"IHDR":
+            raise WorkspaceError("benchmark PNG must start with IHDR")
+        if kind == b"IHDR":
+            if dimensions is not None or length != 13:
+                raise WorkspaceError("benchmark PNG IHDR is invalid")
+            width, height, depth, color_type, compression, filtering, interlace = struct.unpack(">IIBBBBB", data)
+            depths = {0: {1, 2, 4, 8, 16}, 2: {8, 16}, 3: {1, 2, 4, 8}, 4: {8, 16}, 6: {8, 16}}
+            if (not 0 < width <= 0x7fffffff or not 0 < height <= 0x7fffffff
+                    or depth not in depths.get(color_type, set())
+                    or compression != 0 or filtering != 0 or interlace not in {0, 1}):
+                raise WorkspaceError("benchmark PNG image fields are invalid")
+            dimensions = width, height
+        elif kind == b"PLTE":
+            if (palette or image_started or not 3 <= length <= 768 or length % 3
+                    or color_type in {0, 4} or color_type == 3 and length // 3 > 1 << depth):
+                raise WorkspaceError("benchmark PNG palette is invalid")
+            palette = True
+        elif kind == b"IDAT":
+            if image_closed or color_type == 3 and not palette:
+                raise WorkspaceError("benchmark PNG image data ordering is invalid")
+            image_started = True
+            image_bytes += length
+        elif kind == b"IEND":
+            if length or not image_bytes or end != len(payload):
+                raise WorkspaceError("benchmark PNG final image boundary is invalid")
+            return dimensions
+        elif not kind[0] & 0x20:
+            raise WorkspaceError("benchmark PNG contains an unsupported critical chunk")
+        if image_started and kind != b"IDAT":
+            image_closed = True
+        offset = end
+    raise WorkspaceError("benchmark PNG is incomplete")
+
+
+def verify_captures(summary: dict, evidence: Path, requested: bool) -> None:
+    captures = summary.get("captures")
+    if not requested:
+        if "captures" in summary:
+            raise WorkspaceError("unrequested benchmark captures were reported")
+        return
+    if not isinstance(captures, dict) or set(captures) != {"initial", "final"}:
+        raise WorkspaceError("both requested benchmark captures are required")
+    for kind, record in captures.items():
+        path = evidence / f"{kind}.png"
+        if not isinstance(record, dict) or record.get("path") != str(path):
+            raise WorkspaceError("benchmark capture path differs from its owned output")
+        payload = read_regular(path, MAX_CAPTURE_BYTES)
+        dimensions = png_dimensions(payload)
+        if (type(record.get("size_bytes")) is not int or record["size_bytes"] != len(payload)
+                or record.get("sha256") != hashlib.sha256(payload).hexdigest()
+                or any(type(record.get(field)) is not int or record[field] <= 0
+                       for field in ("width", "height"))
+                or dimensions != (record["width"], record["height"])):
+            raise WorkspaceError("benchmark capture bytes differ from the verified PNG identity")
+
+
+def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout: int | None = None,
+                  *, capture: bool = False, lighting_phase: str | None = None) -> dict:
     validate_name(name, "benchmark topology name")
+    if type(capture) is not bool:
+        raise WorkspaceError("benchmark capture must be a boolean request")
+    if lighting_phase is not None and (not isinstance(lighting_phase, str)
+            or lighting_phase not in LIGHTING_PHASES or not capture):
+        raise WorkspaceError("benchmark lighting phase requires capture and a supported phase")
     if not route.is_absolute():
         raise WorkspaceError("benchmark route must be an absolute path")
     data = read_regular(route, MAX_ROUTE_BYTES)
@@ -289,11 +394,18 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
     _write_new(staged_route, data)
     launch = {"scenario": scenario_name, "nonce": secrets.token_hex(16),
               "route_sha256": route_record["sha256"], "route": str(staged_route), "report": str(report)}
+    if capture:
+        launch["capture"] = "true"
+    if lighting_phase is not None:
+        launch["lighting_phase"] = lighting_phase
     manifest = {"schema_version": 1, "name": name, "status": "running", "scenario": scenario_name,
                 "profile": scenario["profile"], "preset": scenario["preset"], "state": scenario["state"],
                 "route_sha256": route_record["sha256"], "expected_checkpoints": len(route_record["checkpoints"]),
                 "timeout_seconds": timeout, "host": {"system": platform.system(), "machine": platform.machine()},
                 "evidence": str(evidence), "route_origin": provenance, "launch_nonce": launch["nonce"]}
+    manifest["capture_requested"] = capture
+    if lighting_phase is not None:
+        manifest["lighting_phase"] = lighting_phase
     manifest["scenario_identity"] = {
         key: scenario[key] for key in ("schema_version", "stack", "providers", "resolved", "provisioned_at")
         if key in scenario
@@ -349,6 +461,11 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
         if read_regular(staged_verifier, MAX_VERIFIER_BYTES) != verifier_bytes:
             raise WorkspaceError("staged benchmark verifier changed")
         manifest["native"] = verify_report(staged_verifier, staged_route, report, route_record, client)
+        if lighting_phase is not None:
+            native_identity = manifest["native"].get("identity")
+            if not isinstance(native_identity, dict) or native_identity.get("lighting_phase") != lighting_phase:
+                raise WorkspaceError("benchmark native lighting phase differs from its request")
+        verify_captures(manifest["native"], evidence, capture)
         manifest["status"] = "success"
     except (WorkspaceError, OSError, KeyError, StopIteration, ValueError, subprocess.SubprocessError, KeyboardInterrupt) as error:
         failure = str(error) or type(error).__name__

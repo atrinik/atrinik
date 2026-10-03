@@ -57,6 +57,8 @@ with a fresh topology name:
 ```sh
 ./atrinik scenario route NAME --output /absolute/brynknot.xml
 ./atrinik scenario benchmark NAME --name RUN --route /absolute/brynknot.xml --json
+./atrinik scenario benchmark NAME --name CAPTURE --route /absolute/brynknot.xml --capture --json
+./atrinik scenario benchmark NAME --name LIGHTING --route /absolute/brynknot.xml --capture --lighting-phase full-moon --json
 ```
 
 Route export is offline, uses only the fixed `brynknot-v1` producer, records
@@ -68,3 +70,14 @@ presented coverage, and generation-fences shutdown without resetting the
 scenario. CPU and GPU fields are per-frame host timings; GPU fields do not claim
 hardware GPU duration. Failure is nonzero. Bounds are 8 MiB/50,000 checkpoints
 for the route, one hour runtime, and 128 MiB for the report.
+
+Capture is optional and uses only private `benchmark/initial.png` and
+`benchmark/final.png`; both exclusive, hash-validated PNGs are mandatory when
+requested and limited to 64 MiB each. Capture remains outside walking
+measurement but inside global/step deadlines, and its pinned manifest includes
+`started_utc_us` plus complete native source/content identity. Lighting phases
+are exactly `day`, `new-moon`, and `full-moon` and require capture. Before
+movement the native client issues the one fixed normal server command and waits
+for fresh MAP, primary presentation, and clock evidence. Verify isolated default
+operator privilege before a lighting run; command rejection fails boundedly.
+The wrapper never grants operator privilege or edits accounts, saves, or state.

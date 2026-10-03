@@ -400,6 +400,13 @@ class CompletionTests(unittest.TestCase):
                              ("candidates", ["brynknot"]))
             self.assertEqual(self.candidates("scenario", "benchmark", "bry"),
                              ("candidates", ["brynknot"]))
+            self.assertEqual(
+                self.candidates(
+                    "scenario", "benchmark", "brynknot", "--capture",
+                    "--lighting-phase", "",
+                ),
+                ("candidates", ["day", "full-moon", "new-moon"]),
+            )
         self.assertNotIn(root / "password", [call.args[0] for call in load.call_args_list])
 
     def test_state_scenario_and_topology_records_refresh_without_secrets(self) -> None:
