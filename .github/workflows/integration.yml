@@ -82,8 +82,71 @@ jobs:
           python .\atrinik --help | Out-Null
           python .\atrinik manifest validate
       - name: Initialize the complete Classic cohort
-        shell: pwsh
-        run: python .\atrinik init --with classic --jobs 4
+        shell: python
+        env:
+          ATRINIK_CI_READ_TOKEN: ${{ github.token }}
+        run: |
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tempfile
+          import textwrap
+
+          # Public Git LFS may challenge for credentials during batch downloads.
+          # Keep the read-only job token out of Git config, command lines and disk.
+          helper_source = textwrap.dedent('''\
+              import os
+              import sys
+
+              if sys.argv[1:] != ["get"]:
+                  raise SystemExit(0)
+              fields = {}
+              for line in sys.stdin:
+                  line = line.rstrip("\\n")
+                  if not line:
+                      break
+                  key, separator, value = line.partition("=")
+                  if not separator:
+                      raise SystemExit(0)
+                  # Git LFS sends repeated credential-protocol array metadata.
+                  if key in ("capability[]", "wwwauth[]", "state[]"):
+                      continue
+                  if key in fields:
+                      raise SystemExit(0)
+                  fields[key] = value
+              paths = {"atrinik/content.git", "atrinik/sound.git"}
+              paths |= {path + "/info/lfs" for path in paths}
+              if (fields.get("protocol") != "https"
+                      or fields.get("host") != "github.com"
+                      or fields.get("path") not in paths
+                      or fields.get("username", "x-access-token") != "x-access-token"):
+                  raise SystemExit(0)
+              token = os.environ.get("ATRINIK_CI_READ_TOKEN", "")
+              if token and not any(char in token for char in "\\r\\n"):
+                  sys.stdout.write("username=x-access-token\\npassword=" + token + "\\n\\n")
+              ''')
+          with tempfile.TemporaryDirectory(prefix="atrinik-ci-git-") as temporary:
+              helper = Path(temporary) / "credential.py"
+              helper.write_text(helper_source, encoding="utf-8")
+              environment = dict(os.environ)
+              environment.update({
+                  "ATRINIK_CI_GIT_HELPER": helper.as_posix(),
+                  "ATRINIK_CI_PYTHON": Path(sys.executable).as_posix(),
+                  "GIT_TERMINAL_PROMPT": "0",
+                  "GIT_CONFIG_COUNT": "3",
+                  "GIT_CONFIG_KEY_0": "credential.helper",
+                  "GIT_CONFIG_VALUE_0": "",
+                  "GIT_CONFIG_KEY_1": "credential.useHttpPath",
+                  "GIT_CONFIG_VALUE_1": "true",
+                  "GIT_CONFIG_KEY_2": "credential.helper",
+                  "GIT_CONFIG_VALUE_2": '!"$ATRINIK_CI_PYTHON" "$ATRINIK_CI_GIT_HELPER"',
+              })
+              result = subprocess.run(
+                  [sys.executable, "atrinik", "init", "--with", "classic", "--jobs", "4"],
+                  env=environment,
+              )
+          raise SystemExit(result.returncode)
       - name: Validate native Windows status, profile, and worktree paths
         shell: pwsh
         run: |
