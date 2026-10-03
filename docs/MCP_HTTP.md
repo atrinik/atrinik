@@ -18,16 +18,15 @@ allow outbound ACME connectivity for certificate issuance.
 After a release has verified anonymous pull and its image digest, replace the
 review values below with the public hostname and immutable released image:
 
+From the wrapper checkout, start with two commands:
+
 ```sh
-cd deploy/mcp
-cp example.env .env
-export MCP_DOMAIN=mcp.example.invalid
-export MCP_IMAGE=ghcr.io/atrinik/atrinik-mcp@sha256:REVIEW-DIGEST
-docker compose up -d
+export MCP_DOMAIN=mcp.example.invalid MCP_IMAGE=ghcr.io/atrinik/atrinik-mcp@sha256:REVIEW-DIGEST
+docker compose -f deploy/mcp/compose.yaml up -d
 ```
 
 `mcp.example.invalid` and `REVIEW-DIGEST` are review placeholders, not an image
-availability claim. Set the same values in `.env` if the deployment will be
+availability claim. Set the same values in `deploy/mcp/.env` if the deployment will be
 managed by later Compose invocations without exported variables. The image
 contains the immutable public source view and needs no host source mount,
 runtime clone or update. Do not add player state, private repositories, personal
@@ -37,7 +36,7 @@ The initialization service creates the bearer token in its private Docker
 volume. Retrieve it deliberately from a trusted terminal:
 
 ```sh
-docker compose exec -T mcp cat /var/lib/atrinik-auth/token
+docker compose -f deploy/mcp/compose.yaml exec -T mcp cat /var/lib/atrinik-auth/token
 ```
 
 This command intentionally prints the token. Do not redirect it, pipe it through
