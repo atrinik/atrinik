@@ -35,6 +35,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       revision: ${{ steps.source.outputs.revision }}
+      target_branch: ${{ steps.source.outputs.target_branch }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -56,6 +57,7 @@ jobs:
           case "$EVENT_NAME" in
             pull_request)
               revision=$PR_REVISION
+              target_branch=
               ;;
             push)
               if [[ ! $EVENT_REF =~ ^refs/heads/(main|[0-9]+\.[0-9]+\.x)$ ]]; then
@@ -63,6 +65,7 @@ jobs:
                 exit 1
               fi
               revision=$EVENT_REVISION
+              target_branch=${EVENT_REF#refs/heads/}
               ;;
             workflow_dispatch)
               if [[ ! $REQUESTED_REVISION =~ ^[0-9a-f]{40}$ ]]; then
@@ -80,6 +83,7 @@ jobs:
                 exit 1
               fi
               revision=$REQUESTED_REVISION
+              target_branch=$TARGET_BRANCH
               ;;
             *)
               echo "Unsupported event: $EVENT_NAME" >&2
@@ -91,6 +95,7 @@ jobs:
             exit 1
           fi
           echo "revision=$revision" >> "$GITHUB_OUTPUT"
+          echo "target_branch=$target_branch" >> "$GITHUB_OUTPUT"
 
   validate:
     name: MCP image validation
@@ -102,6 +107,12 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ needs.select-source.outputs.revision }}
+      - name: Verify the exact clean build context
+        env:
+          SOURCE_REVISION: ${{ needs.select-source.outputs.revision }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_REVISION"
+          test -z "$(git status --porcelain --untracked-files=all)"
       - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
       - name: Build the review image without publishing
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
@@ -123,29 +134,27 @@ jobs:
     needs: [select-source, validate]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    concurrency:
+      group: mcp-image-publish-${{ needs.select-source.outputs.revision }}
+      cancel-in-progress: false
     permissions:
       contents: read
       packages: write
     outputs:
-      digest: ${{ steps.publish.outputs.digest }}
+      digest: ${{ steps.push.outputs.digest }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           ref: ${{ needs.select-source.outputs.revision }}
-      - name: Verify the authorized checkout
+      - name: Verify the exact clean build context
         env:
           SOURCE_REVISION: ${{ needs.select-source.outputs.revision }}
-        run: test "$(git rev-parse HEAD)" = "$SOURCE_REVISION"
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_REVISION"
+          test -z "$(git status --porcelain --untracked-files=all)"
       - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
-      - name: Authenticate to GitHub Container Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - id: publish
-        name: Publish the immutable revision tag
+      - name: Build the candidate publication image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
@@ -154,13 +163,59 @@ jobs:
           labels: |
             org.opencontainers.image.revision=${{ needs.select-source.outputs.revision }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
-          provenance: mode=max
-          sbom: true
-          push: true
-          tags: ghcr.io/atrinik/atrinik-mcp:sha-${{ needs.select-source.outputs.revision }}
+          load: true
+          push: false
+          tags: atrinik-mcp:publish-${{ needs.select-source.outputs.revision }}
+      - name: Verify the candidate OCI identity
+        env:
+          LOCAL_IMAGE: atrinik-mcp:publish-${{ needs.select-source.outputs.revision }}
+          SOURCE_REVISION: ${{ needs.select-source.outputs.revision }}
+        run: |
+          revision=$(docker image inspect "$LOCAL_IMAGE" --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')
+          source=$(docker image inspect "$LOCAL_IMAGE" --format '{{ index .Config.Labels "org.opencontainers.image.source" }}')
+          test "$revision" = "$SOURCE_REVISION"
+          test "$source" = "https://github.com/$GITHUB_REPOSITORY"
+      - name: Smoke-test the exact publication image
+        run: >-
+          python3 deploy/mcp/smoke_stdio.py
+          --image atrinik-mcp:publish-${{ needs.select-source.outputs.revision }}
+      - name: Authenticate to GitHub Container Registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Recheck manual publication freshness
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          SOURCE_REVISION: ${{ needs.select-source.outputs.revision }}
+          TARGET_BRANCH: ${{ needs.select-source.outputs.target_branch }}
+        run: |
+          if [[ ! $TARGET_BRANCH =~ ^(main|[0-9]+\.[0-9]+\.x)$ ]]; then
+            echo "target_branch must be main or a release branch" >&2
+            exit 1
+          fi
+          remote=$(git ls-remote --exit-code origin "refs/heads/$TARGET_BRANCH")
+          remote_revision=${remote%%[[:space:]]*}
+          test "$SOURCE_REVISION" = "$remote_revision"
+      - id: push
+        name: Push the tested image and resolve its digest
+        env:
+          LOCAL_IMAGE: atrinik-mcp:publish-${{ needs.select-source.outputs.revision }}
+          SOURCE_REVISION: ${{ needs.select-source.outputs.revision }}
+        run: |
+          image="ghcr.io/atrinik/atrinik-mcp:sha-$SOURCE_REVISION"
+          docker tag "$LOCAL_IMAGE" "$image"
+          docker push "$image"
+          digest=$(docker buildx imagetools inspect "$image" --format '{{ .Manifest.Digest }}')
+          if [[ ! $digest =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "Registry returned an invalid image digest" >&2
+            exit 1
+          fi
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
       - name: Report the published digest
         env:
-          IMAGE_DIGEST: ${{ steps.publish.outputs.digest }}
+          IMAGE_DIGEST: ${{ steps.push.outputs.digest }}
           SOURCE_REVISION: ${{ needs.select-source.outputs.revision }}
         run: |
           test -n "$IMAGE_DIGEST"

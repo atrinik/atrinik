@@ -26,6 +26,11 @@ class McpImageWorkflowTests(unittest.TestCase):
         self.assertIn('git ls-remote --exit-code origin "refs/heads/$TARGET_BRANCH"', self.workflow)
         self.assertIn('$REQUESTED_REVISION != "$remote_revision"', self.workflow)
         self.assertIn("needs: [select-source, validate]", self.workflow)
+        publish = self.workflow.split("\n  publish:\n", 1)[1]
+        self.assertEqual(
+            publish.count('git ls-remote --exit-code origin "refs/heads/$TARGET_BRANCH"'),
+            1,
+        )
 
     def test_actions_and_publication_identity_are_immutable(self) -> None:
         uses = re.findall(r"uses: ([^\s]+)", self.workflow)
@@ -34,10 +39,15 @@ class McpImageWorkflowTests(unittest.TestCase):
             with self.subTest(action=action):
                 self.assertRegex(action, r"^[^@]+@[0-9a-f]{40}$")
         self.assertIn("SOURCE_REVISION=${{ needs.select-source.outputs.revision }}", self.workflow)
+        self.assertEqual(
+            self.workflow.count('test -z "$(git status --porcelain --untracked-files=all)"'),
+            2,
+        )
         self.assertIn("org.opencontainers.image.revision=", self.workflow)
         self.assertIn("org.opencontainers.image.source=", self.workflow)
         self.assertIn("ghcr.io/atrinik/atrinik-mcp:sha-", self.workflow)
         self.assertNotRegex(self.workflow, r"atrinik-mcp:(?:latest|main)(?:\s|$)")
+        self.assertIn("^sha256:[0-9a-f]{64}$", self.workflow)
 
     def test_pull_requests_build_and_smoke_without_publishing(self) -> None:
         validate = self.workflow.split("\n  validate:\n", 1)[1].split(
@@ -46,6 +56,18 @@ class McpImageWorkflowTests(unittest.TestCase):
         self.assertIn("push: false", validate)
         self.assertIn("deploy/mcp/official.Dockerfile", validate)
         self.assertIn("python3 deploy/mcp/smoke_stdio.py", validate)
+
+    def test_publish_smokes_the_exact_local_image_before_authentication_and_push(self) -> None:
+        publish = self.workflow.split("\n  publish:\n", 1)[1]
+        local = "atrinik-mcp:publish-${{ needs.select-source.outputs.revision }}"
+        build = publish.index(f"tags: {local}")
+        smoke = publish.index(f"--image {local}")
+        login = publish.index("uses: docker/login-action@")
+        push = publish.index('docker push "$image"')
+        self.assertLess(build, smoke)
+        self.assertLess(smoke, login)
+        self.assertLess(login, push)
+        self.assertNotIn("push: true", publish)
 
 
 if __name__ == "__main__":
