@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from pathlib import Path
 import unittest
 
+from atrinik_workspace.jsonc import loads as jsonc_loads
 from scripts.benchmark_devcontainer_session import (
     DEFAULT_LINUX_IMAGE,
     SESSION_WORKLOAD_SCRIPT,
@@ -15,8 +17,15 @@ from scripts.benchmark_devcontainer_session import (
 )
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
 class SessionBenchmarkTests(unittest.TestCase):
-    def test_default_image_is_digest_pinned(self) -> None:
+    def test_default_image_uses_digest_pinned_devcontainer_config(self) -> None:
+        config = jsonc_loads(
+            (ROOT / ".devcontainer/devcontainer.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(DEFAULT_LINUX_IMAGE, config["image"])
         self.assertEqual(_validate_image(DEFAULT_LINUX_IMAGE), DEFAULT_LINUX_IMAGE)
 
     def test_workload_output_is_bounded_and_typed(self) -> None:
