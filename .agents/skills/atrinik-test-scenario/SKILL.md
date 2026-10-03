@@ -50,3 +50,21 @@ live scenario state nor its operation lease; distinct scenario states progress
 independently and credentials remain outside every scope record and journal.
 
 For a split native client, keep scenario credentials local and out of durable logs and handoffs. Persistence acceptance requires clean stop/restart of the same registered state and verification of the saved player/change; handcrafted state and account creation alone do not prove gameplay persistence.
+
+For the fixed Brynknot real-movement benchmark, export an absent route and run it
+with a fresh topology name:
+
+```sh
+./atrinik scenario route NAME --output /absolute/brynknot.xml
+./atrinik scenario benchmark NAME --name RUN --route /absolute/brynknot.xml --json
+```
+
+Route export is offline, uses only the fixed `brynknot-v1` producer, records
+clean committed source/content provenance in a companion file, and never changes
+the registered scenario, account, or state. Benchmark execution requires native
+`--live-movement-route`/`--live-movement-report` support, stages evidence below
+the fresh topology's `benchmark/` directory, validates real MAP publication and
+presented coverage, and generation-fences shutdown without resetting the
+scenario. CPU and GPU fields are per-frame host timings; GPU fields do not claim
+hardware GPU duration. Failure is nonzero. Bounds are 8 MiB/50,000 checkpoints
+for the route, one hour runtime, and 128 MiB for the report.

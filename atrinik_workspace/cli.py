@@ -629,6 +629,32 @@ def parser() -> argparse.ArgumentParser:
     scenario_reset = scenario_commands.add_parser("reset")
     mark(scenario_reset.add_argument("name"), "scenario")
     scenario_reset.add_argument("--json", action="store_true")
+    scenario_route = scenario_commands.add_parser(
+        "route", help="write the fixed movement route for a registered scenario"
+    )
+    mark(scenario_route.add_argument("name"), "scenario")
+    mark(
+        scenario_route.add_argument("--output", type=Path, required=True),
+        "path",
+    )
+    scenario_route.add_argument("--json", action="store_true")
+    scenario_benchmark = scenario_commands.add_parser(
+        "benchmark", help="run a bounded native movement benchmark"
+    )
+    mark(scenario_benchmark.add_argument("name"), "scenario")
+    mark(
+        scenario_benchmark.add_argument(
+            "--name", dest="run_name", required=True,
+            help="fresh topology name for this benchmark run",
+        ),
+        "none",
+    )
+    mark(
+        scenario_benchmark.add_argument("--route", type=Path, required=True),
+        "path",
+    )
+    mark(scenario_benchmark.add_argument("--timeout", type=int), "none")
+    scenario_benchmark.add_argument("--json", action="store_true")
 
     supply_chain = commands.add_parser(
         "supply-chain", help="optional dependency and license diagnostics"
@@ -1661,7 +1687,7 @@ def main(arguments: list[str] | None = None) -> int:
                 credentials = workspace.scenario_credentials(options.name)
                 for key in ("account", "character", "password"):
                     print(f"{key}\t{credentials[key]}")
-            else:
+            elif options.scenario_command == "reset":
                 summary = workspace.scenario_reset(options.name)
                 if options.json:
                     print(json.dumps(summary, indent=2, sort_keys=True))
@@ -1669,6 +1695,26 @@ def main(arguments: list[str] | None = None) -> int:
                     print(f"scenario {options.name}: reset")
                     _print_scenario(summary)
                     _print_scenario_handoff(summary)
+            elif options.scenario_command == "route":
+                summary = workspace.scenario_route(options.name, options.output)
+                if options.json:
+                    print(json.dumps(summary, indent=2, sort_keys=True))
+                else:
+                    print(f"scenario route {options.name}: {options.output}")
+            else:
+                summary = workspace.scenario_benchmark(
+                    options.name,
+                    options.run_name,
+                    options.route,
+                    options.timeout,
+                )
+                if options.json:
+                    print(json.dumps(summary, indent=2, sort_keys=True))
+                else:
+                    print(
+                        f"scenario benchmark {options.name}: "
+                        f"{summary['status']} ({summary['evidence']})"
+                    )
         elif options.command == "run":
             forwarded = _forwarded_arguments(options.arguments)
             if options.target == "client":

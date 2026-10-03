@@ -15005,6 +15005,16 @@ class Workspace:
         )
         return launch, password_fd
 
+    def scenario_route(self, name: str, output: Path) -> dict[str, Any]:
+        from .scenario_route import prepare_route
+        return prepare_route(self, name, output)
+
+    def scenario_benchmark(
+        self, name: str, run_name: str, route: Path, timeout: int | None = None
+    ) -> dict[str, Any]:
+        from .scenario_benchmark import run_benchmark
+        return run_benchmark(self, name, run_name, route, timeout)
+
     def scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
         validate_name(name, "scenario name")
@@ -21104,6 +21114,7 @@ class Workspace:
         server_listener: str | None = None,
         retained_build_plan: str | None = None,
         build_services: set[str] | None = None,
+        scenario_benchmark: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
         server_listener = self._normalize_server_listener(server_listener, selected_services)
@@ -21130,6 +21141,9 @@ class Workspace:
         if retained is not None and (selected_services != ["server"] or build_services is not None):
             raise WorkspaceError("retained advancement supports only its exact server producer")
         def fence(profile, selected, states):
+            if scenario_benchmark is not None:
+                if not states or any(row.get("dirty") is not False for row in states.values()):
+                    raise WorkspaceError("benchmark requires clean committed sources")
             fresh = self._retained_runtime_plan(name, profile_name, normalized_state, retained_build_plan)
             if fresh != retained:
                 raise WorkspaceError("retained producer declaration changed before mutation")
@@ -21176,6 +21190,7 @@ class Workspace:
                     build_services=build_services,
                     server_listener=server_listener,
                     retained_build_plan=retained_build_plan,
+                    **({"scenario_benchmark": scenario_benchmark} if scenario_benchmark is not None else {}),
                 )
 
     def _topology_resolved_status(
@@ -21214,6 +21229,7 @@ class Workspace:
         server_listener: str | None = None,
         retained_build_plan: str | None = None,
         build_services: set[str] | None = None,
+        scenario_benchmark: dict[str, str] | None = None,
         restart_status: dict[str, Any] | None = None,
         operation_lock_held: bool = False,
     ) -> dict[str, Any]:
@@ -21234,6 +21250,12 @@ class Workspace:
         )
         retained = self._retained_runtime_plan(name, profile_name, state_name, retained_build_plan)
         topology_root = self._topology_directory(name, create=True)
+        benchmark_arguments = []
+        if scenario_benchmark is not None:
+            from .scenario_benchmark import launch_arguments
+            if set(selected_services) != {"client", "server"} or restart_status is not None:
+                raise WorkspaceError("benchmark requires a fresh scenario server/client pair")
+            benchmark_arguments = launch_arguments(scenario_benchmark, topology_root, state_name)
         operation_lock = topology_root / "operation.lock"
         operation_context = (
             nullcontext()
@@ -21484,6 +21506,13 @@ class Workspace:
                 resolved_status = self._topology_resolved_status(
                     profile_name, selected
                 )
+                if scenario_benchmark is not None:
+                    if not resolved_status or any(row.get("dirty") is not False for row in resolved_status.values()):
+                        raise WorkspaceError("benchmark requires clean committed sources")
+                    if status_path.exists() or status_path.is_symlink():
+                        raise WorkspaceError("benchmark cannot reuse a prior topology generation")
+                    from .scenario_benchmark import validate_source_provenance
+                    validate_source_provenance(topology_root, resolved_status)
                 implementation = (
                     self._state_implementation(
                         selected_stack.name, providers, resolved_status
@@ -21807,7 +21836,7 @@ class Workspace:
                     else:
                         client_config.mkdir()
                     service_specs["client"] = {
-                        "command": [str(executable)],
+                        "command": [str(executable), *benchmark_arguments],
                         "cwd": str(client_runtime),
                         "log": str(topology_root / "client.log"),
                         "environment": {
@@ -22055,13 +22084,20 @@ class Workspace:
                 )
 
     def topology_down(
-        self, name: str, timeout: float = 15, *, retain_state: bool = False
+        self, name: str, timeout: float = 15, *, retain_state: bool = False,
+        expected_generation: str | None = None,
     ) -> dict[str, Any]:
         root = self._topology_directory(name)
         with exclusive_lock(
             root / "operation.lock", f"topology {name} operation", nonblocking=True
         ):
             status = self.topology_status(name)
+            if expected_generation is not None and (
+                not isinstance(expected_generation, str)
+                or not expected_generation
+                or status.get("control", {}).get("generation") != expected_generation
+            ):
+                raise WorkspaceError("topology generation changed before benchmark shutdown")
             policy = status.get("state_policy")
             if retain_state and (
                 not isinstance(policy, dict) or policy.get("mode") != "temporary"
@@ -23786,6 +23822,15 @@ class Workspace:
         if custom.is_file():
             (runtime / "server-custom.cfg").symlink_to(custom)
 
+    @staticmethod
+    def _server_runtime_coordinate(
+        root: Path, state: Path, state_name: str
+    ) -> tuple[Path, str]:
+        validate_name(state_name, "state name")
+        state_key = profile_key({"state": state})
+        return (root / "run" / "server" / f"{state_name}-{state_key}",
+                f"server-runtime:{state_key}")
+
     def _prepare_server_runtime(
         self,
         root: Path,
@@ -23796,9 +23841,8 @@ class Workspace:
         resources: Path | None = None,
         client_maps: Path | None = None,
     ) -> Path:
-        state_key = profile_key({"state": state})
-        runtime = root / "run" / "server" / f"{state_name}-{state_key}"
-        managed_reset(runtime, self.paths.builds, f"server-runtime:{state_key}")
+        runtime, purpose = self._server_runtime_coordinate(root, state, state_name)
+        managed_reset(runtime, self.paths.builds, purpose)
         content = content or root / "runtime" / "content"
         resources = resources or root / "runtime" / "resources"
         client_maps = client_maps or root / "runtime" / "client-maps"

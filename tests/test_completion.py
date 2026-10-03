@@ -396,6 +396,10 @@ class CompletionTests(unittest.TestCase):
         with mock.patch("atrinik_workspace.completion._json", wraps=completion._json) as load:
             self.assertEqual(self.candidates("scenario", "show", "bry"),
                              ("candidates", ["brynknot"]))
+            self.assertEqual(self.candidates("scenario", "route", "bry"),
+                             ("candidates", ["brynknot"]))
+            self.assertEqual(self.candidates("scenario", "benchmark", "bry"),
+                             ("candidates", ["brynknot"]))
         self.assertNotIn(root / "password", [call.args[0] for call in load.call_args_list])
 
     def test_state_scenario_and_topology_records_refresh_without_secrets(self) -> None:
@@ -652,6 +656,16 @@ class CompletionTests(unittest.TestCase):
         )
         self.assertEqual(
             self.candidates("supply-chain", "versions", "--output", ""),
+            ("path", [""]),
+        )
+        self.assertEqual(
+            self.candidates("scenario", "route", "review", "--output", ""),
+            ("path", [""]),
+        )
+        self.assertEqual(
+            self.candidates(
+                "scenario", "benchmark", "review", "--route", ""
+            ),
             ("path", [""]),
         )
         words = ["atrinik", "state", "add", "review", "--path=some/file"]

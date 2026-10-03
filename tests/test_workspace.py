@@ -21873,6 +21873,40 @@ class WorkspaceTests(unittest.TestCase):
 
         fallback.assert_called_once_with("empty-lease", status, 0.1)
 
+    def test_benchmark_shutdown_refuses_changed_generation_before_control(self) -> None:
+        self.workspace._topology_directory("benchmark-fence", create=True)
+        with (
+            mock.patch.object(self.workspace, "topology_status", return_value={
+                "control": {"generation": "new-generation"}
+            }),
+            mock.patch.object(self.workspace, "_controlled_topology_down") as stop,
+            mock.patch.object(self.workspace, "_legacy_topology_down") as legacy,
+            self.assertRaisesRegex(WorkspaceError, "generation changed"),
+        ):
+            self.workspace.topology_down("benchmark-fence", expected_generation="owned-generation")
+        stop.assert_not_called()
+        legacy.assert_not_called()
+
+    def test_benchmark_shutdown_matching_generation_uses_control(self) -> None:
+        self.workspace._topology_directory("benchmark-fence", create=True)
+        status = {"control": {"generation": "owned-generation"}}
+        with (
+            mock.patch.object(self.workspace, "topology_status", return_value=status),
+            mock.patch.object(self.workspace, "_controlled_topology_down", return_value=(status, False)) as stop,
+            mock.patch.object(self.workspace, "_finish_temporary_state_down", return_value=status),
+        ):
+            self.assertEqual(self.workspace.topology_down("benchmark-fence", expected_generation="owned-generation"), status)
+        stop.assert_called_once_with("benchmark-fence", status, 15)
+
+    def test_benchmark_launch_rejects_server_only_before_process_creation(self) -> None:
+        with (
+            mock.patch.object(self.workspace, "_require_classic_contracts"),
+            self.assertRaisesRegex(WorkspaceError, "server/client pair"),
+        ):
+            self.workspace._topology_up("benchmark-pair", "default", "scenario-review", ["server"],
+                                        scenario_benchmark={})
+        self.assertFalse((self.workspace.paths.topologies / "benchmark-pair" / "spec.json").exists())
+
     def test_topology_up_refuses_locked_process_tree_generation(self) -> None:
         root = self.workspace._topology_directory("locked-generation", create=True)
         descriptor = os.open(

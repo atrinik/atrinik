@@ -1963,6 +1963,73 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(result, 0)
         self.assertEqual(json.loads(output.call_args.args[0]), summary)
 
+    def test_scenario_route_dispatches_a_path_without_extra_controls(self) -> None:
+        summary = {
+            "scenario": "brynknot-review",
+            "output": "/tmp/brynknot.xml",
+            "producer": "brynknot-v1",
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_route.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "scenario", "route", "brynknot-review",
+                        "--output", "/tmp/brynknot.xml", "--json",
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.scenario_route.assert_called_once_with(
+            "brynknot-review", Path("/tmp/brynknot.xml")
+        )
+        self.assertEqual(json.loads(output.call_args.args[0]), summary)
+        with mock.patch("sys.stderr", new_callable=io.StringIO):
+            with self.assertRaises(SystemExit):
+                parser().parse_args(
+                    [
+                        "scenario", "route", "brynknot-review",
+                        "--output", "/tmp/brynknot.xml", "--producer", "other",
+                    ]
+                )
+
+    def test_scenario_benchmark_dispatches_bounded_public_options(self) -> None:
+        summary = {
+            "name": "brynknot-run",
+            "status": "success",
+            "evidence": "/workspace/topologies/brynknot-run/benchmark",
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_benchmark.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "scenario", "benchmark", "brynknot-review",
+                        "--name", "brynknot-run",
+                        "--route", "/tmp/brynknot.xml",
+                        "--timeout", "900", "--json",
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.scenario_benchmark.assert_called_once_with(
+            "brynknot-review",
+            "brynknot-run",
+            Path("/tmp/brynknot.xml"),
+            900,
+        )
+        self.assertEqual(json.loads(output.call_args.args[0]), summary)
+        with mock.patch("sys.stderr", new_callable=io.StringIO):
+            with self.assertRaises(SystemExit):
+                parser().parse_args(
+                    [
+                        "scenario", "benchmark", "brynknot-review",
+                        "--name", "brynknot-run",
+                        "--route", "/tmp/brynknot.xml",
+                        "--client-argument", "--unsafe",
+                    ]
+                )
+
     def test_scenario_list_human_output_identifies_inert_records(self) -> None:
         summaries = [
             {

@@ -1,0 +1,375 @@
+"""Bounded orchestration for a real Classic client movement benchmark."""
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+import os
+from pathlib import Path, PurePosixPath
+import platform
+import re
+import secrets
+import selectors
+import signal
+import stat
+import subprocess
+import sys
+import time
+import xml.etree.ElementTree as ET
+
+from .model import MANAGED_MARKER, SCHEMA_VERSION, WorkspaceError, atomic_json, validate_name
+
+MAX_ROUTE_BYTES = 8 * 1024 * 1024
+MAX_REPORT_BYTES = 128 * 1024 * 1024
+MAX_VERIFIER_BYTES = 512 * 1024
+MAX_SUMMARY_BYTES = 1024 * 1024
+LAUNCH_KEYS = {"scenario", "nonce", "route_sha256", "route", "report"}
+
+
+def _identity(info):
+    return (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_nlink,
+            info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+
+
+def read_regular(path: Path, limit: int) -> bytes:
+    """Read bounded regular bytes without following a substituted leaf."""
+    flags = os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW | os.O_CLOEXEC
+    try:
+        descriptor = os.open(path, flags)
+        try:
+            before = os.fstat(descriptor)
+            if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
+                    or before.st_uid not in {0, os.geteuid()} or before.st_mode & 0o022
+                    or before.st_size > limit):
+                raise WorkspaceError("benchmark input owner, type, mode, or size is unsafe")
+            chunks = []
+            remaining = limit + 1
+            while remaining:
+                chunk = os.read(descriptor, min(65536, remaining))
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                remaining -= len(chunk)
+            data = b"".join(chunks)
+            if len(data) > limit or _identity(before) != _identity(os.fstat(descriptor)):
+                raise WorkspaceError("benchmark input changed or exceeded its bound")
+            if _identity(before) != _identity(path.stat(follow_symlinks=False)):
+                raise WorkspaceError("benchmark input path changed")
+            return data
+        finally:
+            os.close(descriptor)
+    except (OSError, ValueError) as error:
+        raise WorkspaceError(f"cannot read bounded benchmark input: {path}") from error
+
+
+def parse_route(data: bytes) -> dict:
+    if not data or len(data) > MAX_ROUTE_BYTES:
+        raise WorkspaceError("benchmark route is empty or exceeds 8 MiB")
+    try:
+        text = data.decode("utf-8")
+        if "\x00" in text or "<!" in text or "<?" in text:
+            raise ValueError("declarations, entities, and processing instructions are unsupported")
+        root = ET.fromstring(text)
+        if root.tag != "live-movement-route" or set(root.attrib) != {"version", "timeout-ms", "step-timeout-ms"}:
+            raise ValueError("unsupported root or fields")
+        if root.attrib["version"] != "1":
+            raise ValueError("unsupported route version")
+        def integer(value, minimum, maximum):
+            if re.fullmatch(r"0|[1-9][0-9]*", value) is None:
+                raise ValueError("noncanonical integer")
+            number = int(value)
+            if not minimum <= number <= maximum:
+                raise ValueError("integer out of bounds")
+            return number
+        timeout = integer(root.attrib["timeout-ms"], 1, 3600000)
+        step_timeout = integer(root.attrib["step-timeout-ms"], 1, 60000)
+        if root.text and root.text.strip():
+            raise ValueError("unexpected route text")
+        checkpoints = []
+        for index, child in enumerate(root):
+            if child.tag != "checkpoint" or set(child.attrib) != {"map", "x", "y", "direction"} or len(child):
+                raise ValueError("unsupported checkpoint fields")
+            if (child.text and child.text.strip()) or (child.tail and child.tail.strip()):
+                raise ValueError("unexpected checkpoint text")
+            path = child.attrib["map"]
+            if (len(path) > 511 or path.startswith("//") or re.fullmatch(r"/[A-Za-z0-9_./-]+", path) is None
+                    or str(PurePosixPath(path)) != path or ".." in PurePosixPath(path).parts):
+                raise ValueError("invalid server map path")
+            direction = integer(child.attrib["direction"], 0, 9)
+            if (index == 0 and direction != 0) or (index > 0 and direction in {0, 5}):
+                raise ValueError("invalid checkpoint movement direction")
+            checkpoints.append({"map": path, "x": integer(child.attrib["x"], 0, 255),
+                                "y": integer(child.attrib["y"], 0, 255), "direction": direction})
+            if len(checkpoints) > 50000:
+                raise ValueError("too many checkpoints")
+        if len(checkpoints) < 2:
+            raise ValueError("route requires at least two checkpoints")
+    except (UnicodeError, ET.ParseError, ValueError) as error:
+        raise WorkspaceError(f"invalid live movement route: {error}") from error
+    return {"sha256": hashlib.sha256(data).hexdigest(), "timeout_ms": timeout,
+            "step_timeout_ms": step_timeout, "checkpoints": checkpoints}
+
+
+def _write_new(path: Path, data: bytes) -> None:
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o400)
+    with os.fdopen(descriptor, "wb") as stream:
+        stream.write(data)
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def launch_arguments(value: dict, root: Path, state_name: str | None) -> list[str]:
+    if not isinstance(value, dict) or set(value) != LAUNCH_KEYS:
+        raise WorkspaceError("invalid scenario benchmark launch fields")
+    if any(not isinstance(item, str) for item in value.values()):
+        raise WorkspaceError("invalid scenario benchmark launch values")
+    validate_name(value["scenario"], "scenario name")
+    if state_name != "scenario-" + value["scenario"] or re.fullmatch(r"[a-f0-9]{32}", value["nonce"]) is None:
+        raise WorkspaceError("benchmark does not match its scenario-owned state")
+    evidence = root / "benchmark"
+    for directory in (root, evidence):
+        info = directory.stat(follow_symlinks=False)
+        if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_mode & 0o077):
+            raise WorkspaceError("benchmark evidence directory is not private")
+    route, report = evidence / "route.xml", evidence / "frames.jsonl"
+    if value["route"] != str(route) or value["report"] != str(report):
+        raise WorkspaceError("benchmark paths are outside the owned topology")
+    record = parse_route(read_regular(route, MAX_ROUTE_BYTES))
+    if record["sha256"] != value["route_sha256"]:
+        raise WorkspaceError("benchmark route digest changed")
+    if report.exists() or report.is_symlink():
+        raise WorkspaceError("benchmark report already exists")
+    return ["--live-movement-route", str(route), "--live-movement-report", str(report)]
+
+
+def _json_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON field")
+        result[key] = value
+    return result
+
+
+def run_bounded(arguments: list[str], *, timeout: float, limit: int, cwd: Path | None = None) -> bytes:
+    """Drain both pipes with one bounded total budget, terminating only this child."""
+    output = bytearray()
+    total = 0
+    deadline = time.monotonic() + timeout
+    with subprocess.Popen(arguments, cwd=cwd, stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE) as process:
+        try:
+            with selectors.DefaultSelector() as selector:
+                selector.register(process.stdout, selectors.EVENT_READ, True)
+                selector.register(process.stderr, selectors.EVENT_READ, False)
+                while selector.get_map():
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        raise WorkspaceError("benchmark helper deadline expired")
+                    for key, _ in selector.select(min(remaining, 0.5)):
+                        chunk = os.read(key.fd, 65536)
+                        if not chunk:
+                            selector.unregister(key.fileobj)
+                            continue
+                        total += len(chunk)
+                        if total > limit:
+                            raise WorkspaceError("benchmark helper output exceeded its bound")
+                        if key.data:
+                            output.extend(chunk)
+                if process.wait(timeout=max(0.001, deadline - time.monotonic())):
+                    raise WorkspaceError("benchmark helper rejected the evidence")
+        except BaseException:
+            process.kill()
+            process.wait()
+            raise
+    return bytes(output)
+
+
+def verify_report(verifier: Path, route: Path, report: Path, expected: dict, source: dict) -> dict:
+    before = report.stat(follow_symlinks=False)
+    if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
+            or before.st_uid != os.geteuid() or before.st_mode & 0o022
+            or not 0 < before.st_size <= MAX_REPORT_BYTES):
+        raise WorkspaceError("benchmark report owner, type, mode, or size is unsafe")
+    output = run_bounded([sys.executable, "-I", str(verifier), str(route), str(report)],
+                         timeout=30, limit=MAX_SUMMARY_BYTES)
+    if _identity(before) != _identity(report.stat(follow_symlinks=False)):
+        raise WorkspaceError("benchmark report changed during verification")
+    if parse_route(read_regular(route, MAX_ROUTE_BYTES))["sha256"] != expected["sha256"]:
+        raise WorkspaceError("benchmark route changed during verification")
+    try:
+        summary = json.loads(output, object_pairs_hook=_json_object,
+                             parse_constant=lambda _: (_ for _ in ()).throw(ValueError("nonfinite JSON")))
+    except (ValueError, UnicodeError) as error:
+        raise WorkspaceError("invalid benchmark verifier summary") from error
+    count = len(expected["checkpoints"])
+    if (not isinstance(summary, dict) or summary.get("status") != "success"
+            or summary.get("route_sha256") != expected["sha256"]
+            or summary.get("source_revision") != source["head"]
+            or summary.get("source_dirty") is not False
+            or any(type(summary.get(key)) is not int or summary[key] != count
+                   for key in ("arrivals", "presented_checkpoints", "expected_checkpoints"))
+            or any(type(summary.get(key)) is not int or summary[key] <= 0
+                   for key in ("frames", "presented_frames"))
+            or not isinstance(summary.get("gpu_backend"), str) or not summary["gpu_backend"]
+            or not isinstance(summary.get("gpu_device"), str) or not summary["gpu_device"]):
+        raise WorkspaceError("benchmark summary identity or complete rendered coverage differs")
+    return summary
+
+
+def route_provenance(route: Path, expected: dict, scenario: dict) -> dict:
+    companion = route.with_name(route.name + ".provenance.json")
+    if not companion.exists() and not companion.is_symlink():
+        return {"producer": "user-supplied"}
+    try:
+        value = json.loads(read_regular(companion, MAX_SUMMARY_BYTES), object_pairs_hook=_json_object)
+        if (not isinstance(value, dict) or set(value) != {
+                "schema_version", "producer", "scenario", "profile", "profile_generation",
+                "route_sha256", "output", "sources"}
+                or type(value["schema_version"]) is not int or value["schema_version"] != 1
+                or value["producer"] != "brynknot-v1"
+                or value["scenario"] != scenario["name"] or value["profile"] != scenario["profile"]
+                or value["route_sha256"] != expected["sha256"] or value["output"] != str(route)
+                or not isinstance(value["profile_generation"], str)
+                or re.fullmatch(r"[a-f0-9]{64}", value["profile_generation"]) is None
+                or not isinstance(value["sources"], dict) or not value["sources"]):
+            raise ValueError("route provenance differs from this scenario and route")
+        for key, row in value["sources"].items():
+            if (not isinstance(key, str) or not isinstance(row, dict) or set(row) != {
+                    "path", "checkout_path", "checkout", "repository", "branch", "source", "head", "dirty"}
+                    or row["dirty"] is not False
+                    or any(not isinstance(item, str) or not item for field, item in row.items() if field != "dirty")
+                    or re.fullmatch(r"[a-f0-9]{40,64}", row["head"]) is None):
+                raise ValueError("route producer source identity is invalid")
+        return value
+    except (ValueError, UnicodeError) as error:
+        raise WorkspaceError("invalid benchmark route provenance") from error
+
+
+def validate_source_provenance(root: Path, sources: dict) -> None:
+    manifest = json.loads(read_regular(root / "benchmark" / "summary.json", MAX_SUMMARY_BYTES),
+                          object_pairs_hook=_json_object)
+    provenance = manifest["route_origin"]
+    for key, produced in provenance.get("sources", {}).items():
+        current = sources.get(key, {})
+        if any(current.get(field) != produced[field] for field in (
+                "checkout", "repository", "branch", "source", "head", "dirty")):
+            raise WorkspaceError("route producer differs from the selected source generation")
+
+
+def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout: int | None = None) -> dict:
+    validate_name(name, "benchmark topology name")
+    if not route.is_absolute():
+        raise WorkspaceError("benchmark route must be an absolute path")
+    data = read_regular(route, MAX_ROUTE_BYTES)
+    route_record = parse_route(data)
+    if timeout is None:
+        timeout = math.ceil(route_record["timeout_ms"] / 1000)
+    if type(timeout) is not int or not 1 <= timeout <= 3600:
+        raise WorkspaceError("benchmark timeout must be between 1 and 3600 seconds")
+    scenario = workspace._load_scenario(scenario_name)
+    provenance = route_provenance(route, route_record, scenario)
+    workspace._require_classic_contracts(scenario["profile"], {"client", "server"})
+    workspace.paths.ensure()
+    root = workspace.paths.topologies / name
+    workspace._guard_recovered_resource("topology", root, name)
+    # mkdir is the reservation: no existing or concurrently created topology
+    # can be adopted by a benchmark invocation.
+    try:
+        root.mkdir(mode=0o700)
+    except FileExistsError as error:
+        raise WorkspaceError("benchmark requires a fresh topology name") from error
+    atomic_json(root / MANAGED_MARKER,
+                {"schema_version": SCHEMA_VERSION, "purpose": f"topology:{name}"})
+    root = workspace._topology_directory(name, create=True)
+    evidence = root / "benchmark"
+    evidence.mkdir(mode=0o700)
+    staged_route, report = evidence / "route.xml", evidence / "frames.jsonl"
+    _write_new(staged_route, data)
+    launch = {"scenario": scenario_name, "nonce": secrets.token_hex(16),
+              "route_sha256": route_record["sha256"], "route": str(staged_route), "report": str(report)}
+    manifest = {"schema_version": 1, "name": name, "status": "running", "scenario": scenario_name,
+                "profile": scenario["profile"], "preset": scenario["preset"], "state": scenario["state"],
+                "route_sha256": route_record["sha256"], "expected_checkpoints": len(route_record["checkpoints"]),
+                "timeout_seconds": timeout, "host": {"system": platform.system(), "machine": platform.machine()},
+                "evidence": str(evidence), "route_origin": provenance, "launch_nonce": launch["nonce"]}
+    manifest["scenario_identity"] = {
+        key: scenario[key] for key in ("schema_version", "stack", "providers", "resolved", "provisioned_at")
+        if key in scenario
+    }
+    atomic_json(evidence / "summary.json", manifest)
+    generation = None
+    failure = None
+    try:
+        verifier_bytes = read_regular(workspace.component_path("client", scenario["profile"]) / "tools" / "verify_live_movement.py", MAX_VERIFIER_BYTES)
+        staged_verifier = evidence / "verify_live_movement.py"
+        _write_new(staged_verifier, verifier_bytes)
+        manifest["verifier_sha256"] = hashlib.sha256(verifier_bytes).hexdigest()
+        status = workspace.topology_up(name, scenario["profile"], scenario["state"],
+                                       ["server", "client"], scenario_benchmark=launch)
+        generation = status["control"]["generation"]
+        manifest["generation"] = generation
+        manifest["sources"] = status["resolved"]
+        manifest["build"] = {key: status.get(key) for key in ("build_root", "stack", "providers")}
+
+        sources = status["resolved"]
+        if not sources or any(row.get("dirty") is not False for row in sources.values()):
+            raise WorkspaceError("benchmark requires clean committed sources")
+        for key, produced in provenance.get("sources", {}).items():
+            current_source = sources.get(key, {})
+            if any(current_source.get(field) != produced[field] for field in (
+                    "checkout", "repository", "branch", "source", "head", "dirty")):
+                raise WorkspaceError("route producer differs from the launched source generation")
+        client = next(row for row in sources.values() if row["source"] == "client")
+        if read_regular(Path(client["path"]) / "tools" / "verify_live_movement.py", MAX_VERIFIER_BYTES) != verifier_bytes:
+            raise WorkspaceError("selected benchmark verifier changed before launch")
+        atomic_json(evidence / "summary.json", manifest)
+        deadline = time.monotonic() + timeout
+        while True:
+            current = workspace.topology_status(name)
+            if current.get("control", {}).get("generation") != generation:
+                raise WorkspaceError("benchmark topology generation changed")
+            if report.exists() or report.is_symlink():
+                info = report.stat(follow_symlinks=False)
+                if not stat.S_ISREG(info.st_mode) or info.st_size > MAX_REPORT_BYTES:
+                    raise WorkspaceError("benchmark report exceeded its bound or changed type")
+            services = current.get("services", {})
+            if not current.get("supervisor", {}).get("running") and not any(row.get("running") for row in services.values()):
+                if current.get("error") is not None:
+                    raise WorkspaceError("benchmark topology reported a runtime error")
+                if services.get("client", {}).get("exit_code") != 0:
+                    raise WorkspaceError("benchmark client failed or disconnected")
+                if services.get("server", {}).get("exit_code") not in {0, -signal.SIGTERM}:
+                    raise WorkspaceError("benchmark server failed during the run")
+                break
+            if time.monotonic() >= deadline:
+                raise WorkspaceError("benchmark deadline expired")
+            time.sleep(0.2)
+        if read_regular(staged_verifier, MAX_VERIFIER_BYTES) != verifier_bytes:
+            raise WorkspaceError("staged benchmark verifier changed")
+        manifest["native"] = verify_report(staged_verifier, staged_route, report, route_record, client)
+        manifest["status"] = "success"
+    except (WorkspaceError, OSError, KeyError, StopIteration, ValueError, subprocess.SubprocessError, KeyboardInterrupt) as error:
+        failure = str(error) or type(error).__name__
+        manifest.update(status="failure", error=failure)
+    finally:
+        if generation is not None:
+            try:
+                stopped = workspace.topology_down(name, expected_generation=generation)
+                if (stopped.get("control", {}).get("generation") != generation
+                        or stopped.get("error") is not None
+                        or stopped.get("supervisor", {}).get("running") is not False
+                        or any(row.get("running") for row in stopped.get("services", {}).values())):
+                    raise WorkspaceError("benchmark shutdown did not confirm stopped owned generation")
+                manifest["shutdown"] = {"generation": generation,
+                                        "result": stopped.get("shutdown"),
+                                        "observation": stopped.get("observation"),
+                                        "exit_codes": {key: row.get("exit_code") for key, row in stopped.get("services", {}).items()}}
+            except (WorkspaceError, OSError) as error:
+                failure = "benchmark shutdown failed: " + str(error)
+                manifest.update(status="failure", error=failure)
+        atomic_json(evidence / "summary.json", manifest)
+    if failure:
+        raise WorkspaceError(f"{failure}; benchmark evidence: {evidence}")
+    return manifest

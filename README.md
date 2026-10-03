@@ -1786,6 +1786,35 @@ at `(20, 8)`, preserves the world clock, and adds no special item. `basic-player
 continues to use normal first-login placement. Stop the topology before resetting
 `brynknot-review`; account and save creation remain owned by the server provisioner.
 
+Generate the fixed Brynknot movement route from a registered scenario, then run
+it through a fresh supervised server/client topology with an absolute route path:
+
+~~~sh
+./atrinik scenario route brynknot-review --output /tmp/brynknot-route.xml
+./atrinik scenario benchmark brynknot-review --name brynknot-run \
+  --route /tmp/brynknot-route.xml --json
+~~~
+
+`scenario route` is an offline, absent-only export. It uses the fixed
+`brynknot-v1` producer, requires clean selected Classic source and content, and
+writes the XML plus a `.provenance.json` companion with their committed source
+identities. It does not start a runtime, edit an account, or change scenario
+state.
+
+`scenario benchmark` requires native Classic support for
+`--live-movement-route` and `--live-movement-report`. It stages the route,
+verifier, report, and summary below the fresh topology's `benchmark/` directory,
+then generation-fences shutdown. The registered scenario is preserved and is
+never reset. Success requires every real movement checkpoint to publish the
+expected map position and every checkpoint to have presented-frame coverage.
+The report records per-frame CPU time and GPU host submission/presentation
+timings; those GPU values are host timings, not hardware GPU execution duration.
+
+Failures return nonzero and retain bounded evidence for diagnosis. Route input
+is limited to 8 MiB and 50,000 checkpoints, runtime is limited to one hour, and
+the native report is limited to 128 MiB. `--timeout SECONDS` may select a shorter
+runtime bound.
+
 Do not create static account or player fixtures; add a tested server-owned
 preset if a future reproduction needs more than `basic-player`. The Classic
 server also owns `lighting-radiance-day`, `lighting-radiance-dawn`, and
