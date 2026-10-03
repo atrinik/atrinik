@@ -9,16 +9,16 @@ separate opt-ins and are not advertised by this server.
 
 ## Docker Compose quickstart
 
-The supported remote deployment uses the candidate public-source image and
+The supported remote deployment uses the published public-source image and
 `deploy/mcp/compose.yaml`; direct host Python startup is only an internal
 diagnostic. Before starting, point public DNS for the chosen hostname at this
 host, allow inbound TCP ports 80 and 443, leave those ports free for Caddy, and
 allow outbound ACME connectivity for certificate issuance.
 
-The `linux/amd64` candidate was built from wrapper commit
-`476cf9dad436ce7b5fb89113c46014fcca3b8f77`. Its registry package is still
-private and anonymous pull verification is pending. Replace only the example
-hostname after public verification succeeds:
+The initial `linux/amd64` image was built from wrapper commit
+`476cf9dad436ce7b5fb89113c46014fcca3b8f77`. Anonymous manifest lookup, pull and
+the seven-tool smoke test passed for this exact digest. Replace the example
+hostname with the public deployment hostname:
 
 From the wrapper checkout, start with two commands:
 
@@ -27,8 +27,7 @@ export MCP_DOMAIN=mcp.example.invalid MCP_IMAGE=ghcr.io/atrinik/atrinik-mcp@sha2
 docker compose -f deploy/mcp/compose.yaml up -d
 ```
 
-`mcp.example.invalid` remains a hostname placeholder. The digest identifies the
-initial candidate; it does not claim public availability. Set the same values in
+`mcp.example.invalid` remains a hostname placeholder. Set the same values in
 `deploy/mcp/.env` if the deployment will be managed by later Compose invocations
 without exported variables. The image contains the immutable public source view
 and needs no host source mount, runtime clone or update. Do not add player state,
@@ -139,8 +138,8 @@ Release maintainers build the public image from the repository root using
 `deploy/mcp/official.Dockerfile`. Its default Python image is digest pinned. Any
 `PYTHON_IMAGE` override must retain an immutable `@sha256:` reference and be
 reviewed before deployment. Git and ripgrep are installed in the image; no
-package installation occurs on service startup. Public availability is not
-established until the release image passes anonymous-pull and digest checks.
+package installation occurs on service startup. The initial published digest
+passed anonymous manifest lookup, pull and runtime smoke checks.
 
 Run as UID/GID 10001, with a read-only root filesystem, all Linux capabilities
 dropped, `no-new-privileges`, explicit CPU/memory/PID limits, and only the
