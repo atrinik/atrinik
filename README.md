@@ -2392,9 +2392,9 @@ its private CAS. An explicit recovery can correct one historical nonexistent
 head plus its bound stale merge base while retaining both source generations.
 
 ~~~sh
-python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+python3 scripts/delivery_ledger.py \
   release-preview build/reviews LEDGER_NAME release.json
-python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+python3 scripts/delivery_ledger.py \
   release-apply build/reviews LEDGER_NAME release.json --plan PLAN_SHA256
 ~~~
 
@@ -2418,9 +2418,9 @@ After cleanup, a new explicit authority issued strictly after cleanup apply may 
 ledger, release marker, lock, report, migration evidence, and retained intent:
 
 ~~~sh
-python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+python3 scripts/delivery_ledger.py \
   archive-preview build/reviews LEDGER_NAME archive.json
-python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+python3 scripts/delivery_ledger.py \
   archive-apply build/reviews LEDGER_NAME archive.json --plan PLAN_SHA256
 ~~~
 

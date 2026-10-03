@@ -25,9 +25,7 @@ from .platform_compat import inherited_subprocess_handles
 _INVENTORY_LIMIT = 32 * 1024 * 1024
 _INVENTORY_TIMEOUT_SECONDS = 30
 _LEDGER_SUFFIX = ".md.ledger.json"
-_HELPER_RELATIVE = Path(
-    ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
-)
+_HELPER_RELATIVE = Path("scripts/delivery_ledger.py")
 
 
 def _ledger_lock_name(review_root: Path, ledger_name: str) -> str:

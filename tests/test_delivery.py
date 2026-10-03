@@ -26,10 +26,7 @@ class DeliveryEvidenceTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.review_root = self.root / "build" / "reviews"
         self.review_root.mkdir(parents=True)
-        self.helper = (
-            self.root
-            / ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
-        )
+        self.helper = self.root / "scripts/delivery_ledger.py"
         self.helper.parent.mkdir(parents=True)
         self.helper.write_text("trusted helper\n", encoding="utf-8")
         self.name = "atrinik-atrinik-issue-471.md.ledger.json"
@@ -75,6 +72,7 @@ class DeliveryEvidenceTests(unittest.TestCase):
         self.assertEqual(evidence.ledgers, (self.name,))
         self.assertEqual(evidence.references[worktree.resolve()], (self.name,))
         self.assertIn(self.review_root.resolve(), evidence.references)
+        self.assertEqual(invoke.call_args.args[0][2], str(self.helper))
         self.assertEqual(invoke.call_args.args[0][3], "inventory")
         self.assertEqual(invoke.call_args.kwargs["timeout"], 30)
 
