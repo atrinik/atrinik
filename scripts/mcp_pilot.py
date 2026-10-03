@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import resource
+import shutil
 import signal
 import subprocess
 import sys
@@ -235,6 +236,38 @@ def _git_head(root: Path) -> str:
     return head
 
 
+def _clean_head(root: Path, expected: str) -> str:
+    head = _git_head(root)
+    if head != expected:
+        raise PilotError("real pilot HEAD does not match the pinned revision")
+    try:
+        status = subprocess.run(
+            ["git", "--no-optional-locks", "-c", "core.fsmonitor=false", "status", "--porcelain=v1",
+             "--untracked-files=all", "--ignore-submodules=none"],
+            cwd=root, check=True, capture_output=True, timeout=5,
+        )
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+        raise PilotError("cannot verify a clean real pilot root") from error
+    if status.stdout:
+        raise PilotError("real pilot requires a clean root without tracked or untracked changes")
+    if _git_head(root) != head:
+        raise PilotError("real pilot HEAD changed during source verification")
+    return head
+
+
+def _interpreter(program: str, root: Path) -> str:
+    # Resolve PATH as it will be interpreted from the adapter's working directory.
+    # Preserve symlinks, since resolving a virtualenv Python changes its identity.
+    search = os.pathsep.join(
+        str(Path(entry) if Path(entry).is_absolute() else root / entry)
+        for entry in os.environ.get("PATH", "").split(os.pathsep)
+    )
+    executable = shutil.which(program, path=search)
+    if executable is None:
+        raise PilotError("configured adapter interpreter is unavailable")
+    return os.path.abspath(executable)
+
+
 def _run_adapter(argv: list[str], *, root: Path, timeout_ms: int) -> tuple[dict[str, Any], dict[str, Any]]:
     started = time.perf_counter_ns()
     limit = 64 * 1024
@@ -289,10 +322,9 @@ def run_pilot(config_path: Path, *, enable_real_pilot: bool) -> dict[str, Any]:
     if config["evidence_kind"] == "real-pilot" and config["pilot_enabled"] and not enable_real_pilot:
         raise PilotError("real pilot requires the explicit CLI gate")
     root = (ROOT / config["trust_root"]).resolve()
-    head = _git_head(root)
-    exact = config.get("expected_head") is not None and config["expected_head"] == head
-    if config["evidence_kind"] == "real-pilot" and config["pilot_enabled"] and not exact:
-        raise PilotError("real pilot HEAD does not match the pinned revision")
+    real = config["evidence_kind"] == "real-pilot" and config["pilot_enabled"]
+    head = _clean_head(root, config["expected_head"]) if real else None
+    exact = real
     workloads = _load(WORKLOADS)["cases"]
     observations: list[dict[str, Any]] = []
     enabled_profiles = [profile for profile in config["profiles"] if profile["enabled"]]
@@ -300,6 +332,7 @@ def run_pilot(config_path: Path, *, enable_real_pilot: bool) -> dict[str, Any]:
     for profile in enabled_profiles:
         template = profile["adapter"]["argv"]
         pin_token = Path(profile["adapter"]["pin_path"]).as_posix()
+        interpreter = _interpreter(template[0], root) if template[0] != pin_token else None
         for case in workloads:
             for scenario in SCENARIOS:
                 pin = (root / pin_token).resolve()
@@ -310,9 +343,13 @@ def run_pilot(config_path: Path, *, enable_real_pilot: bool) -> dict[str, Any]:
                 if argv[0] == pin_token:
                     argv[0] = str(pin)
                 else:
-                    argv[0] = sys.executable
+                    argv[0] = interpreter
                     argv[1] = str(pin)
+                if real:
+                    _clean_head(root, head)
                 adapter, measured = _run_adapter(argv, root=root, timeout_ms=timeout_ms)
+                if real:
+                    _clean_head(root, head)
                 expected_error = FAILURE_CODES.get(scenario)
                 reported_metrics, metrics_valid = _metrics(adapter.get("metrics"))
                 kind_matches = adapter.get("synthetic") is (

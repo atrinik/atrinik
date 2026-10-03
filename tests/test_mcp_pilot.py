@@ -6,6 +6,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -109,6 +110,101 @@ class McpPilotTests(unittest.TestCase):
             with mock.patch.object(pilot, "_git_head", return_value="b" * 40):
                 with self.assertRaisesRegex(pilot.PilotError, "does not match"):
                     pilot.run_pilot(path, enable_real_pilot=True)
+
+    def repository_fixture(self, directory: Path):
+        root = directory / "source"
+        root.mkdir()
+        adapter = root / "adapter.py"
+        adapter.write_text("print('{}')\n")
+        (root / "tracked.py").write_text("value = 1\n")
+        (root / ".gitignore").write_text("ignored/\n")
+        for args in (["init", "--quiet"], ["add", "."],
+                     ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                      "-c", "commit.gpgsign=false", "commit", "--quiet", "-m", "fixture"]):
+            subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True)
+        config = self.config("config.synthetic.example.json")
+        config.update(evidence_kind="real-pilot", expected_head=pilot._git_head(root))
+        config["profiles"][0]["adapter"].update(
+            pin_path="adapter.py", sha256=hashlib.sha256(adapter.read_bytes()).hexdigest(),
+            argv=["python3", "adapter.py", "{workload_id}", "{scenario}"],
+        )
+        workloads = directory / "workloads.json"
+        workloads.write_text(json.dumps({"cases": [{"id": "fixture", "expected": {}}]}))
+        return root, config, workloads
+
+    def test_real_pilot_rejects_tracked_and_untracked_changes_before_execution(self):
+        for dirty in ("tracked", "untracked", "pinned-adapter"):
+            with self.subTest(dirty=dirty), tempfile.TemporaryDirectory() as temporary:
+                directory = Path(temporary)
+                root, config, workloads = self.repository_fixture(directory)
+                target = root / {"tracked": "tracked.py", "untracked": "new.py", "pinned-adapter": "adapter.py"}[dirty]
+                target.write_text("print('modified')\n")
+                if dirty == "pinned-adapter":
+                    config["profiles"][0]["adapter"]["sha256"] = hashlib.sha256(target.read_bytes()).hexdigest()
+                path = self.write_config(directory, config)
+                with mock.patch.object(pilot, "ROOT", root), mock.patch.object(pilot, "WORKLOADS", workloads), \
+                        mock.patch.object(pilot, "_run_adapter") as run:
+                    with self.assertRaisesRegex(pilot.PilotError, "clean root"):
+                        pilot.run_pilot(path, enable_real_pilot=True)
+                    run.assert_not_called()
+
+    def test_real_pilot_allows_ignored_artifacts_but_rechecks_after_execution(self):
+        for changed in (False, True):
+            with self.subTest(changed=changed), tempfile.TemporaryDirectory() as temporary:
+                directory = Path(temporary)
+                root, config, workloads = self.repository_fixture(directory)
+                (root / "ignored").mkdir()
+                (root / "ignored" / "artifact").write_text("fixture output")
+                path = self.write_config(directory, config)
+                def adapter(*args, **kwargs):
+                    if changed:
+                        (root / "tracked.py").write_text("value = 2\n")
+                    return {}, {"return_code": 0, "bounded_parse_valid": True}
+                with mock.patch.object(pilot, "ROOT", root), mock.patch.object(pilot, "WORKLOADS", workloads), \
+                        mock.patch.object(pilot, "SCENARIOS", ("enabled",)), \
+                        mock.patch.object(pilot, "_run_adapter", side_effect=adapter) as run:
+                    if changed:
+                        with self.assertRaisesRegex(pilot.PilotError, "clean root"):
+                            pilot.run_pilot(path, enable_real_pilot=True)
+                    else:
+                        result = pilot.run_pilot(path, enable_real_pilot=True)
+                        self.assertTrue(result["source"]["exact_head"])
+                        self.assertEqual(result["source"]["commit"], config["expected_head"])
+                    self.assertEqual(run.call_count, 1)
+
+    def test_synthetic_run_requires_no_git_and_preserves_selected_interpreter(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            root, config, workloads = self.repository_fixture(directory)
+            config.update(evidence_kind="synthetic-self-test", expected_head=None)
+            config["profiles"][0]["adapter"]["argv"][0] = "python3.11"
+            executables = directory / "executables"
+            executables.mkdir()
+            selected = executables / "python3.11"
+            # An executable selector fixture proves that the harness does not
+            # silently substitute its own Python interpreter for the chosen one.
+            selected.write_text("#!" + sys.executable + "\nprint('{\"selected_interpreter\": true}')\n")
+            selected.chmod(0o755)
+            path = self.write_config(directory, config)
+            observed = []
+            run_adapter = pilot._run_adapter
+            def run(argv, **kwargs):
+                self.assertEqual(argv[0], str(selected))
+                value, measured = run_adapter(argv, **kwargs)
+                observed.append(value)
+                return value, measured
+            with mock.patch.object(pilot, "ROOT", root), mock.patch.object(pilot, "WORKLOADS", workloads), \
+                    mock.patch.object(pilot, "SCENARIOS", ("enabled",)), \
+                    mock.patch.object(pilot, "_git_head", side_effect=AssertionError("synthetic must not inspect Git")), \
+                    mock.patch.object(pilot, "_run_adapter", side_effect=run), \
+                    mock.patch.dict(os.environ, {"PATH": str(executables)}):
+                result = pilot.run_pilot(path, enable_real_pilot=False)
+                self.assertEqual(observed, [{"selected_interpreter": True}])
+                self.assertIsNone(result["source"]["commit"])
+                self.assertFalse(result["source"]["exact_head"])
+                selected.unlink()
+                with self.assertRaisesRegex(pilot.PilotError, "interpreter is unavailable"):
+                    pilot.run_pilot(path, enable_real_pilot=False)
 
     def test_synthetic_self_test_records_all_known_answers_and_failure_modes(self) -> None:
         command = [sys.executable, str(SCRIPT), "self-test"]

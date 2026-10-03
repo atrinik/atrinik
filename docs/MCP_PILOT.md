@@ -177,7 +177,8 @@ python3 scripts/mcp_pilot.py run \
 
 The synthetic example and self-test exercise harness behavior only. Their
 results must be labeled **synthetic** and never presented as measurements of
-production server correctness, actual workload savings, or real authorization:
+production server correctness, actual workload savings, or real authorization.
+Synthetic runs require no Git checkout and report no verified source commit:
 
 ```sh
 python3 scripts/mcp_pilot.py validate \
@@ -190,7 +191,12 @@ python3 scripts/mcp_pilot.py run \
 Prepare a local real configuration conforming to
 [`config.schema.json`](../mcp/pilot/config.schema.json), using actual pinned
 server interfaces, exact owned review-worktree selectors, and approved
-read-only account scope. Keep it in task-owned ignored state. Validate it,
+read-only account scope. Enabled real runs require the pinned HEAD and a clean
+Git root, checked before and after each adapter execution; tracked and untracked
+changes fail closed, while ignored artifacts are allowed. Configured Python
+interpreters (`python3` or `python3.11`) are resolved from PATH and must be
+available; the harness does not substitute its own interpreter.
+Keep the configuration in task-owned ignored state. Validate it,
 explicitly opt in within that configuration, and use the CLI gate:
 
 ```sh
