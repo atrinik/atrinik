@@ -1,0 +1,95 @@
+# Copyright 2026 The Atrinik Project
+# SPDX-License-Identifier: MIT
+name: atrinik-mcp
+
+x-mcp: &mcp
+  image: ${MCP_IMAGE:?Set MCP_IMAGE to the released image@sha256 digest}
+  user: '10001:10001'
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  cpus: 2
+  mem_limit: 256m
+  pids_limit: 128
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: '3'
+
+services:
+  init-token:
+    <<: *mcp
+    command: [init-token]
+    network_mode: none
+    volumes:
+      - auth:/var/lib/atrinik-auth
+    restart: 'no'
+
+  mcp:
+    <<: *mcp
+    command:
+      - http
+      - --host
+      - 0.0.0.0
+      - --port
+      - '8765'
+      - --token-file
+      - /var/lib/atrinik-auth/token
+      - --public-domain
+      - ${MCP_DOMAIN:?Set MCP_DOMAIN to the public DNS hostname}
+    environment:
+      MCP_DOMAIN: ${MCP_DOMAIN:?Set MCP_DOMAIN to the public DNS hostname}
+    depends_on:
+      init-token:
+        condition: service_completed_successfully
+    volumes:
+      - auth:/var/lib/atrinik-auth:ro
+    networks: [backend]
+    healthcheck:
+      test: [CMD, python3, -B, -m, atrinik_workspace.mcp_container, healthcheck, --public-domain, "${MCP_DOMAIN:?Set MCP_DOMAIN to the public DNS hostname}"]
+      interval: 30s
+      timeout: 6s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  proxy:
+    # Official multi-platform image index, verified against registry-1.docker.io.
+    image: caddy:2.11.6-alpine@sha256:c776e0c6413b544d0459665e54ec7b8b2a15000c0cbee8b254da0067b1d184ff
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    cpus: 1
+    mem_limit: 128m
+    pids_limit: 128
+    environment:
+      MCP_DOMAIN: ${MCP_DOMAIN:?Set MCP_DOMAIN to the public DNS hostname}
+    depends_on:
+      mcp:
+        condition: service_healthy
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - certificates:/data
+      - caddy-config:/config
+    networks: [backend, public]
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    restart: unless-stopped
+
+networks:
+  backend:
+    internal: true
+  public: {}
+
+volumes:
+  auth: {}
+  certificates: {}
+  caddy-config: {}
