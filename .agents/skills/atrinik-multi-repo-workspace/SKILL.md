@@ -4,7 +4,7 @@ description: Coordinate work across checkouts, profiles, worktrees, cleanup, rel
 ---
 # Atrinik multi-repository workspace
 
-Prefer `atrinik` MCP when available: [routing](../../../docs/MCP_CONTEXT.md#agent-routing).
+Prefer `atrinik` MCP when available: [routing](../../../docs/MCP_CONTEXT.md).
 
 ## Scope and ownership
 
