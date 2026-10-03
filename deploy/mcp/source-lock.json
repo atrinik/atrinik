@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "wrapper": {
+    "repository": "atrinik/atrinik",
+    "branch": "main",
+    "commit": "b27078539e216f645b4574ac01f0b3bbb4662492"
+  },
+  "checkouts": [
+    {
+      "repository": "atrinik/client",
+      "path": "client",
+      "branch": "main",
+      "commit": "c4e7db9fbfc1bbe08ef918a1fb65e30eea31aa29"
+    },
+    {
+      "repository": "atrinik/server",
+      "path": "server",
+      "branch": "main",
+      "commit": "24f000490c9ca0984302c8e7bef4a621db760b7c"
+    },
+    {
+      "repository": "atrinik/protocol",
+      "path": "protocol",
+      "branch": "main",
+      "commit": "ee4a686223218f616f43c8191e461c122f34b0c1"
+    },
+    {
+      "repository": "atrinik/editor",
+      "path": "editor",
+      "branch": "main",
+      "commit": "28f43af6c953c744985a3400ade34819aa221225"
+    },
+    {
+      "repository": "atrinik/renderer",
+      "path": "renderer",
+      "branch": "main",
+      "commit": "f0effa3877fb61a46be3c292c5e80dd17f1d170e"
+    },
+    {
+      "repository": "atrinik/content-toolkit",
+      "path": "content-toolkit",
+      "branch": "main",
+      "commit": "49948bb66660d53434f72028e6e0f57fe0560f67"
+    },
+    {
+      "repository": "atrinik/website",
+      "path": "website",
+      "branch": "main",
+      "commit": "6415184e0e85db0d9deb275f16d5e0335200f5c9"
+    },
+    {
+      "repository": "atrinik/content",
+      "path": "content",
+      "branch": "main",
+      "commit": "d5fc39f1dcb8b031b3302d499c59975a548849b9"
+    },
+    {
+      "repository": "atrinik/sound",
+      "path": "sound",
+      "branch": "main",
+      "commit": "d0561bf9ff8dc88836818dbe602a5a256c6c0e3f"
+    },
+    {
+      "repository": "atrinik/resources",
+      "path": "resources",
+      "branch": "main",
+      "commit": "bff12778a2181b15c12393b63e4761fd568c8693"
+    },
+    {
+      "repository": "atrinik/metaserver-worker",
+      "path": "metaserver-worker",
+      "branch": "main",
+      "commit": "ca72fe8b2ec459edd5eb7bf48c9a1932b0e20c91"
+    },
+    {
+      "repository": "atrinik/devcontainer",
+      "path": "devcontainer",
+      "branch": "main",
+      "commit": "960b41ced51418892f18fc157373d89444c843db"
+    },
+    {
+      "repository": "atrinik/github-settings",
+      "path": "github-settings",
+      "branch": "main",
+      "commit": "a86ece2526817f64191a13387bd324401f081c6b"
+    },
+    {
+      "repository": "atrinik/observatory",
+      "path": "observatory",
+      "branch": "main",
+      "commit": "2a0de4e9ab7b2fe42a63c27441d2174e3e506ce8"
+    },
+    {
+      "repository": "atrinik/deploy-control",
+      "path": "deploy-control",
+      "branch": "main",
+      "commit": "cc2fa4428bc7daeebd1946b8e939aa6157b24bc8"
+    },
+    {
+      "repository": "atrinik/web-platform",
+      "path": "web-platform",
+      "branch": "main",
+      "commit": "08fc2333e4def7c1140ae088c570f97a415e03b0"
+    },
+    {
+      "repository": "atrinik/classic",
+      "path": "classic",
+      "branch": "main",
+      "commit": "9e2bdf94d31a9e725e0cba0daddd509a8119d553"
+    },
+    {
+      "repository": "atrinik/playtester",
+      "path": "playtester",
+      "branch": "main",
+      "commit": "3d7dec4333fe73f9cf497c493abb79453ad28e59"
+    },
+    {
+      "repository": "atrinik/tools",
+      "path": "tools",
+      "branch": "main",
+      "commit": "d95e2b893c9a4db834afb16249ee1a02ffa8de25"
+    }
+  ]
+}
