@@ -21,6 +21,10 @@ closed. No command changes client configuration or enables the server. Removing
 the optional client entry and terminating its owned stdio process disables it;
 there is no database, persistent index or cache to migrate or clean up.
 
+For a Docker-hosted HTTPS endpoint and native remote clients, see
+[native remote MCP](MCP_HTTP.md). The HTTP binding adds isolated authenticated
+sessions and explicit legacy wire compatibility without changing this provider.
+
 The direct CLI calls the identical result APIs:
 
 ```sh
