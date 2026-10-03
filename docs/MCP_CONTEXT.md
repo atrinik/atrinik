@@ -1,36 +1,54 @@
 # Read-only workspace context
 
 The wrapper owns `atrinik_workspace.mcp_context`: one result-producing API used
-by its JSON CLI and `atrinik_workspace.mcp_server` stdio binding. It reuses
+by its JSON CLI and MCP bindings. It reuses
 `Manifest.from_value`, canonical profile validation, and the wrapper Git
 worktree parser. It never constructs the operational `Workspace`: that
 constructor creates leases and may backfill references. Inspection does not
 invoke `Paths.ensure`, profile resolution that creates directories, or runtime
 commands.
 
-From an installed, trusted wrapper checkout on Linux, start the optional server
-with an explicit absolute root:
+## Docker quickstart for Codex
+
+The supported public startup is the published Docker image. It contains a
+pinned public corpus of the wrapper plus 19 component repositories and starts a
+Codex-compatible STDIO server without host mounts or runtime network access.
+After a release has verified an anonymous pull and the image digest, replace
+`REVIEW-DIGEST` with that published SHA-256 digest:
 
 ```sh
-python3 -B -m atrinik_workspace.mcp_server --root /absolute/trusted/atrinik
+codex mcp add atrinik -- docker run --rm -i --read-only --network none \
+  --cap-drop ALL --security-opt no-new-privileges \
+  --pids-limit 128 --memory 256m --cpus 2 \
+  ghcr.io/atrinik/atrinik-mcp@sha256:REVIEW-DIGEST stdio
 ```
 
-`-B` prevents Python import-cache writes. This release supports the configured
-root's canonical workspace only; external `ATRINIK_WORKSPACE_DIR` layouts fail
-closed. No command changes client configuration or enables the server. Removing
-the optional client entry and terminating its owned stdio process disables it;
-there is no database, persistent index or cache to migrate or clean up.
+`REVIEW-DIGEST` is deliberately non-runnable review text and does not claim that
+the image is available. Do not substitute an unverified tag. The image uses its
+fixed unprivileged UID; adding an arbitrary `--user` can invalidate Git ownership
+checks. Remove the client entry with `codex mcp remove atrinik`; there is no
+database, persistent index or cache to migrate or clean up. This follows the
+official [OpenAI MCP STDIO configuration](https://learn.chatgpt.com/docs/extend/mcp#stdio-servers).
 
-For a Docker-hosted HTTPS endpoint and native remote clients, see
+For the Docker Compose HTTPS endpoint and native remote clients, see
 [native remote MCP](MCP_HTTP.md). The HTTP binding adds isolated authenticated
 sessions and explicit legacy wire compatibility without changing this provider.
 
-The direct CLI calls the identical result APIs:
+## Internal diagnostics
+
+Maintainers can exercise the result API or transport directly from an installed,
+trusted Linux checkout. These commands are diagnostic and test surfaces, not
+supported public startup instructions. The explicit root must be the checkout's
+canonical workspace; external `ATRINIK_WORKSPACE_DIR` layouts fail closed.
 
 ```sh
 python3 -B -m atrinik_workspace.mcp_context --root /absolute/trusted/atrinik describe --profile classic
 python3 -B -m atrinik_workspace.mcp_context --root /absolute/trusted/atrinik resolve --profile classic --component classic-client
+python3 -B -m atrinik_workspace.mcp_server --root /absolute/trusted/atrinik
 ```
+
+`-B` prevents Python import-cache writes. No diagnostic command changes client
+configuration or grants write, runtime or deployment authority.
 
 ## Agent routing
 
@@ -99,14 +117,16 @@ reads, including escaping and transport metadata.
 
 ## Protocol and dependency decision
 
-The transport implements the modern-only
+The core transport implements the modern-only
 [MCP 2026-07-28 binding](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning)
 and its [stdio framing](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio).
 Every request declares `io.modelcontextprotocol/protocolVersion` and
 `io.modelcontextprotocol/clientCapabilities` in `params._meta`.
 `server/discover` advertises supported versions and capabilities; successful
-results carry `resultType: complete`. Legacy initialization clients are not
-supported. Client-provided identities, capabilities and Roots grant no access.
+results carry `resultType: complete`. The public image's `stdio` entrypoint uses
+the maintained legacy adapter for Codex initialization; the core binding itself
+remains modern-only. Client-provided identities, capabilities and Roots grant
+no access.
 The pinned [schema source](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2026-07-28/schema.ts)
 is the protocol reference.
 

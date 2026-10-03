@@ -7,37 +7,64 @@ The source provider and its selectors, schemas, source fencing and read limits
 are unchanged. Runtime observation and external content providers remain
 separate opt-ins and are not advertised by this server.
 
-## Server configuration
+## Docker Compose quickstart
+
+The supported remote deployment uses the released public-source image and
+`deploy/mcp/compose.yaml`; direct host Python startup is only an internal
+diagnostic. Before starting, point public DNS for the chosen hostname at this
+host, allow inbound TCP ports 80 and 443, leave those ports free for Caddy, and
+allow outbound ACME connectivity for certificate issuance.
+
+After a release has verified anonymous pull and its image digest, replace the
+review values below with the public hostname and immutable released image:
 
 ```sh
-python3 -B -m atrinik_workspace.mcp_http \
-  --root /srv/atrinik \
-  --token-file /run/secrets/atrinik_mcp_token \
-  --host 0.0.0.0 --port 8765 \
-  --allowed-host mcp.example.invalid:8443 \
-  --allowed-host localhost:8765 \
-  --allowed-origin https://mcp.example.invalid:8443 \
-  --tls-cert /run/secrets/atrinik_mcp_cert \
-  --tls-key /run/secrets/atrinik_mcp_key
+cd deploy/mcp
+cp example.env .env
+export MCP_DOMAIN=mcp.example.invalid
+export MCP_IMAGE=ghcr.io/atrinik/atrinik-mcp@sha256:REVIEW-DIGEST
+docker compose up -d
 ```
 
-The absolute root is a reviewed public source snapshot with its Git metadata
-and manifest component checkouts. Mount it read-only. It is the remote source
-view, not a view of a developer's local dirty worktrees. Do not mount player
-state, private repositories, personal configuration, Docker sockets, SSH agents
-or host credentials. Startup performs no clone, source update or other write.
-Unavailable components produce the provider's ordinary unavailable result.
+`mcp.example.invalid` and `REVIEW-DIGEST` are review placeholders, not an image
+availability claim. Set the same values in `.env` if the deployment will be
+managed by later Compose invocations without exported variables. The image
+contains the immutable public source view and needs no host source mount,
+runtime clone or update. Do not add player state, private repositories, personal
+configuration, Docker sockets, SSH agents or host credentials.
 
-Provision a cryptographically random URL-safe bearer token of 32–256 characters
-in the token file (one optional trailing newline). Token and TLS private key
-files must be regular files, not symlinks, with no world access or group write;
-0400/0440/0600/0640 are appropriate according to ownership. The service UID must
-be able to read them. The token is loaded at startup; replace it and restart only
-this service to rotate it. Never put the token into a command argument, source
-control, an image, a build argument, or logs. TLS key and certificate must be
-provided together. TLS requires version 1.2 or newer; encrypted private keys are
-not supported. The certificate must cover the service hostname and localhost
-for the container health probe. Clients must trust its issuing CA.
+The initialization service creates the bearer token in its private Docker
+volume. Retrieve it deliberately from a trusted terminal:
+
+```sh
+docker compose exec -T mcp cat /var/lib/atrinik-auth/token
+```
+
+This command intentionally prints the token. Do not redirect it, pipe it through
+logging or paste it into shell history. Copy it into a hidden prompt on the Codex
+host, keep that environment variable available whenever Codex starts, then add
+the native Streamable HTTP URL:
+
+```sh
+read -rsp 'Atrinik MCP bearer token: ' ATRINIK_MCP_TOKEN; echo
+export ATRINIK_MCP_TOKEN
+codex mcp add atrinik --url "https://mcp.example.invalid/mcp" \
+  --bearer-token-env-var ATRINIK_MCP_TOKEN
+```
+
+Codex reads the secret from the named environment variable and sends it as a
+bearer token; the value does not belong in `config.toml`. This is the native URL
+and authentication form documented by the official
+[OpenAI Streamable HTTP MCP guide](https://learn.chatgpt.com/docs/extend/mcp#streamable-http-servers).
+
+## Authentication and source boundary
+
+The Compose initialization service generates a cryptographically random
+64-character URL-safe token as a mode-0600 regular file in the private `auth`
+volume. The MCP service loads it at startup. Never put the token into a command
+argument, source control, an image, a build argument or logs. Caddy obtains and
+renews the public certificate through ACME; clients must trust its issuing CA.
+The public hostname must continue resolving to this host for TLS renewal.
 
 HTTP without TLS is available for loopback fixture tests or an isolated trusted
 TLS proxy network. Do not expose plaintext bearer authentication on a LAN or
@@ -106,18 +133,25 @@ There is no persisted session cache, replay log or background indexing.
 
 ## Container deployment
 
-Build from the repository root using `deploy/mcp/Dockerfile`. Its default Python
-image is digest pinned. Any `PYTHON_IMAGE` override must retain an immutable
-`@sha256:` reference and be reviewed before deployment. Git and ripgrep are
-installed in the image; no package installation occurs on service startup.
+Release maintainers build the public image from the repository root using
+`deploy/mcp/official.Dockerfile`. Its default Python image is digest pinned. Any
+`PYTHON_IMAGE` override must retain an immutable `@sha256:` reference and be
+reviewed before deployment. Git and ripgrep are installed in the image; no
+package installation occurs on service startup. Public availability is not
+established until the release image passes anonymous-pull and digest checks.
 
 Run as UID/GID 10001, with a read-only root filesystem, all Linux capabilities
 dropped, `no-new-privileges`, explicit CPU/memory/PID limits, and only the
-read-only public source and dedicated token/TLS file mounts described above.
-Publish only the selected HTTPS port. The health check validates TLS against
-`/run/secrets/atrinik_mcp_ca`, which contains the public CA certificate, and
-connects to `localhost:8765`. Provision the CA private key separately from the
-container; only its public certificate belongs in this mount.
+private token volume. The public source corpus is part of the read-only image.
+Only the Caddy proxy publishes ports 80 and 443; the MCP container remains on
+the private backend network. Its health check validates the internal endpoint
+before Compose starts the proxy. Caddy retains certificate state in its
+dedicated volume and does not enable access logging.
 
 The service owner manages deployment, trust installation and restart authority.
 Source changes alone do not authorize modifying other services or merging a PR.
+
+For internal transport tests only, maintainers may invoke
+`python3 -B -m atrinik_workspace.mcp_http` from a trusted checkout with explicit
+test root, token and TLS arguments. That library binding is not a supported
+public deployment path.

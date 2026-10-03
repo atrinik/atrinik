@@ -563,6 +563,25 @@ activation remain optional; the [pilot guide](docs/MCP_PILOT.md) records the
 remaining adoption evidence. Direct wrapper, repository CLI, `rg`, Git, `gh`,
 and browser workflows remain authoritative.
 
+The supported public-source MCP startup is Docker-only. After a release has
+published the image and its anonymous pull and digest have been verified,
+replace `REVIEW-DIGEST` below with that released SHA-256 digest:
+
+~~~sh
+codex mcp add atrinik -- docker run --rm -i --read-only --network none \
+  --cap-drop ALL --security-opt no-new-privileges \
+  --pids-limit 128 --memory 256m --cpus 2 \
+  ghcr.io/atrinik/atrinik-mcp@sha256:REVIEW-DIGEST stdio
+~~~
+
+`REVIEW-DIGEST` is a review placeholder, not an availability claim. The image
+contains an immutable public corpus of the wrapper plus 19 component
+repositories, so this command needs no host mount, checkout, client wrapper or
+runtime network. See the [context server guide](docs/MCP_CONTEXT.md) for local
+use and [remote MCP guide](docs/MCP_HTTP.md) for the HTTPS Docker Compose
+quickstart. Codex supports both STDIO commands and authenticated Streamable HTTP
+URLs as documented in the official [OpenAI MCP guide](https://learn.chatgpt.com/docs/extend/mcp).
+
 Validate or benchmark the contract without installing an MCP SDK:
 
 ~~~sh
