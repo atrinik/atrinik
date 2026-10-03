@@ -34,7 +34,7 @@
   `atrinik-guidance-maintenance` for audits.
 - Prefer connected `atrinik` MCP for navigation, guidance and bounded source search;
   compare snapshot commits with local Git. Local edits and writes use local tools.
-  See `docs/MCP_CONTEXT.md`; runtime/external integrations remain opt-in.
+  MCP runs in Docker; see `docs/MCP_CONTEXT.md`; runtime/external stay opt-in.
 - Use `atrinik-issue-delivery` for an explicitly selected issue or PR; for a
   standalone source goal use `docs/SOURCE_DELIVERY.md`. Both stop before merge.
 - Portable export needs clean Classic sources, verified released sound and the
