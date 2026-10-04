@@ -21999,6 +21999,166 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(self.workspace.topology_down("benchmark-fence", expected_generation="owned-generation"), status)
         stop.assert_called_once_with("benchmark-fence", status, 15)
 
+    def test_benchmark_shutdown_stops_exact_generation_before_status_publication(self) -> None:
+        name = "benchmark-starting"
+        generation = "a" * 64
+        root = self.workspace._topology_directory(name, create=True)
+        process_tree = root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+        descriptor = os.open(process_tree, os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            lease = workspace_module.initialize_lease(descriptor, generation)
+        finally:
+            os.close(descriptor)
+        control = {
+            "socket": str(workspace_module.control_socket_path(root, generation)),
+            "generation": generation,
+            "lease": lease,
+        }
+        atomic_json(
+            root / "spec.json",
+            {
+                "name": name,
+                "control": control,
+                "services": {"server": {}, "client": {}},
+            },
+        )
+
+        with (
+            mock.patch.object(
+                workspace_module,
+                "holders_exist",
+                side_effect=[True, False, False, False],
+            ),
+            mock.patch.object(workspace_module, "signal_holders") as signal_tree,
+        ):
+            stopped = self.workspace.topology_down(
+                name, timeout=0.1, expected_generation=generation
+            )
+
+        self.assertEqual(stopped["control"], control)
+        self.assertFalse(stopped["supervisor"]["running"])
+        self.assertEqual(
+            set(stopped["services"]), {"client", "server"}
+        )
+        self.assertTrue(
+            all(not service["running"] for service in stopped["services"].values())
+        )
+        self.assertEqual(
+            stopped["observation"]["process_tree_lease"], "released"
+        )
+        self.assertEqual(signal_tree.call_count, 1)
+        self.assertEqual(signal_tree.call_args.args[1], signal.SIGTERM)
+
+    def test_benchmark_startup_shutdown_rejects_different_generation(self) -> None:
+        name = "benchmark-starting-wrong-generation"
+        generation = "a" * 64
+        root = self.workspace._topology_directory(name, create=True)
+        process_tree = root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+        descriptor = os.open(process_tree, os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            lease = workspace_module.initialize_lease(descriptor, generation)
+        finally:
+            os.close(descriptor)
+        atomic_json(
+            root / "spec.json",
+            {
+                "name": name,
+                "control": {
+                    "socket": str(
+                        workspace_module.control_socket_path(root, generation)
+                    ),
+                    "generation": generation,
+                    "lease": lease,
+                },
+                "services": {"server": {}, "client": {}},
+            },
+        )
+
+        with (
+            mock.patch.object(workspace_module, "signal_holders") as signal_tree,
+            self.assertRaisesRegex(WorkspaceError, "generation changed"),
+        ):
+            self.workspace.topology_down(
+                name, expected_generation="b" * 64
+            )
+        signal_tree.assert_not_called()
+
+    def test_benchmark_startup_shutdown_escalates_exact_lease_holders(self) -> None:
+        name = "benchmark-starting-escalation"
+        generation = "c" * 64
+        root = self.workspace._topology_directory(name, create=True)
+        process_tree = root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+        descriptor = os.open(process_tree, os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            lease = workspace_module.initialize_lease(descriptor, generation)
+        finally:
+            os.close(descriptor)
+        atomic_json(
+            root / "spec.json",
+            {
+                "name": name,
+                "control": {
+                    "socket": str(
+                        workspace_module.control_socket_path(root, generation)
+                    ),
+                    "generation": generation,
+                    "lease": lease,
+                },
+                "services": {"server": {}, "client": {}},
+            },
+        )
+
+        with (
+            mock.patch.object(
+                workspace_module,
+                "holders_exist",
+                side_effect=[True, True, False, False],
+            ),
+            mock.patch.object(workspace_module, "signal_holders") as signal_tree,
+        ):
+            stopped = self.workspace.topology_down(
+                name, timeout=0, expected_generation=generation
+            )
+
+        self.assertFalse(stopped["supervisor"]["running"])
+        self.assertEqual(
+            [call.args[1] for call in signal_tree.call_args_list],
+            [signal.SIGTERM, signal.SIGKILL],
+        )
+
+    def test_benchmark_startup_shutdown_rejects_special_process_tree_lease(self) -> None:
+        name = "benchmark-starting-special-lease"
+        generation = "d" * 64
+        root = self.workspace._topology_directory(name, create=True)
+        process_tree = root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+        os.mkfifo(process_tree, 0o600)
+        atomic_json(
+            root / "spec.json",
+            {
+                "name": name,
+                "control": {
+                    "socket": str(
+                        workspace_module.control_socket_path(root, generation)
+                    ),
+                    "generation": generation,
+                    "lease": {"path": str(process_tree)},
+                },
+                "services": {"server": {}, "client": {}},
+            },
+        )
+
+        with (
+            mock.patch.object(workspace_module, "signal_holders") as signal_tree,
+            self.assertRaisesRegex(
+                WorkspaceError,
+                "process-tree lease|generation changed",
+            ),
+        ):
+            self.workspace.topology_down(
+                name, timeout=0.1, expected_generation=generation
+            )
+        signal_tree.assert_not_called()
+
     def test_benchmark_launch_rejects_server_only_before_process_creation(self) -> None:
         with (
             mock.patch.object(self.workspace, "_require_classic_contracts"),
@@ -22007,6 +22167,20 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace._topology_up("benchmark-pair", "default", "scenario-review", ["server"],
                                         scenario_benchmark={})
         self.assertFalse((self.workspace.paths.topologies / "benchmark-pair" / "spec.json").exists())
+
+    def test_generation_publication_callback_is_benchmark_only(self) -> None:
+        callback = mock.Mock()
+        with self.assertRaisesRegex(
+            WorkspaceError, "publication callback requires a benchmark"
+        ):
+            self.workspace.topology_up(
+                "callback-without-benchmark",
+                "default",
+                "default",
+                ["server"],
+                generation_published=callback,
+            )
+        callback.assert_not_called()
 
     def test_topology_up_refuses_locked_process_tree_generation(self) -> None:
         root = self.workspace._topology_directory("locked-generation", create=True)

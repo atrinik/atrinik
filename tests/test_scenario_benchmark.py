@@ -732,6 +732,9 @@ class FakeWorkspace:
 
     def topology_up(self, name: str, profile: str, state: str, services: list[str], **kwargs) -> dict:
         self.launch = kwargs["scenario_benchmark"]
+        generation_published = kwargs.get("generation_published")
+        if generation_published is not None:
+            generation_published("generation-1")
         if self.create_report:
             report = Path(self.launch["report"])
             report.write_text('{"terminal":true}\n', encoding="utf-8")
@@ -868,6 +871,57 @@ class RunBenchmarkTests(unittest.TestCase):
             str(workspace.paths.topologies / "bench" / "benchmark" / "gameplay.avi"),
         )
         self.assertFalse(summary["recording"]["performance_comparable"])
+        self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
+
+    def test_run_benchmark_interrupt_after_generation_publication_stops_exact_generation(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        topology_up = workspace.topology_up
+
+        def interrupted(*args, **kwargs):
+            topology_up(*args, **kwargs)
+            raise KeyboardInterrupt
+
+        workspace.topology_up = interrupted
+        with self.assertRaisesRegex(WorkspaceError, "KeyboardInterrupt"):
+            self.run_success(workspace)
+        summary = json.loads(
+            (workspace.paths.topologies / "bench" / "benchmark" / "summary.json").read_text()
+        )
+        self.assertEqual(summary["status"], "failure")
+        self.assertEqual(summary["generation"], "generation-1")
+        self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
+
+    def test_run_benchmark_interrupt_before_generation_publication_stops_nothing(self) -> None:
+        workspace = FakeWorkspace(self.root)
+
+        def interrupted(*_args, **_kwargs):
+            raise KeyboardInterrupt
+
+        workspace.topology_up = interrupted
+        with self.assertRaisesRegex(WorkspaceError, "KeyboardInterrupt"):
+            self.run_success(workspace)
+        summary = json.loads(
+            (workspace.paths.topologies / "bench" / "benchmark" / "summary.json").read_text()
+        )
+        self.assertEqual(summary["status"], "failure")
+        self.assertNotIn("generation", summary)
+        self.assertEqual(workspace.down_calls, [])
+
+    def test_run_benchmark_startup_failure_after_publication_stops_exact_generation(self) -> None:
+        workspace = FakeWorkspace(self.root)
+
+        def failed(*_args, **kwargs):
+            kwargs["generation_published"]("generation-1")
+            raise WorkspaceError("startup failed")
+
+        workspace.topology_up = failed
+        with self.assertRaisesRegex(WorkspaceError, "startup failed"):
+            self.run_success(workspace)
+        summary = json.loads(
+            (workspace.paths.topologies / "bench" / "benchmark" / "summary.json").read_text()
+        )
+        self.assertEqual(summary["status"], "failure")
+        self.assertEqual(summary["generation"], "generation-1")
         self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
 
     def test_run_benchmark_rejects_lighting_without_capture_or_unknown_phase(self) -> None:

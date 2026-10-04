@@ -21133,8 +21133,13 @@ class Workspace:
         retained_build_plan: str | None = None,
         build_services: set[str] | None = None,
         scenario_benchmark: dict[str, str] | None = None,
+        generation_published: Callable[[str], None] | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
+        if generation_published is not None and scenario_benchmark is None:
+            raise WorkspaceError(
+                "topology generation publication callback requires a benchmark"
+            )
         server_listener = self._normalize_server_listener(server_listener, selected_services)
         normalized_mode, normalized_state = self._normalize_topology_state_request(
             state_mode, state_name, selected_services
@@ -21208,6 +21213,11 @@ class Workspace:
                     build_services=build_services,
                     server_listener=server_listener,
                     retained_build_plan=retained_build_plan,
+                    **(
+                        {"generation_published": generation_published}
+                        if generation_published is not None
+                        else {}
+                    ),
                     **({"scenario_benchmark": scenario_benchmark} if scenario_benchmark is not None else {}),
                 )
 
@@ -21248,10 +21258,15 @@ class Workspace:
         retained_build_plan: str | None = None,
         build_services: set[str] | None = None,
         scenario_benchmark: dict[str, str] | None = None,
+        generation_published: Callable[[str], None] | None = None,
         restart_status: dict[str, Any] | None = None,
         operation_lock_held: bool = False,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
+        if generation_published is not None and scenario_benchmark is None:
+            raise WorkspaceError(
+                "topology generation publication callback requires a benchmark"
+            )
         server_listener = self._normalize_server_listener(server_listener, selected_services)
         state_mode, state_name = self._normalize_topology_state_request(
             state_mode, state_name, selected_services
@@ -21935,6 +21950,11 @@ class Workspace:
                     )
                 restart_attempt["spec"] = spec
                 atomic_json(spec_path, spec)
+                if generation_published is not None:
+                    # The exact published coordinate must be visible to callers
+                    # before detached startup can be interrupted. Callers may
+                    # use it only with generation-fenced shutdown.
+                    generation_published(generation)
                 startup_error_path.unlink(missing_ok=True)
 
                 supervisor_log_path = topology_root / "supervisor.log"
@@ -22109,7 +22129,21 @@ class Workspace:
         with exclusive_lock(
             root / "operation.lock", f"topology {name} operation", nonblocking=True
         ):
-            status = self.topology_status(name)
+            try:
+                status = self.topology_status(name)
+            except WorkspaceError as error:
+                if (
+                    expected_generation is None
+                    or str(error) != f"topology has not been started: {name}"
+                ):
+                    raise
+                if retain_state:
+                    raise WorkspaceError(
+                        "--retain-state is unavailable during topology startup"
+                    ) from error
+                return self._stop_starting_topology_generation(
+                    name, root, expected_generation, timeout
+                )
             if expected_generation is not None and (
                 not isinstance(expected_generation, str)
                 or not expected_generation
@@ -22206,6 +22240,90 @@ class Workspace:
             raise WorkspaceError(
                 f"topology did not stop within {timeout:g} seconds: {name}"
             )
+
+    def _stop_starting_topology_generation(
+        self, name: str, root: Path, generation: str, timeout: float
+    ) -> dict[str, Any]:
+        if not isinstance(generation, str) or not re.fullmatch(
+            r"[0-9a-f]{64}", generation
+        ):
+            raise WorkspaceError(
+                "topology generation changed before benchmark shutdown"
+            )
+        spec = _load_topology_record(root / "spec.json")
+        control = spec.get("control")
+        process_tree_path = root / TOPOLOGY_PROCESS_TREE_LEASE
+        if (
+            spec.get("name") != name
+            or not isinstance(control, dict)
+            or set(control) != {"socket", "generation", "lease"}
+            or control.get("generation") != generation
+            or control.get("socket")
+            != str(control_socket_path(root, generation))
+            or not isinstance(control.get("lease"), dict)
+            or not self._valid_state_identity(control["lease"], process_tree_path)
+            or not isinstance(spec.get("services"), dict)
+        ):
+            raise WorkspaceError(
+                "topology generation changed before benchmark shutdown"
+            )
+        descriptor = open_regular_file(
+            process_tree_path,
+            os.O_RDONLY | os.O_NONBLOCK,
+            "topology process-tree lease",
+        )
+        try:
+            metadata = os.fstat(descriptor)
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or metadata.st_nlink != 1
+                or descriptor_path(descriptor) != canonical_path(process_tree_path)
+                or os.pread(descriptor, 66, 0) != f"{generation}\n".encode()
+            ):
+                raise WorkspaceError(
+                    "topology generation changed before benchmark shutdown"
+                )
+            excluded = (os.getpid(),)
+            if holders_exist(descriptor, exclude=excluded):
+                signal_holders(descriptor, signal.SIGTERM, exclude=excluded)
+                deadline = time.monotonic() + timeout
+                while time.monotonic() < deadline and holders_exist(
+                    descriptor, exclude=excluded
+                ):
+                    time.sleep(0.1)
+                if holders_exist(descriptor, exclude=excluded):
+                    signal_holders(descriptor, signal.SIGKILL, exclude=excluded)
+                    kill_deadline = time.monotonic() + min(max(timeout, 0.1), 2.0)
+                    while time.monotonic() < kill_deadline and holders_exist(
+                        descriptor, exclude=excluded
+                    ):
+                        signal_holders(
+                            descriptor, signal.SIGKILL, exclude=excluded
+                        )
+                        time.sleep(0.05)
+                if holders_exist(descriptor, exclude=excluded):
+                    raise WorkspaceError(
+                        f"topology did not stop within {timeout:g} seconds: {name}"
+                    )
+        finally:
+            os.close(descriptor)
+        if (root / "status.json").is_file():
+            stopped = self.topology_status(name)
+            if stopped.get("control", {}).get("generation") != generation:
+                raise WorkspaceError(
+                    "topology generation changed before benchmark shutdown"
+                )
+            return self._finish_temporary_state_down(name, stopped, False, False)
+        return {
+            "control": control,
+            "supervisor": {"running": False},
+            "services": {
+                service: {"running": False, "exit_code": None}
+                for service in spec["services"]
+            },
+            "shutdown": {"control_requested": False, "clean": False},
+            "observation": {"process_tree_lease": "released"},
+        }
 
     def _cleanup_topology_mutable_state_outputs(
         self, status: dict[str, Any]

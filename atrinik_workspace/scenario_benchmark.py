@@ -552,14 +552,25 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
     atomic_json(evidence / "summary.json", manifest)
     generation = None
     failure = None
+
+    def remember_generation(published: str) -> None:
+        nonlocal generation
+        if generation is not None and generation != published:
+            raise WorkspaceError("benchmark topology generation changed during publication")
+        generation = published
+        manifest["generation"] = published
+
     try:
         verifier_bytes = read_regular(workspace.component_path("client", scenario["profile"]) / "tools" / "verify_live_movement.py", MAX_VERIFIER_BYTES)
         staged_verifier = evidence / "verify_live_movement.py"
         _write_new(staged_verifier, verifier_bytes)
         manifest["verifier_sha256"] = hashlib.sha256(verifier_bytes).hexdigest()
         status = workspace.topology_up(name, scenario["profile"], scenario["state"],
-                                       ["server", "client"], scenario_benchmark=launch)
-        generation = status["control"]["generation"]
+                                       ["server", "client"], scenario_benchmark=launch,
+                                       generation_published=remember_generation)
+        returned_generation = status["control"]["generation"]
+        if generation != returned_generation:
+            raise WorkspaceError("benchmark topology returned a different generation")
         manifest["generation"] = generation
         manifest["sources"] = status["resolved"]
         manifest["build"] = {key: status.get(key) for key in ("build_root", "stack", "providers")}
