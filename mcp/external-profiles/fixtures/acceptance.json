@@ -1,0 +1,69 @@
+{
+  "adversarial": [
+    {
+      "expected": "FORBIDDEN_DATA",
+      "id": "credential-in-error"
+    },
+    {
+      "expected": "STALE_IDENTITY",
+      "id": "cross-authorization-cache"
+    },
+    {
+      "expected": "UNTRUSTED_DATA",
+      "id": "prompt-injected-remote-content"
+    },
+    {
+      "expected": "LIMIT_EXCEEDED",
+      "id": "oversized-result"
+    },
+    {
+      "expected": "AUTHORIZATION",
+      "id": "redirect-origin-escape"
+    },
+    {
+      "expected": "CANCELLED",
+      "id": "cancellation"
+    },
+    {
+      "expected": "OFFLINE",
+      "id": "external-outage"
+    },
+    {
+      "expected": "VERSION_DRIFT",
+      "id": "version-drift"
+    }
+  ],
+  "cases": [
+    {
+      "assertions": [
+        "loopback and one approved preview remain inside the origin allowlist",
+        "bounded DOM, accessibility, console, network, CSP, screenshots, responsive, performance, no-JavaScript, and reduced-motion evidence",
+        "profile contains no stored credentials and performs no form submission"
+      ],
+      "id": "browser-local-preview",
+      "profile": "browser-verification",
+      "synthetic": true
+    },
+    {
+      "assertions": [
+        "no operational tools are exposed",
+        "deploy, configuration, secret, database/object, DNS, route, and Durable Object mutation remain unavailable"
+      ],
+      "id": "cloudflare-rejected",
+      "profile": "cloudflare-operational",
+      "synthetic": true
+    },
+    {
+      "assertions": [
+        "only Prometheus and dashboard categories are requested",
+        "write tools are disabled",
+        "Loki and raw logs remain unavailable",
+        "all dashboard and datasource selectors are explicit allowlisted UIDs"
+      ],
+      "id": "grafana-bounded-read",
+      "profile": "grafana-prometheus-dashboard-read-only",
+      "synthetic": true
+    }
+  ],
+  "schema_version": "atrinik.mcp.external-profiles.acceptance/v1"
+}

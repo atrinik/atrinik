@@ -1,0 +1,20 @@
+# Only executable package, contract and reviewed corpus builder inputs enter builds.
+**
+!atrinik_workspace/
+!atrinik_workspace/**
+!mcp/
+!mcp/contract/
+!mcp/contract/**
+!LICENSE
+!deploy/
+!deploy/mcp/
+!deploy/mcp/build_corpus.py
+!deploy/mcp/source-lock.json
+!deploy/mcp/official.Dockerfile
+!deploy/mcp/official.Dockerfile.dockerignore
+**/__pycache__
+**/*.pyc
+**/.git
+**/.env*
+**/credentials*
+**/secrets*

@@ -466,14 +466,16 @@ mounts, and its network, display, GPU and audio endpoints are absent.
 
 Its current full-commit consumer
 guard requires Classic `d926f6fd0418fb1af9060158c43d8d3ff5252580`.
-The CI driver creates fresh primary checkouts at this revision and the released
-sound revision for its `linux-portable-acceptance` profile. It refuses existing
-dependency paths and never resets rolling primary branches. The exporter
-materializes immutable generations from these clean primary selectors. Advancing
-the pins requires qualifying the producer recipe and consumer together.
 Use a clean Classic profile with verified released sound matching its selected
 sound source commit, and a new absolute destination
 whose parent is owned by the invoking user and not writable by other users.
+The CI driver requires absent Classic and sound checkout destinations, fetches
+the exact qualified commits into fresh primaries, and retains the wrapper's
+canonical remote and clean-source checks. The saved `linux-portable-acceptance`
+profile lets the exporter materialize immutable generations from these primary
+selectors. Advancing either repository's `main`
+branch does not change this acceptance recipe; qualifying a new Classic commit
+requires a separately reviewed immutable producer.
 Create `classic-released-audio` with the exact v1.0.0 coordinates in the
 [released sound recipe](../README.md) before running these producer
 commands (the CI driver creates its own equivalent saved profile):

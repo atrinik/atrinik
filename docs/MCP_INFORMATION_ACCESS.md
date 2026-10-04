@@ -138,9 +138,10 @@ candidate. In summary:
 - build the wrapper context/search surfaces, content-toolkit adapter, and
   separately enabled runtime-status surface behind their issue dependencies;
 - defer runtime logs until redaction is proved;
-- defer GitHub, browser, and Cloudflare profiles to their measured
-  least-privilege evaluation, rejecting Cloudflare if mutation cannot be
-  excluded; and
+- use the existing host GitHub plugin with `gh` and Git fallbacks, without an
+  additional server or credential;
+- defer browser and Cloudflare profiles to their measured least-privilege
+  evaluation, rejecting Cloudflare if mutation cannot be excluded; and
 - reject generic filesystem, shell, memory, vector, eager all-worktree, and
   hosted source-upload servers.
 
