@@ -165,6 +165,11 @@ class CompletionTests(unittest.TestCase):
             ("candidates", ["review"]),
         )
 
+    def test_exact_cleanup_build_root_uses_no_path_completion(self) -> None:
+        self.assertEqual(self.candidates("cleanup", "--build-root", ""), ("candidates", []))
+        _, values = self.candidates("cleanup", "--scope", "builds", "-")
+        self.assertIn("--build-root", values)
+
     def test_consumed_and_mutually_exclusive_options_are_suppressed(self) -> None:
         mode, values = self.candidates("cleanup", "--dry-run", "--", "")
         self.assertEqual(mode, "none")

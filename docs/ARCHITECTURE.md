@@ -581,6 +581,15 @@ exact candidate leases and freshly revalidates that target immediately before
 removal. Busy or newly ambiguous candidates are preserved; completed removals
 are journaled before the ordered sequence continues.
 
+The optional `--build-root NAME` requires exactly `--scope builds` without
+positional filters. It selects one discovered direct child of the managed
+profile-build container by exact name, rejects ambiguous case aliases, and
+passes the selected item through the same marker, age, reference and lease
+checks. It excludes source generations and dependency caches. The typed selector
+participates in the report, request hash, recovery journal and acknowledgement;
+legacy requests keep their original identity. Recovery rejects items outside
+the exact selected root and does not require a removed root to exist again.
+
 Issue/PR delivery ledgers use a separate three-stage terminal state machine.
 An active schema-1 ledger owns its issue, PR, repository/head, worktree, and
 resource coordinates even after a ready handoff. Only a new explicit

@@ -312,6 +312,21 @@ class ParserTests(unittest.TestCase):
             "review", apply=True, plan_sha256="a" * 64
         )
 
+    def test_cleanup_exact_build_root_dispatch(self) -> None:
+        name = "review-aaaaaaaaaaaa"
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type, mock.patch(
+            "sys.stdout", new_callable=io.StringIO
+        ):
+            workspace_type.return_value.cleanup.return_value = {
+                "items": [], "summary": {"error_count": 0},
+            }
+            self.assertEqual(main([
+                "cleanup", "--scope", "builds", "--build-root", name, "--json"
+            ]), 0)
+        workspace_type.return_value.cleanup.assert_called_once_with(
+            ["builds"], 7, [], False, build_root=name
+        )
+
     def test_cleanup_accepts_the_explicit_topologies_scope(self) -> None:
         options = parser().parse_args(["cleanup", "--scope", "topologies"])
         self.assertEqual(options.scope, ["topologies"])
@@ -365,7 +380,7 @@ class ParserTests(unittest.TestCase):
                 result = main(["cleanup", "--dry-run", "--json"])
 
         self.assertEqual(result, 0)
-        workspace_type.return_value.cleanup.assert_called_once_with([], 7, [], False)
+        workspace_type.return_value.cleanup.assert_called_once_with([], 7, [], False, build_root=None)
         self.assertEqual(json.loads(output.call_args.args[0]), report)
 
     def test_cleanup_json_preserves_exact_numeric_byte_fields(self) -> None:
@@ -443,7 +458,7 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(result, 1)
         workspace_type.return_value.cleanup.assert_called_once_with(
-            ["worktrees", "builds"], 0, ["classic-client"], True
+            ["worktrees", "builds"], 0, ["classic-client"], True, build_root=None
         )
         workspace_type.return_value.cleanup_acknowledge.assert_not_called()
 

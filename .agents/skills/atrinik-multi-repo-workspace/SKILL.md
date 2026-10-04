@@ -22,11 +22,9 @@ Repair local blockers under [local recovery](../../../docs/LOCAL_RECOVERY.md).
 
 ## Safe worktrees
 
-New source-only changes use [source delivery](../../../docs/SOURCE_DELIVERY.md).
-The source helper creates owned Git worktrees; verify interrupted edits. Existing
-bound deliveries remain on their original recovery protocol. Use the managed
-scope/worktree instructions below when the task needs those resources, not as a
-prerequisite to an isolated source patch or fixture test.
+New source work uses [source delivery](../../../docs/SOURCE_DELIVERY.md) and owned
+Git worktrees; verify interrupted edits. Bound deliveries retain their recovery
+protocol. Use managed scopes/worktrees only when those resources are needed.
 
 Inspect before mutation:
 
@@ -68,15 +66,17 @@ Release with a fresh preview:
 Release never stops topologies or deletes persistent state; resume interruptions
 after preview; uncertainty retains journals.
 
-Reclaim review data through preview-first cleanup:
+Reclaim data through preview-first cleanup:
 
 ```sh
 ./atrinik cleanup --dry-run --json
+./atrinik cleanup --scope builds --build-root NAME --dry-run --json
 ./atrinik cleanup --scope sound-cache sound --older-than 7 --dry-run --json
 ./atrinik cleanup --scope worktrees sound --older-than 7 --dry-run --json
 ./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
 ```
 
+`--build-root` selects an exact inventory name with only `--scope builds`.
 Repeat with `--apply`; defaults cover worktrees/builds; opt into caches/history; `all`
 excludes topologies. Remove only stopped, released, exact-owned records; uncertainty fails closed.
 Apply sound-cache before its worktree; retire receipts only via exact-name `cleanup-journals`

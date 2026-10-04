@@ -306,6 +306,10 @@ def parser() -> argparse.ArgumentParser:
         ],
         default=[],
     )
+    mark(cleanup.add_argument(
+        "--build-root", metavar="NAME",
+        help="select one exact managed profile build root; requires only --scope builds",
+    ), "none")
     mark(cleanup.add_argument("--older-than", type=int, default=7, metavar="DAYS"), "none")
     cleanup_mode = cleanup.add_mutually_exclusive_group()
     cleanup_mode.add_argument("--dry-run", action="store_true")
@@ -1229,6 +1233,7 @@ def main(arguments: list[str] | None = None) -> int:
                 options.older_than,
                 options.components,
                 options.apply,
+                build_root=options.build_root,
             )
             if options.json:
                 print(json.dumps(report, indent=2, sort_keys=True))

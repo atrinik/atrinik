@@ -1419,6 +1419,7 @@ class Cleanup:
         self.paths = workspace.paths
         self.manifest = workspace.manifest
         self._journal_limit = journal_limit
+        self._selected_build_root: str | None = None
         self.now = datetime.now(timezone.utc)
         self._repositories: dict[str, Path] = {}
         self._wrapper_primary = self.paths.repository
@@ -1451,12 +1452,21 @@ class Cleanup:
         older_than_days: int,
         names: list[str],
         apply: bool,
+        *,
+        build_root: str | None = None,
     ) -> dict[str, Any]:
         selected_scopes = self._normalize_scopes(scopes)
         if "cleanup-journals" in selected_scopes and selected_scopes != [
             "cleanup-journals"
         ]:
             raise WorkspaceError("cleanup-journals must be selected by itself")
+        if build_root is not None:
+            if scopes != ["builds"] or names:
+                raise WorkspaceError(
+                    "--build-root requires only --scope builds and no positional filters"
+                )
+            validate_name(build_root, "build root name")
+        self._selected_build_root = build_root
         selected_names = self._normalize_names(names, selected_scopes)
         if older_than_days < 0:
             raise WorkspaceError("--older-than must be zero or greater")
@@ -1471,6 +1481,8 @@ class Cleanup:
             "older_than_days": older_than_days,
             "filters": sorted(selected_names or []),
         }
+        if build_root is not None:
+            request["build_root"] = build_root
         coordinate = _canonical_json_sha256(request)
         leases = [
             self.workspace._lease_request(
@@ -1838,6 +1850,7 @@ class Cleanup:
                 or report.get("scopes") != request["scopes"]
                 or report.get("older_than_days") != request["older_than_days"]
                 or report.get("filters") != request["filters"]
+                or report.get("build_root") != request.get("build_root")
                 or not isinstance(report.get("items"), list)
             ):
                 raise WorkspaceError(f"cleanup journal report is invalid: {path}")
@@ -1849,6 +1862,8 @@ class Cleanup:
                 for item in report["items"]
             ):
                 raise WorkspaceError(f"cleanup journal report items are invalid: {path}")
+            if not self._matches_build_root_selection(request, report["items"]):
+                raise WorkspaceError("cleanup journal exceeds its exact build root selection")
             targets = value["targets"]
             expected = [
                 {"kind": item.get("kind"), "path": item.get("path")}
@@ -2170,6 +2185,8 @@ class Cleanup:
                     target["disposition"] = "removed"
                     target["reasons"] = ["removed"]
                     continue
+                if self._selected_build_root is not None:
+                    self._exact_build_root_path(allow_missing=True)
                 intent = journal["in_flight"]
                 if intent is not None and intent["action"] == action:
                     if (
@@ -2378,6 +2395,8 @@ class Cleanup:
             "older_than_days": report.get("older_than_days"),
             "filters": report.get("filters"),
         }
+        if "build_root" in report:
+            request["build_root"] = report["build_root"]
         coordinate = hashlib.sha256(
             json.dumps(request, sort_keys=True, separators=(",", ":")).encode("utf-8")
         ).hexdigest()
@@ -2414,6 +2433,18 @@ class Cleanup:
                 datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             )
             durable_atomic_json(journal_path, journal)
+
+    def _matches_build_root_selection(
+        self, request: dict[str, Any], items: list[dict[str, Any]]
+    ) -> bool:
+        if "build_root" not in request:
+            return True
+        return len(items) <= 1 and all(
+            item["kind"] in {"profile-build", "unmanaged-build"}
+            and item["path"] == str(self.paths.builds / "profiles" / request["build_root"])
+            and (item["disposition"] != "eligible" or item["kind"] == "profile-build")
+            for item in items
+        )
 
     @staticmethod
     def _normalize_scopes(scopes: list[str]) -> list[str]:
@@ -2516,9 +2547,10 @@ class Cleanup:
                     reference_errors,
                 )
             )
-            items.extend(
-                self._unmanaged_builds(registered, references, reference_errors)
-            )
+            if self._selected_build_root is None:
+                items.extend(
+                    self._unmanaged_builds(registered, references, reference_errors)
+                )
         if "temporary-states" in scopes and names is None:
             items.extend(self._temporary_states(older_than_days))
         if "npm-cache" in scopes:
@@ -2568,6 +2600,8 @@ class Cleanup:
             "scopes": scopes,
             "older_than_days": older_than_days,
             "filters": sorted(names or []),
+            **({"build_root": self._selected_build_root}
+               if self._selected_build_root is not None else {}),
             "inventory_errors": sorted(reference_errors),
             "items": items,
             "summary": summary,
@@ -2741,6 +2775,13 @@ class Cleanup:
                     or value.get("in_flight") is not None
                     or not isinstance(request, dict)
                     or set(request) != {"scopes", "older_than_days", "filters"}
+                    | ({"build_root"} if "build_root" in request else set())
+                    or ("build_root" in request and (
+                        request.get("scopes") != ["builds"]
+                        or request.get("filters") != []
+                        or not isinstance(request["build_root"], str)
+                        or re.fullmatch(r"[a-z0-9][a-z0-9._-]*", request["build_root"]) is None
+                    ))
                     or not isinstance(report, dict)
                     or set(report)
                     != {
@@ -2752,12 +2793,13 @@ class Cleanup:
                         "inventory_errors",
                         "items",
                         "summary",
-                    }
+                    } | ({"build_root"} if "build_root" in request else set())
                     or report.get("schema_version") != CLEANUP_SCHEMA_VERSION
                     or report.get("mode") != "apply"
                     or any(report.get(key) != request[key] for key in request)
                     or report.get("inventory_errors") != []
                     or expected_targets is None
+                    or not self._matches_build_root_selection(request, report_items)
                     or len(
                         {(row["kind"], row["path"]) for row in report_items}
                     )
@@ -2881,6 +2923,8 @@ class Cleanup:
         if registered_error:
             reference_errors.add("worktree_inventory_error")
         if kind == "profile-build":
+            if self._selected_build_root is not None:
+                self._exact_build_root_path()
             removable_worktrees = (
                 self._revalidate_build_sources(
                     path,
@@ -4569,6 +4613,27 @@ class Cleanup:
             )
         )
 
+    def _exact_build_root_path(self, *, allow_missing: bool = False) -> Path:
+        """Discover an exact direct root without accepting paths or case aliases."""
+        name = self._selected_build_root
+        assert name is not None
+        profiles = self.paths.builds / "profiles"
+        if (self.paths.builds.is_symlink() or not self.paths.builds.is_dir()
+                or profiles.is_symlink() or not profiles.is_dir()):
+            raise WorkspaceError("exact build root inventory container is unsafe or missing")
+        try:
+            matches = [path for path in profiles.iterdir() if path.name.casefold() == name.casefold()]
+        except OSError as error:
+            raise WorkspaceError(f"cannot inventory exact build root: {error}") from error
+        if len(matches) > 1:
+            raise WorkspaceError("ambiguous build root name")
+        if not matches and allow_missing:
+            # Recovery can authenticate an already removed root from its receipt.
+            return profiles / name
+        if not matches or matches[0].name != name:
+            raise WorkspaceError(f"unknown exact build root: {name}")
+        return matches[0]
+
     def _builds(
         self,
         older_than_days: int,
@@ -4577,6 +4642,12 @@ class Cleanup:
         references: dict[str, Any],
         reference_errors: set[str],
     ) -> list[dict[str, Any]]:
+        if self._selected_build_root is not None:
+            path = self._exact_build_root_path()
+            return [self._build_item(
+                path, older_than_days, registered, removable_worktrees,
+                references, reference_errors,
+            )]
         if self.paths.builds.is_symlink() or (
             self.paths.builds.exists() and not self.paths.builds.is_dir()
         ):

@@ -6122,6 +6122,7 @@ class Workspace:
         names: list[str],
         apply: bool,
         *,
+        build_root: str | None = None,
         _journal_limit: int | None = None,
     ) -> dict[str, Any]:
         # Import lazily so the planner can reuse the workspace lock and metadata
@@ -6130,13 +6131,13 @@ class Workspace:
 
         if not apply:
             return Cleanup(self, journal_limit=_journal_limit).execute(
-                scopes, older_than_days, names, False
+                scopes, older_than_days, names, False, build_root=build_root
             )
         with shared_maintenance_lock(
             self._lease_namespace / "repository-layout.lock"
         ):
             return Cleanup(self, journal_limit=_journal_limit).execute(
-                scopes, older_than_days, names, True
+                scopes, older_than_days, names, True, build_root=build_root
             )
 
     def cleanup_acknowledge(self, report: dict[str, Any]) -> None:

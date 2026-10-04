@@ -1371,6 +1371,16 @@ marker-owned Worker dependency entries, without changing the filesystem:
 mutates. Repeated `--scope` options combine `worktrees`, `builds`, and the
 opt-in `temporary-states`, `npm-cache`, `compiler-cache`, and `sound-cache`;
 `all` selects all six.
+To select one managed profile build, use `--scope builds --build-root NAME`,
+where `NAME` is the exact final directory name from the inventory, such as
+`rendering-fixes-ac5b65ee46bc`. Preview with `--dry-run --json`, then apply the
+identical request. This selector requires only the `builds` scope and no
+positional filters. Paths, case aliases and unknown names are rejected. It
+excludes every other build, dependency cache and source generation; the selected
+root retains all age, ownership, reference, lease and revalidation protections.
+The exact name is included in reports and recovery receipt identity. Existing
+pending receipts must be retried with the same selector even after removal.
+
 Topology history is a separate opt-in `topologies` scope and is deliberately
 excluded from both the default and `all`, so a broad cache/worktree cleanup
 cannot silently expand to runtime history.
