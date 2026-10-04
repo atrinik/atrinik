@@ -1135,6 +1135,10 @@ exact Git commit into a wrapper-owned, read-only source generation; the build
 restores entries omitted by repository-owned `export-ignore` release rules
 directly from their recorded Git blob IDs before validating the complete tree;
 then releases that primary's source lease before configure, compile, and tests.
+The reserved `build topology` target instead keeps the normal paired `up` live
+selected-source coordinates and their source leases through the build. Its plan
+and execution therefore derive the same build root that `topology show` reports,
+including clean primary resource and sound providers.
 The manifest may give a logical component strict checkout-relative
 `source_includes` for shared sibling files or directories that its build reads
 outside the logical `source` directory, including narrowly declared files or

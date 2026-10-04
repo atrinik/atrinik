@@ -7058,6 +7058,9 @@ class WorkspaceTests(unittest.TestCase):
         normal_selected = self.workspace._resolve_build_profile(
             "default", {"client", "server"}
         )
+        normal_summary = self.workspace.topology_summary(
+            "default", "default", ["server", "client"]
+        )
         self.assertEqual(plan["targets"], ["client", "server"])
         self.assertEqual(
             plan["sources"],
@@ -7066,6 +7069,16 @@ class WorkspaceTests(unittest.TestCase):
                 for role, path in sorted(normal_selected.items())
             },
         )
+        self.assertEqual(plan["sources"], plan["execution_sources"])
+        self.assertEqual(plan["build_root"], normal_summary["build_root"])
+        for role in ("resources", "sound"):
+            self.assertEqual(
+                Path(plan["execution_sources"][role]), normal_selected[role]
+            )
+            self.assertNotIn(
+                self.workspace.paths.builds / "source-generations",
+                Path(plan["execution_sources"][role]).parents,
+            )
         self.assertEqual(
             set(plan["sources"]),
             {

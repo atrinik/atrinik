@@ -8849,7 +8849,11 @@ class Workspace:
             raise WorkspaceError("build plan manifest changed; create a fresh workspace")
         if self._expand_build_target(target, profile_name) != targets:
             raise WorkspaceError("build plan target roles changed during admission")
-        predicted = self._planned_build_sources(profile, selected, states)
+        predicted = (
+            dict(selected)
+            if target == "topology"
+            else self._planned_build_sources(profile, selected, states)
+        )
         stack = self.manifest.stack(profile["stack"])
         fingerprints = {}
         for role, source in sorted(selected.items()):
@@ -8979,7 +8983,8 @@ class Workspace:
         try:
             with self._resolved_profile_operation(
                 profile_name, set(targets), f"build {target}",
-                materialize_clean_primaries=True, before_materialization=fence,
+                materialize_clean_primaries=target != "topology",
+                before_materialization=fence,
             ) as snapshot:
                 if admitted and {role: str(path) for role, path in snapshot.paths().items()} != admitted[0]["execution_sources"]:
                     raise WorkspaceError("materialized build sources differ from the admitted plan")

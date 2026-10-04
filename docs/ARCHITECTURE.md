@@ -398,9 +398,11 @@ target is compiled.
 The public `build topology` target selects the same direct client/server roles
 and dependency closure as an ordinary paired `up`, without the selective CMake
 target behavior of `dev build` or the metaserver worker included by `build all`.
-It uses the ordinary build-plan observation and `--expected-plan` admission
-fence. The fence binds the prebuild itself; a later `up` still re-resolves the
-current source coordinates before warming and launching that build root.
+It retains the same live selected-source coordinates and leases as `up`, rather
+than predicting or publishing clean-primary source generations. Its ordinary
+build-plan observation and `--expected-plan` admission fence therefore name the
+same root reported by `topology show`. The fence binds the prebuild itself; a
+later `up` still re-resolves current sources before warming and launching it.
 
 The selected service set controls both the supervised service manifest and the
 CMake target list. Shared inputs are reconciled and their cache decisions are
