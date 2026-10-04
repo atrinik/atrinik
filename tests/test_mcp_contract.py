@@ -514,6 +514,7 @@ class McpContractTests(unittest.TestCase):
         rows = {row["id"]: row for row in matrix["rows"]}
         self.assertEqual(rows["atrinik-context"]["decision"], "build")
         self.assertEqual(rows["atrinik-observe-logs"]["decision"], "defer")
+        self.assertNotIn("github-maintained-connector", rows)
         self.assertEqual(
             rows["generic-filesystem-shell-memory-vector"]["decision"], "reject"
         )
@@ -580,7 +581,10 @@ class McpContractTests(unittest.TestCase):
         }:
             with self.subTest(marker=marker):
                 self.assertIn(marker, documentation)
-        self.assertIn("does not yet ship or configure a production MCP server", readme)
+        for marker in ("context server", "revision-aware search", "separate runtime server",
+                       "activation remain optional", "remaining adoption evidence"):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, readme)
         self.assertIn("tool annotations, prompts, and confirmation UI", architecture)
 
     def test_command_reports_validation_and_safe_failures(self) -> None:

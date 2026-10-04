@@ -1,6 +1,6 @@
 ---
 name: atrinik-project-delivery
-description: Coordinate an authorized Atrinik multi-issue project across repositories with parallel owned worktrees, dependencies, review, and acceptance. Use issue delivery instead for a single existing issue or PR.
+description: Coordinate authorized Atrinik multi-issue projects across repositories, owned worktrees, dependencies, review, and acceptance.
 ---
 
 # Coordinate an Atrinik project

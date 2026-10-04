@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atrinik.org/schemas/mcp/pilot-config-v1.json",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {"type": "string"},
+    "evidence_kind": {"enum": ["real-pilot", "synthetic-self-test"]},
+    "expected_head": {"oneOf": [{"pattern": "^[0-9a-f]{40}$", "type": "string"}, {"type": "null"}]},
+    "pilot_enabled": {"type": "boolean"},
+    "profiles": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "adapter": {
+            "additionalProperties": false,
+            "properties": {
+              "argv": {"items": {"type": "string"}, "minItems": 1, "type": "array"},
+              "pin_path": {"type": "string"},
+              "sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"}
+            },
+            "required": ["argv", "pin_path", "sha256"],
+            "type": "object"
+          },
+          "enabled": {"type": "boolean"},
+          "evaluation_only": {"type": "boolean"},
+          "owner": {"type": "string"},
+          "profile_id": {"enum": ["context", "search", "content", "runtime-status", "external-evaluation"]},
+          "revision": {"type": "string"},
+          "runtime_opt_in": {"type": "boolean"},
+          "server_id": {"type": "string"}
+        },
+        "required": ["profile_id", "server_id", "owner", "revision", "enabled", "runtime_opt_in", "evaluation_only"],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "schema_version": {"const": "atrinik.mcp.pilot-config/v1"},
+    "trust_root": {"type": "string"}
+  },
+  "required": ["schema_version", "evidence_kind", "pilot_enabled", "trust_root", "expected_head", "profiles"],
+  "title": "Atrinik MCP pilot configuration v1",
+  "type": "object"
+}
