@@ -1,3 +1,5 @@
+# Copyright 2026 The Atrinik Project
+# SPDX-License-Identifier: MIT
 """Read-only protection for active issue-delivery evidence.
 
 The delivery-ledger helper owns the ledger schema and its trust boundary.  The
@@ -13,6 +15,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import stat
 import subprocess
 import sys
 from typing import Any
@@ -25,7 +28,10 @@ from .platform_compat import inherited_subprocess_handles
 _INVENTORY_LIMIT = 32 * 1024 * 1024
 _INVENTORY_TIMEOUT_SECONDS = 30
 _LEDGER_SUFFIX = ".md.ledger.json"
-_HELPER_RELATIVE = Path("scripts/delivery_ledger.py")
+_HELPER_RELATIVES = (
+    Path("scripts/delivery_ledger.py"),
+    Path(".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"),
+)
 
 
 def _ledger_lock_name(review_root: Path, ledger_name: str) -> str:
@@ -69,6 +75,27 @@ def _regular_path(path: Path, context: str) -> None:
         raise WorkspaceError(f"{context} is not owned by the current user: {path}")
 
 
+def _delivery_helper(root: Path) -> Path:
+    """Select this checkout's layout; unsafe present paths never permit fallback."""
+    for relative in _HELPER_RELATIVES:
+        helper = root / relative
+        current = root
+        for part in relative.parts:
+            current /= part
+            try:
+                metadata = current.lstat()
+            except FileNotFoundError:
+                break  # Only genuine absence permits the historical layout.
+            except OSError as error:
+                raise WorkspaceError(f"cannot inspect delivery-ledger helper: {current}: {error}") from error
+            if current != helper and not stat.S_ISDIR(metadata.st_mode):
+                raise WorkspaceError(f"delivery-ledger helper ancestor is not a regular directory: {current}")
+        else:
+            _regular_path(helper, "delivery-ledger helper")
+            return helper
+    raise WorkspaceError(f"delivery-ledger helper is missing from supported layouts: {root}")
+
+
 def _absolute_path(value: Any, context: str) -> Path:
     if not isinstance(value, str) or not value:
         raise WorkspaceError(f"{context} is not an absolute path")
@@ -103,8 +130,7 @@ def inventory_active_delivery_evidence(wrapper_root: Path) -> ActiveDeliveryEvid
     if review_root.is_symlink() or not review_root.is_dir():
         raise WorkspaceError(f"delivery review root is not a regular directory: {review_root}")
 
-    helper = root / _HELPER_RELATIVE
-    _regular_path(helper, "delivery-ledger helper")
+    helper = _delivery_helper(root)
     try:
         with inherited_subprocess_handles(active_lock_fds()) as inheritance:
             result = subprocess.run(
