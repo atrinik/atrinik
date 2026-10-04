@@ -238,10 +238,20 @@ Related coordination: [Docker volume/cache I/O (#538)](https://github.com/atrini
 Initialize the selected workspace with `./atrinik status --json` before planning.
 Use `./atrinik build server --profile classic --test --plan --json` to obtain the
 actual future `build_root`, source-generation paths, and `plan_sha256` without
-publishing source generations or build output. Record that returned identity in
-the delivery ledger before execution, then run the same build options with
-`--expected-plan RETURNED_SHA256`. Changed source bytes, Git identities, profile,
-manifest, providers, dependencies, or build options refuse before publication.
+publishing source generations or build output. Use `build topology` when the
+planned build must select the same complete client/server dependency closure and
+build key as a normal paired `up`:
+
+~~~sh
+./atrinik build topology --profile classic --plan --json
+./atrinik build topology --profile classic \
+  --expected-plan RETURNED_PLAN_SHA256
+~~~
+
+Record the returned identity in the delivery ledger before execution, then run
+the same build options with `--expected-plan RETURNED_SHA256`. Changed source
+bytes, Git identities, profile, manifest, providers, dependencies, or build
+options refuse before publication.
 Planning recognizes exact Git LFS pointer and hydrated payload bytes without
 running clean filters; custom clean filters are unsupported and fail closed.
 Topology summaries describe current selections; use the returned build plan,
@@ -735,6 +745,10 @@ Add the complete currently playable classic stack explicitly:
 project, so protocol and libatrinik are compiled once and shared by the client
 and server. A component-specific build such as `build client` or `build server`
 continues to exercise that module's supported standalone FetchContent path.
+`build topology` selects the direct client and server targets plus their complete
+dependency closure, matching the normal paired `up` build root without adding the
+metaserver worker. It supports the standard `--plan` and `--expected-plan` fence;
+`build all --test` remains the full validation command.
 
 ### Incremental Classic development
 

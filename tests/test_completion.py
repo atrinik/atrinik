@@ -221,6 +221,7 @@ class CompletionTests(unittest.TestCase):
         mode, values = self.candidates("build", "--profile", "classic", "")
         self.assertEqual(mode, "candidates")
         self.assertIn("all", values)
+        self.assertIn("topology", values)
         self.assertIn("libatrinik", values)
         self.assertIn("classic-server", values)
 
@@ -228,6 +229,7 @@ class CompletionTests(unittest.TestCase):
         self.assertIn("metaserver-worker", default_values)
         self.assertNotIn("libatrinik", default_values)
         self.assertNotIn("all", default_values)
+        self.assertNotIn("topology", default_values)
         _, path_values = self.candidates("path", "--profile", "classic", "")
         self.assertIn("classic-client", path_values)
         self.assertNotIn("website", path_values)

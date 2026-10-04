@@ -7051,6 +7051,84 @@ class WorkspaceTests(unittest.TestCase):
         selected = build_resolved.call_args.args[4]
         self.assertEqual(set(selected), {"content"})
 
+    def test_topology_build_matches_normal_paired_launch_sources_and_key(
+        self,
+    ) -> None:
+        plan = self.workspace.build_plan("topology", "default")
+        normal_selected = self.workspace._resolve_build_profile(
+            "default", {"client", "server"}
+        )
+        self.assertEqual(plan["targets"], ["client", "server"])
+        self.assertEqual(
+            plan["sources"],
+            {
+                role: str(path)
+                for role, path in sorted(normal_selected.items())
+            },
+        )
+        self.assertEqual(
+            set(plan["sources"]),
+            {
+                "client",
+                "content",
+                "libatrinik",
+                "protocol",
+                "resources",
+                "server",
+                "sound",
+            },
+        )
+        execution_sources = {
+            role: Path(path)
+            for role, path in plan["execution_sources"].items()
+        }
+        self.assertEqual(
+            plan["build_key"],
+            self.workspace._profile_build_key("default", execution_sources),
+        )
+
+        expected = Path(plan["build_root"])
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=expected
+        ) as build_resolved:
+            self.assertEqual(
+                self.workspace.build(
+                    "topology",
+                    "default",
+                    False,
+                    expected_plan=plan["plan_sha256"],
+                ),
+                expected,
+            )
+        self.assertEqual(
+            build_resolved.call_args.args[:4],
+            ("topology", "default", False, ["client", "server"]),
+        )
+        self.assertEqual(
+            {
+                role: str(path)
+                for role, path in sorted(build_resolved.call_args.args[4].items())
+            },
+            plan["execution_sources"],
+        )
+        self.assertNotIn("build_services", build_resolved.call_args.kwargs)
+
+        with mock.patch.object(self.workspace, "_build_resolved") as rejected:
+            with self.assertRaisesRegex(WorkspaceError, "plan changed"):
+                self.workspace.build(
+                    "topology", "default", False, expected_plan="0" * 64
+                )
+        rejected.assert_not_called()
+
+    def test_topology_build_rejects_stack_without_playable_contracts(self) -> None:
+        with mock.patch.object(
+            self.workspace.manifest, "effective_build", return_value="none"
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "no wrapper build/runtime contract"
+            ):
+                self.workspace.build_plan("topology", "default")
+
     def test_integrated_classic_build_requires_one_complete_monorepo(self) -> None:
         checkout = self.root / "classic"
         checkout.mkdir()

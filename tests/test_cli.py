@@ -744,6 +744,57 @@ class ParserTests(unittest.TestCase):
             "resources", "default", False, force_reconfigure=False, use_ccache=True, expected_plan="b" * 64)
         workspace_type.return_value.build_plan.assert_not_called()
 
+    def test_topology_build_plan_and_execution_use_public_build_contract(self) -> None:
+        plan = {"plan_sha256": "a" * 64, "build_root": "/topology-build"}
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.build_plan.return_value = plan
+            workspace_type.return_value.build.return_value = Path(
+                "/topology-build"
+            )
+            with mock.patch("sys.stdout", new_callable=io.StringIO):
+                self.assertEqual(
+                    main(
+                        [
+                            "build",
+                            "topology",
+                            "--profile",
+                            "classic",
+                            "--plan",
+                            "--json",
+                        ]
+                    ),
+                    0,
+                )
+                self.assertEqual(
+                    main(
+                        [
+                            "build",
+                            "topology",
+                            "--profile",
+                            "classic",
+                            "--expected-plan",
+                            "a" * 64,
+                        ]
+                    ),
+                    0,
+                )
+
+        workspace_type.return_value.build_plan.assert_called_once_with(
+            "topology",
+            "classic",
+            False,
+            force_reconfigure=False,
+            use_ccache=True,
+        )
+        workspace_type.return_value.build.assert_called_once_with(
+            "topology",
+            "classic",
+            False,
+            force_reconfigure=False,
+            use_ccache=True,
+            expected_plan="a" * 64,
+        )
+
     def test_retained_content_build_plan_and_execution_forward_same_commit(self) -> None:
         commit = "c" * 40
         for planning in (True, False):

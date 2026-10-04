@@ -185,6 +185,7 @@ CONFIGURE_SCHEMA_VERSION = 2
 COMPILER_CACHE_PURPOSE = "compiler-cache"
 COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
+TOPOLOGY_BUILD_TARGETS = ("client", "server")
 TOPOLOGY_PROCESS_TREE_LEASE = "process-tree.lease"
 TOPOLOGY_PORT_RESERVATION_RECORD = "port-reservation.json"
 TOPOLOGY_STATUS_SCHEMA_VERSION = 3
@@ -10345,6 +10346,13 @@ class Workspace:
         stack = self.manifest.stack(profile["stack"])
         if target == "all":
             targets = [role for role in ALL_BUILD_TARGETS if role in stack.providers]
+        elif target == "topology":
+            self._require_classic_contracts(
+                profile_name, set(TOPOLOGY_SERVICES)
+            )
+            targets = [
+                role for role in TOPOLOGY_BUILD_TARGETS if role in stack.providers
+            ]
         elif target in stack.providers:
             targets = [target]
         else:
@@ -21361,7 +21369,7 @@ class Workspace:
                 if build_services is not None
                 else [
                     service
-                    for service in ("client", "server")
+                    for service in TOPOLOGY_BUILD_TARGETS
                     if service in selected_services
                 ]
             )

@@ -365,7 +365,12 @@ def parser() -> argparse.ArgumentParser:
     mark(path.add_argument("--profile", default="default"), "profile")
 
     build = commands.add_parser("build", help="build a component or the playable system")
-    mark(build.add_argument("target", help="all or a component name"), "build_target")
+    mark(
+        build.add_argument(
+            "target", help="all, topology, or a component name"
+        ),
+        "build_target",
+    )
     mark(build.add_argument("--profile", default="default"), "profile")
     build.add_argument("--test", action="store_true")
     build_plan = build.add_mutually_exclusive_group()

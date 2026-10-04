@@ -95,8 +95,9 @@ or substitute classic C/CMake for missing adapters. Replacement repositories lac
 ./atrinik build COMPONENT --profile REVIEW --test
 ```
 
-In an initialized workspace, `build --plan --json` returns execution coordinates;
-use the same options with `--expected-plan SHA256`. Unbound intents require the
+Plan with `build TARGET --plan --json`; execute with `--expected-plan SHA256`.
+`topology` selects the Classic `up` closure; `all --test` validates all.
+Unbound intents use the
 [issue recovery procedure](../atrinik-issue-delivery/references/delivery-ledger.md);
 preserve terminal residuals. Use `resource_context` for wrapper worktrees.
 
