@@ -81,7 +81,7 @@ def _require_workspace_filesystem_eligibility(module, wrapper_root, workspace_ro
     try:
         # The initiating helper source root is the coordinator context. Retained
         # wrapper/storage/resource paths are subjects, never substitute cwd.
-        result = require(Path(__file__).absolute().parents[4], Path(wrapper_root),
+        result = require(Path(__file__).absolute().parents[1], Path(wrapper_root),
                          Path(workspace_root), tuple(dict.fromkeys(paths)))
         if not isinstance(result, dict) or result.get("authoritative") is not True or result.get("status") not in {"canonical-linux", "native-linux"}:
             raise LedgerError("accepted wrapper returned no authoritative context proof")
@@ -89,7 +89,7 @@ def _require_workspace_filesystem_eligibility(module, wrapper_root, workspace_ro
         if not callable(subjects):
             raise LedgerError("accepted wrapper lacks constructor filesystem subjects")
         paths.extend(subjects(Path(wrapper_root)))
-        result = require(Path(__file__).absolute().parents[4], Path(wrapper_root),
+        result = require(Path(__file__).absolute().parents[1], Path(wrapper_root),
                          Path(workspace_root), tuple(dict.fromkeys(paths)))
         if not isinstance(result, dict) or result.get("authoritative") is not True or result.get("status") not in {"canonical-linux", "native-linux"}:
             raise LedgerError("accepted wrapper returned no authoritative context proof")
@@ -7462,7 +7462,7 @@ def runtime_handoff_publish(root, name, *, expected_generation, expected_digest,
     wrapper_slot = next(row for row in document["artifacts"] if row["slot_id"] == context["worktree_slot"])
     wrapper_repository = wrapper_slot["immutable"]["repository"]
     wrapper_repository = wrapper_repository["owner"] + "/" + wrapper_repository["name"]
-    module = _load_workspace_module(str(Path(__file__).absolute().parents[4]))
+    module = _load_workspace_module(str(Path(__file__).absolute().parents[1]))
     public = module.runtime_handoff
     public._integer(ttl_seconds, 1, public.MAX_LIFETIME, "lease duration")
     public._text(lease_id, public.HEX64, "lease identity")

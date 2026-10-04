@@ -1,4 +1,0 @@
-interface:
-  display_name: "Atrinik Guidance Maintenance"
-  short_description: "Audit and synchronize agent guidance"
-  default_prompt: "Use $atrinik-guidance-maintenance to audit recent project changes and keep Atrinik agent guidance compact and current."

@@ -49,6 +49,14 @@ class McpContractTests(unittest.TestCase):
             dirty_fingerprint=None,
         )
 
+    def test_invalid_local_provider_is_a_safe_contract_failure(self) -> None:
+        for error in (OSError("private path"), ValueError("private descriptor")):
+            with mock.patch("atrinik_workspace.mcp_contract.collect_inventory", side_effect=error):
+                with self.assertRaises(ContractError) as raised:
+                    validate_contract()
+                self.assertEqual(raised.exception.code, "INVALID_GUIDANCE")
+                self.assertNotIn("private", str(raised.exception))
+
     def test_versioned_contract_is_complete_and_within_context_budget(self) -> None:
         result = validate_contract()
         self.assertEqual(result["schemas"], 2)

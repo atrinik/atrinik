@@ -13,7 +13,7 @@ credential change or shared-resource adoption authority.
 | New source change with isolated local tests | Owned Git worktree, recorded base, scoped collision check, validation and independent review |
 | Repair of broken delivery tooling or local launch metadata | The same source path plus [local recovery](LOCAL_RECOVERY.md); fixture tests cannot authorize live resources, and neither can repaired metadata |
 | Resume a source worktree created by the source helper | Match its creation receipt and current Git identity; explicitly confirm ownership of an interrupted dirty diff |
-| Resume an existing bound delivery or operate on its resources | The existing [preparation and recovery protocol](../.agents/skills/atrinik-issue-delivery/references/preparation.md) |
+| Resume an existing bound delivery or operate on its resources | The existing [preparation and recovery protocol](SKILL_PROVIDER.md#atrinik-issue-delivery) |
 | Build publication, shared runtime/state, export or cleanup | The owner-specific wrapper command and its live identity, plan, lease and authorization checks |
 
 Existing ledgers and project scheduler state retain their contracts. Do not
@@ -94,7 +94,7 @@ validator does not itself prove that any specific live resource is safe.
 ## Validate and publish
 
 Use the owner's contributor checks and the applicable
-[review checklist](../.agents/skills/atrinik-issue-delivery/references/deep-review-checklist.md).
+[review checklist](SKILL_PROVIDER.md#atrinik-issue-delivery).
 Run focused checks while implementing, then the required integrated checks.
 Keep builds and mutable caches isolated; pinned application build workers follow
 [Linux execution](LINUX_EXECUTION.md). Lightweight wrapper/fixture tests can run
@@ -109,7 +109,7 @@ final integrated revision. Missing acceptance is not a pass.
 
 Before push/PR mutation, verify the actual GitHub actor, repository permissions,
 remote destination, owned branch, current PR head and task authorization. Follow
-[PR publication](../.agents/skills/atrinik-github-governance/SKILL.md#publish-pull-requests).
+[PR publication](SKILL_PROVIDER.md#atrinik-github-governance).
 Do not overwrite another writer's branch or contributor text. Commit owned paths,
 use ordinary non-forcing pushes, and create/update the authorized PR. A reviewable
 draft may be opened while external acceptance remains blocked; say what is missing.

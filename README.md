@@ -248,7 +248,7 @@ Topology summaries describe current selections; use the returned build plan,
 not a summary path, to reserve execution identity before the fenced build.
 
 For an interrupted delivery with unbound build/state/topology plans, use the
-[resource recovery procedure](.agents/skills/atrinik-issue-delivery/references/delivery-ledger.md).
+[resource recovery procedure](docs/SKILL_PROVIDER.md#atrinik-issue-delivery).
 The helper's explicit bound-wrapper `resource_context` selector supports resources
 in that worktree's default workspace while preserving its separate storage roots.
 Recovery preserves original intent, registered state, and proven residual output
@@ -337,13 +337,13 @@ additional task authority.
 
 ### One-session project delivery
 
-Use [`atrinik-project-delivery`](.agents/skills/atrinik-project-delivery/SKILL.md)
+Use [`atrinik-project-delivery`](docs/SKILL_PROVIDER.md#atrinik-project-delivery)
 for multi-issue work. Copy the [complete goal launcher](docs/PROJECT_DELIVERY_GOAL.md),
 select the real parent/repository scope, and let one coordinator launch and manage
 workers. It schedules independent lanes against actual worker capacity, retains
 foreign deliveries, and routes each writing leaf by source or retained-resource
 scope. New source work needs no scheduler/ledger admission.
-The [operator protocol](.agents/skills/atrinik-project-delivery/references/coordinator.md)
+The [operator protocol](docs/SKILL_PROVIDER.md#atrinik-project-delivery)
 defines retained-state commands, recovery, scoped tracking and acceptance. Legacy program delivery
 and individual issue delivery remain available; there is no implicit migration.
 
@@ -2392,9 +2392,9 @@ its private CAS. An explicit recovery can correct one historical nonexistent
 head plus its bound stale merge base while retaining both source generations.
 
 ~~~sh
-python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+python3 scripts/delivery_ledger.py \
   release-preview build/reviews LEDGER_NAME release.json
-python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+python3 scripts/delivery_ledger.py \
   release-apply build/reviews LEDGER_NAME release.json --plan PLAN_SHA256
 ~~~
 
@@ -2418,9 +2418,9 @@ After cleanup, a new explicit authority issued strictly after cleanup apply may 
 ledger, release marker, lock, report, migration evidence, and retained intent:
 
 ~~~sh
-python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+python3 scripts/delivery_ledger.py \
   archive-preview build/reviews LEDGER_NAME archive.json
-python3 .agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py \
+python3 scripts/delivery_ledger.py \
   archive-apply build/reviews LEDGER_NAME archive.json --plan PLAN_SHA256
 ~~~
 
@@ -2532,7 +2532,7 @@ wrapper contract runs its complete `npm run check` suite.
 
 
 Retained corrected Classic deliveries can advance an accepted dependency through
-[`advance-retained-dependency-cas`](.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).
+[`advance-retained-dependency-cas`](docs/SKILL_PROVIDER.md#atrinik-issue-delivery).
 For those deliveries, `topology show` and `up` require the exact
 `--retained-build-plan SHA256` fence. The runtime gets a distinct plan-derived
 build root, preserving the historical scenario and build evidence.
@@ -2543,7 +2543,7 @@ Retained correction dependency advancement can bind one immutable
 successor after an already completed build. Live merged-PR provenance and clean
 read-only content source observations are required; historical
 content/build/runtime/state evidence and undeclared dependency inputs remain
-unchanged. See the [retained resource correction protocol](.agents/skills/atrinik-issue-delivery/references/resource-observation-recovery.md).
+unchanged. See the [retained resource correction protocol](docs/SKILL_PROVIDER.md#atrinik-issue-delivery).
 
 For a retained producer used by an isolated executor, the
 [public runtime handoff](docs/RUNTIME_HANDOFF.md) publishes an immutable envelope

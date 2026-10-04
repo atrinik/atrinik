@@ -191,6 +191,38 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(set(seen), expected)
         self.assertEqual(len(seen), len(expected))
 
+    def test_external_skill_metadata_does_not_fabricate_resource_uris(self):
+        descriptor = self.root / ".agents/skill-provider.json"
+        descriptor.parent.mkdir()
+        descriptor.write_bytes((fixture.REPOSITORY / ".agents/skill-provider.json").read_bytes())
+        fixture.git(self.root, "add", ".")
+        fixture.git(self.root, "commit", "-m", "external provider")
+        response = self.server.handle(request("tools/call", name="context_guidance", arguments={}))
+        result = response["result"]["structuredContent"]["data"]
+        self.assertEqual(result["external_skill_provider"], json.loads(descriptor.read_bytes()))
+        self.assertEqual([resource["name"] for resource in result["resources"]], ["AGENTS.md"])
+        self.assertNotIn("uri", result["external_skill_provider"])
+        uri = result["resources"][0]["uri"]
+        read = self.server.handle(request("resources/read", uri=uri))
+        self.assertIn("Synthetic guidance", read["result"]["contents"][0]["text"])
+
+    def test_classic_provider_metadata_and_local_resources_are_coordinate_fenced(self):
+        descriptor = fixture.classic_provider_repository(self.root)
+        response = self.server.handle(request("tools/call", name="context_guidance",
+            arguments={"profile": "classic", "component": "classic-client"}))
+        self.assertNotIn("error", response)
+        data = response["result"]["structuredContent"]["data"]
+        self.assertEqual(data["external_skill_provider"], json.loads(descriptor.read_bytes()))
+        self.assertEqual({resource["name"] for resource in data["resources"]}, {"AGENTS.md", "client/AGENTS.md"})
+        resource = next(resource for resource in data["resources"] if resource["name"] == "client/AGENTS.md")
+        read = self.server.handle(request("resources/read", uri=resource["uri"]))
+        self.assertEqual(read["result"]["contents"][0]["text"], "Synthetic Classic client guidance.\n")
+        provider = json.loads(descriptor.read_bytes())
+        provider["revision"] = "a" * 40
+        descriptor.write_text(json.dumps(provider))
+        stale = self.server.handle(request("resources/read", uri=resource["uri"]))
+        self.assertEqual(stale["error"]["data"]["code"], "STALE_COORDINATE")
+
     def test_search_and_historical_rename_resources_use_registered_snapshots(self):
         response = self.server.handle(request("tools/call", name="atrinik_search",
             arguments={"mode": "exact", "query": "original"}))

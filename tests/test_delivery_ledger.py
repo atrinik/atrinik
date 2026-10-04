@@ -25,10 +25,7 @@ from atrinik_workspace.workspace import _parse_worktree_porcelain
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = (
-    ROOT
-    / ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
-)
+SCRIPT = ROOT / "scripts/delivery_ledger.py"
 SPEC = importlib.util.spec_from_file_location("atrinik_delivery_ledger", SCRIPT)
 if SPEC is None or SPEC.loader is None:  # pragma: no cover - import bootstrap guard
     raise RuntimeError(f"cannot import {SCRIPT}")
@@ -2029,6 +2026,25 @@ def directory_snapshot(root: Path) -> tuple[tuple[object, ...], ...]:
     return tuple(result)
 
 
+class DeliveryHelperLocationTests(unittest.TestCase):
+    def test_filesystem_context_uses_initiating_wrapper_and_retained_subjects(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            retained = Path(temporary) / "retained-wrapper"
+            storage = Path(temporary) / "retained-storage"
+            subject = Path(temporary) / "mutable-subject"
+            constructor_subject = retained / "workspace"
+            require = mock.Mock(return_value={"authoritative": True, "status": "native-linux"})
+            module = mock.Mock()
+            module.coordinator_context.require_delivery_context = require
+            module.Workspace._delivery_context_subjects.return_value = (constructor_subject,)
+            ledger._require_workspace_filesystem_eligibility(module, retained, storage, (subject,))
+            self.assertEqual(require.call_args_list, [
+                mock.call(ROOT, retained, storage, (subject,)),
+                mock.call(ROOT, retained, storage, (subject, constructor_subject)),
+            ])
+            module.Workspace._delivery_context_subjects.assert_called_once_with(retained)
+
+
 class DeliveryLedgerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -2070,8 +2086,8 @@ class DeliveryLedgerTests(unittest.TestCase):
         _LIVE_TEMPLATES.clear()
         _LIVE_TEMPLATE_ROOT = None
         cls.live_seed_temporary.cleanup()
-        if (SCRIPT.parent / "__pycache__").exists():
-            raise AssertionError("dynamic helper import created skill-package debris")
+        if list((SCRIPT.parent / "__pycache__").glob("delivery_ledger.*.pyc")):
+            raise AssertionError("dynamic helper import created helper bytecode debris")
         super().tearDownClass()
 
     def test_live_git_seed_copies_keep_scenario_state_independent(self) -> None:
@@ -12606,11 +12622,11 @@ class DeliveryLedgerTests(unittest.TestCase):
             roots = original_live_roots(*arguments, **keywords)
             wrapper = Path(roots["wrapper"]["path"])
             root.mkdir(parents=True, mode=0o700)
-            helper = wrapper / ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
+            helper = wrapper / "scripts/delivery_ledger.py"
             helper.parent.mkdir(parents=True)
             shutil.copy2(SCRIPT, helper)
             shutil.copy2(ROOT / ".gitignore", wrapper / ".gitignore")
-            git_run(wrapper, "add", ".gitignore", ".agents")
+            git_run(wrapper, "add", ".gitignore", "scripts")
             git_run(wrapper, "commit", "-m", "real wrapper managed ignore contract")
             with mock.patch.dict(os.environ, {"ATRINIK_WORKSPACE_DIR": roots["workspace"]["path"]}):
                 workspace = Workspace(Path(roots["wrapper"]["path"]), backfill_references=False)

@@ -19,7 +19,7 @@ import threading
 from typing import Any, Callable
 from urllib.parse import unquote, urlsplit
 
-from .mcp_context import ContextService, Snapshot, MAX_BYTES, check_request, request_scope, _git, _source_selector
+from .mcp_context import PROVIDER_VERSION, ContextService, Snapshot, MAX_BYTES, check_request, request_scope, _git, _source_selector
 from .mcp_contract import ContractError, canonical_json, enforce_context_budget, guard_request, load_json, redact, SCHEMA_ROOT
 
 PROTOCOL_VERSION = "2026-07-28"
@@ -47,7 +47,7 @@ CONTEXT_OUTPUT_SCHEMA = object_schema({
         "coordinate": load_json(SCHEMA_ROOT / "result.schema.json")["$defs"]["coordinate"],
         "snapshot": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "schema_version": {"type": "string", "const": "atrinik.context/v1"},
-        "provider_version": {"type": "string", "const": "1.0.0"},
+        "provider_version": {"type": "string", "const": PROVIDER_VERSION},
         "freshness": {"type": "string", "const": "observed-uncached"}},
         "required": ["coordinate", "snapshot", "schema_version", "provider_version", "freshness"]}},
     ("schema_version", "data"))
