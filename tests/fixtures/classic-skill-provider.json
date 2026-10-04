@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "repository": "https://github.com/atrinik/codex-integration",
+  "repository": "https://github.com/atrinik/agent-integrations",
   "revision": "89288ac890697ebbdd3f294db9e645319864e5a7",
   "marketplace": "atrinik",
   "plugin": "atrinik-development",

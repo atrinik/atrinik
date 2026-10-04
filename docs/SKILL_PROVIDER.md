@@ -1,7 +1,7 @@
 # Agent skill provider
 
 Reusable Atrinik workflows are supplied by the public
-[codex-integration repository](https://github.com/atrinik/codex-integration), marketplace
+[agent-integrations repository](https://github.com/atrinik/agent-integrations), marketplace
 `atrinik`, plugin `atrinik-development`. Install that plugin in your agent host
 using its supported marketplace interface. Installation is host-specific and
 never a prerequisite for ordinary wrapper tests, builds, or offline inspection.
