@@ -201,14 +201,25 @@ paths:
   --prebuilt-build RETURNED_PREBUILT_BUILD_SHA256
 ```
 
-This receipt covers only the prepared paired Classic client/server topology. It
-retains the exact build and source-generation paths, profile and source locks,
+This receipt covers only the prepared paired Classic client/server topology. Both
+producer and consumer require the same clean wrapper revision, canonical paths,
+and same-bind build directory identity. It retains the exact build and source
+coordinates, profile and source locks,
 sound scope, and `content@main` identity admitted by the fenced build. It cannot
 select retained-build, service-selective development, or portable-export modes.
 The runtime validates that recorded contract and launches the prepared outputs
 without build tools; a changed input rejects the launch instead of rebuilding.
 The receipt is build provenance, not live-resource or delivery authority, and
 does not replace current topology, state, port, scenario, or lease admission.
+Ordinary isolated development follows source delivery; existing bound deliveries
+retain their recovery requirements. Local acceptance of an authorized repair does
+not require merging its PR. Bundled executables, libraries, assets, and metadata
+are verified against the receipt; the runtime image still supplies its ordinary
+OS libraries, display, audio, and GPU prerequisites. Every subsequent build-root
+writer invalidates completion before mutation, including unsuccessful rebuilds.
+The shared runtime selection excludes only the server's generated
+`server-test-runtime-seed` and `server-test-runtimes` fixture directories; their
+test links are not runtime inputs. Production input links remain rejected.
 
 The bound worktree's persistent `workspace/build` holds its build outputs and
 wrapper-managed compiler/dependency caches. Its stable owner/path survives
