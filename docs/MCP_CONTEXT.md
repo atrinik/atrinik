@@ -66,6 +66,15 @@ commands, Git and `rg` remain authoritative fallbacks when MCP is unavailable or
 insufficient. Missing checkouts return a stable unavailable error; they are not
 initialized. Connecting a server does not grant mutation or deployment authority.
 
+`context_guidance` returns the actual local `AGENTS.md` chain and, when the
+selected snapshot tracks a valid `.agents/skill-provider.json`, its
+`external_skill_provider` metadata. External workflows have no local MCP resource
+URI; resolve their immutable provider files using the descriptor. Historical
+snapshots that contain local `.agents/skills` still report those tracked skills.
+An invalid tracked descriptor fails closed. The published image and source locks
+above retain their original snapshot semantics; this code change does not update
+or redeploy them. See [skill provider setup](SKILL_PROVIDER.md).
+
 ## Catalog and identity
 
 Six context tools cover manifest descriptions and dependency closure, exact

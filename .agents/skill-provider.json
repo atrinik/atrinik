@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/atrinik/agent-skills",
+  "revision": "89288ac890697ebbdd3f294db9e645319864e5a7",
+  "marketplace": "atrinik",
+  "plugin": "atrinik-development",
+  "path": "plugins/atrinik-development",
+  "required_skills": [
+    "atrinik-c-change",
+    "atrinik-content-change",
+    "atrinik-github-governance",
+    "atrinik-guidance-maintenance",
+    "atrinik-issue-delivery",
+    "atrinik-linux-gpu-qualification",
+    "atrinik-multi-repo-workspace",
+    "atrinik-program-delivery",
+    "atrinik-project-delivery",
+    "atrinik-protocol-change",
+    "atrinik-server-runtime",
+    "atrinik-test-scenario"
+  ]
+}

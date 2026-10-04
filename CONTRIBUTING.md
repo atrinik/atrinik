@@ -146,7 +146,7 @@ commit object's `gpgsig` header with `git cat-file commit HEAD`. After push,
 GitHub's **Verified** badge is a separate remote check that depends on the
 registered public signing key and verified author email. A `Signed-off-by`
 trailer from `git commit -s` is not a cryptographic signature and does not
-produce that badge. See the [agent-facing SSH signing reference](.agents/skills/atrinik-github-governance/references/ssh-signing.md)
+produce that badge. See the [agent-facing SSH signing reference](docs/SKILL_PROVIDER.md#atrinik-github-governance)
 for the full host/container procedure and troubleshooting notes.
 
 Filesystem path changes must keep canonical path validation explicit. New
@@ -296,9 +296,8 @@ Supervised topology, build-publication, cleanup, migration, state, scenario,
 and direct-run commands must retain their documented capability diagnostic on
 Windows; do not replace it with a weaker lock or process cleanup path.
 
-When changing the repository-local skill, also run the skill validator
-available in the active Codex installation; its exact path is
-environment-specific.
+Provider descriptor and route changes require the offline guidance check;
+skill implementation and full validation belong to the external provider.
 
 Exercise the smallest relevant real profile build as well. Changes to current
 source-view, collection, runtime, or CMake composition should validate both

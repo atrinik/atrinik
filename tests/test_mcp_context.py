@@ -184,6 +184,53 @@ class ContextFixture(unittest.TestCase):
         (self.root / "sample.txt").write_text("cursor invalidation\n")
         self.assertCode("STALE_CURSOR", lambda: self.service.changes(page_size=50, cursor=first["next_cursor"]))
 
+    def test_guidance_preserves_old_local_skills_and_tracks_new_provider(self):
+        legacy = ".agents/skills/legacy/SKILL.md"
+        path = self.root / legacy
+        path.parent.mkdir(parents=True)
+        path.write_text("Historical local skill.\n")
+        git(self.root, "add", ".")
+        git(self.root, "commit", "-m", "legacy guidance")
+        old_head = git(self.root, "rev-parse", "HEAD")
+        result = self.service.guidance()
+        self.assertEqual(result["skills"], [legacy])
+        self.assertIsNone(result["external_skill_provider"])
+        descriptor = self.root / ".agents/skill-provider.json"
+        descriptor.write_bytes((REPOSITORY / ".agents/skill-provider.json").read_bytes())
+        # An untracked descriptor cannot alter a snapshot's workflow routing.
+        self.assertIsNone(self.service.guidance()["external_skill_provider"])
+        path.unlink()
+        git(self.root, "add", ".")
+        git(self.root, "commit", "-m", "external provider")
+        result = self.service.guidance()
+        self.assertEqual(result["skills"], [])
+        self.assertEqual(result["guidance"], ["AGENTS.md"])
+        self.assertEqual(result["external_skill_provider"], json.loads(descriptor.read_bytes()))
+        git(self.root, "checkout", "--detach", old_head)
+        historical = self.service.guidance()
+        self.assertEqual(historical["skills"], [legacy])
+        self.assertIsNone(historical["external_skill_provider"])
+
+    def test_guidance_rejects_invalid_tracked_provider_and_fences_changes(self):
+        descriptor = self.root / ".agents/skill-provider.json"
+        descriptor.parent.mkdir()
+        descriptor.write_bytes((REPOSITORY / ".agents/skill-provider.json").read_bytes())
+        git(self.root, "add", ".")
+        git(self.root, "commit", "-m", "external provider")
+        descriptor.write_text('{"schema_version": 1}')
+        self.assertCode("INCOMPLETE", self.service.guidance)
+        git(self.root, "checkout", "--", ".agents/skill-provider.json")
+        from atrinik_workspace.mcp_context import Snapshot
+        original = Snapshot.read
+
+        def changed(snapshot, path, *args, **kwargs):
+            value = original(snapshot, path, *args, **kwargs)
+            descriptor.write_text('{"schema_version": 1}')
+            return value
+
+        with patch.object(Snapshot, "read", changed):
+            self.assertCode("STALE_COORDINATE", self.service.guidance)
+
     def test_origin_mismatch_fails_closed(self):
         git(self.root, "remote", "set-url", "origin", "https://example.invalid/other.git")
         self.assertCode("FORBIDDEN", self.service.resolve)

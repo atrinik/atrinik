@@ -1,6 +1,0 @@
-interface:
-  display_name: "Atrinik Issue or PR Delivery"
-  short_description: "Deliver Atrinik issues or PRs to merge-ready"
-  default_prompt: "Use $atrinik-issue-delivery to deliver the selected issue or PR in an owned source worktree, preserving any existing bound protocol, with relevant validation, independent final review, and a handoff before merge."
-policy:
-  allow_implicit_invocation: false

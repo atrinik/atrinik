@@ -612,7 +612,10 @@ def validate_contract() -> dict[str, int]:
     if not _FULL_SHA.fullmatch(capabilities["sdk_decision"]["evaluated_commit"]):
         raise ContractError("INVALID_FIXTURE", "evaluated MCP SDK commit is not pinned")
 
-    guidance = collect_inventory()
+    try:
+        guidance = collect_inventory()
+    except (OSError, ValueError, UnicodeError, RecursionError) as error:
+        raise ContractError("INVALID_GUIDANCE", "local guidance or skill provider is invalid") from error
     failures = budget_failures(guidance)
     if failures:
         raise ContractError("CONTEXT_BUDGET_EXCEEDED", "; ".join(failures))

@@ -8,15 +8,16 @@
   Observatory, shared `web-platform`, source-only `deploy-control`; M1
   lacks wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
   playtester; never mix providers.
-- Use [source delivery](docs/SOURCE_DELIVERY.md). Bound deliveries and shared
-  resources retain live Linux authority checks.
+- Use [source delivery](docs/SOURCE_DELIVERY.md); bound/shared resources retain live Linux authority.
 
 ## Ownership
 
 - `atrinik` CLI, `atrinik_workspace/` orchestration, `tests/` unittest suite.
 - Checkout/cohort/stack/role/source/build contracts: `components.json`; machine
   policy: `governance/`; diagnostics: `supply-chain/`.
-- Workflows: `.agents/skills/`; composition: `.devcontainer/`; CI/release:
+- Skills: `atrinik-development`; pin: `.agents/skill-provider.json`;
+  [setup/references](docs/SKILL_PROVIDER.md).
+  Composition: `.devcontainer/`; CI/release:
   `.github/`; helpers: `scripts/`.
 - Manifest repos, `workspace/` and `build/` are ignored; root status omits them.
 - Resolve ownership via `components.json` and nearest `AGENTS.md`; keep
@@ -34,7 +35,7 @@
   `atrinik-guidance-maintenance` for audits.
 - Prefer connected `atrinik` MCP for navigation, guidance and bounded source search;
   compare snapshot commits with local Git. Local edits and writes use local tools.
-  MCP runs in Docker; see `docs/MCP_CONTEXT.md`; runtime/external stay opt-in.
+  Docker MCP: `docs/MCP_CONTEXT.md`; runtime/external opt-in.
 - Use `atrinik-issue-delivery` for an explicitly selected issue or PR; for a
   standalone source goal use `docs/SOURCE_DELIVERY.md`. Both stop before merge.
 - Portable export needs clean Classic sources, verified released sound and the
@@ -69,7 +70,7 @@
   through `./atrinik agent-ledger update`; never manually edit or publish them.
 - Keep completion bounded, parser-driven, and secret-free; lease in order; gate
   same-coordinate readers; share migration barrier; unbound records inert.
-- Optional SSH signing stays on host; follow `.agents/skills/atrinik-github-governance/references/ssh-signing.md`; never copy/mount private keys
+- Optional SSH signing stays on host; use `atrinik-github-governance`; never copy/mount private keys
   into a container.
 - On touch, refresh existing Atrinik-owned copyright terminal years; blanket holders per
   `CONTRIBUTING.md`; preserve precise attribution.
@@ -89,7 +90,7 @@
 
 ## Commands
 
-At root; inspect first. `init` clones; `sync` never initializes:
+`init` clones; `sync` never initializes:
 
 ```sh
 ./atrinik manifest validate
@@ -128,5 +129,4 @@ Diagnostics: `./atrinik supply-chain audit --profile PROFILE`.
 Preserve `.coveragerc` and OIDC Codecov boundaries.
 
 Handoffs name profiles, worktrees, topologies, services, states, scenarios,
-prerequisites, validation and cleanup; synchronize this guide and
-affected skills/docs with contract changes; stale guidance is a defect.
+prerequisites, validation and cleanup. Update affected guidance with contracts.

@@ -1,0 +1,501 @@
+[
+  {
+    "actor": {
+      "login": "zoeyrose",
+      "node_id": "U_actor",
+      "push_repository_node_ids": [
+        "R_repo"
+      ]
+    },
+    "artifacts": [
+      {
+        "current": null,
+        "immutable": {
+          "body_digest": null,
+          "branch": "docs/issue-419",
+          "node_id": null,
+          "number": null,
+          "path": null,
+          "repository": {
+            "name": "atrinik",
+            "node_id": "R_repo",
+            "owner": "atrinik"
+          }
+        },
+        "kind": "branch",
+        "producer_resource_slot": null,
+        "safety": null,
+        "slot_id": "branch",
+        "state": "planned"
+      },
+      {
+        "current": null,
+        "immutable": {
+          "body_digest": "d11168a907f543b3d6a169d182cb58d16fb7099bde2845c90f78a5d912d82e55",
+          "branch": "docs/issue-419",
+          "node_id": null,
+          "number": null,
+          "path": null,
+          "repository": {
+            "name": "atrinik",
+            "node_id": "R_repo",
+            "owner": "atrinik"
+          }
+        },
+        "initial_body_payload": {
+          "encoding": "base64",
+          "raw_base64": "Q2xvc2VzICM0MTkK",
+          "sha256": "d11168a907f543b3d6a169d182cb58d16fb7099bde2845c90f78a5d912d82e55"
+        },
+        "kind": "pull_request",
+        "producer_resource_slot": null,
+        "safety": null,
+        "slot_id": "pull-request",
+        "state": "planned"
+      },
+      {
+        "current": null,
+        "immutable": {
+          "body_digest": null,
+          "branch": "docs/issue-419",
+          "node_id": null,
+          "number": null,
+          "path": null,
+          "repository": {
+            "name": "atrinik",
+            "node_id": "R_repo",
+            "owner": "atrinik"
+          }
+        },
+        "kind": "worktree",
+        "primitive_request": {
+          "branch": "docs/issue-419",
+          "component": "atrinik",
+          "expected_head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "label": "issue-419",
+          "physical_checkout": "atrinik",
+          "repository": {
+            "name": "atrinik",
+            "node_id": "R_repo",
+            "owner": "atrinik"
+          },
+          "roots": {
+            "primary": {
+              "path": "/workspaces/atrinik"
+            },
+            "workspace": {
+              "path": "/workspaces/atrinik/workspace"
+            },
+            "wrapper": {
+              "path": "/workspaces/atrinik"
+            }
+          }
+        },
+        "primitive_result": null,
+        "producer_resource_slot": null,
+        "safety": null,
+        "slot_id": "worktree",
+        "state": "planned"
+      }
+    ],
+    "authority": {
+      "actor_node_id": "U_actor",
+      "allowed": {
+        "issues": [
+          "I_issue"
+        ],
+        "pull_requests": [],
+        "repositories": [
+          "R_repo"
+        ]
+      },
+      "issued_at": "2026-08-14T18:00:00Z",
+      "kind": "durable-goal",
+      "objective_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "reference": "goal:issue-419"
+    },
+    "closing_scope": [
+      {
+        "node_id": "I_issue",
+        "number": 419,
+        "repository": {
+          "name": "atrinik",
+          "node_id": "R_repo",
+          "owner": "atrinik"
+        }
+      }
+    ],
+    "entry_mode": "issue",
+    "generation": 1,
+    "history": [],
+    "issues": {
+      "explicit": [
+        {
+          "node_id": "I_issue",
+          "number": 419,
+          "repository": {
+            "name": "atrinik",
+            "node_id": "R_repo",
+            "owner": "atrinik"
+          }
+        }
+      ],
+      "incidental": []
+    },
+    "ledger_id": "delivery-v1:issue:I_issue",
+    "migration": null,
+    "previous_byte_digest": null,
+    "program": null,
+    "resources": [],
+    "schema_version": 1,
+    "selected_prs": [],
+    "targets": [
+      {
+        "base": {
+          "branch": "main",
+          "current_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "initial_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "lineage": [
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          ]
+        },
+        "head": {
+          "branch": "docs/issue-419",
+          "current_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "initial_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "lineage": [
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          ]
+        },
+        "merge_base": {
+          "current_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "initial_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "repository": {
+          "name": "atrinik",
+          "node_id": "R_repo",
+          "owner": "atrinik"
+        }
+      }
+    ]
+  },
+  {
+    "actor": {
+      "login": "zoeyrose",
+      "node_id": "U_actor",
+      "push_repository_node_ids": [
+        "R_repo"
+      ]
+    },
+    "artifacts": [
+      {
+        "current": null,
+        "immutable": {
+          "body_digest": null,
+          "branch": "docs/issue-419",
+          "node_id": null,
+          "number": null,
+          "path": null,
+          "repository": {
+            "name": "client",
+            "node_id": "R_repo",
+            "owner": "atrinik"
+          }
+        },
+        "kind": "branch",
+        "producer_resource_slot": null,
+        "safety": null,
+        "slot_id": "branch",
+        "state": "planned"
+      },
+      {
+        "current": {
+          "body_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "branch": "docs/issue-419",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "node_id": "P_pr",
+          "number": 423,
+          "path": null,
+          "repository": {
+            "name": "client",
+            "node_id": "R_repo",
+            "owner": "atrinik"
+          }
+        },
+        "immutable": {
+          "body_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "branch": "docs/issue-419",
+          "node_id": "P_pr",
+          "number": 423,
+          "path": null,
+          "repository": {
+            "name": "client",
+            "node_id": "R_repo",
+            "owner": "atrinik"
+          }
+        },
+        "initial_body_payload": null,
+        "kind": "pull_request",
+        "producer_resource_slot": null,
+        "safety": {
+          "active": false,
+          "certain": true,
+          "clean": true,
+          "detached": false,
+          "foreign": false,
+          "locked": false,
+          "unowned_reference": false
+        },
+        "slot_id": "pull-request",
+        "state": "adopted"
+      },
+      {
+        "current": null,
+        "immutable": {
+          "body_digest": null,
+          "branch": "docs/issue-419",
+          "node_id": null,
+          "number": null,
+          "path": null,
+          "repository": {
+            "name": "client",
+            "node_id": "R_repo",
+            "owner": "atrinik"
+          }
+        },
+        "kind": "worktree",
+        "primitive_request": {
+          "branch": "docs/issue-419",
+          "component": "client",
+          "expected_head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "label": "issue-419",
+          "physical_checkout": "client",
+          "repository": {
+            "name": "client",
+            "node_id": "R_repo",
+            "owner": "atrinik"
+          },
+          "roots": {
+            "primary": {
+              "path": "/workspaces/atrinik/client"
+            },
+            "workspace": {
+              "path": "/workspaces/atrinik/workspace"
+            },
+            "wrapper": {
+              "path": "/workspaces/atrinik"
+            }
+          }
+        },
+        "primitive_result": null,
+        "producer_resource_slot": null,
+        "safety": null,
+        "slot_id": "worktree",
+        "state": "planned"
+      }
+    ],
+    "authority": {
+      "actor_node_id": "U_actor",
+      "allowed": {
+        "issues": [],
+        "pull_requests": [
+          "P_pr"
+        ],
+        "repositories": [
+          "R_repo"
+        ]
+      },
+      "issued_at": "2026-08-14T18:00:00Z",
+      "kind": "explicit-invocation",
+      "objective_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "reference": "turn:pr-423"
+    },
+    "closing_scope": [],
+    "entry_mode": "pr",
+    "generation": 1,
+    "history": [],
+    "issues": {
+      "explicit": [],
+      "incidental": []
+    },
+    "ledger_id": "delivery-v1:pr:P_pr",
+    "migration": null,
+    "previous_byte_digest": null,
+    "program": null,
+    "resources": [],
+    "schema_version": 1,
+    "selected_prs": [
+      {
+        "author_node_id": "U_contributor",
+        "base_branch": "main",
+        "body": {
+          "current_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "intended_digest": null,
+          "intended_payload": null,
+          "observed_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "outside_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "ownership": "contributor-owned",
+          "section_digest": null,
+          "state": "observed",
+          "updated_at": "2026-08-14T18:00:00Z"
+        },
+        "comment": {
+          "current_digest": null,
+          "intended_digest": null,
+          "intended_payload": null,
+          "marker": null,
+          "node_id": null,
+          "state": "none"
+        },
+        "draft": true,
+        "draft_intent": null,
+        "head_branch": "docs/issue-419",
+        "head_repository": {
+          "name": "client",
+          "node_id": "R_repo",
+          "owner": "atrinik"
+        },
+        "node_id": "P_pr",
+        "number": 423,
+        "repository": {
+          "name": "client",
+          "node_id": "R_repo",
+          "owner": "atrinik"
+        }
+      }
+    ],
+    "targets": [
+      {
+        "base": {
+          "branch": "main",
+          "current_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "initial_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "lineage": [
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          ]
+        },
+        "head": {
+          "branch": "docs/issue-419",
+          "current_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "initial_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "lineage": [
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          ]
+        },
+        "merge_base": {
+          "current_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "initial_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "repository": {
+          "name": "client",
+          "node_id": "R_repo",
+          "owner": "atrinik"
+        }
+      }
+    ]
+  },
+  {
+    "current": null,
+    "immutable": {
+      "body_digest": null,
+      "branch": "docs/issue-419",
+      "node_id": null,
+      "number": null,
+      "path": null,
+      "repository": {
+        "name": "client",
+        "node_id": "R_repo",
+        "owner": "atrinik"
+      }
+    },
+    "kind": "worktree",
+    "primitive_request": null,
+    "primitive_result": null,
+    "producer_resource_slot": "scope",
+    "safety": null,
+    "slot_id": "worktree",
+    "state": "planned"
+  },
+  [
+    {
+      "current": null,
+      "immutable": {
+        "name": "issue-419-scope",
+        "path": null,
+        "repository": {
+          "name": "client",
+          "node_id": "R_repo",
+          "owner": "atrinik"
+        }
+      },
+      "kind": "scope",
+      "request": {
+        "branch": "docs/issue-419",
+        "component": "client",
+        "label": "issue-419",
+        "name": "issue-419-scope",
+        "physical_checkout": "client",
+        "profile": "default",
+        "roots": {
+          "primary": {
+            "path": "/workspaces/atrinik/client"
+          },
+          "workspace": {
+            "path": "/workspaces/atrinik/workspace"
+          },
+          "wrapper": {
+            "path": "/workspaces/atrinik"
+          }
+        },
+        "start_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state_policy": {
+          "lifecycle": "remove-on-clean-stop",
+          "mode": "temporary",
+          "name": null,
+          "ownership": "topology-generation"
+        },
+        "temporary_state": true,
+        "topology": "scope-issue-419-scope"
+      },
+      "slot_id": "scope",
+      "state": "planned"
+    }
+  ],
+  {
+    "body_digest": "d11168a907f543b3d6a169d182cb58d16fb7099bde2845c90f78a5d912d82e55",
+    "head_branch": "docs/issue-419",
+    "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "node_id": "P_pr",
+    "number": 423,
+    "repository": {
+      "name": "atrinik",
+      "node_id": "R_repo",
+      "owner": "atrinik"
+    }
+  },
+  {
+    "comments": [],
+    "pagination_complete": true
+  },
+  {
+    "ledger_id": "LEDGER_ID",
+    "ledger_sha256": "CURRENT_LEDGER_SHA256",
+    "operation": "release"
+  },
+  {
+    "apply_command": "./atrinik cleanup --apply --json",
+    "policy": "explicit-preview-first",
+    "preview_command": "./atrinik cleanup --dry-run --json"
+  },
+  {
+    "ledger_id": "LEDGER_ID",
+    "operation": "archive",
+    "release_sha256": "RELEASE_SHA256"
+  },
+  {
+    "resource_context": {
+      "kind": "bound-wrapper-worktree",
+      "worktree_slot": "worktree"
+    }
+  }
+]

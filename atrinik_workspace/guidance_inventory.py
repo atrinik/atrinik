@@ -9,9 +9,10 @@ import re
 import subprocess
 import sys
 
+from atrinik_workspace.skill_provider import load_provider, validate_routes
+
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILLS_ROOT = ROOT / ".agents" / "skills"
 
 # Byte ceilings are model-independent regression guards. Exact tokenizer counts
 # remain PR evidence because tokenizer vocabularies and prompt wrappers change.
@@ -111,10 +112,10 @@ class SkillMetrics:
     file: FileMetrics
 
 
-def file_metrics(path: Path) -> FileMetrics:
+def file_metrics(path: Path, relative_to: Path | None = None) -> FileMetrics:
     text = path.read_text(encoding="utf-8")
     return FileMetrics(
-        path=path.relative_to(ROOT).as_posix(),
+        path=path.relative_to(relative_to or ROOT).as_posix(),
         bytes=len(text.encode("utf-8")),
         lines=len(text.splitlines()),
         words=len(text.split()),
@@ -405,48 +406,39 @@ def validate_process_improvement_ledger(root: Path | None = None) -> list[str]:
     return errors + validate_process_improvement_ledger_text(text)
 
 
-def collect_inventory() -> dict[str, object]:
+def collect_inventory(skills_root: Path | None = None) -> dict[str, object]:
+    provider = load_provider(ROOT)
+    validate_routes(ROOT, provider)
     root_guide = file_metrics(ROOT / "AGENTS.md")
     skills = []
-    for path in sorted(SKILLS_ROOT.glob("*/SKILL.md")):
-        name, description = skill_frontmatter(path)
-        skills.append(SkillMetrics(name, description, file_metrics(path)))
-
-    catalog_text = "".join(
-        f"{skill.name}\t{skill.description}\t{skill.file.path}\n" for skill in skills
-    )
-    catalog_bytes = len(catalog_text.encode("utf-8"))
-    skill_bytes = sum(skill.file.bytes for skill in skills)
-    multi = next(
-        (
-            skill
-            for skill in skills
-            if skill.name == "atrinik-multi-repo-workspace"
-        ),
-        None,
-    )
-    if multi is None:
-        raise ValueError("missing atrinik-multi-repo-workspace skill")
-    startup_bytes = root_guide.bytes + catalog_bytes
+    summary = dict(skill_count=None, catalog_bytes=None, startup_bytes=None,
+                   multi_selected_bytes=None, all_skill_bytes=None)
+    if skills_root is not None:
+        skills_root = Path(skills_root)
+        for name in provider["required_skills"]:
+            path = skills_root / name / "SKILL.md"
+            if not path.is_file():
+                raise ValueError(f"missing required provider skill: {name}")
+            actual_name, description = skill_frontmatter(path)
+            skills.append(SkillMetrics(actual_name, description, file_metrics(path, skills_root)))
+        catalog = "".join(f"{skill.name}\t{skill.description}\t{skill.file.path}\n" for skill in skills)
+        catalog_bytes = len(catalog.encode("utf-8"))
+        startup_bytes = root_guide.bytes + catalog_bytes
+        multi = next(skill for skill in skills if skill.name == "atrinik-multi-repo-workspace")
+        summary = dict(skill_count=len(skills), catalog_bytes=catalog_bytes,
+                       startup_bytes=startup_bytes, multi_selected_bytes=startup_bytes + multi.file.bytes,
+                       all_skill_bytes=sum(skill.file.bytes for skill in skills))
     try:
         process_present = process_improvement_ledger_path().exists()
     except OSError:
-        process_present = None  # Optional diagnostic state could not be observed.
-
+        process_present = None
     return {
         "root_guide": asdict(root_guide),
-        "process_improvements": {
-            "path": PROCESS_IMPROVEMENT_LEDGER.as_posix(),
-            "present": process_present,
-        },
+        "provider": provider,
+        "external_metrics": "measured" if skills_root is not None else "unmeasured",
+        "process_improvements": {"path": PROCESS_IMPROVEMENT_LEDGER.as_posix(), "present": process_present},
         "skills": [asdict(skill) for skill in skills],
-        "summary": {
-            "skill_count": len(skills),
-            "catalog_bytes": catalog_bytes,
-            "startup_bytes": startup_bytes,
-            "multi_selected_bytes": startup_bytes + multi.file.bytes,
-            "all_skill_bytes": skill_bytes,
-        },
+        "summary": summary,
     }
 
 
@@ -466,7 +458,7 @@ def budget_failures(inventory: dict[str, object]) -> list[str]:
     return [
         f"{name}: {actual} bytes exceeds {limit}"
         for name, (actual, limit) in checks.items()
-        if actual > limit
+        if actual is not None and actual > limit
     ]
 
 
@@ -486,11 +478,13 @@ def render_text(inventory: dict[str, object]) -> str:
         f"\tmulti-selected={summary['multi_selected_bytes']}"
         f"\tall-skills={summary['all_skill_bytes']}"
     )
+    lines.append("external-metrics\t" + inventory["external_metrics"])
     return "\n".join(lines)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Inventory wrapper agent guidance")
+    parser.add_argument("--skills-root", type=Path, help="explicit provider skills directory for optional integration metrics")
     parser.add_argument("--json", action="store_true", help="emit stable JSON")
     parser.add_argument("--check", action="store_true", help="enforce byte ceilings")
     parser.add_argument(
@@ -501,7 +495,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        inventory = collect_inventory()
+        inventory = collect_inventory(args.skills_root)
     except (OSError, UnicodeError, ValueError) as exc:
         print(f"guidance inventory failed: {exc}", file=sys.stderr)
         return 1
