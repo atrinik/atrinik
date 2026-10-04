@@ -12,6 +12,7 @@ import secrets
 import stat
 
 from .model import WorkspaceError
+from .path_identity import descriptor_path
 
 RECEIPT_NAME = ".atrinik-prebuilt.json"
 MAX_RECEIPT_BYTES = 16 * 1024 * 1024
@@ -65,7 +66,7 @@ def _same(before, after):
 
 
 @contextmanager
-def _opened(path, *, directory=False, missing_ok=False):
+def _opened(path, *, directory=False, missing_ok=False, owned=False):
     """Open every component without following links, including ancestors."""
     path = _path(os.fspath(path))
     fd = os.open("/", os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
@@ -80,15 +81,27 @@ def _opened(path, *, directory=False, missing_ok=False):
             except FileNotFoundError:
                 if not missing_ok:
                     raise
+                parent = str(PurePosixPath("/", *parts[:index]))
+                _named_descriptor(fd, parent)
                 yield None
+                _named_descriptor(fd, parent)
                 return
             os.close(fd)
             fd = next_fd
+        _named_descriptor(fd, path, owned=owned)
         yield fd
+        _named_descriptor(fd, path, owned=owned)
     except OSError as error:
         raise WorkspaceError(f"prebuilt receipt: unsafe or unreadable path: {path}") from error
     finally:
         os.close(fd)
+
+
+def _named_descriptor(fd, path, *, owned=False):
+    if descriptor_path(fd) != path:
+        _fail("filesystem coordinate changed during observation")
+    if owned and os.fstat(fd).st_uid != os.geteuid():
+        _fail("build root must be owned by this user")
 
 
 def _regular(info, *, private=False):
@@ -99,7 +112,7 @@ def _regular(info, *, private=False):
 
 
 def _root_identity(root):
-    with _opened(root, directory=True) as fd:
+    with _opened(root, directory=True, owned=True) as fd:
         info = os.fstat(fd)
     return {"path": _path(os.fspath(root)), "device": info.st_dev, "inode": info.st_ino}
 
@@ -299,7 +312,7 @@ def _pairs(pairs):
 def load(root, expected_digest):
     """Read a private bounded receipt without following or blocking on objects."""
     _sha(expected_digest)
-    with _opened(root, directory=True) as directory:
+    with _opened(root, directory=True, owned=True) as directory:
         fd = os.open(RECEIPT_NAME, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW | os.O_CLOEXEC,
                      dir_fd=directory)
         try:
@@ -336,7 +349,7 @@ def load(root, expected_digest):
 
 def invalidate(root):
     """Remove only our safe regular receipt, under the caller's build lock."""
-    with _opened(root, directory=True, missing_ok=True) as directory:
+    with _opened(root, directory=True, missing_ok=True, owned=True) as directory:
         if directory is None:
             return
         try:
@@ -357,7 +370,7 @@ def publish(root, plan, producer, inputs):
     raw = _canonical(value) + b"\n"
     if len(raw) > MAX_RECEIPT_BYTES:
         _fail("receipt exceeds size limit")
-    with _opened(root, directory=True) as directory:
+    with _opened(root, directory=True, owned=True) as directory:
         info = os.fstat(directory)
         if (info.st_dev, info.st_ino) != (value["build_root"]["device"], value["build_root"]["inode"]):
             _fail("build root changed before publication")

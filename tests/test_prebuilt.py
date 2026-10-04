@@ -86,6 +86,108 @@ class PrebuiltReceiptTests(unittest.TestCase):
         with self.assertRaises(WorkspaceError):
             prebuilt.invalidate(fifo / "missing-child")
 
+    def test_root_owner_is_required_even_without_receipt(self):
+        with mock.patch.object(prebuilt.os, "geteuid", return_value=os.geteuid() + 1):
+            with self.assertRaisesRegex(WorkspaceError, "build root must be owned"):
+                prebuilt.invalidate(self.root)
+            with self.assertRaisesRegex(WorkspaceError, "build root must be owned"):
+                self.publish()
+        self.root.chmod(0o770)
+        prebuilt.invalidate(self.root)
+
+    def test_ancestor_rename_before_open_returns_rejects_invalidation(self):
+        coordinate = self.root / "coordinate"
+        target = coordinate / "build"
+        target.mkdir(parents=True)
+        original_receipt = target / prebuilt.RECEIPT_NAME
+        original_receipt.write_bytes(b"original")
+        original_receipt.chmod(0o600)
+        retired = self.root / "retired"
+        original_open = os.open
+        changed = False
+
+        def racing_open(path, flags, *args, **kwargs):
+            nonlocal changed
+            fd = original_open(path, flags, *args, **kwargs)
+            if not changed and os.readlink(f"/proc/self/fd/{fd}") == str(target):
+                changed = True
+                coordinate.rename(retired)
+                target.mkdir(parents=True)
+                replacement = target / prebuilt.RECEIPT_NAME
+                replacement.write_bytes(b"replacement")
+                replacement.chmod(0o600)
+            return fd
+
+        with mock.patch.object(prebuilt.os, "open", side_effect=racing_open):
+            with self.assertRaisesRegex(WorkspaceError, "coordinate changed"):
+                prebuilt.invalidate(target)
+        self.assertEqual(original_receipt.read_bytes(), b"replacement")
+        self.assertEqual((retired / "build" / prebuilt.RECEIPT_NAME).read_bytes(), b"original")
+
+    def test_ancestor_rename_during_invalidation_does_not_report_success(self):
+        coordinate = self.root / "coordinate"
+        target = coordinate / "build"
+        target.mkdir(parents=True)
+        receipt = target / prebuilt.RECEIPT_NAME
+        receipt.write_bytes(b"original")
+        receipt.chmod(0o600)
+        retired = self.root / "retired"
+        original_unlink = os.unlink
+
+        def racing_unlink(path, *args, **kwargs):
+            result = original_unlink(path, *args, **kwargs)
+            if path == prebuilt.RECEIPT_NAME:
+                coordinate.rename(retired)
+                target.mkdir(parents=True)
+                replacement = target / prebuilt.RECEIPT_NAME
+                replacement.write_bytes(b"replacement")
+                replacement.chmod(0o600)
+            return result
+
+        with mock.patch.object(prebuilt.os, "unlink", side_effect=racing_unlink):
+            with self.assertRaisesRegex(WorkspaceError, "coordinate changed"):
+                prebuilt.invalidate(target)
+        self.assertEqual(receipt.read_bytes(), b"replacement")
+
+    def test_missing_root_cannot_hide_detached_parent(self):
+        parent = self.root / "parent"
+        parent.mkdir()
+        retired = self.root / "retired"
+        original_open = os.open
+
+        def racing_open(path, flags, *args, **kwargs):
+            if path == "missing":
+                parent.rename(retired)
+            return original_open(path, flags, *args, **kwargs)
+
+        with mock.patch.object(prebuilt.os, "open", side_effect=racing_open):
+            with self.assertRaisesRegex(WorkspaceError, "coordinate changed"):
+                prebuilt.invalidate(parent / "missing")
+
+    def test_input_ancestor_rename_during_open_rejects_capture(self):
+        parent = self.root / "parent"
+        source = parent / "input"
+        parent.mkdir()
+        source.write_bytes(b"input")
+        retired = self.root / "retired"
+        original_open = os.open
+        changed = False
+
+        def racing_open(path, flags, *args, **kwargs):
+            nonlocal changed
+            fd = original_open(path, flags, *args, **kwargs)
+            if not changed and os.readlink(f"/proc/self/fd/{fd}") == str(source):
+                changed = True
+                parent.rename(retired)
+                parent.mkdir()
+                source.write_bytes(b"input")
+            return fd
+
+        selected = {"input": {"path": str(source), "kind": "file", "exclusions": []}}
+        with mock.patch.object(prebuilt.os, "open", side_effect=racing_open):
+            with self.assertRaisesRegex(WorkspaceError, "coordinate changed"):
+                prebuilt.capture_inputs(selected)
+
     def test_receipt_foreign_owner_rejected(self):
         sha = self.publish()
         with mock.patch.object(prebuilt.os, "geteuid", return_value=os.geteuid() + 1):
