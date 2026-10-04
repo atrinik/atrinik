@@ -184,6 +184,14 @@ class PrebuiltTopologyTests(unittest.TestCase):
         self.assertEqual((runtime / "server/libplugin_arena.so").read_text(), "bundled plugin\n")
         self.assertEqual((runtime / "server/resources/asset").read_text(), "generated resource\n")
         self.assertEqual(prebuilt.load(root, digest), before)
+        # Launch usage records are outside the authenticated producer inputs.
+        # A fresh topology must consume the same receipt without any builder.
+        second = self.up(digest, name="prepared-second")
+        self.assertTrue(second["ready"])
+        self.assertNotEqual(second["runtime"]["path"], result["runtime"]["path"])
+        self.assertEqual(prebuilt.load(root, digest), before)
+        selectors, _ = self.workspace._prebuilt_topology_inputs(root, self.selected)
+        prebuilt.verify_inputs(selectors, before["inputs"])
         (root / "runtime/resources/asset").write_text("later writer\n")
         self.assertEqual((runtime / "server/resources/asset").read_text(), "generated resource\n")
 
