@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import sys
 import unittest
 from unittest import mock
 
@@ -17,6 +18,7 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
 
 
+@unittest.skipUnless(sys.platform == "linux", "completion receipts require Linux")
 class PrebuiltReceiptTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -132,11 +134,11 @@ class PrebuiltReceiptTests(unittest.TestCase):
         receipt.write_bytes(b"original")
         receipt.chmod(0o600)
         retired = self.root / "retired"
-        original_unlink = os.unlink
+        original_rename = prebuilt._rename_noreplace
 
-        def racing_unlink(path, *args, **kwargs):
-            result = original_unlink(path, *args, **kwargs)
-            if path == prebuilt.RECEIPT_NAME:
+        def racing_rename(directory, source, destination):
+            result = original_rename(directory, source, destination)
+            if source == prebuilt.RECEIPT_NAME:
                 coordinate.rename(retired)
                 target.mkdir(parents=True)
                 replacement = target / prebuilt.RECEIPT_NAME
@@ -144,7 +146,7 @@ class PrebuiltReceiptTests(unittest.TestCase):
                 replacement.chmod(0o600)
             return result
 
-        with mock.patch.object(prebuilt.os, "unlink", side_effect=racing_unlink):
+        with mock.patch.object(prebuilt, "_rename_noreplace", side_effect=racing_rename):
             with self.assertRaisesRegex(WorkspaceError, "coordinate changed"):
                 prebuilt.invalidate(target)
         self.assertEqual(receipt.read_bytes(), b"replacement")
@@ -374,25 +376,233 @@ class PrebuiltReceiptTests(unittest.TestCase):
         with mock.patch.object(prebuilt, "_observe", side_effect=racing_observe), self.assertRaises(WorkspaceError):
             prebuilt.capture_inputs(self.selectors)
 
-    def test_invalidation_detects_replaced_receipt(self):
+    def test_invalidation_claim_retains_replacement_inode(self):
         self.publish()
-        original_stat = os.stat
-        count = 0
+        original_rename = prebuilt._rename_noreplace
+        replacement_inode = None
 
-        def racing_stat(path, *args, **kwargs):
-            nonlocal count
-            if path == prebuilt.RECEIPT_NAME:
-                count += 1
-                if count == 2:
-                    replacement = self.root / "replacement"
-                    replacement.write_bytes(b"replacement")
-                    replacement.chmod(0o600)
-                    replacement.replace(self.receipt)
-            return original_stat(path, *args, **kwargs)
+        def racing_rename(directory, source, destination):
+            nonlocal replacement_inode
+            replacement = self.root / "replacement"
+            replacement.write_bytes(b"replacement")
+            replacement.chmod(0o600)
+            replacement_inode = replacement.stat().st_ino
+            replacement.replace(self.receipt)
+            original_rename(directory, source, destination)
 
-        with mock.patch.object(prebuilt.os, "stat", side_effect=racing_stat), self.assertRaises(WorkspaceError):
-            prebuilt.invalidate(self.root)
+        with mock.patch.object(prebuilt, "_rename_noreplace", side_effect=racing_rename):
+            with mock.patch.object(prebuilt.os, "unlink", side_effect=AssertionError("must never unlink")):
+                with self.assertRaisesRegex(WorkspaceError, "changed during claim"):
+                    prebuilt.invalidate(self.root)
+        retained = list(self.root.glob(".atrinik-prebuilt-retired-*"))
+        self.assertEqual(len(retained), 1)
+        self.assertEqual(retained[0].stat().st_ino, replacement_inode)
+        self.assertEqual(retained[0].read_bytes(), b"replacement")
+        self.assertFalse(self.receipt.exists())
+
+    def test_invalidation_preserves_replacement_after_claim(self):
+        self.publish()
+        original_inode = self.receipt.stat().st_ino
+        original_rename = prebuilt._rename_noreplace
+
+        def racing_rename(directory, source, destination):
+            original_rename(directory, source, destination)
+            self.receipt.write_bytes(b"new receipt")
+            self.receipt.chmod(0o600)
+
+        with mock.patch.object(prebuilt, "_rename_noreplace", side_effect=racing_rename):
+            with mock.patch.object(prebuilt.os, "unlink", side_effect=AssertionError("must never unlink")):
+                with self.assertRaisesRegex(WorkspaceError, "replaced after claim"):
+                    prebuilt.invalidate(self.root)
+        self.assertEqual(self.receipt.read_bytes(), b"new receipt")
+        retained = list(self.root.glob(".atrinik-prebuilt-retired-*"))
+        self.assertEqual(retained[0].stat().st_ino, original_inode)
+
+    def test_invalidation_quarantine_collision_is_bounded(self):
+        self.publish()
+        with mock.patch.object(prebuilt, "_rename_noreplace", side_effect=FileExistsError) as rename:
+            with self.assertRaisesRegex(WorkspaceError, "quarantine name"):
+                prebuilt.invalidate(self.root)
+        self.assertEqual(rename.call_count, 8)
+        self.assertTrue(self.receipt.is_file())
+
+    def test_publish_caught_fsync_failure_retracts_receipt(self):
+        original_fsync = os.fsync
+        failures = 0
+
+        def failing_fsync(fd):
+            nonlocal failures
+            if os.readlink(f"/proc/self/fd/{fd}") == str(self.root) and failures == 0:
+                failures += 1
+                raise OSError("injected directory fsync failure")
+            return original_fsync(fd)
+
+        with mock.patch.object(prebuilt.os, "fsync", side_effect=failing_fsync):
+            with self.assertRaises(WorkspaceError):
+                self.publish()
+        self.assertFalse(self.receipt.exists())
+        retained = list(self.root.glob(".atrinik-prebuilt-retired-*"))
+        self.assertEqual(len(retained), 1)
+        sha = hashlib.sha256(retained[0].read_bytes()).hexdigest()
+        with self.assertRaises(WorkspaceError):
+            prebuilt.load(self.root, sha)
+
+    def test_publish_caught_baseexception_retracts_receipt(self):
+        original_fsync = os.fsync
+        failures = 0
+
+        def interrupted_fsync(fd):
+            nonlocal failures
+            if os.readlink(f"/proc/self/fd/{fd}") == str(self.root) and failures == 0:
+                failures += 1
+                raise KeyboardInterrupt
+            return original_fsync(fd)
+
+        with mock.patch.object(prebuilt.os, "fsync", side_effect=interrupted_fsync):
+            with self.assertRaises(KeyboardInterrupt):
+                self.publish()
+        self.assertFalse(self.receipt.exists())
+        self.assertEqual(len(list(self.root.glob(".atrinik-prebuilt-retired-*"))), 1)
+
+    def test_publish_failed_fsync_preserves_known_replacement(self):
+        original_fsync = os.fsync
+        changed = False
+
+        def replacing_fsync(fd):
+            nonlocal changed
+            if not changed and os.readlink(f"/proc/self/fd/{fd}") == str(self.root):
+                changed = True
+                replacement = self.root / "replacement"
+                replacement.write_bytes(b"concurrent receipt")
+                replacement.chmod(0o600)
+                replacement.replace(self.receipt)
+                raise OSError("injected failure")
+            return original_fsync(fd)
+
+        with mock.patch.object(prebuilt.os, "fsync", side_effect=replacing_fsync):
+            with self.assertRaises(WorkspaceError):
+                self.publish()
+        self.assertEqual(self.receipt.read_bytes(), b"concurrent receipt")
+
+    def test_publish_rollback_claim_preserves_racing_replacement(self):
+        original_fsync = os.fsync
+        original_rename = prebuilt._rename_noreplace
+        failed = False
+
+        def failing_fsync(fd):
+            nonlocal failed
+            if not failed and os.readlink(f"/proc/self/fd/{fd}") == str(self.root):
+                failed = True
+                raise OSError("injected failure")
+            return original_fsync(fd)
+
+        def racing_rename(directory, source, destination):
+            if source == prebuilt.RECEIPT_NAME:
+                replacement = self.root / "replacement"
+                replacement.write_bytes(b"racing receipt")
+                replacement.chmod(0o600)
+                replacement.replace(self.receipt)
+            original_rename(directory, source, destination)
+
+        with mock.patch.object(prebuilt.os, "fsync", side_effect=failing_fsync):
+            with mock.patch.object(prebuilt, "_rename_noreplace", side_effect=racing_rename):
+                with self.assertRaises(WorkspaceError):
+                    self.publish()
+        retained = list(self.root.glob(".atrinik-prebuilt-retired-*"))
+        self.assertEqual(len(retained), 1)
+        self.assertEqual(retained[0].read_bytes(), b"racing receipt")
+        self.assertFalse(self.receipt.exists())
+
+    def test_publish_interrupted_install_call_still_retracts_receipt(self):
+        original_rename = prebuilt._rename_noreplace
+
+        def interrupted_rename(directory, source, destination):
+            original_rename(directory, source, destination)
+            if destination == prebuilt.RECEIPT_NAME:
+                raise KeyboardInterrupt
+
+        with mock.patch.object(prebuilt, "_rename_noreplace", side_effect=interrupted_rename):
+            with self.assertRaises(KeyboardInterrupt):
+                self.publish()
+        self.assertFalse(self.receipt.exists())
+
+    def test_other_platform_builds_require_absent_receipt(self):
+        for system in ("Windows", "Darwin"):
+            with self.subTest(system=system), mock.patch.object(prebuilt.platform, "system", return_value=system):
+                prebuilt.invalidate(self.root)
+                prebuilt.invalidate(self.root / "missing" / "root")
+                for creator in (lambda: self.receipt.write_bytes(b"receipt"),
+                                lambda: self.receipt.symlink_to(self.executable),
+                                lambda: os.mkfifo(self.receipt)):
+                    creator()
+                    try:
+                        with self.assertRaisesRegex(WorkspaceError, "retirement on Linux"):
+                            prebuilt.invalidate(self.root)
+                    finally:
+                        self.receipt.unlink()
+                link = self.root / "linked-root"
+                link.symlink_to(self.assets)
+                try:
+                    with self.assertRaises(WorkspaceError):
+                        prebuilt.invalidate(link)
+                finally:
+                    link.unlink()
+
+    def test_publish_rejects_replaced_pending_inode(self):
+        original_rename = prebuilt._rename_noreplace
+
+        def racing_rename(directory, source, destination):
+            if destination == prebuilt.RECEIPT_NAME:
+                replacement = self.root / "replacement"
+                replacement.write_bytes(b"replacement")
+                replacement.chmod(0o600)
+                replacement.replace(self.root / source)
+            original_rename(directory, source, destination)
+
+        with mock.patch.object(prebuilt, "_rename_noreplace", side_effect=racing_rename):
+            with self.assertRaisesRegex(WorkspaceError, "changed during publication"):
+                self.publish()
         self.assertEqual(self.receipt.read_bytes(), b"replacement")
+
+    def test_read_metadata_strict_bounded_nonblocking(self):
+        metadata = self.root / "metadata.json"
+        metadata.write_text('{ "schema_version": 1 }\n')
+        self.assertEqual(prebuilt.read_metadata(metadata, "fixture"), {"schema_version": 1})
+        invalid = [b'{"key":1,"key":2}', b'{"key":NaN}', b'{"key":1e999}', b'[]', b'{']
+        for raw in invalid:
+            metadata.write_bytes(raw)
+            with self.subTest(raw=raw), self.assertRaises(WorkspaceError):
+                prebuilt.read_metadata(metadata, "fixture")
+        metadata.write_text('{"large":"payload"}')
+        with self.assertRaises(WorkspaceError):
+            prebuilt.read_metadata(metadata, "fixture", limit=4)
+        metadata.unlink()
+        for creator in (lambda: os.mkfifo(metadata), lambda: metadata.symlink_to(self.executable),
+                        lambda: os.link(self.executable, metadata)):
+            creator()
+            try:
+                with self.assertRaises(WorkspaceError):
+                    prebuilt.read_metadata(metadata, "fixture")
+            finally:
+                metadata.unlink()
+
+    def test_read_metadata_rejects_content_mutation(self):
+        metadata = self.root / "metadata.json"
+        metadata.write_text('{"a":1}')
+        original_read = os.read
+        changed = False
+
+        def racing_read(fd, count):
+            nonlocal changed
+            value = original_read(fd, count)
+            if not changed:
+                changed = True
+                metadata.write_text('{"a":2}')
+            return value
+
+        with mock.patch.object(prebuilt.os, "read", side_effect=racing_read):
+            with self.assertRaises(WorkspaceError):
+                prebuilt.read_metadata(metadata, "fixture")
 
 
 if __name__ == "__main__":

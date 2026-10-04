@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
+import ctypes
 import hashlib
 import json
 import os
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
+import platform
 import re
 import secrets
 import stat
@@ -347,8 +349,123 @@ def load(root, expected_digest):
     return value
 
 
+def read_metadata(path, description, limit=4 * 1024 * 1024):
+    """Read bounded strict JSON metadata without following or blocking on files."""
+    if type(limit) is not int or not 0 < limit <= MAX_RECEIPT_BYTES:
+        _fail("invalid metadata size limit")
+    try:
+        with _opened(path) as fd:
+            before = os.fstat(fd)
+            _regular(before)
+            if before.st_size > limit:
+                _fail("metadata exceeds size limit")
+            chunks, size = [], 0
+            while True:
+                chunk = os.read(fd, min(1024 * 1024, limit + 1 - size))
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                size += len(chunk)
+                if size > limit:
+                    _fail("metadata exceeds size limit")
+            _same(before, os.fstat(fd))
+            with _opened(path) as visible:
+                _same(before, os.fstat(visible))
+        value = json.loads(b"".join(chunks), object_pairs_hook=_pairs,
+                           parse_constant=lambda value: _fail("nonfinite JSON number"))
+        if type(value) is not dict:
+            _fail("metadata must be a JSON object")
+        _canonical(value)  # Reject exponent overflow as well as NaN/Infinity tokens.
+        return value
+    except (WorkspaceError, ValueError, UnicodeError, RecursionError) as error:
+        raise WorkspaceError(f"{description}: unsafe or invalid metadata: {path}") from error
+
+
+def _rename_noreplace(directory, source, destination):
+    """Linux atomic rename without clobbering any destination entry."""
+    library = ctypes.CDLL(None, use_errno=True)
+    try:
+        rename = library.renameat2
+    except AttributeError as error:
+        raise WorkspaceError("prebuilt receipt requires atomic rename-noreplace") from error
+    rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+    rename.restype = ctypes.c_int
+    if rename(directory, os.fsencode(source), directory, os.fsencode(destination), 1):
+        number = ctypes.get_errno()
+        raise OSError(number, os.strerror(number))
+
+
+def _inode(info):
+    return (info.st_dev, info.st_ino)
+
+
+def _retire(directory, name, expected):
+    """Claim by atomic rename; retain every claimed object, including mismatches.
+
+    There is deliberately no unlink after a stat check. These nonce sidecars are
+    evidence only and are never considered by the exact-name receipt loader.
+    """
+    if os.fstat(directory).st_uid != os.geteuid():
+        _fail("build root must be owned by this user")
+    for _ in range(8):
+        retired = ".atrinik-prebuilt-retired-" + secrets.token_hex(16)
+        try:
+            _rename_noreplace(directory, name, retired)
+            break
+        except FileExistsError:
+            continue
+    else:
+        _fail("cannot reserve a receipt quarantine name")
+    # Persist the claim even when the moved entry is a concurrent replacement.
+    os.fsync(directory)
+    observed = os.stat(retired, dir_fd=directory, follow_symlinks=False)
+    if _inode(observed) != _inode(expected):
+        _fail(f"receipt changed during claim; preserved at {retired}")
+    _regular(observed, private=True)
+    if os.fstat(directory).st_uid != os.geteuid():
+        _fail(f"build root ownership changed; receipt preserved at {retired}")
+    try:
+        os.stat(name, dir_fd=directory, follow_symlinks=False)
+    except FileNotFoundError:
+        pass
+    else:
+        _fail(f"receipt replaced after claim; prior receipt preserved at {retired}")
+    return retired
+
+
+def _invalidate_unsupported(root):
+    """Other platforms can build normally only when no Linux receipt exists."""
+    root = Path(root)
+    if not root.is_absolute():
+        _fail("build root must be absolute")
+    try:
+        for parent in (*reversed(root.parents), root):
+            try:
+                info = parent.lstat()
+            except FileNotFoundError:
+                return
+            if (not stat.S_ISDIR(info.st_mode)
+                    or getattr(info, "st_file_attributes", 0)
+                    & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)):
+                _fail("unsafe build root on unsupported receipt platform")
+        try:
+            (root / RECEIPT_NAME).lstat()
+        except FileNotFoundError:
+            return
+    except OSError as error:
+        raise WorkspaceError("prebuilt receipt: cannot inspect unsupported-platform build root") from error
+    _fail("existing receipt requires retirement on Linux before this build")
+
+
 def invalidate(root):
-    """Remove only our safe regular receipt, under the caller's build lock."""
+    """Atomically retire our receipt under the caller's build lock.
+
+    Retired entries are preserved as evidence. A concurrent replacement claimed
+    at the rename boundary is retained and causes failure before build mutation.
+    """
+    if platform.system() != "Linux":
+        _invalidate_unsupported(root)
+        return
     with _opened(root, directory=True, missing_ok=True, owned=True) as directory:
         if directory is None:
             return
@@ -357,35 +474,65 @@ def invalidate(root):
         except FileNotFoundError:
             return
         _regular(before, private=True)
-        _same(before, os.stat(RECEIPT_NAME, dir_fd=directory, follow_symlinks=False))
-        os.unlink(RECEIPT_NAME, dir_fd=directory)
-        os.fsync(directory)
+        _retire(directory, RECEIPT_NAME, before)
 
 
 def publish(root, plan, producer, inputs):
-    """Atomically install completion evidence; never overwrite an old receipt."""
+    """Publish complete evidence, retracting it on caught post-install failures.
+
+    Rename-noreplace is the atomic visibility point; directory fsync is the
+    durability point. A process crash between them may leave a complete receipt:
+    all build work and the receipt-file fsync already succeeded. Caught failures
+    retire the exact installed object through the same claim protocol as
+    invalidation. Concurrent replacements and all quarantine evidence survive.
+    """
     value = {"schema_version": 1, "build_root": _root_identity(root),
              "plan": plan, "producer": producer, "inputs": inputs}
     _validate(value, root)
     raw = _canonical(value) + b"\n"
     if len(raw) > MAX_RECEIPT_BYTES:
         _fail("receipt exceeds size limit")
-    with _opened(root, directory=True, owned=True) as directory:
-        info = os.fstat(directory)
-        if (info.st_dev, info.st_ino) != (value["build_root"]["device"], value["build_root"]["inode"]):
-            _fail("build root changed before publication")
-        temporary = ".atrinik-prebuilt-" + secrets.token_hex(16)
-        fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC,
-                     0o600, dir_fd=directory)
-        try:
+    rollback_fd, expected = None, None
+    installation_attempted = False
+    try:
+        with _opened(root, directory=True, owned=True) as directory:
+            info = os.fstat(directory)
+            if _inode(info) != (value["build_root"]["device"], value["build_root"]["inode"]):
+                _fail("build root changed before publication")
+            rollback_fd = os.dup(directory)
+            temporary = ".atrinik-prebuilt-pending-" + secrets.token_hex(16)
+            fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC,
+                         0o600, dir_fd=directory)
             with os.fdopen(fd, "wb") as stream:
                 stream.write(raw)
                 stream.flush()
                 os.fsync(stream.fileno())
-            # Refuses existing entries, including symlinks, under the build lock.
-            os.link(temporary, RECEIPT_NAME, src_dir_fd=directory, dst_dir_fd=directory,
-                    follow_symlinks=False)
-        finally:
-            os.unlink(temporary, dir_fd=directory)
-        os.fsync(directory)
+                expected = os.fstat(stream.fileno())
+                _regular(expected, private=True)
+            installation_attempted = True
+            _rename_noreplace(directory, temporary, RECEIPT_NAME)
+            installed = os.stat(RECEIPT_NAME, dir_fd=directory, follow_symlinks=False)
+            if _inode(installed) != _inode(expected):
+                _fail("receipt changed during publication")
+            _regular(installed, private=True)
+            os.fsync(directory)
+    except BaseException as error:
+        if installation_attempted and rollback_fd is not None:
+            try:
+                try:
+                    visible = os.stat(RECEIPT_NAME, dir_fd=rollback_fd, follow_symlinks=False)
+                except FileNotFoundError:
+                    visible = None
+                # A known replacement is preserved in place. A replacement that
+                # races the claim is retained under its quarantine name.
+                if visible is not None and _inode(visible) == _inode(expected):
+                    _retire(rollback_fd, RECEIPT_NAME, expected)
+            except BaseException as rollback_error:
+                raise WorkspaceError(
+                    "prebuilt receipt publication failed; rollback evidence requires inspection"
+                ) from rollback_error
+        raise
+    finally:
+        if rollback_fd is not None:
+            os.close(rollback_fd)
     return hashlib.sha256(raw).hexdigest()
