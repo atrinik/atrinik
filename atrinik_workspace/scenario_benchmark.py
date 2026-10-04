@@ -24,6 +24,9 @@ from .model import MANAGED_MARKER, SCHEMA_VERSION, WorkspaceError, atomic_json, 
 MAX_ROUTE_BYTES = 8 * 1024 * 1024
 MAX_REPORT_BYTES = 128 * 1024 * 1024
 MAX_CAPTURE_BYTES = 64 * 1024 * 1024
+MAX_RECORDING_BYTES = 0x7fffffff
+MAX_RECORDING_FRAMES = 108000
+MAX_RECORDING_SECONDS = 60 * 60
 LIGHTING_PHASES = {"day", "new-moon", "full-moon"}
 MAX_VERIFIER_BYTES = 512 * 1024
 MAX_SUMMARY_BYTES = 1024 * 1024
@@ -123,8 +126,9 @@ def _write_new(path: Path, data: bytes) -> None:
 
 
 def launch_arguments(value: dict, root: Path, state_name: str | None) -> list[str]:
-    if not isinstance(value, dict) or set(value) not in (
-            LAUNCH_KEYS, LAUNCH_KEYS | {"capture"}, LAUNCH_KEYS | {"capture", "lighting_phase"}):
+    optional = {"capture", "lighting_phase", "record_video"}
+    if (not isinstance(value, dict) or not LAUNCH_KEYS <= set(value)
+            or not set(value) <= LAUNCH_KEYS | optional):
         raise WorkspaceError("invalid scenario benchmark launch fields")
     if any(not isinstance(item, str) for item in value.values()):
         raise WorkspaceError("invalid scenario benchmark launch values")
@@ -132,6 +136,10 @@ def launch_arguments(value: dict, root: Path, state_name: str | None) -> list[st
         raise WorkspaceError("invalid benchmark capture request")
     if "lighting_phase" in value and value["lighting_phase"] not in LIGHTING_PHASES:
         raise WorkspaceError("invalid benchmark lighting phase")
+    if "lighting_phase" in value and "capture" not in value:
+        raise WorkspaceError("benchmark lighting phase requires capture")
+    if "record_video" in value and value["record_video"] != "true":
+        raise WorkspaceError("invalid benchmark recording request")
     validate_name(value["scenario"], "scenario name")
     if state_name != "scenario-" + value["scenario"] or re.fullmatch(r"[a-f0-9]{32}", value["nonce"]) is None:
         raise WorkspaceError("benchmark does not match its scenario-owned state")
@@ -158,6 +166,13 @@ def launch_arguments(value: dict, root: Path, state_name: str | None) -> list[st
             arguments.append(f"--live-movement-{kind}-capture={path}")
     if "lighting_phase" in value:
         arguments.append(f"--live-movement-lighting-phase={value['lighting_phase']}")
+    if "record_video" in value:
+        recording = evidence / "gameplay.avi"
+        if root.resolve() != root or evidence.resolve() != evidence:
+            raise WorkspaceError("benchmark recording directory is not canonical")
+        if recording.exists() or recording.is_symlink():
+            raise WorkspaceError("benchmark recording already exists")
+        arguments.append(f"--record-video={recording}")
     return arguments
 
 
@@ -357,11 +372,126 @@ def verify_captures(summary: dict, evidence: Path, requested: bool) -> None:
             raise WorkspaceError("benchmark capture bytes differ from the verified PNG identity")
 
 
+def _pread_exact(descriptor: int, size: int, offset: int) -> bytes:
+    data = bytearray()
+    while len(data) < size:
+        chunk = os.pread(descriptor, size - len(data), offset + len(data))
+        if not chunk:
+            raise WorkspaceError("benchmark recording is truncated")
+        data.extend(chunk)
+    return bytes(data)
+
+
+def verify_recording(path: Path) -> dict:
+    """Validate the bounded RIFF/MJPEG framing without decoding video frames."""
+    flags = os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW | os.O_CLOEXEC
+    try:
+        descriptor = os.open(path, flags)
+        try:
+            before = os.fstat(descriptor)
+            if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
+                    or before.st_uid not in {0, os.geteuid()} or before.st_mode & 0o022
+                    or not 224 < before.st_size <= MAX_RECORDING_BYTES):
+                raise WorkspaceError(
+                    "benchmark recording owner, type, mode, or size is unsafe"
+                )
+            header = _pread_exact(descriptor, 224, 0)
+            little = lambda offset: struct.unpack_from("<I", header, offset)[0]
+            if (header[:4] != b"RIFF" or little(4) != before.st_size - 8
+                    or header[8:12] != b"AVI "
+                    or header[12:16] != b"LIST" or little(16) != 192
+                    or header[20:24] != b"hdrl"
+                    or header[24:28] != b"avih" or little(28) != 56
+                    or header[88:92] != b"LIST" or little(92) != 116
+                    or header[96:100] != b"strl"
+                    or header[100:104] != b"strh" or little(104) != 56
+                    or header[108:112] != b"vids" or header[112:116] != b"MJPG"
+                    or header[164:168] != b"strf" or little(168) != 40
+                    or little(172) != 40 or header[188:192] != b"MJPG"
+                    or header[212:216] != b"LIST" or header[220:224] != b"movi"):
+                raise WorkspaceError("benchmark recording RIFF/MJPEG header is invalid")
+            microseconds, main_flags = little(32), little(44)
+            frames, streams = little(48), little(56)
+            width, height = little(64), little(68)
+            scale, rate, stream_frames = little(128), little(132), little(140)
+            bitmap_width, bitmap_height = little(176), little(180)
+            planes, bit_count = struct.unpack_from("<HH", header, 184)
+            if (microseconds != 50000 or main_flags != 0x10 or streams != 1
+                    or not 0 < frames <= MAX_RECORDING_FRAMES
+                    or stream_frames != frames or scale != 1 or rate != 20
+                    or frames * scale > MAX_RECORDING_SECONDS * rate
+                    or not 0 < width <= 4096 or not 0 < height <= 4096
+                    or width * height > 8388608
+                    or (bitmap_width, bitmap_height) != (width, height)
+                    or planes != 1 or bit_count != 24):
+                raise WorkspaceError("benchmark recording stream timing or format is invalid")
+            index_offset = 220 + little(216)
+            if not 224 < index_offset <= before.st_size - 8:
+                raise WorkspaceError("benchmark recording movi boundary is invalid")
+            chunks = []
+            offset = 224
+            while offset < index_offset:
+                if len(chunks) >= MAX_RECORDING_FRAMES:
+                    raise WorkspaceError("benchmark recording frame count exceeds its bound")
+                chunk = _pread_exact(descriptor, 8, offset)
+                size = struct.unpack_from("<I", chunk, 4)[0]
+                padded = size + (size & 1)
+                if (chunk[:4] != b"00dc" or size < 4
+                        or offset + 8 + padded > index_offset
+                        or _pread_exact(descriptor, 2, offset + 8) != b"\xff\xd8"
+                        or _pread_exact(descriptor, 2, offset + 8 + size - 2) != b"\xff\xd9"):
+                    raise WorkspaceError("benchmark recording MJPEG frame is invalid")
+                chunks.append((offset, size))
+                offset += 8 + padded
+            if offset != index_offset or len(chunks) != frames:
+                raise WorkspaceError("benchmark recording frame count or movi size differs")
+            index_header = _pread_exact(descriptor, 8, index_offset)
+            index_size = struct.unpack_from("<I", index_header, 4)[0]
+            if (index_header[:4] != b"idx1" or index_size != frames * 16
+                    or index_offset + 8 + index_size != before.st_size):
+                raise WorkspaceError("benchmark recording index boundary is invalid")
+            for number, (chunk_offset, chunk_size) in enumerate(chunks):
+                entry = _pread_exact(descriptor, 16, index_offset + 8 + number * 16)
+                tag, entry_flags, relative, size = struct.unpack("<4sIII", entry)
+                if (tag != b"00dc" or entry_flags != 0x10
+                        or relative != chunk_offset - 220 or size != chunk_size):
+                    raise WorkspaceError("benchmark recording index entry differs")
+            after = os.fstat(descriptor)
+            if _identity(before) != _identity(after):
+                raise WorkspaceError("benchmark recording changed during verification")
+            try:
+                visible = path.stat(follow_symlinks=False)
+            except OSError as error:
+                raise WorkspaceError("benchmark recording path changed") from error
+            if _identity(before) != _identity(visible):
+                raise WorkspaceError("benchmark recording path changed")
+            return {
+                "path": str(path),
+                "status": "verified-container",
+                "size_bytes": before.st_size,
+                "frames": frames,
+                "width": width,
+                "height": height,
+                "frames_per_second": 20,
+                "codec": "MJPG",
+                "visual_decode_verified": False,
+            }
+        finally:
+            os.close(descriptor)
+    except WorkspaceError:
+        raise
+    except (OSError, ValueError, struct.error) as error:
+        raise WorkspaceError(f"cannot validate benchmark recording: {path}") from error
+
+
 def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout: int | None = None,
-                  *, capture: bool = False, lighting_phase: str | None = None) -> dict:
+                  *, capture: bool = False, lighting_phase: str | None = None,
+                  record_video: bool = False) -> dict:
     validate_name(name, "benchmark topology name")
     if type(capture) is not bool:
         raise WorkspaceError("benchmark capture must be a boolean request")
+    if type(record_video) is not bool:
+        raise WorkspaceError("benchmark video recording must be a boolean request")
     if lighting_phase is not None and (not isinstance(lighting_phase, str)
             or lighting_phase not in LIGHTING_PHASES or not capture):
         raise WorkspaceError("benchmark lighting phase requires capture and a supported phase")
@@ -398,12 +528,21 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
         launch["capture"] = "true"
     if lighting_phase is not None:
         launch["lighting_phase"] = lighting_phase
+    if record_video:
+        launch["record_video"] = "true"
     manifest = {"schema_version": 1, "name": name, "status": "running", "scenario": scenario_name,
                 "profile": scenario["profile"], "preset": scenario["preset"], "state": scenario["state"],
                 "route_sha256": route_record["sha256"], "expected_checkpoints": len(route_record["checkpoints"]),
                 "timeout_seconds": timeout, "host": {"system": platform.system(), "machine": platform.machine()},
                 "evidence": str(evidence), "route_origin": provenance, "launch_nonce": launch["nonce"]}
     manifest["capture_requested"] = capture
+    recording = evidence / "gameplay.avi"
+    if record_video:
+        manifest["recording"] = {
+            "path": str(recording),
+            "status": "pending",
+            "performance_comparable": False,
+        }
     if lighting_phase is not None:
         manifest["lighting_phase"] = lighting_phase
     manifest["scenario_identity"] = {
@@ -466,9 +605,16 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
             if not isinstance(native_identity, dict) or native_identity.get("lighting_phase") != lighting_phase:
                 raise WorkspaceError("benchmark native lighting phase differs from its request")
         verify_captures(manifest["native"], evidence, capture)
+        if record_video:
+            manifest["recording"] = {
+                **verify_recording(recording),
+                "performance_comparable": False,
+            }
         manifest["status"] = "success"
     except (WorkspaceError, OSError, KeyError, StopIteration, ValueError, subprocess.SubprocessError, KeyboardInterrupt) as error:
         failure = str(error) or type(error).__name__
+        if record_video and manifest["recording"]["status"] == "pending":
+            manifest["recording"].update(status="failure", error=failure)
         manifest.update(status="failure", error=failure)
     finally:
         if generation is not None:

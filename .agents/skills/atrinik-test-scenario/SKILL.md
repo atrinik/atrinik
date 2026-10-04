@@ -58,6 +58,7 @@ with a fresh topology name:
 ./atrinik scenario route NAME --output /absolute/brynknot.xml
 ./atrinik scenario benchmark NAME --name RUN --route /absolute/brynknot.xml --json
 ./atrinik scenario benchmark NAME --name CAPTURE --route /absolute/brynknot.xml --capture --json
+./atrinik scenario benchmark NAME --name VIDEO --route /absolute/brynknot.xml --record-video --json
 ./atrinik scenario benchmark NAME --name LIGHTING --route /absolute/brynknot.xml --capture --lighting-phase full-moon --json
 ```
 
@@ -81,3 +82,12 @@ movement the native client issues the one fixed normal server command and waits
 for fresh MAP, primary presentation, and clock evidence. Verify isolated default
 operator privilege before a lighting run; command rejection fails boundedly.
 The wrapper never grants operator privilege or edits accounts, saves, or state.
+
+Video recording is optional and uses only the absent private
+`benchmark/gameplay.avi` path. Requested success requires a bounded, indexed
+20 FPS MJPEG AVI with nonzero structurally valid JPEG-framed entries and
+coherent RIFF, stream, timing, and index metadata. This framing validation does
+not prove that a decoder can render the JPEG payloads; retain native decode or
+playback as separate evidence. Recording covers the complete client play window
+through disconnect. Its overhead makes that run unsuitable as a
+recording-disabled performance baseline.

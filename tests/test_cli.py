@@ -2038,6 +2038,7 @@ class ParserTests(unittest.TestCase):
         }
         cases = (
             (["--capture"], {"capture": True}),
+            (["--record-video"], {"record_video": True}),
             (
                 ["--capture", "--lighting-phase", "full-moon"],
                 {"capture": True, "lighting_phase": "full-moon"},

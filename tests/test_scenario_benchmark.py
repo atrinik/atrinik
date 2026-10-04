@@ -75,6 +75,42 @@ def capture_record(path: Path, payload: bytes, width: int = 8, height: int = 6) 
     }
 
 
+def avi_fixture(frame_payloads: tuple[bytes, ...] = (
+        b"\xff\xd8one\xff\xd9", b"\xff\xd8two\xff\xd9")) -> bytes:
+    header = bytearray(224)
+    header[0:4], header[8:12] = b"RIFF", b"AVI "
+    header[12:16], header[20:24] = b"LIST", b"hdrl"
+    header[24:28] = b"avih"
+    header[88:92], header[96:100] = b"LIST", b"strl"
+    header[100:104], header[108:112], header[112:116] = b"strh", b"vids", b"MJPG"
+    header[164:168], header[188:192] = b"strf", b"MJPG"
+    header[212:216], header[220:224] = b"LIST", b"movi"
+    values = {
+        16: 192, 28: 56, 32: 50000, 44: 0x10,
+        48: len(frame_payloads), 56: 1, 64: 8, 68: 6,
+        92: 116, 104: 56, 128: 1, 132: 20,
+        140: len(frame_payloads), 168: 40, 172: 40, 176: 8, 180: 6,
+    }
+    for offset, value in values.items():
+        struct.pack_into("<I", header, offset, value)
+    struct.pack_into("<HH", header, 184, 1, 24)
+    payload = bytearray(header)
+    chunks = []
+    for frame in frame_payloads:
+        offset = len(payload)
+        payload.extend(b"00dc" + struct.pack("<I", len(frame)) + frame)
+        if len(frame) & 1:
+            payload.append(0)
+        chunks.append((offset, len(frame)))
+    index_offset = len(payload)
+    struct.pack_into("<I", payload, 216, index_offset - 220)
+    payload.extend(b"idx1" + struct.pack("<I", len(chunks) * 16))
+    for offset, size in chunks:
+        payload.extend(struct.pack("<4sIII", b"00dc", 0x10, offset - 220, size))
+    struct.pack_into("<I", payload, 4, len(payload) - 8)
+    return bytes(payload)
+
+
 class RouteTests(unittest.TestCase):
     def test_parse_route_accepts_canonical_route(self) -> None:
         parsed = benchmark.parse_route(ROUTE)
@@ -247,6 +283,29 @@ class LaunchArgumentTests(unittest.TestCase):
             dict(self.value, capture="false"),
         )
         for value in invalid:
+            with self.subTest(value=value), self.assertRaises(WorkspaceError):
+                benchmark.launch_arguments(value, self.root, "scenario-brynknot")
+
+    def test_launch_arguments_uses_only_fixed_absent_recording_path(self) -> None:
+        value = dict(self.value, record_video="true")
+        self.assertEqual(
+            benchmark.launch_arguments(value, self.root, "scenario-brynknot"),
+            [
+                f"--live-movement-route={self.route}",
+                f"--live-movement-report={self.report}",
+                f"--record-video={self.evidence / 'gameplay.avi'}",
+            ],
+        )
+        recording = self.evidence / "gameplay.avi"
+        recording.symlink_to(self.route)
+        with self.assertRaisesRegex(WorkspaceError, "recording already exists"):
+            benchmark.launch_arguments(value, self.root, "scenario-brynknot")
+
+    def test_launch_arguments_rejects_invalid_recording_request(self) -> None:
+        for value in (
+            dict(self.value, record_video="false"),
+            dict(self.value, record_video=True),
+        ):
             with self.subTest(value=value), self.assertRaises(WorkspaceError):
                 benchmark.launch_arguments(value, self.root, "scenario-brynknot")
 
@@ -551,6 +610,65 @@ class VerifyCaptureTests(unittest.TestCase):
             benchmark.verify_captures(self.summary, self.evidence, True)
 
 
+class VerifyRecordingTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory(dir="/tmp")
+        self.path = Path(self.temporary.name) / "gameplay.avi"
+        write_private(self.path, avi_fixture())
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    def test_verify_recording_accepts_indexed_mjpeg_container(self) -> None:
+        result = benchmark.verify_recording(self.path)
+        self.assertEqual(result["status"], "verified-container")
+        self.assertEqual(result["codec"], "MJPG")
+        self.assertEqual(result["frames"], 2)
+        self.assertEqual((result["width"], result["height"]), (8, 6))
+        self.assertFalse(result["visual_decode_verified"])
+
+    def test_verify_recording_rejects_header_timing_frames_and_index_drift(self) -> None:
+        mutations = {
+            "codec": (112, b"H264"),
+            "timing": (32, struct.pack("<I", 40000)),
+            "zero frames": (48, struct.pack("<I", 0)),
+            "jpeg marker": (224 + 8, b"NO"),
+            "index offset": (-8, b"idx1"),
+        }
+        original = avi_fixture()
+        for label, (offset, replacement) in mutations.items():
+            with self.subTest(label=label):
+                payload = bytearray(original)
+                position = len(payload) + offset if offset < 0 else offset
+                payload[position:position + len(replacement)] = replacement
+                self.path.chmod(0o600)
+                self.path.write_bytes(payload)
+                self.path.chmod(0o400)
+                with self.assertRaises(WorkspaceError):
+                    benchmark.verify_recording(self.path)
+
+    def test_verify_recording_rejects_missing_symlink_unsafe_mode_and_size(self) -> None:
+        self.path.unlink()
+        with self.assertRaisesRegex(WorkspaceError, "cannot validate"):
+            benchmark.verify_recording(self.path)
+        target = Path(self.temporary.name) / "target.avi"
+        write_private(target, avi_fixture())
+        self.path.symlink_to(target)
+        with self.assertRaisesRegex(WorkspaceError, "cannot validate"):
+            benchmark.verify_recording(self.path)
+        self.path.unlink()
+        self.path.write_bytes(avi_fixture())
+        self.path.chmod(0o622)
+        with self.assertRaisesRegex(WorkspaceError, "owner, type, mode, or size"):
+            benchmark.verify_recording(self.path)
+        self.path.chmod(0o600)
+        with self.path.open("wb") as stream:
+            stream.truncate(benchmark.MAX_RECORDING_BYTES + 1)
+        self.path.chmod(0o400)
+        with self.assertRaisesRegex(WorkspaceError, "owner, type, mode, or size"):
+            benchmark.verify_recording(self.path)
+
+
 class FakePaths:
     def __init__(self, workspace: Path) -> None:
         self.workspace = workspace
@@ -571,6 +689,7 @@ class FakeWorkspace:
         *,
         create_report: bool = True,
         create_captures: bool = True,
+        create_recording: bool = True,
         dirty: bool = False,
     ) -> None:
         self.paths = FakePaths(root / "workspace")
@@ -580,6 +699,7 @@ class FakeWorkspace:
         write_private(self.client / "tools" / "verify_live_movement.py", b"print('{}')\n")
         self.create_report = create_report
         self.create_captures = create_captures
+        self.create_recording = create_recording
         self.dirty = dirty
         self.statuses: list[dict] = []
         self.launch = None
@@ -621,6 +741,10 @@ class FakeWorkspace:
                 path = Path(self.launch["report"]).with_name(f"{kind}.png")
                 path.write_bytes(png_fixture())
                 path.chmod(0o600)
+        if self.create_recording and self.launch.get("record_video") == "true":
+            path = Path(self.launch["report"]).with_name("gameplay.avi")
+            path.write_bytes(avi_fixture())
+            path.chmod(0o600)
         source = {"source": "client", "path": str(self.client), "head": "1" * 40, "dirty": self.dirty}
         return {"control": {"generation": "generation-1"}, "resolved": {"client": source}}
 
@@ -660,6 +784,7 @@ class RunBenchmarkTests(unittest.TestCase):
         *,
         capture: bool = False,
         lighting_phase: str | None = None,
+        record_video: bool = False,
     ) -> dict:
         route = benchmark.parse_route(ROUTE)
         native = valid_summary(route, {"head": "1" * 40})
@@ -681,6 +806,7 @@ class RunBenchmarkTests(unittest.TestCase):
                 timeout=2,
                 capture=capture,
                 lighting_phase=lighting_phase,
+                record_video=record_video,
             )
 
     def test_run_benchmark_reserves_fresh_private_topology_and_records_evidence(self) -> None:
@@ -699,6 +825,7 @@ class RunBenchmarkTests(unittest.TestCase):
         durable = (evidence / "summary.json").read_text(encoding="utf-8")
         self.assertNotIn("fixture-password-must-not-be-durable", durable)
         self.assertNotIn("password", result)
+        self.assertNotIn("recording", result)
 
     def test_run_benchmark_capture_uses_fixed_outputs_and_selected_lighting(self) -> None:
         workspace = FakeWorkspace(self.root)
@@ -714,6 +841,33 @@ class RunBenchmarkTests(unittest.TestCase):
             path = evidence / f"{kind}.png"
             self.assertEqual(result["native"]["captures"][kind]["path"], str(path))
             self.assertEqual(path.read_bytes(), png_fixture())
+        self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
+
+    def test_run_benchmark_recording_uses_fixed_output_and_marks_overhead(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        result = self.run_success(workspace, record_video=True)
+        recording = workspace.paths.topologies / "bench" / "benchmark" / "gameplay.avi"
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(workspace.launch["record_video"], "true")
+        self.assertEqual(result["recording"]["path"], str(recording))
+        self.assertEqual(result["recording"]["status"], "verified-container")
+        self.assertFalse(result["recording"]["performance_comparable"])
+        self.assertFalse(result["recording"]["visual_decode_verified"])
+
+    def test_run_benchmark_missing_requested_recording_fails_honestly(self) -> None:
+        workspace = FakeWorkspace(self.root, create_recording=False)
+        with self.assertRaisesRegex(WorkspaceError, "cannot validate benchmark recording"):
+            self.run_success(workspace, record_video=True)
+        summary = json.loads(
+            (workspace.paths.topologies / "bench" / "benchmark" / "summary.json").read_text()
+        )
+        self.assertEqual(summary["status"], "failure")
+        self.assertEqual(summary["recording"]["status"], "failure")
+        self.assertEqual(
+            summary["recording"]["path"],
+            str(workspace.paths.topologies / "bench" / "benchmark" / "gameplay.avi"),
+        )
+        self.assertFalse(summary["recording"]["performance_comparable"])
         self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
 
     def test_run_benchmark_rejects_lighting_without_capture_or_unknown_phase(self) -> None:

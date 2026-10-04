@@ -664,6 +664,11 @@ def parser() -> argparse.ArgumentParser:
         choices=["day", "new-moon", "full-moon"],
         help="set a fixed server lighting phase before captured movement",
     )
+    scenario_benchmark.add_argument(
+        "--record-video",
+        action="store_true",
+        help="record fixed private benchmark/gameplay.avi evidence",
+    )
     scenario_benchmark.add_argument("--json", action="store_true")
 
     supply_chain = commands.add_parser(
@@ -1724,6 +1729,8 @@ def main(arguments: list[str] | None = None) -> int:
                     benchmark_options["capture"] = True
                 if options.lighting_phase is not None:
                     benchmark_options["lighting_phase"] = options.lighting_phase
+                if options.record_video:
+                    benchmark_options["record_video"] = True
                 summary = workspace.scenario_benchmark(
                     options.name,
                     options.run_name,
