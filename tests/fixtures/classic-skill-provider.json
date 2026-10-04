@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/atrinik/agent-skills",
+  "revision": "89288ac890697ebbdd3f294db9e645319864e5a7",
+  "marketplace": "atrinik",
+  "plugin": "atrinik-development",
+  "path": "plugins/atrinik-development",
+  "required_skills": [
+    "classic-native-change",
+    "classic-protocol-change",
+    "classic-runtime"
+  ]
+}

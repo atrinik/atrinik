@@ -35,23 +35,50 @@ def _unique(pairs):
 
 
 def parse_provider(raw: str | bytes) -> dict:
+    """Validate provider metadata for any selected repository, without loading it."""
+    if len(raw.encode("utf-8") if isinstance(raw, str) else raw) > 32_768:
+        raise ValueError("skill provider descriptor exceeds its byte bound")
     value = json.loads(raw, object_pairs_hook=_unique)
     if not isinstance(value, dict) or set(value) != _FIELDS:
         raise ValueError("skill provider requires exactly the documented descriptor fields")
-    expected = {"schema_version": 1, "repository": "https://github.com/atrinik/agent-skills",
-                "marketplace": "atrinik", "plugin": "atrinik-development",
-                "path": "plugins/atrinik-development"}
-    if type(value["schema_version"]) is not int or any(value[key] != item for key, item in expected.items()):
-        raise ValueError("unsupported skill provider identity or schema")
-    if not isinstance(value["revision"], str) or not re.fullmatch(r"[0-9a-f]{40}", value["revision"]) or value["revision"] == "0" * 40:
+    if type(value["schema_version"]) is not int or value["schema_version"] != 1:
+        raise ValueError("unsupported skill provider schema")
+    repository = value["repository"]
+    if (not isinstance(repository, str) or not re.fullmatch(
+            r"https://github\.com/[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9][A-Za-z0-9_.-]{0,99}", repository)
+            or repository.endswith(".git")):
+        raise ValueError("skill provider requires a canonical GitHub repository URL")
+    name_pattern = r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*"
+    for field in ("marketplace", "plugin"):
+        name = value[field]
+        if not isinstance(name, str) or len(name) > 64 or not re.fullmatch(name_pattern, name):
+            raise ValueError("invalid skill provider identity")
+    path = value["path"]
+    if (not isinstance(path, str) or len(path) > 512 or not 1 <= len(path.split("/")) <= 8
+            or any(not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", part) for part in path.split("/"))):
+        raise ValueError("skill provider path must be a safe relative directory")
+    if (not isinstance(value["revision"], str) or not re.fullmatch(r"[0-9a-f]{40}", value["revision"])
+            or value["revision"] == "0" * 40):
         raise ValueError("skill provider revision must be a full lowercase 40-character commit")
-    if value["required_skills"] != list(REQUIRED_SKILLS):
-        raise ValueError("skill provider required_skills must be the sorted unique wrapper contract")
+    skills = value["required_skills"]
+    if (not isinstance(skills, list) or not 1 <= len(skills) <= 50
+            or any(not isinstance(name, str) or len(name) > 64 or not re.fullmatch(name_pattern, name)
+                   for name in skills) or len(set(skills)) != len(skills)):
+        raise ValueError("skill provider requires bounded unique valid skill names")
     return value
 
 
 def load_provider(root: Path) -> dict:
-    return parse_provider((root / DESCRIPTOR_PATH).read_bytes())
+    """Enforce this wrapper's consumer contract in addition to the generic schema."""
+    value = parse_provider((root / DESCRIPTOR_PATH).read_bytes())
+    expected = {"repository": "https://github.com/atrinik/agent-skills",
+                "marketplace": "atrinik", "plugin": "atrinik-development",
+                "path": "plugins/atrinik-development"}
+    if any(value[key] != item for key, item in expected.items()):
+        raise ValueError("unsupported wrapper skill provider identity")
+    if value["required_skills"] != list(REQUIRED_SKILLS):
+        raise ValueError("skill provider required_skills must be the sorted unique wrapper contract")
+    return value
 
 
 def validate_routes(root: Path, provider: dict) -> None:

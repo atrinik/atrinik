@@ -47,6 +47,20 @@ def long_changed_paths(root):
     return {str(path.relative_to(root)) for path in paths}
 
 
+def classic_provider_repository(wrapper):
+    """Use the actual published migration descriptor for the Classic consumer."""
+    root = wrapper / "classic"
+    repository(root, "atrinik/classic")
+    (root / "client").mkdir()
+    (root / "client/AGENTS.md").write_text("Synthetic Classic client guidance.\n")
+    (root / ".agents").mkdir()
+    descriptor = root / ".agents/skill-provider.json"
+    descriptor.write_bytes((REPOSITORY / "tests/fixtures/classic-skill-provider.json").read_bytes())
+    git(root, "add", ".")
+    git(root, "commit", "-m", "Classic external skill provider")
+    return descriptor
+
+
 class ContextFixture(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -210,6 +224,21 @@ class ContextFixture(unittest.TestCase):
         historical = self.service.guidance()
         self.assertEqual(historical["skills"], [legacy])
         self.assertIsNone(historical["external_skill_provider"])
+
+    def test_classic_guidance_uses_its_three_skill_provider_contract(self):
+        descriptor = classic_provider_repository(self.root)
+        result = self.service.guidance(profile="classic", component="classic-client")
+        provider = json.loads(descriptor.read_bytes())
+        self.assertEqual(result["external_skill_provider"], provider)
+        self.assertEqual(provider["required_skills"], [
+            "classic-native-change", "classic-protocol-change", "classic-runtime",
+        ])
+        self.assertEqual(result["guidance"], ["AGENTS.md", "client/AGENTS.md"])
+        self.assertEqual(result["skills"], [])
+        self.assertEqual(result["coordinate"]["repository"], "atrinik/classic")
+        provider["required_skills"] = ["../unsafe"]
+        descriptor.write_text(json.dumps(provider))
+        self.assertCode("INCOMPLETE", lambda: self.service.guidance(profile="classic", component="classic-client"))
 
     def test_guidance_rejects_invalid_tracked_provider_and_fences_changes(self):
         descriptor = self.root / ".agents/skill-provider.json"

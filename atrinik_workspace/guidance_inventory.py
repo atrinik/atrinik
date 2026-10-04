@@ -9,7 +9,21 @@ import re
 import subprocess
 import sys
 
-from atrinik_workspace.skill_provider import load_provider, validate_routes
+if __package__:
+    from .skill_provider import load_provider, validate_routes
+else:
+    # Preserve direct-script execution without trusting cwd/PYTHONPATH or adding
+    # an import search directory. Only this script's exact sibling is loaded.
+    import importlib.util
+
+    _provider_spec = importlib.util.spec_from_file_location(
+        "_atrinik_guidance_skill_provider", Path(__file__).resolve().with_name("skill_provider.py")
+    )
+    assert _provider_spec is not None and _provider_spec.loader is not None
+    _provider_module = importlib.util.module_from_spec(_provider_spec)
+    _provider_spec.loader.exec_module(_provider_module)
+    load_provider = _provider_module.load_provider
+    validate_routes = _provider_module.validate_routes
 
 
 ROOT = Path(__file__).resolve().parents[1]

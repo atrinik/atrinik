@@ -5,6 +5,9 @@ from contextlib import redirect_stderr, redirect_stdout
 import copy
 import io
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 import tempfile
 import unittest
@@ -37,12 +40,15 @@ class SkillProviderTests(unittest.TestCase):
         cases = [[], None, {}, {**provider, "unexpected": True}]
         for field, invalid in {
             "schema_version": [True, 2, "1"],
-            "repository": ["https://example.invalid/provider", "https://github.com/atrinik/agent-skills.git"],
+            "repository": ["https://example.invalid/provider", "https://github.com/atrinik/agent-skills.git",
+                           "https://user:secret@github.com/atrinik/skills", "https://github.com/../skills"],
             "revision": ["0" * 40, "main", "a" * 39, "A" * 40, "../" + "a" * 40, 123],
-            "marketplace": ["other"], "plugin": ["other"],
-            "path": ["../plugins/atrinik-development", "/plugins/atrinik-development"],
-            "required_skills": [[], list(REQUIRED_SKILLS[:-1]), list(REQUIRED_SKILLS) + [REQUIRED_SKILLS[0]],
-                                list(reversed(REQUIRED_SKILLS)), "atrinik-issue-delivery"],
+            "marketplace": ["../other", "a" * 65], "plugin": ["Other", "name/child"],
+            "path": ["../plugins/atrinik-development", "/plugins/atrinik-development", "plugins//name",
+                     "plugins/./name", "plugins/../name", "plugins\\name", "a/" * 9 + "a", "a" * 513],
+            "required_skills": [[], list(REQUIRED_SKILLS) + [REQUIRED_SKILLS[0]],
+                                "atrinik-issue-delivery", ["../name"], [False], ["a" * 65],
+                                [f"skill-{index}" for index in range(51)]],
         }.items():
             cases.extend({**provider, field: value} for value in invalid)
         for value in cases:
@@ -52,6 +58,38 @@ class SkillProviderTests(unittest.TestCase):
             parse_provider('{"schema_version": 1, "schema_version": 1}')
         with self.assertRaises(ValueError):
             parse_provider(b"not json")
+
+    def test_generic_descriptor_does_not_replace_wrapper_consumer_checks(self):
+        provider = load_provider(ROOT)
+        classic = json.loads((ROOT / "tests/fixtures/classic-skill-provider.json").read_bytes())
+        self.assertEqual(parse_provider(json.dumps(classic)), classic)
+        candidates = [classic, {**provider, "required_skills": list(reversed(REQUIRED_SKILLS))}]
+        candidates.extend({**provider, key: replacement} for key, replacement in {
+            "repository": "https://github.com/example/skills", "marketplace": "other",
+            "plugin": "other", "path": "other/plugin",
+        }.items())
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / ".agents").mkdir()
+            for candidate in candidates:
+                self.assertEqual(parse_provider(json.dumps(candidate)), candidate)
+                (root / DESCRIPTOR_PATH).write_text(json.dumps(candidate))
+                with self.subTest(candidate=candidate), self.assertRaises(ValueError):
+                    load_provider(root)
+        with self.assertRaisesRegex(ValueError, "bound"):
+            parse_provider(" " * 32769)
+
+    def test_direct_script_works_without_pythonpath_and_ignores_cwd_shadow(self):
+        environment = {key: value for key, value in os.environ.items() if key != "PYTHONPATH"}
+        with tempfile.TemporaryDirectory() as temporary:
+            (Path(temporary) / "skill_provider.py").write_text("raise RuntimeError('cwd shadow imported')")
+            for flags in ([], ["-I"]):
+                completed = subprocess.run(
+                    [sys.executable, *flags, str(ROOT / "atrinik_workspace/guidance_inventory.py"), "--check", "--json"],
+                    cwd=temporary, env=environment, text=True, capture_output=True, check=False,
+                )
+                self.assertEqual(completed.returncode, 0, completed.stderr)
+                self.assertEqual(json.loads(completed.stdout)["external_metrics"], "unmeasured")
 
     def test_missing_invalid_descriptor_and_stale_routes_fail_locally(self):
         provider = load_provider(ROOT)
