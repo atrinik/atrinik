@@ -703,6 +703,7 @@ class FakeWorkspace:
         self.dirty = dirty
         self.statuses: list[dict] = []
         self.launch = None
+        self.topology_options = None
         self.component_calls: list[tuple[str, str]] = []
         self.down_calls: list[tuple[str, str | None]] = []
 
@@ -731,6 +732,7 @@ class FakeWorkspace:
         return self.client
 
     def topology_up(self, name: str, profile: str, state: str, services: list[str], **kwargs) -> dict:
+        self.topology_options = kwargs
         self.launch = kwargs["scenario_benchmark"]
         generation_published = kwargs.get("generation_published")
         if generation_published is not None:
@@ -788,6 +790,7 @@ class RunBenchmarkTests(unittest.TestCase):
         capture: bool = False,
         lighting_phase: str | None = None,
         record_video: bool = False,
+        prebuilt_build: str | None = None,
     ) -> dict:
         route = benchmark.parse_route(ROUTE)
         native = valid_summary(route, {"head": "1" * 40})
@@ -810,6 +813,7 @@ class RunBenchmarkTests(unittest.TestCase):
                 capture=capture,
                 lighting_phase=lighting_phase,
                 record_video=record_video,
+                prebuilt_build=prebuilt_build,
             )
 
     def test_run_benchmark_reserves_fresh_private_topology_and_records_evidence(self) -> None:
@@ -829,6 +833,29 @@ class RunBenchmarkTests(unittest.TestCase):
         self.assertNotIn("fixture-password-must-not-be-durable", durable)
         self.assertNotIn("password", result)
         self.assertNotIn("recording", result)
+
+    def test_run_benchmark_forwards_and_records_exact_prebuilt_receipt(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        digest = "a" * 64
+        result = self.run_success(workspace, prebuilt_build=digest)
+        self.assertEqual(result["prebuilt_build"], digest)
+        self.assertEqual(workspace.topology_options["prebuilt_build"], digest)
+        self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
+
+    def test_run_benchmark_rejects_invalid_prebuilt_receipt_before_mutation(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        with self.assertRaisesRegex(WorkspaceError, "prebuilt build must be a SHA-256 digest"):
+            benchmark.run_benchmark(
+                workspace,
+                "brynknot",
+                "bench",
+                self.route,
+                timeout=2,
+                prebuilt_build="A" * 64,
+            )
+        self.assertFalse((workspace.paths.topologies / "bench").exists())
+        self.assertEqual(workspace.component_calls, [])
+        self.assertEqual(workspace.down_calls, [])
 
     def test_run_benchmark_capture_uses_fixed_outputs_and_selected_lighting(self) -> None:
         workspace = FakeWorkspace(self.root)

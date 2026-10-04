@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import re
 import sys
 from typing import Any
 
@@ -572,6 +573,10 @@ def parser() -> argparse.ArgumentParser:
         help="Classic server bind policy (default: loopback); all-ipv4 accepts container-forwarded UDP",
     )
     mark(up.add_argument("--retained-build-plan", metavar="SHA256", help="require the exact retained tested plan and preserve historical runtime builds"), "none")
+    mark(up.add_argument(
+        "--prebuilt-build", metavar="SHA256",
+        help="launch the exact prepared ordinary Classic topology build",
+    ), "none")
     for flag in ("--runtime-handoff", "--handoff-issue", "--handoff-attempt", "--handoff-publisher", "--handoff-endpoint"):
         mark(up.add_argument(flag, help="exact public retained-runtime handoff coordinate"), "none")
     up.add_argument("--json", action="store_true")
@@ -678,6 +683,10 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="record fixed private benchmark/gameplay.avi evidence",
     )
+    mark(scenario_benchmark.add_argument(
+        "--prebuilt-build", metavar="SHA256",
+        help="launch the exact prepared ordinary Classic topology build",
+    ), "none")
     scenario_benchmark.add_argument("--json", action="store_true")
 
     supply_chain = commands.add_parser(
@@ -1412,8 +1421,19 @@ def main(arguments: list[str] | None = None) -> int:
                     build_arguments["expected_plan"] = options.expected_plan
                 result = workspace.build(options.target, options.profile,
                                          options.test, **build_arguments)
-                print(json.dumps({"build_root": str(result)}, sort_keys=True)
-                      if options.json else result)
+                prebuilt_build = getattr(workspace, "prebuilt_build_digest", None)
+                if (not isinstance(prebuilt_build, str)
+                        or re.fullmatch(r"[0-9a-f]{64}", prebuilt_build) is None):
+                    prebuilt_build = None
+                if options.json:
+                    build_result = {"build_root": str(result)}
+                    if prebuilt_build is not None:
+                        build_result["prebuilt_build"] = prebuilt_build
+                    print(json.dumps(build_result, sort_keys=True))
+                else:
+                    print(result)
+                    if prebuilt_build is not None:
+                        print(f"prebuilt-build\t{prebuilt_build}")
         elif options.command == "dev":
             if options.dev_command == "build":
                 services = _parse_services(options.services)
@@ -1548,6 +1568,7 @@ def main(arguments: list[str] | None = None) -> int:
                 options.port,
                 state_mode=options.state_mode,
                 **({"retained_build_plan": options.retained_build_plan} if options.retained_build_plan is not None else {}),
+                **({"prebuilt_build": options.prebuilt_build} if options.prebuilt_build is not None else {}),
                 **{key: getattr(options, key) for key in ("runtime_handoff", "handoff_issue", "handoff_attempt", "handoff_publisher", "handoff_endpoint")
                    if getattr(options, key) is not None},
                 **({"server_listener": options.server_listener}
@@ -1741,6 +1762,8 @@ def main(arguments: list[str] | None = None) -> int:
                     benchmark_options["lighting_phase"] = options.lighting_phase
                 if options.record_video:
                     benchmark_options["record_video"] = True
+                if options.prebuilt_build is not None:
+                    benchmark_options["prebuilt_build"] = options.prebuilt_build
                 summary = workspace.scenario_benchmark(
                     options.name,
                     options.run_name,

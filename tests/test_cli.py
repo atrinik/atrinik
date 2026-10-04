@@ -810,6 +810,40 @@ class ParserTests(unittest.TestCase):
             expected_plan="a" * 64,
         )
 
+    def test_topology_build_execution_prints_exact_prebuilt_receipt(self) -> None:
+        digest = "b" * 64
+        for structured in (False, True):
+            with self.subTest(structured=structured), mock.patch(
+                "atrinik_workspace.cli.Workspace"
+            ) as workspace_type, mock.patch(
+                "sys.stdout", new_callable=io.StringIO
+            ) as output:
+                workspace_type.return_value.build.return_value = Path(
+                    "/topology-build"
+                )
+                workspace_type.return_value.prebuilt_build_digest = digest
+                arguments = [
+                    "build", "topology", "--profile", "classic",
+                    "--expected-plan", "a" * 64,
+                ]
+                if structured:
+                    arguments.append("--json")
+                self.assertEqual(main(arguments), 0)
+
+            if structured:
+                self.assertEqual(
+                    json.loads(output.getvalue()),
+                    {
+                        "build_root": "/topology-build",
+                        "prebuilt_build": digest,
+                    },
+                )
+            else:
+                self.assertEqual(
+                    output.getvalue().splitlines(),
+                    ["/topology-build", f"prebuilt-build\t{digest}"],
+                )
+
     def test_retained_content_build_plan_and_execution_forward_same_commit(self) -> None:
         commit = "c" * 40
         for planning in (True, False):
@@ -1635,6 +1669,29 @@ class ParserTests(unittest.TestCase):
         )
         output.assert_called_once_with("topology review: started at 127.0.0.1:17300")
 
+    def test_up_forwards_exact_prebuilt_build_only_when_requested(self) -> None:
+        digest = "c" * 64
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.topology_up.return_value = {}
+            with mock.patch("builtins.print"):
+                result = main(
+                    [
+                        "up", "--profile", "classic",
+                        "--prebuilt-build", digest,
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.topology_up.assert_called_once_with(
+            "classic",
+            "classic",
+            "default",
+            None,
+            None,
+            state_mode=None,
+            prebuilt_build=digest,
+        )
+
     def test_topology_state_policy_options_are_mutually_exclusive(self) -> None:
         temporary = parser().parse_args(
             ["up", "--profile", "review", "--temporary-state"]
@@ -2132,6 +2189,35 @@ class ParserTests(unittest.TestCase):
                 None,
                 **expected,
             )
+
+    def test_scenario_benchmark_forwards_exact_prebuilt_build(self) -> None:
+        digest = "d" * 64
+        summary = {
+            "name": "brynknot-run",
+            "status": "success",
+            "evidence": "/workspace/topologies/brynknot-run/benchmark",
+        }
+        with mock.patch(
+            "atrinik_workspace.cli.Workspace"
+        ) as workspace_type, mock.patch("builtins.print"):
+            workspace_type.return_value.scenario_benchmark.return_value = summary
+            result = main(
+                [
+                    "scenario", "benchmark", "brynknot-review",
+                    "--name", "brynknot-run",
+                    "--route", "/tmp/brynknot.xml",
+                    "--prebuilt-build", digest,
+                ]
+            )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.scenario_benchmark.assert_called_once_with(
+            "brynknot-review",
+            "brynknot-run",
+            Path("/tmp/brynknot.xml"),
+            None,
+            prebuilt_build=digest,
+        )
 
     def test_scenario_benchmark_lighting_requires_capture_before_workspace(self) -> None:
         with mock.patch(

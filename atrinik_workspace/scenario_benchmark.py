@@ -486,8 +486,12 @@ def verify_recording(path: Path) -> dict:
 
 def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout: int | None = None,
                   *, capture: bool = False, lighting_phase: str | None = None,
-                  record_video: bool = False) -> dict:
+                  record_video: bool = False, prebuilt_build: str | None = None) -> dict:
     validate_name(name, "benchmark topology name")
+    if (prebuilt_build is not None
+            and (not isinstance(prebuilt_build, str)
+                 or re.fullmatch(r"[0-9a-f]{64}", prebuilt_build) is None)):
+        raise WorkspaceError("prebuilt build must be a SHA-256 digest")
     if type(capture) is not bool:
         raise WorkspaceError("benchmark capture must be a boolean request")
     if type(record_video) is not bool:
@@ -545,6 +549,8 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
         }
     if lighting_phase is not None:
         manifest["lighting_phase"] = lighting_phase
+    if prebuilt_build is not None:
+        manifest["prebuilt_build"] = prebuilt_build
     manifest["scenario_identity"] = {
         key: scenario[key] for key in ("schema_version", "stack", "providers", "resolved", "provisioned_at")
         if key in scenario
@@ -565,9 +571,14 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
         staged_verifier = evidence / "verify_live_movement.py"
         _write_new(staged_verifier, verifier_bytes)
         manifest["verifier_sha256"] = hashlib.sha256(verifier_bytes).hexdigest()
+        topology_options = {
+            "scenario_benchmark": launch,
+            "generation_published": remember_generation,
+        }
+        if prebuilt_build is not None:
+            topology_options["prebuilt_build"] = prebuilt_build
         status = workspace.topology_up(name, scenario["profile"], scenario["state"],
-                                       ["server", "client"], scenario_benchmark=launch,
-                                       generation_published=remember_generation)
+                                       ["server", "client"], **topology_options)
         returned_generation = status["control"]["generation"]
         if generation != returned_generation:
             raise WorkspaceError("benchmark topology returned a different generation")

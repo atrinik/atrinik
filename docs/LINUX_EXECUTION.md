@@ -178,6 +178,38 @@ environment, never plan with a different host toolchain. Use the owner-required
 component/profile and tests for the actual task. Package fetches may need network
 access; registry login remains a host action and no credential store is mounted.
 
+To prepare one ordinary paired Classic topology in the CPU worker for a later
+host runtime, use the topology target with compiler caching disabled. Run both
+commands with the same worker image, mounts, absolute worktree, profile, and
+lease coordinates:
+
+```sh
+./atrinik build topology --profile classic --no-ccache --plan --json
+./atrinik build topology --profile classic --no-ccache \
+  --expected-plan RETURNED_PLAN_SHA256 --json
+```
+
+The second result contains `build_root` and `prebuilt_build`. Preserve the exact
+`prebuilt_build` SHA-256 receipt and pass it to one of the ordinary host launch
+paths:
+
+```sh
+./atrinik up --name classic-local --profile classic --temporary-state \
+  --prebuilt-build RETURNED_PREBUILT_BUILD_SHA256
+./atrinik scenario benchmark SCENARIO --name BENCHMARK_TOPOLOGY \
+  --route /absolute/private/route.xml \
+  --prebuilt-build RETURNED_PREBUILT_BUILD_SHA256
+```
+
+This receipt covers only the prepared paired Classic client/server topology. It
+retains the exact build and source-generation paths, profile and source locks,
+sound scope, and `content@main` identity admitted by the fenced build. It cannot
+select retained-build, service-selective development, or portable-export modes.
+The runtime validates that recorded contract and launches the prepared outputs
+without build tools; a changed input rejects the launch instead of rebuilding.
+The receipt is build provenance, not live-resource or delivery authority, and
+does not replace current topology, state, port, scenario, or lease admission.
+
 The bound worktree's persistent `workspace/build` holds its build outputs and
 wrapper-managed compiler/dependency caches. Its stable owner/path survives
 short-lived workers; image layers are also reused through `--pull never`.
