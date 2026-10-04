@@ -1,0 +1,49 @@
+{
+  "$schema": "./config.schema.json",
+  "evidence_kind": "synthetic-self-test",
+  "expected_head": null,
+  "pilot_enabled": true,
+  "profiles": [
+    {
+      "adapter": {
+        "argv": [
+          "python3",
+          "mcp/pilot/synthetic_adapter.py",
+          "--workload",
+          "{workload_id}",
+          "--scenario",
+          "{scenario}"
+        ],
+        "pin_path": "mcp/pilot/synthetic_adapter.py",
+        "sha256": "dfbd99cd5d933bcff2d556e7afd8b6be8b5be183474366da6718bf2e50e9dee7"
+      },
+      "enabled": true,
+      "evaluation_only": false,
+      "owner": "atrinik/atrinik#353",
+      "profile_id": "context",
+      "revision": "synthetic-corpus-adapter-v1",
+      "runtime_opt_in": false,
+      "server_id": "synthetic-self-test"
+    },
+    {
+      "enabled": false,
+      "evaluation_only": false,
+      "owner": "atrinik/atrinik#355",
+      "profile_id": "runtime-status",
+      "revision": "disabled",
+      "runtime_opt_in": false,
+      "server_id": "atrinik-observe-status"
+    },
+    {
+      "enabled": false,
+      "evaluation_only": true,
+      "owner": "atrinik/atrinik#354",
+      "profile_id": "external-evaluation",
+      "revision": "disabled",
+      "runtime_opt_in": false,
+      "server_id": "maintained-connector-evaluation"
+    }
+  ],
+  "schema_version": "atrinik.mcp.pilot-config/v1",
+  "trust_root": "."
+}

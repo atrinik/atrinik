@@ -6,7 +6,15 @@
     "observed_at": "2026-08-16T03:49:00Z",
     "weights_head": "7eab2ba948626ace05792ea291aaf01e20f13aed",
     "weights_run_url": "https://github.com/atrinik/atrinik/actions/runs/36225313227",
-    "weights_threshold_seconds": 1.0
+    "weights_threshold_seconds": 1.0,
+    "bounded_refresh": {
+      "observed_at": "2026-10-04T00:19:09Z",
+      "head": "90a103fa91d84c5b8df8c145569742e5d7d89bd8",
+      "completed_run_url": "https://github.com/atrinik/atrinik/actions/runs/37161340210",
+      "completed_artifact_id": 11287932019,
+      "pagination_job_url": "https://github.com/atrinik/atrinik/actions/runs/37163749249/job/111322351076",
+      "note": "Runtime handoff uses the completed shard timing artifact (151.084s). The two new pagination tests use completed-test log intervals (22.368s and 22.423s) from the later cancelled shard; its missing timing report is not acceptance evidence. Other weights are unchanged."
+    }
   },
   "default_seconds": 0.134,
   "prefix_seconds": [
@@ -89,6 +97,7 @@
     "tests.test_delivery_ledger.DeliveryLedgerTests.test_retained_content_plan_extends_existing_declaration": 144.275,
     "tests.test_delivery_ledger.DeliveryLedgerTests.test_retained_content_successor_from_completed_604_build": 194.048,
     "tests.test_delivery_ledger.DeliveryLedgerTests.test_retained_dependency_advance_public_declaration_and_plan": 100.612,
+    "tests.test_delivery_ledger.DeliveryLedgerTests.test_runtime_handoff_retained_public_forward": 151.084,
     "tests.test_delivery_ledger.DeliveryLedgerTests.test_scope_recovery_capability_cannot_change_actor": 1.745,
     "tests.test_delivery_ledger.DeliveryLedgerTests.test_split_resource_context_actual_locks_and_reservation_projection": 19.512,
     "tests.test_delivery_ledger.DeliveryLedgerTests.test_split_resource_context_public_recovery_and_reconnect": 11.179,
@@ -99,6 +108,8 @@
     "tests.test_delivery_ledger_legacy_correction_paths.LegacyCorrectionPathTests.test_legacy_receipt_retains_bytes_and_reproves_content_and_git": 4.293,
     "tests.test_delivery_ledger_legacy_correction_paths.LegacyCorrectionPathTests.test_partial_current_receipt_resumes_but_nonprefix_bytes_are_retained": 5.895,
     "tests.test_linux_portable_acceptance.PortablePublicationTests.test_actual_runtime_rejects_provider_hash_dependency_dynamic_and_symbol_drift": 1.216,
+    "tests.test_mcp_http.HTTPTests.test_http_changes_pages_traverse_long_paths": 22.368,
+    "tests.test_mcp_server.ServerTests.test_changes_tool_wire_pages_traverse_long_paths": 22.423,
     "tests.test_migration.RepositoryMigrationTests.test_profile_with_multiple_component_worktrees_uses_one_composite": 2.254,
     "tests.test_scopes.ScopeLifecycleTests.test_complete_dual_scope_server_lifecycle_is_independent": 5.02,
     "tests.test_scopes.ScopeLifecycleTests.test_every_release_publication_boundary_recovers_from_interruption": 3.346,

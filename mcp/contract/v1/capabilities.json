@@ -70,20 +70,6 @@
       "transport": "local stdio, separately enabled"
     },
     {
-      "authorization": "dedicated read-only Atrinik organization/repository allowlist",
-      "bounds": "task-specific small tool profile; no mutation tools",
-      "data_classification": [
-        "public-source",
-        "operational-metadata"
-      ],
-      "decision": "defer",
-      "fallback": "gh read-only API and web views under atrinik-github-governance",
-      "id": "github-maintained-connector",
-      "owner": "atrinik/atrinik#354",
-      "supply_chain": "Select and pin a maintained implementation only after measured catalog/auth review.",
-      "transport": "separate opt-in external profile"
-    },
-    {
       "authorization": "credential-free isolated browser; approved Atrinik origins only",
       "bounds": "bounded DOM/a11y/network/screenshot evidence",
       "data_classification": [

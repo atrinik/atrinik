@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atrinik.org/schemas/mcp/pilot-result-v1.json",
+  "additionalProperties": false,
+  "properties": {
+    "adoption_claimed": {"const": false},
+    "configuration": {"type": "object"},
+    "correct": {"type": "boolean"},
+    "coverage": {"type": "object"},
+    "evidence_kind": {"enum": ["real-pilot", "synthetic-self-test"]},
+    "observations": {"items": {"type": "object"}, "type": "array"},
+    "privacy": {"type": "object"},
+    "real_pilot_complete": {"type": "boolean"},
+    "schema_version": {"const": "atrinik.mcp.pilot-result/v1"},
+    "source": {"type": "object"},
+    "synthetic": {"type": "boolean"}
+  },
+  "required": ["schema_version", "evidence_kind", "synthetic", "source", "configuration", "coverage", "observations", "correct", "real_pilot_complete", "adoption_claimed", "privacy"],
+  "title": "Atrinik MCP pilot result v1",
+  "type": "object"
+}

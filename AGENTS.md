@@ -2,14 +2,14 @@
 
 ## Map
 
-- Python 3.11+ `./atrinik` coordinates repos; `components.json` owns profiles,
+- `./atrinik` (Python 3.11+) coordinates repos; `components.json` owns profiles,
   worktrees, builds, runtimes, cleanup, migration, and supply-chain reports.
 - `default` selects MIT replacement: Rust, Go, Protobuf, Astro, source-only
   Observatory, shared `web-platform`, source-only `deploy-control`; M1
   lacks wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
   playtester; never mix providers.
-- Source changes use [source delivery](docs/SOURCE_DELIVERY.md). Bound delivery
-  and shared-resource operations retain their live Linux authority checks.
+- Use [source delivery](docs/SOURCE_DELIVERY.md). Bound deliveries and shared
+  resources retain live Linux authority checks.
 
 ## Ownership
 
@@ -18,8 +18,7 @@
   policy: `governance/`; diagnostics: `supply-chain/`.
 - Workflows: `.agents/skills/`; composition: `.devcontainer/`; CI/release:
   `.github/`; helpers: `scripts/`.
-- Manifest destinations are ignored repos; `workspace/` and `build/` are ignored
-  generated state omitted from root status.
+- Manifest repos, `workspace/` and `build/` are ignored; root status omits them.
 - Resolve ownership via `components.json` and nearest `AGENTS.md`; keep
   implementation/tests/packages/releases with their physical owner.
 - `classic/` provides `classic-*`; stacks share `content@main`.
@@ -33,6 +32,9 @@
 - Use `atrinik-multi-repo-workspace` for wrapper ownership/profiles/worktrees/
   migration/cleanup/releases/CLI/layout; add specialists and use
   `atrinik-guidance-maintenance` for audits.
+- Prefer connected `atrinik` MCP for navigation, guidance and bounded source search;
+  compare snapshot commits with local Git. Local edits and writes use local tools.
+  MCP runs in Docker; see `docs/MCP_CONTEXT.md`; runtime/external stay opt-in.
 - Use `atrinik-issue-delivery` for an explicitly selected issue or PR; for a
   standalone source goal use `docs/SOURCE_DELIVERY.md`. Both stop before merge.
 - Portable export needs clean Classic sources, verified released sound and the
@@ -87,8 +89,7 @@
 
 ## Commands
 
-At root; inspect first. Windows: README.
-`init` clones missing repos; `sync` never initializes:
+At root; inspect first. `init` clones; `sync` never initializes:
 
 ```sh
 ./atrinik manifest validate
@@ -108,7 +109,7 @@ Playable lifecycle (`--follow` only for interactive logs):
 ./atrinik down classic-local
 ```
 
-Validate wrapper:
+Validation:
 
 ```sh
 python3 -m pip install --requirement requirements-dev.txt
@@ -120,17 +121,12 @@ python3 -m atrinik_workspace.guidance_inventory --check
 git diff --check
 ```
 
-For cleanup changes:
+Cleanup: see `atrinik-multi-repo-workspace`.
 
-```sh
-./atrinik cleanup --scope all --older-than 7 --dry-run --json
-./atrinik cleanup --scope topologies --older-than 7 --dry-run --json
-```
-
-Run ShellCheck for shell changes and actionlint for workflows.
+Shell changes: ShellCheck; workflows: actionlint.
 Diagnostics: `./atrinik supply-chain audit --profile PROFILE`.
 Preserve `.coveragerc` and OIDC Codecov boundaries.
 
-Handoffs name exact profiles, worktrees, topologies, services, states, scenarios,
-prerequisites, results, validation, cleanup; synchronize this guide and
+Handoffs name profiles, worktrees, topologies, services, states, scenarios,
+prerequisites, validation and cleanup; synchronize this guide and
 affected skills/docs with contract changes; stale guidance is a defect.

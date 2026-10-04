@@ -1,0 +1,11 @@
+# Copyright 2026 The Atrinik Project
+# SPDX-License-Identifier: MIT
+{
+	admin off
+}
+
+{$MCP_DOMAIN} {
+	# Host and Origin pass through unchanged for the MCP server's allowlists.
+	# Access logging stays off: do not persist client credentials or requests.
+	reverse_proxy mcp:8765
+}

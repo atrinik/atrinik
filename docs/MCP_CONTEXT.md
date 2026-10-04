@@ -1,0 +1,190 @@
+# Read-only workspace context
+
+The wrapper owns `atrinik_workspace.mcp_context`: one result-producing API used
+by its JSON CLI and MCP bindings. It reuses
+`Manifest.from_value`, canonical profile validation, and the wrapper Git
+worktree parser. It never constructs the operational `Workspace`: that
+constructor creates leases and may backfill references. Inspection does not
+invoke `Paths.ensure`, profile resolution that creates directories, or runtime
+commands.
+
+## Docker quickstart for Codex
+
+The supported public startup is the published Docker image. The initial
+`linux/amd64` image was built from wrapper commit
+`476cf9dad436ce7b5fb89113c46014fcca3b8f77` and contains a pinned public corpus
+of the wrapper plus 19 component repositories. Anonymous manifest lookup, pull
+and the seven-tool smoke test passed for this exact digest:
+
+```sh
+codex mcp add atrinik -- docker run --rm -i --read-only --network none \
+  --cap-drop ALL --security-opt no-new-privileges \
+  --pids-limit 128 --memory 256m --cpus 2 \
+  ghcr.io/atrinik/atrinik-mcp@sha256:e1e8880cc80979813e9ef39fcfe4b6568a7cab48124bbf3b0f02f72b327c4618 stdio
+```
+
+Do not substitute a tag. The image starts a Codex-compatible STDIO server
+without host mounts or runtime network access and uses its fixed unprivileged
+UID; adding an arbitrary `--user` can invalidate Git ownership checks. Remove
+the client entry with `codex mcp remove atrinik`; there is no database,
+persistent index or cache to migrate or clean up. This follows the official
+[OpenAI MCP STDIO configuration](https://learn.chatgpt.com/docs/extend/mcp#stdio-servers).
+
+For the Docker Compose HTTPS endpoint and native remote clients, see
+[native remote MCP](MCP_HTTP.md). The HTTP binding adds isolated authenticated
+sessions and explicit legacy wire compatibility without changing this provider.
+
+## Internal diagnostics
+
+Maintainers can exercise the result API or transport directly from an installed,
+trusted Linux checkout. These commands are diagnostic and test surfaces, not
+supported public startup instructions. The explicit root must be the checkout's
+canonical workspace; external `ATRINIK_WORKSPACE_DIR` layouts fail closed.
+
+```sh
+python3 -B -m atrinik_workspace.mcp_context --root /absolute/trusted/atrinik describe --profile classic
+python3 -B -m atrinik_workspace.mcp_context --root /absolute/trusted/atrinik resolve --profile classic --component classic-client
+python3 -B -m atrinik_workspace.mcp_server --root /absolute/trusted/atrinik
+```
+
+`-B` prevents Python import-cache writes. No diagnostic command changes client
+configuration or grants write, runtime or deployment authority.
+
+## Agent routing
+
+When `atrinik` is connected, prefer its context and bounded search tools for
+workspace navigation, component resolution and effective guidance. Select the
+profile/component explicitly for component search, and read resource URIs returned
+by the tools. See [source search](MCP_SEARCH.md) for bounds and pagination.
+
+A remote endpoint describes its own pinned sources. Compare repository and commit
+with local Git before applying findings to a checkout. Use local files and Git for
+uncommitted changes or a different revision, and local owner workflows for writes,
+builds and runtime operations. An incomplete search is partial evidence, not proof
+of absence: narrow it or follow an available cursor. `./atrinik`, repository
+commands, Git and `rg` remain authoritative fallbacks when MCP is unavailable or
+insufficient. Missing checkouts return a stable unavailable error; they are not
+initialized. Connecting a server does not grant mutation or deployment authority.
+
+## Catalog and identity
+
+Six context tools cover manifest descriptions and dependency closure, exact
+coordinate resolution, profile/registration names, one checkout's registered
+worktrees, effective guidance resources, and tracked changed paths. The
+`context_profiles` tool defaults to profiles; its explicit `kind` selector can
+list registered topology, state or scenario names without opening save data,
+credentials, logs or process status. Profile listing supports a name prefix.
+Runtime observation is a separately enabled sibling surface.
+
+The seventh tool, `atrinik_search`, routes bounded searches through those exact
+snapshots. Its `selections` array accepts at most eight manifest selectors;
+omitting it selects the wrapper itself. Shared content selected by both profiles
+is scanned once, while distinct source coordinates remain separate. See
+[source search](MCP_SEARCH.md) for modes and opt-in Git provenance.
+
+Tool inputs are closed JSON Schema objects. Structured results carry the
+contract's coordinate schema, wrapper/provider schema versions, owner,
+component, generation, license, profile, freshness and snapshot identity.
+Aggregate results identify their observed wrapper coordinate; worktree records
+carry their own recorded commits. Registry records are observations, not proof
+that an unselected historical checkout remains healthy. An exact `resolve`
+performs the live source checks. The five Classic modules share one physical
+checkout identity. Missing replacement providers stay unavailable.
+
+`ContextService(root, authorization_identity)` is configured by the trusted
+host, never by a protocol request. Its `resolve(profile, component, role,
+worktree)` returns a `Snapshot` with a physical checkout `root`, a contract
+`Coordinate`, `identity`, and logical-source `metadata`. `assert_current()`
+fences subsequent use; `read(path, max_bytes)` reads only tracked, permitted
+checkout-relative source with descriptor-relative no-follow reads and fences
+before and after the read. A worktree selector is an opaque ID from the
+selected checkout's registry, never a caller-supplied absolute path.
+
+Fingerprints include HEAD, branch, tracked dirty bytes, manifest, normalized
+profile, registry, authorization scope, root inode, schema and provider. Dirty
+observations have no reusable cache. Untracked contents are never read or
+indexed. Main-based content review worktrees preserve a separate main base
+commit; the primary content branch must be `main`.
+
+The resource registry holds at most 128 snapshot/path/offset references and no file
+payloads. `atrinik://context/` links are issued only for selected coordinates
+and guidance or bounded search evidence, including pinned historical source.
+Resource listing attaches nothing automatically. Evicted or stale
+resources require a new lookup; a URI conveys no independent authority.
+Source text is untrusted and secret assignments are redacted. Entire serialized
+JSON-RPC frames are capped at 32 KiB routinely and 64 KiB for progressive resource
+reads, including escaping and transport metadata.
+Each resource read returns a bounded text chunk. Follow the content item's
+`_meta["atrinik/next_uri"]` with another `resources/read` until it is null, and
+concatenate the chunks in order. `atrinik/offset_characters` and
+`atrinik/total_characters` count Unicode characters in the redacted text.
+Continuation URIs bind the same snapshot, path, historical revision (if any),
+and offset; every read repeats the source and authorization fences. Redaction
+precedes chunking. Current and historical source files remain limited to 256 KiB
+before decoding. Changed-path pages also shrink to fit the serialized byte
+budget; `returned_records`, `next_cursor`, and `truncated` describe the actual
+page, even when fewer than `page_size` records fit.
+
+## Protocol and dependency decision
+
+The core transport implements the modern-only
+[MCP 2026-07-28 binding](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning)
+and its [stdio framing](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio).
+Every request declares `io.modelcontextprotocol/protocolVersion` and
+`io.modelcontextprotocol/clientCapabilities` in `params._meta`.
+`server/discover` advertises supported versions and capabilities; successful
+results carry `resultType: complete`. The published image's `stdio` entrypoint uses
+the maintained legacy adapter for Codex initialization; the core binding itself
+remains modern-only. Client-provided identities, capabilities and Roots grant
+no access.
+The pinned [schema source](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2026-07-28/schema.ts)
+is the protocol reference.
+
+The maintained MIT Python SDK v2.0.0, commit
+`6f69a3758ebf2ee55ce050f58b470ce11af71133`, was evaluated against its
+[versioned API documentation](https://py.sdk.modelcontextprotocol.io/v2/)
+and immutable package metadata. It supports modern and legacy routing. This
+small Linux-only binding instead uses the Python standard library so its
+pre-decode 16-KiB framing, four-request capacity, cancellation and fixed method
+allowlist remain explicit without introducing the SDK's wider transport and
+dependency surface. No SDK code is copied or vendored, and no production
+package is added. The wrapper owns protocol maintenance and conformance tests;
+re-evaluate the SDK if transport/client support expands.
+
+Requests, scans, subprocess output, resources and results obey contract v1.
+Malformed JSON, duplicate keys, oversized frames, unknown fields and methods
+fail without reflecting caller values. Git commands are fixed internal reads,
+use pinned directory descriptors, disable optional locks, replacement objects,
+lazy fetching and external diff/textconv/fsmonitor, reject configured clean or
+process filters, and are killed on cancellation or deadline. Git must support
+`--no-lazy-fetch`; unsupported Git versions fail closed. EOF cancels
+outstanding requests. No shell, network, runtime control or source write method
+is registered. Source/guidance text remains untrusted data.
+
+`Tool(name, description, input_schema, handler)` lets an explicitly assembled
+server register an approved sibling adapter. The complete assembled catalog
+must pass the shared 12-tool/32-KiB check; registering a tool does not approve
+its data boundary. Startup guidance stays below 2 KiB, normal structured
+results below 32 KiB, and optional source resources within 256 KiB, delivered
+through bounded continuation reads.
+
+## Validation
+
+Run focused contract and transport checks, then the complete wrapper checks in
+`AGENTS.md` on the integrated revision:
+
+```sh
+python3 -m unittest -v tests.test_mcp_contract tests.test_mcp_context tests.test_mcp_server
+python3 -m atrinik_workspace.mcp_contract validate
+python3 -m compileall -q atrinik_workspace tests
+python3 -m atrinik_workspace.guidance_inventory --check
+./atrinik manifest validate
+git diff --check
+```
+
+Synthetic tests cover current manifest mapping, Classic sharing, 301-record
+pagination, stale cursors and snapshots, profile corruption, branch/dirty/
+authorization changes, no-follow source access, origin mismatch, cancellation,
+concurrent reads, protocol bounds and unchanged source/registry state. Real
+cross-repository pilot and before/after retrieval measurements belong to the
+integration pilot; focused fixtures alone do not establish those results.

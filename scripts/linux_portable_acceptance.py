@@ -60,25 +60,26 @@ def require_headless():
 
 
 def prepare_sources():
-    """Create fresh CI-owned primaries at the qualified revisions."""
-    # Export snapshots are deliberately limited to primary selectors. Never
-    # reset a rolling checkout: this bootstrap owns only absent destinations.
+    """Create only fresh CI primaries at the producer's immutable inputs."""
+    # Check every destination before creating any repository. Never rewind or
+    # repoint an existing checkout, including a dangling symlink.
     for name in SOURCE_COMMITS:
-        destination = Path(name)
-        if destination.exists() or destination.is_symlink():
-            raise RuntimeError("acceptance requires an absent dependency: " + name)
+        if Path(name).exists() or Path(name).is_symlink():
+            raise RuntimeError("qualified source destination already exists: " + name)
     for name, expected in SOURCE_COMMITS.items():
         Path(name).mkdir()
-        run(["git", "init", "-b", "main", name])
+        run(["git", "-C", name, "init", "--initial-branch=main"])
         run(["git", "-C", name, "remote", "add", "origin",
              "https://github.com/atrinik/" + name + ".git"])
-        run(["git", "-C", name, "fetch", "--no-tags", "origin", "main"])
+        run(["git", "-C", name, "fetch", "--no-tags", "origin", expected])
         run(["git", "-C", name, "checkout", "-b", "main", expected])
+    # Retain the wrapper's canonical remote/primary identity validation.
+    run(["./atrinik", "init", "classic-client", "sound", "--jobs", "2"])
+    for name, expected in SOURCE_COMMITS.items():
         if run(["git", "-C", name, "rev-parse", "HEAD"]).strip() != expected:
             raise RuntimeError("qualified source changed: " + name)
         if run(["git", "-C", name, "status", "--porcelain"]):
-            raise RuntimeError("dirty qualified dependency: " + name)
-    run(["./atrinik", "init", "classic-client", "sound", "--jobs", "2"])
+            raise RuntimeError("dirty dependency: " + name)
     profile = "linux-portable-acceptance"
     run(["./atrinik", "profile", "create", profile, "--from", "classic"])
     return profile
