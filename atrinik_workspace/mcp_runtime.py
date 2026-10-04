@@ -392,10 +392,11 @@ class RuntimeService:
                       redactions=["paths", "commands", "environment", "process-identifiers", "logs", "private-state"],
                       bounds={"scanned_records": 1000, "page_records": 50, "timeout_ms": timeout_ms})
         offset = decode_cursor(cursor, identity) if cursor else 0
-        # A record-count page can exceed the byte budget even when each status
-        # fits. Recalculate all page metadata before measuring the next candidate,
-        # including a cursor newly needed when shortening the final page.
-        while len(canonical_json(result)) > 32768:
+        # Reserve 4 KiB for the tool and RPC envelopes, as ContextService._page
+        # does, including the bounded request ID and server metadata. Recalculate
+        # all page metadata before measuring the next candidate, including a
+        # cursor newly needed when shortening the final page.
+        while len(canonical_json(result)) > 28672:
             check()
             if len(result["items"]) <= 1:
                 raise ContractError("LIMIT_EXCEEDED", "runtime result exceeds byte limit")

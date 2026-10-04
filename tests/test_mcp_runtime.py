@@ -189,21 +189,42 @@ class RuntimeTests(unittest.TestCase):
         self.assert_code("STALE_CURSOR", lambda: service.list(page_size=25, cursor=first["next_cursor"]))
 
     def test_multicomponent_pages_fit_and_progress_without_duplicates(self):
+        from atrinik_workspace.mcp_runtime import runtime_tools
+        from atrinik_workspace.mcp_server import ContextServer
+        from tests.test_mcp_server import request
+
         components = ("server", "client", "metaserver", "common", "resources")
         resolved = {"classic-" + name: {
             "head": "b" * 40, "repository": "atrinik/classic", "checkout": "classic",
-            "branch": "main", "source": name, "dirty": False,
+            "branch": "b" * 7, "source": name, "dirty": False,
             "checkout_path": "/synthetic/classic", "path": "/synthetic/classic/" + name,
         } for name in components}
         manifest = SimpleNamespace(by_name={key: SimpleNamespace(
             repository=value["repository"], checkout_name=value["checkout"],
             branch=value["branch"], source=value["source"])
             for key, value in resolved.items()})
-        approvals = [self.fixture(f"large-{i:03}", resolved=resolved) for i in range(27)]
+        approvals = [self.fixture(f"b007-{i:02}", resolved=resolved) for i in range(27)]
         service = RuntimeService(self.context, approvals=approvals, enabled=True)
+        server = ContextServer(self.context, runtime_tools(service),
+                               include_context_tools=False, server_name="atrinik-observe")
+
+        def call(cursor=None):
+            arguments = {"cursor": cursor} if cursor else {}
+            rpc = request("tools/call", name="runtime_list", arguments=arguments)
+            # Exercise the largest allowed UTF-8 request identifier as well as
+            # the tool, result metadata and newline in the complete wire frame.
+            rpc["id"] = "\U0001f680" * 128
+            response = server.handle(rpc)
+            self.assertNotIn("error", response)
+            self.assertEqual(response["id"], rpc["id"])
+            self.assertFalse(response["result"]["isError"])
+            self.assertLessEqual(len(canonical_json(response)) + 1, 32768)
+            self.assertNotIn("SENTINEL", canonical_json(response).decode())
+            return response["result"]["structuredContent"]["data"]
+
         with patch.object(self.context, "manifest", return_value=manifest):
             expected = [service.status(approval.name) for approval in approvals]
-            first = service.list()
+            first = call()
             self.assertLess(first["returned_records"], 25)
             records = []
             page = first
@@ -217,7 +238,7 @@ class RuntimeTests(unittest.TestCase):
                 records.extend(page["items"])
                 if page["next_cursor"] is None:
                     break
-                page = service.list(cursor=page["next_cursor"])
+                page = call(page["next_cursor"])
             else:
                 self.fail("runtime pagination did not terminate")
             self.assertEqual(len(records), len(approvals))
@@ -229,7 +250,7 @@ class RuntimeTests(unittest.TestCase):
                     self.assertEqual(by_name[status["topology"]][field], status[field])
             self.assert_code("STALE_CURSOR", lambda: service.list(
                 page_size=24, cursor=first["next_cursor"]))
-            path = self.root / "workspace/topologies/large-026/status.json"
+            path = self.root / "workspace/topologies/b007-26/status.json"
             status = json.loads(path.read_text())
             status["ready"] = False
             path.write_text(json.dumps(status))

@@ -8,7 +8,8 @@
   Observatory, shared `web-platform`, source-only `deploy-control`; M1
   lacks wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
   playtester; never mix providers.
-- Use [source delivery](docs/SOURCE_DELIVERY.md); bound/shared resources retain live Linux authority.
+- Use [source delivery](docs/SOURCE_DELIVERY.md). Bound deliveries and shared
+  resources retain live Linux authority checks.
 
 ## Ownership
 
@@ -129,4 +130,5 @@ Diagnostics: `./atrinik supply-chain audit --profile PROFILE`.
 Preserve `.coveragerc` and OIDC Codecov boundaries.
 
 Handoffs name profiles, worktrees, topologies, services, states, scenarios,
-prerequisites, validation and cleanup. Update affected guidance with contracts.
+prerequisites, validation and cleanup; synchronize this guide and
+affected skills/docs with contract changes; stale guidance is a defect.
