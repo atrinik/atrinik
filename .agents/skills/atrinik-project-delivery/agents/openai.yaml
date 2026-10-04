@@ -1,4 +1,0 @@
-interface:
-  display_name: "Atrinik Project Delivery"
-  short_description: "Coordinate parallel Atrinik project delivery"
-  default_prompt: "Use $atrinik-project-delivery to coordinate this authorized multi-issue Atrinik project across owned worktrees, dependencies, independent review, and verified acceptance."

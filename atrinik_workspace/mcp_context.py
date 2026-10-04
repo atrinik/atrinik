@@ -24,11 +24,12 @@ from .mcp_contract import (
     ContractError, Coordinate, canonical_json, decode_cursor, dirty_fingerprint, encode_cursor, paginate,
     read_regular, snapshot_fingerprint, validate_selector, _unique_object,
 )
+from .skill_provider import DESCRIPTOR_PATH, parse_provider
 from .model import Manifest, Paths, WorkspaceError, validate_name
 from .workspace import Workspace, _parse_worktree_porcelain
 
 SCHEMA_VERSION = "atrinik.context/v1"
-PROVIDER_VERSION = "1.0.0"
+PROVIDER_VERSION = "1.1.0"
 MAX_BYTES = 262144
 _EXCLUDED = {".git", ".env", "workspace", "build", "credentials", "password", "secrets"}
 _REQUEST: ContextVar[tuple[float, threading.Event] | None] = ContextVar("context_request", default=None)
@@ -558,8 +559,14 @@ class ContextService:
         guides = [path for path in candidates if path in tracked]
         # Names and exact resource identities only; never automatically attach guidance text.
         skills = sorted(path for path in tracked if path.startswith(".agents/skills/") and path.endswith("/SKILL.md"))
+        provider = None
+        if DESCRIPTOR_PATH in tracked:
+            try:
+                provider = parse_provider(snapshot.read(DESCRIPTOR_PATH))
+            except (ValueError, UnicodeError, RecursionError) as error:
+                raise ContractError("INCOMPLETE", "skill provider descriptor is invalid") from error
         snapshot.assert_current()
-        return {**snapshot.json(), "guidance": guides, "skills": skills[:50], "truncated": len(skills) > 50,
+        return {**snapshot.json(), "external_skill_provider": provider, "guidance": guides, "skills": skills[:50], "truncated": len(skills) > 50,
                 "validation_guides": [path for path in ("CONTRIBUTING.md", "AGENTS.md") if path in tracked]}
 
     def changes(self, profile="default", component=None, role=None, worktree=None, page_size=20, cursor=None):

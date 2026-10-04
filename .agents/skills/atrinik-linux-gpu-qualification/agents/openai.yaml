@@ -1,4 +1,0 @@
-interface:
-  display_name: "Atrinik Linux GPU Qualification"
-  short_description: "Qualify Classic Vulkan on real Linux GPUs"
-  default_prompt: "Use $atrinik-linux-gpu-qualification to collect and validate Classic Linux Vulkan qualification evidence on an assigned real GPU without treating collection as human-approved release acceptance."

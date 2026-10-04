@@ -1,3 +1,5 @@
+# Copyright 2026 The Atrinik Project
+# SPDX-License-Identifier: MIT
 from __future__ import annotations
 
 import json
@@ -18,6 +20,7 @@ from atrinik_workspace.delivery import (
 )
 from atrinik_workspace.migration import RepositoryMigration
 from atrinik_workspace.model import WorkspaceError
+from atrinik_workspace.workspace import Workspace
 
 
 class DeliveryEvidenceTests(unittest.TestCase):
@@ -26,10 +29,7 @@ class DeliveryEvidenceTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.review_root = self.root / "build" / "reviews"
         self.review_root.mkdir(parents=True)
-        self.helper = (
-            self.root
-            / ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
-        )
+        self.helper = self.root / "scripts/delivery_ledger.py"
         self.helper.parent.mkdir(parents=True)
         self.helper.write_text("trusted helper\n", encoding="utf-8")
         self.name = "atrinik-atrinik-issue-471.md.ledger.json"
@@ -75,8 +75,108 @@ class DeliveryEvidenceTests(unittest.TestCase):
         self.assertEqual(evidence.ledgers, (self.name,))
         self.assertEqual(evidence.references[worktree.resolve()], (self.name,))
         self.assertIn(self.review_root.resolve(), evidence.references)
+        self.assertEqual(invoke.call_args.args[0][2], str(self.helper))
         self.assertEqual(invoke.call_args.args[0][3], "inventory")
         self.assertEqual(invoke.call_args.kwargs["timeout"], 30)
+
+    def test_selected_checkout_layout_and_current_precedence(self) -> None:
+        legacy = self.root / ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
+        legacy.parent.mkdir(parents=True)
+        legacy.write_text("historical helper\n")
+        completed = SimpleNamespace(returncode=0, stdout=self.inventory_output(self.root), stderr="")
+        with mock.patch("atrinik_workspace.delivery.subprocess.run", return_value=completed) as invoke:
+            inventory_active_delivery_evidence(self.root)
+            self.assertEqual(invoke.call_args.args[0][2], str(self.helper))
+            self.helper.unlink()
+            inventory_active_delivery_evidence(self.root)
+            self.assertEqual(invoke.call_args.args[0][2], str(legacy))
+            self.assertEqual(invoke.call_args.kwargs["cwd"], self.root)
+        legacy.unlink()
+        with mock.patch("atrinik_workspace.delivery.subprocess.run") as invoke:
+            with self.assertRaisesRegex(WorkspaceError, "helper is missing"):
+                inventory_active_delivery_evidence(self.root)
+            invoke.assert_not_called()
+
+    def test_unsafe_current_helper_never_falls_back_to_valid_legacy(self) -> None:
+        legacy = self.root / ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
+        legacy.parent.mkdir(parents=True)
+        legacy.write_text("historical helper\n")
+        self.helper.unlink()
+        for target in (legacy, self.root / "missing-helper"):
+            with self.subTest(target=target):
+                self.helper.symlink_to(target)
+                with mock.patch("atrinik_workspace.delivery.subprocess.run") as invoke:
+                    with self.assertRaisesRegex(WorkspaceError, "not a regular file"):
+                        inventory_active_delivery_evidence(self.root)
+                    invoke.assert_not_called()
+                self.helper.unlink()
+        self.helper.mkdir()
+        with mock.patch("atrinik_workspace.delivery.subprocess.run") as invoke:
+            with self.assertRaisesRegex(WorkspaceError, "not a regular file"):
+                inventory_active_delivery_evidence(self.root)
+            invoke.assert_not_called()
+        self.helper.rmdir()
+        self.helper.write_text("trusted helper\n")
+        original = Path.lstat
+        def foreign_owner(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            if path == self.helper:
+                return os.stat_result((value.st_mode, value.st_ino, value.st_dev, value.st_nlink,
+                                       os.geteuid() + 1, value.st_gid, value.st_size,
+                                       value.st_atime, value.st_mtime, value.st_ctime))
+            return value
+        with mock.patch.object(Path, "lstat", foreign_owner), mock.patch(
+            "atrinik_workspace.delivery.subprocess.run"
+        ) as invoke:
+            with self.assertRaisesRegex(WorkspaceError, "not owned"):
+                inventory_active_delivery_evidence(self.root)
+            invoke.assert_not_called()
+
+    def test_unsafe_helper_ancestor_or_legacy_helper_fails_closed(self) -> None:
+        legacy = self.root / ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
+        legacy.parent.mkdir(parents=True)
+        legacy.write_text("historical helper\n")
+        self.helper.unlink()
+        self.helper.parent.rmdir()
+        self.helper.parent.symlink_to(legacy.parent, target_is_directory=True)
+        with mock.patch("atrinik_workspace.delivery.subprocess.run") as invoke:
+            with self.assertRaisesRegex(WorkspaceError, "ancestor is not a regular directory"):
+                inventory_active_delivery_evidence(self.root)
+            invoke.assert_not_called()
+        self.helper.parent.unlink()
+        legacy.unlink()
+        legacy.symlink_to(self.root / "missing-helper")
+        with mock.patch("atrinik_workspace.delivery.subprocess.run") as invoke:
+            with self.assertRaisesRegex(WorkspaceError, "not a regular file"):
+                inventory_active_delivery_evidence(self.root)
+            invoke.assert_not_called()
+
+    def test_helper_inspection_error_never_falls_back(self) -> None:
+        legacy = self.root / ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
+        legacy.parent.mkdir(parents=True)
+        legacy.write_text("historical helper\n")
+        original = Path.lstat
+        def denied(path, *args, **kwargs):
+            if path == self.helper:
+                raise PermissionError("fixture denial")
+            return original(path, *args, **kwargs)
+        with mock.patch.object(Path, "lstat", denied), mock.patch(
+            "atrinik_workspace.delivery.subprocess.run"
+        ) as invoke:
+            with self.assertRaisesRegex(WorkspaceError, "cannot inspect delivery-ledger helper"):
+                inventory_active_delivery_evidence(self.root)
+            invoke.assert_not_called()
+
+    def test_failed_selected_helper_does_not_retry_legacy(self) -> None:
+        legacy = self.root / ".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py"
+        legacy.parent.mkdir(parents=True)
+        legacy.write_text("historical helper\n")
+        with mock.patch("atrinik_workspace.delivery.subprocess.run",
+            return_value=SimpleNamespace(returncode=2, stdout="", stderr="invalid evidence")) as invoke:
+            with self.assertRaisesRegex(WorkspaceError, "invalid evidence"):
+                inventory_active_delivery_evidence(self.root)
+            self.assertEqual(invoke.call_count, 1)
+            self.assertEqual(invoke.call_args.args[0][2], str(self.helper))
 
     def test_projects_original_and_residual_reservations_as_typed_evidence(self):
         worktree = self.root / "workspace/worktrees/active"
@@ -321,6 +421,54 @@ class DeliveryEvidenceTests(unittest.TestCase):
         item = next(row for row in items if Path(row["path"]) == self.review_root)
         self.assertEqual(item["disposition"], "protected")
         self.assertIn("delivery_inventory_error", item["reasons"])
+
+
+class MixedDeliveryLayoutTests(unittest.TestCase):
+    def test_cleanup_inventories_each_primary_and_linked_checkout_helper(self):
+        current = Path("scripts/delivery_ledger.py")
+        legacy = Path(".agents/skills/atrinik-issue-delivery/scripts/delivery_ledger.py")
+        for primary_layout, linked_layout in ((legacy, current), (current, legacy)):
+            with self.subTest(primary_layout=primary_layout), tempfile.TemporaryDirectory() as temporary:
+                base = Path(temporary)
+                primary, linked = base / "primary", base / "linked"
+                protected = []
+                for root, layout in ((primary, primary_layout), (linked, linked_layout)):
+                    review = root / "build/reviews"
+                    review.mkdir(parents=True)
+                    name = f"{root.name}.md.ledger.json"
+                    for filename in (name, name.removesuffix(".ledger.json"), f".{name}.lock"):
+                        (review / filename).write_text("unchanged evidence\n")
+                    retained = root / "workspace/worktrees/reserved"
+                    protected.append(retained)
+                    output = {"schema_version": 1, "ledgers": [{"name": name, "document": {
+                        "artifacts": [{"kind": "worktree", "current": {"path": str(retained)}}]}}],
+                        "pending": [], "legacy_reports": [], "releases": [], "archives": [],
+                        "reclaims": [], "historical_ledgers": []}
+                    helper = root / layout
+                    helper.parent.mkdir(parents=True)
+                    helper.write_text(
+                        "import os, sys\n"
+                        f"assert os.getcwd() == {str(root)!r}\n"
+                        f"assert sys.argv[1:] == ['inventory', {str(review)!r}]\n"
+                        f"print({json.dumps(output)!r})\n"
+                    )
+                # Exercise the actual linked-root discovery and cleanup projection;
+                # only Git's worktree observation is replaced by a fixture.
+                (linked / ".git").write_text("fixture linked Git metadata\n")
+                workspace = object.__new__(Workspace)
+                workspace.paths = SimpleNamespace(repository=linked)
+                cleanup = object.__new__(Cleanup)
+                cleanup.workspace = workspace
+                references = {"delivery": {}}
+                before = {path: path.read_bytes() for path in base.rglob("*") if path.is_file()}
+                with mock.patch("atrinik_workspace.workspace._worktree_records",
+                                return_value=[{"worktree": str(primary)}, {"worktree": str(linked)}]):
+                    cleanup._delivery_references(references, set())
+                for root, retained in zip((primary, linked), protected):
+                    self.assertEqual(references["delivery"][retained], [f"{root.name}.md.ledger.json"])
+                    self.assertIn(root / "build/reviews", references["delivery"])
+                after = {path: path.read_bytes() for path in base.rglob("*") if path.is_file()}
+                self.assertEqual(after, before)
 
 
 class MigrationDeliveryBarrierTests(unittest.TestCase):
