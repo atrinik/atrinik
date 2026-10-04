@@ -96,7 +96,7 @@ or substitute classic C/CMake for missing adapters. Replacement repositories lac
 ```
 
 Plan with `build TARGET --plan --json`; execute with `--expected-plan SHA256`.
-`topology` selects the Classic `up` closure; `all --test` validates all.
+`topology` selects Classic up; `all --test` validates all.
 Unbound intents use the
 [issue recovery procedure](../atrinik-issue-delivery/references/delivery-ledger.md);
 preserve terminal residuals. Use `resource_context` for wrapper worktrees.
