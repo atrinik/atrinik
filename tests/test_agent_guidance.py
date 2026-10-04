@@ -606,6 +606,29 @@ class AgentGuidanceTests(unittest.TestCase):
                     )
         self.assertEqual(exit_info.exception.code, 0)
 
+    def test_recursive_provider_descriptor_is_a_controlled_cli_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            package = root / "atrinik_workspace"
+            package.mkdir()
+            (package / "__init__.py").write_text("", encoding="utf-8")
+            for name in ("guidance_inventory.py", "skill_provider.py"):
+                (package / name).write_bytes((ROOT / "atrinik_workspace" / name).read_bytes())
+            descriptor = '{"schema_version":' + '[' * 4000 + '0' + ']' * 4000 + '}'
+            self.assertLess(len(descriptor.encode("utf-8")), 32_768)
+            (root / ".agents").mkdir()
+            (root / ".agents" / "skill-provider.json").write_text(descriptor, encoding="utf-8")
+            for entrypoint in ([str(package / "guidance_inventory.py")],
+                               ["-m", "atrinik_workspace.guidance_inventory"]):
+                with self.subTest(entrypoint=entrypoint):
+                    result = subprocess.run([sys.executable, *entrypoint, "--check"],
+                                            cwd=root, capture_output=True, text=True, timeout=10)
+                    self.assertEqual(result.returncode, 1)
+                    self.assertEqual(result.stdout, "")
+                    self.assertTrue(result.stderr.startswith("guidance inventory failed: "), result.stderr)
+                    self.assertNotIn("Traceback", result.stderr)
+                    self.assertLess(len(result.stderr), 512)
+
     def test_inaccessible_optional_ledger_metadata_does_not_fail_check(self) -> None:
         path = mock.Mock()
         path.exists.side_effect = PermissionError("private path detail")
@@ -642,16 +665,14 @@ class AgentGuidanceTests(unittest.TestCase):
             self.assertEqual(main(["--check"]), 1)
         self.assertIn("guidance budget failed: test ceiling", stderr.getvalue())
 
-        stderr = io.StringIO()
-        with mock.patch.object(
-            guidance_inventory,
-            "collect_inventory",
-            side_effect=ValueError("invalid guidance"),
-        ), redirect_stderr(stderr):
-            self.assertEqual(main([]), 1)
-        self.assertIn(
-            "guidance inventory failed: invalid guidance", stderr.getvalue()
-        )
+        for error in (ValueError("invalid guidance"), RecursionError("nested guidance")):
+            with self.subTest(error=type(error).__name__):
+                stderr = io.StringIO()
+                with mock.patch.object(
+                    guidance_inventory, "collect_inventory", side_effect=error,
+                ), redirect_stderr(stderr):
+                    self.assertEqual(main([]), 1)
+                self.assertIn(f"guidance inventory failed: {error}", stderr.getvalue())
 
     def test_optional_process_diagnostics_are_guided(self) -> None:
         for path in (

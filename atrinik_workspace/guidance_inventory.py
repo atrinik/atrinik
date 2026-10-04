@@ -510,7 +510,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         inventory = collect_inventory(args.skills_root)
-    except (OSError, UnicodeError, ValueError) as exc:
+    except (OSError, UnicodeError, ValueError, RecursionError) as exc:
         print(f"guidance inventory failed: {exc}", file=sys.stderr)
         return 1
 
