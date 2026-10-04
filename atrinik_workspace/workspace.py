@@ -2208,7 +2208,8 @@ def open_regular_file(
             assert_no_symlink_components(path, description)
         except OSError as error:
             raise WorkspaceError(str(error)) from error
-    flags |= O_CLOEXEC
+    # Nonblocking open lets the regular-file check reject substituted FIFOs.
+    flags |= O_CLOEXEC | getattr(os, "O_NONBLOCK", 0)
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
     descriptor: int | None = None
@@ -2273,8 +2274,11 @@ def load_regular_json(path: Path, description: str, *, limit: int = 4 * 1024 * 1
             or opened.st_size > limit
         ):
             raise WorkspaceError(f"{description} identity is unsafe: {path}")
-        with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
-            return json.load(stream, object_pairs_hook=_reject_duplicate_keys)
+        with os.fdopen(descriptor, "rb", closefd=False) as stream:
+            raw = stream.read(limit + 1)
+        if len(raw) > limit:
+            raise WorkspaceError(f"{description} exceeds its read limit: {path}")
+        return json.loads(raw.decode("utf-8"), object_pairs_hook=_reject_duplicate_keys)
     except (OSError, UnicodeError, ValueError, RecursionError) as error:
         raise WorkspaceError(f"cannot read {description} {path}: {error}") from error
     finally:
@@ -8977,6 +8981,7 @@ class Workspace:
             self._require_planning_workspace()
         targets = self._expand_build_target(target, profile_name)
         admitted = []
+        admitted_wrapper_heads = []
         def fence(profile, selected, states):
             if expected_plan is None:
                 self.paths.ensure()
@@ -8991,6 +8996,9 @@ class Workspace:
                 target, profile_name, tests, targets, profile, selected, states,
                 force_reconfigure=force_reconfigure, use_ccache=use_ccache, retained_content_input=retained_content_input) != plan:
                 raise WorkspaceError("build inputs changed before mutation")
+            if (target == "topology" and profile["stack"] == "classic"
+                    and platform.system() == "Linux"):
+                admitted_wrapper_heads.append(self._prebuilt_wrapper_head())
             admitted.append(plan)
             self.paths.ensure()
         token = _BUILD_PLAN_GIT.set(expected_plan is not None)
@@ -9006,7 +9014,9 @@ class Workspace:
                     target, profile_name, tests, targets, snapshot.paths(),
                     force_reconfigure=force_reconfigure, use_ccache=use_ccache,
                     **({"retained_content_input": retained_content_input} if retained_content_input is not None else {}),
-                    **({"completion_plan": admitted[0]} if admitted and target == "topology" else {}),
+                    **({"completion_plan": admitted[0],
+                        "completion_wrapper_head": admitted_wrapper_heads[0]}
+                       if admitted_wrapper_heads else {}),
                 )
 
         finally:
@@ -9253,6 +9263,7 @@ class Workspace:
         retained_runtime_plan: str | None = None,
         retained_content_input: str | None = None,
         completion_plan: dict[str, Any] | None = None,
+        completion_wrapper_head: str | None = None,
     ) -> Path:
         requested_services = set(targets).intersection(TOPOLOGY_SERVICES)
         selective_build = build_services is not None
@@ -9284,6 +9295,8 @@ class Workspace:
         with self._profile_build_lock(root, profile_name):
             self._guard_recovered_resource("build", root, root.name)
             self._guard_retained_build(root)
+            if completion_plan is not None and self._prebuilt_wrapper_head() != completion_wrapper_head:
+                raise WorkspaceError("prebuilt wrapper changed after producer admission")
             # A failed or interrupted writer must not leave prior success usable.
             prebuilt.invalidate(root)
             self._build_state.prebuilt_build_digest = None
@@ -9400,7 +9413,7 @@ class Workspace:
                         or stack.name != "classic" or set(targets) != set(TOPOLOGY_SERVICES)):
                     raise WorkspaceError("prebuilt completion requires an ordinary paired Classic build")
                 self._build_state.prebuilt_build_digest = self._publish_prebuilt_topology(
-                    root, completion_plan, selected
+                    root, completion_plan, selected, completion_wrapper_head
                 )
         return root
 
@@ -9420,13 +9433,13 @@ class Workspace:
         _managed_path_no_symlinks(root, self.paths.builds)
         self._guard_recovered_resource("build", root, root.name)
         self._guard_retained_build(root)
-        marker = load_regular_json(root / MANAGED_MARKER, "prebuilt build marker")
+        marker = prebuilt.read_metadata(root / MANAGED_MARKER, "prebuilt build marker")
         if marker != {"schema_version": SCHEMA_VERSION, "purpose": f"profile:{profile_name}:{key}"}:
             raise WorkspaceError("prebuilt build owner does not match selected profile")
         return root
 
     def _prebuilt_topology_inputs(self, root: Path, selected: dict[str, Path]):
-        metadata = load_regular_json(root / BUILD_METADATA, "prebuilt build metadata")
+        metadata = prebuilt.read_metadata(root / BUILD_METADATA, "prebuilt build metadata")
         if not isinstance(metadata, dict):
             raise WorkspaceError("prebuilt build metadata is invalid")
         sound = validate_sound_record(metadata.get("sound"))
@@ -9439,7 +9452,7 @@ class Workspace:
         configurations = {}
         for role in TOPOLOGY_SERVICES:
             graph_path = root / "build" / f".{role}-graph.json"
-            graph = load_regular_json(graph_path, "prebuilt Classic graph")
+            graph = prebuilt.read_metadata(graph_path, "prebuilt Classic graph")
             if (not isinstance(graph, dict) or set(graph) != {"schema_version", "purpose", "graph"}
                     or graph["schema_version"] != 1 or graph["purpose"] != "classic-build-graph"
                     or graph["graph"] not in {"standalone", "integrated"}):
@@ -9448,7 +9461,7 @@ class Workspace:
             directory = root / "build" / ("integrated" if graph["graph"] == "integrated" else role)
             path = directory / CONFIGURE_METADATA
             relative = str(path.relative_to(root))
-            configurations[relative] = load_regular_json(path, "prebuilt configure identity")
+            configurations[relative] = prebuilt.read_metadata(path, "prebuilt configure identity")
             metadata_paths[f"{role}-configure"] = path
         selectors.update({name: {"path": str(path), "kind": "file", "exclusions": []}
                           for name, path in metadata_paths.items()})
@@ -9488,9 +9501,11 @@ class Workspace:
             raise WorkspaceError("prebuilt producer and consumer require a clean unchanged wrapper revision")
         return head
 
-    def _publish_prebuilt_topology(self, root, plan, selected) -> str:
+    def _publish_prebuilt_topology(self, root, plan, selected, wrapper_head) -> str:
         # Only reached after every build and generated runtime input succeeded,
         # while the same build/source/profile locks still protect the producer.
+        if self._prebuilt_wrapper_head() != wrapper_head:
+            raise WorkspaceError("prebuilt wrapper changed after producer admission")
         profile_name = plan["profile"]["name"]
         if (root != self._prebuilt_topology_root(profile_name, selected)
                 or self._prebuilt_topology_plan(plan, profile_name, selected) != plan):
@@ -9500,7 +9515,7 @@ class Workspace:
         producer = {
             "generation": secrets.token_hex(32), "system": platform.system(),
             "machine": platform.machine(),
-            "wrapper_head": self._prebuilt_wrapper_head(),
+            "wrapper_head": wrapper_head,
             "configurations": configurations,
         }
         inputs = prebuilt.capture_inputs(selectors)
@@ -12636,7 +12651,8 @@ class Workspace:
     def _classic_binary_directory(root: Path, role: str) -> Path:
         marker = root / "build" / f".{role}-graph.json"
         try:
-            record = load_json(marker)
+            record = (load_regular_json(marker, "Classic build graph") if IS_WINDOWS
+                      else prebuilt.read_metadata(marker, "Classic build graph"))
         except (OSError, ValueError, WorkspaceError):
             record = {}
         if (
@@ -21910,7 +21926,10 @@ class Workspace:
                 if prebuilt_build is not None:
                     self._validate_prebuilt_topology(root, profile_name, selected, prebuilt_build)
                     reserve_port()
-                build_metadata = load_json(root / BUILD_METADATA)
+                build_metadata = (
+                    prebuilt.read_metadata(root / BUILD_METADATA, "prebuilt build metadata")
+                    if prebuilt_build is not None else load_json(root / BUILD_METADATA)
+                )
                 sound_status = (
                     build_metadata.get("sound")
                     if isinstance(build_metadata, dict)

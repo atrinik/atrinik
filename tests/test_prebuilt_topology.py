@@ -8,6 +8,7 @@ import io
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -21,6 +22,7 @@ from atrinik_workspace.workspace import Workspace
 from tests import test_workspace as fixtures
 
 
+@unittest.skipUnless(sys.platform == "linux", "prepared topology receipts require Linux")
 class PrebuiltTopologyTests(unittest.TestCase):
     """Real plans, receipts and publication; synthetic compiler output and services."""
 
@@ -252,6 +254,60 @@ class PrebuiltTopologyTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceError, "clean unchanged wrapper"):
             self.build()
         self.assertIsNone(self.workspace.prebuilt_build_digest)
+
+    def test_nonlinux_fenced_build_preserves_normal_path_without_minting_receipt(self):
+        plan = self.workspace.build_plan("topology", "prepared-profile", False, use_ccache=False)
+        root = Path(plan["build_root"])
+        with mock.patch.object(implementation.platform, "system", return_value="Windows"), self.producer():
+            self.assertEqual(self.workspace.build("topology", "prepared-profile", False, use_ccache=False,
+                             expected_plan=plan["plan_sha256"]), root)
+        self.assertFalse((root / prebuilt.RECEIPT_NAME).exists())
+        self.assertIsNone(self.workspace.prebuilt_build_digest)
+
+    def test_committed_wrapper_drift_during_build_cannot_publish_completion(self):
+        plan = self.workspace.build_plan("topology", "prepared-profile", False, use_ccache=False)
+        root = Path(plan["build_root"])
+        admitted = self.git(self.wrapper, "rev-parse", "HEAD")
+        def advance(*args, **kwargs):
+            self.materialize_compiler_output(*args, **kwargs)
+            (self.wrapper / "new-wrapper.py").write_text("# committed during producer\n")
+            self.commit(self.wrapper)
+        with self.producer(), mock.patch.object(self.workspace, "_build_integrated_classic", side_effect=advance):
+            with self.assertRaisesRegex(WorkspaceError, "wrapper changed after producer admission"):
+                self.workspace.build("topology", "prepared-profile", False, use_ccache=False,
+                                     expected_plan=plan["plan_sha256"])
+        self.assertNotEqual(self.git(self.wrapper, "rev-parse", "HEAD"), admitted)
+        self.assertEqual(self.git(self.wrapper, "status", "--porcelain"), "")
+        self.assertFalse((root / prebuilt.RECEIPT_NAME).exists())
+        self.assertIsNone(self.workspace.prebuilt_build_digest)
+
+    def test_substituted_metadata_fifos_fail_without_blocking_or_listeners(self):
+        root, digest = self.build()
+        paths = [root / MANAGED_MARKER, root / implementation.BUILD_METADATA,
+                 root / "build/.client-graph.json", root / "build/.server-graph.json",
+                 root / "build/integrated" / implementation.CONFIGURE_METADATA,
+                 root / implementation.PROFILE_RESOLUTION_METADATA]
+        def timed_out(*_):
+            raise AssertionError("receipt metadata reader blocked on FIFO")
+        previous = signal.signal(signal.SIGALRM, timed_out)
+        try:
+            for path in paths:
+                with self.subTest(path=path):
+                    original = path.read_bytes()
+                    path.unlink()
+                    os.mkfifo(path, 0o600)
+                    try:
+                        signal.setitimer(signal.ITIMER_REAL, 5)
+                        with mock.patch.object(self.workspace, "_reserve_topology_port") as port:
+                            with self.assertRaises(WorkspaceError):
+                                self.up(digest)
+                        port.assert_not_called()
+                    finally:
+                        signal.setitimer(signal.ITIMER_REAL, 0)
+                        path.unlink()
+                        path.write_bytes(original)
+        finally:
+            signal.signal(signal.SIGALRM, previous)
 
     def test_unsupported_launch_modes_reject_without_building(self):
         for options in ({"services": ["client"]}, {"retained_build_plan": "b" * 64}, {"build_services": {"client"}}, {"runtime_handoff": "handoff"}):
