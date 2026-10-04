@@ -40,7 +40,7 @@ class SkillProviderTests(unittest.TestCase):
         cases = [[], None, {}, {**provider, "unexpected": True}]
         for field, invalid in {
             "schema_version": [True, 2, "1"],
-            "repository": ["https://example.invalid/provider", "https://github.com/atrinik/agent-skills.git",
+            "repository": ["https://example.invalid/provider", "https://github.com/atrinik/codex-integration.git",
                            "https://user:secret@github.com/atrinik/skills", "https://github.com/../skills"],
             "revision": ["0" * 40, "main", "a" * 39, "A" * 40, "../" + "a" * 40, 123],
             "marketplace": ["../other", "a" * 65], "plugin": ["Other", "name/child"],
@@ -63,7 +63,13 @@ class SkillProviderTests(unittest.TestCase):
         provider = load_provider(ROOT)
         classic = json.loads((ROOT / "tests/fixtures/classic-skill-provider.json").read_bytes())
         self.assertEqual(parse_provider(json.dumps(classic)), classic)
-        candidates = [classic, {**provider, "required_skills": list(reversed(REQUIRED_SKILLS))}]
+        candidates = [
+            classic,
+            {**provider, "required_skills": list(reversed(REQUIRED_SKILLS))},
+            # Historical snapshots retain their original provider metadata;
+            # only the current wrapper consumer requires the renamed URL.
+            {**provider, "repository": "https://github.com/atrinik/agent-skills"},
+        ]
         candidates.extend({**provider, key: replacement} for key, replacement in {
             "repository": "https://github.com/example/skills", "marketplace": "other",
             "plugin": "other", "path": "other/plugin",

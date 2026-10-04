@@ -71,7 +71,7 @@ def parse_provider(raw: str | bytes) -> dict:
 def load_provider(root: Path) -> dict:
     """Enforce this wrapper's consumer contract in addition to the generic schema."""
     value = parse_provider((root / DESCRIPTOR_PATH).read_bytes())
-    expected = {"repository": "https://github.com/atrinik/agent-skills",
+    expected = {"repository": "https://github.com/atrinik/codex-integration",
                 "marketplace": "atrinik", "plugin": "atrinik-development",
                 "path": "plugins/atrinik-development"}
     if any(value[key] != item for key, item in expected.items()):
