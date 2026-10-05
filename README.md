@@ -1809,6 +1809,17 @@ at `(20, 8)`, preserves the world clock, and adds no special item. `basic-player
 continues to use normal first-login placement. Stop the topology before resetting
 `brynknot-review`; account and save creation remain owned by the server provisioner.
 
+For book-writing reproduction, select a Classic server build that supports
+`writing-books`. It supplies writable books, a pen, Literacy, and Inscription
+through the server's account provisioner:
+
+~~~sh
+./atrinik scenario create writing-review --profile maps-review --preset writing-books
+./atrinik up --name writing-review --profile maps-review --state scenario-writing-review
+~~~
+
+Stop `writing-review` before resetting its scenario-owned state.
+
 Do not create static account or player fixtures; add a tested server-owned
 preset if a future reproduction needs more than `basic-player`. The Classic
 server also owns `lighting-radiance-day`, `lighting-radiance-dawn`, and
