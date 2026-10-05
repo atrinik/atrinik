@@ -23607,21 +23607,25 @@ class WorkspaceTests(unittest.TestCase):
             {MANAGED_MARKER},
         )
 
-    def test_brynknot_scenario_retains_preset_through_reset(self) -> None:
-        with mock.patch.object(
-            self.workspace, "_scenario_provision_state",
-            return_value=self.scenario_resolved_fixture(),
-        ) as provision:
-            created = self.workspace.scenario_create("brynknot", "default", "brynknot-idle")
-            self.assertEqual(created["preset"], "brynknot-idle")
-            self.assertEqual(created["archetype"], "human_male")
-            reset = self.workspace.scenario_reset("brynknot")
-            self.assertEqual(reset["preset"], "brynknot-idle")
-            self.assertEqual(reset["state"], "scenario-brynknot")
-            self.assertEqual(provision.call_count, 2)
-            for call in provision.call_args_list:
-                self.assertEqual(call.args[0]["preset"], "brynknot-idle")
-            self.assertNotIn("password", self.workspace.scenario_show("brynknot"))
+    def test_server_owned_scenario_presets_survive_creation_and_reset(self) -> None:
+        for name, preset in (
+            ("brynknot", "brynknot-idle"),
+            ("writing", "writing-books"),
+        ):
+            with self.subTest(preset=preset), mock.patch.object(
+                self.workspace, "_scenario_provision_state",
+                return_value=self.scenario_resolved_fixture(),
+            ) as provision:
+                created = self.workspace.scenario_create(name, "default", preset)
+                self.assertEqual(created["preset"], preset)
+                self.assertEqual(created["archetype"], "human_male")
+                reset = self.workspace.scenario_reset(name)
+                self.assertEqual(reset["preset"], preset)
+                self.assertEqual(reset["state"], f"scenario-{name}")
+                self.assertEqual(provision.call_count, 2)
+                for call in provision.call_args_list:
+                    self.assertEqual(call.args[0]["preset"], preset)
+                self.assertNotIn("password", self.workspace.scenario_show(name))
 
     def test_scenario_lifecycle_owns_isolated_state_and_credentials(self) -> None:
         resolved = self.scenario_resolved_fixture()
@@ -24289,16 +24293,22 @@ class WorkspaceTests(unittest.TestCase):
                 "atrinik_workspace.workspace._is_clean", return_value=True
             ),
         ):
-            for preset in ("basic-player", "brynknot-idle"):
+            for preset in ("basic-player", "brynknot-idle", "writing-books"):
                 with self.subTest(preset=preset):
                     metadata["preset"] = preset
                     resolved = self.workspace._scenario_provision_state(
                         metadata, self.root / "state", self.root / "password"
                     )
                     arguments = provision.call_args.args[0]
-                    preset_arguments = [arg for arg in arguments if arg.startswith("--provision_preset=")]
-                    self.assertEqual(preset_arguments, [] if preset == "basic-player" else
-                                     ["--provision_preset=brynknot-idle"])
+                    preset_arguments = [
+                        arg for arg in arguments
+                        if arg.startswith("--provision_preset=")
+                    ]
+                    self.assertEqual(
+                        preset_arguments,
+                        [] if preset == "basic-player" else
+                        [f"--provision_preset={preset}"],
+                    )
 
         self.assertEqual(set(resolved), required)
         self.assertNotIn("client", resolved)
