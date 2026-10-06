@@ -2119,7 +2119,9 @@ and executable SHA-256 under the generation lease before selecting
 and exact `data -> /proc/self/fd/N` checks immediately before launch. An absent
 artifact preserves legacy arguments; a present invalid artifact stops startup.
 Foreground servers use the same checks; offline provisioning keeps its ordinary
-path contract.
+path contract. Newly created Classic state roots are private (mode 0700), even
+when the source template is public. Existing state permissions are preserved;
+capability launches reject an existing state root that is not private.
 
 The common-Git `repository-layout.lock` is the bounded maintenance barrier for
 schema/layout migration apply or restore. Ordinary exact-lease operations share

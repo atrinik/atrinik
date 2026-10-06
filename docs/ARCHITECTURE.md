@@ -1460,6 +1460,13 @@ for identity changes under the retained immutable-generation lease. Unknown
 fields, duplicate keys, wrong types, links or digest mismatches fail closed;
 absence alone retains the legacy command.
 
+The Classic `install_data` creators for named/default and temporary state restore
+mode 0700 on their newly owned staging root through a pinned descriptor, checking
+its inode, type, owner and visible path before and after the mode change. Source
+freshness retains the original template mode; copied-state digests account for
+the deliberate private root mode while preserving all child modes and content.
+Existing state directories are never chmod'ed by creation or launch.
+
 The supervised and foreground producers validate this contract and repeat it at
 spawn. The inherited descriptor must name an owned mode-0700 directory with its
 exclusive flock still attached to the same open-file description. The literal

@@ -22338,6 +22338,58 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertTrue((second / "accounts").is_dir())
 
+    def test_fresh_classic_state_is_private_independent_of_template_and_umask(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        implementation = {"stack": "default", "provider": "server", "repository": "atrinik/server"}
+        coordinate = self.scenario_resolved_fixture()["server"]
+        for template_mode, mask in ((0o755, 0o022), (0o755, 0o077),
+                                    (0o775, 0o022), (0o775, 0o077)):
+            with self.subTest(template_mode=oct(template_mode), umask=oct(mask)):
+                (server / "install_data").chmod(template_mode)
+                old_mask = os.umask(mask)
+                try:
+                    name = f"private-{template_mode}-{mask}"
+                    destination = self.root / name
+                    state = self.workspace.state_path(name, server, resolved_path=destination)
+                    self.assertEqual(stat.S_IMODE(state.stat().st_mode), 0o700)
+                    self.assertEqual((state / "bans").read_bytes(), (server / "install_data" / "bans").read_bytes())
+                    # Existing user state is neither repaired nor silently chmod'ed.
+                    state.chmod(0o755)
+                    self.workspace.state_path(name, server, resolved_path=destination)
+                    self.assertEqual(stat.S_IMODE(state.stat().st_mode), 0o755)
+                    topology = self.workspace._topology_directory(name, create=True)
+                    temporary, _policy = self.workspace._create_temporary_state(
+                        topology, name, "default", "a" * 64, server, implementation, coordinate
+                    )
+                    self.assertEqual(stat.S_IMODE(temporary.stat().st_mode), 0o700)
+                    self.assertEqual((temporary / "bans").read_bytes(), (server / "install_data" / "bans").read_bytes())
+                    self.assertEqual(stat.S_IMODE((server / "install_data").stat().st_mode), template_mode)
+                finally:
+                    os.umask(old_mask)
+
+    def test_fresh_state_privacy_refuses_replaced_staging(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        real_copy = shutil.copytree
+        displaced = self.root / "displaced-staging"
+        replacements = []
+        def replace_staging(source, destination, *arguments, **options):
+            result = real_copy(source, destination, *arguments, **options)
+            destination = Path(destination)
+            if Path(source) == server / "install_data":
+                destination.rename(displaced)
+                destination.mkdir(mode=0o755)
+                destination.chmod(0o755)
+                (destination / "valuable").write_text("keep")
+                replacements.append(destination)
+            return result
+        with mock.patch.object(workspace_module.shutil, "copytree", side_effect=replace_staging):
+            with self.assertRaisesRegex(WorkspaceError, "staging identity changed"):
+                self.workspace.state_path("default", server)
+        self.assertFalse(self.workspace._state_location("default").exists())
+        self.assertEqual((replacements[0] / "valuable").read_text(), "keep")
+        self.assertEqual(stat.S_IMODE(replacements[0].stat().st_mode), 0o755)
+        self.assertTrue(displaced.is_dir())
+
     def test_state_add_refuses_malformed_existing_directory(self) -> None:
         malformed = self.root / "valuable"
         malformed.mkdir()
@@ -22939,10 +22991,11 @@ class WorkspaceTests(unittest.TestCase):
                 },
                 self.scenario_resolved_fixture()["server"],
             )
-        self.assertFalse(any(
-            path.name.startswith(f".{generation}.")
-            for path in (topology / "temporary-states").iterdir()
-        ))
+        replacement = next(
+            path for path in (topology / "temporary-states").iterdir()
+            if path.name.startswith(f".{generation}.")
+        )
+        self.assertEqual((replacement / "sentinel").read_text(), "preserve\n")
         self.assertTrue(displaced.is_dir())
 
     def test_temporary_state_staging_rejects_hardlinks(self) -> None:
@@ -24505,6 +24558,10 @@ class WorkspaceTests(unittest.TestCase):
 
     def _foreground_server_keeps_local_defaults_with_extra_arguments(self, capability: bool) -> None:
         server = self.workspace.paths.repositories / "server"
+        if capability:
+            # Git does not preserve directory modes; public templates must still
+            # produce private new state under either developer or CI umasks.
+            (server / "install_data").chmod(0o755)
         build_root = self.root / "server-build"
         runtime = self.root / "server-runtime"
         runtime.mkdir()

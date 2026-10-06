@@ -118,6 +118,12 @@ class ServerCapabilitiesTests(unittest.TestCase):
             with self.subTest(target=target), self.assertRaises(WorkspaceError):
                 self.arguments()
             target.chmod(mode)
+        for mode in (0o755, 0o775):
+            self.state.chmod(mode)
+            with self.subTest(state_mode=oct(mode)), self.assertRaisesRegex(WorkspaceError, "private directory"):
+                self.arguments()
+            self.assertEqual(self.state.stat().st_mode & 0o777, mode)
+        self.state.chmod(0o700)
         with mock.patch("atrinik_workspace.server_capabilities.sys.platform", "win32"):
             with self.assertRaisesRegex(WorkspaceError, "Linux"):
                 self.arguments()
