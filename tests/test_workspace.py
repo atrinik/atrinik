@@ -19872,6 +19872,12 @@ class WorkspaceTests(unittest.TestCase):
                 observer.topology_down(name, timeout=5)
 
     def test_supervised_pair_pins_client_and_holds_state_lock_until_down(self) -> None:
+        self._supervised_pair_pins_client_and_holds_state_lock_until_down(False)
+
+    def test_supervised_pair_uses_verified_state_capability(self) -> None:
+        self._supervised_pair_pins_client_and_holds_state_lock_until_down(True)
+
+    def _supervised_pair_pins_client_and_holds_state_lock_until_down(self, capability: bool) -> None:
         source = self.workspace.paths.repositories / "server"
         (source / "tools").mkdir()
         for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
@@ -19910,6 +19916,12 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         executable.chmod(0o755)
+        if capability:
+            atomic_json(binary / "atrinik-server-capabilities.json", {
+                "schema_version": 1, "datapath_fd": True,
+                "server_sha256": hashlib.sha256(executable.read_bytes()).hexdigest(),
+            })
+
         for name in ("libplugin_arena.so", "libplugin_python.so"):
             (binary / name).write_text("test\n", encoding="utf-8")
         for path in (
@@ -20091,7 +20103,15 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("'--port_quic=17300'", server_log.read_text())
         self.assertIn("'--port_mapping=off'", server_log.read_text())
         self.assertIn("'--stun_server=off'", server_log.read_text())
-        self.assertRegex(server_log.read_text(), r"'--datapath=/proc/self/fd/\d+'")
+        if capability:
+            self.assertRegex(server_log.read_text(), r"'--datapath_fd=\d+'")
+            self.assertIn("'--datapath=./data'", server_log.read_text())
+            generation = Path(status["runtime"]["path"])
+            manifest = load_json(generation / workspace_module.RUNTIME_GENERATION_MANIFEST)
+            self.assertTrue((generation / "server" / "atrinik-server-capabilities.json").is_file())
+            self.assertIn("atrinik-server-capabilities.json", json.dumps(manifest["entries"]))
+        else:
+            self.assertRegex(server_log.read_text(), r"'--datapath=/proc/self/fd/\d+'")
         self.assertRegex(
             server_log.read_text(),
             r"'--assetspath=/proc/self/fd/\d+'",
@@ -20362,6 +20382,11 @@ class WorkspaceTests(unittest.TestCase):
                 "    time.sleep(0.1)\n",
                 encoding="utf-8",
             )
+            if capability:
+                atomic_json(binary / "atrinik-server-capabilities.json", {
+                    "schema_version": 1, "datapath_fd": True,
+                    "server_sha256": hashlib.sha256(executable.read_bytes()).hexdigest(),
+                })
             server_only = self.workspace.topology_up(
                 "server-lease", "default", "default", ["server"], 17302
             )
@@ -24473,6 +24498,12 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.run_client("default", "default", 1730, [], True)
 
     def test_foreground_server_keeps_local_defaults_with_extra_arguments(self) -> None:
+        self._foreground_server_keeps_local_defaults_with_extra_arguments(False)
+
+    def test_foreground_server_uses_verified_state_capability(self) -> None:
+        self._foreground_server_keeps_local_defaults_with_extra_arguments(True)
+
+    def _foreground_server_keeps_local_defaults_with_extra_arguments(self, capability: bool) -> None:
         server = self.workspace.paths.repositories / "server"
         build_root = self.root / "server-build"
         runtime = self.root / "server-runtime"
@@ -24488,6 +24519,14 @@ class WorkspaceTests(unittest.TestCase):
             server_runtime.mkdir(parents=True)
             generated_executable = server_runtime / "atrinik-server"
             generated_executable.write_text("server\n", encoding="utf-8")
+            if capability:
+                atomic_json(server_runtime / "atrinik-server-capabilities.json", {
+                    "schema_version": 1, "datapath_fd": True,
+                    "server_sha256": hashlib.sha256(generated_executable.read_bytes()).hexdigest(),
+                })
+                (server_runtime / "data").symlink_to(
+                    f"/proc/self/fd/{_keywords['state_directory_fd']}"
+                )
             (server_runtime / "assets").mkdir()
             lease = generation_root / workspace_module.RUNTIME_GENERATION_LEASE
             descriptor = os.open(lease, os.O_RDWR | os.O_CREAT, 0o600)
@@ -24632,7 +24671,11 @@ class WorkspaceTests(unittest.TestCase):
             rendered.index("--assetspath=/tmp/untrusted"),
             rendered.index("--assetspath=/proc/self/fd/"),
         )
-        self.assertIn("--datapath=/proc/self/fd/", rendered)
+        if capability:
+            self.assertIn("--datapath_fd=", rendered)
+            self.assertIn("--datapath=./data", rendered)
+        else:
+            self.assertIn("--datapath=/proc/self/fd/", rendered)
 
     def test_foreground_launch_rejects_invalid_port(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "between 1 and 65535"):

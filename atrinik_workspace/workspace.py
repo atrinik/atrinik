@@ -80,7 +80,10 @@ from .port_reservation import (
     validate_record as validate_port_reservation,
 )
 
+from .server_capabilities import server_datapath_arguments, validate_server_datapath_launch
+
 from .model import (
+    normalize_server_datapath_command,
     MANAGED_MARKER,
     SCHEMA_VERSION,
     Checkout,
@@ -3161,7 +3164,7 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
         if spec["endpoint"] != {key: status["endpoint"][key] for key in ("host", "port")}:
             raise WorkspaceError("topology spec endpoint differs from current status")
         service = spec["services"]["server"]
-        command = service.get("command")
+        command = normalize_server_datapath_command(service.get("command"))
         runtime = status["runtime"]
         service_root = Path(runtime["path"]) / "server"
         if (set(service) != {"command", "cwd", "log"}
@@ -21777,10 +21780,8 @@ class Workspace:
                             f"--port_quic={endpoint['port']}",
                             "--port_mapping=off",
                             "--stun_server=off",
-                            *(
-                                [f"--datapath=/proc/self/fd/{state_directory_fd}"]
-                                if state_directory_fd is not None
-                                else []
+                            *server_datapath_arguments(
+                                server_runtime, state_directory_fd, runtime_lock_fd
                             ),
                             "--assetspath="
                             + (
@@ -23509,6 +23510,10 @@ class Workspace:
         state_output = prepared["state_output"]
         try:
             if not dry_run:
+                validate_server_datapath_launch(
+                    prepared["command"], prepared["cwd"], state_fd, runtime_fd,
+                    prepared["state"],
+                )
                 run(
                     prepared["command"],
                     cwd=prepared["cwd"],
@@ -23631,6 +23636,9 @@ class Workspace:
                 state_lock_fd: int | None = None
                 try:
                     state_lock_fd = os.dup(state_lock.fileno())
+                    datapath_arguments = server_datapath_arguments(
+                        generation_root / "server", state_fd, runtime_fd
+                    )
                 except BaseException:
                     if state_lock_fd is not None:
                         os.close(state_lock_fd)
@@ -23657,7 +23665,7 @@ class Workspace:
                     "--port_mapping=off",
                     "--stun_server=off",
                     *arguments,
-                    f"--datapath=/proc/self/fd/{state_fd}",
+                    *datapath_arguments,
                     f"--assetspath=/proc/self/fd/{state_output_fd}",
                 ]
                 print(f"state: {state}")
@@ -23671,6 +23679,7 @@ class Workspace:
                     "generation_root": generation_root,
                     "runtime_fd": runtime_fd,
                     "state_fd": state_fd,
+                    "state": state,
                     "state_lock_fd": state_lock_fd,
                     "state_output": state_output,
                     "state_output_identity": state_output_identity,
