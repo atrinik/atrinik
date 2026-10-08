@@ -1001,6 +1001,20 @@ def copy_workspace_fixture(template: Path, destination: Path) -> None:
     shutil.copytree(template, destination, dirs_exist_ok=True, symlinks=True)
 
 
+def benchmark_competing_lease_process(root: str, topology: str, scenario: str, results) -> None:
+    outcomes = {}
+    for kind, coordinate in (("topology", topology), ("scenario", scenario),
+                             ("topology", "disjoint-benchmark")):
+        try:
+            with resource_locks(Path(root), [
+                LeaseRequest(kind, coordinate, "exclusive", "competing benchmark writer", "retry")
+            ], nonblocking=True):
+                outcomes[coordinate] = "acquired"
+        except LockBusyError:
+            outcomes[coordinate] = "busy"
+    results.put(outcomes)
+
+
 class WorkspaceTests(unittest.TestCase):
     def test_observation_configuration_requires_exact_flat_stable_origins(self):
         checkout = self.seeds["resources"]
@@ -22206,6 +22220,72 @@ class WorkspaceTests(unittest.TestCase):
                 generation_published=callback,
             )
         callback.assert_not_called()
+
+    def test_benchmark_preparation_holds_topology_and_scenario_leases(self) -> None:
+        name = "benchmark-reservation"
+        scenario = "benchmark-review"
+        events = []
+
+        def assert_leases(phase):
+            events.append(phase)
+            context = multiprocessing.get_context("spawn")
+            results = context.Queue()
+            contender = context.Process(target=benchmark_competing_lease_process, args=(
+                str(self.workspace.paths.workspace), name, scenario, results,
+            ))
+            contender.start()
+            try:
+                self.assertEqual(results.get(timeout=10), {
+                    name: "busy", scenario: "busy", "disjoint-benchmark": "acquired",
+                })
+                contender.join(timeout=10)
+                self.assertEqual(contender.exitcode, 0)
+            finally:
+                join_or_stop_processes([contender], 10)
+                results.close()
+            for kind, coordinate in (("topology", name), ("scenario", scenario)):
+                with self.assertRaises(LockBusyError):
+                    with self.workspace._resource_locks([
+                        self.workspace._lease_request(kind, coordinate, "exclusive", "competing writer")
+                    ], nonblocking=True):
+                        self.fail("competing writer acquired reserved coordinate")
+            with self.workspace._resource_locks([
+                self.workspace._lease_request("topology", "disjoint-benchmark", "exclusive", "disjoint writer")
+            ], nonblocking=True):
+                pass
+
+        with (
+            mock.patch.object(self.workspace, "_scope_topology_owner", return_value=None),
+            mock.patch.object(self.workspace, "_retained_runtime_plan", return_value=None),
+            mock.patch.object(self.workspace, "_resolved_profile_operation"),
+            mock.patch.object(self.workspace, "_topology_up", side_effect=lambda *a, **kw: assert_leases("startup")),
+        ):
+            self.workspace.topology_up(
+                name, "default", "scenario-" + scenario, ["server", "client"],
+                scenario_benchmark={}, benchmark_prepared=lambda: assert_leases("preparation"),
+            )
+        self.assertEqual(events, ["preparation", "startup"])
+        for kind, coordinate in (("topology", name), ("scenario", scenario)):
+            with self.workspace._resource_locks([
+                self.workspace._lease_request(kind, coordinate, "exclusive", "released writer")
+            ], nonblocking=True):
+                pass
+
+    def test_benchmark_preparation_refusal_never_starts_topology(self) -> None:
+        with (
+            mock.patch.object(self.workspace, "_scope_topology_owner", return_value=None),
+            mock.patch.object(self.workspace, "_retained_runtime_plan", return_value=None),
+            mock.patch.object(self.workspace, "_resolved_profile_operation"),
+            mock.patch.object(self.workspace, "_topology_up") as startup,
+        ):
+            def refuse():
+                raise WorkspaceError("scenario changed")
+            with self.assertRaisesRegex(WorkspaceError, "scenario changed"):
+                self.workspace.topology_up(
+                    "benchmark-refused", "default", "scenario-review", ["server", "client"],
+                    scenario_benchmark={}, benchmark_prepared=refuse,
+                )
+        startup.assert_not_called()
 
     def test_topology_up_refuses_locked_process_tree_generation(self) -> None:
         root = self.workspace._topology_directory("locked-generation", create=True)

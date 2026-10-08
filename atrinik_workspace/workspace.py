@@ -21374,13 +21374,14 @@ class Workspace:
         build_services: set[str] | None = None,
         scenario_benchmark: dict[str, str] | None = None,
         generation_published: Callable[[str], None] | None = None,
+        benchmark_prepared: Callable[[], None] | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
         if prebuilt_build is not None:
             self._validate_prebuilt_request(
                 prebuilt_build, selected_services, retained_build_plan, build_services
             )
-        if generation_published is not None and scenario_benchmark is None:
+        if (generation_published is not None or benchmark_prepared is not None) and scenario_benchmark is None:
             raise WorkspaceError(
                 "topology generation publication callback requires a benchmark"
             )
@@ -21452,6 +21453,8 @@ class Workspace:
                     )
                 )
             with self._resource_locks(requests):
+                if benchmark_prepared is not None:
+                    benchmark_prepared()
                 return self._topology_up(
                     name,
                     profile_name,

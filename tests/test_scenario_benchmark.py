@@ -732,6 +732,7 @@ class FakeWorkspace:
         return self.client
 
     def topology_up(self, name: str, profile: str, state: str, services: list[str], **kwargs) -> dict:
+        kwargs["benchmark_prepared"]()
         self.topology_options = kwargs
         self.launch = kwargs["scenario_benchmark"]
         generation_published = kwargs.get("generation_published")
@@ -815,6 +816,30 @@ class RunBenchmarkTests(unittest.TestCase):
                 record_video=record_video,
                 prebuilt_build=prebuilt_build,
             )
+
+    def test_scenario_reset_before_locked_preparation_leaves_no_topology(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        initial = workspace._load_scenario("brynknot")
+        reset = {**initial, "provisioned_at": "new-generation"}
+        with mock.patch.object(workspace, "_load_scenario", side_effect=[initial, reset]):
+            with self.assertRaisesRegex(WorkspaceError, "scenario changed"):
+                self.run_success(workspace)
+        self.assertFalse((workspace.paths.topologies / "bench").exists())
+        self.assertEqual(workspace.down_calls, [])
+        self.assertIsNone(workspace.launch)
+
+    def test_startup_refusal_before_locked_preparation_leaves_no_topology(self) -> None:
+        workspace = FakeWorkspace(self.root)
+
+        def busy(*args, **kwargs):
+            self.assertFalse((workspace.paths.topologies / "bench").exists())
+            raise WorkspaceError("topology lease busy")
+
+        workspace.topology_up = busy
+        with self.assertRaisesRegex(WorkspaceError, "topology lease busy"):
+            self.run_success(workspace)
+        self.assertFalse((workspace.paths.topologies / "bench").exists())
+        self.assertEqual(workspace.down_calls, [])
 
     def test_run_benchmark_reserves_fresh_private_topology_and_records_evidence(self) -> None:
         workspace = FakeWorkspace(self.root)
@@ -921,7 +946,8 @@ class RunBenchmarkTests(unittest.TestCase):
     def test_run_benchmark_interrupt_before_generation_publication_stops_nothing(self) -> None:
         workspace = FakeWorkspace(self.root)
 
-        def interrupted(*_args, **_kwargs):
+        def interrupted(*_args, **kwargs):
+            kwargs["benchmark_prepared"]()
             raise KeyboardInterrupt
 
         workspace.topology_up = interrupted
@@ -938,6 +964,7 @@ class RunBenchmarkTests(unittest.TestCase):
         workspace = FakeWorkspace(self.root)
 
         def failed(*_args, **kwargs):
+            kwargs["benchmark_prepared"]()
             kwargs["generation_published"]("generation-1")
             raise WorkspaceError("startup failed")
 

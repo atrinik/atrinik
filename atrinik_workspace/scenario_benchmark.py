@@ -512,20 +512,8 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
     workspace._require_classic_contracts(scenario["profile"], {"client", "server"})
     workspace.paths.ensure()
     root = workspace.paths.topologies / name
-    workspace._guard_recovered_resource("topology", root, name)
-    # mkdir is the reservation: no existing or concurrently created topology
-    # can be adopted by a benchmark invocation.
-    try:
-        root.mkdir(mode=0o700)
-    except FileExistsError as error:
-        raise WorkspaceError("benchmark requires a fresh topology name") from error
-    atomic_json(root / MANAGED_MARKER,
-                {"schema_version": SCHEMA_VERSION, "purpose": f"topology:{name}"})
-    root = workspace._topology_directory(name, create=True)
     evidence = root / "benchmark"
-    evidence.mkdir(mode=0o700)
     staged_route, report = evidence / "route.xml", evidence / "frames.jsonl"
-    _write_new(staged_route, data)
     launch = {"scenario": scenario_name, "nonce": secrets.token_hex(16),
               "route_sha256": route_record["sha256"], "route": str(staged_route), "report": str(report)}
     if capture:
@@ -555,7 +543,6 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
         key: scenario[key] for key in ("schema_version", "stack", "providers", "resolved", "provisioned_at")
         if key in scenario
     }
-    atomic_json(evidence / "summary.json", manifest)
     generation = None
     failure = None
 
@@ -566,14 +553,37 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
         generation = published
         manifest["generation"] = published
 
-    try:
+    verifier_bytes = None
+    staged_verifier = evidence / "verify_live_movement.py"
+    prepared = False
+
+    def prepare_benchmark() -> None:
+        nonlocal verifier_bytes, prepared
+        # topology_up holds the resolved profile/source leases and the same
+        # topology/scenario leases used by ordinary startup and scenario reset.
+        if workspace._load_scenario(scenario_name) != scenario:
+            raise WorkspaceError("scenario changed during benchmark preparation")
+        workspace._guard_recovered_resource("topology", root, name)
+        try:
+            root.mkdir(mode=0o700)
+        except FileExistsError as error:
+            raise WorkspaceError("benchmark requires a fresh topology name") from error
+        atomic_json(root / MANAGED_MARKER,
+                    {"schema_version": SCHEMA_VERSION, "purpose": f"topology:{name}"})
+        workspace._topology_directory(name, create=True)
+        evidence.mkdir(mode=0o700)
+        prepared = True
+        atomic_json(evidence / "summary.json", manifest)
+        _write_new(staged_route, data)
         verifier_bytes = read_regular(workspace.component_path("client", scenario["profile"]) / "tools" / "verify_live_movement.py", MAX_VERIFIER_BYTES)
-        staged_verifier = evidence / "verify_live_movement.py"
         _write_new(staged_verifier, verifier_bytes)
         manifest["verifier_sha256"] = hashlib.sha256(verifier_bytes).hexdigest()
+
+    try:
         topology_options = {
             "scenario_benchmark": launch,
             "generation_published": remember_generation,
+            "benchmark_prepared": prepare_benchmark,
         }
         if prebuilt_build is not None:
             topology_options["prebuilt_build"] = prebuilt_build
@@ -654,7 +664,8 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
             except (WorkspaceError, OSError) as error:
                 failure = "benchmark shutdown failed: " + str(error)
                 manifest.update(status="failure", error=failure)
-        atomic_json(evidence / "summary.json", manifest)
+        if prepared:
+            atomic_json(evidence / "summary.json", manifest)
     if failure:
         raise WorkspaceError(f"{failure}; benchmark evidence: {evidence}")
     return manifest
