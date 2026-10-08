@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from contextlib import suppress
+import ctypes
 import json
 import os
 from pathlib import Path
@@ -115,15 +116,52 @@ def _write_staging(
         raise
 
 
+def _rename_noreplace(directory: int, source: str, destination: str) -> None:
+    try:
+        rename = ctypes.CDLL(None, use_errno=True).renameat2
+    except AttributeError as error:
+        raise WorkspaceError("walking-route rollback requires atomic rename-noreplace") from error
+    rename.argtypes = [
+        ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint
+    ]
+    rename.restype = ctypes.c_int
+    if rename(directory, os.fsencode(source), directory, os.fsencode(destination), 1):
+        number = ctypes.get_errno()
+        raise OSError(number, os.strerror(number))
+
+
 def _unlink_owned(
     directory: int, name: str, identity: tuple[int, int, int]
 ) -> None:
+    # Claim an unpredictable name atomically before checking what will be
+    # removed. A concurrent replacement at the public name is never unlinked.
     try:
         info = os.stat(name, dir_fd=directory, follow_symlinks=False)
-        if _file_identity(info) == identity:
-            os.unlink(name, dir_fd=directory)
     except FileNotFoundError:
-        pass
+        return
+    if _file_identity(info) != identity:
+        return
+    for _attempt in range(16):
+        claim = f".{name}.{secrets.token_hex(16)}.rollback"
+        try:
+            _rename_noreplace(directory, name, claim)
+            break
+        except FileExistsError:
+            continue
+        except FileNotFoundError:
+            return
+    else:
+        raise WorkspaceError("cannot allocate walking-route rollback claim")
+    observed = os.stat(claim, dir_fd=directory, follow_symlinks=False)
+    if _file_identity(observed) != identity:
+        try:
+            _rename_noreplace(directory, claim, name)
+        except OSError as error:
+            raise WorkspaceError(
+                f"walking-route rollback replacement preserved at {claim}"
+            ) from error
+        raise WorkspaceError("walking-route rollback replacement restored")
+    os.unlink(claim, dir_fd=directory)
 
 
 def _publish_pair(output: Path, route: bytes, provenance: bytes) -> None:

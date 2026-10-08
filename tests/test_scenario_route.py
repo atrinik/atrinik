@@ -256,7 +256,7 @@ class ScenarioRouteTests(unittest.TestCase):
         output = self.root / "route.xml"
         companion = Path(str(output) + ".provenance.json")
         real_fsync = scenario_route.os.fsync
-        real_unlink = scenario_route.os.unlink
+        real_rename = scenario_route._rename_noreplace
         removed = []
 
         def fail_directory_sync(descriptor):
@@ -264,17 +264,17 @@ class ScenarioRouteTests(unittest.TestCase):
                 raise OSError("publication sync failed")
             return real_fsync(descriptor)
 
-        def observe_unlink(name, **options):
+        def observe_claim(directory, name, claim):
             if name == output.name:
                 self.assertEqual(companion.read_bytes(), b"{}\n")
                 removed.append("route")
             elif name == companion.name:
                 self.assertFalse(output.exists())
                 removed.append("provenance")
-            return real_unlink(name, **options)
+            return real_rename(directory, name, claim)
 
         with mock.patch.object(scenario_route.os, "fsync", fail_directory_sync), \
-                mock.patch.object(scenario_route.os, "unlink", observe_unlink):
+                mock.patch.object(scenario_route, "_rename_noreplace", observe_claim):
             with self.assertRaisesRegex(WorkspaceError, "cannot publish"):
                 scenario_route._publish_pair(output, ROUTE, b"{}\n")
         self.assertEqual(removed, ["route", "provenance"])
@@ -288,25 +288,92 @@ class ScenarioRouteTests(unittest.TestCase):
                 output = directory / "route.xml"
                 companion = Path(str(output) + ".provenance.json")
                 real_fsync = scenario_route.os.fsync
-                real_unlink = scenario_route.os.unlink
+                real_rename = scenario_route._rename_noreplace
 
                 def fail_directory_sync(descriptor):
                     if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
                         raise OSError("publication sync failed")
                     return real_fsync(descriptor)
 
-                def fail_route_removal(name, **options):
+                def fail_route_removal(directory_fd, name, claim):
                     if name == output.name:
                         raise failure
-                    return real_unlink(name, **options)
+                    return real_rename(directory_fd, name, claim)
 
                 with mock.patch.object(scenario_route.os, "fsync", fail_directory_sync), \
-                        mock.patch.object(scenario_route.os, "unlink", fail_route_removal):
+                        mock.patch.object(scenario_route, "_rename_noreplace", fail_route_removal):
                     with self.assertRaises(type(failure)):
                         scenario_route._publish_pair(output, ROUTE, b"{}\n")
                 self.assertEqual(output.read_bytes(), ROUTE)
                 self.assertEqual(companion.read_bytes(), b"{}\n")
                 self.assertEqual(set(directory.iterdir()), {output, companion})
+
+    def test_replacement_between_stat_and_claim_is_preserved_with_provenance(self):
+        for obstruct_restore in (False, True):
+            with self.subTest(obstruct_restore=obstruct_restore):
+                directory = self.root / str(obstruct_restore)
+                directory.mkdir()
+                output = directory / "route.xml"
+                companion = Path(str(output) + ".provenance.json")
+                replacement = directory / "replacement"
+                replacement.write_bytes(b"other-owner")
+                real_stat = scenario_route.os.stat
+                real_fsync = scenario_route.os.fsync
+                real_rename = scenario_route._rename_noreplace
+                rolling_back = False
+                replaced = False
+
+                def fail_directory_sync(descriptor):
+                    nonlocal rolling_back
+                    if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
+                        rolling_back = True
+                        raise OSError("publication sync failed")
+                    return real_fsync(descriptor)
+
+                def replace_after_stat(name, **options):
+                    nonlocal replaced
+                    result = real_stat(name, **options)
+                    if name == output.name and rolling_back and not replaced:
+                        replaced = True
+                        scenario_route.os.replace(replacement, output)
+                    return result
+
+                def obstruct_restoration(directory_fd, source, destination):
+                    if obstruct_restore and destination == output.name:
+                        output.write_bytes(b"new-owner")
+                    return real_rename(directory_fd, source, destination)
+
+                with mock.patch.object(scenario_route.os, "fsync", fail_directory_sync), \
+                        mock.patch.object(scenario_route.os, "stat", replace_after_stat), \
+                        mock.patch.object(scenario_route, "_rename_noreplace", obstruct_restoration):
+                    with self.assertRaisesRegex(WorkspaceError, "replacement"):
+                        scenario_route._publish_pair(output, ROUTE, b"{}\n")
+                self.assertTrue(replaced)
+                self.assertEqual(companion.read_bytes(), b"{}\n")
+                if obstruct_restore:
+                    self.assertEqual(output.read_bytes(), b"new-owner")
+                    claims = list(directory.glob(".route.xml.*.rollback"))
+                    self.assertEqual(len(claims), 1)
+                    self.assertEqual(claims[0].read_bytes(), b"other-owner")
+                else:
+                    self.assertEqual(output.read_bytes(), b"other-owner")
+                    self.assertEqual(set(directory.iterdir()), {output, companion})
+
+    def test_claim_collision_cannot_replace_existing_entry(self):
+        output = self.root / "route.xml"
+        output.write_bytes(ROUTE)
+        identity = scenario_route._file_identity(output.stat())
+        claim = self.root / (".route.xml." + "a" * 32 + ".rollback")
+        claim.write_bytes(b"other-owner")
+        descriptor = scenario_route.os.open(self.root, scenario_route.os.O_DIRECTORY)
+        try:
+            with mock.patch.object(scenario_route.secrets, "token_hex", return_value="a" * 32):
+                with self.assertRaisesRegex(WorkspaceError, "cannot allocate"):
+                    scenario_route._unlink_owned(descriptor, output.name, identity)
+        finally:
+            scenario_route.os.close(descriptor)
+        self.assertEqual(output.read_bytes(), ROUTE)
+        self.assertEqual(claim.read_bytes(), b"other-owner")
 
     def test_route_stat_failure_rolls_back_published_pair(self):
         output = self.root / "route.xml"
