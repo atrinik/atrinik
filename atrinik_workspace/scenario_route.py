@@ -162,6 +162,7 @@ def _publish_pair(output: Path, route: bytes, provenance: bytes) -> None:
             src_dir_fd=directory, dst_dir_fd=directory, follow_symlinks=False
         )
         provenance_published = True
+        published_provenance_identity = provenance_identity
         published_provenance = os.stat(
             companion.name, dir_fd=directory, follow_symlinks=False
         )
@@ -173,12 +174,12 @@ def _publish_pair(output: Path, route: bytes, provenance: bytes) -> None:
             or observed_provenance_identity != provenance_identity
         ):
             raise WorkspaceError("published route provenance differs from its staging")
-        published_provenance_identity = provenance_identity
         os.link(
             route_staging, output.name,
             src_dir_fd=directory, dst_dir_fd=directory, follow_symlinks=False
         )
         route_published = True
+        published_route_identity = route_identity
         published_route = os.stat(
             output.name, dir_fd=directory, follow_symlinks=False
         )
@@ -189,7 +190,6 @@ def _publish_pair(output: Path, route: bytes, provenance: bytes) -> None:
             or observed_route_identity != route_identity
         ):
             raise WorkspaceError("published walking route differs from its staging")
-        published_route_identity = route_identity
         if (
             descriptor_path(directory) != canonical_path(output.parent)
             or _file_identity(os.stat(
@@ -207,22 +207,28 @@ def _publish_pair(output: Path, route: bytes, provenance: bytes) -> None:
     except OSError as error:
         raise WorkspaceError("cannot publish walking-route output and provenance") from error
     finally:
-        if not publication_complete:
-            if provenance_published and published_provenance_identity is not None:
-                _unlink_owned(
-                    directory, companion.name, published_provenance_identity
-                )
-            if route_published and published_route_identity is not None:
-                _unlink_owned(directory, output.name, published_route_identity)
-        if route_staging and route_identity is not None:
-            _unlink_owned(directory, route_staging, route_identity)
-        if provenance_staging and provenance_identity is not None:
-            _unlink_owned(directory, provenance_staging, provenance_identity)
-        if route_descriptor >= 0:
-            os.close(route_descriptor)
-        if provenance_descriptor >= 0:
-            os.close(provenance_descriptor)
-        os.close(directory)
+        try:
+            if not publication_complete:
+                # Remove the commit point before its provenance. If removal
+                # fails or is interrupted, the surviving route remains pinned.
+                if route_published and published_route_identity is not None:
+                    _unlink_owned(directory, output.name, published_route_identity)
+                if provenance_published and published_provenance_identity is not None:
+                    _unlink_owned(
+                        directory, companion.name, published_provenance_identity
+                    )
+        finally:
+            try:
+                if route_staging and route_identity is not None:
+                    _unlink_owned(directory, route_staging, route_identity)
+                if provenance_staging and provenance_identity is not None:
+                    _unlink_owned(directory, provenance_staging, provenance_identity)
+            finally:
+                if route_descriptor >= 0:
+                    os.close(route_descriptor)
+                if provenance_descriptor >= 0:
+                    os.close(provenance_descriptor)
+                os.close(directory)
 
 
 def prepare_route(workspace, scenario_name: str, output: Path) -> dict[str, Any]:

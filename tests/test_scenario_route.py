@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 import json
+import stat
 from pathlib import Path
 import tempfile
 import unittest
@@ -250,6 +251,102 @@ class ScenarioRouteTests(unittest.TestCase):
             scenario_route._publish_pair(output, ROUTE, b"{}\n")
         self.assertFalse(output.exists())
         self.assertEqual(companion.read_bytes(), b"other-owner")
+
+    def test_failed_publication_removes_route_before_provenance(self):
+        output = self.root / "route.xml"
+        companion = Path(str(output) + ".provenance.json")
+        real_fsync = scenario_route.os.fsync
+        real_unlink = scenario_route.os.unlink
+        removed = []
+
+        def fail_directory_sync(descriptor):
+            if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
+                raise OSError("publication sync failed")
+            return real_fsync(descriptor)
+
+        def observe_unlink(name, **options):
+            if name == output.name:
+                self.assertEqual(companion.read_bytes(), b"{}\n")
+                removed.append("route")
+            elif name == companion.name:
+                self.assertFalse(output.exists())
+                removed.append("provenance")
+            return real_unlink(name, **options)
+
+        with mock.patch.object(scenario_route.os, "fsync", fail_directory_sync), \
+                mock.patch.object(scenario_route.os, "unlink", observe_unlink):
+            with self.assertRaisesRegex(WorkspaceError, "cannot publish"):
+                scenario_route._publish_pair(output, ROUTE, b"{}\n")
+        self.assertEqual(removed, ["route", "provenance"])
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_failed_or_interrupted_route_removal_retains_provenance(self):
+        for index, failure in enumerate((OSError("unlink failed"), KeyboardInterrupt())):
+            with self.subTest(failure=type(failure).__name__):
+                directory = self.root / str(index)
+                directory.mkdir()
+                output = directory / "route.xml"
+                companion = Path(str(output) + ".provenance.json")
+                real_fsync = scenario_route.os.fsync
+                real_unlink = scenario_route.os.unlink
+
+                def fail_directory_sync(descriptor):
+                    if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
+                        raise OSError("publication sync failed")
+                    return real_fsync(descriptor)
+
+                def fail_route_removal(name, **options):
+                    if name == output.name:
+                        raise failure
+                    return real_unlink(name, **options)
+
+                with mock.patch.object(scenario_route.os, "fsync", fail_directory_sync), \
+                        mock.patch.object(scenario_route.os, "unlink", fail_route_removal):
+                    with self.assertRaises(type(failure)):
+                        scenario_route._publish_pair(output, ROUTE, b"{}\n")
+                self.assertEqual(output.read_bytes(), ROUTE)
+                self.assertEqual(companion.read_bytes(), b"{}\n")
+                self.assertEqual(set(directory.iterdir()), {output, companion})
+
+    def test_route_stat_failure_rolls_back_published_pair(self):
+        output = self.root / "route.xml"
+        real_stat = scenario_route.os.stat
+        failed = False
+
+        def fail_first_route_stat(name, **options):
+            nonlocal failed
+            if name == output.name and not failed:
+                failed = True
+                raise OSError("route stat failed")
+            return real_stat(name, **options)
+
+        with mock.patch.object(scenario_route.os, "stat", fail_first_route_stat):
+            with self.assertRaisesRegex(WorkspaceError, "cannot publish"):
+                scenario_route._publish_pair(output, ROUTE, b"{}\n")
+        self.assertTrue(failed)
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_rollback_preserves_replacement_provenance(self):
+        output = self.root / "route.xml"
+        companion = Path(str(output) + ".provenance.json")
+        replacement = self.root / "replacement"
+        replacement.write_bytes(b"other-owner")
+        real_fsync = scenario_route.os.fsync
+
+        def replace_before_directory_sync(descriptor):
+            if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
+                companion.unlink()
+                companion.symlink_to(replacement.name)
+                raise OSError("publication sync failed")
+            return real_fsync(descriptor)
+
+        with mock.patch.object(scenario_route.os, "fsync", replace_before_directory_sync):
+            with self.assertRaisesRegex(WorkspaceError, "cannot publish"):
+                scenario_route._publish_pair(output, ROUTE, b"{}\n")
+        self.assertFalse(output.exists())
+        self.assertTrue(companion.is_symlink())
+        self.assertEqual(companion.read_bytes(), b"other-owner")
+        self.assertEqual(replacement.read_bytes(), b"other-owner")
 
     def test_staging_replacement_cannot_publish_different_route(self):
         output = self.root / "route.xml"
