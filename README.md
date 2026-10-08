@@ -2111,6 +2111,18 @@ when applicable;
 supervisors and guardians retain only runtime-generation, process-tree,
 server-state, and generation-specific port-reservation leases.
 
+Classic Linux servers that publish `atrinik-server-capabilities.json` beside the
+executable use the inherited private-state descriptor contract. The wrapper
+copies that artifact into the sealed generation and verifies its exact schema
+and executable SHA-256 under the generation lease before selecting
+`--datapath_fd=N --datapath=./data`. It repeats the capability, descriptor, lock,
+and exact `data -> /proc/self/fd/N` checks immediately before launch. An absent
+artifact preserves legacy arguments; a present invalid artifact stops startup.
+Foreground servers use the same checks; offline provisioning keeps its ordinary
+path contract. Newly created Classic state roots are private (mode 0700), even
+when the source template is public. Existing state permissions are preserved;
+capability launches reject an existing state root that is not private.
+
 The common-Git `repository-layout.lock` is the bounded maintenance barrier for
 schema/layout migration apply or restore. Ordinary exact-lease operations share
 the barrier, so they overlap one another but cannot race an exclusive migration;

@@ -80,7 +80,10 @@ from .port_reservation import (
     validate_record as validate_port_reservation,
 )
 
+from .server_capabilities import server_datapath_arguments, validate_server_datapath_launch
+
 from .model import (
+    normalize_server_datapath_command,
     MANAGED_MARKER,
     SCHEMA_VERSION,
     Checkout,
@@ -1393,8 +1396,9 @@ def _tree_digest(
     reject_symlinks: bool = False,
     copied_metadata: bool = False,
     ignore_root_mtime: bool = False,
+    root_mode: int | None = None,
 ) -> str:
-    """Hash a tree as framed records without following links."""
+    """Hash a tree, optionally declaring the destination root's intended mode."""
 
     digest = hashlib.sha256()
     resolved_root = root.resolve()
@@ -1518,7 +1522,8 @@ def _tree_digest(
         if copied_metadata
         else ()
     )
-    record("root", stat.S_IMODE(root_status.st_mode), *root_metadata)
+    record("root", stat.S_IMODE(root_status.st_mode) if root_mode is None else root_mode,
+           *root_metadata)
     visit(root, PurePosixPath())
     return digest.hexdigest()
 
@@ -3161,7 +3166,7 @@ class _DeliveryObservationCorrection(_DeliveryResourceRecovery):
         if spec["endpoint"] != {key: status["endpoint"][key] for key in ("host", "port")}:
             raise WorkspaceError("topology spec endpoint differs from current status")
         service = spec["services"]["server"]
-        command = service.get("command")
+        command = normalize_server_datapath_command(service.get("command"))
         runtime = status["runtime"]
         service_root = Path(runtime["path"]) / "server"
         if (set(service) != {"command", "cwd", "log"}
@@ -15427,6 +15432,26 @@ class Workspace:
             )
         raise WorkspaceError(f"state does not exist: {name}")
 
+    @staticmethod
+    def _privatize_created_state_directory(
+        descriptor: int, path: Path, created: os.stat_result
+    ) -> None:
+        """Restore privacy only on the pinned, newly owned Classic staging root."""
+        def validate() -> None:
+            opened = os.fstat(descriptor)
+            visible = path.stat(follow_symlinks=False)
+            if (not all(stat.S_ISDIR(value.st_mode) and value.st_uid == os.geteuid()
+                        and (value.st_dev, value.st_ino) == (created.st_dev, created.st_ino)
+                        for value in (created, opened, visible))
+                    or descriptor_path(descriptor) != canonical_path(path)):
+                raise WorkspaceError("new server state staging identity changed")
+
+        validate()
+        os.fchmod(descriptor, 0o700)
+        validate()
+        if stat.S_IMODE(os.fstat(descriptor).st_mode) != 0o700:
+            raise WorkspaceError("new server state staging is not private")
+
     def state_path(
         self,
         name: str,
@@ -15447,8 +15472,15 @@ class Workspace:
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
             staging = Path(tempfile.mkdtemp(prefix=f".{path.name}.", dir=path.parent))
+            created = staging.stat(follow_symlinks=False)
+            staging_fd: int | None = None
             try:
+                staging_fd = _open_directory_nofollow(
+                    staging, os.O_RDONLY | os.O_CLOEXEC | os.O_DIRECTORY | os.O_NOFOLLOW
+                )
+                self._privatize_created_state_directory(staging_fd, staging, created)
                 shutil.copytree(server_source / "install_data", staging, dirs_exist_ok=True)
+                self._privatize_created_state_directory(staging_fd, staging, created)
                 self._make_tree_owner_writable(staging)
                 (staging / "tmp").mkdir()
                 if implementation is not None and write_implementation:
@@ -15462,10 +15494,19 @@ class Workspace:
                 self._validate_state(staging)
                 if path.exists():
                     raise WorkspaceError(f"state appeared during initialization: {path}")
+                self._privatize_created_state_directory(staging_fd, staging, created)
                 rename_no_replace(staging, path)
             except BaseException:
-                shutil.rmtree(staging, ignore_errors=True)
+                try:
+                    visible = staging.stat(follow_symlinks=False)
+                    if (visible.st_dev, visible.st_ino) == (created.st_dev, created.st_ino):
+                        shutil.rmtree(staging, ignore_errors=True)
+                except FileNotFoundError:
+                    pass
                 raise
+            finally:
+                if staging_fd is not None:
+                    os.close(staging_fd)
         descriptor = self._open_validated_state_directory(
             path,
             implementation,
@@ -16287,14 +16328,23 @@ class Workspace:
         install_data = server_source / "install_data"
         staging_access = Path(f"/proc/self/fd/{staging_fd}")
         try:
+            self._privatize_created_state_directory(
+                staging_fd, container / staging_name, created
+            )
             source_digest = _tree_digest(
                 install_data, set(), reject_symlinks=True
+            )
+            copied_digest = _tree_digest(
+                install_data, set(), reject_symlinks=True, root_mode=0o700
             )
             shutil.copytree(
                 install_data, staging_access, dirs_exist_ok=True
             )
+            self._privatize_created_state_directory(
+                staging_fd, container / staging_name, created
+            )
             if (
-                _tree_digest_descriptor(staging_fd, destination) != source_digest
+                _tree_digest_descriptor(staging_fd, destination) != copied_digest
                 or _tree_digest(install_data, set(), reject_symlinks=True)
                 != source_digest
                 or _tree_digest(install_data, set(), reject_symlinks=True)
@@ -16422,7 +16472,7 @@ class Workspace:
                     destination,
                     copied_exclusions,
                 )
-                != source_digest
+                != copied_digest
                 or _tree_digest(install_data, set(), reject_symlinks=True)
                 != source_digest
             ):
@@ -16456,7 +16506,7 @@ class Workspace:
                     destination,
                     copied_exclusions,
                 )
-                != source_digest
+                != copied_digest
                 or _tree_digest(install_data, set(), reject_symlinks=True)
                 != source_digest
             ):
@@ -16494,7 +16544,7 @@ class Workspace:
                 )
             else:
                 try:
-                    os.stat(
+                    visible = os.stat(
                         staging_name,
                         dir_fd=container_fd,
                         follow_symlinks=False,
@@ -16502,11 +16552,12 @@ class Workspace:
                 except FileNotFoundError:
                     pass
                 else:
-                    remove_owned_tree(
-                        staging,
-                        expected_identity=staging_identity,
-                        parent_directory_fd=container_fd,
-                    )
+                    if (visible.st_dev, visible.st_ino) == (created.st_dev, created.st_ino):
+                        remove_owned_tree(
+                            staging,
+                            expected_identity=staging_identity,
+                            parent_directory_fd=container_fd,
+                        )
             raise
         finally:
             os.close(staging_fd)
@@ -21777,10 +21828,8 @@ class Workspace:
                             f"--port_quic={endpoint['port']}",
                             "--port_mapping=off",
                             "--stun_server=off",
-                            *(
-                                [f"--datapath=/proc/self/fd/{state_directory_fd}"]
-                                if state_directory_fd is not None
-                                else []
+                            *server_datapath_arguments(
+                                server_runtime, state_directory_fd, runtime_lock_fd
                             ),
                             "--assetspath="
                             + (
@@ -23509,6 +23558,10 @@ class Workspace:
         state_output = prepared["state_output"]
         try:
             if not dry_run:
+                validate_server_datapath_launch(
+                    prepared["command"], prepared["cwd"], state_fd, runtime_fd,
+                    prepared["state"],
+                )
                 run(
                     prepared["command"],
                     cwd=prepared["cwd"],
@@ -23631,6 +23684,9 @@ class Workspace:
                 state_lock_fd: int | None = None
                 try:
                     state_lock_fd = os.dup(state_lock.fileno())
+                    datapath_arguments = server_datapath_arguments(
+                        generation_root / "server", state_fd, runtime_fd
+                    )
                 except BaseException:
                     if state_lock_fd is not None:
                         os.close(state_lock_fd)
@@ -23657,7 +23713,7 @@ class Workspace:
                     "--port_mapping=off",
                     "--stun_server=off",
                     *arguments,
-                    f"--datapath=/proc/self/fd/{state_fd}",
+                    *datapath_arguments,
                     f"--assetspath=/proc/self/fd/{state_output_fd}",
                 ]
                 print(f"state: {state}")
@@ -23671,6 +23727,7 @@ class Workspace:
                     "generation_root": generation_root,
                     "runtime_fd": runtime_fd,
                     "state_fd": state_fd,
+                    "state": state,
                     "state_lock_fd": state_lock_fd,
                     "state_output": state_output,
                     "state_output_identity": state_output_identity,

@@ -19,6 +19,7 @@ from typing import Any, BinaryIO
 from .path_identity import canonical_path
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .model import durable_atomic_json, validate_server_listener_spec
+from .server_capabilities import validate_server_datapath_launch
 from .platform_compat import inherited_subprocess_handles
 from .process_tree import control_socket_path, holders_exist, signal_holders
 from .port_reservation import PortReservationError, validate_held
@@ -652,6 +653,11 @@ def supervise(
         if state_output_fd is not None and name == "server":
             inherited_locks.append(state_output_fd)
         with inherited_subprocess_handles(tuple(inherited_locks)) as inheritance:
+            if name == "server":
+                validate_server_datapath_launch(
+                    command, Path(service["cwd"]), state_directory_fd,
+                    runtime_lock_fd, Path(spec["state"]) if spec.get("state") else None,
+                )
             process = subprocess.Popen(
                 command,
                 cwd=service["cwd"],
