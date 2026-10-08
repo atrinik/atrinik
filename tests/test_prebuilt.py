@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import tempfile
 import sys
 import unittest
@@ -268,7 +269,7 @@ class PrebuiltReceiptTests(unittest.TestCase):
         with self.assertRaises(WorkspaceError):
             prebuilt.invalidate(self.root)
 
-    def test_relocated_or_replaced_build_root(self):
+    def test_relocated_build_root_is_rejected(self):
         sha = self.publish()
         moved = self.root / "another"
         moved.mkdir()
@@ -276,10 +277,47 @@ class PrebuiltReceiptTests(unittest.TestCase):
         (moved / prebuilt.RECEIPT_NAME).chmod(0o600)
         with self.assertRaises(WorkspaceError):
             prebuilt.load(moved, sha)
-        value = prebuilt.load(self.root, sha)
-        value["build_root"]["inode"] += 1
-        with self.assertRaises(WorkspaceError):
-            prebuilt.load(self.root, self.raw(canonical(value) + b"\n"))
+
+    def test_same_path_storage_move_accepts_current_and_legacy_receipts(self):
+        for legacy in (False, True):
+            with self.subTest(legacy=legacy):
+                sha = self.publish()
+                value = prebuilt.load(self.root, sha)
+                self.assertEqual(value["build_root"], {"path": str(self.root)})
+                if legacy:
+                    value["build_root"].update(device=self.root.stat().st_dev,
+                                               inode=self.root.stat().st_ino)
+                    sha = self.raw(canonical(value) + b"\n")
+                raw = self.receipt.read_bytes()
+                before = self.root.stat()
+                with tempfile.TemporaryDirectory() as archive:
+                    retired = Path(archive) / "original"
+                    self.root.rename(retired)
+                    shutil.copytree(retired, self.root)
+                    self.assertNotEqual(self.root.stat().st_ino, before.st_ino)
+                    loaded = prebuilt.load(self.root, sha)
+                    self.assertEqual(loaded, value)
+                    prebuilt.verify_inputs(self.selectors, loaded["inputs"])
+                    self.assertEqual(self.receipt.read_bytes(), raw)
+                prebuilt.invalidate(self.root)
+
+    def test_publish_rejects_root_inode_change_before_installation(self):
+        original_identity = prebuilt._root_identity
+        changed = False
+        with tempfile.TemporaryDirectory() as archive:
+            def replacing_identity(root):
+                nonlocal changed
+                result = original_identity(root)
+                if not changed:
+                    changed = True
+                    self.root.rename(Path(archive) / "original")
+                    self.root.mkdir()
+                return result
+
+            with mock.patch.object(prebuilt, "_root_identity", side_effect=replacing_identity):
+                with self.assertRaisesRegex(WorkspaceError, "changed before publication"):
+                    self.publish()
+            self.assertFalse(self.receipt.exists())
 
     def test_receipt_and_input_size_bounds(self):
         sha = self.publish()

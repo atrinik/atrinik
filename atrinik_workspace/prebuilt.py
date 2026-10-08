@@ -114,9 +114,8 @@ def _regular(info, *, private=False):
 
 
 def _root_identity(root):
-    with _opened(root, directory=True, owned=True) as fd:
-        info = os.fstat(fd)
-    return {"path": _path(os.fspath(root)), "device": info.st_dev, "inode": info.st_ino}
+    with _opened(root, directory=True, owned=True):
+        return {"path": _path(os.fspath(root))}
 
 
 def _selectors(value, *, manifest=False):
@@ -248,10 +247,12 @@ def _validate(value, root):
     if type(value["schema_version"]) is not int or value["schema_version"] != 1:
         _fail("unsupported schema")
     identity = value["build_root"]
-    _exact(identity, {"path", "device", "inode"}, "build root")
-    if (type(identity["device"]) is not int or identity["device"] < 0
-            or type(identity["inode"]) is not int or identity["inode"] < 1
-            or identity != _root_identity(root)):
+    if type(identity) is not dict or set(identity) not in (
+            {"path"}, {"path", "device", "inode"}):
+        _fail("invalid build root keys")
+    # Legacy receipts retain their original bytes and digest, but filesystem
+    # numbers are observations, not durable identity across storage moves.
+    if identity["path"] != _root_identity(root)["path"]:
         _fail("build root identity differs")
     plan = value["plan"]
     _exact(plan, _PLAN_KEYS, "build plan")
@@ -487,6 +488,8 @@ def publish(root, plan, producer, inputs):
     invalidation and remove unpublished staging files after claiming their exact
     inode. Concurrent replacements survive in place or as quarantine evidence.
     """
+    with _opened(root, directory=True, owned=True) as directory:
+        root_observed = os.fstat(directory)
     value = {"schema_version": 1, "build_root": _root_identity(root),
              "plan": plan, "producer": producer, "inputs": inputs}
     _validate(value, root)
@@ -498,7 +501,7 @@ def publish(root, plan, producer, inputs):
     try:
         with _opened(root, directory=True, owned=True) as directory:
             info = os.fstat(directory)
-            if _inode(info) != (value["build_root"]["device"], value["build_root"]["inode"]):
+            if _inode(info) != _inode(root_observed):
                 _fail("build root changed before publication")
             rollback_fd = os.dup(directory)
             temporary = ".atrinik-prebuilt-pending-" + secrets.token_hex(16)
