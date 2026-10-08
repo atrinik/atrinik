@@ -203,7 +203,10 @@ paths:
 
 This receipt covers only the prepared paired Classic client/server topology.
 Producer admission, completion, and consumption require the same clean wrapper
-revision, canonical paths, and same-bind build directory identity. It retains
+revision and canonical paths. Moving identical build bytes to new storage at
+the same canonical path preserves receipt validity; legacy filesystem identity
+fields are ignored. Publication still checks the live directory identity while
+its descriptor is open. It retains
 the exact build and source coordinates, profile and source locks, sound scope,
 and `content@main` identity admitted by the fenced build. It cannot
 select retained-build, service-selective development, or portable-export modes.
