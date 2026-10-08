@@ -447,6 +447,93 @@ class PrebuiltReceiptTests(unittest.TestCase):
         with self.assertRaises(WorkspaceError):
             prebuilt.load(self.root, sha)
 
+    def test_publish_write_and_flush_failures_remove_pending_file(self):
+        original_fdopen = os.fdopen
+        for operation in ("write", "flush"):
+            for failure in (OSError, KeyboardInterrupt):
+                with self.subTest(operation=operation, failure=failure):
+                    def failing_fdopen(fd, mode):
+                        stream = original_fdopen(fd, mode)
+                        wrapped = mock.MagicMock(wraps=stream)
+                        wrapped.__enter__.return_value = wrapped
+                        wrapped.__exit__.side_effect = stream.__exit__
+
+                        def fail(*args):
+                            stream.write(b"partial receipt")
+                            stream.flush()
+                            raise failure("injected pending write failure")
+
+                        getattr(wrapped, operation).side_effect = fail
+                        return wrapped
+
+                    with mock.patch.object(prebuilt.os, "fdopen", side_effect=failing_fdopen):
+                        with self.assertRaises(WorkspaceError if failure is OSError else failure):
+                            self.publish()
+                    self.assertFalse(self.receipt.exists())
+                    self.assertEqual(list(self.root.glob(".atrinik-prebuilt-pending-*")), [])
+                    self.assertEqual(list(self.root.glob(".atrinik-prebuilt-retired-*")), [])
+
+    def test_publish_file_fsync_failure_removes_pending_file(self):
+        original_fsync = os.fsync
+
+        def failing_fsync(fd):
+            if ".atrinik-prebuilt-pending-" in os.readlink(f"/proc/self/fd/{fd}"):
+                raise OSError("injected file fsync failure")
+            return original_fsync(fd)
+
+        with mock.patch.object(prebuilt.os, "fsync", side_effect=failing_fsync):
+            with self.assertRaises(WorkspaceError):
+                self.publish()
+        self.assertFalse(self.receipt.exists())
+        self.assertEqual(list(self.root.glob(".atrinik-prebuilt-pending-*")), [])
+        self.assertEqual(list(self.root.glob(".atrinik-prebuilt-retired-*")), [])
+
+    def test_publish_install_failure_removes_pending_and_preserves_receipt(self):
+        self.receipt.write_bytes(b"existing receipt")
+        self.receipt.chmod(0o600)
+        existing_inode = self.receipt.stat().st_ino
+        with self.assertRaises(WorkspaceError):
+            self.publish()
+        self.assertEqual(self.receipt.read_bytes(), b"existing receipt")
+        self.assertEqual(self.receipt.stat().st_ino, existing_inode)
+        self.assertEqual(list(self.root.glob(".atrinik-prebuilt-pending-*")), [])
+        self.assertEqual(list(self.root.glob(".atrinik-prebuilt-retired-*")), [])
+
+    def test_publish_failed_install_preserves_known_pending_replacement(self):
+        def failing_rename(directory, source, destination):
+            replacement = self.root / "replacement"
+            replacement.write_bytes(b"concurrent pending")
+            replacement.chmod(0o600)
+            replacement.replace(self.root / source)
+            raise OSError("injected rename failure")
+
+        with mock.patch.object(prebuilt, "_rename_noreplace", side_effect=failing_rename):
+            with self.assertRaises(WorkspaceError):
+                self.publish()
+        retained = list(self.root.glob(".atrinik-prebuilt-pending-*"))
+        self.assertEqual(len(retained), 1)
+        self.assertEqual(retained[0].read_bytes(), b"concurrent pending")
+
+    def test_publish_pending_cleanup_claim_preserves_racing_replacement(self):
+        original_rename = prebuilt._rename_noreplace
+
+        def racing_rename(directory, source, destination):
+            if destination == prebuilt.RECEIPT_NAME:
+                raise OSError("injected rename failure")
+            replacement = self.root / "replacement"
+            replacement.write_bytes(b"racing pending")
+            replacement.chmod(0o600)
+            replacement.replace(self.root / source)
+            original_rename(directory, source, destination)
+
+        with mock.patch.object(prebuilt, "_rename_noreplace", side_effect=racing_rename):
+            with self.assertRaisesRegex(WorkspaceError, "rollback evidence"):
+                self.publish()
+        retained = list(self.root.glob(".atrinik-prebuilt-retired-*"))
+        self.assertEqual(len(retained), 1)
+        self.assertEqual(retained[0].read_bytes(), b"racing pending")
+        self.assertEqual(list(self.root.glob(".atrinik-prebuilt-pending-*")), [])
+
     def test_publish_caught_baseexception_retracts_receipt(self):
         original_fsync = os.fsync
         failures = 0

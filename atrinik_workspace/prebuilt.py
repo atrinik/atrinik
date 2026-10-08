@@ -484,7 +484,8 @@ def publish(root, plan, producer, inputs):
     durability point. A process crash between them may leave a complete receipt:
     all build work and the receipt-file fsync already succeeded. Caught failures
     retire the exact installed object through the same claim protocol as
-    invalidation. Concurrent replacements and all quarantine evidence survive.
+    invalidation and remove unpublished staging files after claiming their exact
+    inode. Concurrent replacements survive in place or as quarantine evidence.
     """
     value = {"schema_version": 1, "build_root": _root_identity(root),
              "plan": plan, "producer": producer, "inputs": inputs}
@@ -492,7 +493,7 @@ def publish(root, plan, producer, inputs):
     raw = _canonical(value) + b"\n"
     if len(raw) > MAX_RECEIPT_BYTES:
         _fail("receipt exceeds size limit")
-    rollback_fd, expected = None, None
+    rollback_fd, expected, temporary = None, None, None
     installation_attempted = False
     try:
         with _opened(root, directory=True, owned=True) as directory:
@@ -504,6 +505,7 @@ def publish(root, plan, producer, inputs):
             fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC,
                          0o600, dir_fd=directory)
             with os.fdopen(fd, "wb") as stream:
+                expected = os.fstat(stream.fileno())
                 stream.write(raw)
                 stream.flush()
                 os.fsync(stream.fileno())
@@ -517,16 +519,25 @@ def publish(root, plan, producer, inputs):
             _regular(installed, private=True)
             os.fsync(directory)
     except BaseException as error:
-        if installation_attempted and rollback_fd is not None:
+        if expected is not None and rollback_fd is not None:
             try:
-                try:
-                    visible = os.stat(RECEIPT_NAME, dir_fd=rollback_fd, follow_symlinks=False)
-                except FileNotFoundError:
-                    visible = None
-                # A known replacement is preserved in place. A replacement that
-                # races the claim is retained under its quarantine name.
-                if visible is not None and _inode(visible) == _inode(expected):
-                    _retire(rollback_fd, RECEIPT_NAME, expected)
+                names = ([RECEIPT_NAME] if installation_attempted else []) + [temporary]
+                for name in names:
+                    try:
+                        visible = os.stat(name, dir_fd=rollback_fd, follow_symlinks=False)
+                    except FileNotFoundError:
+                        continue
+                    # Known replacements stay in place; replacements racing the
+                    # atomic claim survive as quarantine evidence.
+                    if _inode(visible) != _inode(expected):
+                        continue
+                    retired = _retire(rollback_fd, name, expected)
+                    if name == temporary:
+                        # Only our unpublished staging inode is disposable.
+                        # Claim it under a fresh nonce before removing it, rather
+                        # than unlinking the externally known pending name.
+                        os.unlink(retired, dir_fd=rollback_fd)
+                        os.fsync(rollback_fd)
             except BaseException as rollback_error:
                 raise WorkspaceError(
                     "prebuilt receipt publication failed; rollback evidence requires inspection"
