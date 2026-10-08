@@ -1469,6 +1469,34 @@ its topology and profile; a foreground client receives its profile and direct
 run mode. The client uses this label only for its native window title. It is
 not part of persisted settings, package or protocol identity, or network
 metadata, and unmanaged launches receive no label.
+Classic Linux server generations copy and digest the complete binary directory,
+including any `atrinik-server-capabilities.json`. Its exact schema is
+`{"schema_version":1,"datapath_fd":true,"server_sha256":"<lowercase SHA-256>"}`.
+Only an artifact bound to the copied executable selects the inherited-state
+command pair `--datapath_fd=N --datapath=./data`. Artifact and binary reads are
+bounded/streamed, descriptor-relative, no-follow, owner/mode checked and rechecked
+for identity changes under the retained immutable-generation lease. Unknown
+fields, duplicate keys, wrong types, links or digest mismatches fail closed;
+absence alone retains the legacy command.
+
+The Classic `install_data` creators for named/default and temporary state restore
+mode 0700 on their newly owned staging root through a pinned descriptor, checking
+its inode, type, owner and visible path before and after the mode change. Source
+freshness retains the original template mode; copied-state digests account for
+the deliberate private root mode while preserving all child modes and content.
+Existing state directories are never chmod'ed by creation or launch.
+
+The supervised and foreground producers validate this contract and repeat it at
+spawn. The inherited descriptor must name an owned mode-0700 directory with its
+exclusive flock still attached to the same open-file description. The literal
+`data` symlink must target exactly `/proc/self/fd/N`; the visible state path and
+open descriptor must still identify the same directory. Validation opens no new
+state borrower and never acquires or unlocks a state lease. The server duplicates
+the inherited description and closes only its own duplicate. Syntax validation
+of retained topology commands accepts only this exact additional pair; it grants
+no capability. Offline provisioning remains on the ordinary no-follow path
+contract. Replacement providers gain no adapter from this Classic contract.
+
 Each successful startup atomically renames a new sealed directory into
 `generations/<generation>` and publishes status only afterward. Failure removes
 only its exact staging directory and leaves every previously complete stopped

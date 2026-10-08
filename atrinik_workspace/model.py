@@ -177,6 +177,21 @@ def server_listener_arguments(listener: object) -> list[str]:
     return ["--network_stack=ipv4=0.0.0.0"] if listener == "all-ipv4" else []
 
 
+def normalize_server_datapath_command(command: object) -> object:
+    """Normalize only the exact capability argv pair for legacy grammar checks.
+
+    This is syntax validation; executable and inherited-FD proof occurs at launch.
+    """
+    if (isinstance(command, list) and len(command) > 5
+            and isinstance(command[4], str)
+            and re.fullmatch(r"--datapath_fd=[1-9][0-9]*", command[4])
+            and int(command[4].split("=", 1)[1]) > 2
+            and command[5] == "--datapath=./data"):
+        return [*command[:4], "--datapath=/proc/self/fd/" + command[4].split("=", 1)[1],
+                *command[6:]]
+    return command
+
+
 def validate_server_listener_spec(spec: dict[str, Any]) -> None:
     """Validate the exact launch grammar for a listener-aware server generation."""
     services = spec.get("services")
@@ -199,6 +214,7 @@ def validate_server_listener_spec(spec: dict[str, Any]) -> None:
     service = services["server"]
     root = Path(runtime["path"]) / "server"
     command = service.get("command") if isinstance(service, dict) else None
+    command = normalize_server_datapath_command(command)
     outputs = runtime.get("mutable_state_outputs")
     if (not isinstance(service, dict) or service.get("cwd") != str(root)
             or not isinstance(command, list) or len(command) != 7 + len(arguments)

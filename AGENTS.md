@@ -64,6 +64,8 @@
   Unbound resource recovery uses the issue helper; preserve terminal residual reservations.
 - Use wrapper paths for managed resources; never reconstruct managed paths. Isolate topology/state, ports,
   client config; prefer temporary state and local scenario secrets.
+- Classic inherited state requires the executable-bound capability artifact and
+  retained generation/state locks; see [runtime contracts](docs/ARCHITECTURE.md).
 - Process/tooling ledgers are optional diagnostics. No routine reads/updates,
   required status lines, or work/PR readiness gates on absence, contents,
   contention or reporting failures. Update only

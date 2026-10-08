@@ -1861,7 +1861,9 @@ state.
 `scenario benchmark` requires native Classic support for
 `--live-movement-route` and `--live-movement-report`. It stages the route,
 verifier, report, and summary below the fresh topology's `benchmark/` directory,
-then generation-fences shutdown. The registered scenario is preserved and is
+then generation-fences shutdown. It revalidates the scenario under its shared
+lease and reserves the fresh topology root under its exclusive lease through
+startup. The registered scenario is preserved and is
 never reset. Success requires every real movement checkpoint to publish the
 expected map position and every checkpoint to have presented-frame coverage.
 The report records per-frame CPU time and GPU host submission/presentation
@@ -1896,6 +1898,17 @@ Failures return nonzero and retain bounded evidence for diagnosis. Route input
 is limited to 8 MiB and 50,000 checkpoints, runtime is limited to one hour, and
 the native report is limited to 128 MiB. `--timeout SECONDS` may select a shorter
 runtime bound.
+
+For book-writing reproduction, select a Classic server build that supports
+`writing-books`. It supplies writable books, a pen, Literacy, and Inscription
+through the server's account provisioner:
+
+~~~sh
+./atrinik scenario create writing-review --profile maps-review --preset writing-books
+./atrinik up --name writing-review --profile maps-review --state scenario-writing-review
+~~~
+
+Stop `writing-review` before resetting its scenario-owned state.
 
 Do not create static account or player fixtures; add a tested server-owned
 preset if a future reproduction needs more than `basic-player`. The Classic
@@ -2187,6 +2200,18 @@ Foreground processes then retain the runtime-generation lease plus server state
 when applicable;
 supervisors and guardians retain only runtime-generation, process-tree,
 server-state, and generation-specific port-reservation leases.
+
+Classic Linux servers that publish `atrinik-server-capabilities.json` beside the
+executable use the inherited private-state descriptor contract. The wrapper
+copies that artifact into the sealed generation and verifies its exact schema
+and executable SHA-256 under the generation lease before selecting
+`--datapath_fd=N --datapath=./data`. It repeats the capability, descriptor, lock,
+and exact `data -> /proc/self/fd/N` checks immediately before launch. An absent
+artifact preserves legacy arguments; a present invalid artifact stops startup.
+Foreground servers use the same checks; offline provisioning keeps its ordinary
+path contract. Newly created Classic state roots are private (mode 0700), even
+when the source template is public. Existing state permissions are preserved;
+capability launches reject an existing state root that is not private.
 
 The common-Git `repository-layout.lock` is the bounded maintenance barrier for
 schema/layout migration apply or restore. Ordinary exact-lease operations share

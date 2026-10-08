@@ -19963,6 +19963,12 @@ class WorkspaceTests(unittest.TestCase):
                 observer.topology_down(name, timeout=5)
 
     def test_supervised_pair_pins_client_and_holds_state_lock_until_down(self) -> None:
+        self._supervised_pair_pins_client_and_holds_state_lock_until_down(False)
+
+    def test_supervised_pair_uses_verified_state_capability(self) -> None:
+        self._supervised_pair_pins_client_and_holds_state_lock_until_down(True)
+
+    def _supervised_pair_pins_client_and_holds_state_lock_until_down(self, capability: bool) -> None:
         source = self.workspace.paths.repositories / "server"
         (source / "tools").mkdir()
         for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
@@ -20001,6 +20007,12 @@ class WorkspaceTests(unittest.TestCase):
             encoding="utf-8",
         )
         executable.chmod(0o755)
+        if capability:
+            atomic_json(binary / "atrinik-server-capabilities.json", {
+                "schema_version": 1, "datapath_fd": True,
+                "server_sha256": hashlib.sha256(executable.read_bytes()).hexdigest(),
+            })
+
         for name in ("libplugin_arena.so", "libplugin_python.so"):
             (binary / name).write_text("test\n", encoding="utf-8")
         for path in (
@@ -20182,7 +20194,15 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("'--port_quic=17300'", server_log.read_text())
         self.assertIn("'--port_mapping=off'", server_log.read_text())
         self.assertIn("'--stun_server=off'", server_log.read_text())
-        self.assertRegex(server_log.read_text(), r"'--datapath=/proc/self/fd/\d+'")
+        if capability:
+            self.assertRegex(server_log.read_text(), r"'--datapath_fd=\d+'")
+            self.assertIn("'--datapath=./data'", server_log.read_text())
+            generation = Path(status["runtime"]["path"])
+            manifest = load_json(generation / workspace_module.RUNTIME_GENERATION_MANIFEST)
+            self.assertTrue((generation / "server" / "atrinik-server-capabilities.json").is_file())
+            self.assertIn("atrinik-server-capabilities.json", json.dumps(manifest["entries"]))
+        else:
+            self.assertRegex(server_log.read_text(), r"'--datapath=/proc/self/fd/\d+'")
         self.assertRegex(
             server_log.read_text(),
             r"'--assetspath=/proc/self/fd/\d+'",
@@ -20453,6 +20473,11 @@ class WorkspaceTests(unittest.TestCase):
                 "    time.sleep(0.1)\n",
                 encoding="utf-8",
             )
+            if capability:
+                atomic_json(binary / "atrinik-server-capabilities.json", {
+                    "schema_version": 1, "datapath_fd": True,
+                    "server_sha256": hashlib.sha256(executable.read_bytes()).hexdigest(),
+                })
             server_only = self.workspace.topology_up(
                 "server-lease", "default", "default", ["server"], 17302
             )
@@ -22612,6 +22637,58 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertTrue((second / "accounts").is_dir())
 
+    def test_fresh_classic_state_is_private_independent_of_template_and_umask(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        implementation = {"stack": "default", "provider": "server", "repository": "atrinik/server"}
+        coordinate = self.scenario_resolved_fixture()["server"]
+        for template_mode, mask in ((0o755, 0o022), (0o755, 0o077),
+                                    (0o775, 0o022), (0o775, 0o077)):
+            with self.subTest(template_mode=oct(template_mode), umask=oct(mask)):
+                (server / "install_data").chmod(template_mode)
+                old_mask = os.umask(mask)
+                try:
+                    name = f"private-{template_mode}-{mask}"
+                    destination = self.root / name
+                    state = self.workspace.state_path(name, server, resolved_path=destination)
+                    self.assertEqual(stat.S_IMODE(state.stat().st_mode), 0o700)
+                    self.assertEqual((state / "bans").read_bytes(), (server / "install_data" / "bans").read_bytes())
+                    # Existing user state is neither repaired nor silently chmod'ed.
+                    state.chmod(0o755)
+                    self.workspace.state_path(name, server, resolved_path=destination)
+                    self.assertEqual(stat.S_IMODE(state.stat().st_mode), 0o755)
+                    topology = self.workspace._topology_directory(name, create=True)
+                    temporary, _policy = self.workspace._create_temporary_state(
+                        topology, name, "default", "a" * 64, server, implementation, coordinate
+                    )
+                    self.assertEqual(stat.S_IMODE(temporary.stat().st_mode), 0o700)
+                    self.assertEqual((temporary / "bans").read_bytes(), (server / "install_data" / "bans").read_bytes())
+                    self.assertEqual(stat.S_IMODE((server / "install_data").stat().st_mode), template_mode)
+                finally:
+                    os.umask(old_mask)
+
+    def test_fresh_state_privacy_refuses_replaced_staging(self) -> None:
+        server = self.workspace.paths.repositories / "server"
+        real_copy = shutil.copytree
+        displaced = self.root / "displaced-staging"
+        replacements = []
+        def replace_staging(source, destination, *arguments, **options):
+            result = real_copy(source, destination, *arguments, **options)
+            destination = Path(destination)
+            if Path(source) == server / "install_data":
+                destination.rename(displaced)
+                destination.mkdir(mode=0o755)
+                destination.chmod(0o755)
+                (destination / "valuable").write_text("keep")
+                replacements.append(destination)
+            return result
+        with mock.patch.object(workspace_module.shutil, "copytree", side_effect=replace_staging):
+            with self.assertRaisesRegex(WorkspaceError, "staging identity changed"):
+                self.workspace.state_path("default", server)
+        self.assertFalse(self.workspace._state_location("default").exists())
+        self.assertEqual((replacements[0] / "valuable").read_text(), "keep")
+        self.assertEqual(stat.S_IMODE(replacements[0].stat().st_mode), 0o755)
+        self.assertTrue(displaced.is_dir())
+
     def test_state_add_refuses_malformed_existing_directory(self) -> None:
         malformed = self.root / "valuable"
         malformed.mkdir()
@@ -23213,10 +23290,11 @@ class WorkspaceTests(unittest.TestCase):
                 },
                 self.scenario_resolved_fixture()["server"],
             )
-        self.assertFalse(any(
-            path.name.startswith(f".{generation}.")
-            for path in (topology / "temporary-states").iterdir()
-        ))
+        replacement = next(
+            path for path in (topology / "temporary-states").iterdir()
+            if path.name.startswith(f".{generation}.")
+        )
+        self.assertEqual((replacement / "sentinel").read_text(), "preserve\n")
         self.assertTrue(displaced.is_dir())
 
     def test_temporary_state_staging_rejects_hardlinks(self) -> None:
@@ -23906,21 +23984,25 @@ class WorkspaceTests(unittest.TestCase):
             {MANAGED_MARKER},
         )
 
-    def test_brynknot_scenario_retains_preset_through_reset(self) -> None:
-        with mock.patch.object(
-            self.workspace, "_scenario_provision_state",
-            return_value=self.scenario_resolved_fixture(),
-        ) as provision:
-            created = self.workspace.scenario_create("brynknot", "default", "brynknot-idle")
-            self.assertEqual(created["preset"], "brynknot-idle")
-            self.assertEqual(created["archetype"], "human_male")
-            reset = self.workspace.scenario_reset("brynknot")
-            self.assertEqual(reset["preset"], "brynknot-idle")
-            self.assertEqual(reset["state"], "scenario-brynknot")
-            self.assertEqual(provision.call_count, 2)
-            for call in provision.call_args_list:
-                self.assertEqual(call.args[0]["preset"], "brynknot-idle")
-            self.assertNotIn("password", self.workspace.scenario_show("brynknot"))
+    def test_server_owned_scenario_presets_survive_creation_and_reset(self) -> None:
+        for name, preset in (
+            ("brynknot", "brynknot-idle"),
+            ("writing", "writing-books"),
+        ):
+            with self.subTest(preset=preset), mock.patch.object(
+                self.workspace, "_scenario_provision_state",
+                return_value=self.scenario_resolved_fixture(),
+            ) as provision:
+                created = self.workspace.scenario_create(name, "default", preset)
+                self.assertEqual(created["preset"], preset)
+                self.assertEqual(created["archetype"], "human_male")
+                reset = self.workspace.scenario_reset(name)
+                self.assertEqual(reset["preset"], preset)
+                self.assertEqual(reset["state"], f"scenario-{name}")
+                self.assertEqual(provision.call_count, 2)
+                for call in provision.call_args_list:
+                    self.assertEqual(call.args[0]["preset"], preset)
+                self.assertNotIn("password", self.workspace.scenario_show(name))
 
     def test_scenario_lifecycle_owns_isolated_state_and_credentials(self) -> None:
         resolved = self.scenario_resolved_fixture()
@@ -24588,16 +24670,22 @@ class WorkspaceTests(unittest.TestCase):
                 "atrinik_workspace.workspace._is_clean", return_value=True
             ),
         ):
-            for preset in ("basic-player", "brynknot-idle"):
+            for preset in ("basic-player", "brynknot-idle", "writing-books"):
                 with self.subTest(preset=preset):
                     metadata["preset"] = preset
                     resolved = self.workspace._scenario_provision_state(
                         metadata, self.root / "state", self.root / "password"
                     )
                     arguments = provision.call_args.args[0]
-                    preset_arguments = [arg for arg in arguments if arg.startswith("--provision_preset=")]
-                    self.assertEqual(preset_arguments, [] if preset == "basic-player" else
-                                     ["--provision_preset=brynknot-idle"])
+                    preset_arguments = [
+                        arg for arg in arguments
+                        if arg.startswith("--provision_preset=")
+                    ]
+                    self.assertEqual(
+                        preset_arguments,
+                        [] if preset == "basic-player" else
+                        [f"--provision_preset={preset}"],
+                    )
 
         self.assertEqual(set(resolved), required)
         self.assertNotIn("client", resolved)
@@ -24762,7 +24850,17 @@ class WorkspaceTests(unittest.TestCase):
             self.workspace.run_client("default", "default", 1730, [], True)
 
     def test_foreground_server_keeps_local_defaults_with_extra_arguments(self) -> None:
+        self._foreground_server_keeps_local_defaults_with_extra_arguments(False)
+
+    def test_foreground_server_uses_verified_state_capability(self) -> None:
+        self._foreground_server_keeps_local_defaults_with_extra_arguments(True)
+
+    def _foreground_server_keeps_local_defaults_with_extra_arguments(self, capability: bool) -> None:
         server = self.workspace.paths.repositories / "server"
+        if capability:
+            # Git does not preserve directory modes; public templates must still
+            # produce private new state under either developer or CI umasks.
+            (server / "install_data").chmod(0o755)
         build_root = self.root / "server-build"
         runtime = self.root / "server-runtime"
         runtime.mkdir()
@@ -24777,6 +24875,14 @@ class WorkspaceTests(unittest.TestCase):
             server_runtime.mkdir(parents=True)
             generated_executable = server_runtime / "atrinik-server"
             generated_executable.write_text("server\n", encoding="utf-8")
+            if capability:
+                atomic_json(server_runtime / "atrinik-server-capabilities.json", {
+                    "schema_version": 1, "datapath_fd": True,
+                    "server_sha256": hashlib.sha256(generated_executable.read_bytes()).hexdigest(),
+                })
+                (server_runtime / "data").symlink_to(
+                    f"/proc/self/fd/{_keywords['state_directory_fd']}"
+                )
             (server_runtime / "assets").mkdir()
             lease = generation_root / workspace_module.RUNTIME_GENERATION_LEASE
             descriptor = os.open(lease, os.O_RDWR | os.O_CREAT, 0o600)
@@ -24921,7 +25027,11 @@ class WorkspaceTests(unittest.TestCase):
             rendered.index("--assetspath=/tmp/untrusted"),
             rendered.index("--assetspath=/proc/self/fd/"),
         )
-        self.assertIn("--datapath=/proc/self/fd/", rendered)
+        if capability:
+            self.assertIn("--datapath_fd=", rendered)
+            self.assertIn("--datapath=./data", rendered)
+        else:
+            self.assertIn("--datapath=/proc/self/fd/", rendered)
 
     def test_foreground_launch_rejects_invalid_port(self) -> None:
         with self.assertRaisesRegex(WorkspaceError, "between 1 and 65535"):

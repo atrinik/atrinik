@@ -59,6 +59,7 @@ _SCENARIO_PRESETS = frozenset(
     {
         "basic-player",
         "brynknot-idle",
+        "writing-books",
         "lighting-radiance-day",
         "lighting-radiance-dawn",
         "lighting-radiance-night",
