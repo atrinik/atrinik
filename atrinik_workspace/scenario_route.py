@@ -239,6 +239,13 @@ def _publish_pair(output: Path, route: bytes, provenance: bytes) -> None:
         ):
             raise WorkspaceError("walking-route publication identity changed")
         os.fsync(directory)
+        # The published files must have only their final links after a crash.
+        # Persist staging removal before declaring the publication complete.
+        _unlink_owned(directory, route_staging, route_identity)
+        route_staging = ""
+        _unlink_owned(directory, provenance_staging, provenance_identity)
+        provenance_staging = ""
+        os.fsync(directory)
         publication_complete = True
     except FileExistsError as error:
         raise WorkspaceError("walking-route output or provenance already exists") from error

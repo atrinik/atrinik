@@ -252,6 +252,47 @@ class ScenarioRouteTests(unittest.TestCase):
         self.assertFalse(output.exists())
         self.assertEqual(companion.read_bytes(), b"other-owner")
 
+    def test_success_persists_staging_removal_before_return(self):
+        output = self.root / "route.xml"
+        companion = Path(str(output) + ".provenance.json")
+        real_fsync = scenario_route.os.fsync
+        links_at_sync = []
+
+        def observe_directory_sync(descriptor):
+            if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
+                links_at_sync.append((output.stat().st_nlink, companion.stat().st_nlink))
+                if len(links_at_sync) == 2:
+                    self.assertEqual(set(self.root.iterdir()), {output, companion})
+            return real_fsync(descriptor)
+
+        with mock.patch.object(scenario_route.os, "fsync", observe_directory_sync):
+            scenario_route._publish_pair(output, ROUTE, b"{}\n")
+        self.assertEqual(links_at_sync, [(2, 2), (1, 1)])
+        self.assertEqual(set(self.root.iterdir()), {output, companion})
+
+    def test_staging_removal_sync_failure_retracts_publication(self):
+        output = self.root / "route.xml"
+        companion = Path(str(output) + ".provenance.json")
+        real_fsync = scenario_route.os.fsync
+        directory_syncs = 0
+
+        def fail_staging_removal_sync(descriptor):
+            nonlocal directory_syncs
+            if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
+                directory_syncs += 1
+                if directory_syncs == 2:
+                    self.assertEqual(output.stat().st_nlink, 1)
+                    self.assertEqual(companion.stat().st_nlink, 1)
+                    self.assertEqual(set(self.root.iterdir()), {output, companion})
+                    raise OSError("staging removal sync failed")
+            return real_fsync(descriptor)
+
+        with mock.patch.object(scenario_route.os, "fsync", fail_staging_removal_sync):
+            with self.assertRaisesRegex(WorkspaceError, "cannot publish"):
+                scenario_route._publish_pair(output, ROUTE, b"{}\n")
+        self.assertEqual(directory_syncs, 2)
+        self.assertEqual(list(self.root.iterdir()), [])
+
     def test_failed_publication_removes_route_before_provenance(self):
         output = self.root / "route.xml"
         companion = Path(str(output) + ".provenance.json")
