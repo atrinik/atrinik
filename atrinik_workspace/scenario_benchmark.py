@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import binascii
+from collections.abc import Iterable
 import json
 import math
 import os
@@ -18,8 +19,9 @@ import subprocess
 import sys
 import time
 import xml.etree.ElementTree as ET
+import zlib
 
-from .model import MANAGED_MARKER, SCHEMA_VERSION, WorkspaceError, atomic_json, validate_name
+from .model import MANAGED_MARKER, SCHEMA_VERSION, WorkspaceError, atomic_json, durable_atomic_json, validate_name
 
 MAX_ROUTE_BYTES = 8 * 1024 * 1024
 MAX_REPORT_BYTES = 128 * 1024 * 1024
@@ -219,6 +221,13 @@ def run_bounded(arguments: list[str], *, timeout: float, limit: int, cwd: Path |
     return bytes(output)
 
 
+def _finite_float(value: str) -> float:
+    result = float(value)
+    if not math.isfinite(result):
+        raise ValueError("nonfinite JSON")
+    return result
+
+
 def verify_report(verifier: Path, route: Path, report: Path, expected: dict, source: dict) -> dict:
     before = report.stat(follow_symlinks=False)
     if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
@@ -232,7 +241,7 @@ def verify_report(verifier: Path, route: Path, report: Path, expected: dict, sou
     if parse_route(read_regular(route, MAX_ROUTE_BYTES))["sha256"] != expected["sha256"]:
         raise WorkspaceError("benchmark route changed during verification")
     try:
-        summary = json.loads(output, object_pairs_hook=_json_object,
+        summary = json.loads(output, object_pairs_hook=_json_object, parse_float=_finite_float,
                              parse_constant=lambda _: (_ for _ in ()).throw(ValueError("nonfinite JSON")))
     except (ValueError, UnicodeError) as error:
         raise WorkspaceError("invalid benchmark verifier summary") from error
@@ -291,8 +300,63 @@ def validate_source_provenance(root: Path, sources: dict) -> None:
             raise WorkspaceError("route producer differs from the selected source generation")
 
 
+def _png_image_parts(payload: bytes, start: int, end: int) -> Iterable[memoryview]:
+    """Walk the already-validated consecutive IDAT chunks without per-chunk storage."""
+    view = memoryview(payload)
+    while start < end:
+        length = struct.unpack_from(">I", payload, start)[0]
+        yield view[start + 8:start + 8 + length]
+        start += length + 12
+
+
+def _validate_png_scanlines(parts: Iterable[memoryview], width: int, height: int,
+                            depth: int, color: int, interlace: int) -> None:
+    """Inflate with bounded memory and validate scanlines, including Adam7 passes."""
+    channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}[color]
+    passes = ((0, 0, 1, 1),) if not interlace else (
+        (0, 0, 8, 8), (4, 0, 8, 8), (0, 4, 4, 8), (2, 0, 4, 4),
+        (0, 2, 2, 4), (1, 0, 2, 2), (0, 1, 1, 2))
+    rows = []
+    for x, y, dx, dy in passes:
+        columns = max(0, (width - x + dx - 1) // dx)
+        count = max(0, (height - y + dy - 1) // dy)
+        if columns and count:
+            rows.append(((columns * channels * depth + 7) // 8, count))
+    expected = sum((size + 1) * count for size, count in rows)
+    if expected > MAX_CAPTURE_BYTES:
+        raise WorkspaceError("benchmark PNG decoded image exceeds its bound")
+    sizes = (size for size, count in rows for _ in range(count))
+    remaining = 0
+    produced = 0
+    decoder = zlib.decompressobj()
+    try:
+        for part in parts:
+            for start in range(0, len(part), 65536):
+                pending = part[start:start + 65536]
+                while pending:
+                    output = decoder.decompress(pending, 65536)
+                    pending = decoder.unconsumed_tail
+                    produced += len(output)
+                    if produced > expected or decoder.unused_data:
+                        raise WorkspaceError("benchmark PNG image data exceeds its scanlines")
+                    offset = 0
+                    while offset < len(output):
+                        if remaining == 0:
+                            if output[offset] > 4:
+                                raise WorkspaceError("benchmark PNG scanline filter is invalid")
+                            remaining = next(sizes)
+                            offset += 1
+                        consumed = min(remaining, len(output) - offset)
+                        remaining -= consumed
+                        offset += consumed
+        if not decoder.eof or produced != expected or remaining:
+            raise WorkspaceError("benchmark PNG compressed scanlines are incomplete")
+    except zlib.error as error:
+        raise WorkspaceError("benchmark PNG compressed image data is invalid") from error
+
+
 def png_dimensions(payload: bytes) -> tuple[int, int]:
-    """Validate the complete bounded PNG chunk stream without decoding pixels."""
+    """Validate bounded PNG chunks and decompressed scanline structure."""
     if len(payload) > MAX_CAPTURE_BYTES or payload[:8] != b"\x89PNG\r\n\x1a\n":
         raise WorkspaceError("benchmark capture is not a bounded PNG")
     offset = 8
@@ -300,6 +364,8 @@ def png_dimensions(payload: bytes) -> tuple[int, int]:
     color_type = None
     palette = False
     image_bytes = 0
+    image_start = None
+    image_end = None
     image_started = False
     image_closed = False
     while offset < len(payload):
@@ -338,9 +404,14 @@ def png_dimensions(payload: bytes) -> tuple[int, int]:
                 raise WorkspaceError("benchmark PNG image data ordering is invalid")
             image_started = True
             image_bytes += length
+            if image_start is None:
+                image_start = offset
+            image_end = end
         elif kind == b"IEND":
             if length or not image_bytes or end != len(payload):
                 raise WorkspaceError("benchmark PNG final image boundary is invalid")
+            _validate_png_scanlines(_png_image_parts(payload, image_start, image_end),
+                                    width, height, depth, color_type, interlace)
             return dimensions
         elif not kind[0] & 0x20:
             raise WorkspaceError("benchmark PNG contains an unsupported critical chunk")
@@ -456,6 +527,9 @@ def verify_recording(path: Path) -> dict:
                 if (tag != b"00dc" or entry_flags != 0x10
                         or relative != chunk_offset - 220 or size != chunk_size):
                     raise WorkspaceError("benchmark recording index entry differs")
+            digest = hashlib.sha256()
+            for position in range(0, before.st_size, 1024 * 1024):
+                digest.update(_pread_exact(descriptor, min(1024 * 1024, before.st_size - position), position))
             after = os.fstat(descriptor)
             if _identity(before) != _identity(after):
                 raise WorkspaceError("benchmark recording changed during verification")
@@ -469,6 +543,7 @@ def verify_recording(path: Path) -> dict:
                 "path": str(path),
                 "status": "verified-container",
                 "size_bytes": before.st_size,
+                "sha256": digest.hexdigest(),
                 "frames": frames,
                 "width": width,
                 "height": height,
@@ -552,6 +627,7 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
             raise WorkspaceError("benchmark topology generation changed during publication")
         generation = published
         manifest["generation"] = published
+        durable_atomic_json(evidence / "summary.json", manifest)
 
     verifier_bytes = None
     staged_verifier = evidence / "verify_live_movement.py"

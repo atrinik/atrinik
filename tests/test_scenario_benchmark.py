@@ -446,6 +446,16 @@ class VerifyReportTests(unittest.TestCase):
                 summary,
             )
 
+    def test_verify_report_rejects_nested_overflow(self) -> None:
+        summary = valid_summary(self.expected, self.source)
+        summary["metrics"] = {"nested": [{"value": "OVERFLOW"}]}
+        for value in ("1e999", "-1e999", "NaN", "Infinity", "-Infinity"):
+            with self.subTest(value=value):
+                output = json.dumps(summary).replace('"OVERFLOW"', value).encode()
+                with mock.patch.object(benchmark, "run_bounded", return_value=output):
+                    with self.assertRaisesRegex(WorkspaceError, "invalid benchmark verifier summary"):
+                        benchmark.verify_report(self.verifier, self.route, self.report, self.expected, self.source)
+
     def test_verify_report_rejects_malformed_and_incomplete_zero_exit_summary(self) -> None:
         self.verifier.write_text("print('{}')\n", encoding="utf-8")
         self.verifier.chmod(0o400)
@@ -596,6 +606,60 @@ class VerifyCaptureTests(unittest.TestCase):
                 with self.assertRaisesRegex(WorkspaceError, "PNG"):
                     benchmark.verify_captures(summary, self.evidence, True)
 
+    def test_png_rejects_invalid_compressed_scanlines(self) -> None:
+        header = png_fixture()[:33]
+        raw = (b"\x00" + bytes(32)) * 6
+        for compressed in (b"not-zlib-data", zlib.compress(raw)[:-1],
+                           zlib.compress(raw[:-1]), zlib.compress(raw + b"x"),
+                           zlib.compress(b"\x05" + raw[1:]),
+                           zlib.compress(raw) + b"trailing", zlib.compress(raw) * 2):
+            with self.subTest(compressed=compressed):
+                payload = header + png_chunk(b"IDAT", compressed) + png_chunk(b"IEND", b"")
+                with self.assertRaisesRegex(WorkspaceError, "PNG"):
+                    benchmark.png_dimensions(payload)
+        oversized = struct.pack(">IIBBBBB", 0x7fffffff, 0x7fffffff, 16, 6, 0, 0, 0)
+        payload = PNG_SIGNATURE + png_chunk(b"IHDR", oversized)
+        payload += png_chunk(b"IDAT", zlib.compress(b"")) + png_chunk(b"IEND", b"")
+        with self.assertRaisesRegex(WorkspaceError, "decoded image exceeds"):
+            benchmark.png_dimensions(payload)
+
+    def test_png_accepts_color_depth_filters_and_adam7(self) -> None:
+        formats = {0: (1, (1, 2, 4, 8, 16)), 2: (3, (8, 16)),
+                   3: (1, (1, 2, 4, 8)), 4: (2, (8, 16)), 6: (4, (8, 16))}
+        for color, (channels, depths) in formats.items():
+            for depth in depths:
+                for interlace in (0, 1):
+                    for width, height in ((1, 1), (9, 9)):
+                        with self.subTest(color=color, depth=depth, interlace=interlace, size=(width, height)):
+                            passes = ((0, 0, 1, 1),) if not interlace else (
+                                (0, 0, 8, 8), (4, 0, 8, 8), (0, 4, 4, 8),
+                                (2, 0, 4, 4), (0, 2, 2, 4), (1, 0, 2, 2), (0, 1, 1, 2))
+                            raw = bytearray()
+                            for x, y, dx, dy in passes:
+                                columns, rows = len(range(x, width, dx)), len(range(y, height, dy))
+                                if columns:
+                                    for row in range(rows):
+                                        raw.extend(bytes([row % 5]) + bytes((columns * channels * depth + 7) // 8))
+                            payload = PNG_SIGNATURE + png_chunk(b"IHDR", struct.pack(
+                                ">IIBBBBB", width, height, depth, color, 0, 0, interlace))
+                            if color == 3:
+                                payload += png_chunk(b"PLTE", bytes(6))
+                            compressed = zlib.compress(raw)
+                            for byte in compressed:
+                                payload += png_chunk(b"IDAT", bytes([byte]))
+                            payload += png_chunk(b"IEND", b"")
+                            self.assertEqual(benchmark.png_dimensions(payload), (width, height))
+
+    def test_png_spans_multiple_inflate_blocks(self) -> None:
+        self.assertEqual(benchmark.png_dimensions(png_fixture(512, 128)), (512, 128))
+
+    def test_png_bounds_inflate_output(self) -> None:
+        # The compressed input is tiny compared with the invalid inflated payload.
+        payload = png_fixture()[:33] + png_chunk(b"IDAT", zlib.compress(bytes(1024 * 1024)))
+        payload += png_chunk(b"IEND", b"")
+        with self.assertRaisesRegex(WorkspaceError, "exceeds its scanlines"):
+            benchmark.png_dimensions(payload)
+
     def test_verify_captures_enforces_private_mode_and_64_mib_bound(self) -> None:
         initial = self.evidence / "initial.png"
         initial.chmod(0o622)
@@ -623,9 +687,33 @@ class VerifyRecordingTests(unittest.TestCase):
         result = benchmark.verify_recording(self.path)
         self.assertEqual(result["status"], "verified-container")
         self.assertEqual(result["codec"], "MJPG")
+        self.assertEqual(result["sha256"], hashlib.sha256(self.path.read_bytes()).hexdigest())
         self.assertEqual(result["frames"], 2)
         self.assertEqual((result["width"], result["height"]), (8, 6))
         self.assertFalse(result["visual_decode_verified"])
+
+    def test_recording_digest_binds_frame_contents(self) -> None:
+        first = benchmark.verify_recording(self.path)
+        replacement = avi_fixture((b"\xff\xd8ONE\xff\xd9", b"\xff\xd8two\xff\xd9"))
+        self.path.chmod(0o600)
+        write_private(self.path, replacement)
+        second = benchmark.verify_recording(self.path)
+        self.assertEqual(first["size_bytes"], second["size_bytes"])
+        self.assertNotEqual(first["sha256"], second["sha256"])
+        self.assertEqual(second["sha256"], hashlib.sha256(replacement).hexdigest())
+
+    def test_recording_replacement_during_hash_is_rejected(self) -> None:
+        original = benchmark._pread_exact
+        def replaced(descriptor, size, offset):
+            data = original(descriptor, size, offset)
+            if size == self.path.stat().st_size:
+                alternate = self.path.with_name("replacement.avi")
+                write_private(alternate, avi_fixture())
+                alternate.replace(self.path)
+            return data
+        with mock.patch.object(benchmark, "_pread_exact", side_effect=replaced):
+            with self.assertRaisesRegex(WorkspaceError, "recording .*changed"):
+                benchmark.verify_recording(self.path)
 
     def test_verify_recording_rejects_header_timing_frames_and_index_drift(self) -> None:
         mutations = {
@@ -959,6 +1047,36 @@ class RunBenchmarkTests(unittest.TestCase):
         self.assertEqual(summary["status"], "failure")
         self.assertNotIn("generation", summary)
         self.assertEqual(workspace.down_calls, [])
+
+    def test_generation_is_durable_at_publication_callback(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        observed = []
+        def interrupted(*_args, **kwargs):
+            kwargs["benchmark_prepared"]()
+            kwargs["generation_published"]("generation-1")
+            summary = workspace.paths.topologies / "bench" / "benchmark" / "summary.json"
+            observed.append(json.loads(summary.read_text())["generation"])
+            raise KeyboardInterrupt
+        workspace.topology_up = interrupted
+        with mock.patch.object(benchmark, "durable_atomic_json", wraps=benchmark.durable_atomic_json) as durable:
+            with self.assertRaisesRegex(WorkspaceError, "KeyboardInterrupt"):
+                self.run_success(workspace)
+            durable.assert_called_once()
+        self.assertEqual(observed, ["generation-1"])
+
+    def test_generation_persistence_failure_prevents_startup(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        started = []
+        def startup(*_args, **kwargs):
+            kwargs["benchmark_prepared"]()
+            kwargs["generation_published"]("generation-1")
+            started.append(True)
+        workspace.topology_up = startup
+        with mock.patch.object(benchmark, "durable_atomic_json", side_effect=OSError("fsync failed")):
+            with self.assertRaisesRegex(WorkspaceError, "fsync failed"):
+                self.run_success(workspace)
+        self.assertEqual(started, [])
+        self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
 
     def test_run_benchmark_startup_failure_after_publication_stops_exact_generation(self) -> None:
         workspace = FakeWorkspace(self.root)
