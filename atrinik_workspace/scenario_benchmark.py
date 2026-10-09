@@ -229,15 +229,36 @@ def _finite_float(value: str) -> float:
 
 
 def verify_report(verifier: Path, route: Path, report: Path, expected: dict, source: dict) -> dict:
-    before = report.stat(follow_symlinks=False)
-    if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
-            or before.st_uid != os.geteuid() or before.st_mode & 0o022
-            or not 0 < before.st_size <= MAX_REPORT_BYTES):
-        raise WorkspaceError("benchmark report owner, type, mode, or size is unsafe")
-    output = run_bounded([sys.executable, "-I", str(verifier), str(route), str(report)],
-                         timeout=30, limit=MAX_SUMMARY_BYTES)
-    if _identity(before) != _identity(report.stat(follow_symlinks=False)):
-        raise WorkspaceError("benchmark report changed during verification")
+    flags = os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW | os.O_CLOEXEC
+    try:
+        descriptor = os.open(report, flags)
+        try:
+            before = os.fstat(descriptor)
+            if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
+                    or before.st_uid != os.geteuid() or before.st_mode & 0o022
+                    or not 0 < before.st_size <= MAX_REPORT_BYTES):
+                raise WorkspaceError("benchmark report owner, type, mode, or size is unsafe")
+
+            def unchanged() -> None:
+                if (_identity(before) != _identity(os.fstat(descriptor))
+                        or _identity(before) != _identity(report.stat(follow_symlinks=False))):
+                    raise WorkspaceError("benchmark report changed during verification")
+
+            unchanged()
+            digest = hashlib.sha256()
+            for position in range(0, before.st_size, 65536):
+                chunk = os.pread(descriptor, min(65536, before.st_size - position), position)
+                if len(chunk) != min(65536, before.st_size - position):
+                    raise WorkspaceError("benchmark report truncated during verification")
+                digest.update(chunk)
+            unchanged()
+            output = run_bounded([sys.executable, "-I", str(verifier), str(route), str(report)],
+                                 timeout=30, limit=MAX_SUMMARY_BYTES)
+            unchanged()
+        finally:
+            os.close(descriptor)
+    except OSError as error:
+        raise WorkspaceError(f"cannot verify benchmark report: {report}: {error}") from error
     if parse_route(read_regular(route, MAX_ROUTE_BYTES))["sha256"] != expected["sha256"]:
         raise WorkspaceError("benchmark route changed during verification")
     try:
@@ -257,6 +278,7 @@ def verify_report(verifier: Path, route: Path, report: Path, expected: dict, sou
             or not isinstance(summary.get("gpu_backend"), str) or not summary["gpu_backend"]
             or not isinstance(summary.get("gpu_device"), str) or not summary["gpu_device"]):
         raise WorkspaceError("benchmark summary identity or complete rendered coverage differs")
+    summary["report"] = {"path": str(report), "size_bytes": before.st_size, "sha256": digest.hexdigest()}
     return summary
 
 
@@ -619,15 +641,23 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
         if key in scenario
     }
     generation = None
+    deadline = None
     failure = None
 
     def remember_generation(published: str) -> None:
-        nonlocal generation
+        nonlocal generation, deadline
         if generation is not None and generation != published:
             raise WorkspaceError("benchmark topology generation changed during publication")
+        if deadline is None:
+            deadline = time.monotonic() + timeout
         generation = published
         manifest["generation"] = published
         durable_atomic_json(evidence / "summary.json", manifest)
+
+    def benchmark_deadline() -> float:
+        if deadline is None:
+            raise WorkspaceError("benchmark generation deadline has not been published")
+        return deadline
 
     verifier_bytes = None
     staged_verifier = evidence / "verify_live_movement.py"
@@ -660,6 +690,7 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
             "scenario_benchmark": launch,
             "generation_published": remember_generation,
             "benchmark_prepared": prepare_benchmark,
+            "benchmark_deadline": benchmark_deadline,
         }
         if prebuilt_build is not None:
             topology_options["prebuilt_build"] = prebuilt_build
@@ -684,9 +715,12 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
         if read_regular(Path(client["path"]) / "tools" / "verify_live_movement.py", MAX_VERIFIER_BYTES) != verifier_bytes:
             raise WorkspaceError("selected benchmark verifier changed before launch")
         atomic_json(evidence / "summary.json", manifest)
-        deadline = time.monotonic() + timeout
         while True:
+            if time.monotonic() >= benchmark_deadline():
+                raise WorkspaceError("benchmark deadline expired")
             current = workspace.topology_status(name)
+            if time.monotonic() >= benchmark_deadline():
+                raise WorkspaceError("benchmark deadline expired")
             if current.get("control", {}).get("generation") != generation:
                 raise WorkspaceError("benchmark topology generation changed")
             if report.exists() or report.is_symlink():
@@ -702,9 +736,10 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
                 if services.get("server", {}).get("exit_code") not in {0, -signal.SIGTERM}:
                     raise WorkspaceError("benchmark server failed during the run")
                 break
-            if time.monotonic() >= deadline:
+            remaining = benchmark_deadline() - time.monotonic()
+            if remaining <= 0:
                 raise WorkspaceError("benchmark deadline expired")
-            time.sleep(0.2)
+            time.sleep(min(0.2, remaining))
         if read_regular(staged_verifier, MAX_VERIFIER_BYTES) != verifier_bytes:
             raise WorkspaceError("staged benchmark verifier changed")
         manifest["native"] = verify_report(staged_verifier, staged_route, report, route_record, client)
@@ -741,7 +776,10 @@ def run_benchmark(workspace, scenario_name: str, name: str, route: Path, timeout
                 failure = "benchmark shutdown failed: " + str(error)
                 manifest.update(status="failure", error=failure)
         if prepared:
-            atomic_json(evidence / "summary.json", manifest)
+            try:
+                durable_atomic_json(evidence / "summary.json", manifest)
+            except (OSError, WorkspaceError) as error:
+                raise WorkspaceError(f"benchmark terminal evidence durability failed: {evidence}: {error}") from error
     if failure:
         raise WorkspaceError(f"{failure}; benchmark evidence: {evidence}")
     return manifest

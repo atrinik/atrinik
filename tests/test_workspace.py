@@ -22221,6 +22221,93 @@ class WorkspaceTests(unittest.TestCase):
             )
         callback.assert_not_called()
 
+    def test_benchmark_deadline_callback_is_benchmark_only(self) -> None:
+        for operation in (self.workspace.topology_up, self.workspace._topology_up):
+            with self.assertRaisesRegex(WorkspaceError, "requires a benchmark"):
+                operation("deadline-only", "default", "default", ["server"],
+                          benchmark_deadline=lambda: 1.0)
+
+    def test_benchmark_deadline_callback_passes_through_startup_leases(self) -> None:
+        deadline = lambda: 10.0
+        with (
+            mock.patch.object(self.workspace, "_scope_topology_owner", return_value=None),
+            mock.patch.object(self.workspace, "_retained_runtime_plan", return_value=None),
+            mock.patch.object(self.workspace, "_resolved_profile_operation"),
+            mock.patch.object(self.workspace, "_topology_up", return_value={}) as startup,
+        ):
+            self.workspace.topology_up("deadline-pass", "default", "scenario-review", ["server", "client"],
+                                       scenario_benchmark={}, benchmark_deadline=deadline)
+        self.assertIs(startup.call_args.kwargs["benchmark_deadline"], deadline)
+
+    def test_expired_benchmark_deadline_prevents_detached_startup(self) -> None:
+        with (mock.patch.object(workspace_module.time, "monotonic", return_value=11.0),
+              mock.patch.object(workspace_module.subprocess, "Popen") as launch):
+            with self.assertRaisesRegex(WorkspaceError, "benchmark deadline expired"):
+                self.workspace._start_topology_supervisor(["fixture"], launch_deadline=11.0)
+        launch.assert_not_called()
+
+    def test_benchmark_ready_before_deadline_returns_without_extending_it(self) -> None:
+        root = self.workspace._topology_directory("ready-success", create=True)
+        atomic_json(root / "status.json", {})
+        status = {"supervisor": {"running": True}, "ready": True}
+        process = mock.Mock()
+        with (mock.patch.object(self.workspace, "topology_status", return_value=status),
+              mock.patch.object(workspace_module.time, "monotonic", return_value=10.9)):
+            result = self.workspace._wait_topology_startup(
+                "ready-success", root, "generation", process, lambda: None, None, launch_deadline=11.0)
+        self.assertIs(result, status)
+        self.assertAlmostEqual(process.wait.call_args.kwargs["timeout"], 0.1)
+
+    def test_benchmark_readiness_expires_at_one_second_and_normal_startup_keeps_45(self) -> None:
+        root = self.workspace._topology_directory("readiness-budget", create=True)
+        for deadline, expected, message in ((11.0, 11.0, "benchmark deadline expired"),
+                                            (None, 55.0, "failed to start")):
+            with self.subTest(deadline=deadline):
+                clock = [10.0]
+                process = mock.Mock()
+                process.poll.return_value = None
+                def advance(seconds):
+                    clock[0] += seconds
+                with (mock.patch.object(workspace_module.time, "monotonic", side_effect=lambda: clock[0]),
+                      mock.patch.object(workspace_module.time, "sleep", side_effect=advance)):
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        self.workspace._wait_topology_startup(
+                            "readiness-budget", root, "generation", process, lambda: None, None,
+                            launch_deadline=deadline)
+                self.assertAlmostEqual(clock[0], expected, delta=0.100001)
+                process.wait.assert_not_called()
+
+    def test_benchmark_ready_launcher_wait_uses_only_remaining_budget(self) -> None:
+        root = self.workspace._topology_directory("ready-budget", create=True)
+        atomic_json(root / "status.json", {})
+        status = {"supervisor": {"running": True}, "ready": True}
+        process = mock.Mock()
+        clock = [10.9]
+        def wait(*, timeout):
+            self.assertAlmostEqual(timeout, 0.1)
+            clock[0] = 11.0
+            raise subprocess.TimeoutExpired("supervisor", timeout)
+        process.wait.side_effect = wait
+        with (mock.patch.object(self.workspace, "topology_status", return_value=status),
+              mock.patch.object(workspace_module.time, "monotonic", side_effect=lambda: clock[0])):
+            with self.assertRaisesRegex(WorkspaceError, "benchmark deadline expired"):
+                self.workspace._wait_topology_startup(
+                    "ready-budget", root, "generation", process, lambda: None, None, launch_deadline=11.0)
+        process.wait.assert_called_once()
+
+    def test_benchmark_readiness_return_rechecks_expired_handoff(self) -> None:
+        root = self.workspace._topology_directory("ready-recheck", create=True)
+        atomic_json(root / "status.json", {})
+        status = {"supervisor": {"running": True}, "ready": True}
+        clock = [10.9]
+        def recheck():
+            clock[0] = 11.0
+        with (mock.patch.object(self.workspace, "topology_status", return_value=status),
+              mock.patch.object(workspace_module.time, "monotonic", side_effect=lambda: clock[0])):
+            with self.assertRaisesRegex(WorkspaceError, "benchmark deadline expired"):
+                self.workspace._wait_topology_startup(
+                    "ready-recheck", root, "generation", mock.Mock(), recheck, None, launch_deadline=11.0)
+
     def test_benchmark_preparation_holds_topology_and_scenario_leases(self) -> None:
         name = "benchmark-reservation"
         scenario = "benchmark-review"

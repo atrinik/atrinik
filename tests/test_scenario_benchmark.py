@@ -16,6 +16,7 @@ import zlib
 
 from atrinik_workspace.model import MANAGED_MARKER, WorkspaceError
 from atrinik_workspace import scenario_benchmark as benchmark
+from atrinik_workspace import model
 
 
 ROUTE = b"""<live-movement-route version="1" timeout-ms="1000" step-timeout-ms="250">
@@ -443,8 +444,50 @@ class VerifyReportTests(unittest.TestCase):
         with mock.patch.object(benchmark, "run_bounded", return_value=json.dumps(summary).encode()):
             self.assertEqual(
                 benchmark.verify_report(self.verifier, self.route, self.report, self.expected, self.source),
-                summary,
+                {**summary, "report": {"path": str(self.report), "size_bytes": self.report.stat().st_size,
+                                        "sha256": hashlib.sha256(self.report.read_bytes()).hexdigest()}},
             )
+
+    def test_report_hash_streams_complete_bytes_with_bounded_reads(self) -> None:
+        payload = b'{"frame":1}\n' * 20000
+        self.report.write_bytes(payload)
+        summary = valid_summary(self.expected, self.source)
+        original = os.pread
+        with (mock.patch.object(benchmark.os, "pread", wraps=original) as reads,
+              mock.patch.object(benchmark, "run_bounded", return_value=json.dumps(summary).encode())):
+            result = benchmark.verify_report(self.verifier, self.route, self.report, self.expected, self.source)
+        self.assertGreater(reads.call_count, 1)
+        self.assertTrue(all(call.args[1] <= 65536 for call in reads.call_args_list))
+        self.assertEqual(result["report"]["size_bytes"], len(payload))
+        self.assertEqual(result["report"]["sha256"], hashlib.sha256(payload).hexdigest())
+
+    def test_report_replacement_or_mutation_during_hash_and_verification_is_rejected(self) -> None:
+        for phase in ("hash", "verify"):
+            for replacement in (False, True):
+                with self.subTest(phase=phase, replacement=replacement):
+                    self.report.write_bytes(b'{"frame":1}\n')
+                    summary = valid_summary(self.expected, self.source)
+                    original = os.pread
+                    def mutate():
+                        if replacement:
+                            alternate = self.report.with_name("alternate.jsonl")
+                            alternate.write_bytes(b'{"frame":2}\n')
+                            alternate.replace(self.report)
+                        else:
+                            self.report.write_bytes(b'{"frame":2}\n')
+                    def read(*args):
+                        result = original(*args)
+                        if phase == "hash":
+                            mutate()
+                        return result
+                    def verify(*args, **kwargs):
+                        if phase == "verify":
+                            mutate()
+                        return json.dumps(summary).encode()
+                    with (mock.patch.object(benchmark.os, "pread", side_effect=read),
+                          mock.patch.object(benchmark, "run_bounded", side_effect=verify)):
+                        with self.assertRaisesRegex(WorkspaceError, "report changed"):
+                            benchmark.verify_report(self.verifier, self.route, self.report, self.expected, self.source)
 
     def test_verify_report_rejects_nested_overflow(self) -> None:
         summary = valid_summary(self.expected, self.source)
@@ -1048,6 +1091,59 @@ class RunBenchmarkTests(unittest.TestCase):
         self.assertNotIn("generation", summary)
         self.assertEqual(workspace.down_calls, [])
 
+    def test_terminal_summary_fsync_failure_never_returns_success(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        original = model.os.fsync
+        directory_syncs = []
+        def fail_terminal_directory(descriptor):
+            if stat.S_ISDIR(os.fstat(descriptor).st_mode):
+                directory_syncs.append(descriptor)
+                if len(directory_syncs) == 2:
+                    raise OSError("terminal directory fsync failed")
+            return original(descriptor)
+        with mock.patch.object(model.os, "fsync", side_effect=fail_terminal_directory):
+            with self.assertRaisesRegex(WorkspaceError, "terminal evidence durability failed.*fsync failed"):
+                self.run_success(workspace)
+        self.assertEqual(len(directory_syncs), 2)
+        self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
+
+    def test_terminal_failure_summary_is_durable_after_shutdown(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        original = benchmark.durable_atomic_json
+        durable_statuses = []
+        def remember(path, value):
+            durable_statuses.append((value["status"], bool(workspace.down_calls)))
+            original(path, value)
+        workspace.statuses = [{"control": {"generation": "other"}}]
+        with mock.patch.object(benchmark, "durable_atomic_json", side_effect=remember):
+            with self.assertRaisesRegex(WorkspaceError, "generation changed"):
+                self.run_success(workspace)
+        self.assertEqual(durable_statuses, [("running", False), ("failure", True)])
+
+    def test_readiness_consumes_original_runtime_budget(self) -> None:
+        workspace = FakeWorkspace(self.root)
+        original = workspace.topology_up
+        clock = [100.0]
+        def startup(*args, **kwargs):
+            result = original(*args, **kwargs)
+            self.assertEqual(kwargs["benchmark_deadline"](), 102.0)
+            clock[0] = 101.9
+            return result
+        workspace.topology_up = startup
+        workspace.statuses = [{
+            "control": {"generation": "generation-1"}, "supervisor": {"running": True},
+            "services": {"client": {"running": True}},
+        }]
+        def advance(seconds):
+            self.assertLessEqual(seconds, 0.100001)
+            clock[0] += seconds
+        with (mock.patch.object(benchmark.time, "monotonic", side_effect=lambda: clock[0]),
+              mock.patch.object(benchmark.time, "sleep", side_effect=advance)):
+            with self.assertRaisesRegex(WorkspaceError, "deadline expired"):
+                self.run_success(workspace)
+        self.assertEqual(clock[0], 102.0)
+        self.assertEqual(workspace.down_calls, [("bench", "generation-1")])
+
     def test_generation_is_durable_at_publication_callback(self) -> None:
         workspace = FakeWorkspace(self.root)
         observed = []
@@ -1061,7 +1157,7 @@ class RunBenchmarkTests(unittest.TestCase):
         with mock.patch.object(benchmark, "durable_atomic_json", wraps=benchmark.durable_atomic_json) as durable:
             with self.assertRaisesRegex(WorkspaceError, "KeyboardInterrupt"):
                 self.run_success(workspace)
-            durable.assert_called_once()
+            self.assertEqual(durable.call_count, 2)
         self.assertEqual(observed, ["generation-1"])
 
     def test_generation_persistence_failure_prevents_startup(self) -> None:

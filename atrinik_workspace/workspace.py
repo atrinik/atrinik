@@ -21375,6 +21375,7 @@ class Workspace:
         build_services: set[str] | None = None,
         scenario_benchmark: dict[str, str] | None = None,
         generation_published: Callable[[str], None] | None = None,
+        benchmark_deadline: Callable[[], float] | None = None,
         benchmark_prepared: Callable[[], None] | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
@@ -21382,7 +21383,8 @@ class Workspace:
             self._validate_prebuilt_request(
                 prebuilt_build, selected_services, retained_build_plan, build_services
             )
-        if (generation_published is not None or benchmark_prepared is not None) and scenario_benchmark is None:
+        if (generation_published is not None or benchmark_prepared is not None
+                or benchmark_deadline is not None) and scenario_benchmark is None:
             raise WorkspaceError(
                 "topology generation publication callback requires a benchmark"
             )
@@ -21472,6 +21474,7 @@ class Workspace:
                         if generation_published is not None
                         else {}
                     ),
+                    **({"benchmark_deadline": benchmark_deadline} if benchmark_deadline is not None else {}),
                     **({"scenario_benchmark": scenario_benchmark} if scenario_benchmark is not None else {}),
                 )
 
@@ -21514,6 +21517,7 @@ class Workspace:
         build_services: set[str] | None = None,
         scenario_benchmark: dict[str, str] | None = None,
         generation_published: Callable[[str], None] | None = None,
+        benchmark_deadline: Callable[[], float] | None = None,
         restart_status: dict[str, Any] | None = None,
         operation_lock_held: bool = False,
     ) -> dict[str, Any]:
@@ -21522,7 +21526,7 @@ class Workspace:
             self._validate_prebuilt_request(
                 prebuilt_build, selected_services, retained_build_plan, build_services
             )
-        if generation_published is not None and scenario_benchmark is None:
+        if (generation_published is not None or benchmark_deadline is not None) and scenario_benchmark is None:
             raise WorkspaceError(
                 "topology generation publication callback requires a benchmark"
             )
@@ -22226,6 +22230,8 @@ class Workspace:
                     # before detached startup can be interrupted. Callers may
                     # use it only with generation-fenced shutdown.
                     generation_published(generation)
+                launch_deadline = benchmark_deadline() if benchmark_deadline is not None else None
+                self._benchmark_startup_remaining(launch_deadline)
                 startup_error_path.unlink(missing_ok=True)
 
                 supervisor_log_path = topology_root / "supervisor.log"
@@ -22294,8 +22300,8 @@ class Workspace:
                         tuple(inherited_locks)
                     ) as inheritance:
                         _recheck_runtime_handoff()
-                        process = subprocess.Popen(
-                            command,
+                        process = self._start_topology_supervisor(
+                            command, launch_deadline=launch_deadline,
                             cwd=self.paths.repository,
                             env=environment,
                             stdin=subprocess.DEVNULL,
@@ -22317,80 +22323,117 @@ class Workspace:
                 finally:
                     supervisor_log.close()
 
-                deadline = time.monotonic() + 45
-                while time.monotonic() < deadline:
-                    if startup_error_path.is_file():
-                        if startup_error_path.is_symlink():
-                            raise WorkspaceError(
-                                f"topology startup error is invalid: {name}"
-                            )
-                        failure = load_json(startup_error_path)
-                        if (
-                            not isinstance(failure, dict)
-                            or set(failure) != {"error"}
-                            or not isinstance(failure.get("error"), str)
-                        ):
-                            raise WorkspaceError(
-                                f"topology startup error is invalid: {name}"
-                            )
-                        raise WorkspaceError(
-                            f"topology supervisor failed: {failure['error']}"
-                        )
-                    if status_path.is_file():
-                        try:
-                            status = self.topology_status(name)
-                        except WorkspaceError as error:
-                            if (
-                                str(error)
-                                == f"topology runtime generation lease is not retained: {name}"
-                                and process.poll() is not None
-                            ):
-                                raise WorkspaceError(
-                                    "topology supervisor exited during startup; inspect "
-                                    f"{topology_root / 'supervisor.log'}"
-                                ) from error
-                            raise
-                        runtime = status.get("runtime")
-                        if (
-                            isinstance(runtime, dict)
-                            and runtime.get("generation") == generation
-                        ):
-                            _recheck_runtime_handoff()
-                            self._clear_runtime_state_output_transaction(
-                                topology_root
-                            )
-                        if status.get("error"):
-                            raise WorkspaceError(
-                                f"topology supervisor failed: {status['error']}"
-                            )
-                        if status["supervisor"]["running"] and status["ready"]:
-                            process.wait(timeout=2)
-                            _recheck_runtime_handoff()
-                            if superseded_temporary_policy is not None:
-                                try:
-                                    self._remove_superseded_temporary_state(
-                                        superseded_temporary_policy
-                                    )
-                                except (OSError, WorkspaceError) as error:
-                                    print(
-                                        "warning: development restart left the "
-                                        "previous temporary state for safe cleanup: "
-                                        f"{error}",
-                                        file=sys.stderr,
-                                    )
-                            return status
-                        if not status["supervisor"]["running"]:
-                            raise WorkspaceError(
-                                "topology supervisor exited during startup; inspect "
-                                f"{topology_root / 'supervisor.log'}"
-                            )
-                    if process.poll() not in (None, 0):
-                        break
-                    time.sleep(0.1)
-                raise WorkspaceError(
-                    f"topology supervisor failed to start; inspect "
-                    f"{topology_root / 'supervisor.log'}"
+                return self._wait_topology_startup(
+                    name, topology_root, generation, process, _recheck_runtime_handoff,
+                    superseded_temporary_policy, launch_deadline=launch_deadline,
                 )
+
+    @staticmethod
+    def _benchmark_startup_remaining(deadline: float | None) -> float | None:
+        if deadline is None:
+            return None
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise WorkspaceError("benchmark deadline expired during topology startup")
+        return remaining
+
+    def _start_topology_supervisor(self, command: list[str], *,
+                                   launch_deadline: float | None = None, **options):
+        # Keep the final deadline check adjacent to the detached process launch.
+        self._benchmark_startup_remaining(launch_deadline)
+        return subprocess.Popen(command, **options)
+
+    def _wait_topology_startup(
+        self, name: str, topology_root: Path, generation: str, process,
+        _recheck_runtime_handoff: Callable[[], None], superseded_temporary_policy,
+        *, launch_deadline: float | None = None,
+    ) -> dict[str, Any]:
+        # Called while the original startup leases remain held. Benchmarks share
+        # their publication deadline with readiness; ordinary startup keeps 45s.
+        startup_error_path = topology_root / "startup-error.json"
+        status_path = topology_root / "status.json"
+        deadline = time.monotonic() + 45
+        while time.monotonic() < deadline:
+            self._benchmark_startup_remaining(launch_deadline)
+            if startup_error_path.is_file():
+                if startup_error_path.is_symlink():
+                    raise WorkspaceError(
+                        f"topology startup error is invalid: {name}"
+                    )
+                failure = load_json(startup_error_path)
+                if (
+                    not isinstance(failure, dict)
+                    or set(failure) != {"error"}
+                    or not isinstance(failure.get("error"), str)
+                ):
+                    raise WorkspaceError(
+                        f"topology startup error is invalid: {name}"
+                    )
+                raise WorkspaceError(
+                    f"topology supervisor failed: {failure['error']}"
+                )
+            if status_path.is_file():
+                try:
+                    status = self.topology_status(name)
+                except WorkspaceError as error:
+                    if (
+                        str(error)
+                        == f"topology runtime generation lease is not retained: {name}"
+                        and process.poll() is not None
+                    ):
+                        raise WorkspaceError(
+                            "topology supervisor exited during startup; inspect "
+                            f"{topology_root / 'supervisor.log'}"
+                        ) from error
+                    raise
+                runtime = status.get("runtime")
+                if (
+                    isinstance(runtime, dict)
+                    and runtime.get("generation") == generation
+                ):
+                    _recheck_runtime_handoff()
+                    self._clear_runtime_state_output_transaction(
+                        topology_root
+                    )
+                if status.get("error"):
+                    raise WorkspaceError(
+                        f"topology supervisor failed: {status['error']}"
+                    )
+                if status["supervisor"]["running"] and status["ready"]:
+                    remaining = self._benchmark_startup_remaining(launch_deadline)
+                    try:
+                        process.wait(timeout=min(2, remaining) if remaining is not None else 2)
+                    except subprocess.TimeoutExpired as error:
+                        self._benchmark_startup_remaining(launch_deadline)
+                        raise WorkspaceError("topology supervisor launcher did not exit") from error
+                    _recheck_runtime_handoff()
+                    self._benchmark_startup_remaining(launch_deadline)
+                    if superseded_temporary_policy is not None:
+                        try:
+                            self._remove_superseded_temporary_state(
+                                superseded_temporary_policy
+                            )
+                        except (OSError, WorkspaceError) as error:
+                            print(
+                                "warning: development restart left the "
+                                "previous temporary state for safe cleanup: "
+                                f"{error}",
+                                file=sys.stderr,
+                            )
+                    return status
+                if not status["supervisor"]["running"]:
+                    raise WorkspaceError(
+                        "topology supervisor exited during startup; inspect "
+                        f"{topology_root / 'supervisor.log'}"
+                    )
+            if process.poll() not in (None, 0):
+                break
+            remaining = self._benchmark_startup_remaining(launch_deadline)
+            time.sleep(min(0.1, remaining) if remaining is not None else 0.1)
+        raise WorkspaceError(
+            f"topology supervisor failed to start; inspect "
+            f"{topology_root / 'supervisor.log'}"
+        )
 
     def topology_down(
         self, name: str, timeout: float = 15, *, retain_state: bool = False,
