@@ -1669,7 +1669,7 @@ def _version_probe(command: list[str]) -> dict[str, object]:
             text=True,
             timeout=10,
         )
-    except FileNotFoundError:
+    except (FileNotFoundError, subprocess.TimeoutExpired):
         return {"available": False, "version": None}
     lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
     available = result.returncode == 0
