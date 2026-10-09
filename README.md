@@ -1864,12 +1864,21 @@ verifier, report, and summary below the fresh topology's `benchmark/` directory,
 then generation-fences shutdown. It revalidates the scenario under its shared
 lease and reserves the fresh topology root under its exclusive lease through
 startup. The generation is persisted in the benchmark summary before detached
-startup so interrupted operators can use generation-fenced shutdown.
-The registered scenario is preserved and is
+startup so interrupted operators can use generation-fenced shutdown. After an
+interrupted benchmark, pass the generation saved in its retained summary:
+
+~~~sh
+./atrinik down brynknot-run --expected-generation SAVED_GENERATION
+~~~
+
+The command refuses a different generation, including a later run that reused
+the name. The registered scenario is preserved and is
 never reset. Success requires every real movement checkpoint to publish the
 expected map position and every checkpoint to have presented-frame coverage.
-The report records per-frame CPU time and GPU host submission/presentation
-timings; those GPU values are host timings, not hardware GPU execution duration.
+The terminal summary durably binds the verified frame report by size and
+SHA-256 and records verification and shutdown results. The report records
+per-frame CPU time and GPU host submission/presentation timings; those GPU
+values are host timings, not hardware GPU execution duration.
 The baseline command remains unchanged when optional evidence flags are absent.
 
 `--record-video` requests the single fixed private output
@@ -1901,7 +1910,9 @@ privilege or edit accounts, player saves, or scenario state.
 Failures return nonzero and retain bounded evidence for diagnosis. Route input
 is limited to 8 MiB and 50,000 checkpoints, runtime is limited to one hour, and
 the native report is limited to 128 MiB. `--timeout SECONDS` may select a shorter
-runtime bound.
+runtime bound covering generation publication, detached startup, readiness,
+and gameplay. Generation-fenced shutdown and evidence verification retain
+their separate bounds and may finish after that runtime deadline.
 
 For book-writing reproduction, select a Classic server build that supports
 `writing-books`. It supplies writable books, a pen, Literacy, and Inscription
