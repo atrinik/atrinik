@@ -109,6 +109,10 @@ class CompletionTests(unittest.TestCase):
         self.assertIn("completion", values)
         self.assertIn("worktree", values)
         self.assertIn("scope", values)
+        self.assertEqual(self.candidates("down", "review", "--expected-g"),
+                         ("candidates", ["--expected-generation"]))
+        self.assertEqual(self.candidates("down", "review", "--expected-generation", ""),
+                         ("candidates", []))
 
         self.assertEqual(
             self.candidates("worktree", ""),

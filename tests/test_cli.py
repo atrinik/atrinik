@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import json
 from pathlib import Path
+import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest import mock
@@ -20,6 +21,46 @@ from atrinik_workspace.model import WorkspaceError
 
 
 class ParserTests(unittest.TestCase):
+    def test_down_generation_fence_parser_and_dispatch(self) -> None:
+        generation = "b" * 64
+        parsed = parser().parse_args(["down", "review", "--expected-generation", generation])
+        self.assertEqual(parsed.expected_generation, generation)
+        for retain in (False, True):
+            with self.subTest(retain=retain), mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+                arguments = ["down", "review", "--expected-generation", generation, "--json"]
+                expected = {"expected_generation": generation}
+                if retain:
+                    arguments.append("--retain-state")
+                    expected["retain_state"] = True
+                workspace_type.return_value.topology_down.return_value = {"stopped": True}
+                with mock.patch("builtins.print"):
+                    self.assertEqual(main(arguments), 0)
+                workspace_type.return_value.topology_down.assert_called_once_with("review", **expected)
+
+    def test_down_without_generation_preserves_ordinary_dispatch(self) -> None:
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type, mock.patch("builtins.print"):
+            self.assertEqual(main(["down", "review"]), 0)
+        workspace_type.return_value.topology_down.assert_called_once_with("review")
+
+    def test_down_malformed_generation_is_rejected_by_existing_boundary(self) -> None:
+        from atrinik_workspace.workspace import Workspace
+
+        for generation in ("", "a" * 63, "A" * 64, "g" * 64):
+            with self.subTest(generation=generation), tempfile.TemporaryDirectory() as directory:
+                target = SimpleNamespace(
+                    _topology_directory=lambda _name: Path(directory),
+                    topology_status=mock.Mock(return_value={"control": {"generation": "a" * 64}}),
+                    _controlled_topology_down=mock.Mock(),
+                )
+                with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+                    workspace_type.return_value.topology_down.side_effect = (
+                        lambda *args, **kwargs: Workspace.topology_down(target, *args, **kwargs)
+                    )
+                    with mock.patch("sys.stderr", new_callable=io.StringIO) as error:
+                        self.assertEqual(main(["down", "review", "--expected-generation", generation]), 1)
+                    self.assertIn("topology generation changed", error.getvalue())
+                target._controlled_topology_down.assert_not_called()
+
     def test_supervised_listener_dispatch_and_invalid_cli_values(self) -> None:
         for command, method in ((["up"], "topology_up"),
                                 (["dev", "up"], "dev_up"),

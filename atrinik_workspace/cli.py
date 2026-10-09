@@ -606,6 +606,10 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="retain a cleanly stopped temporary state for later promotion",
     )
+    mark(down.add_argument(
+        "--expected-generation",
+        help="stop only this exact topology generation, including interrupted startup",
+    ), "none")
     down.add_argument("--json", action="store_true")
 
     state = commands.add_parser("state", help="register persistent server state")
@@ -1665,11 +1669,12 @@ def main(arguments: list[str] | None = None) -> int:
                 options.name, options.service, options.tail, options.follow
             )
         elif options.command == "down":
-            status = (
-                workspace.topology_down(options.name, retain_state=True)
-                if options.retain_state
-                else workspace.topology_down(options.name)
-            )
+            down_options: dict[str, Any] = {}
+            if options.retain_state:
+                down_options["retain_state"] = True
+            if options.expected_generation is not None:
+                down_options["expected_generation"] = options.expected_generation
+            status = workspace.topology_down(options.name, **down_options)
             if options.json:
                 print(json.dumps(status, indent=2, sort_keys=True))
             else:
