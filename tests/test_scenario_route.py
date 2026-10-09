@@ -290,7 +290,7 @@ class ScenarioRouteTests(unittest.TestCase):
         with mock.patch.object(scenario_route.os, "fsync", fail_staging_removal_sync):
             with self.assertRaisesRegex(WorkspaceError, "cannot publish"):
                 scenario_route._publish_pair(output, ROUTE, b"{}\n")
-        self.assertEqual(directory_syncs, 2)
+        self.assertEqual(directory_syncs, 4)
         self.assertEqual(list(self.root.iterdir()), [])
 
     def test_failed_publication_removes_route_before_provenance(self):
@@ -299,10 +299,22 @@ class ScenarioRouteTests(unittest.TestCase):
         real_fsync = scenario_route.os.fsync
         real_rename = scenario_route._rename_noreplace
         removed = []
+        directory_syncs = 0
 
         def fail_directory_sync(descriptor):
+            nonlocal directory_syncs
             if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
-                raise OSError("publication sync failed")
+                directory_syncs += 1
+                if directory_syncs == 1:
+                    raise OSError("publication sync failed")
+                if directory_syncs == 2:
+                    self.assertEqual(removed, ["route"])
+                    self.assertFalse(output.exists())
+                    self.assertTrue(companion.exists())
+                if directory_syncs == 3:
+                    self.assertEqual(removed, ["route", "provenance"])
+                    self.assertFalse(output.exists())
+                    self.assertFalse(companion.exists())
             return real_fsync(descriptor)
 
         def observe_claim(directory, name, claim):
@@ -319,6 +331,47 @@ class ScenarioRouteTests(unittest.TestCase):
             with self.assertRaisesRegex(WorkspaceError, "cannot publish"):
                 scenario_route._publish_pair(output, ROUTE, b"{}\n")
         self.assertEqual(removed, ["route", "provenance"])
+        self.assertEqual(directory_syncs, 3)
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_route_rollback_sync_failure_retains_provenance(self):
+        output = self.root / "route.xml"
+        companion = Path(str(output) + ".provenance.json")
+        real_fsync = scenario_route.os.fsync
+        directory_syncs = 0
+
+        def fail_publication_and_route_removal_sync(descriptor):
+            nonlocal directory_syncs
+            if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
+                directory_syncs += 1
+                raise OSError("directory sync failed")
+            return real_fsync(descriptor)
+
+        with mock.patch.object(scenario_route.os, "fsync", fail_publication_and_route_removal_sync):
+            with self.assertRaisesRegex(WorkspaceError, "rollback; provenance retained"):
+                scenario_route._publish_pair(output, ROUTE, b"{}\n")
+        self.assertEqual(directory_syncs, 2)
+        self.assertFalse(output.exists())
+        self.assertEqual(companion.read_bytes(), b"{}\n")
+        self.assertEqual(set(self.root.iterdir()), {companion})
+
+    def test_provenance_rollback_sync_failure_reports_incomplete_durability(self):
+        output = self.root / "route.xml"
+        real_fsync = scenario_route.os.fsync
+        directory_syncs = 0
+
+        def fail_publication_and_provenance_removal_sync(descriptor):
+            nonlocal directory_syncs
+            if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
+                directory_syncs += 1
+                if directory_syncs in (1, 3):
+                    raise OSError("directory sync failed")
+            return real_fsync(descriptor)
+
+        with mock.patch.object(scenario_route.os, "fsync", fail_publication_and_provenance_removal_sync):
+            with self.assertRaisesRegex(WorkspaceError, "provenance rollback"):
+                scenario_route._publish_pair(output, ROUTE, b"{}\n")
+        self.assertEqual(directory_syncs, 3)
         self.assertEqual(list(self.root.iterdir()), [])
 
     def test_failed_or_interrupted_route_removal_retains_provenance(self):
@@ -441,8 +494,12 @@ class ScenarioRouteTests(unittest.TestCase):
         replacement.write_bytes(b"other-owner")
         real_fsync = scenario_route.os.fsync
 
+        replaced = False
+
         def replace_before_directory_sync(descriptor):
-            if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode):
+            nonlocal replaced
+            if stat.S_ISDIR(scenario_route.os.fstat(descriptor).st_mode) and not replaced:
+                replaced = True
                 companion.unlink()
                 companion.symlink_to(replacement.name)
                 raise OSError("publication sync failed")

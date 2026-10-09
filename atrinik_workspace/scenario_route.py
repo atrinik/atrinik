@@ -258,10 +258,24 @@ def _publish_pair(output: Path, route: bytes, provenance: bytes) -> None:
                 # fails or is interrupted, the surviving route remains pinned.
                 if route_published and published_route_identity is not None:
                     _unlink_owned(directory, output.name, published_route_identity)
+                    # A crash must not restore the route after provenance is
+                    # removed. Sync failure leaves its companion in place.
+                    try:
+                        os.fsync(directory)
+                    except OSError as error:
+                        raise WorkspaceError(
+                            "cannot persist walking-route rollback; provenance retained"
+                        ) from error
                 if provenance_published and published_provenance_identity is not None:
                     _unlink_owned(
                         directory, companion.name, published_provenance_identity
                     )
+                    try:
+                        os.fsync(directory)
+                    except OSError as error:
+                        raise WorkspaceError(
+                            "cannot persist walking-route provenance rollback"
+                        ) from error
         finally:
             try:
                 if route_staging and route_identity is not None:
