@@ -325,6 +325,10 @@ def _dynamic_candidates(
             )
             if role in stack.providers
         ]
+        topology_roles = {
+            "client": "classic-client",
+            "server": "classic-server",
+        }
         return [
             *(
                 ["all"]
@@ -332,6 +336,16 @@ def _dynamic_candidates(
                     manifest.effective_build(stack_name, stack.providers[role])
                     != "none"
                     for role in all_roles
+                )
+                else []
+            ),
+            *(
+                ["topology"]
+                if all(
+                    role in stack.providers
+                    and manifest.effective_build(stack_name, stack.providers[role])
+                    == adapter
+                    for role, adapter in topology_roles.items()
                 )
                 else []
             ),

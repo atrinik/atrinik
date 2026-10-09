@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import json
 from pathlib import Path
+import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest import mock
@@ -20,6 +21,46 @@ from atrinik_workspace.model import WorkspaceError
 
 
 class ParserTests(unittest.TestCase):
+    def test_down_generation_fence_parser_and_dispatch(self) -> None:
+        generation = "b" * 64
+        parsed = parser().parse_args(["down", "review", "--expected-generation", generation])
+        self.assertEqual(parsed.expected_generation, generation)
+        for retain in (False, True):
+            with self.subTest(retain=retain), mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+                arguments = ["down", "review", "--expected-generation", generation, "--json"]
+                expected = {"expected_generation": generation}
+                if retain:
+                    arguments.append("--retain-state")
+                    expected["retain_state"] = True
+                workspace_type.return_value.topology_down.return_value = {"stopped": True}
+                with mock.patch("builtins.print"):
+                    self.assertEqual(main(arguments), 0)
+                workspace_type.return_value.topology_down.assert_called_once_with("review", **expected)
+
+    def test_down_without_generation_preserves_ordinary_dispatch(self) -> None:
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type, mock.patch("builtins.print"):
+            self.assertEqual(main(["down", "review"]), 0)
+        workspace_type.return_value.topology_down.assert_called_once_with("review")
+
+    def test_down_malformed_generation_is_rejected_by_existing_boundary(self) -> None:
+        from atrinik_workspace.workspace import Workspace
+
+        for generation in ("", "a" * 63, "A" * 64, "g" * 64):
+            with self.subTest(generation=generation), tempfile.TemporaryDirectory() as directory:
+                target = SimpleNamespace(
+                    _topology_directory=lambda _name: Path(directory),
+                    topology_status=mock.Mock(return_value={"control": {"generation": "a" * 64}}),
+                    _controlled_topology_down=mock.Mock(),
+                )
+                with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+                    workspace_type.return_value.topology_down.side_effect = (
+                        lambda *args, **kwargs: Workspace.topology_down(target, *args, **kwargs)
+                    )
+                    with mock.patch("sys.stderr", new_callable=io.StringIO) as error:
+                        self.assertEqual(main(["down", "review", "--expected-generation", generation]), 1)
+                    self.assertIn("topology generation changed", error.getvalue())
+                target._controlled_topology_down.assert_not_called()
+
     def test_supervised_listener_dispatch_and_invalid_cli_values(self) -> None:
         for command, method in ((["up"], "topology_up"),
                                 (["dev", "up"], "dev_up"),
@@ -312,6 +353,21 @@ class ParserTests(unittest.TestCase):
             "review", apply=True, plan_sha256="a" * 64
         )
 
+    def test_cleanup_exact_build_root_dispatch(self) -> None:
+        name = "review-aaaaaaaaaaaa"
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type, mock.patch(
+            "sys.stdout", new_callable=io.StringIO
+        ):
+            workspace_type.return_value.cleanup.return_value = {
+                "items": [], "summary": {"error_count": 0},
+            }
+            self.assertEqual(main([
+                "cleanup", "--scope", "builds", "--build-root", name, "--json"
+            ]), 0)
+        workspace_type.return_value.cleanup.assert_called_once_with(
+            ["builds"], 7, [], False, build_root=name
+        )
+
     def test_cleanup_accepts_the_explicit_topologies_scope(self) -> None:
         options = parser().parse_args(["cleanup", "--scope", "topologies"])
         self.assertEqual(options.scope, ["topologies"])
@@ -365,7 +421,7 @@ class ParserTests(unittest.TestCase):
                 result = main(["cleanup", "--dry-run", "--json"])
 
         self.assertEqual(result, 0)
-        workspace_type.return_value.cleanup.assert_called_once_with([], 7, [], False)
+        workspace_type.return_value.cleanup.assert_called_once_with([], 7, [], False, build_root=None)
         self.assertEqual(json.loads(output.call_args.args[0]), report)
 
     def test_cleanup_json_preserves_exact_numeric_byte_fields(self) -> None:
@@ -443,7 +499,7 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(result, 1)
         workspace_type.return_value.cleanup.assert_called_once_with(
-            ["worktrees", "builds"], 0, ["classic-client"], True
+            ["worktrees", "builds"], 0, ["classic-client"], True, build_root=None
         )
         workspace_type.return_value.cleanup_acknowledge.assert_not_called()
 
@@ -743,6 +799,91 @@ class ParserTests(unittest.TestCase):
         workspace_type.return_value.build.assert_called_once_with(
             "resources", "default", False, force_reconfigure=False, use_ccache=True, expected_plan="b" * 64)
         workspace_type.return_value.build_plan.assert_not_called()
+
+    def test_topology_build_plan_and_execution_use_public_build_contract(self) -> None:
+        plan = {"plan_sha256": "a" * 64, "build_root": "/topology-build"}
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.build_plan.return_value = plan
+            workspace_type.return_value.build.return_value = Path(
+                "/topology-build"
+            )
+            with mock.patch("sys.stdout", new_callable=io.StringIO):
+                self.assertEqual(
+                    main(
+                        [
+                            "build",
+                            "topology",
+                            "--profile",
+                            "classic",
+                            "--plan",
+                            "--json",
+                        ]
+                    ),
+                    0,
+                )
+                self.assertEqual(
+                    main(
+                        [
+                            "build",
+                            "topology",
+                            "--profile",
+                            "classic",
+                            "--expected-plan",
+                            "a" * 64,
+                        ]
+                    ),
+                    0,
+                )
+
+        workspace_type.return_value.build_plan.assert_called_once_with(
+            "topology",
+            "classic",
+            False,
+            force_reconfigure=False,
+            use_ccache=True,
+        )
+        workspace_type.return_value.build.assert_called_once_with(
+            "topology",
+            "classic",
+            False,
+            force_reconfigure=False,
+            use_ccache=True,
+            expected_plan="a" * 64,
+        )
+
+    def test_topology_build_execution_prints_exact_prebuilt_receipt(self) -> None:
+        digest = "b" * 64
+        for structured in (False, True):
+            with self.subTest(structured=structured), mock.patch(
+                "atrinik_workspace.cli.Workspace"
+            ) as workspace_type, mock.patch(
+                "sys.stdout", new_callable=io.StringIO
+            ) as output:
+                workspace_type.return_value.build.return_value = Path(
+                    "/topology-build"
+                )
+                workspace_type.return_value.prebuilt_build_digest = digest
+                arguments = [
+                    "build", "topology", "--profile", "classic",
+                    "--expected-plan", "a" * 64,
+                ]
+                if structured:
+                    arguments.append("--json")
+                self.assertEqual(main(arguments), 0)
+
+            if structured:
+                self.assertEqual(
+                    json.loads(output.getvalue()),
+                    {
+                        "build_root": "/topology-build",
+                        "prebuilt_build": digest,
+                    },
+                )
+            else:
+                self.assertEqual(
+                    output.getvalue().splitlines(),
+                    ["/topology-build", f"prebuilt-build\t{digest}"],
+                )
 
     def test_retained_content_build_plan_and_execution_forward_same_commit(self) -> None:
         commit = "c" * 40
@@ -1569,6 +1710,29 @@ class ParserTests(unittest.TestCase):
         )
         output.assert_called_once_with("topology review: started at 127.0.0.1:17300")
 
+    def test_up_forwards_exact_prebuilt_build_only_when_requested(self) -> None:
+        digest = "c" * 64
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.topology_up.return_value = {}
+            with mock.patch("builtins.print"):
+                result = main(
+                    [
+                        "up", "--profile", "classic",
+                        "--prebuilt-build", digest,
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.topology_up.assert_called_once_with(
+            "classic",
+            "classic",
+            "default",
+            None,
+            None,
+            state_mode=None,
+            prebuilt_build=digest,
+        )
+
     def test_topology_state_policy_options_are_mutually_exclusive(self) -> None:
         temporary = parser().parse_args(
             ["up", "--profile", "review", "--temporary-state"]
@@ -1962,6 +2126,166 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         self.assertEqual(json.loads(output.call_args.args[0]), summary)
+
+    def test_scenario_route_dispatches_a_path_without_extra_controls(self) -> None:
+        summary = {
+            "scenario": "brynknot-review",
+            "output": "/tmp/brynknot.xml",
+            "producer": "brynknot-v1",
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_route.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "scenario", "route", "brynknot-review",
+                        "--output", "/tmp/brynknot.xml", "--json",
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.scenario_route.assert_called_once_with(
+            "brynknot-review", Path("/tmp/brynknot.xml")
+        )
+        self.assertEqual(json.loads(output.call_args.args[0]), summary)
+        with mock.patch("sys.stderr", new_callable=io.StringIO):
+            with self.assertRaises(SystemExit):
+                parser().parse_args(
+                    [
+                        "scenario", "route", "brynknot-review",
+                        "--output", "/tmp/brynknot.xml", "--producer", "other",
+                    ]
+                )
+
+    def test_scenario_benchmark_dispatches_bounded_public_options(self) -> None:
+        summary = {
+            "name": "brynknot-run",
+            "status": "success",
+            "evidence": "/workspace/topologies/brynknot-run/benchmark",
+        }
+        with mock.patch("atrinik_workspace.cli.Workspace") as workspace_type:
+            workspace_type.return_value.scenario_benchmark.return_value = summary
+            with mock.patch("builtins.print") as output:
+                result = main(
+                    [
+                        "scenario", "benchmark", "brynknot-review",
+                        "--name", "brynknot-run",
+                        "--route", "/tmp/brynknot.xml",
+                        "--timeout", "900", "--json",
+                    ]
+                )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.scenario_benchmark.assert_called_once_with(
+            "brynknot-review",
+            "brynknot-run",
+            Path("/tmp/brynknot.xml"),
+            900,
+        )
+        self.assertEqual(json.loads(output.call_args.args[0]), summary)
+        with mock.patch("sys.stderr", new_callable=io.StringIO):
+            with self.assertRaises(SystemExit):
+                parser().parse_args(
+                    [
+                        "scenario", "benchmark", "brynknot-review",
+                        "--name", "brynknot-run",
+                        "--route", "/tmp/brynknot.xml",
+                        "--client-argument", "--unsafe",
+                    ]
+                )
+
+    def test_scenario_benchmark_capture_dispatches_requested_options(self) -> None:
+        summary = {
+            "name": "brynknot-run",
+            "status": "success",
+            "evidence": "/workspace/topologies/brynknot-run/benchmark",
+        }
+        cases = (
+            (["--capture"], {"capture": True}),
+            (["--record-video"], {"record_video": True}),
+            (
+                ["--capture", "--lighting-phase", "full-moon"],
+                {"capture": True, "lighting_phase": "full-moon"},
+            ),
+        )
+        for extra, expected in cases:
+            with self.subTest(extra=extra), mock.patch(
+                "atrinik_workspace.cli.Workspace"
+            ) as workspace_type, mock.patch("builtins.print"):
+                workspace_type.return_value.scenario_benchmark.return_value = summary
+                result = main(
+                    [
+                        "scenario", "benchmark", "brynknot-review",
+                        "--name", "brynknot-run",
+                        "--route", "/tmp/brynknot.xml",
+                        *extra,
+                    ]
+                )
+
+            self.assertEqual(result, 0)
+            workspace_type.return_value.scenario_benchmark.assert_called_once_with(
+                "brynknot-review",
+                "brynknot-run",
+                Path("/tmp/brynknot.xml"),
+                None,
+                **expected,
+            )
+
+    def test_scenario_benchmark_forwards_exact_prebuilt_build(self) -> None:
+        digest = "d" * 64
+        summary = {
+            "name": "brynknot-run",
+            "status": "success",
+            "evidence": "/workspace/topologies/brynknot-run/benchmark",
+        }
+        with mock.patch(
+            "atrinik_workspace.cli.Workspace"
+        ) as workspace_type, mock.patch("builtins.print"):
+            workspace_type.return_value.scenario_benchmark.return_value = summary
+            result = main(
+                [
+                    "scenario", "benchmark", "brynknot-review",
+                    "--name", "brynknot-run",
+                    "--route", "/tmp/brynknot.xml",
+                    "--prebuilt-build", digest,
+                ]
+            )
+
+        self.assertEqual(result, 0)
+        workspace_type.return_value.scenario_benchmark.assert_called_once_with(
+            "brynknot-review",
+            "brynknot-run",
+            Path("/tmp/brynknot.xml"),
+            None,
+            prebuilt_build=digest,
+        )
+
+    def test_scenario_benchmark_lighting_requires_capture_before_workspace(self) -> None:
+        with mock.patch(
+            "atrinik_workspace.cli.Workspace"
+        ) as workspace_type, mock.patch("sys.stderr", new_callable=io.StringIO):
+            with self.assertRaises(SystemExit) as raised:
+                main(
+                    [
+                        "scenario", "benchmark", "brynknot-review",
+                        "--name", "brynknot-run",
+                        "--route", "/tmp/brynknot.xml",
+                        "--lighting-phase", "day",
+                    ]
+                )
+
+        self.assertEqual(raised.exception.code, 2)
+        workspace_type.assert_not_called()
+        with mock.patch("sys.stderr", new_callable=io.StringIO):
+            with self.assertRaises(SystemExit):
+                parser().parse_args(
+                    [
+                        "scenario", "benchmark", "brynknot-review",
+                        "--name", "brynknot-run",
+                        "--route", "/tmp/brynknot.xml",
+                        "--capture", "--lighting-phase", "dawn",
+                    ]
+                )
 
     def test_scenario_list_human_output_identifies_inert_records(self) -> None:
         summaries = [

@@ -1001,6 +1001,20 @@ def copy_workspace_fixture(template: Path, destination: Path) -> None:
     shutil.copytree(template, destination, dirs_exist_ok=True, symlinks=True)
 
 
+def benchmark_competing_lease_process(root: str, topology: str, scenario: str, results) -> None:
+    outcomes = {}
+    for kind, coordinate in (("topology", topology), ("scenario", scenario),
+                             ("topology", "disjoint-benchmark")):
+        try:
+            with resource_locks(Path(root), [
+                LeaseRequest(kind, coordinate, "exclusive", "competing benchmark writer", "retry")
+            ], nonblocking=True):
+                outcomes[coordinate] = "acquired"
+        except LockBusyError:
+            outcomes[coordinate] = "busy"
+    results.put(outcomes)
+
+
 class WorkspaceTests(unittest.TestCase):
     def test_observation_configuration_requires_exact_flat_stable_origins(self):
         checkout = self.seeds["resources"]
@@ -7050,6 +7064,97 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(actual, expected)
         selected = build_resolved.call_args.args[4]
         self.assertEqual(set(selected), {"content"})
+
+    def test_topology_build_matches_normal_paired_launch_sources_and_key(
+        self,
+    ) -> None:
+        plan = self.workspace.build_plan("topology", "default")
+        normal_selected = self.workspace._resolve_build_profile(
+            "default", {"client", "server"}
+        )
+        normal_summary = self.workspace.topology_summary(
+            "default", "default", ["server", "client"]
+        )
+        self.assertEqual(plan["targets"], ["client", "server"])
+        self.assertEqual(
+            plan["sources"],
+            {
+                role: str(path)
+                for role, path in sorted(normal_selected.items())
+            },
+        )
+        self.assertEqual(plan["sources"], plan["execution_sources"])
+        self.assertEqual(plan["build_root"], normal_summary["build_root"])
+        for role in ("resources", "sound"):
+            self.assertEqual(
+                Path(plan["execution_sources"][role]), normal_selected[role]
+            )
+            self.assertNotIn(
+                self.workspace.paths.builds / "source-generations",
+                Path(plan["execution_sources"][role]).parents,
+            )
+        self.assertEqual(
+            set(plan["sources"]),
+            {
+                "client",
+                "content",
+                "libatrinik",
+                "protocol",
+                "resources",
+                "server",
+                "sound",
+            },
+        )
+        execution_sources = {
+            role: Path(path)
+            for role, path in plan["execution_sources"].items()
+        }
+        self.assertEqual(
+            plan["build_key"],
+            self.workspace._profile_build_key("default", execution_sources),
+        )
+
+        expected = Path(plan["build_root"])
+        with mock.patch.object(
+            self.workspace, "_build_resolved", return_value=expected
+        ) as build_resolved:
+            self.assertEqual(
+                self.workspace.build(
+                    "topology",
+                    "default",
+                    False,
+                    expected_plan=plan["plan_sha256"],
+                ),
+                expected,
+            )
+        self.assertEqual(
+            build_resolved.call_args.args[:4],
+            ("topology", "default", False, ["client", "server"]),
+        )
+        self.assertEqual(
+            {
+                role: str(path)
+                for role, path in sorted(build_resolved.call_args.args[4].items())
+            },
+            plan["execution_sources"],
+        )
+        self.assertNotIn("build_services", build_resolved.call_args.kwargs)
+
+        with mock.patch.object(self.workspace, "_build_resolved") as rejected:
+            with self.assertRaisesRegex(WorkspaceError, "plan changed"):
+                self.workspace.build(
+                    "topology", "default", False, expected_plan="0" * 64
+                )
+        rejected.assert_not_called()
+
+    def test_topology_build_rejects_stack_without_playable_contracts(self) -> None:
+        with mock.patch.object(
+            self.workspace.manifest, "effective_build", return_value="none"
+        ):
+            with self.assertRaisesRegex(
+                WorkspaceError, "no wrapper build/runtime contract"
+            ):
+                self.workspace.build_plan("topology", "default")
 
     def test_integrated_classic_build_requires_one_complete_monorepo(self) -> None:
         checkout = self.root / "classic"
@@ -21907,6 +22012,367 @@ class WorkspaceTests(unittest.TestCase):
             )
 
         fallback.assert_called_once_with("empty-lease", status, 0.1)
+
+    def test_benchmark_shutdown_refuses_changed_generation_before_control(self) -> None:
+        self.workspace._topology_directory("benchmark-fence", create=True)
+        with (
+            mock.patch.object(self.workspace, "topology_status", return_value={
+                "control": {"generation": "new-generation"}
+            }),
+            mock.patch.object(self.workspace, "_controlled_topology_down") as stop,
+            mock.patch.object(self.workspace, "_legacy_topology_down") as legacy,
+            self.assertRaisesRegex(WorkspaceError, "generation changed"),
+        ):
+            self.workspace.topology_down("benchmark-fence", expected_generation="owned-generation")
+        stop.assert_not_called()
+        legacy.assert_not_called()
+
+    def test_benchmark_shutdown_matching_generation_uses_control(self) -> None:
+        self.workspace._topology_directory("benchmark-fence", create=True)
+        status = {"control": {"generation": "owned-generation"}}
+        with (
+            mock.patch.object(self.workspace, "topology_status", return_value=status),
+            mock.patch.object(self.workspace, "_controlled_topology_down", return_value=(status, False)) as stop,
+            mock.patch.object(self.workspace, "_finish_temporary_state_down", return_value=status),
+        ):
+            self.assertEqual(self.workspace.topology_down("benchmark-fence", expected_generation="owned-generation"), status)
+        stop.assert_called_once_with("benchmark-fence", status, 15)
+
+    def test_benchmark_shutdown_stops_exact_generation_before_status_publication(self) -> None:
+        name = "benchmark-starting"
+        generation = "a" * 64
+        root = self.workspace._topology_directory(name, create=True)
+        process_tree = root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+        descriptor = os.open(process_tree, os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            lease = workspace_module.initialize_lease(descriptor, generation)
+        finally:
+            os.close(descriptor)
+        control = {
+            "socket": str(workspace_module.control_socket_path(root, generation)),
+            "generation": generation,
+            "lease": lease,
+        }
+        atomic_json(
+            root / "spec.json",
+            {
+                "name": name,
+                "control": control,
+                "services": {"server": {}, "client": {}},
+            },
+        )
+
+        with (
+            mock.patch.object(
+                workspace_module,
+                "holders_exist",
+                side_effect=[True, False, False, False],
+            ),
+            mock.patch.object(workspace_module, "signal_holders") as signal_tree,
+        ):
+            stopped = self.workspace.topology_down(
+                name, timeout=0.1, expected_generation=generation
+            )
+
+        self.assertEqual(stopped["control"], control)
+        self.assertFalse(stopped["supervisor"]["running"])
+        self.assertEqual(
+            set(stopped["services"]), {"client", "server"}
+        )
+        self.assertTrue(
+            all(not service["running"] for service in stopped["services"].values())
+        )
+        self.assertEqual(
+            stopped["observation"]["process_tree_lease"], "released"
+        )
+        self.assertEqual(signal_tree.call_count, 1)
+        self.assertEqual(signal_tree.call_args.args[1], signal.SIGTERM)
+
+    def test_benchmark_startup_shutdown_rejects_different_generation(self) -> None:
+        name = "benchmark-starting-wrong-generation"
+        generation = "a" * 64
+        root = self.workspace._topology_directory(name, create=True)
+        process_tree = root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+        descriptor = os.open(process_tree, os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            lease = workspace_module.initialize_lease(descriptor, generation)
+        finally:
+            os.close(descriptor)
+        atomic_json(
+            root / "spec.json",
+            {
+                "name": name,
+                "control": {
+                    "socket": str(
+                        workspace_module.control_socket_path(root, generation)
+                    ),
+                    "generation": generation,
+                    "lease": lease,
+                },
+                "services": {"server": {}, "client": {}},
+            },
+        )
+
+        with (
+            mock.patch.object(workspace_module, "signal_holders") as signal_tree,
+            self.assertRaisesRegex(WorkspaceError, "generation changed"),
+        ):
+            self.workspace.topology_down(
+                name, expected_generation="b" * 64
+            )
+        signal_tree.assert_not_called()
+
+    def test_benchmark_startup_shutdown_escalates_exact_lease_holders(self) -> None:
+        name = "benchmark-starting-escalation"
+        generation = "c" * 64
+        root = self.workspace._topology_directory(name, create=True)
+        process_tree = root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+        descriptor = os.open(process_tree, os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            lease = workspace_module.initialize_lease(descriptor, generation)
+        finally:
+            os.close(descriptor)
+        atomic_json(
+            root / "spec.json",
+            {
+                "name": name,
+                "control": {
+                    "socket": str(
+                        workspace_module.control_socket_path(root, generation)
+                    ),
+                    "generation": generation,
+                    "lease": lease,
+                },
+                "services": {"server": {}, "client": {}},
+            },
+        )
+
+        with (
+            mock.patch.object(
+                workspace_module,
+                "holders_exist",
+                side_effect=[True, True, False, False],
+            ),
+            mock.patch.object(workspace_module, "signal_holders") as signal_tree,
+        ):
+            stopped = self.workspace.topology_down(
+                name, timeout=0, expected_generation=generation
+            )
+
+        self.assertFalse(stopped["supervisor"]["running"])
+        self.assertEqual(
+            [call.args[1] for call in signal_tree.call_args_list],
+            [signal.SIGTERM, signal.SIGKILL],
+        )
+
+    def test_benchmark_startup_shutdown_rejects_special_process_tree_lease(self) -> None:
+        name = "benchmark-starting-special-lease"
+        generation = "d" * 64
+        root = self.workspace._topology_directory(name, create=True)
+        process_tree = root / workspace_module.TOPOLOGY_PROCESS_TREE_LEASE
+        os.mkfifo(process_tree, 0o600)
+        atomic_json(
+            root / "spec.json",
+            {
+                "name": name,
+                "control": {
+                    "socket": str(
+                        workspace_module.control_socket_path(root, generation)
+                    ),
+                    "generation": generation,
+                    "lease": {"path": str(process_tree)},
+                },
+                "services": {"server": {}, "client": {}},
+            },
+        )
+
+        with (
+            mock.patch.object(workspace_module, "signal_holders") as signal_tree,
+            self.assertRaisesRegex(
+                WorkspaceError,
+                "process-tree lease|generation changed",
+            ),
+        ):
+            self.workspace.topology_down(
+                name, timeout=0.1, expected_generation=generation
+            )
+        signal_tree.assert_not_called()
+
+    def test_benchmark_launch_rejects_server_only_before_process_creation(self) -> None:
+        with (
+            mock.patch.object(self.workspace, "_require_classic_contracts"),
+            self.assertRaisesRegex(WorkspaceError, "server/client pair"),
+        ):
+            self.workspace._topology_up("benchmark-pair", "default", "scenario-review", ["server"],
+                                        scenario_benchmark={})
+        self.assertFalse((self.workspace.paths.topologies / "benchmark-pair" / "spec.json").exists())
+
+    def test_generation_publication_callback_is_benchmark_only(self) -> None:
+        callback = mock.Mock()
+        with self.assertRaisesRegex(
+            WorkspaceError, "publication callback requires a benchmark"
+        ):
+            self.workspace.topology_up(
+                "callback-without-benchmark",
+                "default",
+                "default",
+                ["server"],
+                generation_published=callback,
+            )
+        callback.assert_not_called()
+
+    def test_benchmark_deadline_callback_is_benchmark_only(self) -> None:
+        for operation in (self.workspace.topology_up, self.workspace._topology_up):
+            with self.assertRaisesRegex(WorkspaceError, "requires a benchmark"):
+                operation("deadline-only", "default", "default", ["server"],
+                          benchmark_deadline=lambda: 1.0)
+
+    def test_benchmark_deadline_callback_passes_through_startup_leases(self) -> None:
+        deadline = lambda: 10.0
+        with (
+            mock.patch.object(self.workspace, "_scope_topology_owner", return_value=None),
+            mock.patch.object(self.workspace, "_retained_runtime_plan", return_value=None),
+            mock.patch.object(self.workspace, "_resolved_profile_operation"),
+            mock.patch.object(self.workspace, "_topology_up", return_value={}) as startup,
+        ):
+            self.workspace.topology_up("deadline-pass", "default", "scenario-review", ["server", "client"],
+                                       scenario_benchmark={}, benchmark_deadline=deadline)
+        self.assertIs(startup.call_args.kwargs["benchmark_deadline"], deadline)
+
+    def test_expired_benchmark_deadline_prevents_detached_startup(self) -> None:
+        with (mock.patch.object(workspace_module.time, "monotonic", return_value=11.0),
+              mock.patch.object(workspace_module.subprocess, "Popen") as launch):
+            with self.assertRaisesRegex(WorkspaceError, "benchmark deadline expired"):
+                self.workspace._start_topology_supervisor(["fixture"], launch_deadline=11.0)
+        launch.assert_not_called()
+
+    def test_benchmark_ready_before_deadline_returns_without_extending_it(self) -> None:
+        root = self.workspace._topology_directory("ready-success", create=True)
+        atomic_json(root / "status.json", {})
+        status = {"supervisor": {"running": True}, "ready": True}
+        process = mock.Mock()
+        with (mock.patch.object(self.workspace, "topology_status", return_value=status),
+              mock.patch.object(workspace_module.time, "monotonic", return_value=10.9)):
+            result = self.workspace._wait_topology_startup(
+                "ready-success", root, "generation", process, lambda: None, None, launch_deadline=11.0)
+        self.assertIs(result, status)
+        self.assertAlmostEqual(process.wait.call_args.kwargs["timeout"], 0.1)
+
+    def test_benchmark_readiness_expires_at_one_second_and_normal_startup_keeps_45(self) -> None:
+        root = self.workspace._topology_directory("readiness-budget", create=True)
+        for deadline, expected, message in ((11.0, 11.0, "benchmark deadline expired"),
+                                            (None, 55.0, "failed to start")):
+            with self.subTest(deadline=deadline):
+                clock = [10.0]
+                process = mock.Mock()
+                process.poll.return_value = None
+                def advance(seconds):
+                    clock[0] += seconds
+                with (mock.patch.object(workspace_module.time, "monotonic", side_effect=lambda: clock[0]),
+                      mock.patch.object(workspace_module.time, "sleep", side_effect=advance)):
+                    with self.assertRaisesRegex(WorkspaceError, message):
+                        self.workspace._wait_topology_startup(
+                            "readiness-budget", root, "generation", process, lambda: None, None,
+                            launch_deadline=deadline)
+                self.assertAlmostEqual(clock[0], expected, delta=0.100001)
+                process.wait.assert_not_called()
+
+    def test_benchmark_ready_launcher_wait_uses_only_remaining_budget(self) -> None:
+        root = self.workspace._topology_directory("ready-budget", create=True)
+        atomic_json(root / "status.json", {})
+        status = {"supervisor": {"running": True}, "ready": True}
+        process = mock.Mock()
+        clock = [10.9]
+        def wait(*, timeout):
+            self.assertAlmostEqual(timeout, 0.1)
+            clock[0] = 11.0
+            raise subprocess.TimeoutExpired("supervisor", timeout)
+        process.wait.side_effect = wait
+        with (mock.patch.object(self.workspace, "topology_status", return_value=status),
+              mock.patch.object(workspace_module.time, "monotonic", side_effect=lambda: clock[0])):
+            with self.assertRaisesRegex(WorkspaceError, "benchmark deadline expired"):
+                self.workspace._wait_topology_startup(
+                    "ready-budget", root, "generation", process, lambda: None, None, launch_deadline=11.0)
+        process.wait.assert_called_once()
+
+    def test_benchmark_readiness_return_rechecks_expired_handoff(self) -> None:
+        root = self.workspace._topology_directory("ready-recheck", create=True)
+        atomic_json(root / "status.json", {})
+        status = {"supervisor": {"running": True}, "ready": True}
+        clock = [10.9]
+        def recheck():
+            clock[0] = 11.0
+        with (mock.patch.object(self.workspace, "topology_status", return_value=status),
+              mock.patch.object(workspace_module.time, "monotonic", side_effect=lambda: clock[0])):
+            with self.assertRaisesRegex(WorkspaceError, "benchmark deadline expired"):
+                self.workspace._wait_topology_startup(
+                    "ready-recheck", root, "generation", mock.Mock(), recheck, None, launch_deadline=11.0)
+
+    def test_benchmark_preparation_holds_topology_and_scenario_leases(self) -> None:
+        name = "benchmark-reservation"
+        scenario = "benchmark-review"
+        events = []
+
+        def assert_leases(phase):
+            events.append(phase)
+            context = multiprocessing.get_context("spawn")
+            results = context.Queue()
+            contender = context.Process(target=benchmark_competing_lease_process, args=(
+                str(self.workspace.paths.workspace), name, scenario, results,
+            ))
+            contender.start()
+            try:
+                self.assertEqual(results.get(timeout=10), {
+                    name: "busy", scenario: "busy", "disjoint-benchmark": "acquired",
+                })
+                contender.join(timeout=10)
+                self.assertEqual(contender.exitcode, 0)
+            finally:
+                join_or_stop_processes([contender], 10)
+                results.close()
+            for kind, coordinate in (("topology", name), ("scenario", scenario)):
+                with self.assertRaises(LockBusyError):
+                    with self.workspace._resource_locks([
+                        self.workspace._lease_request(kind, coordinate, "exclusive", "competing writer")
+                    ], nonblocking=True):
+                        self.fail("competing writer acquired reserved coordinate")
+            with self.workspace._resource_locks([
+                self.workspace._lease_request("topology", "disjoint-benchmark", "exclusive", "disjoint writer")
+            ], nonblocking=True):
+                pass
+
+        with (
+            mock.patch.object(self.workspace, "_scope_topology_owner", return_value=None),
+            mock.patch.object(self.workspace, "_retained_runtime_plan", return_value=None),
+            mock.patch.object(self.workspace, "_resolved_profile_operation"),
+            mock.patch.object(self.workspace, "_topology_up", side_effect=lambda *a, **kw: assert_leases("startup")),
+        ):
+            self.workspace.topology_up(
+                name, "default", "scenario-" + scenario, ["server", "client"],
+                scenario_benchmark={}, benchmark_prepared=lambda: assert_leases("preparation"),
+            )
+        self.assertEqual(events, ["preparation", "startup"])
+        for kind, coordinate in (("topology", name), ("scenario", scenario)):
+            with self.workspace._resource_locks([
+                self.workspace._lease_request(kind, coordinate, "exclusive", "released writer")
+            ], nonblocking=True):
+                pass
+
+    def test_benchmark_preparation_refusal_never_starts_topology(self) -> None:
+        with (
+            mock.patch.object(self.workspace, "_scope_topology_owner", return_value=None),
+            mock.patch.object(self.workspace, "_retained_runtime_plan", return_value=None),
+            mock.patch.object(self.workspace, "_resolved_profile_operation"),
+            mock.patch.object(self.workspace, "_topology_up") as startup,
+        ):
+            def refuse():
+                raise WorkspaceError("scenario changed")
+            with self.assertRaisesRegex(WorkspaceError, "scenario changed"):
+                self.workspace.topology_up(
+                    "benchmark-refused", "default", "scenario-review", ["server", "client"],
+                    scenario_benchmark={}, benchmark_prepared=refuse,
+                )
+        startup.assert_not_called()
 
     def test_topology_up_refuses_locked_process_tree_generation(self) -> None:
         root = self.workspace._topology_directory("locked-generation", create=True)

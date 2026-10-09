@@ -238,10 +238,20 @@ Related coordination: [Docker volume/cache I/O (#538)](https://github.com/atrini
 Initialize the selected workspace with `./atrinik status --json` before planning.
 Use `./atrinik build server --profile classic --test --plan --json` to obtain the
 actual future `build_root`, source-generation paths, and `plan_sha256` without
-publishing source generations or build output. Record that returned identity in
-the delivery ledger before execution, then run the same build options with
-`--expected-plan RETURNED_SHA256`. Changed source bytes, Git identities, profile,
-manifest, providers, dependencies, or build options refuse before publication.
+publishing source generations or build output. Use `build topology` when the
+planned build must select the same complete client/server dependency closure and
+build key as a normal paired `up`:
+
+~~~sh
+./atrinik build topology --profile classic --plan --json
+./atrinik build topology --profile classic \
+  --expected-plan RETURNED_PLAN_SHA256
+~~~
+
+Record the returned identity in the delivery ledger before execution, then run
+the same build options with `--expected-plan RETURNED_SHA256`. Changed source
+bytes, Git identities, profile, manifest, providers, dependencies, or build
+options refuse before publication.
 Planning recognizes exact Git LFS pointer and hydrated payload bytes without
 running clean filters; custom clean filters are unsupported and fail closed.
 Topology summaries describe current selections; use the returned build plan,
@@ -758,6 +768,10 @@ Add the complete currently playable classic stack explicitly:
 project, so protocol and libatrinik are compiled once and shared by the client
 and server. A component-specific build such as `build client` or `build server`
 continues to exercise that module's supported standalone FetchContent path.
+`build topology` selects the direct client and server targets plus their complete
+dependency closure, matching the normal paired `up` build root without adding the
+metaserver worker. It supports the standard `--plan` and `--expected-plan` fence;
+`build all --test` remains the full validation command.
 
 ### Incremental Classic development
 
@@ -1144,6 +1158,10 @@ exact Git commit into a wrapper-owned, read-only source generation; the build
 restores entries omitted by repository-owned `export-ignore` release rules
 directly from their recorded Git blob IDs before validating the complete tree;
 then releases that primary's source lease before configure, compile, and tests.
+The reserved `build topology` target instead keeps the normal paired `up` live
+selected-source coordinates and their source leases through the build. Its plan
+and execution therefore derive the same build root that `topology show` reports,
+including clean primary resource and sound providers.
 The manifest may give a logical component strict checkout-relative
 `source_includes` for shared sibling files or directories that its build reads
 outside the logical `source` directory, including narrowly declared files or
@@ -1376,6 +1394,16 @@ marker-owned Worker dependency entries, without changing the filesystem:
 mutates. Repeated `--scope` options combine `worktrees`, `builds`, and the
 opt-in `temporary-states`, `npm-cache`, `compiler-cache`, and `sound-cache`;
 `all` selects all six.
+To select one managed profile build, use `--scope builds --build-root NAME`,
+where `NAME` is the exact final directory name from the inventory, such as
+`rendering-fixes-ac5b65ee46bc`. Preview with `--dry-run --json`, then apply the
+identical request. This selector requires only the `builds` scope and no
+positional filters. Paths, case aliases and unknown names are rejected. It
+excludes every other build, dependency cache and source generation; the selected
+root retains all age, ownership, reference, lease and revalidation protections.
+The exact name is included in reports and recovery receipt identity. Existing
+pending receipts must be retried with the same selector even after removal.
+
 Topology history is a separate opt-in `topologies` scope and is deliberately
 excluded from both the default and `all`, so a broad cache/worktree cleanup
 cannot silently expand to runtime history.
@@ -1808,6 +1836,83 @@ This preset places the character and savebed on `/shattered_islands/world_0_70`
 at `(20, 8)`, preserves the world clock, and adds no special item. `basic-player`
 continues to use normal first-login placement. Stop the topology before resetting
 `brynknot-review`; account and save creation remain owned by the server provisioner.
+
+Generate the fixed Brynknot movement route from a registered scenario, then run
+it through a fresh supervised server/client topology with an absolute route path:
+
+~~~sh
+./atrinik scenario route brynknot-review --output /tmp/brynknot-route.xml
+./atrinik scenario benchmark brynknot-review --name brynknot-run \
+  --route /tmp/brynknot-route.xml --json
+./atrinik scenario benchmark brynknot-review --name brynknot-capture \
+  --route /tmp/brynknot-route.xml --capture --json
+./atrinik scenario benchmark brynknot-review --name brynknot-video \
+  --route /tmp/brynknot-route.xml --record-video --json
+./atrinik scenario benchmark brynknot-review --name brynknot-full-moon \
+  --route /tmp/brynknot-route.xml --capture --lighting-phase full-moon --json
+~~~
+
+`scenario route` is an offline, absent-only export. It uses the fixed
+`brynknot-v1` producer, requires clean selected Classic source and content, and
+writes the XML plus a `.provenance.json` companion with their committed source
+identities. It does not start a runtime, edit an account, or change scenario
+state.
+
+`scenario benchmark` requires native Classic support for
+`--live-movement-route` and `--live-movement-report`. It stages the route,
+verifier, report, and summary below the fresh topology's `benchmark/` directory,
+then generation-fences shutdown. It revalidates the scenario under its shared
+lease and reserves the fresh topology root under its exclusive lease through
+startup. The generation is persisted in the benchmark summary before detached
+startup so interrupted operators can use generation-fenced shutdown. After an
+interrupted benchmark, pass the generation saved in its retained summary:
+
+~~~sh
+./atrinik down brynknot-run --expected-generation SAVED_GENERATION
+~~~
+
+The command refuses a different generation, including a later run that reused
+the name. The registered scenario is preserved and is
+never reset. Success requires every real movement checkpoint to publish the
+expected map position and every checkpoint to have presented-frame coverage.
+The terminal summary durably binds the verified frame report by size and
+SHA-256 and records verification and shutdown results. The report records
+per-frame CPU time and GPU host submission/presentation timings; those GPU
+values are host timings, not hardware GPU execution duration.
+The baseline command remains unchanged when optional evidence flags are absent.
+
+`--record-video` requests the single fixed private output
+`benchmark/gameplay.avi`. The wrapper refuses a pre-existing output and accepts
+success only for a bounded, indexed 20 FPS MJPEG AVI with nonzero frames and
+coherent RIFF, stream, timing, frame, and index structure. The summary binds the
+validated recording bytes with SHA-256. This container check
+does not decode the JPEG frames; native playback or frame decoding is separate
+evidence. The client records the complete play window, from entering gameplay
+through disconnect. Recording adds client work, so its timing is not comparable
+to the recording-disabled performance baseline.
+
+`--capture` requests both fixed private evidence files,
+`benchmark/initial.png` and `benchmark/final.png`. Each must be an exclusive,
+hash-validated PNG of at most 64 MiB; a run requesting capture fails unless both
+are present and their bounded compressed data and scanlines validate.
+Capture happens outside the measured walking interval while
+remaining inside the global and step deadlines. Its manifest records
+`started_utc_us` and the complete pinned native source/content identity.
+
+`--lighting-phase` accepts only `day`, `new-moon`, or `full-moon` and
+requires `--capture`. Before the first checkpoint, the client sends the one
+fixed normal server command and waits for a fresh MAP update, primary
+presentation, and clock observation. The runtime operator must first verify the
+isolated default operator privilege used for this lighting run. A rejected
+command fails within the existing bounds. The wrapper does not grant operator
+privilege or edit accounts, player saves, or scenario state.
+
+Failures return nonzero and retain bounded evidence for diagnosis. Route input
+is limited to 8 MiB and 50,000 checkpoints, runtime is limited to one hour, and
+the native report is limited to 128 MiB. `--timeout SECONDS` may select a shorter
+runtime bound covering generation publication, detached startup, readiness,
+and gameplay. Generation-fenced shutdown and evidence verification retain
+their separate bounds and may finish after that runtime deadline.
 
 For book-writing reproduction, select a Classic server build that supports
 `writing-books`. It supplies writable books, a pen, Literacy, and Inscription

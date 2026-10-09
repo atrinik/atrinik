@@ -395,6 +395,15 @@ standalone `build client` or `build server` CMake trees. The full source
 closure remains under shared profile/source leases even when only one service
 target is compiled.
 
+The public `build topology` target selects the same direct client/server roles
+and dependency closure as an ordinary paired `up`, without the selective CMake
+target behavior of `dev build` or the metaserver worker included by `build all`.
+It retains the same live selected-source coordinates and leases as `up`, rather
+than predicting or publishing clean-primary source generations. Its ordinary
+build-plan observation and `--expected-plan` admission fence therefore name the
+same root reported by `topology show`. The fence binds the prebuild itself; a
+later `up` still re-resolves current sources before warming and launching it.
+
 The selected service set controls both the supervised service manifest and the
 CMake target list. Shared inputs are reconciled and their cache decisions are
 reported; only the selected Classic executable (and the server's required
@@ -571,6 +580,15 @@ of initialization, synchronization, build, or startup. Default and explicit
 exact candidate leases and freshly revalidates that target immediately before
 removal. Busy or newly ambiguous candidates are preserved; completed removals
 are journaled before the ordered sequence continues.
+
+The optional `--build-root NAME` requires exactly `--scope builds` without
+positional filters. It selects one discovered direct child of the managed
+profile-build container by exact name, rejects ambiguous case aliases, and
+passes the selected item through the same marker, age, reference and lease
+checks. It excludes source generations and dependency caches. The typed selector
+participates in the report, request hash, recovery journal and acknowledgement;
+legacy requests keep their original identity. Recovery rejects items outside
+the exact selected root and does not require a removed root to exist again.
 
 Issue/PR delivery ledgers use a separate three-stage terminal state machine.
 An active schema-1 ledger owns its issue, PR, repository/head, worktree, and
@@ -1095,8 +1113,9 @@ profile build key. Topology and scenario records persist the same repository
 and branch coordinates; records from before that identity existed remain inert
 instead of being reinterpreted through a changed manifest. A fully initialized
 classic workspace derives one common buildable role set from the selected
-stack's providers and dependency graph, so `build all --profile classic`,
-component builds, scenarios, and classic launches share incremental output.
+stack's providers and dependency graph, so `build all --profile classic`, the
+fenced `build topology` paired-launch target, component builds, scenarios, and
+classic launches share incremental output.
 Resolution validates each selected physical checkout once before deriving its
 logical role paths and coordinate records. A partial workspace uses only the
 requested target's dependency closure; a preferred checkout that is present

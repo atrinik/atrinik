@@ -33,7 +33,7 @@ import time
 from typing import Any, Callable, Iterator, TextIO
 import zipfile
 
-from . import coordinator_context, runtime_handoff
+from . import coordinator_context, runtime_handoff, prebuilt
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
 from .content_migration import ContentMigration
 from .docker_storage import windows_package_volume_mounts
@@ -188,6 +188,7 @@ CONFIGURE_SCHEMA_VERSION = 2
 COMPILER_CACHE_PURPOSE = "compiler-cache"
 COMPILER_CACHE_MAX_SIZE = "5G"
 TOPOLOGY_SERVICES = ("server", "client")
+TOPOLOGY_BUILD_TARGETS = ("client", "server")
 TOPOLOGY_PROCESS_TREE_LEASE = "process-tree.lease"
 TOPOLOGY_PORT_RESERVATION_RECORD = "port-reservation.json"
 TOPOLOGY_STATUS_SCHEMA_VERSION = 3
@@ -384,6 +385,10 @@ CLASSIC_CLIENT_RUNTIME_SOURCE_EXCLUSIONS = frozenset(
     {".git", "build", "sound", MANAGED_MARKER, "shaders"}
 )
 CLASSIC_CLIENT_RUNTIME_BINARY_EXCLUSIONS = frozenset({"src", "shaders"})
+# CTest fixture roots contain source/build links and are never runtime inputs.
+CLASSIC_SERVER_RUNTIME_BINARY_EXCLUSIONS = frozenset(
+    {"server-test-runtime-seed", "server-test-runtimes"}
+)
 
 
 @dataclass
@@ -562,7 +567,10 @@ def _retained_producer_reads(function):
         expected = keywords.get("retained_build_plan")
         if handoff is None and (issue is not None or attempt is not None or publisher is not None or endpoint is not None):
             raise WorkspaceError("handoff issue/attempt requires --runtime-handoff")
-        if expected is None and handoff is None:
+        prepared = keywords.get("prebuilt_build")
+        if prepared is not None and (expected is not None or handoff is not None):
+            raise WorkspaceError("prebuilt build cannot be combined with retained runtime handoff")
+        if expected is None and handoff is None and prepared is None:
             return function(*arguments, **keywords)
         token = _BUILD_PLAN_GIT.set(True)
         try:
@@ -2206,7 +2214,8 @@ def open_regular_file(
             assert_no_symlink_components(path, description)
         except OSError as error:
             raise WorkspaceError(str(error)) from error
-    flags |= O_CLOEXEC
+    # Nonblocking open lets the regular-file check reject substituted FIFOs.
+    flags |= O_CLOEXEC | getattr(os, "O_NONBLOCK", 0)
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
     descriptor: int | None = None
@@ -2271,8 +2280,11 @@ def load_regular_json(path: Path, description: str, *, limit: int = 4 * 1024 * 1
             or opened.st_size > limit
         ):
             raise WorkspaceError(f"{description} identity is unsafe: {path}")
-        with os.fdopen(descriptor, encoding="utf-8", closefd=False) as stream:
-            return json.load(stream, object_pairs_hook=_reject_duplicate_keys)
+        with os.fdopen(descriptor, "rb", closefd=False) as stream:
+            raw = stream.read(limit + 1)
+        if len(raw) > limit:
+            raise WorkspaceError(f"{description} exceeds its read limit: {path}")
+        return json.loads(raw.decode("utf-8"), object_pairs_hook=_reject_duplicate_keys)
     except (OSError, UnicodeError, ValueError, RecursionError) as error:
         raise WorkspaceError(f"cannot read {description} {path}: {error}") from error
     finally:
@@ -3460,6 +3472,11 @@ class Workspace:
             self.close()
         except BaseException:
             pass
+
+    @property
+    def prebuilt_build_digest(self) -> str | None:
+        """Exact completion receipt published by this thread's last build."""
+        return getattr(self._build_state, "prebuilt_build_digest", None)
 
     @property
     def _force_reconfigure(self) -> bool:
@@ -6127,6 +6144,7 @@ class Workspace:
         names: list[str],
         apply: bool,
         *,
+        build_root: str | None = None,
         _journal_limit: int | None = None,
     ) -> dict[str, Any]:
         # Import lazily so the planner can reuse the workspace lock and metadata
@@ -6135,13 +6153,13 @@ class Workspace:
 
         if not apply:
             return Cleanup(self, journal_limit=_journal_limit).execute(
-                scopes, older_than_days, names, False
+                scopes, older_than_days, names, False, build_root=build_root
             )
         with shared_maintenance_lock(
             self._lease_namespace / "repository-layout.lock"
         ):
             return Cleanup(self, journal_limit=_journal_limit).execute(
-                scopes, older_than_days, names, True
+                scopes, older_than_days, names, True, build_root=build_root
             )
 
     def cleanup_acknowledge(self, report: dict[str, Any]) -> None:
@@ -8854,7 +8872,11 @@ class Workspace:
             raise WorkspaceError("build plan manifest changed; create a fresh workspace")
         if self._expand_build_target(target, profile_name) != targets:
             raise WorkspaceError("build plan target roles changed during admission")
-        predicted = self._planned_build_sources(profile, selected, states)
+        predicted = (
+            dict(selected)
+            if target == "topology"
+            else self._planned_build_sources(profile, selected, states)
+        )
         stack = self.manifest.stack(profile["stack"])
         fingerprints = {}
         for role, source in sorted(selected.items()):
@@ -8954,6 +8976,7 @@ class Workspace:
         force_reconfigure: bool = False, use_ccache: bool = True,
         expected_plan: str | None = None, retained_content_input: str | None = None,
     ) -> Path:
+        self._build_state.prebuilt_build_digest = None
         if retained_content_input is not None and expected_plan is None:
             raise WorkspaceError("retained content build requires --expected-plan")
         if expected_plan is not None and not re.fullmatch(r"[0-9a-f]{64}", expected_plan):
@@ -8964,6 +8987,7 @@ class Workspace:
             self._require_planning_workspace()
         targets = self._expand_build_target(target, profile_name)
         admitted = []
+        admitted_wrapper_heads = []
         def fence(profile, selected, states):
             if expected_plan is None:
                 self.paths.ensure()
@@ -8978,13 +9002,17 @@ class Workspace:
                 target, profile_name, tests, targets, profile, selected, states,
                 force_reconfigure=force_reconfigure, use_ccache=use_ccache, retained_content_input=retained_content_input) != plan:
                 raise WorkspaceError("build inputs changed before mutation")
+            if (target == "topology" and profile["stack"] == "classic"
+                    and platform.system() == "Linux"):
+                admitted_wrapper_heads.append(self._prebuilt_wrapper_head())
             admitted.append(plan)
             self.paths.ensure()
         token = _BUILD_PLAN_GIT.set(expected_plan is not None)
         try:
             with self._resolved_profile_operation(
                 profile_name, set(targets), f"build {target}",
-                materialize_clean_primaries=True, before_materialization=fence,
+                materialize_clean_primaries=target != "topology",
+                before_materialization=fence,
             ) as snapshot:
                 if admitted and {role: str(path) for role, path in snapshot.paths().items()} != admitted[0]["execution_sources"]:
                     raise WorkspaceError("materialized build sources differ from the admitted plan")
@@ -8992,6 +9020,9 @@ class Workspace:
                     target, profile_name, tests, targets, snapshot.paths(),
                     force_reconfigure=force_reconfigure, use_ccache=use_ccache,
                     **({"retained_content_input": retained_content_input} if retained_content_input is not None else {}),
+                    **({"completion_plan": admitted[0],
+                        "completion_wrapper_head": admitted_wrapper_heads[0]}
+                       if admitted_wrapper_heads else {}),
                 )
 
         finally:
@@ -9237,6 +9268,8 @@ class Workspace:
         portable: bool = False,
         retained_runtime_plan: str | None = None,
         retained_content_input: str | None = None,
+        completion_plan: dict[str, Any] | None = None,
+        completion_wrapper_head: str | None = None,
     ) -> Path:
         requested_services = set(targets).intersection(TOPOLOGY_SERVICES)
         selective_build = build_services is not None
@@ -9268,6 +9301,8 @@ class Workspace:
         with self._profile_build_lock(root, profile_name):
             self._guard_recovered_resource("build", root, root.name)
             self._guard_retained_build(root)
+            if completion_plan is not None and self._prebuilt_wrapper_head() != completion_wrapper_head:
+                raise WorkspaceError("prebuilt wrapper changed after producer admission")
             self._force_reconfigure = force_reconfigure
             self._use_ccache = use_ccache
             self._source_view_unchanged = {}
@@ -9283,6 +9318,10 @@ class Workspace:
                 }
             }
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
+            # Verify ownership before retiring evidence; an unmanaged root must
+            # remain untouched even when it contains a private receipt.
+            prebuilt.invalidate(root)
+            self._build_state.prebuilt_build_digest = None
             sound_root = selected.get("sound")
             sound_record: dict[str, Any] | None = None
             gpu_shader: dict[str, Any] | None = None
@@ -9375,7 +9414,151 @@ class Workspace:
                 if self._source_view_unchanged
                 else "not-applicable"
             )
+            if completion_plan is not None:
+                if (target != "topology" or selective_build or portable
+                        or retained_runtime_plan is not None or retained_content_input is not None
+                        or stack.name != "classic" or set(targets) != set(TOPOLOGY_SERVICES)):
+                    raise WorkspaceError("prebuilt completion requires an ordinary paired Classic build")
+                self._build_state.prebuilt_build_digest = self._publish_prebuilt_topology(
+                    root, completion_plan, selected, completion_wrapper_head
+                )
         return root
+
+    @staticmethod
+    def _validate_prebuilt_request(digest, services, retained, build_services) -> None:
+        if (not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+                or set(services) != set(TOPOLOGY_SERVICES)
+                or retained is not None or build_services is not None):
+            raise WorkspaceError("prebuilt build requires an exact receipt SHA-256 and an ordinary paired Classic launch")
+
+    def _prebuilt_topology_root(self, profile_name: str, selected: dict[str, Path]) -> Path:
+        profile = self._load_profile(profile_name, require_file=False)
+        if profile["stack"] != "classic" or platform.system() != "Linux":
+            raise WorkspaceError("prebuilt topology requires Classic on Linux")
+        key = self._profile_build_key(profile_name, selected)
+        root = self.paths.builds / "profiles" / f"{profile_name}-{key}"
+        _managed_path_no_symlinks(root, self.paths.builds)
+        self._guard_recovered_resource("build", root, root.name)
+        self._guard_retained_build(root)
+        marker = prebuilt.read_metadata(root / MANAGED_MARKER, "prebuilt build marker")
+        if marker != {"schema_version": SCHEMA_VERSION, "purpose": f"profile:{profile_name}:{key}"}:
+            raise WorkspaceError("prebuilt build owner does not match selected profile")
+        return root
+
+    def _prebuilt_topology_inputs(self, root: Path, selected: dict[str, Path]):
+        metadata = prebuilt.read_metadata(root / BUILD_METADATA, "prebuilt build metadata")
+        if not isinstance(metadata, dict):
+            raise WorkspaceError("prebuilt build metadata is invalid")
+        sound = validate_sound_record(metadata.get("sound"))
+        selectors = self._runtime_publication_inputs(root, selected, list(TOPOLOGY_SERVICES), Path(sound["root"]))
+        metadata_paths = {
+            "build-marker": root / MANAGED_MARKER,
+            "build-metadata": root / BUILD_METADATA,
+            "profile-resolution": root / PROFILE_RESOLUTION_METADATA,
+        }
+        configurations = {}
+        for role in TOPOLOGY_SERVICES:
+            graph_path = root / "build" / f".{role}-graph.json"
+            graph = prebuilt.read_metadata(graph_path, "prebuilt Classic graph")
+            if (not isinstance(graph, dict) or set(graph) != {"schema_version", "purpose", "graph"}
+                    or graph["schema_version"] != 1 or graph["purpose"] != "classic-build-graph"
+                    or graph["graph"] not in {"standalone", "integrated"}):
+                raise WorkspaceError("prebuilt Classic graph is invalid")
+            metadata_paths[f"{role}-graph"] = graph_path
+            directory = root / "build" / ("integrated" if graph["graph"] == "integrated" else role)
+            path = directory / CONFIGURE_METADATA
+            relative = str(path.relative_to(root))
+            configurations[relative] = prebuilt.read_metadata(path, "prebuilt configure identity")
+            metadata_paths[f"{role}-configure"] = path
+        selectors.update({name: {"path": str(path), "kind": "file", "exclusions": []}
+                          for name, path in metadata_paths.items()})
+        return selectors, configurations
+
+    def _prebuilt_topology_plan(self, plan, profile_name, selected):
+        # Leases remain held; bypass cached discovery so point-of-use proof also
+        # detects same-user Git/profile edits outside cooperating wrappers.
+        snapshot = self._profile_snapshot
+        self._profile_snapshot = None
+        try:
+            profile = self._load_profile(profile_name, require_file=False)
+            fresh = self._resolve_build_profile(profile_name, set(TOPOLOGY_SERVICES), profile=profile, trace=False)
+            if fresh != selected:
+                raise WorkspaceError("prebuilt source coordinates changed")
+            states = self._selected_checkout_states(profile, selected, include_dirty=True, include_identity=True)
+            stack = self.manifest.stack(profile["stack"])
+            for role in sorted(set(selected) & {"client", "server", "protocol", "libatrinik"}):
+                component = stack.providers[role]
+                state = states[component.checkout_name]
+                identities = state.setdefault("package_identity", {})
+                if "." not in identities:
+                    identities["."] = self._classic_package_identity(state["path"], state["path"], state["head"], state["dirty"])
+                identities[component.source] = self._classic_package_identity(state["path"], selected[role], state["head"], state["dirty"])
+            return self._build_plan_observation(
+                "topology", profile_name, plan["tests"], list(TOPOLOGY_BUILD_TARGETS),
+                profile, selected, states, force_reconfigure=plan["force_reconfigure"],
+                use_ccache=plan["use_ccache"],
+            )
+        finally:
+            self._profile_snapshot = snapshot
+
+    def _prebuilt_wrapper_head(self) -> str:
+        head = git(self.paths.repository, "rev-parse", "HEAD", capture=True, trace=False)
+        if (not _read_only_checkout_observation(self.paths.repository)["clean"]
+                or git(self.paths.repository, "rev-parse", "HEAD", capture=True, trace=False) != head):
+            raise WorkspaceError("prebuilt producer and consumer require a clean unchanged wrapper revision")
+        return head
+
+    def _publish_prebuilt_topology(self, root, plan, selected, wrapper_head) -> str:
+        # Only reached after every build and generated runtime input succeeded,
+        # while the same build/source/profile locks still protect the producer.
+        if self._prebuilt_wrapper_head() != wrapper_head:
+            raise WorkspaceError("prebuilt wrapper changed after producer admission")
+        profile_name = plan["profile"]["name"]
+        if (root != self._prebuilt_topology_root(profile_name, selected)
+                or self._prebuilt_topology_plan(plan, profile_name, selected) != plan):
+            raise WorkspaceError("prebuilt build inputs changed before completion")
+        selectors, configurations = self._prebuilt_topology_inputs(root, selected)
+        self._validate_prebuilt_executables(root)
+        producer = {
+            "generation": secrets.token_hex(32), "system": platform.system(),
+            "machine": platform.machine(),
+            "wrapper_head": wrapper_head,
+            "configurations": configurations,
+        }
+        inputs = prebuilt.capture_inputs(selectors)
+        if self._prebuilt_topology_plan(plan, profile_name, selected) != plan:
+            raise WorkspaceError("prebuilt source inputs changed during completion")
+        if self._prebuilt_wrapper_head() != producer["wrapper_head"]:
+            raise WorkspaceError("prebuilt wrapper changed during completion")
+        return prebuilt.publish(root, plan, producer, inputs)
+
+    def _validate_prebuilt_executables(self, root: Path) -> None:
+        for role, executable in (("client", "atrinik"), ("server", "atrinik-server")):
+            path = self._classic_binary_directory(root, role) / executable
+            try:
+                metadata = path.lstat()
+            except OSError as error:
+                raise WorkspaceError(f"prebuilt executable is missing: {path}") from error
+            if (not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1
+                    or metadata.st_uid != os.geteuid() or not metadata.st_mode & stat.S_IXUSR):
+                raise WorkspaceError(f"prebuilt executable is unsafe: {path}")
+
+    def _validate_prebuilt_topology(self, root, profile_name, selected, digest):
+        if root != self._prebuilt_topology_root(profile_name, selected):
+            raise WorkspaceError("prebuilt root differs from selected sources")
+        receipt = prebuilt.load(root, digest)
+        producer = receipt["producer"]
+        if (producer["system"] != platform.system() or producer["machine"] != platform.machine()
+                or producer["wrapper_head"] != self._prebuilt_wrapper_head()):
+            raise WorkspaceError("prebuilt producer platform or wrapper revision differs")
+        if self._prebuilt_topology_plan(receipt["plan"], profile_name, selected) != receipt["plan"]:
+            raise WorkspaceError("prebuilt sources, profile, manifest or build options changed")
+        selectors, configurations = self._prebuilt_topology_inputs(root, selected)
+        if configurations != producer["configurations"]:
+            raise WorkspaceError("prebuilt producer configure identity changed")
+        prebuilt.verify_inputs(selectors, receipt["inputs"])
+        self._validate_prebuilt_executables(root)
+        return receipt
 
     @contextmanager
     def _profile_build_lock(
@@ -10351,6 +10534,13 @@ class Workspace:
         stack = self.manifest.stack(profile["stack"])
         if target == "all":
             targets = [role for role in ALL_BUILD_TARGETS if role in stack.providers]
+        elif target == "topology":
+            self._require_classic_contracts(
+                profile_name, set(TOPOLOGY_SERVICES)
+            )
+            targets = [
+                role for role in TOPOLOGY_BUILD_TARGETS if role in stack.providers
+            ]
         elif target in stack.providers:
             targets = [target]
         else:
@@ -12468,7 +12658,8 @@ class Workspace:
     def _classic_binary_directory(root: Path, role: str) -> Path:
         marker = root / "build" / f".{role}-graph.json"
         try:
-            record = load_json(marker)
+            record = (load_regular_json(marker, "Classic build graph") if IS_WINDOWS
+                      else prebuilt.read_metadata(marker, "Classic build graph"))
         except (OSError, ValueError, WorkspaceError):
             record = {}
         if (
@@ -15010,6 +15201,21 @@ class Workspace:
             self._scenario_directory(scenario_name) / "password"
         )
         return launch, password_fd
+
+    def scenario_route(self, name: str, output: Path) -> dict[str, Any]:
+        from .scenario_route import prepare_route
+        return prepare_route(self, name, output)
+
+    def scenario_benchmark(
+        self, name: str, run_name: str, route: Path, timeout: int | None = None,
+        *, capture: bool = False, lighting_phase: str | None = None,
+        record_video: bool = False, prebuilt_build: str | None = None,
+    ) -> dict[str, Any]:
+        from .scenario_benchmark import run_benchmark
+        return run_benchmark(self, name, run_name, route, timeout,
+                             capture=capture, lighting_phase=lighting_phase,
+                             record_video=record_video,
+                             **({"prebuilt_build": prebuilt_build} if prebuilt_build is not None else {}))
 
     def scenario_reset(self, name: str) -> dict[str, Any]:
         self.paths.ensure()
@@ -19145,13 +19351,13 @@ class Workspace:
         for directory in reversed(directories):
             directory.chmod(stat.S_IMODE(directory.lstat().st_mode) & ~0o222)
 
-    def _runtime_publication_input_digests(
+    def _runtime_publication_inputs(
         self,
         build_root: Path,
         selected: dict[str, Path],
         services: list[str],
         sound_root: Path | None,
-    ) -> dict[str, str]:
+    ) -> dict[str, dict[str, Any]]:
         directories: dict[str, tuple[Path, set[str]]] = {}
         files: dict[str, Path] = {}
         if "client" in services:
@@ -19177,7 +19383,7 @@ class Workspace:
                 {
                     "server-binary": (
                         self._classic_binary_directory(build_root, "server"),
-                        set(),
+                        CLASSIC_SERVER_RUNTIME_BINARY_EXCLUSIONS,
                     ),
                     "server-tools": (source / "tools", set()),
                     "content-lib": (build_root / "runtime" / "content" / "lib", set()),
@@ -19199,14 +19405,20 @@ class Workspace:
             if custom.is_file() and not custom.is_symlink():
                 files["server-server-custom.cfg"] = custom
         return {
-            **{
-                name: _tree_digest(path, exclusions, reject_symlinks=True)
-                for name, (path, exclusions) in sorted(directories.items())
-            },
-            **{
-                name: _file_digest(path, "runtime publication input")
-                for name, path in sorted(files.items())
-            },
+            **{name: {"path": str(path), "kind": "tree", "exclusions": sorted(exclusions)}
+               for name, (path, exclusions) in sorted(directories.items())},
+            **{name: {"path": str(path), "kind": "file", "exclusions": []}
+               for name, path in sorted(files.items())},
+        }
+
+    def _runtime_publication_input_digests(
+        self, build_root: Path, selected: dict[str, Path],
+        services: list[str], sound_root: Path | None,
+    ) -> dict[str, str]:
+        return {
+            name: (_tree_digest(Path(row["path"]), set(row["exclusions"]), reject_symlinks=True)
+                   if row["kind"] == "tree" else _file_digest(Path(row["path"]), "runtime publication input"))
+            for name, row in self._runtime_publication_inputs(build_root, selected, services, sound_root).items()
         }
 
     def _publish_runtime_generation(
@@ -19223,6 +19435,7 @@ class Workspace:
         state: Path | None = None,
         state_directory_fd: int | None = None,
         sound_root: Path | None = None,
+        prebuilt_build: str | None = None,
     ) -> tuple[Path, int, dict[str, Any], int | None]:
         generations = owner_root / "generations"
         generations.mkdir(exist_ok=True)
@@ -19245,6 +19458,10 @@ class Workspace:
         output_transaction = owner_root / RUNTIME_STATE_OUTPUT_TRANSACTION
         topology_output = identity.get("kind") == "topology" and "server" in services
         try:
+            publication_inputs = self._runtime_publication_inputs(build_root, selected, services, sound_root)
+            def input_path(label: str) -> Path:
+                return Path(publication_inputs[label]["path"])
+
             input_digests = self._runtime_publication_input_digests(
                 build_root, selected, services, sound_root
             )
@@ -19259,19 +19476,19 @@ class Workspace:
                 client_runtime = staging / "client"
                 client_runtime.mkdir()
                 self._copy_runtime_directory_contents(
-                    selected["client"],
+                    input_path("client-source"),
                     client_runtime,
-                    CLASSIC_CLIENT_RUNTIME_SOURCE_EXCLUSIONS,
+                    frozenset(publication_inputs["client-source"]["exclusions"]),
                 )
                 self._copy_runtime_tree(
-                    sound_root or selected["sound"],
+                    input_path("sound"),
                     client_runtime / "sound",
-                    frozenset({".git", "build", MANAGED_MARKER}),
+                    frozenset(publication_inputs["sound"]["exclusions"]),
                 )
                 self._copy_runtime_directory_contents(
-                    self._classic_binary_directory(build_root, "client"),
+                    input_path("client-binary"),
                     client_runtime,
-                    CLASSIC_CLIENT_RUNTIME_BINARY_EXCLUSIONS,
+                    frozenset(publication_inputs["client-binary"]["exclusions"]),
                 )
             if "server" in services:
                 if state is None:
@@ -19279,35 +19496,32 @@ class Workspace:
                 server_runtime = staging / "server"
                 server_runtime.mkdir()
                 self._copy_runtime_directory_contents(
-                    self._classic_binary_directory(build_root, "server"),
+                    input_path("server-binary"),
                     server_runtime,
+                    frozenset(publication_inputs["server-binary"]["exclusions"]),
                 )
-                source = selected["server"]
                 self._copy_runtime_tree(
-                    source / "tools", server_runtime / "tools"
+                    input_path("server-tools"), server_runtime / "tools"
                 )
                 for name in ("ca-bundle.crt", "permissions.cfg", "server.cfg"):
-                    self._copy_runtime_regular_file(source / name, server_runtime / name)
-                custom = source / "server-custom.cfg"
-                if custom.is_file() and not custom.is_symlink():
+                    self._copy_runtime_regular_file(input_path(f"server-{name}"), server_runtime / name)
+                if "server-server-custom.cfg" in publication_inputs:
                     self._copy_runtime_regular_file(
-                        custom, server_runtime / "server-custom.cfg"
+                        input_path("server-server-custom.cfg"), server_runtime / "server-custom.cfg"
                     )
-                content = build_root / "runtime" / "content"
                 self._copy_runtime_tree(
-                    content / "lib", server_runtime / "lib"
+                    input_path("content-lib"), server_runtime / "lib"
                 )
                 self._copy_runtime_tree(
-                    content / "maps", server_runtime / "maps"
+                    input_path("content-maps"), server_runtime / "maps"
                 )
-                attribution = content / "attribution"
-                if attribution.is_dir() and not attribution.is_symlink():
-                    self._copy_runtime_tree(attribution, server_runtime / "attribution")
+                if "content-attribution" in publication_inputs:
+                    self._copy_runtime_tree(input_path("content-attribution"), server_runtime / "attribution")
                 for name in ("manifest.json", "compatibility.json"):
-                    if (content / name).is_file() and not (content / name).is_symlink():
-                        self._copy_runtime_regular_file(content / name, server_runtime / name)
+                    if f"content-{name}" in publication_inputs:
+                        self._copy_runtime_regular_file(input_path(f"content-{name}"), server_runtime / name)
                 self._copy_runtime_tree(
-                    build_root / "runtime" / "resources",
+                    input_path("resources"),
                     server_runtime / "resources",
                 )
                 (server_runtime / "data").symlink_to(
@@ -19359,7 +19573,7 @@ class Workspace:
                     )
                 state_output_access = Path(f"/proc/self/fd/{state_output_fd}")
                 os.mkdir("data", dir_fd=state_output_fd)
-                client_maps = build_root / "runtime" / "client-maps"
+                client_maps = input_path("client-maps")
                 self._validate_region_maps(client_maps)
                 self._copy_runtime_tree(
                     client_maps,
@@ -19456,6 +19670,8 @@ class Workspace:
             )
             self._seal_runtime_generation(staging)
             lease_identity = path_record(published / RUNTIME_GENERATION_LEASE)
+            if prebuilt_build is not None:
+                self._validate_prebuilt_topology(build_root, profile_name, selected, prebuilt_build)
             staging.replace(published)
             runtime_record = {
                 "schema_version": RUNTIME_GENERATION_SCHEMA_VERSION,
@@ -21155,9 +21371,23 @@ class Workspace:
         *,
         server_listener: str | None = None,
         retained_build_plan: str | None = None,
+        prebuilt_build: str | None = None,
         build_services: set[str] | None = None,
+        scenario_benchmark: dict[str, str] | None = None,
+        generation_published: Callable[[str], None] | None = None,
+        benchmark_deadline: Callable[[], float] | None = None,
+        benchmark_prepared: Callable[[], None] | None = None,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
+        if prebuilt_build is not None:
+            self._validate_prebuilt_request(
+                prebuilt_build, selected_services, retained_build_plan, build_services
+            )
+        if (generation_published is not None or benchmark_prepared is not None
+                or benchmark_deadline is not None) and scenario_benchmark is None:
+            raise WorkspaceError(
+                "topology generation publication callback requires a benchmark"
+            )
         server_listener = self._normalize_server_listener(server_listener, selected_services)
         normalized_mode, normalized_state = self._normalize_topology_state_request(
             state_mode, state_name, selected_services
@@ -21182,6 +21412,14 @@ class Workspace:
         if retained is not None and (selected_services != ["server"] or build_services is not None):
             raise WorkspaceError("retained advancement supports only its exact server producer")
         def fence(profile, selected, states):
+            if prebuilt_build is not None:
+                root = self._prebuilt_topology_root(profile_name, selected)
+                with self._profile_build_lock(root, profile_name):
+                    self._validate_prebuilt_topology(root, profile_name, selected, prebuilt_build)
+
+            if scenario_benchmark is not None:
+                if not states or any(row.get("dirty") is not False for row in states.values()):
+                    raise WorkspaceError("benchmark requires clean committed sources")
             fresh = self._retained_runtime_plan(name, profile_name, normalized_state, retained_build_plan)
             if fresh != retained:
                 raise WorkspaceError("retained producer declaration changed before mutation")
@@ -21218,6 +21456,8 @@ class Workspace:
                     )
                 )
             with self._resource_locks(requests):
+                if benchmark_prepared is not None:
+                    benchmark_prepared()
                 return self._topology_up(
                     name,
                     profile_name,
@@ -21228,6 +21468,14 @@ class Workspace:
                     build_services=build_services,
                     server_listener=server_listener,
                     retained_build_plan=retained_build_plan,
+                    **({"prebuilt_build": prebuilt_build} if prebuilt_build is not None else {}),
+                    **(
+                        {"generation_published": generation_published}
+                        if generation_published is not None
+                        else {}
+                    ),
+                    **({"benchmark_deadline": benchmark_deadline} if benchmark_deadline is not None else {}),
+                    **({"scenario_benchmark": scenario_benchmark} if scenario_benchmark is not None else {}),
                 )
 
     def _topology_resolved_status(
@@ -21265,11 +21513,23 @@ class Workspace:
         *,
         server_listener: str | None = None,
         retained_build_plan: str | None = None,
+        prebuilt_build: str | None = None,
         build_services: set[str] | None = None,
+        scenario_benchmark: dict[str, str] | None = None,
+        generation_published: Callable[[str], None] | None = None,
+        benchmark_deadline: Callable[[], float] | None = None,
         restart_status: dict[str, Any] | None = None,
         operation_lock_held: bool = False,
     ) -> dict[str, Any]:
         selected_services = self._topology_services(services)
+        if prebuilt_build is not None:
+            self._validate_prebuilt_request(
+                prebuilt_build, selected_services, retained_build_plan, build_services
+            )
+        if (generation_published is not None or benchmark_deadline is not None) and scenario_benchmark is None:
+            raise WorkspaceError(
+                "topology generation publication callback requires a benchmark"
+            )
         server_listener = self._normalize_server_listener(server_listener, selected_services)
         state_mode, state_name = self._normalize_topology_state_request(
             state_mode, state_name, selected_services
@@ -21286,6 +21546,12 @@ class Workspace:
         )
         retained = self._retained_runtime_plan(name, profile_name, state_name, retained_build_plan)
         topology_root = self._topology_directory(name, create=True)
+        benchmark_arguments = []
+        if scenario_benchmark is not None:
+            from .scenario_benchmark import launch_arguments
+            if set(selected_services) != {"client", "server"} or restart_status is not None:
+                raise WorkspaceError("benchmark requires a fresh scenario server/client pair")
+            benchmark_arguments = launch_arguments(scenario_benchmark, topology_root, state_name)
         operation_lock = topology_root / "operation.lock"
         operation_context = (
             nullcontext()
@@ -21387,7 +21653,7 @@ class Workspace:
                 if build_services is not None
                 else [
                     service
-                    for service in ("client", "server")
+                    for service in TOPOLOGY_BUILD_TARGETS
                     if service in selected_services
                 ]
             )
@@ -21490,7 +21756,8 @@ class Workspace:
                 endpoint: dict[str, Any] | None = None
                 port_reservation: dict[str, Any] | None = None
                 port_reservation_owner: list[int] = []
-                if "server" in selected_services:
+                def reserve_port() -> None:
+                    nonlocal endpoint, port_reservation
                     port_reservation_fd, port_reservation = (
                         self._reserve_topology_port(port, name, generation)
                     )
@@ -21510,6 +21777,9 @@ class Workspace:
                         port_reservation,
                     )
 
+                if "server" in selected_services and prebuilt_build is None:
+                    reserve_port()
+
                 state_location: Path | None = None
                 state_lock: TextIO | None = None
                 state_expected_identity: dict[str, int] | None = None
@@ -21524,18 +21794,28 @@ class Workspace:
                     if state_location.exists() or state_location.is_symlink():
                         state_expected_identity = self._state_identity(state_location)
 
-                root = self._build_resolved(
-                    "topology",
-                    profile_name,
-                    False,
-                    targets,
-                    selected,
-                    build_services=build_services,
-                    retained_runtime_plan=retained["plan_sha256"] if retained is not None else None,
-                )
+                if prebuilt_build is not None:
+                    root = self._prebuilt_topology_root(profile_name, selected)
+                else:
+                    root = self._build_resolved(
+                        "topology",
+                        profile_name,
+                        False,
+                        targets,
+                        selected,
+                        build_services=build_services,
+                        retained_runtime_plan=retained["plan_sha256"] if retained is not None else None,
+                    )
                 resolved_status = self._topology_resolved_status(
                     profile_name, selected
                 )
+                if scenario_benchmark is not None:
+                    if not resolved_status or any(row.get("dirty") is not False for row in resolved_status.values()):
+                        raise WorkspaceError("benchmark requires clean committed sources")
+                    if status_path.exists() or status_path.is_symlink():
+                        raise WorkspaceError("benchmark cannot reuse a prior topology generation")
+                    from .scenario_benchmark import validate_source_provenance
+                    validate_source_provenance(topology_root, resolved_status)
                 implementation = (
                     self._state_implementation(
                         selected_stack.name, providers, resolved_status
@@ -21703,7 +21983,13 @@ class Workspace:
                 build_lock = stack.enter_context(
                     self._profile_build_lock(root, profile_name)
                 )
-                build_metadata = load_json(root / BUILD_METADATA)
+                if prebuilt_build is not None:
+                    self._validate_prebuilt_topology(root, profile_name, selected, prebuilt_build)
+                    reserve_port()
+                build_metadata = (
+                    prebuilt.read_metadata(root / BUILD_METADATA, "prebuilt build metadata")
+                    if prebuilt_build is not None else load_json(root / BUILD_METADATA)
+                )
                 sound_status = (
                     build_metadata.get("sound")
                     if isinstance(build_metadata, dict)
@@ -21769,6 +22055,7 @@ class Workspace:
                         state=state,
                         state_directory_fd=state_directory_fd,
                         sound_root=sound_root,
+                        **({"prebuilt_build": prebuilt_build} if prebuilt_build is not None else {}),
                     )
                 )
                 if state_output_fd is not None:
@@ -21857,7 +22144,7 @@ class Workspace:
                     else:
                         client_config.mkdir()
                     service_specs["client"] = {
-                        "command": [str(executable)],
+                        "command": [str(executable), *benchmark_arguments],
                         "cwd": str(client_runtime),
                         "log": str(topology_root / "client.log"),
                         "environment": {
@@ -21938,6 +22225,13 @@ class Workspace:
                     )
                 restart_attempt["spec"] = spec
                 atomic_json(spec_path, spec)
+                if generation_published is not None:
+                    # The exact published coordinate must be visible to callers
+                    # before detached startup can be interrupted. Callers may
+                    # use it only with generation-fenced shutdown.
+                    generation_published(generation)
+                launch_deadline = benchmark_deadline() if benchmark_deadline is not None else None
+                self._benchmark_startup_remaining(launch_deadline)
                 startup_error_path.unlink(missing_ok=True)
 
                 supervisor_log_path = topology_root / "supervisor.log"
@@ -22006,8 +22300,8 @@ class Workspace:
                         tuple(inherited_locks)
                     ) as inheritance:
                         _recheck_runtime_handoff()
-                        process = subprocess.Popen(
-                            command,
+                        process = self._start_topology_supervisor(
+                            command, launch_deadline=launch_deadline,
                             cwd=self.paths.repository,
                             env=environment,
                             stdin=subprocess.DEVNULL,
@@ -22029,89 +22323,147 @@ class Workspace:
                 finally:
                     supervisor_log.close()
 
-                deadline = time.monotonic() + 45
-                while time.monotonic() < deadline:
-                    if startup_error_path.is_file():
-                        if startup_error_path.is_symlink():
-                            raise WorkspaceError(
-                                f"topology startup error is invalid: {name}"
-                            )
-                        failure = load_json(startup_error_path)
-                        if (
-                            not isinstance(failure, dict)
-                            or set(failure) != {"error"}
-                            or not isinstance(failure.get("error"), str)
-                        ):
-                            raise WorkspaceError(
-                                f"topology startup error is invalid: {name}"
-                            )
-                        raise WorkspaceError(
-                            f"topology supervisor failed: {failure['error']}"
-                        )
-                    if status_path.is_file():
-                        try:
-                            status = self.topology_status(name)
-                        except WorkspaceError as error:
-                            if (
-                                str(error)
-                                == f"topology runtime generation lease is not retained: {name}"
-                                and process.poll() is not None
-                            ):
-                                raise WorkspaceError(
-                                    "topology supervisor exited during startup; inspect "
-                                    f"{topology_root / 'supervisor.log'}"
-                                ) from error
-                            raise
-                        runtime = status.get("runtime")
-                        if (
-                            isinstance(runtime, dict)
-                            and runtime.get("generation") == generation
-                        ):
-                            _recheck_runtime_handoff()
-                            self._clear_runtime_state_output_transaction(
-                                topology_root
-                            )
-                        if status.get("error"):
-                            raise WorkspaceError(
-                                f"topology supervisor failed: {status['error']}"
-                            )
-                        if status["supervisor"]["running"] and status["ready"]:
-                            process.wait(timeout=2)
-                            _recheck_runtime_handoff()
-                            if superseded_temporary_policy is not None:
-                                try:
-                                    self._remove_superseded_temporary_state(
-                                        superseded_temporary_policy
-                                    )
-                                except (OSError, WorkspaceError) as error:
-                                    print(
-                                        "warning: development restart left the "
-                                        "previous temporary state for safe cleanup: "
-                                        f"{error}",
-                                        file=sys.stderr,
-                                    )
-                            return status
-                        if not status["supervisor"]["running"]:
-                            raise WorkspaceError(
-                                "topology supervisor exited during startup; inspect "
-                                f"{topology_root / 'supervisor.log'}"
-                            )
-                    if process.poll() not in (None, 0):
-                        break
-                    time.sleep(0.1)
-                raise WorkspaceError(
-                    f"topology supervisor failed to start; inspect "
-                    f"{topology_root / 'supervisor.log'}"
+                return self._wait_topology_startup(
+                    name, topology_root, generation, process, _recheck_runtime_handoff,
+                    superseded_temporary_policy, launch_deadline=launch_deadline,
                 )
 
+    @staticmethod
+    def _benchmark_startup_remaining(deadline: float | None) -> float | None:
+        if deadline is None:
+            return None
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise WorkspaceError("benchmark deadline expired during topology startup")
+        return remaining
+
+    def _start_topology_supervisor(self, command: list[str], *,
+                                   launch_deadline: float | None = None, **options):
+        # Keep the final deadline check adjacent to the detached process launch.
+        self._benchmark_startup_remaining(launch_deadline)
+        return subprocess.Popen(command, **options)
+
+    def _wait_topology_startup(
+        self, name: str, topology_root: Path, generation: str, process,
+        _recheck_runtime_handoff: Callable[[], None], superseded_temporary_policy,
+        *, launch_deadline: float | None = None,
+    ) -> dict[str, Any]:
+        # Called while the original startup leases remain held. Benchmarks share
+        # their publication deadline with readiness; ordinary startup keeps 45s.
+        startup_error_path = topology_root / "startup-error.json"
+        status_path = topology_root / "status.json"
+        deadline = time.monotonic() + 45
+        while time.monotonic() < deadline:
+            self._benchmark_startup_remaining(launch_deadline)
+            if startup_error_path.is_file():
+                if startup_error_path.is_symlink():
+                    raise WorkspaceError(
+                        f"topology startup error is invalid: {name}"
+                    )
+                failure = load_json(startup_error_path)
+                if (
+                    not isinstance(failure, dict)
+                    or set(failure) != {"error"}
+                    or not isinstance(failure.get("error"), str)
+                ):
+                    raise WorkspaceError(
+                        f"topology startup error is invalid: {name}"
+                    )
+                raise WorkspaceError(
+                    f"topology supervisor failed: {failure['error']}"
+                )
+            if status_path.is_file():
+                try:
+                    status = self.topology_status(name)
+                except WorkspaceError as error:
+                    if (
+                        str(error)
+                        == f"topology runtime generation lease is not retained: {name}"
+                        and process.poll() is not None
+                    ):
+                        raise WorkspaceError(
+                            "topology supervisor exited during startup; inspect "
+                            f"{topology_root / 'supervisor.log'}"
+                        ) from error
+                    raise
+                runtime = status.get("runtime")
+                if (
+                    isinstance(runtime, dict)
+                    and runtime.get("generation") == generation
+                ):
+                    _recheck_runtime_handoff()
+                    self._clear_runtime_state_output_transaction(
+                        topology_root
+                    )
+                if status.get("error"):
+                    raise WorkspaceError(
+                        f"topology supervisor failed: {status['error']}"
+                    )
+                if status["supervisor"]["running"] and status["ready"]:
+                    remaining = self._benchmark_startup_remaining(launch_deadline)
+                    try:
+                        process.wait(timeout=min(2, remaining) if remaining is not None else 2)
+                    except subprocess.TimeoutExpired as error:
+                        self._benchmark_startup_remaining(launch_deadline)
+                        raise WorkspaceError("topology supervisor launcher did not exit") from error
+                    _recheck_runtime_handoff()
+                    self._benchmark_startup_remaining(launch_deadline)
+                    if superseded_temporary_policy is not None:
+                        try:
+                            self._remove_superseded_temporary_state(
+                                superseded_temporary_policy
+                            )
+                        except (OSError, WorkspaceError) as error:
+                            print(
+                                "warning: development restart left the "
+                                "previous temporary state for safe cleanup: "
+                                f"{error}",
+                                file=sys.stderr,
+                            )
+                    return status
+                if not status["supervisor"]["running"]:
+                    raise WorkspaceError(
+                        "topology supervisor exited during startup; inspect "
+                        f"{topology_root / 'supervisor.log'}"
+                    )
+            if process.poll() not in (None, 0):
+                break
+            remaining = self._benchmark_startup_remaining(launch_deadline)
+            time.sleep(min(0.1, remaining) if remaining is not None else 0.1)
+        raise WorkspaceError(
+            f"topology supervisor failed to start; inspect "
+            f"{topology_root / 'supervisor.log'}"
+        )
+
     def topology_down(
-        self, name: str, timeout: float = 15, *, retain_state: bool = False
+        self, name: str, timeout: float = 15, *, retain_state: bool = False,
+        expected_generation: str | None = None,
     ) -> dict[str, Any]:
         root = self._topology_directory(name)
         with exclusive_lock(
             root / "operation.lock", f"topology {name} operation", nonblocking=True
         ):
-            status = self.topology_status(name)
+            try:
+                status = self.topology_status(name)
+            except WorkspaceError as error:
+                if (
+                    expected_generation is None
+                    or str(error) != f"topology has not been started: {name}"
+                ):
+                    raise
+                if retain_state:
+                    raise WorkspaceError(
+                        "--retain-state is unavailable during topology startup"
+                    ) from error
+                return self._stop_starting_topology_generation(
+                    name, root, expected_generation, timeout
+                )
+            if expected_generation is not None and (
+                not isinstance(expected_generation, str)
+                or not expected_generation
+                or status.get("control", {}).get("generation") != expected_generation
+            ):
+                raise WorkspaceError("topology generation changed before benchmark shutdown")
             policy = status.get("state_policy")
             if retain_state and (
                 not isinstance(policy, dict) or policy.get("mode") != "temporary"
@@ -22202,6 +22554,90 @@ class Workspace:
             raise WorkspaceError(
                 f"topology did not stop within {timeout:g} seconds: {name}"
             )
+
+    def _stop_starting_topology_generation(
+        self, name: str, root: Path, generation: str, timeout: float
+    ) -> dict[str, Any]:
+        if not isinstance(generation, str) or not re.fullmatch(
+            r"[0-9a-f]{64}", generation
+        ):
+            raise WorkspaceError(
+                "topology generation changed before benchmark shutdown"
+            )
+        spec = _load_topology_record(root / "spec.json")
+        control = spec.get("control")
+        process_tree_path = root / TOPOLOGY_PROCESS_TREE_LEASE
+        if (
+            spec.get("name") != name
+            or not isinstance(control, dict)
+            or set(control) != {"socket", "generation", "lease"}
+            or control.get("generation") != generation
+            or control.get("socket")
+            != str(control_socket_path(root, generation))
+            or not isinstance(control.get("lease"), dict)
+            or not self._valid_state_identity(control["lease"], process_tree_path)
+            or not isinstance(spec.get("services"), dict)
+        ):
+            raise WorkspaceError(
+                "topology generation changed before benchmark shutdown"
+            )
+        descriptor = open_regular_file(
+            process_tree_path,
+            os.O_RDONLY | os.O_NONBLOCK,
+            "topology process-tree lease",
+        )
+        try:
+            metadata = os.fstat(descriptor)
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or metadata.st_nlink != 1
+                or descriptor_path(descriptor) != canonical_path(process_tree_path)
+                or os.pread(descriptor, 66, 0) != f"{generation}\n".encode()
+            ):
+                raise WorkspaceError(
+                    "topology generation changed before benchmark shutdown"
+                )
+            excluded = (os.getpid(),)
+            if holders_exist(descriptor, exclude=excluded):
+                signal_holders(descriptor, signal.SIGTERM, exclude=excluded)
+                deadline = time.monotonic() + timeout
+                while time.monotonic() < deadline and holders_exist(
+                    descriptor, exclude=excluded
+                ):
+                    time.sleep(0.1)
+                if holders_exist(descriptor, exclude=excluded):
+                    signal_holders(descriptor, signal.SIGKILL, exclude=excluded)
+                    kill_deadline = time.monotonic() + min(max(timeout, 0.1), 2.0)
+                    while time.monotonic() < kill_deadline and holders_exist(
+                        descriptor, exclude=excluded
+                    ):
+                        signal_holders(
+                            descriptor, signal.SIGKILL, exclude=excluded
+                        )
+                        time.sleep(0.05)
+                if holders_exist(descriptor, exclude=excluded):
+                    raise WorkspaceError(
+                        f"topology did not stop within {timeout:g} seconds: {name}"
+                    )
+        finally:
+            os.close(descriptor)
+        if (root / "status.json").is_file():
+            stopped = self.topology_status(name)
+            if stopped.get("control", {}).get("generation") != generation:
+                raise WorkspaceError(
+                    "topology generation changed before benchmark shutdown"
+                )
+            return self._finish_temporary_state_down(name, stopped, False, False)
+        return {
+            "control": control,
+            "supervisor": {"running": False},
+            "services": {
+                service: {"running": False, "exit_code": None}
+                for service in spec["services"]
+            },
+            "shutdown": {"control_requested": False, "clean": False},
+            "observation": {"process_tree_lease": "released"},
+        }
 
     def _cleanup_topology_mutable_state_outputs(
         self, status: dict[str, Any]
@@ -23844,6 +24280,15 @@ class Workspace:
         if custom.is_file():
             (runtime / "server-custom.cfg").symlink_to(custom)
 
+    @staticmethod
+    def _server_runtime_coordinate(
+        root: Path, state: Path, state_name: str
+    ) -> tuple[Path, str]:
+        validate_name(state_name, "state name")
+        state_key = profile_key({"state": state})
+        return (root / "run" / "server" / f"{state_name}-{state_key}",
+                f"server-runtime:{state_key}")
+
     def _prepare_server_runtime(
         self,
         root: Path,
@@ -23854,9 +24299,10 @@ class Workspace:
         resources: Path | None = None,
         client_maps: Path | None = None,
     ) -> Path:
-        state_key = profile_key({"state": state})
-        runtime = root / "run" / "server" / f"{state_name}-{state_key}"
-        managed_reset(runtime, self.paths.builds, f"server-runtime:{state_key}")
+        # All callers hold the profile build lock through this mutating setup.
+        prebuilt.invalidate(root)
+        runtime, purpose = self._server_runtime_coordinate(root, state, state_name)
+        managed_reset(runtime, self.paths.builds, purpose)
         content = content or root / "runtime" / "content"
         resources = resources or root / "runtime" / "resources"
         client_maps = client_maps or root / "runtime" / "client-maps"

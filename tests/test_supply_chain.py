@@ -1789,6 +1789,20 @@ jobs:
         self.assertTrue(all(probe["available"] for probe in probes.values()))
         self.assertTrue(all(probe["version"] is None for probe in probes.values()))
 
+    def test_version_report_retains_other_tools_when_probe_times_out(self) -> None:
+        def probe(command, **options):
+            self.assertGreater(options["timeout"], 0)
+            if command == ["npm", "--version"]:
+                raise subprocess.TimeoutExpired(command, options["timeout"], output="partial")
+            return subprocess.CompletedProcess(command, 0, stdout="tool 1.2.3\n", stderr="")
+
+        with mock.patch("atrinik_workspace.supply_chain.subprocess.run", side_effect=probe):
+            versions = json.loads(version_report())
+        self.assertEqual(versions["npm"], {"available": False, "version": None})
+        self.assertTrue(versions["python"]["available"])
+        self.assertTrue(versions["git"]["available"])
+        self.assertTrue(all(value["available"] for name, value in versions.items() if name != "npm"))
+
     def test_version_probe_reports_success_and_missing_version_lines(self) -> None:
         completed = subprocess.CompletedProcess(
             args=["tool"],

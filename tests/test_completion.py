@@ -109,6 +109,10 @@ class CompletionTests(unittest.TestCase):
         self.assertIn("completion", values)
         self.assertIn("worktree", values)
         self.assertIn("scope", values)
+        self.assertEqual(self.candidates("down", "review", "--expected-g"),
+                         ("candidates", ["--expected-generation"]))
+        self.assertEqual(self.candidates("down", "review", "--expected-generation", ""),
+                         ("candidates", []))
 
         self.assertEqual(
             self.candidates("worktree", ""),
@@ -164,6 +168,11 @@ class CompletionTests(unittest.TestCase):
             self.candidates("scope", "release", ""),
             ("candidates", ["review"]),
         )
+
+    def test_exact_cleanup_build_root_uses_no_path_completion(self) -> None:
+        self.assertEqual(self.candidates("cleanup", "--build-root", ""), ("candidates", []))
+        _, values = self.candidates("cleanup", "--scope", "builds", "-")
+        self.assertIn("--build-root", values)
 
     def test_consumed_and_mutually_exclusive_options_are_suppressed(self) -> None:
         mode, values = self.candidates("cleanup", "--dry-run", "--", "")
@@ -221,6 +230,7 @@ class CompletionTests(unittest.TestCase):
         mode, values = self.candidates("build", "--profile", "classic", "")
         self.assertEqual(mode, "candidates")
         self.assertIn("all", values)
+        self.assertIn("topology", values)
         self.assertIn("libatrinik", values)
         self.assertIn("classic-server", values)
 
@@ -228,6 +238,7 @@ class CompletionTests(unittest.TestCase):
         self.assertIn("metaserver-worker", default_values)
         self.assertNotIn("libatrinik", default_values)
         self.assertNotIn("all", default_values)
+        self.assertNotIn("topology", default_values)
         _, path_values = self.candidates("path", "--profile", "classic", "")
         self.assertIn("classic-client", path_values)
         self.assertNotIn("website", path_values)
@@ -382,6 +393,32 @@ class CompletionTests(unittest.TestCase):
             complete(parser(), self.wrapper, words, len(words) - 1),
             ("candidates", ["feature"]),
         )
+
+    def test_brynknot_scenario_is_completed_without_reading_credentials(self) -> None:
+        root = self.workspace / "scenarios" / "brynknot"
+        self.write_json(self.workspace / "states.json", {
+            "schema_version": 1, "states": {"scenario-brynknot": str(root / "state")},
+        })
+        record = self.scenario_record("brynknot")
+        record["preset"] = "brynknot-idle"
+        self.write_json(root / "scenario.json", record)
+        self.write_json(root / completion.MANAGED_MARKER,
+                        {"schema_version": 1, "purpose": "test-scenario"})
+        with mock.patch("atrinik_workspace.completion._json", wraps=completion._json) as load:
+            self.assertEqual(self.candidates("scenario", "show", "bry"),
+                             ("candidates", ["brynknot"]))
+            self.assertEqual(self.candidates("scenario", "route", "bry"),
+                             ("candidates", ["brynknot"]))
+            self.assertEqual(self.candidates("scenario", "benchmark", "bry"),
+                             ("candidates", ["brynknot"]))
+            self.assertEqual(
+                self.candidates(
+                    "scenario", "benchmark", "brynknot", "--capture",
+                    "--lighting-phase", "",
+                ),
+                ("candidates", ["day", "full-moon", "new-moon"]),
+            )
+        self.assertNotIn(root / "password", [call.args[0] for call in load.call_args_list])
 
     def test_server_owned_presets_complete_without_reading_credentials(self) -> None:
         for name, preset in (
@@ -669,6 +706,16 @@ class CompletionTests(unittest.TestCase):
         )
         self.assertEqual(
             self.candidates("supply-chain", "versions", "--output", ""),
+            ("path", [""]),
+        )
+        self.assertEqual(
+            self.candidates("scenario", "route", "review", "--output", ""),
+            ("path", [""]),
+        )
+        self.assertEqual(
+            self.candidates(
+                "scenario", "benchmark", "review", "--route", ""
+            ),
             ("path", [""]),
         )
         words = ["atrinik", "state", "add", "review", "--path=some/file"]

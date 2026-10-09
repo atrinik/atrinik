@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import re
 import sys
 from typing import Any
 
@@ -306,6 +307,10 @@ def parser() -> argparse.ArgumentParser:
         ],
         default=[],
     )
+    mark(cleanup.add_argument(
+        "--build-root", metavar="NAME",
+        help="select one exact managed profile build root; requires only --scope builds",
+    ), "none")
     mark(cleanup.add_argument("--older-than", type=int, default=7, metavar="DAYS"), "none")
     cleanup_mode = cleanup.add_mutually_exclusive_group()
     cleanup_mode.add_argument("--dry-run", action="store_true")
@@ -365,7 +370,12 @@ def parser() -> argparse.ArgumentParser:
     mark(path.add_argument("--profile", default="default"), "profile")
 
     build = commands.add_parser("build", help="build a component or the playable system")
-    mark(build.add_argument("target", help="all or a component name"), "build_target")
+    mark(
+        build.add_argument(
+            "target", help="all, topology, or a component name"
+        ),
+        "build_target",
+    )
     mark(build.add_argument("--profile", default="default"), "profile")
     build.add_argument("--test", action="store_true")
     build_plan = build.add_mutually_exclusive_group()
@@ -563,6 +573,10 @@ def parser() -> argparse.ArgumentParser:
         help="Classic server bind policy (default: loopback); all-ipv4 accepts container-forwarded UDP",
     )
     mark(up.add_argument("--retained-build-plan", metavar="SHA256", help="require the exact retained tested plan and preserve historical runtime builds"), "none")
+    mark(up.add_argument(
+        "--prebuilt-build", metavar="SHA256",
+        help="launch the exact prepared ordinary Classic topology build",
+    ), "none")
     for flag in ("--runtime-handoff", "--handoff-issue", "--handoff-attempt", "--handoff-publisher", "--handoff-endpoint"):
         mark(up.add_argument(flag, help="exact public retained-runtime handoff coordinate"), "none")
     up.add_argument("--json", action="store_true")
@@ -592,6 +606,10 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="retain a cleanly stopped temporary state for later promotion",
     )
+    mark(down.add_argument(
+        "--expected-generation",
+        help="stop only this exact topology generation, including interrupted startup",
+    ), "none")
     down.add_argument("--json", action="store_true")
 
     state = commands.add_parser("state", help="register persistent server state")
@@ -629,6 +647,51 @@ def parser() -> argparse.ArgumentParser:
     scenario_reset = scenario_commands.add_parser("reset")
     mark(scenario_reset.add_argument("name"), "scenario")
     scenario_reset.add_argument("--json", action="store_true")
+    scenario_route = scenario_commands.add_parser(
+        "route", help="write the fixed movement route for a registered scenario"
+    )
+    mark(scenario_route.add_argument("name"), "scenario")
+    mark(
+        scenario_route.add_argument("--output", type=Path, required=True),
+        "path",
+    )
+    scenario_route.add_argument("--json", action="store_true")
+    scenario_benchmark = scenario_commands.add_parser(
+        "benchmark", help="run a bounded native movement benchmark"
+    )
+    mark(scenario_benchmark.add_argument("name"), "scenario")
+    mark(
+        scenario_benchmark.add_argument(
+            "--name", dest="run_name", required=True,
+            help="fresh topology name for this benchmark run",
+        ),
+        "none",
+    )
+    mark(
+        scenario_benchmark.add_argument("--route", type=Path, required=True),
+        "path",
+    )
+    mark(scenario_benchmark.add_argument("--timeout", type=int), "none")
+    scenario_benchmark.add_argument(
+        "--capture",
+        action="store_true",
+        help="capture fixed initial and final benchmark PNG evidence",
+    )
+    scenario_benchmark.add_argument(
+        "--lighting-phase",
+        choices=["day", "new-moon", "full-moon"],
+        help="set a fixed server lighting phase before captured movement",
+    )
+    scenario_benchmark.add_argument(
+        "--record-video",
+        action="store_true",
+        help="record fixed private benchmark/gameplay.avi evidence",
+    )
+    mark(scenario_benchmark.add_argument(
+        "--prebuilt-build", metavar="SHA256",
+        help="launch the exact prepared ordinary Classic topology build",
+    ), "none")
+    scenario_benchmark.add_argument("--json", action="store_true")
 
     supply_chain = commands.add_parser(
         "supply-chain", help="optional dependency and license diagnostics"
@@ -788,6 +851,13 @@ def main(arguments: list[str] | None = None) -> int:
     if raw_arguments and raw_arguments[0] == protocol_command():
         return protocol(root_parser, ROOT, raw_arguments[1:])
     options = root_parser.parse_args(raw_arguments)
+    if (
+        options.command == "scenario"
+        and options.scenario_command == "benchmark"
+        and options.lighting_phase is not None
+        and not options.capture
+    ):
+        root_parser.error("--lighting-phase requires --capture")
     workspace: Any = None
     command_maintenance: Any = None
     try:
@@ -1176,6 +1246,7 @@ def main(arguments: list[str] | None = None) -> int:
                 options.older_than,
                 options.components,
                 options.apply,
+                build_root=options.build_root,
             )
             if options.json:
                 print(json.dumps(report, indent=2, sort_keys=True))
@@ -1354,8 +1425,19 @@ def main(arguments: list[str] | None = None) -> int:
                     build_arguments["expected_plan"] = options.expected_plan
                 result = workspace.build(options.target, options.profile,
                                          options.test, **build_arguments)
-                print(json.dumps({"build_root": str(result)}, sort_keys=True)
-                      if options.json else result)
+                prebuilt_build = getattr(workspace, "prebuilt_build_digest", None)
+                if (not isinstance(prebuilt_build, str)
+                        or re.fullmatch(r"[0-9a-f]{64}", prebuilt_build) is None):
+                    prebuilt_build = None
+                if options.json:
+                    build_result = {"build_root": str(result)}
+                    if prebuilt_build is not None:
+                        build_result["prebuilt_build"] = prebuilt_build
+                    print(json.dumps(build_result, sort_keys=True))
+                else:
+                    print(result)
+                    if prebuilt_build is not None:
+                        print(f"prebuilt-build\t{prebuilt_build}")
         elif options.command == "dev":
             if options.dev_command == "build":
                 services = _parse_services(options.services)
@@ -1490,6 +1572,7 @@ def main(arguments: list[str] | None = None) -> int:
                 options.port,
                 state_mode=options.state_mode,
                 **({"retained_build_plan": options.retained_build_plan} if options.retained_build_plan is not None else {}),
+                **({"prebuilt_build": options.prebuilt_build} if options.prebuilt_build is not None else {}),
                 **{key: getattr(options, key) for key in ("runtime_handoff", "handoff_issue", "handoff_attempt", "handoff_publisher", "handoff_endpoint")
                    if getattr(options, key) is not None},
                 **({"server_listener": options.server_listener}
@@ -1586,11 +1669,12 @@ def main(arguments: list[str] | None = None) -> int:
                 options.name, options.service, options.tail, options.follow
             )
         elif options.command == "down":
-            status = (
-                workspace.topology_down(options.name, retain_state=True)
-                if options.retain_state
-                else workspace.topology_down(options.name)
-            )
+            down_options: dict[str, Any] = {}
+            if options.retain_state:
+                down_options["retain_state"] = True
+            if options.expected_generation is not None:
+                down_options["expected_generation"] = options.expected_generation
+            status = workspace.topology_down(options.name, **down_options)
             if options.json:
                 print(json.dumps(status, indent=2, sort_keys=True))
             else:
@@ -1661,7 +1745,7 @@ def main(arguments: list[str] | None = None) -> int:
                 credentials = workspace.scenario_credentials(options.name)
                 for key in ("account", "character", "password"):
                     print(f"{key}\t{credentials[key]}")
-            else:
+            elif options.scenario_command == "reset":
                 summary = workspace.scenario_reset(options.name)
                 if options.json:
                     print(json.dumps(summary, indent=2, sort_keys=True))
@@ -1669,6 +1753,36 @@ def main(arguments: list[str] | None = None) -> int:
                     print(f"scenario {options.name}: reset")
                     _print_scenario(summary)
                     _print_scenario_handoff(summary)
+            elif options.scenario_command == "route":
+                summary = workspace.scenario_route(options.name, options.output)
+                if options.json:
+                    print(json.dumps(summary, indent=2, sort_keys=True))
+                else:
+                    print(f"scenario route {options.name}: {options.output}")
+            else:
+                benchmark_options = {}
+                if options.capture:
+                    benchmark_options["capture"] = True
+                if options.lighting_phase is not None:
+                    benchmark_options["lighting_phase"] = options.lighting_phase
+                if options.record_video:
+                    benchmark_options["record_video"] = True
+                if options.prebuilt_build is not None:
+                    benchmark_options["prebuilt_build"] = options.prebuilt_build
+                summary = workspace.scenario_benchmark(
+                    options.name,
+                    options.run_name,
+                    options.route,
+                    options.timeout,
+                    **benchmark_options,
+                )
+                if options.json:
+                    print(json.dumps(summary, indent=2, sort_keys=True))
+                else:
+                    print(
+                        f"scenario benchmark {options.name}: "
+                        f"{summary['status']} ({summary['evidence']})"
+                    )
         elif options.command == "run":
             forwarded = _forwarded_arguments(options.arguments)
             if options.target == "client":

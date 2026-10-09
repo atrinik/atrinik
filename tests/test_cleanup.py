@@ -2880,6 +2880,129 @@ class CleanupTests(unittest.TestCase):
             os.utime(candidate, (timestamp, timestamp), follow_symlinks=False)
         return path
 
+    def test_exact_build_root_preview_apply_retry_and_journal_retirement(self) -> None:
+        selected = self.make_build("rendering-fixes", "a" * 12)
+        final = self.make_build("rendering-fixes", "b" * 12)
+        other = self.make_build("other", "c" * 12)
+        generation = self.workspace.paths.builds / "source-generations" / "retained"
+        generation.mkdir(parents=True)
+        preview = self.workspace.cleanup(["builds"], 7, [], False, build_root=selected.name)
+        self.assertEqual(preview["build_root"], selected.name)
+        self.assertEqual([row["path"] for row in preview["items"]], [str(selected)])
+        self.assertEqual(preview["items"][0]["disposition"], "eligible")
+        applied = self.workspace.cleanup(["builds"], 7, [], True, build_root=selected.name)
+        self.assertEqual(applied["items"][0]["disposition"], "removed")
+        self.assertFalse(selected.exists())
+        self.assertTrue(final.exists())
+        self.assertTrue(other.exists())
+        self.assertTrue(generation.exists())
+        receipt = Path(applied["journal"])
+        request = json.loads(receipt.read_text())["request"]
+        self.assertEqual(request["build_root"], selected.name)
+        self.assertIn(cleanup_module._canonical_json_sha256(request), receipt.name)
+        # A retry must find its pending result even after the selected path is gone.
+        self.assertEqual(
+            self.workspace.cleanup(["builds"], 7, [], True, build_root=selected.name), applied
+        )
+        self.workspace.cleanup_acknowledge(applied)
+        retirement = self.workspace.cleanup(["cleanup-journals"], 0, [receipt.name], False)
+        self.assertEqual(retirement["items"][0]["disposition"], "eligible")
+
+    def test_exact_build_root_rejects_unsupported_and_nonexact_requests(self) -> None:
+        selected = self.make_build()
+        for scopes, names in (([], []), (["all"], []), (["topologies"], []),
+                              (["builds", "worktrees"], []), (["builds"], ["client"])):
+            with self.subTest(scopes=scopes, names=names), self.assertRaisesRegex(
+                WorkspaceError, "requires only"
+            ):
+                self.workspace.cleanup(scopes, 7, names, False, build_root=selected.name)
+        for name in ("", ".", "..", "../" + selected.name, str(selected),
+                     "profiles/" + selected.name, "review\\aaaaaaaaaaaa", selected.name.upper(),
+                     selected.name + "\n", 42):
+            with self.subTest(name=name), self.assertRaises(WorkspaceError):
+                self.workspace.cleanup(["builds"], 7, [], False, build_root=name)
+        with self.assertRaisesRegex(WorkspaceError, "unknown exact build root"):
+            self.workspace.cleanup(["builds"], 7, [], True, build_root="review")
+        selected.with_name(selected.name.upper()).mkdir()
+        with self.assertRaisesRegex(WorkspaceError, "ambiguous build root"):
+            self.workspace.cleanup(["builds"], 7, [], True, build_root=selected.name)
+        self.assertTrue(selected.exists())
+
+    def test_exact_build_root_preserves_busy_symlink_and_reference_gates(self) -> None:
+        selected = self.make_build()
+        lock = self.workspace.paths.builds / "locks" / (selected.name + ".lock")
+        lock.parent.mkdir(parents=True, exist_ok=True)
+        with lock.open("w") as stream:
+            fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            report = self.workspace.cleanup(["builds"], 7, [], True, build_root=selected.name)
+        self.assertIn("build_lock_busy", report["items"][0]["reasons"])
+        self.assertTrue(selected.exists())
+        self.workspace.cleanup_acknowledge(report)
+        original = Cleanup._references
+        def referenced(cleanup):
+            references, errors = original(cleanup)
+            references["delivery"][selected] = ["active-owned-delivery"]
+            return references, errors
+        with mock.patch.object(Cleanup, "_references", new=referenced):
+            report = self.workspace.cleanup(["builds"], 7, [], True, build_root=selected.name)
+        self.assertIn("delivery_reference", report["items"][0]["reasons"])
+        self.assertTrue(selected.exists())
+        self.workspace.cleanup_acknowledge(report)
+        external = self.root / "external-build"
+        selected.rename(external)
+        selected.symlink_to(external, target_is_directory=True)
+        report = self.workspace.cleanup(["builds"], 7, [], True, build_root=selected.name)
+        self.assertEqual(report["items"][0]["disposition"], "protected")
+        self.assertTrue(external.exists())
+        self.assertTrue(selected.is_symlink())
+
+    def test_exact_build_root_revalidates_after_preview_and_rejects_journal_expansion(self) -> None:
+        selected = self.make_build()
+        other = self.make_build("other", "b" * 12)
+        original = Cleanup._revalidate_target
+        def changed(cleanup, *args):
+            (selected / MANAGED_MARKER).unlink()
+            return original(cleanup, *args)
+        with mock.patch.object(Cleanup, "_revalidate_target", new=changed):
+            report = self.workspace.cleanup(["builds"], 7, [], True, build_root=selected.name)
+        self.assertEqual(report["items"][0]["disposition"], "error")
+        self.assertTrue(selected.exists())
+        receipt = Path(report["journal"])
+        journal = json.loads(receipt.read_text())
+        # A receipt cannot expand an exact request to another valid managed root.
+        journal["report"]["items"][0]["path"] = str(other)
+        cleanup_module.durable_atomic_json(receipt, journal)
+        with self.assertRaisesRegex(WorkspaceError, "exceeds its exact build root"):
+            self.workspace.cleanup(["builds"], 7, [], True, build_root=selected.name)
+        self.assertTrue(other.exists())
+
+    def test_exact_build_root_rechecks_case_ambiguity_before_removal(self) -> None:
+        selected = self.make_build()
+        original = Cleanup._revalidate_target
+        def changed(cleanup, *args):
+            selected.with_name(selected.name.upper()).mkdir(exist_ok=True)
+            return original(cleanup, *args)
+        with mock.patch.object(Cleanup, "_revalidate_target", new=changed):
+            report = self.workspace.cleanup(["builds"], 7, [], True, build_root=selected.name)
+        self.assertEqual(report["items"][0]["disposition"], "error")
+        self.assertTrue(selected.exists())
+        with self.assertRaisesRegex(WorkspaceError, "ambiguous build root"):
+            self.workspace.cleanup(["builds"], 7, [], True, build_root=selected.name)
+        self.assertTrue(selected.exists())
+
+    def test_exact_build_root_receipt_retirement_rejects_expanded_selection(self) -> None:
+        selected = self.make_build()
+        other = self.make_build("other", "b" * 12)
+        receipt = self.make_delivered_cleanup_journal(
+            "exact-invalid-selection.json",
+            targets=[{"kind": "profile-build", "path": str(other)}],
+            request={"scopes": ["builds"], "older_than_days": 7,
+                     "filters": [], "build_root": selected.name},
+        )
+        item = Cleanup(self.workspace)._cleanup_journal_item(receipt, 0, {receipt.name})
+        self.assertIn("invalid_cleanup_journal", item["reasons"])
+        self.assertTrue(receipt.exists())
+
     def test_legacy_build_uses_conservative_tree_age_and_apply_removes_it(self) -> None:
         build = self.make_build()
         report = self.plan(["builds"])

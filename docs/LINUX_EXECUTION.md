@@ -178,6 +178,59 @@ environment, never plan with a different host toolchain. Use the owner-required
 component/profile and tests for the actual task. Package fetches may need network
 access; registry login remains a host action and no credential store is mounted.
 
+To prepare one ordinary paired Classic topology in the CPU worker for a later
+host runtime, use the topology target with compiler caching disabled. Run both
+commands with the same worker image, mounts, absolute worktree, profile, and
+lease coordinates:
+
+```sh
+./atrinik build topology --profile classic --no-ccache --plan --json
+./atrinik build topology --profile classic --no-ccache \
+  --expected-plan RETURNED_PLAN_SHA256 --json
+```
+
+The second result contains `build_root` and `prebuilt_build`. Preserve the exact
+`prebuilt_build` SHA-256 receipt and pass it to one of the ordinary host launch
+paths:
+
+```sh
+./atrinik up --name classic-local --profile classic --temporary-state \
+  --prebuilt-build RETURNED_PREBUILT_BUILD_SHA256
+./atrinik scenario benchmark SCENARIO --name BENCHMARK_TOPOLOGY \
+  --route /absolute/private/route.xml \
+  --prebuilt-build RETURNED_PREBUILT_BUILD_SHA256
+```
+
+This receipt covers only the prepared paired Classic client/server topology.
+Producer admission, completion, and consumption require the same clean wrapper
+revision and canonical paths. Moving identical build bytes to new storage at
+the same canonical path preserves receipt validity; legacy filesystem identity
+fields are ignored. Publication still checks the live directory identity while
+its descriptor is open. It retains
+the exact build and source coordinates, profile and source locks, sound scope,
+and `content@main` identity admitted by the fenced build. It cannot
+select retained-build, service-selective development, or portable-export modes.
+The runtime validates that recorded contract and launches the prepared outputs
+without build tools; a changed input rejects the launch instead of rebuilding.
+The receipt is build provenance, not live-resource or delivery authority, and
+does not replace current topology, state, port, scenario, or lease admission.
+Ordinary isolated development follows source delivery; existing bound deliveries
+retain their recovery requirements. Local acceptance of an authorized repair does
+not require merging its PR. Bundled executables, libraries, assets, and metadata
+are verified against the receipt; the runtime image still supplies its ordinary
+OS libraries, display, audio, and GPU prerequisites. Every subsequent build-root
+writer invalidates completion before mutation, including unsuccessful rebuilds.
+Invalidation atomically claims the receipt into a private nonce quarantine; it
+retains unexpected replacements as evidence and fails closed. Publication installs
+the completed receipt atomically, then synchronizes the directory. A caught
+publication failure retracts that receipt into quarantine. A process crash after
+the atomic install can leave complete, consumable evidence; no receipt is installed
+before all producer work and validation succeed. Quarantines grant no reuse or
+cleanup authority.
+The shared runtime selection excludes only the server's generated
+`server-test-runtime-seed` and `server-test-runtimes` fixture directories; their
+test links are not runtime inputs. Production input links remain rejected.
+
 The bound worktree's persistent `workspace/build` holds its build outputs and
 wrapper-managed compiler/dependency caches. Its stable owner/path survives
 short-lived workers; image layers are also reused through `--pull never`.
