@@ -9303,9 +9303,6 @@ class Workspace:
             self._guard_retained_build(root)
             if completion_plan is not None and self._prebuilt_wrapper_head() != completion_wrapper_head:
                 raise WorkspaceError("prebuilt wrapper changed after producer admission")
-            # A failed or interrupted writer must not leave prior success usable.
-            prebuilt.invalidate(root)
-            self._build_state.prebuilt_build_digest = None
             self._force_reconfigure = force_reconfigure
             self._use_ccache = use_ccache
             self._source_view_unchanged = {}
@@ -9321,6 +9318,10 @@ class Workspace:
                 }
             }
             managed_directory(root, self.paths.builds, f"profile:{profile_name}:{key}")
+            # Verify ownership before retiring evidence; an unmanaged root must
+            # remain untouched even when it contains a private receipt.
+            prebuilt.invalidate(root)
+            self._build_state.prebuilt_build_digest = None
             sound_root = selected.get("sound")
             sound_record: dict[str, Any] | None = None
             gpu_shader: dict[str, Any] | None = None

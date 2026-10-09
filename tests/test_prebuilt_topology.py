@@ -214,6 +214,8 @@ class PrebuiltTopologyTests(unittest.TestCase):
         for options in ({}, {"build_services": {"client"}}, {"force_reconfigure": True}):
             if not (root / prebuilt.RECEIPT_NAME).exists():
                 root, digest = self.build()
+            receipt = (root / prebuilt.RECEIPT_NAME).read_bytes()
+            marker = (root / MANAGED_MARKER).read_bytes()
             def fail(*_args, **_kwargs):
                 self.assertFalse((root / prebuilt.RECEIPT_NAME).exists())
                 raise WorkspaceError("writer failed")
@@ -221,6 +223,29 @@ class PrebuiltTopologyTests(unittest.TestCase):
                 with self.assertRaisesRegex(WorkspaceError, "writer failed"):
                     self.workspace._build_resolved("topology", "prepared-profile", False, ["client", "server"], self.selected, **options)
             self.assertFalse((root / prebuilt.RECEIPT_NAME).exists())
+            self.assertEqual((root / MANAGED_MARKER).read_bytes(), marker)
+            self.assertIn(receipt, [path.read_bytes() for path in root.glob(".atrinik-prebuilt-retired-*")])
+
+    def test_unmanaged_build_refusal_preserves_receipt_name_and_bytes(self):
+        plan = self.workspace.build_plan("topology", "prepared-profile", False, use_ccache=False)
+        root = Path(plan["build_root"])
+        root.mkdir(parents=True)
+        receipt = root / prebuilt.RECEIPT_NAME
+        receipt.write_bytes(b"private unmanaged receipt\n")
+        receipt.chmod(0o600)
+        inode = receipt.stat().st_ino
+        for wrong_marker in (False, True):
+            with self.subTest(wrong_marker=wrong_marker):
+                if wrong_marker:
+                    atomic_json(root / MANAGED_MARKER, {"schema_version": 1, "purpose": "other-owner"})
+                original = {path.name: path.read_bytes() for path in root.iterdir()}
+                with self.producer(), mock.patch.object(self.workspace, "_prepare_sound") as sound:
+                    with self.assertRaisesRegex(WorkspaceError, "unmanaged build path|marker does not match"):
+                        self.workspace.build("topology", "prepared-profile", False, use_ccache=False,
+                                             expected_plan=plan["plan_sha256"])
+                sound.assert_not_called()
+                self.assertEqual({path.name: path.read_bytes() for path in root.iterdir()}, original)
+                self.assertEqual(receipt.stat().st_ino, inode)
 
     def test_changed_runtime_inputs_reject_before_ports_without_reset(self):
         root, digest = self.build()
