@@ -1863,7 +1863,9 @@ state.
 verifier, report, and summary below the fresh topology's `benchmark/` directory,
 then generation-fences shutdown. It revalidates the scenario under its shared
 lease and reserves the fresh topology root under its exclusive lease through
-startup. The registered scenario is preserved and is
+startup. The generation is persisted in the benchmark summary before detached
+startup so interrupted operators can use generation-fenced shutdown.
+The registered scenario is preserved and is
 never reset. Success requires every real movement checkpoint to publish the
 expected map position and every checkpoint to have presented-frame coverage.
 The report records per-frame CPU time and GPU host submission/presentation
@@ -1873,7 +1875,8 @@ The baseline command remains unchanged when optional evidence flags are absent.
 `--record-video` requests the single fixed private output
 `benchmark/gameplay.avi`. The wrapper refuses a pre-existing output and accepts
 success only for a bounded, indexed 20 FPS MJPEG AVI with nonzero frames and
-coherent RIFF, stream, timing, frame, and index structure. This container check
+coherent RIFF, stream, timing, frame, and index structure. The summary binds the
+validated recording bytes with SHA-256. This container check
 does not decode the JPEG frames; native playback or frame decoding is separate
 evidence. The client records the complete play window, from entering gameplay
 through disconnect. Recording adds client work, so its timing is not comparable
@@ -1882,7 +1885,8 @@ to the recording-disabled performance baseline.
 `--capture` requests both fixed private evidence files,
 `benchmark/initial.png` and `benchmark/final.png`. Each must be an exclusive,
 hash-validated PNG of at most 64 MiB; a run requesting capture fails unless both
-are present. Capture happens outside the measured walking interval while
+are present and their bounded compressed data and scanlines validate.
+Capture happens outside the measured walking interval while
 remaining inside the global and step deadlines. Its manifest records
 `started_utc_us` and the complete pinned native source/content identity.
 
