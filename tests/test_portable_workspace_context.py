@@ -14,6 +14,11 @@ from atrinik_workspace.workspace import CONFIGURE_METADATA, Workspace
 
 
 class RecordingContext:
+    host_tools = {"fixture": "host-tools interface only"}
+
+    def verify_host_tools(self):
+        pass
+
     def __init__(self, events):
         self.events = events
 

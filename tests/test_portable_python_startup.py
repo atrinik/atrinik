@@ -15,6 +15,11 @@ from atrinik_workspace.workspace import Workspace
 
 
 class StartupContext:
+    host_tools = {"fixture": "host-tools interface only"}
+
+    def verify_host_tools(self):
+        pass
+
     def validate_source_binding(self, binary, source):
         pass
 

@@ -195,6 +195,7 @@ LLVM_ROOT = "/opt/llvm-23.1.3"
 PORTABLE_C_FLAGS = "-O2 -march=x86-64 -mtune=generic --no-default-config"
 PORTABLE_RELEASE_FLAGS = "-O2 -DNDEBUG"
 PORTABLE_PATH = LLVM_ROOT + "/bin:/usr/bin:/bin"
+PORTABLE_GENERATOR_PYTHON = Path("/usr/bin/python3")
 PORTABLE_LINK_FLAGS = "-L" + LLVM_ROOT + "/lib --rtlib=compiler-rt --unwindlib=libunwind -fuse-ld=lld"
 
 
@@ -264,6 +265,7 @@ class PortableBuildContext:
         self.baseline = None
         self.output = None
         self.target_outputs = None
+        self.host_tools = None
 
     def validate_selected(self, selected: dict[str, Path]) -> None:
         if self.baseline is not None or {role: Path(path) for role, path in selected.items()} != self.selected:
@@ -277,6 +279,7 @@ class PortableBuildContext:
                 or binary != self.build_root / "build/client"):
             raise ValueError("portable configure coordinates differ from caller context")
         self._verify_authored()
+        self.verify_host_tools()
 
     @staticmethod
     def _record(path: Path) -> dict:
@@ -295,6 +298,41 @@ class PortableBuildContext:
         if path.resolve(strict=True) != resolved:
             raise ValueError("compiler input path changed")
         return record
+
+    @classmethod
+    def _capture_generator_python(cls) -> dict:
+        """Observe the fixed host tool; system libraries remain host-tool trust."""
+        path = PORTABLE_GENERATOR_PYTHON
+        resolved = path.resolve(strict=True)
+        record = cls._record(path)
+        if not record["executable"]:
+            raise ValueError("portable shader Python is not executable")
+        probe = "import json, sys; print(json.dumps({'implementation': sys.implementation.name, 'version': list(sys.version_info[:3]), 'executable': sys.executable, 'prefix': sys.base_prefix}))"
+        try:
+            result = subprocess.run([str(path), "-I", "-c", probe], check=True, capture_output=True,
+                                    text=True, timeout=30, stdin=subprocess.DEVNULL,
+                                    env={"PATH": PORTABLE_PATH, "LC_ALL": "C", "PYTHONNOUSERSITE": "1"})
+            version = json.loads(result.stdout)
+            numbers = version["version"]
+            if (version["implementation"] != "cpython" or version["executable"] != str(path)
+                    or not isinstance(numbers, list) or len(numbers) != 3
+                    or not all(type(item) is int for item in numbers) or numbers[0] != 3 or numbers[:2] < [3, 11]):
+                raise ValueError("unsupported portable shader Python")
+        except (OSError, subprocess.SubprocessError, KeyError, TypeError, ValueError) as error:
+            raise ValueError("portable shader Python identity is unavailable or invalid") from error
+        if path.resolve(strict=True) != resolved or cls._record(path) != record:
+            raise ValueError("portable shader Python changed during inspection")
+        return {"path": str(path), "resolved_path": str(resolved), **record, "version": version}
+
+    def verify_host_tools(self) -> None:
+        if self.host_tools is None:
+            raise ValueError("portable shader Python receipt is missing")
+        record = self.host_tools["shader_python"]
+        path = PORTABLE_GENERATOR_PYTHON
+        if (record["path"] != str(path) or record["resolved_path"] != str(path.resolve(strict=True))
+                or self._record(path) != {key: value for key, value in record.items()
+                                          if key not in {"path", "resolved_path", "version"}}):
+            raise ValueError("portable shader Python executable changed")
 
     def bind_source_views(self, build_root: Path, views: dict[str, Path]) -> None:
         if self.views or set(views) != {"client", "protocol", "libatrinik"}:
@@ -325,6 +363,7 @@ class PortableBuildContext:
         self._verify_authored()
         if self.source.parent / "cmake/toolchains/llvm.cmake" not in self.authored:
             raise ValueError("portable toolchain is outside the caller's supplemental source proof")
+        self.host_tools = {"shader_python": self._capture_generator_python()}
 
     def _verify_authored(self) -> None:
         reserved = {".atrinik-workspace-managed.json", ".atrinik-source-view.json",
@@ -412,6 +451,7 @@ class PortableBuildContext:
             raise ValueError("portable binary differs from the caller's standalone build")
         self.binary = binary
         self._verify_authored()
+        self.verify_host_tools()
         database = _read_regular(binary / "compile_commands.json")
         commands = json.loads(database, object_pairs_hook=export._unique_object)
         for record in commands:
@@ -434,10 +474,11 @@ class PortableBuildContext:
             raise ValueError("shader generator or manifest is outside source closure")
         # Keep selected repository code outside the wrapper process. This is
         # the exact proof-bound CLI used by the admitted Ninja generator row.
+        self.verify_host_tools()
         with tempfile.TemporaryDirectory(prefix=".atrinik-shader-proof-", dir=binary) as temporary:
             expected = Path(temporary) / "gpu_shader_data.h"
             try:
-                subprocess.run(["/usr/bin/python3", "-I", str(script), "--input", "/opt/atrinik-portable/shaders",
+                subprocess.run([str(PORTABLE_GENERATOR_PYTHON), "-I", str(script), "--input", "/opt/atrinik-portable/shaders",
                                 "--manifest", str(manifest), "--output", str(expected)],
                                check=True, timeout=30, stdin=subprocess.DEVNULL,
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
@@ -446,6 +487,7 @@ class PortableBuildContext:
                 raise ValueError("source-bound shader proof subprocess failed") from error
             payload = _read_regular(expected, limit=512 * 1024 * 1024)
         self._verify_authored()
+        self.verify_host_tools()
         self.expected_shader = {"sha256": hashlib.sha256(payload).hexdigest(), "size": len(payload)}
         if binary / "src/include/gpu_shader_data.h" in self.generated:
             raise ValueError("fresh configure unexpectedly retained a shader header")
@@ -459,6 +501,7 @@ class PortableBuildContext:
     def capture_output(self, binary: Path) -> None:
         if self.output is not None or binary != self.binary or self.baseline is None:
             raise ValueError("portable output capture is missing or repeated")
+        self.verify_host_tools()
         current = self._generated_inventory()
         shader = binary / "src/include/gpu_shader_data.h"
         if shader not in current or any(current[shader][key] != value for key, value in self.expected_shader.items()):
@@ -475,6 +518,7 @@ class PortableBuildContext:
     def revalidate(self, binary: Path, *, configure_only: bool = False) -> None:
         if binary != self.binary or self.baseline is None or self.source is None:
             raise ValueError("same-operation portable receipt is missing")
+        self.verify_host_tools()
         if self.baseline != {"cache": _read_regular(binary / "CMakeCache.txt"),
                              "database": _read_regular(binary / "compile_commands.json"),
                              "ninja": self._ninja(binary)}:
@@ -751,7 +795,7 @@ def _portable_ninja_commands(report: str, binary: Path, evidence: dict,
             link = command
             link_inputs = compiled | archives
             continue
-        generator = ["/usr/bin/python3", str(source / "tools/embed_gpu_shaders.py"),
+        generator = [str(PORTABLE_GENERATOR_PYTHON), str(source / "tools/embed_gpu_shaders.py"),
                      "--input", "/opt/atrinik-portable/shaders", "--manifest", str(source / "shaders/SHA256SUMS"),
                      "--output", str(binary / "src/include/gpu_shader_data.h")]
         if segments == [["cd", str(binary)], generator] and generators == 0:
@@ -790,7 +834,8 @@ def validate_portable_build(binary: Path, evidence: dict, *, context: PortableBu
     try:
         identity = json.loads(_read_regular(binary / ".atrinik-configure.json"), object_pairs_hook=export._unique_object)
         source = Path(identity["source"]["path"])
-        if source != context.source or values.get("CMAKE_HOME_DIRECTORY") != str(context.source):
+        if (source != context.source or values.get("CMAKE_HOME_DIRECTORY") != str(context.source)
+                or identity.get("portable_host_tools") != json.loads(json.dumps(context.host_tools))):
             raise ValueError("source identity changed")
     except (OSError, ValueError, KeyError, TypeError) as error:
         raise WorkspaceError("portable CMake configuration changed: source identity is unavailable or invalid") from error
@@ -1455,6 +1500,7 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
                 evidence = {"schema_version": 1, "runtime": runtime, "legal": legal,
                             "metadata_sha256": METADATA_HASHES, "sources": sources,
                             "source_proofs": proofs, "profile": profile_name,
+                            "host_tools": context.host_tools,
                             "sound": {key: value for key, value in sound_record.items() if key != "root"}}
                 publication.add_bytes("portable-evidence.json", (json.dumps(evidence, sort_keys=True) + "\n").encode())
                 publication.add_bytes("README.txt", (

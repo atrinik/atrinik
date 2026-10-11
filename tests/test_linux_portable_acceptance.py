@@ -31,7 +31,7 @@ class CompilerClosureTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
 
-    def fixture(self, *, before_capture=None):
+    def fixture(self, *, before_capture=None, after_bind=None, before_output=None):
         root = self.root / str(len(list(self.root.iterdir())))
         root.mkdir()
         selected, proofs, generations, views = {}, {}, {}, {}
@@ -88,7 +88,7 @@ class CompilerClosureTests(unittest.TestCase):
         (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(source)}}))
         database = [{"arguments": words, "directory": str(binary), "file": words[words.index("-c") + 1]} for words in (main, core)]
         generator = "cd " + shlex.quote(str(binary)) + " && " + shlex.join([
-            "/usr/bin/python3", str(source / "tools/embed_gpu_shaders.py"), "--input", "/opt/atrinik-portable/shaders",
+            str(portable.PORTABLE_GENERATOR_PYTHON), str(source / "tools/embed_gpu_shaders.py"), "--input", "/opt/atrinik-portable/shaders",
             "--manifest", str(source / "shaders/SHA256SUMS"), "--output", str(binary / "src/include/gpu_shader_data.h")])
         archive = ": && /usr/bin/cmake -E rm -f core.a && " + portable.LLVM_ROOT + "/bin/llvm-ar qc core.a core.o && " + portable.LLVM_ROOT + "/bin/llvm-ranlib core.a && :"
         report = [generator, shlex.join(main), shlex.join(core), archive, ": && " + shlex.join(link) + " && :"]
@@ -104,6 +104,8 @@ class CompilerClosureTests(unittest.TestCase):
         state.update(context=context, evidence=evidence)
         context.validate_selected(selected)
         context.bind_source_views(root, views)
+        (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(source)},
+                                                                  "portable_host_tools": context.host_tools}))
         run_patch = mock.patch.object(portable.PortableBuildContext, "_ninja", side_effect=lambda path: state["report"])
         run_patch.start()
         self.addCleanup(run_patch.stop)
@@ -114,7 +116,11 @@ class CompilerClosureTests(unittest.TestCase):
         driver_patch = mock.patch.object(export, "_tool_report", side_effect=driver_with_real_missing_artifact_behavior)
         driver_patch.start()
         self.addCleanup(driver_patch.stop)
+        if after_bind:
+            after_bind(state)
         context.capture_configure(binary, source)
+        if before_output:
+            before_output(state)
         (binary / "src/include/gpu_shader_data.h").write_bytes(b"proof-bound shader\n")
         (binary / "atrinik").write_bytes(b"built fixture executable")
         context.capture_output(binary)
@@ -130,6 +136,62 @@ class CompilerClosureTests(unittest.TestCase):
                       portable.portable_configure_arguments(state["views"]["client"]))
         self.assertIn(b"BUILD_TESTING:STRING=OFF", portable.validate_portable_build(
             state["binary"], state["evidence"], context=state["context"]))
+
+    def test_real_generator_python_receipt_and_proof_ignore_caller_startup(self):
+        modules = self.root / "caller-modules"
+        modules.mkdir()
+        marker = self.root / "python-startup-executed"
+        (modules / "sitecustomize.py").write_text("import pathlib; pathlib.Path(" + repr(str(marker)) + ").touch()\n")
+        subprocess.run(["/usr/bin/python3", "-c", "pass"], check=True, timeout=10,
+                       env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(modules)})
+        self.assertTrue(marker.exists())
+        marker.unlink()
+        with mock.patch.dict(os.environ, {"PYTHONPATH": str(modules), "PYTHONHOME": "/foreign/python-home",
+                                          "PYTHONNOUSERSITE": "0", "HOME": str(self.root / "foreign-home")}):
+            state = self.fixture()
+        record = state["context"].host_tools["shader_python"]
+        self.assertEqual(record["path"], "/usr/bin/python3")
+        self.assertEqual(record["sha256"], hashlib.sha256(Path(record["resolved_path"]).read_bytes()).hexdigest())
+        self.assertEqual(record["version"]["implementation"], "cpython")
+        self.assertFalse(marker.exists())
+
+    def test_actual_generator_executable_drift_fails_before_proof_output_and_export(self):
+        original = Path("/usr/bin/python3").read_bytes()
+        for phase in ("capture-probe", "before-proof", "before-output", "export", "alias"):
+            executable = self.root / ("python-" + phase)
+            executable.write_bytes(original)
+            executable.chmod(0o700)
+            def replace(state):
+                replacement = executable.with_suffix(".replacement")
+                replacement.write_bytes(original + b"changed interpreter storage")
+                replacement.chmod(0o700)
+                replacement.replace(executable)
+            with self.subTest(phase=phase), mock.patch.object(portable, "PORTABLE_GENERATOR_PYTHON", executable):
+                if phase == "capture-probe":
+                    actual_run = subprocess.run
+                    def changing_probe(command, **kwargs):
+                        result = actual_run(command, **kwargs)
+                        if "-c" in command:
+                            replace(None)
+                        return result
+                    with mock.patch.object(portable.subprocess, "run", side_effect=changing_probe), \
+                         self.assertRaisesRegex(ValueError, "Python changed during inspection"):
+                        self.fixture()
+                elif phase in {"before-proof", "before-output"}:
+                    with self.assertRaisesRegex(ValueError, "Python executable changed"):
+                        self.fixture(**({"after_bind": replace} if phase == "before-proof" else {"before_output": replace}))
+                else:
+                    state = self.fixture()
+                    if phase == "alias":
+                        alias_target = executable.with_suffix(".alias-target")
+                        alias_target.write_bytes(original)
+                        alias_target.chmod(0o700)
+                        executable.unlink()
+                        executable.symlink_to(alias_target)
+                    else:
+                        replace(state)
+                    with self.assertRaisesRegex(WorkspaceError, "receipt changed"):
+                        portable.validate_portable_build(state["binary"], state["evidence"], context=state["context"])
 
     def test_toolchain_requires_the_exact_supplemental_proof_member(self):
         def missing_proof(state):
@@ -233,7 +295,7 @@ class CompilerClosureTests(unittest.TestCase):
             self.fixture(before_capture=malicious_fixture_script)
 
     def test_configured_and_output_receipts_reject_mutation_and_joint_row_deletion(self):
-        for mutation in ("rows", "source", "source-identity", "source-alias", "supplemental", "header", "header-alias", "copied-header", "library-shadow", "shadow", "executable", "executable-identity", "cache-root"):
+        for mutation in ("rows", "source", "source-identity", "source-alias", "supplemental", "header", "header-alias", "copied-header", "library-shadow", "shadow", "executable", "executable-identity", "host-tool-cache", "cache-root"):
             state = self.fixture()
             binary, context = state["binary"], state["context"]
             if mutation == "rows":
@@ -272,6 +334,11 @@ class CompilerClosureTests(unittest.TestCase):
                 temporary = binary / "replacement"
                 temporary.write_bytes(path.read_bytes())
                 temporary.replace(path)
+            if mutation == "host-tool-cache":
+                path = binary / ".atrinik-configure.json"
+                identity = json.loads(path.read_text())
+                identity["portable_host_tools"]["shader_python"]["resolved_path"] = "/foreign/python3"
+                path.write_text(json.dumps(identity))
             if mutation == "cache-root":
                 source = str(state["views"]["client"])
                 path = binary / "CMakeCache.txt"
@@ -371,7 +438,7 @@ class PortablePublicationTests(unittest.TestCase):
         original = "".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
                            for argument in portable.portable_configure_arguments(self.root))
         original += "CMAKE_HOME_DIRECTORY:INTERNAL=" + str(self.root) + "\n"
-        (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(self.root)}}))
+        (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(self.root)}, "portable_host_tools": {}}))
         compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                          "-O2", "-DNDEBUG", "--no-default-config", "-c", "fixture.c", "-o", "fixture.o"]
         link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
@@ -402,6 +469,7 @@ class PortablePublicationTests(unittest.TestCase):
                     # source/receipt authority is covered by CompilerClosureTests.
                     context = mock.Mock(spec=portable.PortableBuildContext)
                     context.source = self.root
+                    context.host_tools = {}
                     context.baseline = {"ninja": self.ninja_report(binary, self.root, commands, link)}
                     context.target_outputs = {binary / "fixture.o"}
                     if case == "valid": portable.validate_portable_build(binary, self.driver_evidence(), context=context)
@@ -959,7 +1027,7 @@ class PortablePublicationTests(unittest.TestCase):
                 # Isolate export's source/publication guards from compilation;
                 # CompilerClosureTests exercises the real build receipt API.
                 patches.enter_context(mock.patch.object(portable, "PortableBuildContext",
-                                                        return_value=mock.Mock(binary=binary)))
+                                                        return_value=mock.Mock(binary=binary, host_tools={})))
                 def validated_cache(*args, **kwargs):
                     data = cache.read_bytes()
                     if case == "configure":
