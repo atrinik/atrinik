@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -60,12 +61,21 @@ class LocalWindowsProducerTests(unittest.TestCase):
         recipe = "\n".join(line for line in recipe.splitlines() if "COMPILER_LAUNCHER" not in line) + "\n"
         self.toolchain.write_text(recipe.replace("/opt/llvm-mingw", str(self.llvm))
                                  .replace("/opt/atrinik-windows", str(self.prefix)))
+        self.build_tools = self.root / "build-tools"
+        self.build_tools.mkdir()
+        # These tools are fingerprinted, while packaging itself is mocked below.
+        # Keep their bytes and discovery independent of host SDK installations.
+        for name in ("cmake", "cpack", "ninja", "bash"):
+            path = self.build_tools / name
+            path.write_text(f"#!/bin/sh\n# {name} provenance fixture\nexit 1\n")
+            path.chmod(0o755)
         self.environment = {"ATRINIK_WINDOWS_TARGET": "x86_64-w64-mingw32",
                             "ATRINIK_WINDOWS_TOOLCHAIN_FILE": str(self.toolchain),
                             "ATRINIK_WINDOWS_RUNTIME_DIR": str(self.runtime),
                             "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR": str(self.runtime),
                             "ATRINIK_WINDOWS_PYTHON_LIBRARY": str(self.builtins),
-                            "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR": str(self.runtime)}
+                            "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR": str(self.runtime),
+                            "PATH": os.pathsep.join((str(self.build_tools), str(self.llvm / "bin")))}
 
     def identity(self):
         return Workspace._local_windows_producer_identity(self.environment)
@@ -81,14 +91,31 @@ class LocalWindowsProducerTests(unittest.TestCase):
             path.write_bytes(original)
         self.assertEqual(first, self.identity())
 
+    def test_owned_build_tools_are_required_and_rehashed_without_host_path(self):
+        with mock.patch.dict(os.environ, {"PATH": ""}):
+            first = self.identity()
+            for name in ("cmake", "cpack", "ninja", "bash"):
+                with self.subTest(tool=name):
+                    path = self.build_tools / name
+                    original = path.read_bytes()
+                    self.assertEqual(first["tools"][name]["resolved_path"], str(path))
+                    self.assertEqual(first["tools"][name]["sha256"], hashlib.sha256(original).hexdigest())
+                    path.write_bytes(original + b"# changed owned build tool\n")
+                    self.assertNotEqual(first, self.identity())
+                    path.unlink()
+                    with self.assertRaisesRegex(WorkspaceError, "build tool is unavailable: " + name + "$"):
+                        self.identity()
+                    path.write_bytes(original)
+                    path.chmod(0o755)
+                    self.assertEqual(first, self.identity())
+
     def test_windows_environment_clears_driver_dependency_and_shell_overrides(self):
         hostile = dict(self.environment, CFLAGS="--config=/tmp/foreign.cfg", CCC_OVERRIDE_OPTIONS="+-O3",
                        CMAKE_PREFIX_PATH="/tmp/foreign", PKG_CONFIG="/tmp/pkg-config",
                        BASH_ENV="/tmp/startup", ENV="/tmp/startup", CCACHE_PREFIX="/tmp/launcher",
                        RCFLAGS="-I/tmp/foreign @/tmp/foreign.rsp")
         hostile["BASH_FUNC_cmake%%"] = "() { false; }"
-        with mock.patch.dict(os.environ, hostile, clear=True), \
-             mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/fixture/tool"):
+        with mock.patch.dict(os.environ, hostile, clear=True):
             environment = Workspace._local_windows_build_environment()
         for name in ("CCC_OVERRIDE_OPTIONS", "CMAKE_PREFIX_PATH", "PKG_CONFIG", "BASH_ENV", "ENV",
                      "BASH_FUNC_cmake%%", "CCACHE_PREFIX", "RCFLAGS"):
@@ -103,7 +130,6 @@ class LocalWindowsProducerTests(unittest.TestCase):
         launcher = self.llvm / "bin/ccache"
         launcher.write_text("#!/bin/sh\nexec \"$@\"\n")
         launcher.chmod(0o755)
-        self.environment["PATH"] = str(launcher.parent) + os.pathsep + os.defpath
         first = self.identity()
         launcher.write_text(launcher.read_text() + "# replaced\n")
         self.assertNotEqual(first, self.identity())
@@ -250,14 +276,17 @@ class LocalWindowsProducerTests(unittest.TestCase):
     def test_packaging_records_identity_and_refuses_mid_build_replacement(self):
         workspace = Workspace.__new__(Workspace)
         for change, phase in ((None, "client"), ("header", "client"), ("pc", "client"),
-                              ("crt", "client"), ("dll", "client"), ("header", "server")):
+                              ("crt", "client"), ("dll", "client"), ("header", "server"),
+                              *((name, "client") for name in ("cmake", "cpack", "ninja", "bash"))):
             with self.subTest(change=change, phase=phase):
                 staging = self.root / (str(change) + phase)
                 staging.mkdir()
                 for component in ("client", "server"):
                     (staging / component).mkdir()
                 changed_path = {"header": self.header, "pc": self.pc, "crt": self.crt,
-                                "dll": self.runtime / "libunwind.dll"}.get(change, self.header)
+                                "dll": self.runtime / "libunwind.dll",
+                                **{name: self.build_tools / name for name in ("cmake", "cpack", "ninja", "bash")}
+                                }.get(change, self.header)
                 original = changed_path.read_bytes()
                 from atrinik_workspace import workspace as module
                 actual_run = module.run
