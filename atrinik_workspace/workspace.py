@@ -13470,6 +13470,11 @@ class Workspace:
         portable_context: PortableBuildContext | None = None,
     ) -> None:
         self._validate_portable_context(portable, portable_context, tests)
+        if portable:
+            try:
+                portable_context.validate_selected(selected)
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
         peer_inputs = any(
             peer.name != component.name and peer.checkout_name == component.checkout_name
             and PurePosixPath(peer.source) in PurePosixPath(include).parents

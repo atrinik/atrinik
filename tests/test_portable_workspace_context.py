@@ -76,6 +76,13 @@ class PortableWorkspaceContextTests(unittest.TestCase):
         atomic_json(self.binary / CONFIGURE_METADATA, fingerprint)
         sentinel = self.binary / "forged-output"
         sentinel.write_text("cached")
+        stale_header = self.binary / "src" / "include" / "stdio.h"
+        stale_header.parent.mkdir(parents=True)
+        stale_header.write_text("stale generated header")
+        def capture_configure(binary, source):
+            self.assertFalse(stale_header.exists())
+            self.events.append(("configure-evidence", binary, source))
+        self.context.capture_configure = capture_configure
         self.workspace._source_view_unchanged[str(self.source)] = True
         self.workspace._cmake(self.source, self.binary, ["-DBUILD_TESTING=ON"], False,
                               portable=True, portable_context=self.context)
@@ -134,6 +141,18 @@ class PortableWorkspaceContextTests(unittest.TestCase):
                 self.workspace._build_resolved("client", "classic", False, ["client"], {},
                                                portable=True, portable_context=self.context)
             key.assert_not_called()
+        with (
+            mock.patch.object(self.context, "validate_selected", side_effect=ValueError("foreign selected source")),
+            mock.patch.object(self.workspace, "_profile_source_view") as view,
+            mock.patch.object(self.workspace, "_prepare_immutable_client_source_view") as immutable_view,
+            mock.patch.object(self.workspace, "_mutable_cmake_source_view") as mutable_view,
+        ):
+            with self.assertRaisesRegex(WorkspaceError, "foreign selected source"):
+                self.workspace._build_client(self.root, {}, False, component=object(),
+                                             portable=True, portable_context=self.context)
+            view.assert_not_called()
+            immutable_view.assert_not_called()
+            mutable_view.assert_not_called()
         with (
             mock.patch.object(self.context, "validate_source_binding", side_effect=ValueError("foreign staged source")),
             mock.patch.object(self.workspace, "_prepare_cmake_binary") as prepare,
