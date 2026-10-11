@@ -23,6 +23,11 @@ from atrinik_workspace.model import WorkspaceError
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux portable publication")
 class PortablePublicationTests(unittest.TestCase):
     def setUp(self):
+        inspector = shutil.which("llvm-readelf")
+        if inspector:
+            patcher = mock.patch.object(export, "LLVM_READELF", str(Path(inspector).absolute()))
+            patcher.start()
+            self.addCleanup(patcher.stop)
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
@@ -51,6 +56,35 @@ class PortablePublicationTests(unittest.TestCase):
         record = {"library": {"sha256": digest, "members": {
             name: {"sha256": hashlib.sha256(payload).hexdigest(), "size": len(payload)}}}}
         return record, payload
+
+    def test_portable_build_refuses_compiler_optimization_linker_and_lto_drift(self):
+        binary = self.root / "build"
+        binary.mkdir()
+        original = "".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
+                           for argument in portable.portable_configure_arguments())
+        compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
+                         "-O2", "-DNDEBUG", "-c", "fixture.c", "-o", "fixture.o"]
+        link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
+                      "-O2", "-DNDEBUG", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
+        for case in ("valid", "compiler", "release", "cxx", "lto", "linker", "compile-o3", "link-o3", "response", "wrapper"):
+            with self.subTest(case=case):
+                cache, commands, link = original, list(compile_words), list(link_words)
+                if case == "compiler": cache = cache.replace("/bin/clang\n", "/bin/gcc\n")
+                if case == "release": cache = cache.replace("-O2 -DNDEBUG", "-O3 -DNDEBUG")
+                if case == "cxx": cache = cache.replace("CMAKE_CXX_FLAGS:STRING=-O2", "CMAKE_CXX_FLAGS:STRING=-O3")
+                if case == "lto": commands.append("-flto=thin")
+                if case == "linker": link.remove("-fuse-ld=lld")
+                if case == "compile-o3": commands.append("-O3")
+                if case == "link-o3": link.append("-O3")
+                if case == "response": commands.append("@hidden-flags.rsp")
+                if case == "wrapper": link.insert(0, "/unverified-wrapper")
+                (binary / "CMakeCache.txt").write_text(cache)
+                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": commands}]))
+                with mock.patch.object(portable.subprocess, "run", return_value=
+                    subprocess.CompletedProcess([], 0, stdout=" ".join(link) + "\n")):
+                    if case == "valid": portable.validate_portable_build(binary)
+                    else:
+                        with self.assertRaises(WorkspaceError): portable.validate_portable_build(binary)
 
     def test_audio_notices_preserve_verified_text_and_archive_provenance(self):
         record, payload = self.audio_archive()
@@ -213,7 +247,7 @@ class PortablePublicationTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "provider escaped moved export"):
                 namespace["loaded_application_paths"](self.root)
 
-    @unittest.skipUnless(shutil.which("cc"), "native compiler")
+    @unittest.skipUnless(shutil.which("clang"), "native compiler")
     def test_real_launcher_helpers_are_separate_from_client_loader_trace(self):
         import runpy
         namespace = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
@@ -221,7 +255,7 @@ class PortablePublicationTests(unittest.TestCase):
             (self.output / path).mkdir(parents=True)
         source = self.root / "client.c"
         source.write_text('#include <stdio.h>\nint main(void) { puts("client help"); return 0; }\n')
-        subprocess.run(["cc", str(source), "-o", str(self.output / "bin/atrinik")],
+        subprocess.run(["clang", str(source), "-o", str(self.output / "bin/atrinik")],
                        check=True, capture_output=True)
         launcher = self.output / "atrinik"
         launcher.write_bytes(export.launcher_script())
@@ -234,14 +268,14 @@ class PortablePublicationTests(unittest.TestCase):
         self.assertFalse(any("libselinux" in path for path in paths))
         self.assertIn("initialize program:", (self.root / "client-loader.log").read_text())
 
-    @unittest.skipUnless(shutil.which("cc"), "native compiler")
+    @unittest.skipUnless(shutil.which("clang"), "native compiler")
     def test_real_loader_rejects_omitted_application_library_even_without_manifest_entry(self):
         import runpy
         namespace = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
         source = self.root / "consumer.c"
         source.write_text("extern const char *zlibVersion(void); int main(void) { return !zlibVersion(); }\n")
         binary = self.root / "consumer"
-        subprocess.run(["cc", str(source), "-o", str(binary), "-lz"], check=True, capture_output=True)
+        subprocess.run(["clang", str(source), "-o", str(binary), "-l:libz.so.1"], check=True, capture_output=True)
         environment = dict(os.environ)
         environment.pop("LD_LIBRARY_PATH", None)
         listing = subprocess.check_output(["/lib64/ld-linux-x86-64.so.2", "--list", str(binary)],
@@ -335,8 +369,15 @@ class PortablePublicationTests(unittest.TestCase):
                 binary = directory / "build/client"
                 binary.mkdir(parents=True)
                 cache = binary / "CMakeCache.txt"
-                cache.write_text("CMAKE_SKIP_RPATH:BOOL=ON\nCMAKE_BUILD_TYPE:STRING=Release\n"
-                                 "CMAKE_C_FLAGS:STRING=-O2 -march=x86-64 -mtune=generic\n")
+                cache.write_text("".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
+                                         for argument in portable.portable_configure_arguments()))
+                compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
+                                 "-O2", "-DNDEBUG", "-c", "fixture.c", "-o", "fixture.o"]
+                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": compile_words}]))
+                link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
+                              "-O2", "-DNDEBUG", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
+                patches.enter_context(mock.patch.object(portable.subprocess, "run", return_value=
+                    subprocess.CompletedProcess([], 0, stdout=" ".join(link_words) + "\n")))
                 released = directory / "released"
                 released.mkdir()
                 (released / "COPYING").write_bytes(b"released sound attribution")
@@ -513,14 +554,14 @@ class PortablePublicationTests(unittest.TestCase):
         with self.assertRaisesRegex(export.ExportError, "unresolved symbols in bin/client"):
             portable.symbol_closure(objects, entrypoint="bin/client")
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
     def test_portable_executable_rejects_custom_or_missing_loader(self):
         source = self.root / "main.c"
         source.write_text("int main(void) { return 0; }\n")
         for name, options in (("normal", []), ("custom", ["-Wl,--dynamic-linker=/tmp/private-loader"]),
                               ("missing", ["-shared", "-fPIC"])):
             target = self.root / name
-            subprocess.run(["cc", str(source), "-o", str(target), *options], check=True, capture_output=True)
+            subprocess.run(["clang", str(source), "-o", str(target), *options], check=True, capture_output=True)
             with target.open("rb") as stream:
                 if name == "normal":
                     self.assertEqual(portable.portable_executable(stream.fileno())["interpreter"],
@@ -533,14 +574,14 @@ class PortablePublicationTests(unittest.TestCase):
         with target.open("rb") as stream, self.assertRaisesRegex(export.ExportError, "executable mode"):
             portable.portable_executable(stream.fileno())
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
     def test_real_versioned_symbol_definitions_and_missing_symbol(self):
         source = self.root / "sample.c"
         version = self.root / "version.map"
         library = self.root / "libsample.so"
         source.write_text("int sample(void) { return 7; }\n")
         version.write_text("SAMPLE_1 { global: sample; local: *; };\n")
-        subprocess.run(["cc", "-shared", "-fPIC", str(source), "-o", str(library),
+        subprocess.run(["clang", "-shared", "-fPIC", "-nostdlib", str(source), "-o", str(library),
                         "-Wl,--version-script=" + str(version)], check=True, capture_output=True)
         with library.open("rb") as stream:
             facts = export.inspect_elf(stream.fileno())
@@ -888,13 +929,13 @@ class PortablePublicationTests(unittest.TestCase):
         self.assertFalse((self.root / "client.tar").exists())
 
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
     def test_other_absolute_runpath_provider_remains_rejected(self):
         from contextlib import ExitStack
         source = self.root / "provider.c"
         library = self.root / "libother.so"
         source.write_text("int other(void) { return 0; }\n")
-        subprocess.run(["cc", "-shared", "-fPIC", str(source), "-o", str(library),
+        subprocess.run(["clang", "-shared", "-fPIC", str(source), "-o", str(library),
                         "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/pulseaudio"], check=True, capture_output=True)
         with library.open("rb") as stream, ExitStack() as stack:
             descriptor, _, derivative = portable.provider_payload(stack, library, stream.fileno(), portable.byte_record(stream.fileno()))
@@ -973,13 +1014,13 @@ class PortablePublicationTests(unittest.TestCase):
         versions = self.root / "versions.map"
         versions.write_text("SAMPLE_1 { global: sample; local: *; };\n")
         library = self.root / "provider.so"
-        subprocess.run(["cc", "-shared", "-fPIC", "-nostdlib", str(source), "-o", str(library),
+        subprocess.run(["clang", "-shared", "-fPIC", "-nostdlib", str(source), "-o", str(library),
                         "-Wl,-soname,libfixture.so.1", "-Wl,--version-script=" + str(versions)],
                        check=True, capture_output=True)
         client_source = self.root / "client.c"
         client_source.write_text("extern int sample(void); int main(void) { return sample(); }\n")
         binary = self.root / "client-binary"
-        subprocess.run(["cc", "-nostdlib", str(client_source), str(library), "-o", str(binary),
+        subprocess.run(["clang", "-nostdlib", str(client_source), str(library), "-o", str(binary),
                         "-Wl,-e,main", "-Wl,--dynamic-linker=/lib64/ld-linux-x86-64.so.2"],
                        check=True, capture_output=True)
         documents = {"runtime-abi.json": {"objects": [{
@@ -990,7 +1031,7 @@ class PortablePublicationTests(unittest.TestCase):
         }]}, "contract.json": {"runtime": {"unsupported_dlopen_features": []}}}
         return library, binary, documents
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
     def test_actual_runtime_elf_closure_is_copied_and_verified_after_relocation(self):
         library, binary, documents = self.compiled_runtime()
         with portable.Publication(self.output, self.sources) as publication:
@@ -1010,7 +1051,7 @@ class PortablePublicationTests(unittest.TestCase):
         self.assertFalse(report["audible_playback_verified"])
         self.assertEqual(report["derivatives"], [])
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
     def test_actual_runtime_rejects_provider_hash_dependency_dynamic_and_symbol_drift(self):
         import copy
         library, binary, original = self.compiled_runtime()
@@ -1037,7 +1078,7 @@ class PortablePublicationTests(unittest.TestCase):
                     portable.add_runtime(publication, documents, binary)
             self.assertFalse((self.root / label).exists())
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
     def test_declared_unsupported_dynamic_feature_is_excluded_explicitly(self):
         library, binary, documents = self.compiled_runtime()
         documents["contract.json"]["runtime"]["unsupported_dlopen_features"] = [

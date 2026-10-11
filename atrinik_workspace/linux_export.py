@@ -546,15 +546,16 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
 
 
 MAX_ELF_REPORT_BYTES = 4 * 1024 * 1024
+LLVM_READELF = "/opt/llvm-23.1.3/bin/llvm-readelf"
 
 
 def _readelf(descriptor: int, *, timeout: float = 15) -> str:
     """Inspect an inherited descriptor without executing the payload."""
     process = subprocess.Popen(
-        ["llvm-readelf", "--wide", "--file-header", "--program-headers", "--dynamic",
+        [LLVM_READELF, "--wide", "--file-header", "--program-headers", "--dynamic",
          "--version-info", "--dyn-syms", f"/proc/self/fd/{descriptor}"],
         pass_fds=(descriptor,), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        env={"PATH": os.environ.get("PATH", os.defpath), "LC_ALL": "C"})
+        env={"PATH": "/opt/llvm-23.1.3/bin:/usr/bin:/bin", "LC_ALL": "C"})
     output = bytearray()
     deadline = time.monotonic() + timeout
     try:

@@ -15,6 +15,8 @@ from pathlib import Path
 import re
 import secrets
 import stat
+import subprocess
+import shlex
 import tarfile
 from typing import Callable
 
@@ -188,9 +190,118 @@ def _read_regular(path: Path, *, limit: int = export.MAX_MANIFEST_BYTES) -> byte
         return data
 
 
+LLVM_ROOT = "/opt/llvm-23.1.3"
+PORTABLE_C_FLAGS = "-O2 -march=x86-64 -mtune=generic"
+PORTABLE_RELEASE_FLAGS = "-O2 -DNDEBUG"
+PORTABLE_LINK_FLAGS = "--rtlib=compiler-rt --unwindlib=libunwind -fuse-ld=lld"
+
+
+def portable_configure_arguments() -> list[str]:
+    """Pin CMake's full compiler, optimization and linker contract."""
+    settings = {
+        "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "", "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_C_LINKER_LAUNCHER": "", "CMAKE_CXX_LINKER_LAUNCHER": "",
+        "CMAKE_C_COMPILER": LLVM_ROOT + "/bin/clang",
+        "CMAKE_CXX_COMPILER": LLVM_ROOT + "/bin/clang++",
+        "CMAKE_LINKER": LLVM_ROOT + "/bin/ld.lld",
+        "CMAKE_AR": LLVM_ROOT + "/bin/llvm-ar",
+        "CMAKE_RANLIB": LLVM_ROOT + "/bin/llvm-ranlib",
+        "CMAKE_C_FLAGS": PORTABLE_C_FLAGS, "CMAKE_CXX_FLAGS": PORTABLE_C_FLAGS,
+        "CMAKE_C_FLAGS_RELEASE": PORTABLE_RELEASE_FLAGS,
+        "CMAKE_CXX_FLAGS_RELEASE": PORTABLE_RELEASE_FLAGS,
+        "CMAKE_EXE_LINKER_FLAGS": PORTABLE_LINK_FLAGS,
+        "CMAKE_SHARED_LINKER_FLAGS": PORTABLE_LINK_FLAGS,
+        "CMAKE_MODULE_LINKER_FLAGS": PORTABLE_LINK_FLAGS,
+        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "",
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "",
+        "CMAKE_MODULE_LINKER_FLAGS_RELEASE": "",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "OFF",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE": "OFF",
+    }
+    return ["-D" + name + "=" + value for name, value in settings.items()]
+
+
+def _portable_command(words: list[str], cache: dict[str, str], *, link: bool) -> None:
+    from .model import WorkspaceError
+    compilers = {LLVM_ROOT + "/bin/clang", LLVM_ROOT + "/bin/clang++"}
+    if not words:
+        raise WorkspaceError("portable compile/link invocation is missing")
+    launchers = {cache.get("CMAKE_C_COMPILER_LAUNCHER"), cache.get("CMAKE_CXX_COMPILER_LAUNCHER")}
+    if words[0] in launchers:
+        words = words[1:]
+    if not words or words[0] not in compilers:
+        raise WorkspaceError("portable compile/link compiler changed")
+    if (any(word.startswith(("-flto", "-mavx", "-mcpu=", "--target=", "-m32")) for word in words)
+            or any(word in {"-Xclang", "-target", "-target-cpu", "-target-feature"} for word in words)
+            or [word for word in words if re.fullmatch(r"-O(?:[0-9]|fast|s|z|g)", word)] != ["-O2", "-O2"]
+            or [word for word in words if word.startswith("-march=")] != ["-march=x86-64"]
+            or [word for word in words if word.startswith("-mtune=")] != ["-mtune=generic"]
+            or any(word.startswith("@") for word in words)
+            or "-DNDEBUG" not in words):
+        raise WorkspaceError("portable compile/link optimization or CPU/LTO contract changed")
+    if link and any(words.count(flag) != 1 for flag in shlex.split(PORTABLE_LINK_FLAGS)):
+        raise WorkspaceError("portable compile/link LLD/runtime contract changed")
+
+
+def validate_portable_build(binary: Path) -> bytes:
+    """Check cached settings and generated compile/link commands before export."""
+    from .model import WorkspaceError
+    raw = _read_regular(binary / "CMakeCache.txt")
+    values = {}
+    for line in raw.decode("utf-8").splitlines():
+        if line.startswith(("#", "//")) or "=" not in line or ":" not in line.split("=", 1)[0]:
+            continue
+        key, value = line.split("=", 1)
+        name = key.split(":", 1)[0]
+        if name in values:
+            raise WorkspaceError("portable CMake configuration changed: duplicate " + name)
+        values[name] = value
+    for argument in portable_configure_arguments():
+        name, expected = argument[2:].split("=", 1)
+        if values.get(name) != expected:
+            raise WorkspaceError("portable CMake configuration changed: " + name)
+    try:
+        commands = json.loads(_read_regular(binary / "compile_commands.json"), object_pairs_hook=export._unique_object)
+        if not isinstance(commands, list) or not commands:
+            raise ValueError("missing compile commands")
+        for record in commands:
+            words = record.get("arguments") or shlex.split(record["command"])
+            if not isinstance(words, list) or not all(isinstance(word, str) for word in words):
+                raise ValueError("invalid command")
+            _portable_command(words, values, link=False)
+        result = subprocess.run(["/usr/bin/ninja", "-C", str(binary), "-t", "commands", "atrinik"],
+                                capture_output=True, text=True, timeout=30, check=True,
+                                env={"PATH": LLVM_ROOT + "/bin:/usr/bin:/bin", "LC_ALL": "C"})
+        if len(result.stdout) > export.MAX_MANIFEST_BYTES:
+            raise ValueError("command report too large")
+        links = []
+        for line in result.stdout.splitlines():
+            words = shlex.split(line)
+            if ("-o" in words and "-c" not in words and words.index("-o") + 1 < len(words)
+                    and (Path(words[words.index("-o") + 1]).name == "atrinik"
+                         or ".so" in Path(words[words.index("-o") + 1]).suffixes)):
+                command = words[2:] if words[:2] == [":", "&&"] else words
+                if "&&" in command:
+                    tail = command[command.index("&&") + 1:]
+                    if tail != [":"]:
+                        raise ValueError("unexpected linker command suffix")
+                    command = command[:command.index("&&")]
+                links.append(command)
+        if not links:
+            raise ValueError("missing link commands")
+        for command in links:
+            _portable_command(command, values, link=True)
+    except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError) as error:
+        raise WorkspaceError("portable compile/link evidence is unavailable or invalid") from error
+    return raw
+
+
 def _verify_compiler_bytes(evidence: dict) -> None:
     """Rehash the selected tools and runtimes before using image metadata."""
-    records = [*evidence["tools"].values(), evidence["runtime"], evidence["unwinder"]]
+    compiler = evidence["tools"]["compiler"]
+    cxx = {"path": str(Path(compiler["path"]).with_name("clang++")), "sha256": compiler["sha256"]}
+    records = [*evidence["tools"].values(), cxx, evidence["runtime"], evidence["unwinder"]]
     for record in records:
         requested = Path(record["path"])
         try:
@@ -728,11 +839,7 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
             # A concurrent rebuild between build return and lock acquisition must
             # not silently replace the pinned portable configure contract.
             binary_directory = workspace._classic_binary_directory(build_root, "client")
-            cache = (binary_directory / "CMakeCache.txt").read_text()
-            for expected in ("CMAKE_SKIP_RPATH:BOOL=ON", "CMAKE_BUILD_TYPE:STRING=Release",
-                             "CMAKE_C_FLAGS:STRING=-O2 -march=x86-64 -mtune=generic"):
-                if expected not in cache.splitlines():
-                    raise WorkspaceError("portable CMake configuration changed: " + expected.split(":", 1)[0])
+            cache = validate_portable_build(binary_directory)
             sound_root, sound_record = workspace._prepare_sound(build_root, selected, profile_name)
             if sound_record["source_tree"] != generations["sound"]["source_tree"]:
                 raise WorkspaceError("portable sound release must match the selected sound source tree")
@@ -806,8 +913,9 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
                     fresh, _documents = installed_metadata()
                     if fresh != raw:
                         raise WorkspaceError("portable producer metadata changed before publication")
-                    if (binary_directory / "CMakeCache.txt").read_text() != cache:
+                    if _read_regular(binary_directory / "CMakeCache.txt") != cache:
                         raise WorkspaceError("portable build configuration changed before publication")
+                    validate_portable_build(binary_directory)
                 result = publication.publish(revalidate)
                 return {**result, "image": IMAGE, "platform_manifest": PLATFORM_MANIFEST,
                         "runtime": runtime, "legal": legal}

@@ -17,6 +17,11 @@ from atrinik_workspace import linux_export as export
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux filesystem and desktop capabilities")
 class LinuxExportTests(unittest.TestCase):
     def setUp(self) -> None:
+        inspector = shutil.which("llvm-readelf")
+        if inspector:
+            patcher = mock.patch.object(export, "LLVM_READELF", str(Path(inspector).absolute()))
+            patcher.start()
+            self.addCleanup(patcher.stop)
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name) / "client"
@@ -303,6 +308,19 @@ class LinuxExportTests(unittest.TestCase):
             with self.assertRaisesRegex(export.ExportError, "changed during inspection"):
                 export.inspect_elf(stream.fileno())
 
+    def test_elf_inspection_ignores_path_shadowing(self) -> None:
+        shadow = self.root / "llvm-readelf"
+        marker = self.root / "shadow-ran"
+        shadow.write_text("#!/bin/sh\ntouch '" + str(marker) + "'\necho forged ELF\n")
+        shadow.chmod(0o700)
+        fixed = self.root / "verified-readelf"
+        fixed.write_text("#!/bin/sh\necho fixed-inspector\n")
+        fixed.chmod(0o700)
+        with mock.patch.dict(os.environ, {"PATH": str(self.root)}), \
+             mock.patch.object(export, "LLVM_READELF", str(fixed)):
+            self.assertEqual(export._readelf(0).strip(), "fixed-inspector")
+        self.assertFalse(marker.exists())
+
     def test_elf_reports_are_bounded_and_timed_out(self) -> None:
         real_popen = subprocess.Popen
         for source, message in [("import sys; sys.stdout.write('x'*4096)", "size limit"),
@@ -338,6 +356,7 @@ class LinuxExportTests(unittest.TestCase):
         runtime.write_bytes(b"verified-runtime")
         tool = self.root / "clang"
         tool.symlink_to(runtime.name)
+        (self.root / "clang++").symlink_to(runtime.name)
         record = {"path": str(tool), "sha256": hashlib.sha256(runtime.read_bytes()).hexdigest()}
         evidence = {"tools": {"compiler": record}, "runtime": record, "unwinder": record}
         portable._verify_compiler_bytes(evidence)

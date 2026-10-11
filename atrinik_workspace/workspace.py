@@ -13420,9 +13420,8 @@ class Workspace:
             *self._classic_identity_arguments(selected["client"]),
         ]
         if portable:
-            arguments.extend(["-DCMAKE_SKIP_RPATH=ON", "-DCMAKE_BUILD_TYPE=Release",
-                              "-DCMAKE_C_FLAGS=-O2 -march=x86-64 -mtune=generic",
-                              "-DCMAKE_CXX_FLAGS=-O2 -march=x86-64 -mtune=generic"])
+            from .linux_portable import portable_configure_arguments
+            arguments.extend(portable_configure_arguments())
         if gpu_shader is not None:
             arguments.extend(self._gpu_shader_cmake_arguments(gpu_shader))
         if build_target is None:

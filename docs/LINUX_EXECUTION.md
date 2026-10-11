@@ -728,7 +728,12 @@ execution authority. Its X11/Vulkan client supports a Wayland desktop only via a
 separately qualified XWayland setup; no native Wayland backend is claimed here.
 
 `linux_export.inspect_elf` examines a leased, already-open regular ELF descriptor
-with bounded, time-limited LLVM readelf output; it never runs the payload or ldd.
+with bounded, time-limited output from the verified absolute LLVM readelf path;
+it never runs the payload or ldd, and ambient PATH entries cannot select its inspector.
+Portable builds pin Clang/Clang++, LLD and archive tools, use explicit `-O2`
+Release flags, and disable interprocedural optimization. Export rechecks the CMake
+cache and generated compile/link invocations before publication; compiler,
+optimization, CPU, runtime or LTO drift refuses export.
 It records class, endianness, machine, interpreter, static dependencies, runtime
 search paths and version-needed records by provider. The structural dependency
 report requires explicit bundled providers, materialized SONAME filenames and
