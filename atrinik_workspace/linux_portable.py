@@ -383,6 +383,9 @@ def validate_portable_build(binary: Path, evidence: dict) -> bytes:
 
 def _verify_compiler_bytes(evidence: dict) -> None:
     """Rehash the selected tools and runtimes before using image metadata."""
+    shared_unwinder = Path(evidence["unwinder"]["path"]).with_name("libunwind.so")
+    if shared_unwinder.exists() or shared_unwinder.is_symlink():
+        raise export.ExportError("portable-producer: unrecorded shared unwinder shadows static runtime")
     compiler = evidence["tools"]["compiler"]
     cxx = {"path": str(Path(compiler["path"]).with_name("clang++")), "sha256": compiler["sha256"]}
     records = [*evidence["tools"].values(), cxx, evidence["runtime"], evidence["unwinder"]]

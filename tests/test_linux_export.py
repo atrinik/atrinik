@@ -440,19 +440,10 @@ class LinuxExportTests(unittest.TestCase):
                                           "unsupported_dlopen_features": [{"object": library, "feature": "unused",
                                                                             "soname": ["unused.so"], "reason": "unused fixture feature"}]}},
             "installed.json": {"schema_version": 2, "architecture": "amd64", "glibc": "glibc 2.36",
-                               "compiler_target": "x86_64-linux-gnu",
+                               "compiler_target": "x86_64-unknown-linux-gnu",
                                "pkg_config": {"sdl3": "3.4.2"}},
-            "compiler-evidence.json": {
-                "schema_version": 2, "toolchain_version": "23.1.3", "target": "x86_64-linux-gnu",
-                "flags": ["-O2", "-march=x86-64", "-mtune=generic", "--rtlib=compiler-rt", "--unwindlib=libunwind", "-fuse-ld=lld"],
-                "tools": {name: {"path": "/opt/llvm-23.1.3/bin/" + tool, "sha256": "1" * 64, "version": "LLVM 23.1.3"}
-                          for name, tool in (("compiler", "clang"), ("linker", "ld.lld"), ("readelf", "llvm-readelf"))},
-                "runtime": {"path": "/opt/llvm-23.1.3/lib/clang/23/lib/linux/libclang_rt.builtins-x86_64.a", "sha256": "2" * 64},
-                "unwinder": {"path": "/opt/llvm-23.1.3/lib/libunwind.a", "sha256": "3" * 64},
-                "compile": {"command": ["/opt/llvm-23.1.3/bin/clang", "-O2", "-march=x86-64", "-mtune=generic", "--rtlib=compiler-rt", "--unwindlib=libunwind", "-fuse-ld=lld", "probe.c"],
-                            "driver_command": ["/opt/llvm-23.1.3/bin/clang", "-###", "-O2", "-march=x86-64", "-mtune=generic", "--rtlib=compiler-rt", "--unwindlib=libunwind", "-fuse-ld=lld", "probe.c"],
-                            "driver_output": '\n"/opt/llvm-23.1.3/bin/clang" "-cc1" "-target-cpu" "x86-64" "-tune-cpu" "generic" "-O2"\n"/opt/llvm-23.1.3/bin/ld.lld" "/opt/llvm-23.1.3/lib/clang/23/lib/linux/libclang_rt.builtins-x86_64.a" "-lunwind"\n',
-                            "source_sha256": "4" * 64, "output_sha256": "5" * 64}},
+            "compiler-evidence.json": json.loads((Path(__file__).parent /
+                "fixtures/linux_export/llvm-readelf-23.1.3/driver-evidence.json").read_text()),
             "runtime-abi.json": {"schema_version": 1, "glibc": "2.36", "cpu": "x86-64", "roots": [library],
                                  "objects": [client, obj(plugin)]},
             "shader-generation.json": {"schema_version": 1, "source_commit": "a" * 40,
@@ -494,13 +485,78 @@ class LinuxExportTests(unittest.TestCase):
         with self.assertRaises(export.ExportError):
             export._portable_compiler_evidence(evidence, documents["contract.json"]["compiler"], documents["installed.json"])
 
+    def test_sealed_probe_rejects_flag_source_output_identity_and_search_drift(self):
+        import shlex
+        original = self.portable_documents()
+        evidence = original["compiler-evidence.json"]
+        stages = [shlex.split(line) for line in evidence["compile"]["driver_output"].splitlines()
+                  if line.lstrip().startswith('"')]
+        def altered_stage(index, alter):
+            changed = [list(args) for args in stages]
+            alter(changed[index])
+            return "\n".join(" ".join(json.dumps(arg) for arg in args) for args in changed) + "\n"
+        def validate(value):
+            export._portable_compiler_evidence(value, original["contract.json"]["compiler"], original["installed.json"])
+        mutations = [
+            ("compile", "driver_output", altered_stage(0, lambda args: args.extend(["-O0"]))),
+            ("compile", "driver_output", altered_stage(0, lambda args: args.extend(["-target-feature", "+avx2"]))),
+            ("compile", "driver_output", altered_stage(0, lambda args: args.extend(["-target-cpu", "x86-64"]))),
+            ("compile", "driver_output", altered_stage(0, lambda args: args.extend(["-include", "/tmp/foreign.h"]))),
+            ("compile", "driver_output", altered_stage(0, lambda args: args.__setitem__(-1, "/tmp/other.c"))),
+            ("compile", "driver_output", altered_stage(1, lambda args: args.__setitem__(args.index("-o") + 1, "/tmp/other"))),
+            ("compile", "driver_output", altered_stage(1, lambda args: args.__setitem__(
+                next(index for index, arg in enumerate(args) if arg.startswith("/tmp/probe-")), "/tmp/probe-foreign.o"))),
+            ("compile", "driver_output", altered_stage(1, lambda args: args.insert(13, "-L/usr/local/lib"))),
+            ("compile", "driver_output", altered_stage(1, lambda args: args.insert(14, "-L/tmp/foreign/../../usr/lib"))),
+            ("compile", "source_sha256", "1" * 64),
+            ("runtime", "path", "/opt/llvm-23.1.3/foreign/libclang_rt.builtins-x86_64.a"),
+            ("unwinder", "path", "/opt/llvm-23.1.3/foreign/libunwind.a"),
+        ]
+        for record, key, value in mutations:
+            changed = json.loads(json.dumps(evidence))
+            changed[record][key] = value
+            with self.subTest(record=record, key=key, value=value), self.assertRaises(export.ExportError):
+                validate(changed)
+        changed = json.loads(json.dumps(evidence))
+        changed["compile"]["command"].append("-O0")
+        changed["compile"]["driver_command"].append("-O0")
+        with self.assertRaises(export.ExportError):
+            validate(changed)
+        # Coordinates may vary while the exact sealed invocation remains bound.
+        changed = json.loads(json.dumps(evidence))
+        old_source = changed["compile"]["command"][7]
+        old_root = str(Path(old_source).parent)
+        for key in ("command", "driver_command"):
+            changed["compile"][key] = [arg.replace(old_root, "/tmp/portable-compiler-fresh")
+                                        for arg in changed["compile"][key]]
+        changed["compile"]["driver_output"] = changed["compile"]["driver_output"].replace(old_root, "/tmp/portable-compiler-fresh")
+        validate(changed)
+
+    def test_installed_runtime_refuses_shared_unwinder_shadow(self):
+        from atrinik_workspace import linux_portable as portable
+        payload = self.root / "runtime.a"
+        payload.write_bytes(b"cohort")
+        (self.root / "clang++").symlink_to(payload.name)
+        record = {"path": str(payload), "sha256": hashlib.sha256(payload.read_bytes()).hexdigest()}
+        evidence = {"tools": {"compiler": record}, "runtime": record, "unwinder": record}
+        portable._verify_compiler_bytes(evidence)
+        shadow = self.root / "libunwind.so"
+        for linked in (False, True):
+            if linked:
+                shadow.symlink_to("missing.so")
+            else:
+                shadow.write_bytes(b"foreign shared unwinder")
+            with self.assertRaisesRegex(export.ExportError, "shadows"):
+                portable._verify_compiler_bytes(evidence)
+            shadow.unlink()
+
     def test_portable_metadata_rejects_extra_stages_forged_cc1_and_later_foreign_search(self):
         documents = self.portable_documents()
         original = documents["compiler-evidence.json"]["compile"]["driver_output"]
         for report in (
                 original + '"/usr/bin/as" "probe.s"\n',
                 original.rstrip() + ' "/tmp/foreign/libhidden.a"\n',
-                original.replace('"/opt/llvm-23.1.3/bin/clang" "-cc1"', '"/tmp/foreign" "-cc1"'),
+                original.replace('"/opt/llvm-23.1.3/bin/clang-23" "-cc1"', '"/tmp/foreign" "-cc1"'),
                 original.replace('"-cc1"', '"--forged" "-cc1"'),
                 original.rstrip() + ' "-L/opt/llvm-23.1.3/lib" "-L/tmp/foreign"\n',
                 original.rstrip() + ' "--library-path=/usr/local/unrecorded"\n'):

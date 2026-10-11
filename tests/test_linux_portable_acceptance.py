@@ -140,7 +140,7 @@ class PortablePublicationTests(unittest.TestCase):
         with self.assertRaises(WorkspaceError):
             portable._portable_command([words[0], "-L/tmp/unverified-runtime", *words[1:]], {}, link=True)
         for option in (["-L/tmp/unverified-runtime"], ["-L", "/tmp/unverified-runtime"],
-                       ["--library-path=/tmp/unverified-runtime"]):
+                       ["--library-path=/tmp/unverified-runtime"], ["-L/tmp/foreign/../../usr/lib"]):
             with self.subTest(option=option), self.assertRaises(WorkspaceError):
                 portable._portable_command([*words, *option], {}, link=True)
         portable._portable_command([*words, "-L/usr/local/lib"], {}, link=True)
@@ -222,11 +222,13 @@ class PortablePublicationTests(unittest.TestCase):
         # report tests the production producer's exact directory contract.
         report = export._tool_report([link_words[0], "-###", *link_words[1:]], cwd=self.root)
         import shlex
-        default_directories = {os.path.normpath(arg[2:]) for line in report.splitlines()
+        default_spellings = {arg[2:] for line in report.splitlines()
                                if line.lstrip().startswith('"') for arg in shlex.split(line)
                                if arg.startswith("-L")}
+        default_directories = {os.path.normpath(path) for path in default_spellings}
         with mock.patch.object(portable, "LLVM_ROOT", str(prefix)), \
-             mock.patch.object(export, "PORTABLE_LIBRARY_DIRECTORIES", default_directories | export.PORTABLE_LIBRARY_DIRECTORIES):
+             mock.patch.object(export, "PORTABLE_LIBRARY_DIRECTORIES", default_directories | export.PORTABLE_LIBRARY_DIRECTORIES), \
+             mock.patch.object(export, "PORTABLE_LIBRARY_SPELLINGS", default_spellings | export.PORTABLE_LIBRARY_SPELLINGS):
             portable._portable_driver(compile_words, evidence, self.root, link=False)
             portable._portable_driver(link_words, evidence, self.root, link=True)
             cases = [(compile_words + ["-fno-integrated-as"], False),
