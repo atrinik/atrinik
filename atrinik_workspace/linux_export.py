@@ -252,6 +252,114 @@ def _portable_path(value: object) -> str:
     return value
 
 
+# Exact library directories from the pinned Debian bookworm producer cohort.
+# In particular /usr/local is NOT an extensible trust prefix.
+PORTABLE_LIBRARY_DIRECTORIES = frozenset({
+    "/opt/llvm-23.1.3/lib", "/usr/local/lib",
+    "/usr/lib/gcc/x86_64-linux-gnu/12", "/usr/lib/x86_64-linux-gnu",
+    "/lib/x86_64-linux-gnu", "/usr/lib64", "/lib64", "/usr/lib", "/lib",
+})
+
+
+def portable_library_paths(words: list[str], *, binary: Path | None = None,
+                           llvm_root: str = "/opt/llvm-23.1.3", installed: bool = False) -> list[str]:
+    """Check every explicit/default linker directory against producer or build roots."""
+    paths = []
+    allowed = (PORTABLE_LIBRARY_DIRECTORIES - {"/opt/llvm-23.1.3/lib"}) | {llvm_root + "/lib"}
+    for index, word in enumerate(words):
+        if word in {"-L", "--library-path"}:
+            value = words[index + 1] if index + 1 < len(words) else ""
+        elif word.startswith("-L"):
+            value = word[2:]
+        elif word.startswith("--library-path="):
+            value = word.split("=", 1)[1]
+        else:
+            continue
+        path = Path(value)
+        # Clang emits lexical ../ aliases for its system directories. Normalize
+        # those without granting trust to arbitrary descendants of the prefix.
+        normalized = os.path.normpath(value)
+        if not path.is_absolute():
+            if binary is None or not value:
+                raise ExportError("portable-metadata: untrusted linker search directory")
+            path = binary / path
+        build_path = binary is not None and path.resolve().is_relative_to(binary.resolve())
+        if not build_path and (normalized not in allowed or (installed and str(path.resolve()) not in allowed)):
+            raise ExportError("portable-metadata: untrusted linker search directory: " + value)
+        paths.append(value)
+    return paths
+
+
+def portable_link_inputs(words: list[str], *, binary: Path | None = None,
+                         llvm_root: str = "/opt/llvm-23.1.3", generated_objects: tuple[str, ...] = ()) -> None:
+    """Reject direct foreign archives/objects as well as hidden linker scripts."""
+    flags = {"--as-needed", "--no-as-needed", "-shared", "-pie", "-static", "--no-undefined",
+             "--eh-frame-hdr", "--export-dynamic", "-export-dynamic", "--gc-sections", "--no-gc-sections",
+             "--start-group", "--end-group", "--whole-archive", "--no-whole-archive", "--push-state",
+             "--pop-state", "-Bstatic", "-Bdynamic", "--build-id", "-s", "-S", "--strip-all",
+             "--strip-debug", "-X", "-x"}
+    skip = False
+    library_operand = False
+    for index, word in enumerate(words[1:], 1):
+        if library_operand:
+            if not re.fullmatch(r":?[A-Za-z0-9_.+~-]+", word):
+                raise ExportError("portable-metadata: invalid library name")
+            library_operand = False
+            continue
+        if skip:
+            skip = False
+            continue
+        if word in {"-o", "--output", "-m", "-dynamic-linker", "--dynamic-linker", "-z", "-L", "--library-path",
+                    "-soname", "--soname", "-h", "-u", "--undefined", "-Map", "--Map", "--dependency-file"}:
+            if index + 1 == len(words):
+                raise ExportError("portable-metadata: missing linker option value")
+            if word in {"-dynamic-linker", "--dynamic-linker"} and words[index + 1] != "/lib64/ld-linux-x86-64.so.2":
+                raise ExportError("portable-metadata: foreign dynamic loader")
+            skip = True
+            continue
+        if word in {"-l", "--library"}:
+            library_operand = True
+            continue
+        if word.startswith("-l") or word.startswith("--library="):
+            value = word.split("=", 1)[1] if word.startswith("--library=") else word[2:]
+            if not re.fullmatch(r":?[A-Za-z0-9_.+~-]+", value):
+                raise ExportError("portable-metadata: invalid library name")
+            continue
+        if word.startswith("-L") or word.startswith("--library-path="):
+            continue  # Every directory is validated by portable_library_paths.
+        if word in flags or re.fullmatch(r"-O[0-3]", word):
+            continue
+        if re.fullmatch(r"--(?:hash-style|build-id|compress-debug-sections|error-limit|threads|icf|wrap|soname)=[A-Za-z0-9_.+-]+", word):
+            continue
+        if word.startswith("--dependency-file="):
+            continue  # An output, not a producer input.
+        # A closed option set prevents input aliases, remapping and linker
+        # scripts from bypassing the positional archive/object checks below.
+        if word.startswith(("-", "@")):
+            raise ExportError("portable-metadata: unsupported linker input option: " + word)
+        path = Path(word)
+        # Only an output named by the preceding validated cc1 stage can be a
+        # temporary input to the metadata's compile-and-link probe.
+        if word in generated_objects:
+            continue
+        if not path.is_absolute():
+            if binary is None:
+                raise ExportError("portable-metadata: unbound linker input")
+            path = binary / path
+        if binary is not None and path.resolve().is_relative_to(binary.resolve()):
+            continue
+        normalized = Path(os.path.normpath(str(path)))
+        if (str(normalized.parent) in PORTABLE_LIBRARY_DIRECTORIES
+                or normalized.is_relative_to(Path(llvm_root) / "lib")):
+            resolved = path.resolve()
+            if binary is None or (str(resolved.parent) in PORTABLE_LIBRARY_DIRECTORIES
+                                  or resolved.is_relative_to(Path(llvm_root) / "lib")):
+                continue
+        raise ExportError("portable-metadata: foreign direct linker input: " + word)
+    if library_operand:
+        raise ExportError("portable-metadata: missing library name")
+
+
 def _portable_compiler_evidence(evidence: dict, compiler: dict, installed: dict) -> None:
     """Validate the observed Clang compile and link invocations, not flag claims."""
     expected = {"family": "clang", "version": "23.1.3", "linker": "lld",
@@ -305,11 +413,18 @@ def _portable_compiler_evidence(evidence: dict, compiler: dict, installed: dict)
         invocations = [shlex.split(line) for line in output.splitlines() if line.lstrip().startswith('"')]
     except ValueError as error:
         raise ExportError("portable-metadata: malformed compiler invocation output") from error
-    cc1 = [words for words in invocations if "-cc1" in words]
+    cc1 = [words for words in invocations if len(words) > 1
+           and words[0] in {tools["compiler"]["path"], tools["compiler"]["path"] + "-23"}
+           and words[1] == "-cc1"]
     links = [words for words in invocations if words and words[0] == tools["linker"]["path"]]
-    if len(cc1) != 1 or len(links) != 1:
+    if len(cc1) != 1 or len(links) != 1 or invocations != [cc1[0], links[0]]:
         raise ExportError("portable-metadata: missing compiler or LLD invocation")
+    portable_library_paths(links[0])
     words = cc1[0]
+    objects = ()
+    if words.count("-o") == 1 and words.index("-o") + 1 < len(words):
+        objects = (words[words.index("-o") + 1],)
+    portable_link_inputs(links[0], generated_objects=objects)
     for option, value in (("-target-cpu", "x86-64"), ("-tune-cpu", "generic")):
         if words.count(option) != 1 or words.index(option) + 1 >= len(words) or words[words.index(option) + 1] != value:
             raise ExportError("portable-metadata: observed compiler baseline differs")

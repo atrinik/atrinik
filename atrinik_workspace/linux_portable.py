@@ -199,6 +199,7 @@ PORTABLE_LINK_FLAGS = "-L" + LLVM_ROOT + "/lib --rtlib=compiler-rt --unwindlib=l
 def portable_configure_arguments(source: Path) -> list[str]:
     """Pin CMake's full compiler, optimization and linker contract."""
     settings = {
+        "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkg-config",
         "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_TOOLCHAIN_FILE": str(source / "cmake/toolchains/llvm.cmake"),
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
@@ -229,7 +230,7 @@ def portable_configure_arguments(source: Path) -> list[str]:
     return ["-D" + name + "=" + value for name, value in settings.items()]
 
 
-def _portable_command(words: list[str], cache: dict[str, str], *, link: bool) -> None:
+def _portable_command(words: list[str], cache: dict[str, str], *, link: bool, binary: Path | None = None) -> None:
     from .model import WorkspaceError
     compilers = {LLVM_ROOT + "/bin/clang", LLVM_ROOT + "/bin/clang++"}
     if not words:
@@ -260,6 +261,10 @@ def _portable_command(words: list[str], cache: dict[str, str], *, link: bool) ->
             elif (word.startswith("-Wl,") and any(part.startswith(("-L", "--library-path")) for part in word[4:].split(","))) or (word == "-Xlinker" and index + 1 < len(words)
                     and words[index + 1].startswith(("-L", "--library-path"))):
                 raise WorkspaceError("portable indirect linker search path changed")
+        try:
+            export.portable_library_paths(words, binary=binary, llvm_root=LLVM_ROOT, installed=True)
+        except export.ExportError as error:
+            raise WorkspaceError("portable linker search path changed") from error
         if not search_paths or search_paths[0] != LLVM_ROOT + "/lib":
             raise WorkspaceError("portable LLVM runtime search path changed")
     for option, expected in (("fuse-ld", "lld"), ("rtlib", "compiler-rt"), ("unwindlib", "libunwind")):
@@ -299,7 +304,8 @@ def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bo
                 raise ValueError("effective code generation changed")
         else:
             args = links[0]
-            searches = [arg[2:] for arg in args if arg.startswith("-L")]
+            export.portable_link_inputs(args, binary=binary, llvm_root=LLVM_ROOT)
+            searches = export.portable_library_paths(args, binary=binary, llvm_root=LLVM_ROOT, installed=True)
             if (not searches or searches[0] != LLVM_ROOT + "/lib" or runtime not in args
                     or "-lunwind" not in args or args.count("-m") != 1
                     or args[args.index("-m") + 1] != "elf_x86_64"
@@ -368,7 +374,7 @@ def validate_portable_build(binary: Path, evidence: dict) -> bytes:
         if not links:
             raise ValueError("missing link commands")
         for command in links:
-            _portable_command(command, values, link=True)
+            _portable_command(command, values, link=True, binary=binary)
             _portable_driver(command, evidence, binary, link=True)
     except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError) as error:
         raise WorkspaceError("portable compile/link evidence is unavailable or invalid") from error
@@ -380,6 +386,11 @@ def _verify_compiler_bytes(evidence: dict) -> None:
     compiler = evidence["tools"]["compiler"]
     cxx = {"path": str(Path(compiler["path"]).with_name("clang++")), "sha256": compiler["sha256"]}
     records = [*evidence["tools"].values(), cxx, evidence["runtime"], evidence["unwinder"]]
+    if "compile" in evidence:
+        stages = [shlex.split(line) for line in evidence["compile"]["driver_output"].splitlines()
+                  if line.lstrip().startswith('"')]
+        records.extend({"path": args[0], "sha256": compiler["sha256"]}
+                       for args in stages if len(args) > 1 and args[1] == "-cc1")
     for record in records:
         requested = Path(record["path"])
         try:

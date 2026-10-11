@@ -11021,7 +11021,10 @@ class WorkspaceTests(unittest.TestCase):
         with mock.patch.dict(os.environ, {"CCC_OVERRIDE_OPTIONS": "+-O3", "CLANG_CONFIG_FILE_USER_DIR": "/tmp/config", "LD_PRELOAD": "/tmp/shim.so", "LD_LIBRARY_PATH": "/tmp/tools",
                                          "CPATH": "/tmp/headers", "COMPILER_PATH": "/tmp/compilers",
                                          "CCACHE_DIR": "/tmp/cache", "CCACHE_CONFIGPATH": "/tmp/ccache.conf",
-                                         "CCACHE_PREFIX": "/tmp/launcher"}), \
+                                         "CCACHE_PREFIX": "/tmp/launcher",
+                                         "CMAKE_PREFIX_PATH": "/tmp/foreign", "CMAKE_INCLUDE_PATH": "/tmp/foreign/include",
+                                         "CMAKE_LIBRARY_PATH": "/tmp/foreign/lib", "PKG_CONFIG": "/tmp/foreign-pkg-config", "PKG_CONFIG_PATH": "/tmp/foreign/pc",
+                                         "PKG_CONFIG_LIBDIR": "/tmp/foreign/lib", "PKG_CONFIG_SYSROOT_DIR": "/tmp/foreign"}), \
              mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}), \
              mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False), \
              mock.patch("atrinik_workspace.workspace.run") as run:
@@ -11029,8 +11032,11 @@ class WorkspaceTests(unittest.TestCase):
         configure = next(call for call in run.call_args_list if call.args[0][:2] == ["cmake", "-S"])
         for name in ("CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_USER_DIR", "LD_PRELOAD",
                      "LD_LIBRARY_PATH", "CPATH", "COMPILER_PATH", "CCACHE_DIR",
-                     "CCACHE_CONFIGPATH", "CCACHE_PREFIX"):
+                     "CCACHE_CONFIGPATH", "CCACHE_PREFIX", "CMAKE_PREFIX_PATH",
+                     "CMAKE_INCLUDE_PATH", "CMAKE_LIBRARY_PATH", "PKG_CONFIG_SYSROOT_DIR", "PKG_CONFIG"):
             self.assertNotIn(name, configure.kwargs["env"])
+        self.assertEqual(configure.kwargs["env"]["PKG_CONFIG_PATH"], "/usr/local/lib/pkgconfig")
+        self.assertNotIn("/tmp/foreign", configure.kwargs["env"]["PKG_CONFIG_LIBDIR"])
         self.assertIn("-DCMAKE_C_COMPILER_LAUNCHER=", configure.args[0])
         self.assertNotIn("CCACHE_DIR", configure.kwargs["env"])
         self.assertEqual(self.workspace._build_summary["cache"]["inputs"]["compiler-cache"], "disabled")

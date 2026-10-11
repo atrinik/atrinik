@@ -1,0 +1,8 @@
+{
+  "source_repository": "https://github.com/atrinik/devcontainer",
+  "source_revision": "9ebfda1f888835cf979170524b6917f6a4174dcb",
+  "source_path": "windows/llvm-mingw-toolchain.cmake",
+  "file": "toolchain.cmake",
+  "sha256": "a8e3908b484dc788d36d39dae8ee75bdeea1f063c03df7cb6a9b01dcb773d7ad",
+  "scope": "Verbatim declarative producer recipe; tests substitute temporary fixture prefixes."
+}

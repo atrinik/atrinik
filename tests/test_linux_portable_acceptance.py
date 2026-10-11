@@ -35,6 +35,22 @@ class PortablePublicationTests(unittest.TestCase):
         self.output = self.root / "client"
         self.sources = {"atrinik/classic@main": "a" * 40}
 
+    def test_real_elf_cases_skip_when_only_gnu_readelf_is_available(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("missing_llvm_acceptance", __file__)
+        module = importlib.util.module_from_spec(spec)
+        with mock.patch("shutil.which", side_effect=lambda name: "/fixture/" + name
+                        if name in {"clang", "readelf"} else None):
+            spec.loader.exec_module(module)
+        methods = [name for name in dir(module.PortablePublicationTests)
+                   if getattr(getattr(module.PortablePublicationTests, name), "__unittest_skip_why__", "")
+                   == "Clang and LLVM readelf required"]
+        self.assertEqual(len(methods), 6)
+        result = unittest.TestResult()
+        unittest.TestSuite(module.PortablePublicationTests(name) for name in methods).run(result)
+        self.assertEqual(len(result.skipped), 6)
+        self.assertEqual(result.errors, [])
+
     def driver_evidence(self):
         return {"target": "x86_64-unknown-linux-gnu", "tools": {
                     "compiler": {"path": portable.LLVM_ROOT + "/bin/clang"},
@@ -123,6 +139,16 @@ class PortablePublicationTests(unittest.TestCase):
                 portable._portable_command([*words, flag], {}, link=True)
         with self.assertRaises(WorkspaceError):
             portable._portable_command([words[0], "-L/tmp/unverified-runtime", *words[1:]], {}, link=True)
+        for option in (["-L/tmp/unverified-runtime"], ["-L", "/tmp/unverified-runtime"],
+                       ["--library-path=/tmp/unverified-runtime"]):
+            with self.subTest(option=option), self.assertRaises(WorkspaceError):
+                portable._portable_command([*words, *option], {}, link=True)
+        portable._portable_command([*words, "-L/usr/local/lib"], {}, link=True)
+        portable._portable_command([*words, "-L", str(self.root / "owned")], {}, link=True, binary=self.root)
+        outside = self.root.parent / "outside"
+        (self.root / "escape").symlink_to(outside)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command([*words, "-L", str(self.root / "escape")], {}, link=True, binary=self.root)
         with self.assertRaises(WorkspaceError):
             portable._portable_command([*words, "-Wl,-L,/tmp/unverified-runtime"], {}, link=True)
         with self.assertRaises(WorkspaceError):
@@ -149,8 +175,19 @@ class PortablePublicationTests(unittest.TestCase):
                  (cc1 + '"/usr/bin/as" "fixture.s"\n', False, False),
                  (linker.replace('/bin/ld.lld', '/bin/foreign-ld'), True, False),
                  (linker.replace('"-lunwind"', ''), True, False),
+                 (linker.rstrip() + ' "-L/tmp/foreign"\n', True, False),
+                 (linker.rstrip() + ' "/tmp/foreign/libhidden.a"\n', True, False),
+                 (linker.rstrip() + ' "--version-script=/tmp/foreign.lds"\n', True, False),
+                 (linker.rstrip() + ' "-L" "/tmp/foreign"\n', True, False),
+                 (linker.rstrip() + ' "--library-path=/tmp/foreign"\n', True, False),
+                 (cc1.replace('"-cc1"', '"--forged" "-cc1"'), False, False),
                  (linker.replace(evidence["runtime"]["path"], '/tmp/foreign-builtins.a'), True, False),
                  (linker.replace('"-L' + portable.LLVM_ROOT, '"-L/tmp/foreign'), True, False)]
+        for option in ('"-l:../../../tmp/foreign/libhidden.a"', '"-l" ":../../../tmp/foreign/libhidden.a"',
+                       '"--library=../../../tmp/foreign/libhidden.a"', '"--library" "../../../tmp/foreign/libhidden.a"',
+                       '"--remap-inputs=owned.o=/tmp/foreign.o"', '"--remap-inputs-file=/tmp/map"',
+                       '"-R/tmp/foreign.o"'):
+            cases.append((linker.rstrip() + " " + option + "\n", True, False))
         for output, link, valid in cases:
             with self.subTest(output=output), mock.patch.object(export, "_tool_report", return_value=output):
                 words = link_words if link else compile_words
@@ -180,14 +217,25 @@ class PortablePublicationTests(unittest.TestCase):
         compile_words = [*base, "-c", str(source), "-o", str(object_file)]
         link_words = [*base, "-L" + str(prefix / "lib"), "--rtlib=compiler-rt", "--unwindlib=libunwind",
                       "-fuse-ld=lld", str(object_file), "-o", str(self.root / "driver")]
-        with mock.patch.object(portable, "LLVM_ROOT", str(prefix)):
+        # This real-driver fixture may run on the Ubuntu test worker. Its
+        # system library paths are fixture inputs; the separate frozen Debian
+        # report tests the production producer's exact directory contract.
+        report = export._tool_report([link_words[0], "-###", *link_words[1:]], cwd=self.root)
+        import shlex
+        default_directories = {os.path.normpath(arg[2:]) for line in report.splitlines()
+                               if line.lstrip().startswith('"') for arg in shlex.split(line)
+                               if arg.startswith("-L")}
+        with mock.patch.object(portable, "LLVM_ROOT", str(prefix)), \
+             mock.patch.object(export, "PORTABLE_LIBRARY_DIRECTORIES", default_directories | export.PORTABLE_LIBRARY_DIRECTORIES):
             portable._portable_driver(compile_words, evidence, self.root, link=False)
             portable._portable_driver(link_words, evidence, self.root, link=True)
             cases = [(compile_words + ["-fno-integrated-as"], False),
                      (compile_words + ["-resource-dir=/tmp/foreign-resource"], False),
                      (compile_words + ["--target=aarch64-linux-gnu"], False),
                      (compile_words + ["-mllvm", "-force-vector-width=8"], False),
-                     (link_words + ["-nostdlib"], True), (link_words + ["-nodefaultlibs"], True)]
+                     (link_words + ["-nostdlib"], True), (link_words + ["-nodefaultlibs"], True),
+                     (link_words + ["-L/tmp/foreign"], True),
+                     (link_words + ["/tmp/foreign/libhidden.a"], True)]
             for words, link in cases:
                 with self.subTest(words=words), self.assertRaises(WorkspaceError):
                     portable._portable_driver(words, evidence, self.root, link=link)
@@ -664,7 +712,7 @@ class PortablePublicationTests(unittest.TestCase):
         with self.assertRaisesRegex(export.ExportError, "unresolved symbols in bin/client"):
             portable.symbol_closure(objects, entrypoint="bin/client")
 
-    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_portable_executable_rejects_custom_or_missing_loader(self):
         source = self.root / "main.c"
         source.write_text("int main(void) { return 0; }\n")
@@ -684,7 +732,7 @@ class PortablePublicationTests(unittest.TestCase):
         with target.open("rb") as stream, self.assertRaisesRegex(export.ExportError, "executable mode"):
             portable.portable_executable(stream.fileno())
 
-    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_real_versioned_symbol_definitions_and_missing_symbol(self):
         source = self.root / "sample.c"
         version = self.root / "version.map"
@@ -1039,7 +1087,7 @@ class PortablePublicationTests(unittest.TestCase):
         self.assertFalse((self.root / "client.tar").exists())
 
 
-    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_other_absolute_runpath_provider_remains_rejected(self):
         from contextlib import ExitStack
         source = self.root / "provider.c"
@@ -1141,7 +1189,7 @@ class PortablePublicationTests(unittest.TestCase):
         }]}, "contract.json": {"runtime": {"unsupported_dlopen_features": []}}}
         return library, binary, documents
 
-    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_actual_runtime_elf_closure_is_copied_and_verified_after_relocation(self):
         library, binary, documents = self.compiled_runtime()
         with portable.Publication(self.output, self.sources) as publication:
@@ -1161,7 +1209,7 @@ class PortablePublicationTests(unittest.TestCase):
         self.assertFalse(report["audible_playback_verified"])
         self.assertEqual(report["derivatives"], [])
 
-    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_actual_runtime_rejects_provider_hash_dependency_dynamic_and_symbol_drift(self):
         import copy
         library, binary, original = self.compiled_runtime()
@@ -1188,7 +1236,7 @@ class PortablePublicationTests(unittest.TestCase):
                     portable.add_runtime(publication, documents, binary)
             self.assertFalse((self.root / label).exists())
 
-    @unittest.skipUnless(shutil.which("clang") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_declared_unsupported_dynamic_feature_is_excluded_explicitly(self):
         library, binary, documents = self.compiled_runtime()
         documents["contract.json"]["runtime"]["unsupported_dlopen_features"] = [

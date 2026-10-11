@@ -482,6 +482,33 @@ class LinuxExportTests(unittest.TestCase):
                     "symbol_versions_verified", "runtime_qualified"):
             self.assertFalse(result[key])
 
+    def test_actual_debian_producer_driver_evidence_and_default_search_paths(self):
+        # Captured before dependency assembly from the pinned Debian producer
+        # base plus the freshly built LLVM prefix. This proves parser compatibility,
+        # not the final image's dependency closure or release authority.
+        evidence = json.loads((Path(__file__).parent / "fixtures/linux_export/llvm-readelf-23.1.3/driver-evidence.json").read_text())
+        documents = self.portable_documents()
+        documents["installed.json"]["compiler_target"] = evidence["target"]
+        export._portable_compiler_evidence(evidence, documents["contract.json"]["compiler"], documents["installed.json"])
+        evidence["compile"]["driver_output"] += '"/usr/bin/as" "unexpected.s"\n'
+        with self.assertRaises(export.ExportError):
+            export._portable_compiler_evidence(evidence, documents["contract.json"]["compiler"], documents["installed.json"])
+
+    def test_portable_metadata_rejects_extra_stages_forged_cc1_and_later_foreign_search(self):
+        documents = self.portable_documents()
+        original = documents["compiler-evidence.json"]["compile"]["driver_output"]
+        for report in (
+                original + '"/usr/bin/as" "probe.s"\n',
+                original.rstrip() + ' "/tmp/foreign/libhidden.a"\n',
+                original.replace('"/opt/llvm-23.1.3/bin/clang" "-cc1"', '"/tmp/foreign" "-cc1"'),
+                original.replace('"-cc1"', '"--forged" "-cc1"'),
+                original.rstrip() + ' "-L/opt/llvm-23.1.3/lib" "-L/tmp/foreign"\n',
+                original.rstrip() + ' "--library-path=/usr/local/unrecorded"\n'):
+            with self.subTest(report=report):
+                documents["compiler-evidence.json"]["compile"]["driver_output"] = report
+                with self.assertRaises(export.ExportError):
+                    export.portable_metadata_report(**self.portable_arguments(documents))
+
     def test_portable_metadata_rejects_cross_record_inconsistency(self) -> None:
         changes = [
             ("contract.json", ["schema_version"], True),

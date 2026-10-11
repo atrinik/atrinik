@@ -59,5 +59,14 @@
       "-o",
       "/tmp/atrinik-llvm-20261010/portable-fixture-inputs/versions.so"
     ]
+  },
+  "driver_fixture": {
+    "file": "driver-evidence.json",
+    "sha256": "9cd6dedb0286b3832e085ba068c184415d2e37a75cd4c95ad57476ea5e710af6",
+    "source_repository": "https://github.com/atrinik/devcontainer",
+    "source_revision": "45fc27cbc2d701f15779c9829f3e8672fbe3f403",
+    "producer_base": "sha256:be4435f94fd38da55589a17c8bb399247b5fe098e8eb68b517014e2149d63328",
+    "llvm_prefix_image": "sha256:0622269a81a566a4a71e425a14e6ecded89a4521d033a2ccb672554498d4e8b1",
+    "scope": "Actual Debian producer base plus built LLVM prefix, before SDK dependency assembly. Parser fixture only; not release, final image closure, or application runtime acceptance."
   }
 }
