@@ -792,9 +792,13 @@ def _elf_version_definitions(text: str) -> list[str]:
             continue
         match = re.fullmatch(
             r"\s*[0-9a-fx]+: Rev: 1\s+Flags: (none|BASE|WEAK)\s+Index: ([0-9]+)"
-            r"\s+Cnt: ([0-9]+)\s+Name: ([A-Za-z0-9_.+-]+)", line)
+            r"\s+Cnt: ([0-9]+)\s+Name: ([A-Za-z0-9_./+-]+)", line)
         if match:
             flags, index, count, name = match[1], int(match[2]), int(match[3]), match[4]
+            # LLD uses the output path as the BASE name when no SONAME is set.
+            # This object identity is never a supplied symbol version.
+            if flags != "BASE" and "/" in name:
+                raise ExportError("export-elf: invalid version definition name")
             if (index < 1 or index >= 32768 or index in indexes or count < 1
                     or name in definitions or (flags == "BASE") != (index == 1)):
                 raise ExportError("export-elf: invalid version definition")

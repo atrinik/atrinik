@@ -745,6 +745,8 @@ class PortablePublicationTests(unittest.TestCase):
                         "-Wl,--version-script=" + str(version)], check=True, capture_output=True)
         with library.open("rb") as stream:
             facts = export.inspect_elf(stream.fileno())
+        self.assertIsNone(facts["soname"])
+        self.assertEqual(facts["defined_versions"], ["SAMPLE_1"])
         self.assertIn("sample@SAMPLE_1", facts["symbols"]["defined"])
         self.assertIn("sample", facts["symbols"]["defined"])
         consumer = {"needed": ["lib"], "symbols": {"defined": ["main"], "required": ["sample@SAMPLE_1"]}}

@@ -261,10 +261,9 @@ class LinuxExportTests(unittest.TestCase):
             objects["lib/libunrelated.so"] = unrelated
             with self.assertRaisesRegex(export.ExportError, "libsample.so lacks required versions SAMPLE_1"):
                 export.elf_dependency_report(objects, entrypoint="bin/consumer.so", host_libraries=frozenset())
-        corruptions = [raw_provider.replace("Parent 1: SAMPLE_1", "Parent 2: SAMPLE_1"),
-                       raw_provider.replace("Parent 1: SAMPLE_1", "Parent 1: MISSING"),
-                       raw_provider.replace("Parent 1: SAMPLE_1", "Parent 1: SAMPLE_2"),
-                       raw_provider.replace("Parent 1: SAMPLE_1", ""),
+        # LLD emits no inheritance auxiliary rows for this version script.
+        # Parent-row validation has a separate deterministic fixture below.
+        corruptions = [raw_provider.replace("Cnt: 1  Name: SAMPLE_2", "Cnt: 2  Name: SAMPLE_2"),
                        raw_provider.replace("Index: 3", "Index: 2"),
                        raw_provider.replace("Name: SAMPLE_2", "Name: SAMPLE_1"),
                        raw_provider.replace("contains 3 entries:", "contains 4 entries:"),
@@ -278,6 +277,48 @@ class LinuxExportTests(unittest.TestCase):
                  mock.patch.object(export, "_readelf", return_value=text):
                 with self.assertRaises(export.ExportError):
                     export.inspect_elf(stream.fileno())
+
+    def test_version_definition_parent_records_remain_strict(self) -> None:
+        # Explicit GNU-layout fixture: LLD does not emit auxiliary parent rows.
+        golden = (" 0x6ffffffd (VERDEFNUM) 3\n"
+                  "Version definition section '.gnu.version_d' contains 3 entries:\n"
+                  " 0x0000: Rev: 1  Flags: BASE  Index: 1  Cnt: 1  Name: libsample.so\n"
+                  " 0x001c: Rev: 1  Flags: none  Index: 2  Cnt: 1  Name: SAMPLE_1\n"
+                  " 0x0038: Rev: 1  Flags: none  Index: 3  Cnt: 2  Name: SAMPLE_2\n"
+                  " 0x0054: Parent 1: SAMPLE_1\n")
+        self.assertEqual(export._elf_version_definitions(golden), ["SAMPLE_1", "SAMPLE_2"])
+        cases = [golden.replace("Parent 1:", "Parent 2:"),
+                 golden.replace("Parent 1: SAMPLE_1", "Parent 1: MISSING"),
+                 golden.replace("Parent 1: SAMPLE_1", "Parent 1: SAMPLE_2"),
+                 golden.replace("Parent 1: SAMPLE_1", "Parent 1: libsample.so"),
+                 golden.replace(" 0x0054: Parent 1: SAMPLE_1\n", ""),
+                 golden + " 0x005c: Parent 2: SAMPLE_1\n",
+                 golden.replace("Cnt: 2", "Cnt: 3") + " 0x005c: Parent 2: SAMPLE_1\n"]
+        for text in cases:
+            with self.subTest(text=text), self.assertRaises(export.ExportError):
+                export._elf_version_definitions(text)
+
+    def test_llvm_base_path_is_not_a_symbol_version(self) -> None:
+        fixture_root = Path(__file__).parent / "fixtures/linux_export/llvm-readelf-23.1.3"
+        text = (fixture_root / "no-soname-all.txt").read_text()
+        self.assertEqual(export._elf_version_definitions(text), ["SAMPLE_1"])
+        payload = self.root / "elf-base-path-fixture"
+        payload.write_bytes(b"\x7fELF")
+        with payload.open("rb") as stream, mock.patch.object(export, "_readelf", return_value=text):
+            facts = export.inspect_elf(stream.fileno())
+        self.assertIsNone(facts["soname"])
+        self.assertCountEqual(facts["symbols"]["defined"], ["sample", "sample@SAMPLE_1"])
+        cases = [text.replace("Name: SAMPLE_1", "Name: /tmp/SAMPLE_1"),
+                 text.replace("Name: SAMPLE_1", "Name: /tmp/evidence/libsample.so"),
+                 text.replace("Flags: BASE", "Flags: none"),
+                 text.replace("Index: 2", "Index: 1"),
+                 text.replace("Cnt: 1  Name: /tmp/", "Cnt: 2  Name: /tmp/"),
+                 text.replace("Name: /tmp/evidence/libsample.so", "Name: /tmp/evidence/\nlibsample.so"),
+                 text.replace("Name: /tmp/evidence/libsample.so", "Name: /tmp/evidence/libsample.so Index: 2")]
+        for corrupted in cases:
+            self.assertNotEqual(corrupted, text)
+            with self.subTest(text=corrupted), self.assertRaises(export.ExportError):
+                export._elf_version_definitions(corrupted)
 
     def test_provider_version_metadata_cannot_be_omitted_or_forged(self) -> None:
         consumer = {"class": "ELF64", "endianness": "little", "machine": "test", "needed": ["libsample.so"],
