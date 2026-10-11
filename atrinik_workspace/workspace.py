@@ -3358,7 +3358,7 @@ class Workspace:
         self._owns_delivery_scope_proof = False
         self._build_state = threading.local()
         self._prefix_map_support: dict[
-            tuple[str, str, str | None, str | None], bool
+            tuple[str, str, str | None, str | None, str | None], bool
         ] = {}
         self._prefix_map_support_lock = threading.Lock()
 
@@ -11812,7 +11812,8 @@ class Workspace:
             "-DCMAKE_CXX_COMPILER_LAUNCHER=",
         ]
         prefix_map_support = self._add_debug_prefix_environment(
-            source, binary, environment, arguments
+            source, binary, environment, arguments,
+            **({"probe_environment": environment} if portable else {}),
         )
         if ccache is not None:
             cache = self.paths.builds / COMPILER_CACHE_PURPOSE
@@ -11882,6 +11883,8 @@ class Workspace:
             source, binary, configure, tests, environment, ccache,
             **({"portable": True} if portable else {}),
         )
+        if portable:
+            fingerprint["portable_host_tools"] = portable_context.host_tools
         metadata_path = binary / CONFIGURE_METADATA
         source_resolved = source.resolve()
         unchanged_view = all(
@@ -11934,6 +11937,8 @@ class Workspace:
                 source, binary, configure, tests, environment, ccache,
                 **({"portable": True} if portable else {}),
             )
+            if portable:
+                fingerprint["portable_host_tools"] = portable_context.host_tools
             atomic_json(metadata_path, fingerprint)
         else:
             print(f"cmake: configure unchanged for {binary}; skipping", file=sys.stderr)
@@ -11951,6 +11956,11 @@ class Workspace:
         if build_targets and not tests:
             build_command.extend(("--target", *build_targets))
         build_started = time.monotonic()
+        if portable:
+            try:
+                portable_context.verify_host_tools()
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
         run(build_command, env=environment)
         if portable:
             try:
@@ -12076,6 +12086,8 @@ class Workspace:
         binary: Path,
         environment: dict[str, str],
         arguments: list[str],
+        *,
+        probe_environment: dict[str, str] | None = None,
     ) -> dict[str, bool]:
         if environment.get("CMAKE_TOOLCHAIN_FILE") or any(
             argument.startswith(
@@ -12101,7 +12113,10 @@ class Workspace:
             ("cxx", "CXXFLAGS", environment.get("CXX", "c++"), "c++"),
         )
         support = {
-            name: self._compiler_supports_prefix_maps(command, language)
+            name: self._compiler_supports_prefix_maps(
+                command, language,
+                **({"environment": probe_environment} if probe_environment is not None else {}),
+            )
             for name, _variable, command, language in compilers
         }
         for name, variable, _command, _language in compilers:
@@ -12111,9 +12126,19 @@ class Workspace:
                 )
         return support
 
-    def _compiler_supports_prefix_maps(self, command: str, language: str) -> bool:
-        identity = self._tool_identity(command)
-        key = (command, language, identity.get("resolved_path"), identity.get("sha256"))
+    def _compiler_supports_prefix_maps(
+        self, command: str, language: str,
+        *, environment: dict[str, str] | None = None,
+    ) -> bool:
+        probe_arguments = {"environment": environment} if environment is not None else {}
+        identity = self._tool_identity(command, **probe_arguments)
+        # A result from the inherited host environment cannot prove support in
+        # the admitted producer environment, even for the same compiler bytes.
+        environment_digest = (hashlib.sha256(
+            json.dumps(environment, sort_keys=True).encode("utf-8")
+        ).hexdigest() if environment is not None else None)
+        key = (command, language, identity.get("resolved_path"),
+               identity.get("sha256"), environment_digest)
         with self._prefix_map_support_lock:
             cached = self._prefix_map_support.get(key)
         if cached is not None:
@@ -12122,7 +12147,8 @@ class Workspace:
             words = shlex.split(command)
         except ValueError:
             words = [command]
-        executable = shutil.which(words[0]) if words else None
+        executable = ((shutil.which(words[0], path=environment.get("PATH", os.defpath))
+                       if environment is not None else shutil.which(words[0])) if words else None)
         supported = False
         if executable is not None:
             with tempfile.TemporaryDirectory(prefix="atrinik-prefix-probe-") as temporary:
@@ -12145,6 +12171,7 @@ class Workspace:
                             str(output),
                         ],
                         trace=False,
+                        **({"env": environment} if environment is not None else {}),
                     )
                     supported = output.is_file()
                 except WorkspaceError:

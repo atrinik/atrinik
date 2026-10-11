@@ -11018,6 +11018,8 @@ class WorkspaceTests(unittest.TestCase):
         source = self.workspace.paths.repositories / "content"
         binary = self.workspace.paths.builds / "profiles/test/build/portable-context"
         context = mock.Mock(spec=PortableBuildContext)
+        context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
+        context.verify_host_tools = mock.Mock()
         for portable, supplied_context, tests, message in (
             (True, None, False, "verified process build context"),
             (True, object(), False, "verified process build context"),
@@ -11046,6 +11048,8 @@ class WorkspaceTests(unittest.TestCase):
         # Isolate proof capture from these environment assertions while retaining
         # the production type gate and checking every context boundary call.
         context = mock.Mock(spec=PortableBuildContext)
+        context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
+        context.verify_host_tools = mock.Mock()
         with mock.patch.dict(os.environ, {"HOME": str(caller_home), "PATH": "/tmp/caller-wrappers", "CC": "/tmp/caller-cc",
                                          "BASH_ENV": "/tmp/hook", "PYTHONPATH": "/tmp/modules",
                                          "PYTHONNOUSERSITE": "0",
@@ -11091,6 +11095,7 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(context.mock_calls, [
             mock.call.validate_source_binding(binary, source),
             mock.call.capture_configure(binary, source),
+            mock.call.verify_host_tools(),
             mock.call.capture_output(binary),
         ])
 
@@ -11108,6 +11113,9 @@ class WorkspaceTests(unittest.TestCase):
                 sentinel = binary / "unchanged-current-tree"
                 configurations = []
                 contexts = [mock.Mock(spec=PortableBuildContext) for _ in range(3)]
+                for context in contexts:
+                    context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
+                    context.verify_host_tools = mock.Mock()
 
                 def configured(command, **kwargs):
                     if command[:2] != ["/usr/bin/cmake", "-S"]:
@@ -11140,6 +11148,7 @@ class WorkspaceTests(unittest.TestCase):
                     self.assertEqual(context.mock_calls, [
                         mock.call.validate_source_binding(binary, source),
                         mock.call.capture_configure(binary, source),
+                        mock.call.verify_host_tools(),
                         mock.call.capture_output(binary),
                     ])
                 self.assertNotIn("-D" + policy + "=FALSE", configurations[0])
@@ -11154,6 +11163,8 @@ class WorkspaceTests(unittest.TestCase):
         (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
         binary = self.workspace.paths.builds / "profiles/test/build/portable-swap"
         context = mock.Mock(spec=PortableBuildContext)
+        context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
+        context.verify_host_tools = mock.Mock()
         with mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture"}), \
              mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
              mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes", side_effect=ExportError("archive tool bytes differ")), \
@@ -11165,6 +11176,33 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(context.mock_calls, [
             mock.call.validate_source_binding(binary, source),
             mock.call.capture_configure(binary, source),
+        ])
+
+    def test_portable_host_tool_receipt_is_retained_and_drift_stops_before_build(self) -> None:
+        from atrinik_workspace.linux_portable import PortableBuildContext
+        source = self.workspace.paths.repositories / "content"
+        (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
+        binary = self.workspace.paths.builds / "profiles/test/build/portable-host-tool-swap"
+        context = mock.Mock(spec=PortableBuildContext)
+        context.host_tools = {"shader_python": {"sha256": "admitted-python-digest"}}
+        context.verify_host_tools = mock.Mock(side_effect=ValueError("host tool bytes changed"))
+        with (
+            mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture"}),
+            mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False),
+            mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})),
+            mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes"),
+            mock.patch("atrinik_workspace.workspace.run") as run,
+            self.assertRaisesRegex(WorkspaceError, "host tool bytes changed"),
+        ):
+            self.workspace._cmake(source, binary, [], False, portable=True, portable_context=context)
+        metadata = load_json(binary / workspace_module.CONFIGURE_METADATA)
+        self.assertEqual(metadata["portable_host_tools"], context.host_tools)
+        self.assertTrue(any(call.args[0][:2] == ["/usr/bin/cmake", "-S"] for call in run.call_args_list))
+        self.assertFalse(any("--build" in call.args[0] for call in run.call_args_list))
+        self.assertEqual(context.mock_calls, [
+            mock.call.validate_source_binding(binary, source),
+            mock.call.capture_configure(binary, source),
+            mock.call.verify_host_tools(),
         ])
 
     def test_portable_cached_ninja_graph_uses_admitted_environment(self) -> None:
@@ -11374,6 +11412,91 @@ class WorkspaceTests(unittest.TestCase):
         cache = self.workspace.paths.builds / "compiler-cache"
         self.assertEqual(load_json(cache / MANAGED_MARKER)["purpose"], "compiler-cache")
         self.assertEqual(load_json(cache / ".atrinik-cache.json")["max_size"], "5G")
+
+    def test_portable_prefix_probe_subprocess_uses_scrubbed_environment(self) -> None:
+        from atrinik_workspace.linux_portable import (
+            LLVM_ROOT, PORTABLE_PATH, PortableBuildContext,
+        )
+        source = self.workspace.paths.repositories / "content"
+        (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
+        binary = self.workspace.paths.builds / "profiles/test/build/prefix-probe"
+        context = mock.Mock(spec=PortableBuildContext)
+        context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
+        context.verify_host_tools = mock.Mock()
+        compiler = self.root / "compiler-fixture"
+        observations = self.root / "probe-environments.jsonl"
+        compiler.write_text(
+            "#!/usr/bin/python3\n"
+            "import json, os, pathlib, sys\n"
+            f"with open({str(observations)!r}, 'a') as record:\n"
+            "    record.write(json.dumps(dict(os.environ)) + '\\n')\n"
+            "pathlib.Path(sys.argv[sys.argv.index('-o') + 1]).write_bytes(b'object')\n"
+        )
+        compiler.chmod(0o755)
+        actual_run = workspace_module.run
+
+        def execute_probe(command: list[str], **kwargs: object) -> str:
+            if "-fdebug-prefix-map=/atrinik-prefix-probe=/atrinik/probe" in command:
+                return actual_run(command, **kwargs)
+            return ""
+
+        poison = {
+            "PATH": "/tmp/caller-wrappers", "CC": "/tmp/caller-cc",
+            "CXX": "/tmp/caller-cxx", "LD_PRELOAD": "/tmp/caller-shim.so",
+            "LD_LIBRARY_PATH": "/tmp/caller-libraries",
+            "CCC_OVERRIDE_OPTIONS": "+-O3", "COMPILER_PATH": "/tmp/caller-compilers",
+            "CLANG_CONFIG_FILE_USER_DIR": "/tmp/caller-config",
+            "PYTHONPATH": "/tmp/caller-python",
+        }
+        with (
+            mock.patch.dict(os.environ, poison),
+            mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture"}) as identities,
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value=str(compiler)),
+            mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})),
+            mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes"),
+            mock.patch("atrinik_workspace.workspace.run", side_effect=execute_probe),
+        ):
+            self.workspace._cmake(source, binary, [], False,
+                                  portable=True, portable_context=context)
+        environments = [json.loads(line) for line in observations.read_text().splitlines()]
+        self.assertEqual(len(environments), 2)
+        for environment in environments:
+            for name in poison.keys() - {"PATH", "CC", "CXX"}:
+                self.assertNotIn(name, environment)
+            self.assertEqual(environment["PATH"], PORTABLE_PATH)
+            self.assertEqual(environment["CC"], LLVM_ROOT + "/bin/clang")
+            self.assertEqual(environment["CXX"], LLVM_ROOT + "/bin/clang++")
+            self.assertEqual(environment["PYTHONNOUSERSITE"], "1")
+        for call in identities.call_args_list:
+            self.assertEqual(call.kwargs["environment"]["PATH"], PORTABLE_PATH)
+            self.assertNotIn("LD_PRELOAD", call.kwargs["environment"])
+
+    def test_prefix_probe_keeps_inherited_behavior_and_separates_environment_cache(self) -> None:
+        def compile_probe(command: list[str], **kwargs: object) -> str:
+            Path(command[command.index("-o") + 1]).write_bytes(b"object")
+            return ""
+
+        environment = {"PATH": "/admitted/tools"}
+        with (
+            mock.patch.object(self.workspace, "_tool_identity", return_value={}) as identity,
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/fixture/compiler") as which,
+            mock.patch("atrinik_workspace.workspace.run", side_effect=compile_probe) as run,
+        ):
+            self.assertTrue(self.workspace._compiler_supports_prefix_maps("cc", "c"))
+            identity.assert_called_once_with("cc")
+            which.assert_called_once_with("cc")
+            self.assertNotIn("env", run.call_args.kwargs)
+            self.assertTrue(self.workspace._compiler_supports_prefix_maps("cc", "c", environment=environment))
+            identity.assert_called_with("cc", environment=environment)
+            which.assert_called_with("cc", path="/admitted/tools")
+            self.assertEqual(run.call_args.kwargs["env"], environment)
+            self.assertEqual(run.call_count, 2)
+            self.assertTrue(self.workspace._compiler_supports_prefix_maps("cc", "c", environment=dict(environment)))
+            self.assertEqual(run.call_count, 2)
+            self.assertTrue(self.workspace._compiler_supports_prefix_maps(
+                "cc", "c", environment={**environment, "CCC_OVERRIDE_OPTIONS": "+-O3"},
+            ))
+            self.assertEqual(run.call_count, 3)
 
     def test_compiler_cache_first_use_is_serialized_across_processes(self) -> None:
         context = multiprocessing.get_context("spawn")
