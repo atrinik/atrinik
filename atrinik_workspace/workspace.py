@@ -30,8 +30,11 @@ import tarfile
 import tempfile
 import threading
 import time
-from typing import Any, Callable, Iterator, TextIO
+from typing import TYPE_CHECKING, Any, Callable, Iterator, TextIO
 import zipfile
+
+if TYPE_CHECKING:
+    from .linux_portable import PortableBuildContext
 
 from . import coordinator_context, runtime_handoff, prebuilt
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
@@ -9266,11 +9269,18 @@ class Workspace:
         build_services: set[str] | None = None,
         generate_region_maps: bool = True,
         portable: bool = False,
+        portable_context: PortableBuildContext | None = None,
         retained_runtime_plan: str | None = None,
         retained_content_input: str | None = None,
         completion_plan: dict[str, Any] | None = None,
         completion_wrapper_head: str | None = None,
     ) -> Path:
+        self._validate_portable_context(portable, portable_context, tests)
+        if portable:
+            try:
+                portable_context.validate_selected(selected)
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
         requested_services = set(targets).intersection(TOPOLOGY_SERVICES)
         selective_build = build_services is not None
         if build_services is None:
@@ -9375,6 +9385,7 @@ class Workspace:
                     }
                     if portable:
                         client_arguments["portable"] = True
+                        client_arguments["portable_context"] = portable_context
                     if selective_build:
                         client_arguments["build_target"] = "atrinik"
                     if gpu_shader is not None:
@@ -11731,6 +11742,19 @@ class Workspace:
         print(f"resources: staged {output}", file=sys.stderr)
         return output
 
+    @staticmethod
+    def _validate_portable_context(
+        portable: bool, context: PortableBuildContext | None, tests: bool,
+    ) -> None:
+        if portable:
+            from .linux_portable import PortableBuildContext
+            if not isinstance(context, PortableBuildContext):
+                raise WorkspaceError("portable builds require a verified process build context")
+            if tests:
+                raise WorkspaceError("portable producer builds require BUILD_TESTING=OFF")
+        elif context is not None:
+            raise WorkspaceError("portable build context requires a portable producer build")
+
     def _cmake(
         self,
         source: Path,
@@ -11740,8 +11764,18 @@ class Workspace:
         *,
         build_targets: list[str] | None = None,
         portable: bool = False,
+        portable_context: PortableBuildContext | None = None,
     ) -> None:
+        self._validate_portable_context(portable, portable_context, tests)
+        if portable:
+            try:
+                portable_context.validate_source_binding(binary, source)
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
         self._prepare_cmake_binary(binary)
+        if portable:
+            # Fresh configure evidence must never trust mutable cached fingerprints.
+            managed_reset(binary, self.paths.builds, "cmake-binary")
         environment = os.environ.copy()
         if portable:
             from .linux_portable import LLVM_ROOT, PORTABLE_PATH, installed_metadata, _verify_compiler_bytes
@@ -11838,6 +11872,7 @@ class Workspace:
             f"-DBUILD_TESTING={'ON' if tests else 'OFF'}",
             *cache_arguments,
             *arguments,
+            *(["-DBUILD_TESTING=OFF"] if portable else []),
         ]
         fingerprint = self._configure_fingerprint(
             source, binary, configure, tests, environment, ccache,
@@ -11873,15 +11908,16 @@ class Workspace:
         if any(record is not None and not record.get("complete")
                for group in runtime_groups for record in group.values()):
             build_tree_changed = True
-        if build_tree_changed or not self._cmake_state_valid(
+        if not portable and (build_tree_changed or not self._cmake_state_valid(
             source, binary, configure, **({"environment": environment} if portable else {})
-        ):
+        )):
             managed_reset(binary, self.paths.builds, "cmake-binary")
             configured = False
         configured_now = False
         configure_seconds: float | None = None
         if (
-            self._force_reconfigure
+            portable
+            or self._force_reconfigure
             or not unchanged_view
             or not fingerprint["source"].get("configure_skip_safe", True)
             or not configured
@@ -11898,6 +11934,10 @@ class Workspace:
         else:
             print(f"cmake: configure unchanged for {binary}; skipping", file=sys.stderr)
         if portable:
+            try:
+                portable_context.capture_configure(binary, source)
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
             _verify_compiler_bytes(producer_tools)
         build_command = [cmake, "--build", str(binary), "--parallel"]
         # CTest is registered for the whole configured graph.  An explicit
@@ -11908,6 +11948,11 @@ class Workspace:
             build_command.extend(("--target", *build_targets))
         build_started = time.monotonic()
         run(build_command, env=environment)
+        if portable:
+            try:
+                portable_context.capture_output(binary)
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
         build_seconds = time.monotonic() - build_started
         cmake_summary = self._build_summary.setdefault("cache", {}).setdefault(
             "cmake", {}
@@ -13422,7 +13467,9 @@ class Workspace:
         build_target: str | None = None,
         gpu_shader: dict[str, Any] | None = None,
         portable: bool = False,
+        portable_context: PortableBuildContext | None = None,
     ) -> None:
+        self._validate_portable_context(portable, portable_context, tests)
         peer_inputs = any(
             peer.name != component.name and peer.checkout_name == component.checkout_name
             and PurePosixPath(peer.source) in PurePosixPath(include).parents
@@ -13463,6 +13510,12 @@ class Workspace:
             *self._classic_identity_arguments(selected["client"]),
         ]
         if portable:
+            try:
+                portable_context.bind_source_views(
+                    root, {"client": view, "protocol": protocol, "libatrinik": library}
+                )
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
             from .linux_portable import portable_configure_arguments
             arguments.extend(portable_configure_arguments(view.resolve()))
         if gpu_shader is not None:
@@ -13473,7 +13526,7 @@ class Workspace:
                 root / "build" / "client",
                 arguments,
                 tests,
-                **({"portable": True} if portable else {}),
+                **({"portable": True, "portable_context": portable_context} if portable else {}),
             )
         else:
             self._cmake(
@@ -13482,7 +13535,7 @@ class Workspace:
                 arguments,
                 tests,
                 build_targets=[build_target],
-                **({"portable": True} if portable else {}),
+                **({"portable": True, "portable_context": portable_context} if portable else {}),
             )
         self._record_classic_graph(root, {"client"}, "standalone")
 
