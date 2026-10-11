@@ -11788,6 +11788,10 @@ class Workspace:
                         or name in {"BASH_ENV", "ENV", "PKG_CONFIG", "CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
                                     "LIBRARY_PATH", "COMPILER_PATH", "GCC_EXEC_PREFIX", "GLIBC_TUNABLES"}):
                     environment.pop(name)
+            # Ninja's admitted Python commands inherit HOME and run without
+            # -s/-I. Disable user .pth and usercustomize hooks after scrubbing
+            # caller-controlled Python settings.
+            environment["PYTHONNOUSERSITE"] = "1"
             environment.update({name: LLVM_ROOT + "/bin/" + tool for name, tool in
                                 {"CC": "clang", "CXX": "clang++", "AR": "llvm-ar",
                                  "RANLIB": "llvm-ranlib", "LD": "ld.lld"}.items()})
