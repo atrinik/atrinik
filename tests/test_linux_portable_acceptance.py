@@ -101,7 +101,11 @@ class CompilerClosureTests(unittest.TestCase):
         run_patch = mock.patch.object(portable.PortableBuildContext, "_ninja", side_effect=lambda path: state["report"])
         run_patch.start()
         self.addCleanup(run_patch.stop)
-        driver_patch = mock.patch.object(export, "_tool_report", side_effect=self.driver_report)
+        def driver_with_real_missing_artifact_behavior(command, **kwargs):
+            if "-c" not in command and not (binary / "atrinik").exists():
+                raise AssertionError("configure-only validation invoked linker before build artifacts existed")
+            return self.driver_report(command, **kwargs)
+        driver_patch = mock.patch.object(export, "_tool_report", side_effect=driver_with_real_missing_artifact_behavior)
         driver_patch.start()
         self.addCleanup(driver_patch.stop)
         context.capture_configure(binary, source)
