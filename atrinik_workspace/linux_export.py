@@ -411,9 +411,12 @@ def _portable_compiler_evidence(evidence: dict, compiler: dict, installed: dict)
     if evidence.get("flags") != flags:
         raise ExportError("portable-metadata: observed compiler flags differ")
     tools = _portable_mapping(evidence.get("tools"), "LLVM tools")
-    if set(tools) != {"compiler", "linker", "readelf"}:
+    tool_names = {"compiler": "clang", "linker": "ld.lld", "readelf": "llvm-readelf",
+                  "archiver": "llvm-ar", "ranlib": "llvm-ranlib", "nm": "llvm-nm",
+                  "strip": "llvm-strip", "objcopy": "llvm-objcopy", "objdump": "llvm-objdump"}
+    if set(tools) != set(tool_names):
         raise ExportError("portable-metadata: incomplete LLVM tool identities")
-    for name, basename in (("compiler", "clang"), ("linker", "ld.lld"), ("readelf", "llvm-readelf")):
+    for name, basename in tool_names.items():
         tool = _portable_mapping(tools[name], "LLVM tool")
         path = _portable_path(tool.get("path"))
         if path != "/opt/llvm-23.1.3/bin/" + basename:

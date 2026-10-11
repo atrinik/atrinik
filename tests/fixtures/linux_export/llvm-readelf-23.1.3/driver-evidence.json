@@ -25,6 +25,36 @@
       "path": "/opt/llvm-23.1.3/bin/llvm-readelf",
       "sha256": "8d7e7aa2ba952c27fb5075875e1bd5f1e11865c912b6124b157ac5cbd7b2f46f",
       "version": "LLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "archiver": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-ar",
+      "sha256": "61c9f6626f58e4f74a062f3daba0e762c16383d1337dd87bd8c87c4f6c4257fb",
+      "version": "LLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "ranlib": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-ranlib",
+      "sha256": "61c9f6626f58e4f74a062f3daba0e762c16383d1337dd87bd8c87c4f6c4257fb",
+      "version": "LLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "nm": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-nm",
+      "sha256": "c86ec2506d8155315b9bcd410b4d85c07e3adc5649df86e5a2049f2b92f5d4e2",
+      "version": "llvm-nm, compatible with GNU nm\nLLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "strip": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-strip",
+      "sha256": "fd074739b9e559a4c7c344bf6e509625558d17511e536d300e636956a6531081",
+      "version": "llvm-strip, compatible with GNU strip\nLLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "objcopy": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-objcopy",
+      "sha256": "fd074739b9e559a4c7c344bf6e509625558d17511e536d300e636956a6531081",
+      "version": "llvm-objcopy, compatible with GNU objcopy\nLLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "objdump": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-objdump",
+      "sha256": "c773cb6e218982714e8a0f3429f1d2764b089c18f5e3906c89bd0eb3bfbf69db",
+      "version": "LLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build.\n\n\n  Registered Targets:\n    x86    - 32-bit X86: Pentium-Pro and above\n    x86-64 - 64-bit X86: EM64T and AMD64"
     }
   },
   "runtime": {

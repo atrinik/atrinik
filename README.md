@@ -1770,7 +1770,8 @@ and `./atrinik linux verify DIRECTORY`. Export requires the pinned portable
 producer and a verified released-sound profile matching the selected source.
 Before merge, the automatic nonpublishing pull-request acceptance job is the
 actual producer route. Keep relocation/decoding, hardware gameplay, audible
-playback, Windows/WSLg, MXE and native Windows D3D12 evidence separate.
+playback, Windows/WSLg, current LLVM Windows packaging, historical MXE paired
+font baselines and native Windows D3D12 evidence separate.
 
 ## Deterministic test scenarios
 

@@ -193,6 +193,7 @@ def _read_regular(path: Path, *, limit: int = export.MAX_MANIFEST_BYTES) -> byte
 LLVM_ROOT = "/opt/llvm-23.1.3"
 PORTABLE_C_FLAGS = "-O2 -march=x86-64 -mtune=generic --no-default-config"
 PORTABLE_RELEASE_FLAGS = "-O2 -DNDEBUG"
+PORTABLE_PATH = LLVM_ROOT + "/bin:/usr/bin:/bin"
 PORTABLE_LINK_FLAGS = "-L" + LLVM_ROOT + "/lib --rtlib=compiler-rt --unwindlib=libunwind -fuse-ld=lld"
 
 
@@ -201,6 +202,8 @@ def portable_configure_arguments(source: Path) -> list[str]:
     settings = {
         "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkg-config",
         "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_MAKE_PROGRAM": "/usr/bin/ninja",
+        "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkg-config",
         "CMAKE_TOOLCHAIN_FILE": str(source / "cmake/toolchains/llvm.cmake"),
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_C_LINKER_LAUNCHER": "", "CMAKE_CXX_LINKER_LAUNCHER": "",
@@ -355,7 +358,7 @@ def validate_portable_build(binary: Path, evidence: dict) -> bytes:
             _portable_driver(words, evidence, binary, link=False)
         result = subprocess.run(["/usr/bin/ninja", "-C", str(binary), "-t", "commands", "atrinik"],
                                 capture_output=True, text=True, timeout=30, check=True,
-                                env={"PATH": LLVM_ROOT + "/bin:/usr/bin:/bin", "LC_ALL": "C"})
+                                env={"PATH": PORTABLE_PATH, "LC_ALL": "C"})
         if len(result.stdout) > export.MAX_MANIFEST_BYTES:
             raise ValueError("command report too large")
         links = []

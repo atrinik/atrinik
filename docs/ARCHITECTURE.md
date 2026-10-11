@@ -131,7 +131,7 @@ bound-delivery entry boundary. It returns `canonical-linux` only when the pinned
 ordinary devcontainer declaration, live Linux/POSIX runtime/user/Codex facts,
 repository/workspace layout, no-follow ownership and modes, and source,
 ledger, build, and Codex configured mount paths agree. `native-windows` is a stable
-host-boundary result, `windows-cross` identifies the subordinate MXE/package
+host-boundary result, `windows-cross` identifies the subordinate LLVM/package
 role, and `unknown-or-unsafe` covers arbitrary, mismatched, incomplete, or
 unsafe contexts. Runtime markers are corroborating signals rather than
 authorization. The probe never imports the ledger, acquires a lock, mounts or
@@ -1270,6 +1270,15 @@ commit coordinates for the server dependency closure consumed by the
 worldmaker. Roles outside that target closure do not invalidate that cache. It
 is reusable only for clean input checkouts with an exact metadata
 match; dirty inputs deliberately regenerate.
+
+## Portable Linux producer
+
+Portable Linux configure and build use the producer's fixed LLVM and system
+`PATH`, absolute CMake/Ninja/pkg-config paths, and sanitized discovery and startup
+environment. Schema 2 compiler evidence requires every selected LLVM utility,
+including the archiver and ranlib, with canonical paths, versions and hashes.
+Consumers reject incomplete evidence and rehash the selected tools before
+configure, build and publication against the externally pinned producer metadata.
 
 ## Portable Windows profile packages
 

@@ -11744,12 +11744,19 @@ class Workspace:
         self._prepare_cmake_binary(binary)
         environment = os.environ.copy()
         if portable:
+            from .linux_portable import LLVM_ROOT, PORTABLE_PATH, installed_metadata, _verify_compiler_bytes
+            _, producer_documents = installed_metadata()
+            producer_tools = producer_documents["compiler-evidence.json"]
+            environment["PATH"] = PORTABLE_PATH
             for name in tuple(environment):
                 if (name.startswith(("CCACHE_", "CCC_", "CLANG_CONFIG_FILE_", "LD_",
-                                     "CMAKE_", "PKG_CONFIG_"))
-                        or name in {"PKG_CONFIG", "CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
+                                     "CMAKE_", "PKG_CONFIG_", "PYTHON"))
+                        or name in {"BASH_ENV", "ENV", "PKG_CONFIG", "CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
                                     "LIBRARY_PATH", "COMPILER_PATH", "GCC_EXEC_PREFIX", "GLIBC_TUNABLES"}):
                     environment.pop(name)
+            environment.update({name: LLVM_ROOT + "/bin/" + tool for name, tool in
+                                {"CC": "clang", "CXX": "clang++", "AR": "llvm-ar",
+                                 "RANLIB": "llvm-ranlib", "LD": "ld.lld"}.items()})
             # This exact pkg-config directory belongs to the pinned portable
             # producer recipe; never inherit a caller's dependency search roots.
             environment["PKG_CONFIG_PATH"] = "/usr/local/lib/pkgconfig"
@@ -11818,8 +11825,9 @@ class Workspace:
                 file=sys.stderr,
             )
 
+        cmake = "/usr/bin/cmake" if portable else "cmake"
         configure = [
-            "cmake",
+            cmake,
             "-S",
             str(source),
             "-B",
@@ -11832,7 +11840,8 @@ class Workspace:
             *arguments,
         ]
         fingerprint = self._configure_fingerprint(
-            source, binary, configure, tests, environment, ccache
+            source, binary, configure, tests, environment, ccache,
+            **({"portable": True} if portable else {}),
         )
         metadata_path = binary / CONFIGURE_METADATA
         source_resolved = source.resolve()
@@ -11865,7 +11874,7 @@ class Workspace:
                for group in runtime_groups for record in group.values()):
             build_tree_changed = True
         if build_tree_changed or not self._cmake_state_valid(
-            source, binary, configure
+            source, binary, configure, **({"environment": environment} if portable else {})
         ):
             managed_reset(binary, self.paths.builds, "cmake-binary")
             configured = False
@@ -11882,12 +11891,15 @@ class Workspace:
             configure_seconds = time.monotonic() - configure_started
             configured_now = True
             fingerprint = self._configure_fingerprint(
-                source, binary, configure, tests, environment, ccache
+                source, binary, configure, tests, environment, ccache,
+                **({"portable": True} if portable else {}),
             )
             atomic_json(metadata_path, fingerprint)
         else:
             print(f"cmake: configure unchanged for {binary}; skipping", file=sys.stderr)
-        build_command = ["cmake", "--build", str(binary), "--parallel"]
+        if portable:
+            _verify_compiler_bytes(producer_tools)
+        build_command = [cmake, "--build", str(binary), "--parallel"]
         # CTest is registered for the whole configured graph.  An explicit
         # validation request therefore has to materialize that graph before
         # running the unfiltered suite; ordinary development builds retain
@@ -11914,7 +11926,7 @@ class Workspace:
         if tests:
             test_started = time.monotonic()
             run(
-                ["ctest", "--test-dir", str(binary), "--output-on-failure"],
+                ["/usr/bin/ctest" if portable else "ctest", "--test-dir", str(binary), "--output-on-failure"],
                 env=environment,
             )
             cmake_summary[str(binary)]["test_seconds"] = round(
@@ -11962,7 +11974,8 @@ class Workspace:
 
     @staticmethod
     def _cmake_state_valid(
-        source: Path, binary: Path, configure: list[str]
+        source: Path, binary: Path, configure: list[str],
+        *, environment: dict[str, str] | None = None,
     ) -> bool:
         cache = binary / "CMakeCache.txt"
         ninja = binary / "build.ninja"
@@ -11998,9 +12011,11 @@ class Workspace:
             return False
         try:
             graph = run(
-                ["ninja", "-C", str(binary), "-t", "query", "build.ninja"],
+                ["/usr/bin/ninja" if environment is not None else "ninja",
+                 "-C", str(binary), "-t", "query", "build.ninja"],
                 capture=True,
                 trace=False,
+                **({"env": environment} if environment is not None else {}),
             )
         except WorkspaceError:
             return False
@@ -12170,6 +12185,7 @@ class Workspace:
         tests: bool,
         environment: dict[str, str],
         ccache: str | None,
+        *, portable: bool = False,
     ) -> dict[str, Any]:
         relevant_names = (
             "ATRINIK_PACKAGE_VERSION",
@@ -12223,11 +12239,12 @@ class Workspace:
         # pkg-config cache entries, so every relevant environment change is a
         # build-tree identity change.
         initialization_environment = environment_identity
-        generator_tool = self._tool_identity("ninja")
-        cmake_tool = self._tool_identity("cmake")
+        tool_environment = {"environment": environment} if portable else {}
+        generator_tool = self._tool_identity("/usr/bin/ninja" if portable else "ninja", **tool_environment)
+        cmake_tool = self._tool_identity(configure[0], **tool_environment)
         compilers = {
-            "c": self._tool_identity(environment.get("CC", "cc")),
-            "cxx": self._tool_identity(environment.get("CXX", "c++")),
+            "c": self._tool_identity(environment.get("CC", "cc"), **tool_environment),
+            "cxx": self._tool_identity(environment.get("CXX", "c++"), **tool_environment),
         }
         tree_argument_prefixes = (
             "-DCMAKE_C_COMPILER=",
@@ -12251,14 +12268,14 @@ class Workspace:
             "cmake": cmake_tool,
             "compilers": compilers,
             "compiler_runtimes": {
-                language: self._compiler_runtime_identity(record)
+                language: self._compiler_runtime_identity(record, **tool_environment)
                 for language, record in compilers.items()
             },
             "link_tools": {
-                name: self._tool_identity(environment[name])
+                name: self._tool_identity(environment[name], **tool_environment)
                 for name in ("LD", "AR", "RANLIB") if environment.get(name)
             },
-            "configured_toolchain": self._cmake_configured_toolchain(binary),
+            "configured_toolchain": self._cmake_configured_toolchain(binary, **tool_environment),
             "environment": initialization_environment,
             "arguments": [
                 argument
@@ -12423,7 +12440,9 @@ class Workspace:
             "complete": complete,
         }
 
-    def _cmake_configured_toolchain(self, binary: Path) -> dict[str, Any] | None:
+    def _cmake_configured_toolchain(
+        self, binary: Path, *, environment: dict[str, str] | None = None,
+    ) -> dict[str, Any] | None:
         cache = binary / "CMakeCache.txt"
         if cache.is_symlink() or not cache.is_file():
             return None
@@ -12481,16 +12500,17 @@ class Workspace:
                         break
         except (OSError, UnicodeError):
             return {"valid": False}
+        tool_environment = {"environment": environment} if environment is not None else {}
         return {
             "valid": True,
             "values": values,
             "compilers": {
-                name: self._tool_identity(values[name])
+                name: self._tool_identity(values[name], **tool_environment)
                 for name in ("CMAKE_C_COMPILER", "CMAKE_CXX_COMPILER")
                 if values.get(name)
             },
             "link_tools": {
-                name: self._tool_identity(values[name])
+                name: self._tool_identity(values[name], **tool_environment)
                 for name in ("CMAKE_LINKER", "CMAKE_C_COMPILER_LINKER", "CMAKE_CXX_COMPILER_LINKER",
                              "CMAKE_AR", "CMAKE_RANLIB", "CMAKE_NM", "CMAKE_STRIP",
                              "CMAKE_OBJCOPY", "CMAKE_OBJDUMP", "CMAKE_READELF")
@@ -12498,13 +12518,14 @@ class Workspace:
             },
             "compiler_runtimes": {
                 name: self._compiler_runtime_identity(
-                    self._tool_identity(values[name]),
+                    self._tool_identity(values[name], **tool_environment),
                     tuple(option for option in (
                         ("--target=" + values[name + "_TARGET"])
                         if values.get(name + "_TARGET") else None,
                         ("--sysroot=" + values["CMAKE_SYSROOT"])
                         if values.get("CMAKE_SYSROOT") else None,
                     ) if option is not None),
+                    **tool_environment,
                 )
                 for name in ("CMAKE_C_COMPILER", "CMAKE_CXX_COMPILER")
                 if values.get(name)

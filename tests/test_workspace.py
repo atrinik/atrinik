@@ -11014,23 +11014,26 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(len(configure_calls), 5)
 
     def test_portable_cmake_disables_launchers_and_driver_environment_overrides(self) -> None:
-        from atrinik_workspace.linux_portable import portable_configure_arguments
+        from atrinik_workspace.linux_portable import PORTABLE_PATH, portable_configure_arguments
         source = self.workspace.paths.repositories / "content"
         (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
         binary = self.workspace.paths.builds / "profiles/test/build/portable-fixture"
-        with mock.patch.dict(os.environ, {"CCC_OVERRIDE_OPTIONS": "+-O3", "CLANG_CONFIG_FILE_USER_DIR": "/tmp/config", "LD_PRELOAD": "/tmp/shim.so", "LD_LIBRARY_PATH": "/tmp/tools",
+        with mock.patch.dict(os.environ, {"PATH": "/tmp/caller-wrappers", "CC": "/tmp/caller-cc",
+                                         "BASH_ENV": "/tmp/hook", "PYTHONPATH": "/tmp/modules","CCC_OVERRIDE_OPTIONS": "+-O3", "CLANG_CONFIG_FILE_USER_DIR": "/tmp/config", "LD_PRELOAD": "/tmp/shim.so", "LD_LIBRARY_PATH": "/tmp/tools",
                                          "CPATH": "/tmp/headers", "COMPILER_PATH": "/tmp/compilers",
                                          "CCACHE_DIR": "/tmp/cache", "CCACHE_CONFIGPATH": "/tmp/ccache.conf",
                                          "CCACHE_PREFIX": "/tmp/launcher",
                                          "CMAKE_PREFIX_PATH": "/tmp/foreign", "CMAKE_INCLUDE_PATH": "/tmp/foreign/include",
                                          "CMAKE_LIBRARY_PATH": "/tmp/foreign/lib", "PKG_CONFIG": "/tmp/foreign-pkg-config", "PKG_CONFIG_PATH": "/tmp/foreign/pc",
                                          "PKG_CONFIG_LIBDIR": "/tmp/foreign/lib", "PKG_CONFIG_SYSROOT_DIR": "/tmp/foreign"}), \
-             mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}), \
+             mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}) as identities, \
              mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False), \
+             mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
+             mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes") as verify, \
              mock.patch("atrinik_workspace.workspace.run") as run:
             self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True)
-        configure = next(call for call in run.call_args_list if call.args[0][:2] == ["cmake", "-S"])
-        for name in ("CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_USER_DIR", "LD_PRELOAD",
+        configure = next(call for call in run.call_args_list if call.args[0][:2] == ["/usr/bin/cmake", "-S"])
+        for name in ("BASH_ENV", "PYTHONPATH", "CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_USER_DIR", "LD_PRELOAD",
                      "LD_LIBRARY_PATH", "CPATH", "COMPILER_PATH", "CCACHE_DIR",
                      "CCACHE_CONFIGPATH", "CCACHE_PREFIX", "CMAKE_PREFIX_PATH",
                      "CMAKE_INCLUDE_PATH", "CMAKE_LIBRARY_PATH", "PKG_CONFIG_SYSROOT_DIR", "PKG_CONFIG"):
@@ -11040,6 +11043,47 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("-DCMAKE_C_COMPILER_LAUNCHER=", configure.args[0])
         self.assertNotIn("CCACHE_DIR", configure.kwargs["env"])
         self.assertEqual(self.workspace._build_summary["cache"]["inputs"]["compiler-cache"], "disabled")
+
+        self.assertIn("-DCMAKE_MAKE_PROGRAM=/usr/bin/ninja", configure.args[0])
+        self.assertIn("-DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config", configure.args[0])
+        self.assertTrue(identities.call_args_list)
+        for call in identities.call_args_list:
+            self.assertEqual(call.kwargs["environment"]["PATH"], PORTABLE_PATH)
+            self.assertNotIn("/tmp/caller", call.args[0])
+        build = next(call for call in run.call_args_list if call.args[0][:2] == ["/usr/bin/cmake", "--build"])
+        self.assertEqual(build.kwargs["env"]["PATH"], PORTABLE_PATH)
+        verify.assert_called_once_with({})
+
+    def test_portable_tool_swap_after_configure_stops_before_build(self) -> None:
+        from atrinik_workspace.linux_portable import portable_configure_arguments
+        from atrinik_workspace.linux_export import ExportError
+        source = self.workspace.paths.repositories / "content"
+        (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
+        binary = self.workspace.paths.builds / "profiles/test/build/portable-swap"
+        with mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture"}), \
+             mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
+             mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes", side_effect=ExportError("archive tool bytes differ")), \
+             mock.patch("atrinik_workspace.workspace.run") as run, \
+             self.assertRaisesRegex(ExportError, "bytes differ"):
+            self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True)
+        self.assertTrue(any(call.args[0][:2] == ["/usr/bin/cmake", "-S"] for call in run.call_args_list))
+        self.assertFalse(any("--build" in call.args[0] for call in run.call_args_list))
+
+    def test_portable_cached_ninja_graph_uses_admitted_environment(self) -> None:
+        from atrinik_workspace.linux_portable import PORTABLE_PATH
+        source = self.root / "graph-source"
+        source.mkdir()
+        binary = self.root / "graph-binary"
+        binary.mkdir()
+        (binary / "CMakeCache.txt").write_text(
+            f"CMAKE_HOME_DIRECTORY:INTERNAL={source}\nCMAKE_GENERATOR:INTERNAL=Ninja\n")
+        (binary / "build.ninja").write_text("fixture")
+        environment = {"PATH": PORTABLE_PATH}
+        with mock.patch.dict(os.environ, {"PATH": "/tmp/foreign-tools"}), \
+             mock.patch("atrinik_workspace.workspace.run", return_value="build.ninja:\n  input: RERUN_CMAKE") as run:
+            self.assertTrue(self.workspace._cmake_state_valid(source, binary, [], environment=environment))
+        self.assertEqual(run.call_args.args[0][0], "/usr/bin/ninja")
+        self.assertEqual(run.call_args.kwargs["env"], environment)
 
     def test_clang_runtime_fingerprint_detects_replaced_archives(self) -> None:
         resource = self.root / "llvm-resource"

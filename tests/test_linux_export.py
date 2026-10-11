@@ -364,6 +364,38 @@ class LinuxExportTests(unittest.TestCase):
         with self.assertRaisesRegex(export.ExportError, "bytes differ"):
             portable._verify_compiler_bytes(evidence)
 
+    def test_portable_archive_tools_require_complete_canonical_versioned_identities(self):
+        documents = self.portable_documents()
+        original = documents["compiler-evidence.json"]
+        for role in ("archiver", "ranlib", "nm", "strip", "objcopy", "objdump"):
+            for change in ("missing", "path", "version", "digest"):
+                value = json.loads(json.dumps(original))
+                if change == "missing":
+                    del value["tools"][role]
+                else:
+                    field, replacement = {"path": ("path", "/tmp/foreign-tool"),
+                                          "version": ("version", "LLVM version 23.1.30"),
+                                          "digest": ("sha256", "bad")}[change]
+                    value["tools"][role][field] = replacement
+                with self.subTest(role=role, change=change), self.assertRaises(export.ExportError):
+                    export._portable_compiler_evidence(value, documents["contract.json"]["compiler"], documents["installed.json"])
+
+    def test_portable_archive_tool_byte_replacement_is_rejected(self):
+        from atrinik_workspace import linux_portable as portable
+        compiler = self.root / "clang"
+        compiler.write_bytes(b"compiler")
+        (self.root / "clang++").symlink_to(compiler.name)
+        record = {"path": str(compiler), "sha256": hashlib.sha256(compiler.read_bytes()).hexdigest()}
+        for role in ("archiver", "ranlib"):
+            archive_tool = self.root / role
+            archive_tool.write_bytes(b"archive tool")
+            tool_record = {"path": str(archive_tool), "sha256": hashlib.sha256(archive_tool.read_bytes()).hexdigest()}
+            evidence = {"tools": {"compiler": record, role: tool_record}, "runtime": record, "unwinder": record}
+            portable._verify_compiler_bytes(evidence)
+            archive_tool.write_bytes(b"replaced archive tool")
+            with self.subTest(role=role), self.assertRaisesRegex(export.ExportError, "bytes differ"):
+                portable._verify_compiler_bytes(evidence)
+
     def test_llvm_23_readelf_fixtures_preserve_versions_and_symbols(self) -> None:
         fixture_root = Path(__file__).parent / "fixtures/linux_export/llvm-readelf-23.1.3"
         payload = self.root / "elf-llvm-fixture"
