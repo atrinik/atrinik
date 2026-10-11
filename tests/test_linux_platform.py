@@ -104,6 +104,8 @@ class LinuxPlatformTests(unittest.TestCase):
         result = platform.prerequisite_report(docker=True)
         self.assertFalse(result["ok"])
         self.assertIn("missing-tool:git-lfs", result["failures"])
+        self.assertIn("missing-tool:clang", result["failures"])
+        self.assertIn("missing-tool:llvm-cov", result["failures"])
         self.assertIn("missing-tool:docker", result["failures"])
         self.assertEqual(result["delivery_authority"], "requires-coordinator-probe")
 

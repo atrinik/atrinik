@@ -11845,6 +11845,13 @@ class Workspace:
         toolchain_identity = fingerprint["build_tree_identity"]["toolchain_file"]
         if toolchain_identity is not None and not toolchain_identity["complete"]:
             build_tree_changed = True
+        runtime_groups = [fingerprint["build_tree_identity"].get("compiler_runtimes", {})]
+        configured_toolchain = fingerprint["build_tree_identity"].get("configured_toolchain")
+        if isinstance(configured_toolchain, dict):
+            runtime_groups.append(configured_toolchain.get("compiler_runtimes", {}))
+        if any(record is not None and not record.get("complete")
+               for group in runtime_groups for record in group.values()):
+            build_tree_changed = True
         if build_tree_changed or not self._cmake_state_valid(
             source, binary, configure
         ):
@@ -12108,6 +12115,37 @@ class Workspace:
             "version": version,
         }
 
+    @staticmethod
+    def _compiler_runtime_identity(
+        identity: dict[str, Any], options: tuple[str, ...] = ()
+    ) -> dict[str, Any] | None:
+        """Fingerprint Clang's selected builtins and coverage runtime archives."""
+        if "clang" not in str(identity.get("version", "")).lower():
+            return None
+        command = identity.get("command")
+        if not isinstance(command, str):
+            return {"complete": False, "files": []}
+        try:
+            words = [*shlex.split(command), *options]
+            resource = run([*words, "-print-resource-dir"], capture=True, trace=False).strip()
+            builtins = run([*words, "--rtlib=compiler-rt", "-print-libgcc-file-name"],
+                           capture=True, trace=False).strip()
+            root = Path(resource)
+            archive = Path(builtins)
+            if not root.is_absolute() or not root.is_dir() or not archive.is_absolute():
+                return {"complete": False, "files": []}
+            paths = {archive, *root.glob("lib/**/libclang_rt.profile*.a")}
+            records = []
+            for path in sorted(paths):
+                resolved = path.resolve(strict=True)
+                if not resolved.is_file():
+                    return {"complete": False, "files": []}
+                records.append({"path": str(path), "resolved_path": str(resolved),
+                                "sha256": hashlib.sha256(resolved.read_bytes()).hexdigest()})
+            return {"complete": True, "resource_directory": resource, "files": records}
+        except (OSError, RuntimeError, ValueError, WorkspaceError):
+            return {"complete": False, "files": []}
+
     def _configure_fingerprint(
         self,
         source: Path,
@@ -12125,6 +12163,12 @@ class Workspace:
             "CFLAGS",
             "CXXFLAGS",
             "LDFLAGS",
+            "LD",
+            "AR",
+            "RANLIB",
+            "ATRINIK_WINDOWS_TOOLCHAIN_FILE",
+            "ATRINIK_WINDOWS_TARGET",
+            "ATRINIK_WINDOWS_RUNTIME_DIR",
             "PATH",
             "CPATH",
             "C_INCLUDE_PATH",
@@ -12172,6 +12216,11 @@ class Workspace:
         tree_argument_prefixes = (
             "-DCMAKE_C_COMPILER=",
             "-DCMAKE_CXX_COMPILER=",
+            "-DCMAKE_C_COMPILER_TARGET=",
+            "-DCMAKE_CXX_COMPILER_TARGET=",
+            "-DCMAKE_LINKER=",
+            "-DCMAKE_AR=",
+            "-DCMAKE_RANLIB=",
             "-DCMAKE_TOOLCHAIN_FILE=",
             "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=",
             "-DCMAKE_GENERATOR_PLATFORM=",
@@ -12183,6 +12232,14 @@ class Workspace:
             "generator_tool": generator_tool,
             "cmake": cmake_tool,
             "compilers": compilers,
+            "compiler_runtimes": {
+                language: self._compiler_runtime_identity(record)
+                for language, record in compilers.items()
+            },
+            "link_tools": {
+                name: self._tool_identity(environment[name])
+                for name in ("LD", "AR", "RANLIB") if environment.get(name)
+            },
             "configured_toolchain": self._cmake_configured_toolchain(binary),
             "environment": initialization_environment,
             "arguments": [
@@ -12358,6 +12415,15 @@ class Workspace:
             "CMAKE_CXX_COMPILER",
             "CMAKE_C_COMPILER_TARGET",
             "CMAKE_CXX_COMPILER_TARGET",
+            "CMAKE_LINKER",
+            "CMAKE_C_COMPILER_LINKER",
+            "CMAKE_CXX_COMPILER_LINKER",
+            "CMAKE_AR",
+            "CMAKE_RANLIB",
+            "CMAKE_C_FLAGS",
+            "CMAKE_CXX_FLAGS",
+            "CMAKE_EXE_LINKER_FLAGS",
+            "CMAKE_SHARED_LINKER_FLAGS",
             "CMAKE_SYSROOT",
             "CMAKE_OSX_SYSROOT",
         }
@@ -12376,6 +12442,8 @@ class Workspace:
             compiler_patterns = {
                 "CMAKE_C_COMPILER": "CMakeCCompiler.cmake",
                 "CMAKE_CXX_COMPILER": "CMakeCXXCompiler.cmake",
+                "CMAKE_C_COMPILER_LINKER": "CMakeCCompiler.cmake",
+                "CMAKE_CXX_COMPILER_LINKER": "CMakeCXXCompiler.cmake",
             }
             for name, filename in compiler_patterns.items():
                 matches = sorted((binary / "CMakeFiles").glob(f"*/{filename}"))
@@ -12399,6 +12467,25 @@ class Workspace:
             "values": values,
             "compilers": {
                 name: self._tool_identity(values[name])
+                for name in ("CMAKE_C_COMPILER", "CMAKE_CXX_COMPILER")
+                if values.get(name)
+            },
+            "link_tools": {
+                name: self._tool_identity(values[name])
+                for name in ("CMAKE_LINKER", "CMAKE_C_COMPILER_LINKER", "CMAKE_CXX_COMPILER_LINKER",
+                             "CMAKE_AR", "CMAKE_RANLIB")
+                if values.get(name)
+            },
+            "compiler_runtimes": {
+                name: self._compiler_runtime_identity(
+                    self._tool_identity(values[name]),
+                    tuple(option for option in (
+                        ("--target=" + values[name + "_TARGET"])
+                        if values.get(name + "_TARGET") else None,
+                        ("--sysroot=" + values["CMAKE_SYSROOT"])
+                        if values.get("CMAKE_SYSROOT") else None,
+                    ) if option is not None),
+                )
                 for name in ("CMAKE_C_COMPILER", "CMAKE_CXX_COMPILER")
                 if values.get(name)
             },
@@ -17244,14 +17331,15 @@ class Workspace:
     def _local_windows_build_environment() -> dict[str, str] | None:
         environment = os.environ.copy()
         required = (
-            "MXE_TOOLCHAIN_FILE",
-            "MXE_RUNTIME_DIR",
+            "ATRINIK_WINDOWS_TOOLCHAIN_FILE",
+            "ATRINIK_WINDOWS_RUNTIME_DIR",
             "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR",
             "ATRINIK_WINDOWS_PYTHON_LIBRARY",
             "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR",
         )
-        target = environment.get("MXE_TARGET", "x86_64-w64-mingw32.shared")
-        if shutil.which(f"{target}-cmake") is None or any(
+        target = environment.get("ATRINIK_WINDOWS_TARGET")
+        if (not target or shutil.which("cmake") is None
+                or shutil.which(f"{target}-clang") is None) or any(
             not environment.get(name) or not Path(environment[name]).exists()
             for name in required
         ):

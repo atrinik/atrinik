@@ -48,7 +48,7 @@ CANONICAL_REMOTE_USER = "ubuntu"
 CANONICAL_HOME = "/home/ubuntu"
 CANONICAL_CODEX_HOME = "/home/ubuntu/.codex"
 WINDOWS_CROSS_REMOTE_USER = "vscode"
-MXE_PATH = "/opt/mxe/usr/bin"
+WINDOWS_TOOLCHAIN_PATH = "/opt/llvm-mingw/bin"
 
 MAX_CONFIG_BYTES = 128 * 1024
 MAX_COMPONENTS_BYTES = 4 * 1024 * 1024
@@ -377,7 +377,7 @@ def _posix_locking_available() -> bool:
     return callable(getattr(locking, "flock", None))
 
 
-def _mxe_signals(
+def _windows_toolchain_signals(
     environment: Mapping[str, str], user_name: str | None
 ) -> list[str]:
     signals: list[str] = []
@@ -385,8 +385,9 @@ def _mxe_signals(
         signals.append("windows-cross-remote-user")
     if environment.get("HOME") == "/home/vscode":
         signals.append("windows-cross-home")
-    if MXE_PATH in environment.get("PATH", "").split(os.pathsep):
-        signals.append("mxe-toolchain-present")
+    if (WINDOWS_TOOLCHAIN_PATH in environment.get("PATH", "").split(os.pathsep)
+            or environment.get("ATRINIK_WINDOWS_TOOLCHAIN_FILE")):
+        signals.append("windows-toolchain-present")
     if environment.get("DEVCONTAINER_IMAGE") == WINDOWS_CROSS_IMAGE:
         signals.append("windows-cross-image")
     return signals
@@ -713,7 +714,7 @@ def probe(
         )
 
     runtime_marker = _marker_present(runtime_root, failures)
-    role_signals = _mxe_signals(environment, user_name)
+    role_signals = _windows_toolchain_signals(environment, user_name)
     if not runtime_marker:
         role_signals = [signal for signal in role_signals
                         if signal not in {"windows-cross-remote-user", "windows-cross-home"}]
@@ -799,8 +800,8 @@ def probe(
     windows_remote_env = windows_config.get("remoteEnv")
     if not isinstance(windows_remote_env, dict) or windows_remote_env.get(
         "PATH"
-    ) != "/opt/mxe/usr/bin:${containerEnv:PATH}":
-        failures.append("windows-cross-mxe-reference")
+    ) != "/opt/llvm-mingw/bin:${containerEnv:PATH}":
+        failures.append("windows-cross-toolchain-reference")
 
     if not _marker_present(runtime_root, failures):
         return _native_probe(repository_root, environment, uid, failures,

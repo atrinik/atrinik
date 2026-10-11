@@ -1,0 +1,168 @@
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           Advanced Micro Devices X86-64
+  Version:                           0x1
+  Entry point address:               0x2db0
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          33240 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         14
+  Size of section headers:           64 (bytes)
+  Number of section headers:         32
+  Section header string table index: 31
+
+Elf file type is DYN (Shared object file)
+Entry point 0x2db0
+There are 14 program headers, starting at offset 64
+
+Program Headers:
+  Type           Offset   VirtAddr           PhysAddr           FileSiz  MemSiz   Flg Align
+  PHDR           0x000040 0x0000000000000040 0x0000000000000040 0x000310 0x000310 R   0x8
+  INTERP         0x000374 0x0000000000000374 0x0000000000000374 0x00001c 0x00001c R   0x1
+      [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
+  LOAD           0x000000 0x0000000000000000 0x0000000000000000 0x001100 0x001100 R   0x1000
+  LOAD           0x002000 0x0000000000002000 0x0000000000002000 0x0033c1 0x0033c1 R E 0x1000
+  LOAD           0x006000 0x0000000000006000 0x0000000000006000 0x000e64 0x000e64 R   0x1000
+  LOAD           0x007c88 0x0000000000007c88 0x0000000000007c88 0x00038c 0x0003f0 RW  0x1000
+  DYNAMIC        0x007cc8 0x0000000000007cc8 0x0000000000007cc8 0x0001f0 0x0001f0 RW  0x8
+  NOTE           0x000350 0x0000000000000350 0x0000000000000350 0x000024 0x000024 R   0x4
+  NOTE           0x006da0 0x0000000000006da0 0x0000000000006da0 0x000030 0x000030 R   0x8
+  NOTE           0x006dd0 0x0000000000006dd0 0x0000000000006dd0 0x000094 0x000094 R   0x4
+  GNU_PROPERTY   0x006da0 0x0000000000006da0 0x0000000000006da0 0x000030 0x000030 R   0x8
+  GNU_EH_FRAME   0x006a10 0x0000000000006a10 0x0000000000006a10 0x0000ac 0x0000ac R   0x4
+  GNU_STACK      0x000000 0x0000000000000000 0x0000000000000000 0x000000 0x000000 RW  0x10
+  GNU_RELRO      0x007c88 0x0000000000007c88 0x0000000000007c88 0x000378 0x000378 R   0x1
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     
+   01     .interp 
+   02     .note.gnu.build-id .interp .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt 
+   03     .init .plt .plt.got .plt.sec .text .fini 
+   04     .rodata .eh_frame_hdr .eh_frame .note.gnu.property .note.ABI-tag .note.package 
+   05     .init_array .fini_array .data.rel.ro .dynamic .got .data .bss 
+   06     .dynamic 
+   07     .note.gnu.build-id 
+   08     .note.gnu.property 
+   09     .note.ABI-tag .note.package 
+   10     .note.gnu.property 
+   11     .eh_frame_hdr 
+   12     
+   13     .init_array .fini_array .data.rel.ro .dynamic .got 
+   None   .gnu_debugaltlink .gnu_debuglink .shstrtab 
+Dynamic section at offset 0x7cc8 contains 27 entries:
+  Tag                Type           Name/Value
+  0x0000000000000001 (NEEDED)       Shared library: [libc.so.6]
+  0x000000000000000c (INIT)         0x2000
+  0x000000000000000d (FINI)         0x53b4
+  0x0000000000000019 (INIT_ARRAY)   0x7c88
+  0x000000000000001b (INIT_ARRAYSZ) 8 (bytes)
+  0x000000000000001a (FINI_ARRAY)   0x7c90
+  0x000000000000001c (FINI_ARRAYSZ) 8 (bytes)
+  0x000000006ffffef5 (GNU_HASH)     0x390
+  0x0000000000000005 (STRTAB)       0x8a0
+  0x0000000000000006 (SYMTAB)       0x3f0
+  0x000000000000000a (STRSZ)        701 (bytes)
+  0x000000000000000b (SYMENT)       24 (bytes)
+  0x0000000000000015 (DEBUG)        0x0
+  0x0000000000000003 (PLTGOT)       0x7eb8
+  0x0000000000000002 (PLTRELSZ)     792 (bytes)
+  0x0000000000000014 (PLTREL)       RELA
+  0x0000000000000017 (JMPREL)       0xde8
+  0x0000000000000007 (RELA)         0xc38
+  0x0000000000000008 (RELASZ)       432 (bytes)
+  0x0000000000000009 (RELAENT)      24 (bytes)
+  0x000000000000001e (FLAGS)        BIND_NOW 
+  0x000000006ffffffb (FLAGS_1)      NOW PIE 
+  0x000000006ffffffe (VERNEED)      0xbc8
+  0x000000006fffffff (VERNEEDNUM)   1
+  0x000000006ffffff0 (VERSYM)       0xb5e
+  0x000000006ffffff9 (RELACOUNT)    9
+  0x0000000000000000 (NULL)         0x0
+
+Symbol table '.dynsym' contains 50 entries:
+   Num:    Value          Size Type    Bind   Vis       Ndx Name
+     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT   UND 
+     1: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __vfprintf_chk@GLIBC_2.3.4
+     2: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __libc_start_main@GLIBC_2.34
+     3: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND abort@GLIBC_2.2.5
+     4: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __errno_location@GLIBC_2.2.5
+     5: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND strncmp@GLIBC_2.2.5
+     6: 0000000000000000     0 NOTYPE  WEAK   DEFAULT   UND _ITM_deregisterTMCloneTable
+     7: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND _exit@GLIBC_2.2.5
+     8: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __fpending@GLIBC_2.2.5
+     9: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND fcntl@GLIBC_2.2.5
+    10: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND textdomain@GLIBC_2.2.5
+    11: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND fclose@GLIBC_2.2.5
+    12: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND bindtextdomain@GLIBC_2.2.5
+    13: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND dcgettext@GLIBC_2.2.5
+    14: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __ctype_get_mb_cur_max@GLIBC_2.2.5
+    15: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND strlen@GLIBC_2.2.5
+    16: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __stack_chk_fail@GLIBC_2.4
+    17: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __overflow@GLIBC_2.2.5
+    18: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND strrchr@GLIBC_2.2.5
+    19: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND mbrtoc32@GLIBC_2.16
+    20: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND memcmp@GLIBC_2.2.5
+    21: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND fputs_unlocked@GLIBC_2.2.5
+    22: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND strcmp@GLIBC_2.2.5
+    23: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND fputc_unlocked@GLIBC_2.2.5
+    24: 0000000000000000     0 NOTYPE  WEAK   DEFAULT   UND __gmon_start__
+    25: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND strerror_r@GLIBC_2.2.5
+    26: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND nl_langinfo@GLIBC_2.2.5
+    27: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND setlocale@GLIBC_2.2.5
+    28: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __printf_chk@GLIBC_2.3.4
+    29: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __cxa_atexit@GLIBC_2.2.5
+    30: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND exit@GLIBC_2.2.5
+    31: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND fwrite@GLIBC_2.2.5
+    32: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __fprintf_chk@GLIBC_2.3.4
+    33: 0000000000000000     0 NOTYPE  WEAK   DEFAULT   UND _ITM_registerTMCloneTable
+    34: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND fflush_unlocked@GLIBC_2.2.5
+    35: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND mbsinit@GLIBC_2.2.5
+    36: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND iswprint@GLIBC_2.2.5
+    37: 0000000000000000     0 FUNC    GLOBAL DEFAULT   UND __ctype_b_loc@GLIBC_2.3
+    38: 0000000000008028     8 OBJECT  GLOBAL DEFAULT    28 stdout@GLIBC_2.2.5
+    39: 0000000000008050     4 OBJECT  GLOBAL DEFAULT    28 error_message_count
+    40: 0000000000000000     0 FUNC    WEAK   DEFAULT   UND __cxa_finalize@GLIBC_2.2.5
+    41: 0000000000008020     8 OBJECT  GLOBAL DEFAULT    28 __progname@GLIBC_2.2.5
+    42: 00000000000026c8   388 FUNC    GLOBAL DEFAULT    14 error_at_line
+    43: 0000000000008030     8 OBJECT  WEAK   DEFAULT    28 program_invocation_name@GLIBC_2.2.5
+    44: 0000000000008030     8 OBJECT  GLOBAL DEFAULT    28 __progname_full@GLIBC_2.2.5
+    45: 0000000000008020     8 OBJECT  WEAK   DEFAULT    28 program_invocation_short_name@GLIBC_2.2.5
+    46: 0000000000008040     8 OBJECT  GLOBAL DEFAULT    28 stderr@GLIBC_2.2.5
+    47: 000000000000257f   265 FUNC    GLOBAL DEFAULT    14 error
+    48: 0000000000008058     8 OBJECT  GLOBAL DEFAULT    28 error_print_progname
+    49: 0000000000008054     4 OBJECT  GLOBAL DEFAULT    28 error_one_per_line
+Version symbols section '.gnu.version' contains 50 entries:
+ Addr: 0000000000000b5e  Offset: 0x000b5e  Link: 4 (.dynsym)
+  000:   0 (*local*)       3 (GLIBC_2.3.4)   4 (GLIBC_2.34)    2 (GLIBC_2.2.5)
+  004:   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   0 (*local*)       2 (GLIBC_2.2.5)
+  008:   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)
+  00c:   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)
+  010:   5 (GLIBC_2.4)     2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   6 (GLIBC_2.16) 
+  014:   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)
+  018:   0 (*local*)       2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)
+  01c:   3 (GLIBC_2.3.4)   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)
+  020:   3 (GLIBC_2.3.4)   0 (*local*)       2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)
+  024:   2 (GLIBC_2.2.5)   7 (GLIBC_2.3)     2 (GLIBC_2.2.5)   1 (*global*)   
+  028:   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   1 (*global*)      2 (GLIBC_2.2.5)
+  02c:   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   2 (GLIBC_2.2.5)   1 (*global*)   
+  030:   1 (*global*)      1 (*global*)   
+
+Version needs section '.gnu.version_r' contains 1 entries:
+ Addr: 0000000000000bc8  Offset: 0x000bc8  Link: 5 (.dynstr)
+  0x0000: Version: 1  File: libc.so.6  Cnt: 6
+  0x0010:   Name: GLIBC_2.3  Flags: none  Version: 7
+  0x0020:   Name: GLIBC_2.16  Flags: none  Version: 6
+  0x0030:   Name: GLIBC_2.4  Flags: none  Version: 5
+  0x0040:   Name: GLIBC_2.34  Flags: none  Version: 4
+  0x0050:   Name: GLIBC_2.3.4  Flags: none  Version: 3
+  0x0060:   Name: GLIBC_2.2.5  Flags: none  Version: 2
+

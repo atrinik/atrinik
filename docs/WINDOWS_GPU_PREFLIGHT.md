@@ -212,6 +212,14 @@ sanitized evidence into the handoff artifact directory.
 
 ### 1. Build and package in the pinned toolchain
 
+The current producer uses LLVM MinGW with Clang 23.1.3, LLD and compiler-rt.
+A local `windows-cross` worker supplies `ATRINIK_WINDOWS_TOOLCHAIN_FILE`,
+`ATRINIK_WINDOWS_TARGET` and `ATRINIK_WINDOWS_RUNTIME_DIR`, alongside the existing
+`ATRINIK_WINDOWS_PYTHON_*` inputs. Configure through host `cmake` using the
+selected toolchain file; the image supplies target Clang on `/opt/llvm-mingw/bin`.
+ThinLTO remains disabled, and native coverage uses the matching LLVM tools.
+
+
 Keep development, Git/review and delivery coordination in the owned native
 Linux worktree. Complete its context, authenticated ledger/worktree/CAS and
 lease gates before packaging; native Windows and `windows-cross` have no Linux

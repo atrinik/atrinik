@@ -4,7 +4,7 @@ The default application compilation and build-test workflow uses the pinned,
 short-lived CPU worker described in [Linux execution](LINUX_EXECUTION.md). It needs neither QEMU
 nor an exact host compiler installation. Use this Ubuntu 26.04 amd64 recipe only
 when deliberately building Classic directly on a host. The package and source
-versions reproduce the owner contract used by Classic
+versions below preserve the historical owner contract used by Classic
 `4998131ad2ae4c9680685fd87e2d85de1dc15fd9` in its Ubuntu 26.04 build container.
 These translated host commands have not yet been qualified on a direct host;
 #593 owns that separate qualification. Container CI is evidence only for its
@@ -57,6 +57,19 @@ Portable delivery is another stage: the immutable producer in
 client, `./atrinik linux verify` checks the transferred directory, and the native
 desktop supplies the actual graphics and audio runtime. Do not apply the host
 package-lock instructions below merely to launch that verified export.
+
+## LLVM compiler contract
+
+Current Classic development uses LLVM 23.1.3 Clang, LLD and compiler-rt.
+Use the pinned worker's compiler environment and preserve platform libraries:
+Linux retains its selected glibc and libstdc++; Windows uses the selected
+LLVM MinGW runtime. ThinLTO is disabled. Native coverage uses Clang profile
+instrumentation with matching `llvm-profdata` and `llvm-cov` tools.
+
+The package recipe below records the earlier owner inputs and is historical
+qualification evidence. It does not install the current LLVM contract. A direct
+host qualification must first install the LLVM source and binary inputs pinned
+by the selected devcontainer owner; a system `cc` alias alone is insufficient.
 
 ## Install the optional Ubuntu 26.04 direct-build contract
 

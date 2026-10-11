@@ -1,5 +1,5 @@
 {
-  "name": "Atrinik Windows cross-build (MXE)",
+  "name": "Atrinik Windows cross-build (LLVM)",
   "image": "ghcr.io/atrinik/windows-build:1.2.1@sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb",
   "workspaceFolder": "/workspaces/atrinik",
   "remoteUser": "vscode",
@@ -13,7 +13,7 @@
     "ATRINIK_DOCKER_VOLUME_NAMESPACE": "${devcontainerId}"
   },
   "remoteEnv": {
-    "PATH": "/opt/mxe/usr/bin:${containerEnv:PATH}"
+    "PATH": "/opt/llvm-mingw/bin:${containerEnv:PATH}"
   },
   // Fresh named volumes are root-owned; repair only this volume root once.
   "onCreateCommand": "owner=$(stat -c %u /workspaces/atrinik/workspace/build) && if [ \"$owner\" != \"$(id -u vscode)\" ]; then sudo chown -R --no-dereference vscode:vscode /workspaces/atrinik/workspace/build; fi",
@@ -25,7 +25,10 @@
         "ms-vscode.cpptools"
       ],
       "settings": {
-        "cmake.cmakePath": "/opt/mxe/usr/bin/x86_64-w64-mingw32.shared-cmake",
+        "cmake.cmakePath": "/usr/bin/cmake",
+        "cmake.configureSettings": {
+          "CMAKE_TOOLCHAIN_FILE": "${env:ATRINIK_WINDOWS_TOOLCHAIN_FILE}"
+        },
         "cmake.configureArgs": [
           "--no-warn-unused-cli"
         ],

@@ -180,15 +180,15 @@ class LinuxExportTests(unittest.TestCase):
             with self.assertRaisesRegex(export.ExportError, "pathname changed"):
                 export.verify_export(self.root)
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "ELF toolchain required")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "ELF toolchain required")
     def test_real_elf_inspection_and_explicit_dependency_closure(self) -> None:
         source = self.root / "library.c"
         source.write_text("int value(void) { return 0; }\n")
         library = self.root / "libsample.so"
-        subprocess.run(["cc", "-shared", "-fPIC", "-Wl,-soname,libsample.so", "-o", str(library), str(source)], check=True)
+        subprocess.run(["clang", "-shared", "-fPIC", "-Wl,-soname,libsample.so", "-o", str(library), str(source)], check=True)
         source.write_text('extern int value(void); int main(void) { return value(); }\n')
         binary = self.root / "client"
-        subprocess.run(["cc", "-o", str(binary), str(source), "-L" + str(self.root), "-lsample", "-Wl,-rpath,$ORIGIN/../lib"], check=True)
+        subprocess.run(["clang", "-o", str(binary), str(source), "-L" + str(self.root), "-lsample", "-Wl,-rpath,$ORIGIN/../lib"], check=True)
         with binary.open("rb") as stream:
             client = export.inspect_elf(stream.fileno())
         with library.open("rb") as stream:
@@ -210,19 +210,19 @@ class LinuxExportTests(unittest.TestCase):
         with self.assertRaisesRegex(export.ExportError, "incompatible object ABI"):
             export.elf_dependency_report(objects, entrypoint="bin/client", host_libraries=frozenset({"libc.so.6"}))
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "ELF toolchain required")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "ELF toolchain required")
     def test_real_provider_versions_require_the_resolved_library(self) -> None:
         source = self.root / "provider.c"
         source.write_text("int value(void) { return 1; }\nint extra(void) { return 2; }\n")
         script = self.root / "versions.map"
         script.write_text("SAMPLE_1 { global: value; local: *; }; SAMPLE_2 { global: extra; } SAMPLE_1;\n")
         library = self.root / "libsample.so"
-        command = ["cc", "-shared", "-fPIC", "-nostdlib", "-Wl,-soname,libsample.so", "-o", str(library), str(source)]
+        command = ["clang", "-shared", "-fPIC", "-nostdlib", "-Wl,-soname,libsample.so", "-o", str(library), str(source)]
         subprocess.run(command + ["-Wl,--version-script=" + str(script)], check=True)
         consumer = self.root / "consumer.c"
         consumer.write_text("extern int value(void); int use(void) { return value(); }\n")
         binary = self.root / "consumer.so"
-        subprocess.run(["cc", "-shared", "-fPIC", "-nostdlib", "-o", str(binary), str(consumer),
+        subprocess.run(["clang", "-shared", "-fPIC", "-nostdlib", "-o", str(binary), str(consumer),
                         "-L" + str(self.root), "-lsample"], check=True)
         with binary.open("rb") as stream:
             client = export.inspect_elf(stream.fileno())
@@ -332,6 +332,38 @@ class LinuxExportTests(unittest.TestCase):
         with self.assertRaisesRegex(export.ExportError, "escapes export"):
             export.elf_dependency_report({"bin/client": facts}, entrypoint="bin/client", host_libraries=frozenset())
 
+    def test_portable_compiler_evidence_is_bound_to_installed_bytes(self) -> None:
+        from atrinik_workspace import linux_portable as portable
+        runtime = self.root / "runtime.a"
+        runtime.write_bytes(b"verified-runtime")
+        tool = self.root / "clang"
+        tool.symlink_to(runtime.name)
+        record = {"path": str(tool), "sha256": hashlib.sha256(runtime.read_bytes()).hexdigest()}
+        evidence = {"tools": {"compiler": record}, "runtime": record, "unwinder": record}
+        portable._verify_compiler_bytes(evidence)
+        runtime.write_bytes(b"changed-runtime")
+        with self.assertRaisesRegex(export.ExportError, "bytes differ"):
+            portable._verify_compiler_bytes(evidence)
+
+    def test_llvm_23_readelf_fixtures_preserve_versions_and_symbols(self) -> None:
+        fixture_root = Path(__file__).parent / "fixtures/linux_export/llvm-readelf-23.1.3"
+        payload = self.root / "elf-llvm-fixture"
+        payload.write_bytes(b"\x7fELF")
+        for name in ("executable-all.txt", "shared-all.txt"):
+            text = (fixture_root / name).read_text()
+            with self.subTest(name=name), payload.open("rb") as stream, \
+                 mock.patch.object(export, "_readelf", return_value=text):
+                facts = export.inspect_elf(stream.fileno())
+                self.assertEqual(facts["class"], "ELF64")
+                if name == "executable-all.txt":
+                    self.assertEqual(facts["needed"], ["libc.so.6"])
+                    self.assertIn("GLIBC_2.34", facts["required_versions"]["libc.so.6"])
+                    self.assertIn("__libc_start_main@GLIBC_2.34", facts["symbols"]["required"])
+                else:
+                    self.assertEqual(facts["soname"], "versions.so")
+                    self.assertEqual(facts["defined_versions"], ["ABI_1", "ABI_2"])
+                    self.assertTrue(facts["symbols"]["defined"])
+
     def test_elf_extraction_rejects_truncated_or_injected_records(self) -> None:
         payload = self.root / "elf-fixture"
         payload.write_bytes(b"\x7fELF")
@@ -373,11 +405,14 @@ class LinuxExportTests(unittest.TestCase):
                             {"feature": "unused", "soname": ["unused.so"]}]
         client["dlopen_providers"] = {"sample": [plugin]}
         return {
-            "contract.json": {"schema_version": 1, "platform": "linux/amd64", "target": "portable-final",
+            "contract.json": {"schema_version": 2, "platform": "linux/amd64", "target": "portable-final",
                               "image": "ghcr.io/atrinik/classic-portable-build", "metadata_directory": "/opt/atrinik-portable",
                               "base": {"image": "debian:bookworm-slim", "digest": "sha256:" + "2" * 64,
                                        "apt_snapshot": "20260901T000000Z", "glibc": "2.36"},
-                              "compiler": {"cpu": "x86-64", "c_standard": 17, "cflags": "-O2 -march=x86-64 -mtune=generic",
+                              "compiler": {"family": "clang", "version": "23.1.3", "linker": "lld", "builtins": "compiler-rt",
+                                           "unwinder": "libunwind", "binary_inspector": "llvm-readelf",
+                                           "toolchain_manifest": "llvm-toolchain.json", "lto": False,
+                                           "evidence": "/opt/atrinik-portable/compiler-evidence.json", "cpu": "x86-64", "c_standard": 17, "cflags": "-O2 -march=x86-64 -mtune=generic",
                                            "cxxflags": "-O2 -march=x86-64 -mtune=generic"},
                               "consumer": {"repository": "atrinik/classic", "commit": "a" * 40,
                                            "input_verification": "exact-source-commit-and-shader-input-sha256"},
@@ -385,9 +420,20 @@ class LinuxExportTests(unittest.TestCase):
                               "runtime": {"bundled_graphics_drivers": False, "providers": [plugin],
                                           "unsupported_dlopen_features": [{"object": library, "feature": "unused",
                                                                             "soname": ["unused.so"], "reason": "unused fixture feature"}]}},
-            "installed.json": {"schema_version": 1, "architecture": "amd64", "glibc": "glibc 2.36",
-                               "compiler_target": "x86_64-linux-gnu", "compiler_options": " -march= x86-64\n -mtune= generic\n",
+            "installed.json": {"schema_version": 2, "architecture": "amd64", "glibc": "glibc 2.36",
+                               "compiler_target": "x86_64-linux-gnu",
                                "pkg_config": {"sdl3": "3.4.2"}},
+            "compiler-evidence.json": {
+                "schema_version": 2, "toolchain_version": "23.1.3", "target": "x86_64-linux-gnu",
+                "flags": ["-O2", "-march=x86-64", "-mtune=generic", "--rtlib=compiler-rt", "--unwindlib=libunwind", "-fuse-ld=lld"],
+                "tools": {name: {"path": "/opt/llvm-23.1.3/bin/" + tool, "sha256": "1" * 64, "version": "LLVM 23.1.3"}
+                          for name, tool in (("compiler", "clang"), ("linker", "ld.lld"), ("readelf", "llvm-readelf"))},
+                "runtime": {"path": "/opt/llvm-23.1.3/lib/clang/23/lib/linux/libclang_rt.builtins-x86_64.a", "sha256": "2" * 64},
+                "unwinder": {"path": "/opt/llvm-23.1.3/lib/libunwind.a", "sha256": "3" * 64},
+                "compile": {"command": ["/opt/llvm-23.1.3/bin/clang", "-O2", "-march=x86-64", "-mtune=generic", "--rtlib=compiler-rt", "--unwindlib=libunwind", "-fuse-ld=lld", "probe.c"],
+                            "driver_command": ["/opt/llvm-23.1.3/bin/clang", "-###", "-O2", "-march=x86-64", "-mtune=generic", "--rtlib=compiler-rt", "--unwindlib=libunwind", "-fuse-ld=lld", "probe.c"],
+                            "driver_output": '\n"/opt/llvm-23.1.3/bin/clang" "-cc1" "-target-cpu" "x86-64" "-tune-cpu" "generic" "-O2"\n"/opt/llvm-23.1.3/bin/ld.lld" "/opt/llvm-23.1.3/lib/clang/23/lib/linux/libclang_rt.builtins-x86_64.a" "-lunwind"\n',
+                            "source_sha256": "4" * 64, "output_sha256": "5" * 64}},
             "runtime-abi.json": {"schema_version": 1, "glibc": "2.36", "cpu": "x86-64", "roots": [library],
                                  "objects": [client, obj(plugin)]},
             "shader-generation.json": {"schema_version": 1, "source_commit": "a" * 40,
@@ -402,6 +448,7 @@ class LinuxExportTests(unittest.TestCase):
     def portable_arguments(self, documents: dict) -> dict:
         # Synthetic fixture hashes exercise relationships, not registry authority.
         documents["installed.json"]["contract_sha256"] = hashlib.sha256(json.dumps(documents["contract.json"]).encode()).hexdigest()
+        documents["installed.json"]["compiler_evidence_sha256"] = hashlib.sha256(json.dumps(documents["compiler-evidence.json"]).encode()).hexdigest()
         metadata = {name: json.dumps(value).encode() for name, value in documents.items()}
         return {"metadata": metadata, "expected_hashes": {name: hashlib.sha256(value).hexdigest() for name, value in metadata.items()},
                 "immutable_image": "ghcr.io/atrinik/classic-portable-build@sha256:" + "8" * 64,
@@ -422,8 +469,11 @@ class LinuxExportTests(unittest.TestCase):
             ("contract.json", ["target"], "ordinary-coordinator"),
             ("contract.json", ["base", "digest"], "latest"),
             ("contract.json", ["compiler", "cflags"], "-march=native"),
-            ("installed.json", ["compiler_options"], " -march= x86-64-v3\n -mtune= generic\n"),
-            ("installed.json", ["compiler_options"], " -march= x86-64\n -march= x86-64\n -mtune= generic\n"),
+            ("compiler-evidence.json", ["compile", "driver_output"], '"clang" "-cc1" "-target-cpu" "x86-64-v3"'),
+            ("compiler-evidence.json", ["flags"], ["-march=native"]),
+            ("compiler-evidence.json", ["tools", "linker", "version"], "GNU ld 2.40"),
+            ("compiler-evidence.json", ["runtime", "path"], "/usr/lib/libgcc.a"),
+            ("contract.json", ["compiler", "lto"], True),
             ("installed.json", ["pkg_config", "sdl3"], "different"),
             ("runtime-abi.json", ["glibc"], "2.43"),
             ("shader-generation.json", ["source_commit"], "b" * 40),
@@ -519,7 +569,7 @@ class LinuxExportTests(unittest.TestCase):
                 if change == "duplicate-key":
                     value = value.replace(b'{', b'{"schema_version":1,', 1)
                 elif change == "nan":
-                    value = value.replace(b'"schema_version": 1', b'"schema_version": NaN')
+                    value = value.replace(b'"schema_version": 2', b'"schema_version": NaN')
                 else:
                     data = json.loads(value); data["contract_sha256"] = "0" * 64; value = json.dumps(data).encode()
                 args["metadata"][key] = value

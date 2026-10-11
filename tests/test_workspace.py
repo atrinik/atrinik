@@ -11013,6 +11013,73 @@ class WorkspaceTests(unittest.TestCase):
         ]
         self.assertEqual(len(configure_calls), 5)
 
+    def test_clang_runtime_fingerprint_detects_replaced_archives(self) -> None:
+        resource = self.root / "llvm-resource"
+        libraries = resource / "lib" / "linux"
+        libraries.mkdir(parents=True)
+        builtins = libraries / "libclang_rt.builtins-x86_64.a"
+        profile = libraries / "libclang_rt.profile-x86_64.a"
+        builtins.write_bytes(b"builtins")
+        profile.write_bytes(b"profile")
+        identity = {"command": "clang", "version": "clang version 23.1.3"}
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=lambda command, **kwargs:
+                        str(resource) if command[-1] == "-print-resource-dir" else str(builtins)):
+            first = self.workspace._compiler_runtime_identity(identity)
+            profile.write_bytes(b"replaced-profile")
+            second = self.workspace._compiler_runtime_identity(identity)
+        self.assertTrue(first["complete"])
+        self.assertEqual(len(first["files"]), 2)
+        self.assertNotEqual(first, second)
+        with mock.patch("atrinik_workspace.workspace.run", return_value="relative.a"):
+            self.assertFalse(self.workspace._compiler_runtime_identity(identity)["complete"])
+
+    def test_configured_cmake_runtime_probe_uses_selected_target_and_sysroot(self) -> None:
+        binary = self.root / "cmake-cross-build"
+        binary.mkdir()
+        (binary / "CMakeCache.txt").write_text(
+            "CMAKE_C_COMPILER:FILEPATH=/opt/llvm/bin/clang\n"
+            "CMAKE_C_COMPILER_TARGET:STRING=x86_64-w64-mingw32\n"
+            "CMAKE_SYSROOT:PATH=/opt/windows-sysroot\n")
+        with mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "clang 23.1.3"}), \
+             mock.patch.object(self.workspace, "_compiler_runtime_identity", return_value={"complete": True}) as runtime:
+            self.workspace._cmake_configured_toolchain(binary)
+        self.assertEqual(runtime.call_args.args[1],
+                         ("--target=x86_64-w64-mingw32", "--sysroot=/opt/windows-sysroot"))
+
+    def test_configured_cmake_linker_and_archiver_fingerprints(self) -> None:
+        binary = self.root / "cmake-llvm-build"
+        binary.mkdir()
+        cache = binary / "CMakeCache.txt"
+        cache.write_text("CMAKE_LINKER:FILEPATH=/opt/llvm/bin/ld.lld\n"
+                         "CMAKE_AR:FILEPATH=/opt/llvm/bin/llvm-ar\n"
+                         "CMAKE_EXE_LINKER_FLAGS:STRING=-fuse-ld=lld --rtlib=compiler-rt\n")
+        with mock.patch.object(self.workspace, "_tool_identity", side_effect=lambda tool: {"command": tool}):
+            first = self.workspace._cmake_configured_toolchain(binary)
+        self.assertEqual(set(first["link_tools"]), {"CMAKE_LINKER", "CMAKE_AR"})
+        self.assertIn("compiler-rt", first["values"]["CMAKE_EXE_LINKER_FLAGS"])
+
+    def test_local_windows_environment_requires_neutral_llvm_contract(self) -> None:
+        toolchain = self.root / "windows-toolchain.cmake"
+        toolchain.write_text("set(CMAKE_SYSTEM_NAME Windows)\n")
+        directory = self.root / "windows-runtime"
+        directory.mkdir()
+        environment = {
+            "ATRINIK_WINDOWS_TARGET": "x86_64-w64-mingw32",
+            "ATRINIK_WINDOWS_TOOLCHAIN_FILE": str(toolchain),
+            "ATRINIK_WINDOWS_RUNTIME_DIR": str(directory),
+            "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR": str(directory),
+            "ATRINIK_WINDOWS_PYTHON_LIBRARY": str(toolchain),
+            "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR": str(directory),
+        }
+        with mock.patch.dict(os.environ, environment, clear=True), \
+             mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/tool") as which:
+            self.assertIsNotNone(self.workspace._local_windows_build_environment())
+            self.assertIn(mock.call("cmake"), which.call_args_list)
+            self.assertIn(mock.call("x86_64-w64-mingw32-clang"), which.call_args_list)
+        environment.pop("ATRINIK_WINDOWS_TARGET")
+        with mock.patch.dict(os.environ, environment, clear=True):
+            self.assertIsNone(self.workspace._local_windows_build_environment())
+
     def test_tool_identity_handles_wrappers_and_empty_version_output(self) -> None:
         with (
             mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/tool"),

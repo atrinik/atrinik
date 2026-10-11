@@ -15,7 +15,7 @@ before activation, without modifying existing journals or ledgers.
 | Already-bound historical Linux coordinator | None required | Existing `canonical-linux` contract after complete live proof | Exact retained image/mount/worktree/ledger coordinates |
 | Optional native Linux client container | Selected X11/Wayland and real GPU | Runtime capability does not grant delivery authority | Selected renderer and gameplay evidence |
 | Retained Windows/WSL2/WSLg desktop composition | Existing WSLg display/audio/GPU mounts | Runtime capability alone grants no authority; existing canonical proof is separate | [Credential-bearing prerequisites](../README.md#pinned-build-and-runtime-containers); keep native Windows evidence separate |
-| Windows cross-build container | None | No ledger authority | MXE package/build evidence only |
+| Windows cross-build container | None | No ledger authority | LLVM Windows package/build evidence only |
 | Native Windows | Native graphics for D3D12 qualification | No Linux ledger authority | Native Windows runtime evidence |
 
 The version list is the implementation's supported systemd distribution contract,
@@ -92,6 +92,12 @@ builds and toolchain-dependent tests use the already cached immutable Linux
 image. No mandatory host compiler, QEMU, GUI editor or long-lived coordinator
 container is needed. An already-bound historical container delivery retains
 its original coordinates under the compatibility contract below.
+
+Classic workers use LLVM 23.1.3 Clang, LLD and compiler-rt with ThinLTO disabled.
+Native coverage uses matching `llvm-profdata` and `llvm-cov`. Preserve the
+selected platform glibc, libstdc++ and graphics/audio dependencies. The wrapper
+fingerprints compiler, configured linker/archive tools and Clang builtins/profile
+archives so changing their bytes invalidates a cached build tree.
 
 A build worker is an execution resource, not delivery authority. Keep native
 `HOME`, private Codex state, authentication and evidence on the host. Native
@@ -683,16 +689,18 @@ Reconnect using the fresh endpoint result and verify the saved player/change.
 After final client shutdown, run `down` again and verify no live topology before
 stopping only the exact owned container. Do not signal saved PIDs, delete lease
 or control files, or use cleanup as shutdown. Keep the persistent state and
-verification evidence. Windows/WSLg, MXE and native Windows D3D12 results remain
+verification evidence. Windows/WSLg, LLVM cross-build and native Windows D3D12 results remain
 separate records.
 
 ## Portable binary evidence
 
-`linux_export.portable_metadata_report` checks the six published portable metadata
+`linux_export.portable_metadata_report` checks the seven published portable metadata
 records against hashes and immutable OCI coordinates supplied by the caller's
 separate authenticated producer/registry verification. It accepts only the
 Linux/amd64 Debian 12/glibc 2.36 portable target, checks the installed contract,
-package and CPU declarations, resolves reported library/plugin edges, checks
+package and CPU declarations, verifies the recorded Clang/LLD/compiler-rt
+identities and exact driver probe invocations (including the x86-64 CPU baseline
+and absence of LTO), resolves reported library/plugin edges, checks
 versioned-symbol provider records and compares source/shader coordinates.
 Duplicate, malformed, missing, disconnected or contradictory records fail.
 Distinct SONAME declarations may share a dynamic feature name, as SDL does for
@@ -720,7 +728,7 @@ execution authority. Its X11/Vulkan client supports a Wayland desktop only via a
 separately qualified XWayland setup; no native Wayland backend is claimed here.
 
 `linux_export.inspect_elf` examines a leased, already-open regular ELF descriptor
-with bounded, time-limited GNU readelf output; it never runs the payload or ldd.
+with bounded, time-limited LLVM readelf output; it never runs the payload or ldd.
 It records class, endianness, machine, interpreter, static dependencies, runtime
 search paths and version-needed records by provider. The structural dependency
 report requires explicit bundled providers, materialized SONAME filenames and
@@ -746,7 +754,7 @@ Ubuntu 26.04 image uses glibc 2.43; moving its output does not demonstrate that 
 runs on older supported native build hosts. Record required loader/provider
 versions and qualify the exported application on each supported runtime baseline.
 
-See the [GNU readelf reference](https://sourceware.org/binutils/docs/binutils/readelf.html)
+See the [LLVM readelf reference](https://llvm.org/docs/CommandGuide/llvm-readelf.html)
 for the inspected header, program-header, dynamic and version sections.
 
 

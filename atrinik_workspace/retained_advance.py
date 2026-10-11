@@ -77,6 +77,10 @@ def validate_pins(value: Any) -> dict:
     metadata = value["METADATA_HASHES"]
     required = {"contract.json", "debian-sources.json", "installed.json", "runtime-abi.json",
                 "runtime-sources.json", "shader-generation.json"}
+    # Existing retained deliveries keep their immutable six-record contract;
+    # LLVM producers add the observed compiler evidence as the seventh record.
+    if isinstance(metadata, dict) and "compiler-evidence.json" in metadata:
+        required.add("compiler-evidence.json")
     exact(metadata, required, "producer metadata inventory")
     for name, checksum in metadata.items():
         hex_value(checksum, HEX64, name)

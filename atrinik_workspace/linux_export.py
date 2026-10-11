@@ -221,7 +221,7 @@ def verify_export(root: Path) -> dict[str, object]:
 
 PORTABLE_METADATA_FILES = frozenset({
     "contract.json", "installed.json", "runtime-abi.json", "runtime-sources.json",
-    "debian-sources.json", "shader-generation.json",
+    "debian-sources.json", "shader-generation.json", "compiler-evidence.json",
 })
 
 
@@ -252,6 +252,76 @@ def _portable_path(value: object) -> str:
     return value
 
 
+def _portable_compiler_evidence(evidence: dict, compiler: dict, installed: dict) -> None:
+    """Validate the observed Clang compile and link invocations, not flag claims."""
+    expected = {"family": "clang", "version": "23.1.3", "linker": "lld",
+                "builtins": "compiler-rt", "unwinder": "libunwind",
+                "binary_inspector": "llvm-readelf", "toolchain_manifest": "llvm-toolchain.json",
+                "evidence": "/opt/atrinik-portable/compiler-evidence.json", "lto": False}
+    if any(compiler.get(name) != value or (name == "lto" and compiler.get(name) is not False)
+           for name, value in expected.items()):
+        raise ExportError("portable-metadata: unsupported LLVM compiler contract")
+    if (type(evidence.get("schema_version")) is not int or evidence["schema_version"] != 2
+            or evidence.get("toolchain_version") != compiler["version"]
+            or evidence.get("target") != installed.get("compiler_target")):
+        raise ExportError("portable-metadata: incompatible compiler evidence")
+    flags = ["-O2", "-march=x86-64", "-mtune=generic", "--rtlib=compiler-rt",
+             "--unwindlib=libunwind", "-fuse-ld=lld"]
+    if evidence.get("flags") != flags:
+        raise ExportError("portable-metadata: observed compiler flags differ")
+    tools = _portable_mapping(evidence.get("tools"), "LLVM tools")
+    if set(tools) != {"compiler", "linker", "readelf"}:
+        raise ExportError("portable-metadata: incomplete LLVM tool identities")
+    for name, basename in (("compiler", "clang"), ("linker", "ld.lld"), ("readelf", "llvm-readelf")):
+        tool = _portable_mapping(tools[name], "LLVM tool")
+        path = _portable_path(tool.get("path"))
+        if path != "/opt/llvm-23.1.3/bin/" + basename:
+            raise ExportError("portable-metadata: unexpected LLVM tool path")
+        _portable_digest(tool.get("sha256"))
+        if not isinstance(tool.get("version"), str) or not re.search(r"\b23\.1\.3\b", tool["version"]):
+            raise ExportError("portable-metadata: unexpected LLVM tool version")
+    runtime = _portable_mapping(evidence.get("runtime"), "compiler runtime")
+    unwinder = _portable_mapping(evidence.get("unwinder"), "compiler unwinder")
+    for record, pattern in ((runtime, r"libclang_rt\.builtins[^/]*\.a"),
+                            (unwinder, r"libunwind\.a")):
+        path = _portable_path(record.get("path"))
+        if not path.startswith("/opt/llvm-23.1.3/") or not re.fullmatch(pattern, PurePosixPath(path).name):
+            raise ExportError("portable-metadata: unexpected compiler runtime path")
+        _portable_digest(record.get("sha256"))
+    compile_record = _portable_mapping(evidence.get("compile"), "compile evidence")
+    command = _portable_strings(compile_record.get("command"), "compile command", unique=False)
+    driver_command = _portable_strings(compile_record.get("driver_command"), "driver command", unique=False)
+    if (not command or command[0] != tools["compiler"]["path"]
+            or driver_command != [command[0], "-###", *command[1:]]
+            or any(command.count(flag) != 1 for flag in flags)
+            or any(arg.startswith("-flto") for arg in command)):
+        raise ExportError("portable-metadata: inconsistent compiler invocation")
+    for name in ("source_sha256", "output_sha256"):
+        _portable_digest(compile_record.get(name))
+    output = compile_record.get("driver_output")
+    if not isinstance(output, str) or not output or len(output) > MAX_ELF_REPORT_BYTES:
+        raise ExportError("portable-metadata: missing compiler invocation output")
+    try:
+        invocations = [shlex.split(line) for line in output.splitlines() if line.lstrip().startswith('"')]
+    except ValueError as error:
+        raise ExportError("portable-metadata: malformed compiler invocation output") from error
+    cc1 = [words for words in invocations if "-cc1" in words]
+    links = [words for words in invocations if words and words[0] == tools["linker"]["path"]]
+    if len(cc1) != 1 or len(links) != 1:
+        raise ExportError("portable-metadata: missing compiler or LLD invocation")
+    words = cc1[0]
+    for option, value in (("-target-cpu", "x86-64"), ("-tune-cpu", "generic")):
+        if words.count(option) != 1 or words.index(option) + 1 >= len(words) or words[words.index(option) + 1] != value:
+            raise ExportError("portable-metadata: observed compiler baseline differs")
+    if ("-O2" not in words or any(arg in {"-O3", "-Ofast", "-Oz", "-Os"} for arg in words)
+            or any(arg.startswith(("-flto", "-mavx", "-march=native", "-mcpu="))
+                   for args in [command, *invocations] for arg in args)
+            or runtime["path"] not in links[0]
+            or any("libgcc.a" in arg for arg in links[0])
+            or not any(arg in {"-lunwind", unwinder["path"]} for arg in links[0])):
+        raise ExportError("portable-metadata: observed LLVM runtime or optimization differs")
+
+
 def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dict[str, str],
                              immutable_image: str, runnable_manifest: str,
                              consumer_commit: str) -> dict[str, object]:
@@ -265,7 +335,7 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
     """
     if (not isinstance(metadata, dict) or set(metadata) != PORTABLE_METADATA_FILES
             or not isinstance(expected_hashes, dict) or set(expected_hashes) != PORTABLE_METADATA_FILES):
-        raise ExportError("portable-metadata: exact six-file handoff required")
+        raise ExportError("portable-metadata: exact seven-file handoff required")
     if (not isinstance(immutable_image, str) or not re.fullmatch(
             r"ghcr\.io/atrinik/classic-portable-build@sha256:[0-9a-f]{64}", immutable_image)
             or not isinstance(runnable_manifest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", runnable_manifest)):
@@ -288,8 +358,8 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
     installed = _portable_mapping(documents["installed.json"], "installed tools")
     abi = _portable_mapping(documents["runtime-abi.json"], "ABI report")
     shader = _portable_mapping(documents["shader-generation.json"], "shader record")
-    for record in (contract, installed, abi, shader):
-        if type(record.get("schema_version")) is not int or record["schema_version"] != 1:
+    for record, version in ((contract, 2), (installed, 2), (abi, 1), (shader, 1)):
+        if type(record.get("schema_version")) is not int or record["schema_version"] != version:
             raise ExportError("portable-metadata: unsupported schema version")
     if (contract.get("platform") != "linux/amd64" or contract.get("target") != "portable-final"
             or contract.get("image") != immutable_image.split("@", 1)[0]
@@ -301,7 +371,8 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
     if (base.get("glibc") != "2.36" or abi.get("glibc") != base["glibc"]
             or installed.get("glibc") != "glibc " + base["glibc"]
             or installed.get("architecture") != "amd64"
-            or installed.get("compiler_target") != "x86_64-linux-gnu"
+            or not isinstance(installed.get("compiler_target"), str)
+            or not re.fullmatch(r"x86_64-(?:(?:unknown|pc)-)?linux-gnu", installed["compiler_target"])
             or compiler.get("cpu") != "x86-64" or abi.get("cpu") != compiler["cpu"]
             or compiler.get("cflags") != "-O2 -march=x86-64 -mtune=generic"
             or compiler.get("cxxflags") != compiler["cflags"]):
@@ -313,11 +384,10 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
             or not re.fullmatch(r"[0-9]{8}T[0-9]{6}Z", base["apt_snapshot"])
             or type(compiler.get("c_standard")) is not int or compiler["c_standard"] != 17):
         raise ExportError("portable-metadata: invalid baseline coordinates")
-    options = installed.get("compiler_options")
-    if (not isinstance(options, str)
-            or re.findall(r"^\s*-march=\s+(\S+)\s*$", options, re.MULTILINE) != ["x86-64"]
-            or re.findall(r"^\s*-mtune=\s+(\S+)\s*$", options, re.MULTILINE) != ["generic"]):
-        raise ExportError("portable-metadata: observed compiler baseline differs")
+    if installed.get("compiler_evidence_sha256") != expected_hashes["compiler-evidence.json"]:
+        raise ExportError("portable-metadata: installed compiler evidence hash mismatch")
+    _portable_compiler_evidence(_portable_mapping(documents["compiler-evidence.json"], "compiler evidence"),
+                                compiler, installed)
     if installed.get("contract_sha256") != expected_hashes["contract.json"]:
         raise ExportError("portable-metadata: installed contract hash mismatch")
     packages = _portable_mapping(contract.get("pkg_config"), "package versions")
@@ -481,10 +551,10 @@ MAX_ELF_REPORT_BYTES = 4 * 1024 * 1024
 def _readelf(descriptor: int, *, timeout: float = 15) -> str:
     """Inspect an inherited descriptor without executing the payload."""
     process = subprocess.Popen(
-        ["readelf", "--wide", "--file-header", "--program-headers", "--dynamic",
+        ["llvm-readelf", "--wide", "--file-header", "--program-headers", "--dynamic",
          "--version-info", "--dyn-syms", f"/proc/self/fd/{descriptor}"],
         pass_fds=(descriptor,), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        env={"PATH": os.defpath, "LC_ALL": "C"})
+        env={"PATH": os.environ.get("PATH", os.defpath), "LC_ALL": "C"})
     output = bytearray()
     deadline = time.monotonic() + timeout
     try:
@@ -541,7 +611,7 @@ def _elf_version_definitions(text: str) -> list[str]:
             continue
         if not active or not line.strip():
             continue
-        if re.fullmatch(r"\s*Addr: 0x[0-9a-f]+\s+Offset: 0x[0-9a-f]+\s+Link: [0-9]+ \([^()]+\)", line):
+        if re.fullmatch(r"\s*Addr: (?:0x)?[0-9a-f]+\s+Offset: 0x[0-9a-f]+\s+Link: [0-9]+ \([^()]+\)", line):
             continue
         match = re.fullmatch(
             r"\s*[0-9a-fx]+: Rev: 1\s+Flags: (none|BASE|WEAK)\s+Index: ([0-9]+)"
@@ -704,7 +774,7 @@ def inspect_elf(descriptor: int) -> dict[str, object]:
             continue
         if not in_needs or not line.strip():
             continue
-        if re.fullmatch(r"\s*Addr: 0x[0-9a-f]+\s+Offset: 0x[0-9a-f]+\s+Link: [0-9]+ \([^()]+\)", line):
+        if re.fullmatch(r"\s*Addr: (?:0x)?[0-9a-f]+\s+Offset: 0x[0-9a-f]+\s+Link: [0-9]+ \([^()]+\)", line):
             continue
         match = re.fullmatch(r"\s*[0-9a-fx]+: Version: [0-9]+\s+File: ([A-Za-z0-9_.+-]+)\s+Cnt: ([0-9]+)", line)
         if match:

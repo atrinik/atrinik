@@ -188,13 +188,37 @@ def _read_regular(path: Path, *, limit: int = export.MAX_MANIFEST_BYTES) -> byte
         return data
 
 
+def _verify_compiler_bytes(evidence: dict) -> None:
+    """Rehash the selected tools and runtimes before using image metadata."""
+    records = [*evidence["tools"].values(), evidence["runtime"], evidence["unwinder"]]
+    for record in records:
+        requested = Path(record["path"])
+        try:
+            resolved = requested.resolve(strict=True)
+            with ExitStack() as stack:
+                parent = export._open_root(resolved.parent)
+                stack.callback(os.close, parent)
+                descriptor = export._open_beneath(parent, resolved.name)
+                stack.callback(os.close, descriptor)
+                if (byte_record(descriptor)["sha256"] != record["sha256"]
+                        or requested.resolve(strict=True) != resolved):
+                    raise export.ExportError("portable-compiler: selected tool or runtime bytes differ")
+        except (OSError, RuntimeError) as error:
+            raise export.ExportError("portable-compiler: selected tool or runtime unavailable") from error
+
+
 def installed_metadata() -> tuple[dict[str, bytes], dict[str, dict]]:
     root = Path("/opt/atrinik-portable")
+    if set(METADATA_HASHES) != export.PORTABLE_METADATA_FILES:
+        raise export.ExportError(
+            "portable-producer: LLVM contract requires a newly verified immutable producer handoff")
     raw = {name: _read_regular(root / name) for name in METADATA_HASHES}
     export.portable_metadata_report(raw, expected_hashes=METADATA_HASHES,
                                    immutable_image=IMAGE, runnable_manifest=PLATFORM_MANIFEST,
                                    consumer_commit=CONSUMER_COMMIT)
-    return raw, {name: json.loads(data) for name, data in raw.items()}
+    documents = {name: json.loads(data) for name, data in raw.items()}
+    _verify_compiler_bytes(documents["compiler-evidence.json"])
+    return raw, documents
 
 
 def _output_parent(path: Path) -> int:
