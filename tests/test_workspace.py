@@ -11019,14 +11019,17 @@ class WorkspaceTests(unittest.TestCase):
         (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
         binary = self.workspace.paths.builds / "profiles/test/build/portable-fixture"
         with mock.patch.dict(os.environ, {"CCC_OVERRIDE_OPTIONS": "+-O3", "CLANG_CONFIG_FILE_USER_DIR": "/tmp/config", "LD_PRELOAD": "/tmp/shim.so", "LD_LIBRARY_PATH": "/tmp/tools",
-                                         "CPATH": "/tmp/headers", "COMPILER_PATH": "/tmp/compilers"}), \
+                                         "CPATH": "/tmp/headers", "COMPILER_PATH": "/tmp/compilers",
+                                         "CCACHE_DIR": "/tmp/cache", "CCACHE_CONFIGPATH": "/tmp/ccache.conf",
+                                         "CCACHE_PREFIX": "/tmp/launcher"}), \
              mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}), \
              mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False), \
              mock.patch("atrinik_workspace.workspace.run") as run:
             self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True)
         configure = next(call for call in run.call_args_list if call.args[0][:2] == ["cmake", "-S"])
         for name in ("CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_USER_DIR", "LD_PRELOAD",
-                     "LD_LIBRARY_PATH", "CPATH", "COMPILER_PATH"):
+                     "LD_LIBRARY_PATH", "CPATH", "COMPILER_PATH", "CCACHE_DIR",
+                     "CCACHE_CONFIGPATH", "CCACHE_PREFIX"):
             self.assertNotIn(name, configure.kwargs["env"])
         self.assertIn("-DCMAKE_C_COMPILER_LAUNCHER=", configure.args[0])
         self.assertNotIn("CCACHE_DIR", configure.kwargs["env"])

@@ -11745,7 +11745,7 @@ class Workspace:
         environment = os.environ.copy()
         if portable:
             for name in tuple(environment):
-                if (name.startswith(("CCC_", "CLANG_CONFIG_FILE_", "LD_"))
+                if (name.startswith(("CCACHE_", "CCC_", "CLANG_CONFIG_FILE_", "LD_"))
                         or name in {"CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
                                     "LIBRARY_PATH", "COMPILER_PATH", "GCC_EXEC_PREFIX", "GLIBC_TUNABLES"}):
                     environment.pop(name)
