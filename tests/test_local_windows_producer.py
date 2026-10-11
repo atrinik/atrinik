@@ -4,6 +4,8 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shlex
+import subprocess
 import tempfile
 import unittest
 from unittest import mock
@@ -124,6 +126,106 @@ class LocalWindowsProducerTests(unittest.TestCase):
         self.assertEqual(environment["CXXFLAGS"], "--no-default-config")
         self.assertEqual(environment["LDFLAGS"], "--no-default-config")
         self.assertEqual(environment["CCACHE_DISABLE"], "1")
+
+    def test_relative_path_attack_executes_staged_shell_but_local_admission_rejects_it(self):
+        workspace = Workspace.__new__(Workspace)
+        for entry in ("build-tools", ".", ""):
+            with self.subTest(entry=entry):
+                staging = self.root / ("staged-" + (entry or "empty"))
+                component = staging / "client"
+                malicious = component / entry / "bash"
+                malicious.parent.mkdir(parents=True)
+                malicious.write_text('#!/bin/sh\nprintf staged-source > "$1"\n')
+                malicious.chmod(0o755)
+                trusted = self.root / entry / "bash"
+                if not trusted.exists():
+                    trusted.write_text("#!/bin/sh\nexit 1\n")
+                    trusted.chmod(0o755)
+                marker = staging / "executed"
+                environment = {**self.environment, "PATH": entry + os.pathsep + self.environment["PATH"]}
+                # Actual pre-fix lookup/execution semantics: the coordinator
+                # observes its host shell, but exec searches from staged cwd.
+                probe = (
+                    "import pathlib, shutil, subprocess, sys\n"
+                    "print(pathlib.Path(shutil.which('bash')).resolve(), flush=True)\n"
+                    "subprocess.run(['bash', sys.argv[2]], cwd=sys.argv[1], check=True, timeout=10)\n"
+                )
+                observed = subprocess.check_output(
+                    ["/usr/bin/python3", "-I", "-c", probe, str(component), str(marker)],
+                    cwd=self.root, env=environment, text=True, timeout=15,
+                )
+                self.assertEqual(observed.strip(), str(trusted.resolve()))
+                self.assertEqual(marker.read_text(), "staged-source")
+                marker.unlink()
+                with mock.patch.dict(os.environ, environment, clear=True), \
+                     mock.patch("atrinik_workspace.workspace.run") as execute, \
+                     self.assertRaisesRegex(WorkspaceError, "PATH requires nonempty absolute entries"):
+                    workspace._build_windows_profile_archives(staging)
+                execute.assert_not_called()
+                self.assertFalse(marker.exists())
+                self.assertFalse((staging / "packages").exists())
+
+    def test_identity_rejects_each_nonabsolute_path_entry_before_probing_tools(self):
+        valid = self.environment["PATH"]
+        for search_path in ("", ".", "build-tools", ":" + valid, valid + ":", valid + "::/bin",
+                            valid + ":./tools", valid + ":../tools", valid + ":~/bin"):
+            with self.subTest(path=search_path), \
+                 mock.patch("atrinik_workspace.workspace.run") as execute, \
+                 mock.patch("atrinik_workspace.workspace.shutil.which") as discover, \
+                 self.assertRaisesRegex(WorkspaceError, "PATH requires nonempty absolute entries"):
+                Workspace._local_windows_producer_identity({**self.environment, "PATH": search_path})
+            execute.assert_not_called()
+            discover.assert_not_called()
+
+    def test_nonlocal_environment_retains_fallback_with_relative_path(self):
+        for environment in ({"PATH": ".:"}, {**self.environment, "PATH": "build-tools:"}):
+            environment.pop("ATRINIK_WINDOWS_TOOLCHAIN_FILE", None)
+            with self.subTest(environment=environment), mock.patch.dict(os.environ, environment, clear=True):
+                self.assertIsNone(Workspace._local_windows_build_environment())
+        # A missing host compiler still selects the existing Docker fallback.
+        (self.llvm / "bin/x86_64-w64-mingw32-clang").unlink()
+        with mock.patch.dict(os.environ, self.environment, clear=True):
+            self.assertIsNone(Workspace._local_windows_build_environment())
+
+    def test_real_packaging_executes_recorded_absolute_host_tools_from_staged_cwd(self):
+        from atrinik_workspace import workspace as module
+        trace = self.root / "host-tools.log"
+        for name in ("bash", "cmake", "cpack", "ninja"):
+            script = '#!/bin/sh\nprintf \'%s|%s\\n\' "$0" "$PWD" >> ' + shlex.quote(str(trace)) + "\n"
+            if name == "bash":
+                script += 'exec /bin/bash "$@"\n'
+            (self.build_tools / name).write_text(script)
+        staging = self.root / "actual-packaging"
+        marker = self.root / "staged-tool-executed"
+        for component in ("client", "server"):
+            tools = staging / component / "tools"
+            tools.mkdir(parents=True)
+            archive = f"atrinik-classic-{component}-{WINDOWS_PACKAGE_VERSION}-windows-x86_64.zip"
+            (tools / "build-windows-package.sh").write_text(
+                "# atrinik-windows-host-python-contract: 1\nset -euo pipefail\n"
+                'cmake\ncpack\nninja\nprintf "archive fixture" > "$1/' + archive + '"\n'
+            )
+            for directory in (staging / component, staging / component / "build-tools"):
+                directory.mkdir(exist_ok=True)
+                for name in ("bash", "cmake", "cpack", "ninja"):
+                    path = directory / name
+                    path.write_text("#!/bin/sh\nprintf malicious > " + shlex.quote(str(marker)) + "\nexit 1\n")
+                    path.chmod(0o755)
+        with mock.patch.dict(os.environ, self.environment, clear=True), \
+             mock.patch.object(module, "run", wraps=module.run) as execute:
+            client, server, record = Workspace.__new__(Workspace)._build_windows_profile_archives(staging)
+        self.assertEqual(client.read_bytes(), b"archive fixture")
+        self.assertEqual(server.read_bytes(), b"archive fixture")
+        self.assertFalse(marker.exists())
+        expected = [record["producer"]["tools"][name]["path"] + "|" + str(staging / component)
+                    for component in ("client", "server") for name in ("bash", "cmake", "cpack", "ninja")]
+        self.assertEqual(trace.read_text().splitlines(), expected)
+        builds = [call for call in execute.call_args_list if "cwd" in call.kwargs]
+        self.assertEqual(len(builds), 2)
+        for call in builds:
+            self.assertEqual(call.args[0][0], record["producer"]["tools"]["bash"]["path"])
+            self.assertTrue(Path(call.args[0][0]).is_absolute())
+            self.assertEqual(call.kwargs["env"]["PATH"], self.environment["PATH"])
 
     def test_selected_cache_launcher_bytes_are_fresh_inputs(self):
         self.toolchain.write_text(self.toolchain.read_text() + "set(CMAKE_C_COMPILER_LAUNCHER ccache)\n")
@@ -294,7 +396,7 @@ class LocalWindowsProducerTests(unittest.TestCase):
                 actual_run = module.run
 
                 def build(command, **kwargs):
-                    if command[0] != "bash":
+                    if command[0] != str(self.build_tools / "bash"):
                         return actual_run(command, **kwargs)
                     component = kwargs["cwd"].name
                     name = f"atrinik-classic-{component}-{WINDOWS_PACKAGE_VERSION}-windows-x86_64.zip"

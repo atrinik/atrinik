@@ -17471,11 +17471,13 @@ class Workspace:
             "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR",
         )
         target = environment.get("ATRINIK_WINDOWS_TARGET")
-        if (not target or shutil.which("cmake") is None
-                or shutil.which(f"{target}-clang") is None) or any(
+        if not target or any(
             not environment.get(name) or not Path(environment[name]).exists()
             for name in required
         ):
+            return None
+        Workspace._windows_producer_search_path(environment)
+        if shutil.which("cmake") is None or shutil.which(f"{target}-clang") is None:
             return None
         if environment.get("ATRINIK_WINDOWS_HOST_PYTHON", "/usr/bin/python3") != "/usr/bin/python3":
             raise WorkspaceError("Windows packaging requires the SDK host Python /usr/bin/python3")
@@ -17497,6 +17499,14 @@ class Workspace:
         environment["ATRINIK_PACKAGE_VERSION"] = WINDOWS_PACKAGE_VERSION
         environment["ATRINIK_DISCORD_APPLICATION_ID_FILE"] = ""
         return environment
+
+    @staticmethod
+    def _windows_producer_search_path(environment: dict[str, str]) -> str:
+        """Keep host tool discovery independent of the staged source cwd."""
+        search_path = environment.get("PATH", os.defpath)
+        if any(not Path(entry).is_absolute() for entry in search_path.split(os.pathsep)):
+            raise WorkspaceError("Windows producer PATH requires nonempty absolute entries")
+        return search_path
 
     @staticmethod
     def _windows_producer_open(path: Path, *, directory: bool = False) -> int:
@@ -17678,6 +17688,8 @@ class Workspace:
         extensions: an uninspected include could choose a different compiler.
         This identity records local inputs, and does not claim an image digest.
         """
+        search_path = cls._windows_producer_search_path(environment)
+
         def file_identity(path: Path, allowed: tuple[Path, ...] = (), *,
                           content: list[bytes] | None = None, limit: int = 512 * 1024 ** 2) -> dict[str, str]:
             resolved = path.resolve(strict=True)
@@ -17782,7 +17794,7 @@ class Workspace:
             tools = {}
             for name in ("cmake", "cpack", "ninja", "bash", *(["ccache"] if "CMAKE_C_COMPILER_LAUNCHER" in values
                                                                    or "CMAKE_CXX_COMPILER_LAUNCHER" in values else [])):
-                path = shutil.which(name, path=environment.get("PATH", os.defpath))
+                path = shutil.which(name, path=search_path)
                 if path is None:
                     raise WorkspaceError("Windows producer build tool is unavailable: " + name)
                 tools[name] = file_identity(Path(path))
@@ -17880,7 +17892,7 @@ class Workspace:
                     raise WorkspaceError("Windows producer inputs changed before packaging")
                 run(
                     [
-                        "bash",
+                        producer["tools"]["bash"]["path"],
                         "tools/build-windows-package.sh",
                         str(packages),
                     ],

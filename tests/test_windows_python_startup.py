@@ -119,7 +119,7 @@ class WindowsPythonStartupTests(unittest.TestCase):
             # hash observations and execution seams without native packages.
             with self.subTest(phase=phase), \
                  mock.patch.object(workspace, "_local_windows_build_environment", return_value=self.environment), \
-                 mock.patch.object(workspace, "_local_windows_producer_identity", return_value={}), \
+                 mock.patch.object(workspace, "_local_windows_producer_identity", return_value={"tools": {"bash": {"path": "/bin/bash"}}}), \
                  mock.patch("atrinik_workspace.workspace.run", side_effect=build) as execute, \
                  self.assertRaisesRegex(WorkspaceError, "inputs changed (before|during) packaging"):
                 workspace._build_windows_profile_archives(staging)
