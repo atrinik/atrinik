@@ -36,15 +36,15 @@ Program Headers:
 
  Section to Segment mapping:
   Segment Sections...
-   00     
-   01     .dynsym .gnu.version .gnu.version_d .gnu.hash .dynstr .eh_frame_hdr .eh_frame 
-   02     .text 
-   03     .dynamic .relro_padding 
-   04     .dynamic 
-   05     .dynamic .relro_padding 
-   06     .eh_frame_hdr 
-   07     
-   None   .comment .symtab .shstrtab .strtab 
+   00
+   01     .dynsym .gnu.version .gnu.version_d .gnu.hash .dynstr .eh_frame_hdr .eh_frame
+   02     .text
+   03     .dynamic .relro_padding
+   04     .dynamic
+   05     .dynamic .relro_padding
+   06     .eh_frame_hdr
+   07
+   None   .comment .symtab .shstrtab .strtab
 Dynamic section at offset 0x320 contains 9 entries:
   Tag                Type        Name/Value
   0x0000000000000006 (SYMTAB)    0x200
@@ -59,14 +59,13 @@ Dynamic section at offset 0x320 contains 9 entries:
 
 Symbol table '.dynsym' contains 2 entries:
    Num:    Value          Size Type    Bind   Vis       Ndx Name
-     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT   UND 
+     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT   UND
      1: 0000000000001310    11 FUNC    GLOBAL DEFAULT     8 sample@@SAMPLE_1
 Version symbols section '.gnu.version' contains 2 entries:
  Addr: 0000000000000230  Offset: 0x000230  Link: 1 (.dynsym)
-  000:   0 (*local*)       2 (SAMPLE_1)   
+  000:   0 (*local*)       2 (SAMPLE_1)
 
 Version definition section '.gnu.version_d' contains 2 entries:
  Addr: 0000000000000234  Offset: 0x000234  Link: 5 (.dynstr)
   0x0000: Rev: 1  Flags: BASE  Index: 1  Cnt: 1  Name: /tmp/evidence/libsample.so
   0x001c: Rev: 1  Flags: none  Index: 2  Cnt: 1  Name: SAMPLE_1
-
