@@ -750,7 +750,9 @@ Portable builds explicitly select the source-owned LLVM CMake toolchain, pin
 Clang/Clang++, LLD and archive tools, and use explicit `-O2`
 Release flags, ignore Clang default configuration files, and disable
 interprocedural optimization, compiler launchers, and both the user and system
-CMake package registries. The ten LLVM tool identities include independently
+CMake package registries. Changing either registry control resets the owned
+CMake build tree so older cached package paths cannot survive reconfiguration.
+The ten LLVM tool identities include independently
 recorded and rechecked C and C++ driver paths, versions and executable hashes;
 Clang++ is never authenticated by assuming it shares Clang bytes. Portable CMake operations
 remove Clang driver/configuration overrides and inherited CMake and pkg-config

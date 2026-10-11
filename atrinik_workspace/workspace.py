@@ -12247,6 +12247,8 @@ class Workspace:
             "cxx": self._tool_identity(environment.get("CXX", "c++"), **tool_environment),
         }
         tree_argument_prefixes = (
+            "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=",
+            "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=",
             "-DCMAKE_C_COMPILER=",
             "-DCMAKE_CXX_COMPILER=",
             "-DCMAKE_C_COMPILER_TARGET=",

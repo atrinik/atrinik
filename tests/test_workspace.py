@@ -11062,6 +11062,49 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(build.kwargs["env"]["PATH"], PORTABLE_PATH)
         verify.assert_called_once_with({})
 
+    def test_portable_registry_policy_change_resets_only_owned_cached_tree(self) -> None:
+        from atrinik_workspace.linux_portable import portable_configure_arguments
+        source = self.workspace.paths.repositories / "content"
+        current = portable_configure_arguments(source)
+        foreign = self.root / "caller-package"
+        foreign.mkdir()
+        (foreign / "SDL3Config.cmake").write_text("# caller-owned package\n")
+        for policy in ("CMAKE_FIND_USE_PACKAGE_REGISTRY", "CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY"):
+            with self.subTest(policy=policy):
+                binary = self.workspace.paths.builds / "profiles/test/build" / policy
+                cache = binary / "CMakeCache.txt"
+                sentinel = binary / "unchanged-current-tree"
+                configurations = []
+
+                def configured(command, **kwargs):
+                    if command[:2] != ["/usr/bin/cmake", "-S"]:
+                        return
+                    # Real managed_reset must remove cached package discovery before configure.
+                    self.assertFalse(cache.exists())
+                    configurations.append(command)
+                    package = foreign if len(configurations) == 1 else Path("/usr/local/lib/cmake/SDL3")
+                    cache.write_text("SDL3_DIR:PATH=" + str(package) + "\n")
+
+                with mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}), \
+                     mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False), \
+                     mock.patch.object(self.workspace, "_cmake_source_identity", return_value={"configure_skip_safe": True}), \
+                     mock.patch.object(self.workspace, "_cmake_configured_toolchain", return_value=None), \
+                     mock.patch.object(self.workspace, "_cmake_toolchain_identity", return_value=None), \
+                     mock.patch.object(self.workspace, "_cmake_state_valid", return_value=True), \
+                     mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
+                     mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes"), \
+                     mock.patch("atrinik_workspace.workspace.run", side_effect=configured):
+                    previous = [arg for arg in current if not arg.startswith("-D" + policy + "=")]
+                    self.workspace._cmake(source, binary, previous, False, portable=True)
+                    self.assertIn(str(foreign), cache.read_text())
+                    self.workspace._cmake(source, binary, current, False, portable=True)
+                    self.assertNotIn(str(foreign), cache.read_text())
+                    sentinel.write_text("retain unchanged current tree\n")
+                    self.workspace._cmake(source, binary, current, False, portable=True)
+                self.assertEqual(len(configurations), 2)
+                self.assertTrue(sentinel.is_file())
+                self.assertEqual((foreign / "SDL3Config.cmake").read_text(), "# caller-owned package\n")
+
     def test_portable_tool_swap_after_configure_stops_before_build(self) -> None:
         from atrinik_workspace.linux_portable import portable_configure_arguments
         from atrinik_workspace.linux_export import ExportError
