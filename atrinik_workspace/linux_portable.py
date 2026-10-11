@@ -203,7 +203,6 @@ def portable_configure_arguments(source: Path) -> list[str]:
         "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkg-config",
         "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_MAKE_PROGRAM": "/usr/bin/ninja",
-        "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkg-config",
         "CMAKE_TOOLCHAIN_FILE": str(source / "cmake/toolchains/llvm.cmake"),
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_C_LINKER_LAUNCHER": "", "CMAKE_CXX_LINKER_LAUNCHER": "",
