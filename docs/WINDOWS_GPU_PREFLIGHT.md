@@ -219,6 +219,16 @@ A local `windows-cross` worker supplies `ATRINIK_WINDOWS_TOOLCHAIN_FILE`,
 selected toolchain file; the image supplies target Clang on `/opt/llvm-mingw/bin`.
 ThinLTO remains disabled, and native coverage uses the matching LLVM tools.
 
+Local packaging selects `ATRINIK_WINDOWS_HOST_PYTHON=/usr/bin/python3` for host
+helpers and CMake generators. The wrapper rejects a different selection, strips
+caller `PYTHON*`, virtualenv and Conda selectors, and disables user-site startup.
+The selected Classic package scripts must expose the reviewed host-Python
+contract; older scripts fail before local packaging. The receipt records their
+source hashes and the actual host interpreter's resolved binary, hash and
+version, rechecked around packaging. This is the existing local host-tool trust
+scope; it does not attest system libraries or claim an image digest. The
+`ATRINIK_WINDOWS_PYTHON_*` inputs still select the separate Windows target runtime.
+
 
 Keep development, Git/review and delivery coordination in the owned native
 Linux worktree. Complete its context, authenticated ledger/worktree/CAS and

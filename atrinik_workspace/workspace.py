@@ -17450,9 +17450,11 @@ class Workspace:
             for name in required
         ):
             return None
+        if environment.get("ATRINIK_WINDOWS_HOST_PYTHON", "/usr/bin/python3") != "/usr/bin/python3":
+            raise WorkspaceError("Windows packaging requires the SDK host Python /usr/bin/python3")
         for name in tuple(environment):
-            if (name.startswith(("CCACHE_", "CCC_", "CLANG_CONFIG_FILE_", "LD_", "CMAKE_", "PKG_CONFIG_", "BASH_FUNC_"))
-                    or name in {"BASH_ENV", "ENV", "PKG_CONFIG", "CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH",
+            if (name.startswith(("CCACHE_", "CCC_", "CLANG_CONFIG_FILE_", "LD_", "CMAKE_", "PKG_CONFIG_", "BASH_FUNC_", "PYTHON"))
+                    or name in {"VIRTUAL_ENV", "CONDA_PREFIX", "CONDA_DEFAULT_ENV", "BASH_ENV", "ENV", "PKG_CONFIG", "CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH",
                                 "OBJC_INCLUDE_PATH", "LIBRARY_PATH", "COMPILER_PATH", "GCC_EXEC_PREFIX",
                                 "CC", "CXX", "CPPFLAGS", "CFLAGS", "CXXFLAGS", "RCFLAGS", "LDFLAGS", "LD", "AR", "RANLIB"}):
                 environment.pop(name)
@@ -17460,6 +17462,11 @@ class Workspace:
         # ambient Clang configuration files for both compilation and linking.
         environment.update(CFLAGS="--no-default-config", CXXFLAGS="--no-default-config",
                            LDFLAGS="--no-default-config", CCACHE_DISABLE="1")
+        # Host Python generates/checks package inputs; the Windows Python
+        # include/library/runtime coordinates below describe a separate target.
+        # Strip startup selectors before disabling HOME's user-site callbacks.
+        environment["PYTHONNOUSERSITE"] = "1"
+        environment["ATRINIK_WINDOWS_HOST_PYTHON"] = "/usr/bin/python3"
         environment["ATRINIK_PACKAGE_VERSION"] = WINDOWS_PACKAGE_VERSION
         environment["ATRINIK_DISCORD_APPLICATION_ID_FILE"] = ""
         return environment
@@ -17584,6 +17591,58 @@ class Workspace:
         return {"path": str(root), "sha256": hashlib.sha256(encoded).hexdigest(),
                 "entries": len(records), "bytes": total_bytes}
 
+    @staticmethod
+    def _windows_host_python_identity(environment: dict[str, str], fingerprint: Callable[[Path], dict]) -> dict:
+        """Observe the fixed SDK host executable, separately from target Python.
+
+        Like host CMake/Ninja identities, this fingerprints the actual executable;
+        it does not attest its system libraries or claim an immutable image digest.
+        """
+        path = Path("/usr/bin/python3")
+        if environment.get("ATRINIK_WINDOWS_HOST_PYTHON", str(path)) != str(path):
+            raise WorkspaceError("Windows packaging requires the SDK host Python /usr/bin/python3")
+        identity = fingerprint(path)
+        probe = "import json, sys; print(json.dumps({'implementation': sys.implementation.name, 'version': list(sys.version_info[:3]), 'executable': sys.executable, 'prefix': sys.base_prefix}))"
+        observed = json.loads(run([str(path), "-I", "-c", probe], capture=True, trace=False, env=environment))
+        version = observed.get("version")
+        if (observed.get("implementation") != "cpython" or observed.get("executable") != str(path)
+                or observed.get("prefix") != "/usr" or not isinstance(version, list) or len(version) != 3
+                or not all(type(item) is int for item in version) or version[0] != 3 or version[:2] < [3, 11]):
+            raise WorkspaceError("Windows packaging requires the supported host CPython 3.11 or newer")
+        if fingerprint(path) != identity:
+            raise WorkspaceError("Windows host Python changed during inspection")
+        return {**identity, "version": observed}
+
+    @classmethod
+    def _windows_host_python_script_proofs(cls, staging: Path) -> dict[str, dict]:
+        """Admit the reviewed source interface before local package execution."""
+        result = {}
+        for component in ("client", "server"):
+            path = staging / component / "tools/build-windows-package.sh"
+            try:
+                assert_no_symlink_components(path, "Windows host Python source contract")
+                descriptor = cls._windows_producer_open(path)
+                try:
+                    before = os.fstat(descriptor)
+                    if not stat.S_ISREG(before.st_mode) or before.st_size > 1024 ** 2:
+                        raise WorkspaceError("Windows host Python script requires a bounded regular file")
+                    data = os.pread(descriptor, before.st_size + 1, 0)
+                    fields = ("st_dev", "st_ino", "st_size", "st_mode", "st_mtime_ns", "st_ctime_ns")
+                    after = os.fstat(descriptor)
+                    visible = path.stat(follow_symlinks=False)
+                    if (len(data) != before.st_size
+                            or any(getattr(before, key) != getattr(after, key) or getattr(before, key) != getattr(visible, key)
+                                   for key in fields)):
+                        raise WorkspaceError("Windows host Python script changed during inspection")
+                finally:
+                    os.close(descriptor)
+                if b"# atrinik-windows-host-python-contract: 1" not in data.splitlines():
+                    raise WorkspaceError("selected Classic source lacks the Windows host Python contract: " + component)
+                result[component] = {"path": str(path), "sha256": hashlib.sha256(data).hexdigest(), "contract_version": 1}
+            except OSError as error:
+                raise WorkspaceError("Windows host Python source contract is unavailable: " + component) from error
+        return result
+
     @classmethod
     def _local_windows_producer_identity(cls, environment: dict[str, str]) -> dict[str, Any]:
         """Validate and freshly fingerprint the local LLVM packaging inputs.
@@ -17700,6 +17759,7 @@ class Workspace:
                 if path is None:
                     raise WorkspaceError("Windows producer build tool is unavailable: " + name)
                 tools[name] = file_identity(Path(path))
+            tools["host_python"] = cls._windows_host_python_identity(environment, file_identity)
             for key, name in (*tool_names.items(), ("clang", "clang")):
                 path = Path(llvm) / "bin" / name
                 identity = file_identity(path, (Path(llvm),))
@@ -17768,9 +17828,14 @@ class Workspace:
     def _build_windows_profile_archives(
         self, staging: Path
     ) -> tuple[Path, Path, dict[str, object]]:
+        local_environment = self._local_windows_build_environment()
+        if local_environment is not None:
+            if local_environment.get("ATRINIK_WINDOWS_HOST_PYTHON", "/usr/bin/python3") != "/usr/bin/python3":
+                raise WorkspaceError("Windows packaging requires the SDK host Python /usr/bin/python3")
+            local_environment["ATRINIK_WINDOWS_HOST_PYTHON"] = "/usr/bin/python3"
+        script_proofs = self._windows_host_python_script_proofs(staging) if local_environment is not None else None
         packages = staging / "packages"
         packages.mkdir()
-        local_environment = self._local_windows_build_environment()
         if local_environment is not None:
             producer = self._local_windows_producer_identity(local_environment)
             local_environment["ATRINIK_PROFILE_SOUND_DIR"] = str(
@@ -17783,7 +17848,8 @@ class Workspace:
                 staging / "server" / "resources"
             )
             for component in ("client", "server"):
-                if self._local_windows_producer_identity(local_environment) != producer:
+                if (self._local_windows_producer_identity(local_environment) != producer
+                        or self._windows_host_python_script_proofs(staging) != script_proofs):
                     raise WorkspaceError("Windows producer inputs changed before packaging")
                 run(
                     [
@@ -17794,9 +17860,11 @@ class Workspace:
                     cwd=staging / component,
                     env=local_environment,
                 )
-            if self._local_windows_producer_identity(local_environment) != producer:
+            if (self._local_windows_producer_identity(local_environment) != producer
+                    or self._windows_host_python_script_proofs(staging) != script_proofs):
                 raise WorkspaceError("Windows producer inputs changed during packaging")
-            build = {"mode": "local", "image": "", "producer": producer}
+            build = {"mode": "local", "image": "", "producer": producer,
+                     "host_python_scripts": script_proofs}
         else:
             if shutil.which("docker") is None:
                 raise WorkspaceError(

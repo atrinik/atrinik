@@ -282,7 +282,9 @@ class LocalWindowsProducerTests(unittest.TestCase):
                 staging = self.root / (str(change) + phase)
                 staging.mkdir()
                 for component in ("client", "server"):
-                    (staging / component).mkdir()
+                    tools = staging / component / "tools"
+                    tools.mkdir(parents=True)
+                    (tools / "build-windows-package.sh").write_text("# atrinik-windows-host-python-contract: 1\n")
                 changed_path = {"header": self.header, "pc": self.pc, "crt": self.crt,
                                 "dll": self.runtime / "libunwind.dll",
                                 **{name: self.build_tools / name for name in ("cmake", "cpack", "ninja", "bash")}
