@@ -100,10 +100,17 @@ fingerprints compiler, configured linker/archive tools and Clang builtins/profil
 archives so changing their bytes invalidates a cached build tree.
 
 Local Windows packaging requires the canonical declarative LLVM-MinGW toolchain.
-It clears compiler and dependency overrides, Bash startup hooks and compiler
-cache selectors. Before, between and after packaging steps, it hashes the
-selected build tools, compiler wrappers and underlying Clang, runtime libraries,
-Python files and toolchain. The package records these identities in
+It clears compiler, resource-compiler and dependency overrides, Bash startup
+hooks and compiler cache selectors. Before, between and after packaging steps,
+it hashes the complete dependency prefix and LLVM SDK (including headers,
+pkg-config metadata, import/static libraries, target CRT, internal symlink
+identities and shared tool implementations), selected build tools, Python files
+and toolchain. SDK trees must have safe ownership and permissions, remain within
+separate declared roots, and contain no hidden or special files or escaping
+links. Inspection is bounded to 100,000 entries, 512 MiB per file and 8 GiB per
+tree; changing a tree during inspection refuses packaging. Every selected LLVM
+tool must report LLVM 23.1.3; dlltool must resolve to the same multicall binary as
+llvm-ar, whose supported version mode identifies that implementation. The package records these identities in
 `build.producer`; changed or noncanonical inputs refuse packaging. When initial
 local-toolchain prerequisites are absent, packaging selects the supported Docker
 producer route; invalid selected local inputs fail closed.
