@@ -2,7 +2,10 @@ name: Dependency review
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
     branches: [main]
+  merge_group:
+    types: [checks_requested]
 
 permissions:
   contents: read
