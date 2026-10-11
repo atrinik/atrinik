@@ -11739,14 +11739,19 @@ class Workspace:
         tests: bool,
         *,
         build_targets: list[str] | None = None,
+        portable: bool = False,
     ) -> None:
         self._prepare_cmake_binary(binary)
         environment = os.environ.copy()
-        ccache = shutil.which("ccache") if self._use_ccache else None
+        if portable:
+            for name in tuple(environment):
+                if name.startswith(("CCC_", "CLANG_CONFIG_FILE_")) or name == "LD_PRELOAD":
+                    environment.pop(name)
+        ccache = shutil.which("ccache") if self._use_ccache and not portable else None
         cache_inputs = self._build_summary.setdefault("cache", {}).setdefault(
             "inputs", {}
         )
-        if not self._use_ccache:
+        if not self._use_ccache or portable:
             cache_inputs["compiler-cache"] = "disabled"
         elif ccache is None:
             cache_inputs["compiler-cache"] = "unavailable"
@@ -11799,7 +11804,7 @@ class Workspace:
                 f"ccache: enabled at {cache} (maximum {COMPILER_CACHE_MAX_SIZE})",
                 file=sys.stderr,
             )
-        elif self._use_ccache:
+        elif self._use_ccache and not portable:
             print(
                 "ccache: command not found; install ccache or pass --no-ccache "
                 "to disable this diagnostic",
@@ -13430,6 +13435,7 @@ class Workspace:
                 root / "build" / "client",
                 arguments,
                 tests,
+                **({"portable": True} if portable else {}),
             )
         else:
             self._cmake(
@@ -13438,6 +13444,7 @@ class Workspace:
                 arguments,
                 tests,
                 build_targets=[build_target],
+                **({"portable": True} if portable else {}),
             )
         self._record_classic_graph(root, {"client"}, "standalone")
 

@@ -191,7 +191,7 @@ def _read_regular(path: Path, *, limit: int = export.MAX_MANIFEST_BYTES) -> byte
 
 
 LLVM_ROOT = "/opt/llvm-23.1.3"
-PORTABLE_C_FLAGS = "-O2 -march=x86-64 -mtune=generic"
+PORTABLE_C_FLAGS = "-O2 -march=x86-64 -mtune=generic --no-default-config"
 PORTABLE_RELEASE_FLAGS = "-O2 -DNDEBUG"
 PORTABLE_LINK_FLAGS = "--rtlib=compiler-rt --unwindlib=libunwind -fuse-ld=lld"
 
@@ -202,6 +202,7 @@ def portable_configure_arguments() -> list[str]:
         "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_TOOLCHAIN_FILE": "", "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_C_LINKER_LAUNCHER": "", "CMAKE_CXX_LINKER_LAUNCHER": "",
+        "CMAKE_C_COMPILER_LAUNCHER": "", "CMAKE_CXX_COMPILER_LAUNCHER": "",
         "CMAKE_C_COMPILER": LLVM_ROOT + "/bin/clang",
         "CMAKE_CXX_COMPILER": LLVM_ROOT + "/bin/clang++",
         "CMAKE_LINKER": LLVM_ROOT + "/bin/ld.lld",
@@ -227,12 +228,13 @@ def _portable_command(words: list[str], cache: dict[str, str], *, link: bool) ->
     compilers = {LLVM_ROOT + "/bin/clang", LLVM_ROOT + "/bin/clang++"}
     if not words:
         raise WorkspaceError("portable compile/link invocation is missing")
-    launchers = {cache.get("CMAKE_C_COMPILER_LAUNCHER"), cache.get("CMAKE_CXX_COMPILER_LAUNCHER")}
-    if words[0] in launchers:
-        words = words[1:]
+    if any(cache.get(name) for name in ("CMAKE_C_COMPILER_LAUNCHER", "CMAKE_CXX_COMPILER_LAUNCHER")):
+        raise WorkspaceError("portable compile/link launcher changed")
     if not words or words[0] not in compilers:
         raise WorkspaceError("portable compile/link compiler changed")
-    if (any(word.startswith(("-flto", "-mavx", "-mcpu=", "--target=", "-m32")) for word in words)
+    if (any(word.startswith(("-flto", "--target=", "--config", "-config", "--ld-path", "-ld-path")) for word in words)
+            or any(word.startswith("-m") and word not in {"-march=x86-64", "-mtune=generic", "-m64"} for word in words)
+            or words.count("--no-default-config") != 1
             or any(word in {"-Xclang", "-target", "-target-cpu", "-target-feature"} for word in words)
             or [word for word in words if re.fullmatch(r"-O(?:[0-9]|fast|s|z|g)", word)] != ["-O2", "-O2"]
             or [word for word in words if word.startswith("-march=")] != ["-march=x86-64"]
@@ -240,8 +242,11 @@ def _portable_command(words: list[str], cache: dict[str, str], *, link: bool) ->
             or any(word.startswith("@") for word in words)
             or "-DNDEBUG" not in words):
         raise WorkspaceError("portable compile/link optimization or CPU/LTO contract changed")
-    if link and any(words.count(flag) != 1 for flag in shlex.split(PORTABLE_LINK_FLAGS)):
-        raise WorkspaceError("portable compile/link LLD/runtime contract changed")
+    for option, expected in (("fuse-ld", "lld"), ("rtlib", "compiler-rt"), ("unwindlib", "libunwind")):
+        family = [word for word in words if re.match(r"^-{1,2}" + option + r"(?:=|$)", word)]
+        desired = [("-" if option == "fuse-ld" else "--") + option + "=" + expected] if link else []
+        if family != desired:
+            raise WorkspaceError("portable compile/link LLD/runtime contract changed")
 
 
 def validate_portable_build(binary: Path) -> bytes:

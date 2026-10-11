@@ -11013,6 +11013,23 @@ class WorkspaceTests(unittest.TestCase):
         ]
         self.assertEqual(len(configure_calls), 5)
 
+    def test_portable_cmake_disables_launchers_and_driver_environment_overrides(self) -> None:
+        from atrinik_workspace.linux_portable import portable_configure_arguments
+        source = self.workspace.paths.repositories / "content"
+        (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
+        binary = self.workspace.paths.builds / "profiles/test/build/portable-fixture"
+        with mock.patch.dict(os.environ, {"CCC_OVERRIDE_OPTIONS": "+-O3", "CLANG_CONFIG_FILE_USER_DIR": "/tmp/config", "LD_PRELOAD": "/tmp/shim.so"}), \
+             mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}), \
+             mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False), \
+             mock.patch("atrinik_workspace.workspace.run") as run:
+            self.workspace._cmake(source, binary, portable_configure_arguments(), False, portable=True)
+        configure = next(call for call in run.call_args_list if call.args[0][:2] == ["cmake", "-S"])
+        for name in ("CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_USER_DIR", "LD_PRELOAD"):
+            self.assertNotIn(name, configure.kwargs["env"])
+        self.assertIn("-DCMAKE_C_COMPILER_LAUNCHER=", configure.args[0])
+        self.assertNotIn("CCACHE_DIR", configure.kwargs["env"])
+        self.assertEqual(self.workspace._build_summary["cache"]["inputs"]["compiler-cache"], "disabled")
+
     def test_clang_runtime_fingerprint_detects_replaced_archives(self) -> None:
         resource = self.root / "llvm-resource"
         libraries = resource / "lib" / "linux"

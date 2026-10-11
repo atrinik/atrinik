@@ -63,9 +63,9 @@ class PortablePublicationTests(unittest.TestCase):
         original = "".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
                            for argument in portable.portable_configure_arguments())
         compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
-                         "-O2", "-DNDEBUG", "-c", "fixture.c", "-o", "fixture.o"]
+                         "-O2", "-DNDEBUG", "--no-default-config", "-c", "fixture.c", "-o", "fixture.o"]
         link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
-                      "-O2", "-DNDEBUG", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
+                      "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
         for case in ("valid", "compiler", "release", "cxx", "lto", "linker", "compile-o3", "link-o3", "response", "wrapper"):
             with self.subTest(case=case):
                 cache, commands, link = original, list(compile_words), list(link_words)
@@ -85,6 +85,20 @@ class PortablePublicationTests(unittest.TestCase):
                     if case == "valid": portable.validate_portable_build(binary)
                     else:
                         with self.assertRaises(WorkspaceError): portable.validate_portable_build(binary)
+
+    def test_actual_portable_flags_reject_additive_configuration_and_runtime_overrides(self):
+        words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
+                 "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "-o", "atrinik", "client.o"]
+        portable._portable_command(words, {}, link=True)
+        for flag in ("-fuse-ld=bfd", "--rtlib=libgcc", "--unwindlib=libgcc", "-msse4.2",
+                     "--config=/tmp/other.cfg", "--config-user-dir=/tmp/config", "-mavx2"):
+            with self.subTest(flag=flag), self.assertRaises(WorkspaceError):
+                portable._portable_command([*words, flag], {}, link=True)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command(["/tmp/unverified-launcher", *words],
+                                       {"CMAKE_C_COMPILER_LAUNCHER": "/tmp/unverified-launcher"}, link=True)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command([word for word in words if word != "--no-default-config"], {}, link=True)
 
     def test_audio_notices_preserve_verified_text_and_archive_provenance(self):
         record, payload = self.audio_archive()
@@ -372,10 +386,10 @@ class PortablePublicationTests(unittest.TestCase):
                 cache.write_text("".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
                                          for argument in portable.portable_configure_arguments()))
                 compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
-                                 "-O2", "-DNDEBUG", "-c", "fixture.c", "-o", "fixture.o"]
+                                 "-O2", "-DNDEBUG", "--no-default-config", "-c", "fixture.c", "-o", "fixture.o"]
                 (binary / "compile_commands.json").write_text(json.dumps([{"arguments": compile_words}]))
                 link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
-                              "-O2", "-DNDEBUG", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
+                              "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
                 patches.enter_context(mock.patch.object(portable.subprocess, "run", return_value=
                     subprocess.CompletedProcess([], 0, stdout=" ".join(link_words) + "\n")))
                 released = directory / "released"

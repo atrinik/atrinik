@@ -731,7 +731,9 @@ separately qualified XWayland setup; no native Wayland backend is claimed here.
 with bounded, time-limited output from the verified absolute LLVM readelf path;
 it never runs the payload or ldd, and ambient PATH entries cannot select its inspector.
 Portable builds pin Clang/Clang++, LLD and archive tools, use explicit `-O2`
-Release flags, and disable interprocedural optimization. Export rechecks the CMake
+Release flags, ignore Clang default configuration files, and disable
+interprocedural optimization and compiler launchers. Portable CMake operations
+remove Clang driver/configuration environment overrides. Export rechecks the CMake
 cache and generated compile/link invocations before publication; compiler,
 optimization, CPU, runtime or LTO drift refuses export.
 It records class, endianness, machine, interpreter, static dependencies, runtime
