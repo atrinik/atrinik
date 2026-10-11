@@ -312,7 +312,7 @@ The ordinary Linux workspace uses the LLVM SDK in `linux-build:1.17.0`
 from devcontainer revision `0571f500ede75e7661b508d8bb40354256113223`.
 [Released SDK collector run 38161442404](https://github.com/atrinik/devcontainer/actions/runs/38161442404)
 verified the installed SDK metadata and role artifacts against that published producer;
-independent review accepted the image identity and installed closure.
+independent review accepted the image identity and installed LLVM tool roles.
 The immutable pin in `.devcontainer/devcontainer.json` is
 `ghcr.io/atrinik/linux-build:1.17.0@sha256:4ca8e921b616d20b18fcef901bd554488b4d5a68a7c4304268dedef23723a3bf`.
 Installed SDK verification establishes build inputs; live coordinator authority,
