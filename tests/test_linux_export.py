@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 import subprocess
 import shutil
@@ -261,9 +262,14 @@ class LinuxExportTests(unittest.TestCase):
             objects["lib/libunrelated.so"] = unrelated
             with self.assertRaisesRegex(export.ExportError, "libsample.so lacks required versions SAMPLE_1"):
                 export.elf_dependency_report(objects, entrypoint="bin/consumer.so", host_libraries=frozenset())
-        # LLD emits no inheritance auxiliary rows for this version script.
-        # Parent-row validation has a separate deterministic fixture below.
-        corruptions = [raw_provider.replace("Cnt: 1  Name: SAMPLE_2", "Cnt: 2  Name: SAMPLE_2"),
+        # GNU ld emits a parent for SAMPLE_2; LLD emits only the version name.
+        # Increment the observed auxiliary count so both layouts lose completeness.
+        counts = list(re.finditer(r"Cnt: ([0-9]+)(?=\s+Name: SAMPLE_2$)", raw_provider, re.MULTILINE))
+        self.assertEqual(len(counts), 1)
+        count = counts[0]
+        missing_parent = (raw_provider[:count.start(1)] + str(int(count[1]) + 1)
+                          + raw_provider[count.end(1):])
+        corruptions = [missing_parent,
                        raw_provider.replace("Index: 3", "Index: 2"),
                        raw_provider.replace("Name: SAMPLE_2", "Name: SAMPLE_1"),
                        raw_provider.replace("contains 3 entries:", "contains 4 entries:"),
