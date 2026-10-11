@@ -300,7 +300,8 @@ def portable_library_paths(words: list[str], *, binary: Path | None = None,
 
 def portable_link_inputs(words: list[str], *, binary: Path | None = None,
                          llvm_root: str = "/opt/llvm-23.1.3", generated_objects: tuple[str, ...] = (),
-                         admitted_build_inputs: set[Path] | None = None) -> None:
+                         admitted_build_inputs: set[Path] | None = None,
+                         observed_build_inputs: set[Path] | None = None) -> None:
     """Reject direct foreign archives/objects as well as hidden linker scripts."""
     flags = {"--as-needed", "--no-as-needed", "-shared", "-pie", "-static", "--no-undefined",
              "--eh-frame-hdr", "--export-dynamic", "-export-dynamic", "--gc-sections", "--no-gc-sections",
@@ -358,6 +359,8 @@ def portable_link_inputs(words: list[str], *, binary: Path | None = None,
         if binary is not None and path.resolve().is_relative_to(binary.resolve()):
             if admitted_build_inputs is not None and path.resolve() not in admitted_build_inputs:
                 raise ExportError("portable-metadata: missing build input producer: " + word)
+            if observed_build_inputs is not None:
+                observed_build_inputs.add(path.resolve())
             continue
         normalized = Path(os.path.normpath(str(path)))
         if (str(normalized.parent) in PORTABLE_LIBRARY_DIRECTORIES

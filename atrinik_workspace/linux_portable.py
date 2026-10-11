@@ -18,6 +18,7 @@ import stat
 import subprocess
 import shlex
 import tarfile
+import tempfile
 from typing import Callable
 
 from . import linux_export as export
@@ -201,6 +202,7 @@ def portable_configure_arguments(source: Path) -> list[str]:
     """Pin CMake's full compiler, optimization and linker contract."""
     settings = {
         "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkg-config",
+        "BUILD_TESTING": "OFF",
         "ATRINIK_GPU_SHADER_DIRECTORY": "/opt/atrinik-portable/shaders",
         "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_FIND_USE_PACKAGE_REGISTRY": "FALSE",
@@ -233,6 +235,310 @@ def portable_configure_arguments(source: Path) -> list[str]:
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE": "OFF",
     }
     return ["-D" + name + "=" + value for name, value in settings.items()]
+
+
+class PortableBuildContext:
+    """Same-operation source authority and configure/build observations kept in memory.
+
+    Only the leased export caller supplies selected generations and their verified
+    inventories. Disk cache and source-view metadata never create this authority.
+    """
+
+    def __init__(self, selected: dict[str, Path], proofs: dict, generations: dict, evidence: dict):
+        import copy
+        self.selected = {role: Path(path) for role, path in selected.items()}
+        self.proofs = copy.deepcopy(proofs)
+        self.generations = copy.deepcopy(generations)
+        self.evidence = copy.deepcopy(evidence)
+        self.binary = None
+        self.source = None
+        self.views = {}
+        self.authored = {}
+        self.authored_roots = {}
+        self.authored_directories = set()
+        self.authored_inputs = set()
+        self.authored_observation = None
+        self.generated_directories = set()
+        self.generated = {}
+        self.expected_shader = None
+        self.baseline = None
+        self.output = None
+        self.target_outputs = None
+
+    def validate_selected(self, selected: dict[str, Path]) -> None:
+        if self.baseline is not None or {role: Path(path) for role, path in selected.items()} != self.selected:
+            raise ValueError("portable selected-source context differs from caller snapshot")
+        for role in ("client", "protocol", "libatrinik"):
+            if role not in self.selected or role not in self.proofs or role not in self.generations:
+                raise ValueError("portable source proof context is incomplete")
+
+    def validate_source_binding(self, binary: Path, source: Path) -> None:
+        if (not self.views or self.baseline is not None or source != self.source
+                or binary != self.build_root / "build/client"):
+            raise ValueError("portable configure coordinates differ from caller context")
+        self._verify_authored()
+
+    @staticmethod
+    def _record(path: Path) -> dict:
+        resolved = path.resolve(strict=True)
+        parent = export._open_root(resolved.parent)
+        try:
+            descriptor = export._open_beneath(parent, resolved.name)
+            try:
+                record = byte_record(descriptor)
+                info = os.fstat(descriptor)
+                record["identity"] = export._identity(info)
+            finally:
+                os.close(descriptor)
+        finally:
+            os.close(parent)
+        if path.resolve(strict=True) != resolved:
+            raise ValueError("compiler input path changed")
+        return record
+
+    def bind_source_views(self, build_root: Path, views: dict[str, Path]) -> None:
+        if self.views or set(views) != {"client", "protocol", "libatrinik"}:
+            raise ValueError("portable source view binding is missing or repeated")
+        self.build_root = Path(build_root)
+        if not self.build_root.is_absolute() or self.build_root.resolve() != self.build_root:
+            raise ValueError("portable build namespace is not canonical")
+        for role, requested in views.items():
+            view = Path(requested)
+            generation = self.generations[role]
+            namespace = role if generation["source_includes"] else ""
+            allowed = ({self.build_root / "sources/client", self.build_root / "sources/client-layout/client"}
+                       if role == "client" else
+                       {self.build_root / "sources" / namespace / ("input" if namespace else role)})
+            if view not in allowed or view.resolve() != view:
+                raise ValueError("portable source view is outside the caller's build namespace")
+            self.views[role] = view
+            for name, expected in self.proofs[role].items():
+                relative = export.relative_path(name)
+                target = view / relative[7:] if relative.startswith("source/") else view.parent / relative
+                origin = self.selected[role].parent / relative
+                root = view if relative.startswith("source/") else view.parent / relative.split("/", 1)[0]
+                self.authored_roots.setdefault(root, set()).add(target)
+                if target in self.authored and self.authored[target][1] != expected:
+                    raise ValueError("ambiguous source proof mapping")
+                self.authored[target] = (origin, expected)
+        self.source = self.views["client"]
+        self._verify_authored()
+
+    def _verify_authored(self) -> None:
+        reserved = {".atrinik-workspace-managed.json", ".atrinik-source-view.json",
+                    ".atrinik-source-includes.json"}
+        observed = set()
+        for root in self.authored_roots:
+            if root.is_file():
+                observed.add(root)
+                continue
+            pending = [root]
+            while pending:
+                directory = pending.pop()
+                for entry in directory.iterdir():
+                    if entry.name in reserved or (directory == self.views["client"] and entry.name in {".git", "build", "sound"}):
+                        continue
+                    if entry.is_dir():
+                        if not any(path.is_relative_to(entry) for path in self.authored):
+                            raise ValueError("unrecorded authored source directory")
+                        pending.append(entry)
+                    else:
+                        observed.add(entry)
+                        if len(observed) > export.MAX_FILES:
+                            raise ValueError("source inventory exceeds bound")
+        if observed != set(self.authored):
+            raise ValueError("authored source view inventory changed")
+        directories = set()
+        inputs = set()
+        records = {}
+        for requested, (origin, expected) in self.authored.items():
+            resolved = requested.resolve(strict=True)
+            if resolved not in {requested, origin.resolve(strict=True)}:
+                raise ValueError("authored source alias escapes its proven origin")
+            record = self._record(requested)
+            if any(record[key] != expected[key] for key in ("sha256", "size")):
+                raise ValueError("authored source view bytes differ from generation proof")
+            records[requested] = record
+            inputs.update((requested, resolved))
+            parent = requested.parent
+            while any(parent == root or parent.is_relative_to(root) for root in self.authored_roots if root.is_dir()):
+                directories.update((parent, parent.resolve()))
+                parent = parent.parent
+        if self.authored_observation is not None and records != self.authored_observation:
+            raise ValueError("authored source file identity changed")
+        self.authored_observation = records
+        self.authored_directories = directories
+        self.authored_inputs = inputs
+
+    @staticmethod
+    def _ninja(binary: Path) -> str:
+        try:
+            result = subprocess.run(["/usr/bin/ninja", "-C", str(binary), "-t", "commands", "atrinik"],
+                                    capture_output=True, text=True, timeout=30, check=True,
+                                    stdin=subprocess.DEVNULL, env={"PATH": PORTABLE_PATH, "LC_ALL": "C"})
+        except (OSError, subprocess.SubprocessError) as error:
+            raise ValueError("portable Ninja report is unavailable") from error
+        if len(result.stdout) > export.MAX_MANIFEST_BYTES:
+            raise ValueError("Ninja report exceeds bound")
+        return result.stdout
+
+    def _generated_inventory(self) -> dict:
+        inventory = {}
+        for root in self.generated_directories:
+            if root.resolve() != root:
+                raise ValueError("generated header directory aliases another tree")
+            if not root.exists():
+                continue
+            for directory, dirs, files in os.walk(root, followlinks=False):
+                parent = Path(directory)
+                for name in dirs:
+                    if (parent / name).is_symlink():
+                        raise ValueError("generated header directory contains a symlink")
+                for name in files:
+                    path = parent / name
+                    if path.is_symlink():
+                        raise ValueError("generated header inventory contains a symlink")
+                    inventory[path] = self._record(path)
+                    if len(inventory) > export.MAX_FILES:
+                        raise ValueError("generated header inventory exceeds bound")
+        return inventory
+
+    def capture_configure(self, binary: Path, source: Path) -> None:
+        if self.baseline is not None or not self.views or source != self.source:
+            raise ValueError("portable configure authority is missing or repeated")
+        if binary != self.build_root / "build/client" or binary.resolve() != binary:
+            raise ValueError("portable binary differs from the caller's standalone build")
+        self.binary = binary
+        self._verify_authored()
+        database = _read_regular(binary / "compile_commands.json")
+        commands = json.loads(database, object_pairs_hook=export._unique_object)
+        for record in commands:
+            words = record.get("arguments") or shlex.split(record["command"])
+            for value in _portable_include_operands(words):
+                path = Path(value)
+                path = path if path.is_absolute() else binary / path
+                if path.is_relative_to(binary):
+                    if path.resolve() != path:
+                        raise ValueError("generated include directory is not canonical")
+                    self.generated_directories.add(path)
+        # The shader output is the only build-generated addition admitted later.
+        self.generated_directories.add(binary / "src/include")
+        self.baseline = {"cache": _read_regular(binary / "CMakeCache.txt"),
+                         "database": database, "ninja": self._ninja(binary)}
+        self.generated = self._generated_inventory()
+        script = self.source / "tools/embed_gpu_shaders.py"
+        manifest = self.source / "shaders/SHA256SUMS"
+        if script not in self.authored or manifest not in self.authored:
+            raise ValueError("shader generator or manifest is outside source closure")
+        # Keep selected repository code outside the wrapper process. This is
+        # the exact proof-bound CLI used by the admitted Ninja generator row.
+        with tempfile.TemporaryDirectory(prefix=".atrinik-shader-proof-", dir=binary) as temporary:
+            expected = Path(temporary) / "gpu_shader_data.h"
+            try:
+                subprocess.run(["/usr/bin/python3", "-I", str(script), "--input", "/opt/atrinik-portable/shaders",
+                                "--manifest", str(manifest), "--output", str(expected)],
+                               check=True, timeout=30, stdin=subprocess.DEVNULL,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                               env={"PATH": PORTABLE_PATH, "LC_ALL": "C"})
+            except (OSError, subprocess.SubprocessError) as error:
+                raise ValueError("source-bound shader proof subprocess failed") from error
+            payload = _read_regular(expected, limit=512 * 1024 * 1024)
+        self._verify_authored()
+        self.expected_shader = {"sha256": hashlib.sha256(payload).hexdigest(), "size": len(payload)}
+        if binary / "src/include/gpu_shader_data.h" in self.generated:
+            raise ValueError("fresh configure unexpectedly retained a shader header")
+        compile_map = {_portable_compile_output(record.get("arguments") or shlex.split(record["command"]), binary):
+                       record.get("arguments") or shlex.split(record["command"]) for record in commands}
+        self.target_outputs = set()
+        _portable_ninja_commands(self.baseline["ninja"], binary, self.evidence, compile_map, self.source,
+                                 compiled_outputs=self.target_outputs)
+        validate_portable_build(binary, self.evidence, context=self, _configure_only=True)
+
+    def capture_output(self, binary: Path) -> None:
+        if self.output is not None or binary != self.binary or self.baseline is None:
+            raise ValueError("portable output capture is missing or repeated")
+        current = self._generated_inventory()
+        shader = binary / "src/include/gpu_shader_data.h"
+        if shader not in current or any(current[shader][key] != value for key, value in self.expected_shader.items()):
+            raise ValueError("shader header differs from source-bound pinned cohort")
+        if set(current) != set(self.generated) | {shader}:
+            raise ValueError("build changed configured header inventory")
+        for path, record in self.generated.items():
+            if current[path] != record:
+                raise ValueError("build changed configured header bytes or identity")
+        self.generated = current
+        self.output = self._record(binary / "atrinik")
+        validate_portable_build(binary, self.evidence, context=self)
+
+    def revalidate(self, binary: Path, *, configure_only: bool = False) -> None:
+        if binary != self.binary or self.baseline is None or self.source is None:
+            raise ValueError("same-operation portable receipt is missing")
+        if self.baseline != {"cache": _read_regular(binary / "CMakeCache.txt"),
+                             "database": _read_regular(binary / "compile_commands.json"),
+                             "ninja": self._ninja(binary)}:
+            raise ValueError("fresh configure baseline changed")
+        self._verify_authored()
+        if self._generated_inventory() != self.generated:
+            raise ValueError("generated header inventory or bytes changed")
+        if not configure_only and (self.output is None or self._record(binary / "atrinik") != self.output):
+            raise ValueError("built executable receipt changed")
+
+    def check_inputs(self, words: list[str], binary: Path, *, effective: bool = False,
+                     expected_source: Path | None = None) -> None:
+        forbidden = ("-include", "-imacros", "-include-pch", "-fmodule", "-ivfsoverlay", "-vfsoverlay",
+                     "-iwithprefix", "-iframework", "-iprefix", "-working-directory", "-Wp,", "-Xpreprocessor",
+                     "-index-header-map", "-fbuild-session", "-header-include-file")
+        if any(word.startswith(forbidden) for word in words):
+            raise ValueError("unsupported compiler input redirection")
+        allowed_files = self.authored_inputs
+        if effective:
+            path = Path(words[-1]) if words else Path("")
+            path = Path(os.path.normpath(str(path if path.is_absolute() else binary / path)))
+            if not words or path not in allowed_files or path.resolve() != expected_source:
+                raise ValueError("effective compiler source is unproven or changed")
+        else:
+            source = Path(words[words.index("-c") + 1])
+            source = Path(os.path.normpath(str(source if source.is_absolute() else binary / source)))
+            if source not in allowed_files:
+                raise ValueError("translation unit is outside proven source views")
+        system = {LLVM_ROOT + "/lib/clang/23/include", "/usr/local/include", "/usr/include",
+                  "/usr/include/x86_64-linux-gnu", "/usr/include/libxml2", "/usr/include/c++/12",
+                  "/usr/include/x86_64-linux-gnu/c++/12", "/usr/include/c++/12/backward",
+                  "/usr/x86_64-linux-gnu/include"}
+        allowed_dirs = self.authored_directories | self.generated_directories
+        for value in _portable_include_operands(words, effective=effective):
+            path = Path(value)
+            path = Path(os.path.normpath(str(path if path.is_absolute() else binary / path)))
+            if path in allowed_dirs or (str(path) in system and path.resolve() == path):
+                continue
+            # This absent built-in spelling comes only from the authenticated
+            # Debian cc1 probe; it does not admit arbitrary files beneath /.
+            probe = self.evidence.get("compile", {}).get("driver_output", "")
+            builtin = any("-cc1" in args and any(args[index:index + 2] == ["-internal-externc-isystem", "/include"]
+                          for index in range(len(args) - 1))
+                          for line in probe.splitlines() if line.lstrip().startswith('"')
+                          for args in [shlex.split(line)])
+            if effective and value == "/include" and builtin and not path.exists():
+                continue
+            raise ValueError("compiler header search is outside admitted roots")
+
+
+def _portable_include_operands(words: list[str], *, effective: bool = False) -> list[str]:
+    result = []
+    options = ("-internal-externc-isystem", "-internal-isystem", "-isystem", "-iquote", "-idirafter", "-I")
+    for index, word in enumerate(words):
+        for option in options:
+            if word == option:
+                if index + 1 >= len(words):
+                    raise ValueError("missing compiler include directory")
+                result.append(words[index + 1])
+                break
+            if word.startswith(option) and len(word) > len(option):
+                if option.startswith("-internal") and not effective:
+                    raise ValueError("explicit internal include override")
+                result.append(word[len(option):])
+                break
+    return result
 
 
 def _portable_command(words: list[str], cache: dict[str, str], *, link: bool, binary: Path | None = None) -> None:
@@ -281,7 +587,7 @@ def _portable_command(words: list[str], cache: dict[str, str], *, link: bool, bi
 
 
 def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bool,
-                     admitted_build_inputs: set[Path] | None = None) -> None:
+                     admitted_build_inputs: set[Path] | None = None, context: PortableBuildContext | None = None) -> set[Path] | None:
     """Bind effective driver tools and code generation to the verified cohort."""
     from .model import WorkspaceError
     try:
@@ -300,6 +606,10 @@ def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bo
             raise ValueError("external compiler, assembler, linker or extra tool selected")
         if cc1:
             args = cc1[0]
+            if context is not None:
+                source = Path(words[words.index("-c") + 1])
+                source = source if source.is_absolute() else binary / source
+                context.check_inputs(args, binary, effective=True, expected_source=source.resolve())
             if (args.count("-o") != 1
                     or any(arg.startswith("--output") or (arg.startswith("-o") and arg != "-o") for arg in args)
                     or _portable_build_path(args[args.index("-o") + 1], binary)
@@ -321,8 +631,10 @@ def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bo
                     or _portable_build_path(args[args.index("-o") + 1], binary)
                     != _portable_build_path(words[words.index("-o") + 1], binary)):
                 raise ValueError("effective link output changed")
+            consumed = set()
             export.portable_link_inputs(args, binary=binary, llvm_root=LLVM_ROOT,
-                                        admitted_build_inputs=admitted_build_inputs)
+                                        admitted_build_inputs=admitted_build_inputs,
+                                        observed_build_inputs=consumed)
             searches = export.portable_library_paths(args, binary=None if admitted_build_inputs is not None else binary,
                                                     llvm_root=LLVM_ROOT, installed=True)
             if (not searches or searches[0] != LLVM_ROOT + "/lib" or runtime not in args
@@ -333,6 +645,7 @@ def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bo
                            or arg in {"-lgcc", "-lgcc_s"} or re.search(r"libgcc[^/]*\.(?:a|so)", arg)
                            or arg.startswith(("--plugin", "-plugin", "--load-pass-plugin", "-load-pass-plugin", "--lto", "-lto")) for arg in args)):
                 raise ValueError("effective linker or compiler runtime changed")
+            return consumed
     except (OSError, ValueError, IndexError, KeyError, TypeError, export.ExportError, subprocess.SubprocessError) as error:
         raise WorkspaceError("portable effective compiler/linker contract changed") from error
 
@@ -357,7 +670,9 @@ def _portable_compile_output(words: list[str], binary: Path) -> Path:
 
 
 def _portable_ninja_commands(report: str, binary: Path, evidence: dict,
-                             compile_commands: dict[Path, list[str]], source: Path) -> tuple[list[str], set[Path]]:
+                             compile_commands: dict[Path, list[str]], source: Path,
+                             archive_members: dict[Path, set[Path]] | None = None,
+                             compiled_outputs: set[Path] | None = None) -> tuple[list[str], set[Path]]:
     """Recognize the finite CMake recipes emitted by the pinned Classic source."""
     compiled = set()
     archives = set()
@@ -422,6 +737,8 @@ def _portable_ninja_commands(report: str, binary: Path, evidence: dict,
             if len(set(members)) != len(members) or not set(members).issubset(compiled):
                 raise ValueError("duplicate or missing earlier archive member producer")
             archives.add(archive)
+            if archive_members is not None:
+                archive_members[archive] = set(members)
             continue
         if len(segments) == 3 and segments[0] == [":"] and segments[-1] == [":"]:
             command = segments[1]
@@ -440,15 +757,24 @@ def _portable_ninja_commands(report: str, binary: Path, evidence: dict,
             continue
         raise ValueError("unrecognized Ninja command recipe")
     if link is None or generators != 1:
-        raise ValueError("missing final link, shader generator or archive member producer")
+        raise ValueError("missing final link, shader generator or compile database producer")
+    if compiled_outputs is not None:
+        compiled_outputs.update(compiled)
     return link, link_inputs
 
 
-def validate_portable_build(binary: Path, evidence: dict) -> bytes:
+def validate_portable_build(binary: Path, evidence: dict, *, context: PortableBuildContext,
+                            _configure_only: bool = False) -> bytes:
     """Check cached settings and generated compile/link commands before export."""
     from .model import WorkspaceError
     if not binary.is_absolute() or binary.resolve() != binary:
         raise WorkspaceError("portable build directory is not canonical")
+    if not isinstance(context, PortableBuildContext):
+        raise WorkspaceError("portable export requires caller source and build context")
+    try:
+        context.revalidate(binary, configure_only=_configure_only)
+    except (OSError, ValueError, RuntimeError) as error:
+        raise WorkspaceError("portable same-operation build receipt changed") from error
     raw = _read_regular(binary / "CMakeCache.txt")
     values = {}
     for line in raw.decode("utf-8").splitlines():
@@ -462,7 +788,7 @@ def validate_portable_build(binary: Path, evidence: dict) -> bytes:
     try:
         identity = json.loads(_read_regular(binary / ".atrinik-configure.json"), object_pairs_hook=export._unique_object)
         source = Path(identity["source"]["path"])
-        if not source.is_absolute() or values.get("CMAKE_HOME_DIRECTORY") != str(source):
+        if source != context.source or values.get("CMAKE_HOME_DIRECTORY") != str(context.source):
             raise ValueError("source identity changed")
     except (OSError, ValueError, KeyError, TypeError) as error:
         raise WorkspaceError("portable CMake configuration changed: source identity is unavailable or invalid") from error
@@ -491,16 +817,30 @@ def validate_portable_build(binary: Path, evidence: dict) -> bytes:
             if output in compile_commands:
                 raise ValueError("duplicate compile database output")
             compile_commands[output] = words
+            context.check_inputs(words, binary)
             _portable_command(words, values, link=False)
-            _portable_driver(words, evidence, binary, link=False)
-        result = subprocess.run(["/usr/bin/ninja", "-C", str(binary), "-t", "commands", "atrinik"],
-                                capture_output=True, text=True, timeout=30, check=True,
-                                env={"PATH": PORTABLE_PATH, "LC_ALL": "C"})
-        if len(result.stdout) > export.MAX_MANIFEST_BYTES:
-            raise ValueError("command report too large")
-        command, admitted = _portable_ninja_commands(result.stdout, binary, evidence, compile_commands, source)
+            _portable_driver(words, evidence, binary, link=False, context=context)
+        archives = {}
+        observed_outputs = set()
+        command, admitted = _portable_ninja_commands(context.baseline["ninja"], binary, evidence,
+                                                     compile_commands, source, archives, observed_outputs)
+        if observed_outputs != context.target_outputs:
+            raise ValueError("fresh target compilation closure changed")
         _portable_command(command, values, link=True)
-        _portable_driver(command, evidence, binary, link=True, admitted_build_inputs=admitted)
+        if not _configure_only:
+            consumed = _portable_driver(command, evidence, binary, link=True, admitted_build_inputs=admitted)
+            pending = list(consumed)
+            used_archives = set()
+            used_objects = set()
+            while pending:
+                path = pending.pop()
+                if path in archives:
+                    used_archives.add(path)
+                    pending.extend(archives[path])
+                else:
+                    used_objects.add(path)
+            if used_objects != context.target_outputs or used_archives != set(archives):
+                raise ValueError("compiled output or archive is not consumed by final link")
     except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError) as error:
         raise WorkspaceError("portable compile/link evidence is unavailable or invalid") from error
     return raw
@@ -1047,15 +1387,18 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
                 generations[role] = record
             return current
         proofs = prove_sources()
+        context = PortableBuildContext(selected, proofs, generations, documents["compiler-evidence.json"])
         targets = workspace._expand_build_target("client", profile_name)
         build_root = workspace._build_resolved("client", profile_name, False,
                     targets, selected, build_services={"client"},
-                    generate_region_maps=False, portable=True)
+                    generate_region_maps=False, portable=True, portable_context=context)
         with workspace._profile_build_lock(build_root, profile_name):
             # A concurrent rebuild between build return and lock acquisition must
             # not silently replace the pinned portable configure contract.
-            binary_directory = workspace._classic_binary_directory(build_root, "client")
-            cache = validate_portable_build(binary_directory, documents["compiler-evidence.json"])
+            binary_directory = context.binary
+            if binary_directory is None or workspace._classic_binary_directory(build_root, "client") != binary_directory:
+                raise WorkspaceError("portable build graph coordinate differs from same-operation receipt")
+            cache = validate_portable_build(binary_directory, documents["compiler-evidence.json"], context=context)
             sound_root, sound_record = workspace._prepare_sound(build_root, selected, profile_name)
             if sound_record["source_tree"] != generations["sound"]["source_tree"]:
                 raise WorkspaceError("portable sound release must match the selected sound source tree")
@@ -1131,7 +1474,7 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
                         raise WorkspaceError("portable producer metadata changed before publication")
                     if _read_regular(binary_directory / "CMakeCache.txt") != cache:
                         raise WorkspaceError("portable build configuration changed before publication")
-                    validate_portable_build(binary_directory, documents["compiler-evidence.json"])
+                    validate_portable_build(binary_directory, documents["compiler-evidence.json"], context=context)
                 result = publication.publish(revalidate)
                 return {**result, "image": IMAGE, "platform_manifest": PLATFORM_MANIFEST,
                         "runtime": runtime, "legal": legal}

@@ -21,6 +21,231 @@ from atrinik_workspace import linux_portable as portable
 from atrinik_workspace.model import WorkspaceError
 
 
+@unittest.skipUnless(sys.platform.startswith("linux"), "Linux portable compiler closure")
+class CompilerClosureTests(unittest.TestCase):
+    driver_evidence = lambda self: PortablePublicationTests.driver_evidence(self)
+    driver_report = lambda self, command, **kwargs: PortablePublicationTests.driver_report(self, command, **kwargs)
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+
+    def fixture(self, *, before_capture=None):
+        root = self.root / str(len(list(self.root.iterdir())))
+        root.mkdir()
+        selected, proofs, generations, views = {}, {}, {}, {}
+        payloads = {
+            "client": {"main.c": b"int core(void); int main(void) { return core(); }\n",
+                       "src/include/client.h": b"#define CLIENT 1\n",
+                       "shaders/SHA256SUMS": b"fixture pinned shader cohort\n",
+                       "tools/embed_gpu_shaders.py": (b"def header_bytes(directory, manifest): return b'proof-bound shader\\n'\n"
+                           b"if __name__ == '__main__':\n"
+                           b" import pathlib, sys\n"
+                           b" pathlib.Path(sys.argv[sys.argv.index('--output') + 1]).write_bytes(header_bytes(None, None))\n"),
+                       "cmake/toolchains/llvm.cmake": b"# fixture toolchain\n"},
+            "libatrinik": {"core.c": b"int core(void) { return 0; }\n", "include/core.h": b"int core(void);\n"},
+            "protocol": {"include/protocol.h": b"#define PROTOCOL 1\n"},
+        }
+        for role, files in payloads.items():
+            origin = root / "generations" / role / "source"
+            view = (root / "sources/client-layout/client" if role == "client" else root / "sources" / role / "input")
+            selected[role], views[role] = origin, view
+            generations[role] = {"source_includes": {"cmake": "cmake"}}
+            proofs[role] = {}
+            supplemental = b"# verified supplemental CMake module\n"
+            for path in (origin.parent / "cmake/proof.cmake", view.parent / "cmake/proof.cmake"):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(supplemental)
+            proofs[role]["cmake/proof.cmake"] = {"sha256": hashlib.sha256(supplemental).hexdigest(), "size": len(supplemental)}
+            for name, data in files.items():
+                for path in (origin / name, view / name):
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(data)
+                proofs[role]["source/" + name] = {"sha256": hashlib.sha256(data).hexdigest(), "size": len(data)}
+        binary = root / "build/client"
+        (binary / "src/include").mkdir(parents=True)
+        (binary / "src/include/cmake.h").write_bytes(b"#define CMAKE_PROOF 1\n")
+        library_headers = binary / "_deps/libatrinik-build/include"
+        (library_headers / "toolkit").mkdir(parents=True)
+        (library_headers / "toolkit/core.h").write_bytes(payloads["libatrinik"]["include/core.h"])
+        (library_headers / "toolkit_cmake.h").write_bytes(b"#define LIBRARY_CMAKE_PROOF 1\n")
+        common = [portable.LLVM_ROOT + "/bin/clang", *portable.PORTABLE_C_FLAGS.split(), "-O2", "-DNDEBUG"]
+        main = [*common, "-I" + str(views["client"] / "src/include"), "-I" + str(binary / "src/include"),
+                "-c", str(views["client"] / "main.c"), "-o", "main.o"]
+        core = [*common, "-I" + str(library_headers), "-I" + str(views["libatrinik"] / "include"), "-c", str(views["libatrinik"] / "core.c"), "-o", "core.o"]
+        link = [*common, *portable.PORTABLE_LINK_FLAGS.split(), "main.o", "core.a", "-o", "atrinik"]
+        source = views["client"]
+        cache = "".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
+                        for argument in portable.portable_configure_arguments(source))
+        (binary / "CMakeCache.txt").write_text(cache + "CMAKE_HOME_DIRECTORY:INTERNAL=" + str(source) + "\n")
+        (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(source)}}))
+        database = [{"arguments": words, "directory": str(binary), "file": words[words.index("-c") + 1]} for words in (main, core)]
+        generator = "cd " + shlex.quote(str(binary)) + " && " + shlex.join([
+            "/usr/bin/python3", str(source / "tools/embed_gpu_shaders.py"), "--input", "/opt/atrinik-portable/shaders",
+            "--manifest", str(source / "shaders/SHA256SUMS"), "--output", str(binary / "src/include/gpu_shader_data.h")])
+        archive = ": && /usr/bin/cmake -E rm -f core.a && " + portable.LLVM_ROOT + "/bin/llvm-ar qc core.a core.o && " + portable.LLVM_ROOT + "/bin/llvm-ranlib core.a && :"
+        report = [generator, shlex.join(main), shlex.join(core), archive, ": && " + shlex.join(link) + " && :"]
+        state = {"report": "\n".join(report) + "\n", "database": database, "binary": binary,
+                 "main": main, "core": core, "views": views, "selected": selected, "proofs": proofs}
+        if before_capture:
+            before_capture(state)
+        (binary / "compile_commands.json").write_text(json.dumps(state["database"]))
+        evidence = self.driver_evidence()
+        evidence["tools"].update({"archiver": {"path": portable.LLVM_ROOT + "/bin/llvm-ar"},
+                                  "ranlib": {"path": portable.LLVM_ROOT + "/bin/llvm-ranlib"}})
+        context = portable.PortableBuildContext(selected, proofs, generations, evidence)
+        state.update(context=context, evidence=evidence)
+        context.validate_selected(selected)
+        context.bind_source_views(root, views)
+        run_patch = mock.patch.object(portable.PortableBuildContext, "_ninja", side_effect=lambda path: state["report"])
+        run_patch.start()
+        self.addCleanup(run_patch.stop)
+        driver_patch = mock.patch.object(export, "_tool_report", side_effect=self.driver_report)
+        driver_patch.start()
+        self.addCleanup(driver_patch.stop)
+        context.capture_configure(binary, source)
+        (binary / "src/include/gpu_shader_data.h").write_bytes(b"proof-bound shader\n")
+        (binary / "atrinik").write_bytes(b"built fixture executable")
+        context.capture_output(binary)
+        return state
+
+    def test_complete_off_graph_is_bound_to_caller_sources_and_build_receipt(self):
+        state = self.fixture()
+        self.assertIn(b"BUILD_TESTING:STRING=OFF", portable.validate_portable_build(
+            state["binary"], state["evidence"], context=state["context"]))
+
+    def test_fresh_target_scope_allows_proven_unrelated_library_database_target(self):
+        def extra_target(state):
+            words = list(state["core"])
+            words[words.index("-o") + 1] = "unrelated-pathfinding-target.o"
+            state["database"].append({"arguments": words, "directory": str(state["binary"]),
+                                      "file": words[words.index("-c") + 1]})
+        state = self.fixture(before_capture=extra_target)
+        self.assertEqual(len(state["database"]), 3)
+        self.assertEqual(state["context"].target_outputs,
+                         {state["binary"] / "main.o", state["binary"] / "core.o"})
+        portable.validate_portable_build(state["binary"], state["evidence"], context=state["context"])
+
+    def test_external_source_and_header_controls_are_rejected_before_build(self):
+        cases = [["-I/tmp/foreign"], ["-I", "/tmp/foreign"], ["-isystem", "/tmp/foreign"],
+                 ["-iquote/tmp/foreign"], ["-idirafter", "/tmp/foreign"], ["-include", "/tmp/foreign.h"],
+                 ["-imacros/tmp/foreign.h"], ["-include-pch", "/tmp/foreign.pch"], ["-Wp,-I,/tmp/foreign"],
+                 ["-Xpreprocessor", "-include"], ["-ivfsoverlay", "/tmp/overlay"], ["-fmodules-cache-path=/tmp/modules"]]
+        for extra in cases:
+            def mutate(state, extra=extra):
+                old = shlex.join(state["main"])
+                state["main"].extend(extra)
+                state["report"] = state["report"].replace(old, shlex.join(state["main"]))
+            with self.subTest(extra=extra), self.assertRaises((WorkspaceError, ValueError)):
+                self.fixture(before_capture=mutate)
+        def external_tu(state):
+            old = shlex.join(state["main"])
+            state["main"][state["main"].index("-c") + 1] = "/tmp/evil.c"
+            state["database"][0]["file"] = "/tmp/evil.c"
+            state["report"] = state["report"].replace(old, shlex.join(state["main"]))
+        with self.assertRaises(WorkspaceError):
+            self.fixture(before_capture=external_tu)
+
+    def test_effective_inputs_cannot_add_foreign_headers_or_change_main_source(self):
+        state = self.fixture()
+        source = state["views"]["client"] / "main.c"
+        context, binary = state["context"], state["binary"]
+        for extra in (["-internal-isystem", "/tmp/foreign"], ["-include", "/tmp/foreign.h"],
+                      ["-imacros", "/tmp/foreign.h"], ["-include-pch", "/tmp/foreign.pch"],
+                      ["-iwithprefixbefore", "/tmp/foreign"], ["-iframework", "/tmp/foreign"],
+                      ["-fmodule-map-file=/tmp/foreign.modulemap"], ["-ivfsoverlay", "/tmp/overlay"]):
+            with self.subTest(extra=extra), self.assertRaises(ValueError):
+                context.check_inputs(["clang", "-cc1", *extra, str(source)], binary,
+                                     effective=True, expected_source=source)
+        with self.assertRaises(ValueError):
+            context.check_inputs(["clang", "-cc1", "/tmp/evil.c"], binary,
+                                 effective=True, expected_source=source)
+
+    def test_unproven_aliases_and_build_translation_units_are_rejected(self):
+        state = self.fixture()
+        context, binary = state["context"], state["binary"]
+        alias = self.root / "alias.c"
+        alias.symlink_to(state["views"]["client"] / "main.c")
+        generated = binary / "generated.c"
+        generated.write_bytes(b"int main(void) { return 0; }\n")
+        header_alias = self.root / "alias-headers"
+        header_alias.symlink_to(state["views"]["client"] / "src/include", target_is_directory=True)
+        for extra in (["-c", str(alias)], ["-c", str(generated)],
+                      ["-c", str(state["views"]["client"] / "main.c"), "-I", str(header_alias)]):
+            with self.subTest(extra=extra), self.assertRaises(ValueError):
+                context.check_inputs(["clang", *extra], binary)
+
+    def test_complete_database_and_transitive_link_consumption_are_required(self):
+        def missing(state):
+            state["report"] = state["report"].replace(shlex.join(state["core"]) + "\n", "")
+        def unconsumed(state):
+            state["report"] = state["report"].replace("main.o core.a -o", "main.o -o")
+        for mutation in (missing, unconsumed):
+            with self.subTest(mutation=mutation.__name__), self.assertRaises((WorkspaceError, ValueError)):
+                self.fixture(before_capture=mutation)
+
+    def test_shader_child_cannot_change_the_fresh_configure_baseline(self):
+        def malicious_fixture_script(state):
+            script = state["views"]["client"] / "tools/embed_gpu_shaders.py"
+            payload = script.read_bytes().replace(b" import pathlib, sys\n",
+                b" import pathlib, sys\n (pathlib.Path(__file__).parents[4] / 'build/client/compile_commands.json').write_text('[]')\n")
+            script.write_bytes(payload)
+            (state["selected"]["client"] / "tools/embed_gpu_shaders.py").write_bytes(payload)
+            state["proofs"]["client"]["source/tools/embed_gpu_shaders.py"] = {
+                "sha256": hashlib.sha256(payload).hexdigest(), "size": len(payload)}
+        with self.assertRaisesRegex(WorkspaceError, "receipt changed"):
+            self.fixture(before_capture=malicious_fixture_script)
+
+    def test_configured_and_output_receipts_reject_mutation_and_joint_row_deletion(self):
+        for mutation in ("rows", "source", "source-identity", "source-alias", "supplemental", "header", "header-alias", "copied-header", "library-shadow", "shadow", "executable", "executable-identity", "cache-root"):
+            state = self.fixture()
+            binary, context = state["binary"], state["context"]
+            if mutation == "rows":
+                state["database"].pop()
+                (binary / "compile_commands.json").write_text(json.dumps(state["database"]))
+                state["report"] = state["report"].replace(shlex.join(state["core"]) + "\n", "")
+            if mutation == "source": (state["views"]["client"] / "main.c").write_bytes(b"changed translation unit")
+            if mutation == "source-identity":
+                path = state["views"]["client"] / "main.c"
+                temporary = path.with_suffix(".replacement")
+                temporary.write_bytes(path.read_bytes())
+                temporary.replace(path)
+            if mutation == "source-alias":
+                path = state["views"]["client"] / "main.c"
+                external = self.root / "unproven.c"
+                external.write_bytes(path.read_bytes())
+                path.unlink()
+                path.symlink_to(external)
+            if mutation == "supplemental":
+                (state["views"]["protocol"].parent / "cmake/proof.cmake").write_bytes(b"changed supplemental module")
+            if mutation == "header": (binary / "src/include/cmake.h").write_bytes(b"changed configured header")
+            if mutation == "header-alias":
+                path = binary / "src/include/cmake.h"
+                external = self.root / "unproven.h"
+                external.write_bytes(path.read_bytes())
+                path.unlink()
+                path.symlink_to(external)
+            if mutation == "copied-header":
+                (binary / "_deps/libatrinik-build/include/toolkit/core.h").write_bytes(b"changed copied header")
+            if mutation == "library-shadow":
+                (binary / "_deps/libatrinik-build/include/stdio.h").write_bytes(b"shadow SDK header")
+            if mutation == "shadow": (binary / "src/include/stdio.h").write_bytes(b"foreign shadow header")
+            if mutation == "executable": (binary / "atrinik").write_bytes(b"replacement executable")
+            if mutation == "executable-identity":
+                path = binary / "atrinik"
+                temporary = binary / "replacement"
+                temporary.write_bytes(path.read_bytes())
+                temporary.replace(path)
+            if mutation == "cache-root":
+                source = str(state["views"]["client"])
+                path = binary / "CMakeCache.txt"
+                path.write_text(path.read_text().replace(source, "/tmp/foreign-client"))
+                (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": "/tmp/foreign-client"}}))
+            with self.subTest(mutation=mutation), self.assertRaises(WorkspaceError):
+                portable.validate_portable_build(binary, state["evidence"], context=context)
+
+
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux portable publication")
 class PortablePublicationTests(unittest.TestCase):
     def setUp(self):
@@ -65,7 +290,7 @@ class PortablePublicationTests(unittest.TestCase):
             args = [str(Path(evidence["tools"]["compiler"]["path"]).resolve()), "-cc1", "-emit-obj",
                     "-triple", evidence["target"], "-target-cpu", "x86-64", "-tune-cpu", "generic",
                     "-resource-dir", portable.LLVM_ROOT + "/lib/clang/23", "-O2",
-                    "-o", command[command.index("-o") + 1]]
+                    "-o", command[command.index("-o") + 1], command[command.index("-c") + 1]]
         else:
             args = [evidence["tools"]["linker"]["path"], "-m", "elf_x86_64",
                     "-o", command[command.index("-o") + 1],
@@ -138,9 +363,15 @@ class PortablePublicationTests(unittest.TestCase):
                 with mock.patch.object(portable.subprocess, "run", return_value=
                     subprocess.CompletedProcess([], 0, stdout=self.ninja_report(binary, self.root, commands, link))), \
                      mock.patch.object(export, "_tool_report", side_effect=self.driver_report):
-                    if case == "valid": portable.validate_portable_build(binary, self.driver_evidence())
+                    # This unit test isolates cached flag checks; actual caller
+                    # source/receipt authority is covered by CompilerClosureTests.
+                    context = mock.Mock(spec=portable.PortableBuildContext)
+                    context.source = self.root
+                    context.baseline = {"ninja": self.ninja_report(binary, self.root, commands, link)}
+                    context.target_outputs = {binary / "fixture.o"}
+                    if case == "valid": portable.validate_portable_build(binary, self.driver_evidence(), context=context)
                     else:
-                        with self.assertRaises(WorkspaceError): portable.validate_portable_build(binary, self.driver_evidence())
+                        with self.assertRaises(WorkspaceError): portable.validate_portable_build(binary, self.driver_evidence(), context=context)
 
     def test_ninja_graph_binds_outputs_compilers_archives_and_generator(self):
         binary = self.root / "build"
@@ -217,7 +448,7 @@ class PortablePublicationTests(unittest.TestCase):
         alias = self.root / "alias"
         alias.symlink_to(binary, target_is_directory=True)
         with self.assertRaisesRegex(WorkspaceError, "not canonical"):
-            portable.validate_portable_build(alias, {})
+            portable.validate_portable_build(alias, {}, context=mock.Mock())
         with self.assertRaisesRegex(export.ExportError, "missing build input producer"):
             export.portable_link_inputs(["ld.lld", "missing.o"], binary=binary, admitted_build_inputs=set())
         for report in (["ld.lld", "-L", str(binary), "-lfoo"], ["ld.lld", "-L" + str(binary), "-lfoo"]):
@@ -690,6 +921,16 @@ class PortablePublicationTests(unittest.TestCase):
                         (selected["client"] / "media.dat").write_bytes(b"changed source")
                     return binary.parent
                 workspace._build_resolved.side_effect = build
+                # Isolate export's source/publication guards from compilation;
+                # CompilerClosureTests exercises the real build receipt API.
+                patches.enter_context(mock.patch.object(portable, "PortableBuildContext",
+                                                        return_value=mock.Mock(binary=binary)))
+                def validated_cache(*args, **kwargs):
+                    data = cache.read_bytes()
+                    if case == "configure":
+                        raise WorkspaceError("portable CMake configuration changed")
+                    return data
+                patches.enter_context(mock.patch.object(portable, "validate_portable_build", side_effect=validated_cache))
                 def runtime(publication, documents, executable):
                     self.assertEqual(executable, binary / "atrinik")
                     publication.add_bytes("bin/atrinik", b"fixture client", executable=True)

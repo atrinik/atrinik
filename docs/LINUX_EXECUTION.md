@@ -760,20 +760,41 @@ dependency selectors. They use `/usr/bin/pkg-config` with explicit
 `/usr/local/lib/pkgconfig` and Debian system package directories, and search the
 verified LLVM runtime directory first. Every linker search directory and direct
 input is restricted to the pinned producer library directories or the owned build
-tree. Export rechecks the CMake
-cache, generated compile/link invocations and bounded effective Clang driver
-reports before publication. The generated and effective linker outputs must
-name the same owned artifact, with exactly one link to the exported `atrinik`
-executable. Every Ninja row must match the pinned source's finite compiler,
-archive, final link or shader embedding recipe. Actual compiler rows must match
-the validated compilation database, allowing only CMake's exact dependency-file
-options and the declared source operand. Client compilation must follow its
-source-bound shader generator. Archive recipes must remove the matching old archive, then create and
-index it with admitted LLVM tools and admitted object members. Effective owned
-link inputs must have admitted graph producers; build-tree library search paths
-are refused. These checks establish generated graph consistency under the
-existing immutable source and leased-build assumptions; compiler,
-optimization, CPU, runtime or LTO drift refuses export.
+tree. Portable export receives the caller's leased generation inventories before
+staging the client, protocol and libatrinik source views. Each authored view file
+must match its exact source-proof member and bytes; cached CMake source paths and
+view metadata never grant source authority. Compiler source operands and explicit
+and effective header search paths are restricted to those verified views, closed
+configured-header inventories, or the pinned producer's declared SDK include
+directories. Authored include directives remain part of the trusted, proof-bound
+source; these checks do not attest every transitive header opened by the compiler. Forced headers, PCH,
+modules, overlays and preprocessor input redirection are unsupported.
+
+Every portable operation resets its owned CMake binary tree and configures with
+`BUILD_TESTING=OFF`. Immediately after configure, an in-memory receipt freezes
+the complete compilation database, the client target's Ninja report, configured
+header inventory and exact source/binary coordinates. The target compile set
+comes from that fresh report: unrelated database targets remain source-checked
+and byte-bound, but are outside the client's object consumption requirement.
+The receipt is passed through the same operation; persisted cache metadata cannot
+substitute for it. After build, it binds the executable's bytes and identity and
+rechecks them when export reacquires the build lock and before publication.
+
+Every Ninja row must match the pinned source's finite compiler, archive, final
+link or shader embedding recipe. Compiler rows match the frozen database apart
+from CMake's exact dependency-file options, and generated/effective compiler and
+linker outputs name the same owned artifact. Client compilation follows its
+source-bound shader generator. Archive recipes remove the matching old archive,
+then create and index it with admitted LLVM tools and previously compiled object
+members. Every target object and archive must be transitively consumed by the
+terminal final link; build-tree library search paths are refused. Configured
+header directories reject added files and symlink aliases, including headers
+that could shadow SDK inputs. Shader header bytes are independently regenerated
+by the proof-bound source CLI against the pinned shader cohort in a bounded,
+scrubbed child process and compared before admission. These checks establish
+source/input and generated-command consistency under the existing immutable
+source and trusted leased-build assumptions; they do not attest historical
+execution. Compiler, optimization, CPU, runtime or LTO drift refuses export.
 It records class, endianness, machine, interpreter, static dependencies, runtime
 search paths and version-needed records by provider. The structural dependency
 report requires explicit bundled providers, materialized SONAME filenames and
