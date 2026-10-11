@@ -1080,6 +1080,10 @@ class ServerReadinessCaptureTests(unittest.TestCase):
             self.assertEqual(supervisor_module.main(), 1)
 
     def test_main_closes_every_current_lease_after_startup_failure(self) -> None:
+        # Mock only the supervisor namespace: resource finalizers elsewhere
+        # must still close their real descriptors without entering this trace.
+        supervisor_os = SimpleNamespace(**vars(os))
+
         def close_descriptor(descriptor: int) -> None:
             if descriptor == 6:
                 raise OSError("process-tree descriptor already closed")
@@ -1107,20 +1111,35 @@ class ServerReadinessCaptureTests(unittest.TestCase):
             "--physical-state-lock-fd",
             "11",
         ]
-        with (
-            mock.patch.object(sys, "argv", arguments),
-            mock.patch.object(
-                supervisor_module,
-                "supervise",
-                side_effect=RuntimeError("invalid runtime"),
-            ),
-            mock.patch.object(supervisor_module, "atomic_status"),
-            mock.patch.object(
-                supervisor_module.os, "close", side_effect=close_descriptor
-            ) as close,
-            mock.patch.object(sys, "stderr"),
-        ):
-            self.assertEqual(supervisor_module.main(), 1)
+        with tempfile.TemporaryFile() as unrelated:
+            descriptor = os.dup(unrelated.fileno())
+            descriptor_open = True
+
+            def fail_startup(*_arguments) -> None:
+                nonlocal descriptor_open
+                os.close(descriptor)
+                descriptor_open = False
+                raise RuntimeError("invalid runtime")
+
+            try:
+                with (
+                    mock.patch.object(sys, "argv", arguments),
+                    mock.patch.object(supervisor_module, "os", supervisor_os),
+                    mock.patch.object(
+                        supervisor_module, "supervise", side_effect=fail_startup
+                    ),
+                    mock.patch.object(supervisor_module, "atomic_status"),
+                    mock.patch.object(
+                        supervisor_os, "close", side_effect=close_descriptor
+                    ) as close,
+                    mock.patch.object(sys, "stderr"),
+                ):
+                    self.assertEqual(supervisor_module.main(), 1)
+                with self.assertRaises(OSError):
+                    os.fstat(descriptor)
+            finally:
+                if descriptor_open:
+                    os.close(descriptor)
         self.assertEqual(
             [call.args[0] for call in close.call_args_list],
             [3, 4, 5, 7, 8, 9, 10, 11, 6],
