@@ -150,7 +150,7 @@ reports or other files that cannot safely be exposed to this trusted worker.
 NATIVE_PRIMARY=/absolute/owned/primary
 NATIVE_WORKTREE=/absolute/owned/primary/workspace/worktrees/atrinik/owned-label
 BUILD_JOB=atrinik-owned-unique-build
-BUILD_IMAGE=ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8
+BUILD_IMAGE=ghcr.io/atrinik/linux-build:1.17.0@sha256:4ca8e921b616d20b18fcef901bd554488b4d5a68a7c4304268dedef23723a3bf
 COMMON_GIT=$(git -C "$NATIVE_WORKTREE" rev-parse --path-format=absolute --git-common-dir)
 # The wrapper status operation has established this physical lease namespace.
 BUILD_LEASES="$COMMON_GIT/atrinik-resource-leases"
@@ -358,7 +358,7 @@ GitHub CLI token into Docker configuration.
 
 ```sh
 docker login ghcr.io --username YOUR_GITHUB_LOGIN
-docker pull ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8
+docker pull ghcr.io/atrinik/linux-build:1.17.0@sha256:4ca8e921b616d20b18fcef901bd554488b4d5a68a7c4304268dedef23723a3bf
 ```
 
 For portable export, pull its separate producer only when needed:
@@ -504,7 +504,7 @@ arguments = ['docker', 'run', '--detach', '--init', '--name', name, '--network',
     '--mount', f'type=bind,source={payload},target=/client,readonly',
     '--mount', f'type=bind,source={config},target=/client-state',
     '--env', 'ATRINIK_CONFIG_DIR=/client-state', '--workdir', '/client',
-    'ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8',
+    'ghcr.io/atrinik/linux-build:1.17.0@sha256:4ca8e921b616d20b18fcef901bd554488b4d5a68a7c4304268dedef23723a3bf',
     '/client/atrinik', f'--server={host} {port} {fingerprint}', '--stun_server=off', '--nometa']
 container_id = subprocess.run(arguments, check=True, text=True, capture_output=True).stdout.strip()
 if not re.fullmatch('[0-9a-f]{64}', container_id):

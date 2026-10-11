@@ -308,13 +308,15 @@ coordinator. A proposed authority change cannot authorize live resource operatio
 
 #### Linux image upgrades
 
-The ordinary Linux workspace now uses the Git LFS-enabled `linux-build:1.10.0`
-release from devcontainer revision
-`f51d809a2670387833476954ee6cc05692ce6c56`, published by
-[Linux run 34168767678, attempt 2](https://github.com/atrinik/devcontainer/actions/runs/34168767678/attempts/2).
+The ordinary Linux workspace uses the LLVM SDK in `linux-build:1.17.0`
+from devcontainer revision `0571f500ede75e7661b508d8bb40354256113223`.
+[Released SDK collector run 38161442404](https://github.com/atrinik/devcontainer/actions/runs/38161442404)
+verified the installed SDK metadata and role artifacts against that published producer;
+independent review accepted the image identity and installed closure.
 The immutable pin in `.devcontainer/devcontainer.json` is
-`ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8`.
-The registry's source/revision labels and build provenance match that producer.
+`ghcr.io/atrinik/linux-build:1.17.0@sha256:4ca8e921b616d20b18fcef901bd554488b4d5a68a7c4304268dedef23723a3bf`.
+Installed SDK verification establishes build inputs; live coordinator authority,
+portable export, native graphics and audio qualification retain their separate checks.
 Independently pinned sound, Classic build, and Windows images retain their
 own release contracts.
 

@@ -36,8 +36,8 @@ ENTRY_MODE_NATIVE_HOST = "native-host"
 ENTRY_MODE_UNKNOWN = "unknown"
 
 CANONICAL_IMAGE = (
-    "ghcr.io/atrinik/linux-build:1.10.0@sha256:"
-    "7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8"
+    "ghcr.io/atrinik/linux-build:1.17.0@sha256:"
+    "4ca8e921b616d20b18fcef901bd554488b4d5a68a7c4304268dedef23723a3bf"
 )
 WINDOWS_CROSS_IMAGE = (
     "ghcr.io/atrinik/windows-build:1.2.1@sha256:"
