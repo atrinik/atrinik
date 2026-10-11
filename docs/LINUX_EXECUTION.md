@@ -99,6 +99,15 @@ selected platform glibc, libstdc++ and graphics/audio dependencies. The wrapper
 fingerprints compiler, configured linker/archive tools and Clang builtins/profile
 archives so changing their bytes invalidates a cached build tree.
 
+Local Windows packaging requires the canonical declarative LLVM-MinGW toolchain.
+It clears compiler and dependency overrides, Bash startup hooks and compiler
+cache selectors. Before, between and after packaging steps, it hashes the
+selected build tools, compiler wrappers and underlying Clang, runtime libraries,
+Python files and toolchain. The package records these identities in
+`build.producer`; changed or noncanonical inputs refuse packaging. When initial
+local-toolchain prerequisites are absent, packaging selects the supported Docker
+producer route; invalid selected local inputs fail closed.
+
 A build worker is an execution resource, not delivery authority. Keep native
 `HOME`, private Codex state, authentication and evidence on the host. Native
 ownership survives worker exit/recreation, while each new execution still
@@ -734,8 +743,12 @@ Portable builds explicitly select the source-owned LLVM CMake toolchain, pin
 Clang/Clang++, LLD and archive tools, and use explicit `-O2`
 Release flags, ignore Clang default configuration files, and disable
 interprocedural optimization and compiler launchers. Portable CMake operations
-remove Clang driver/configuration environment overrides and explicitly search the
-verified LLVM runtime directory first. Export rechecks the CMake
+remove Clang driver/configuration overrides and inherited CMake and pkg-config
+dependency selectors. They use `/usr/bin/pkg-config` with explicit
+`/usr/local/lib/pkgconfig` and Debian system package directories, and search the
+verified LLVM runtime directory first. Every linker search directory and direct
+input is restricted to the pinned producer library directories or the owned build
+tree. Export rechecks the CMake
 cache, generated compile/link invocations and bounded effective Clang driver
 reports before publication; compiler,
 optimization, CPU, runtime or LTO drift refuses export.
