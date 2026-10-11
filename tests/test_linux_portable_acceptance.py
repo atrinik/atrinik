@@ -102,9 +102,12 @@ class PortablePublicationTests(unittest.TestCase):
                          "-O2", "-DNDEBUG", "--no-default-config", "-c", "fixture.c", "-o", "fixture.o"]
         link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                       "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
-        for case in ("valid", "compiler", "release", "cxx", "lto", "linker", "compile-o3", "link-o3", "response", "wrapper", "toolchain", "source"):
+        for case in ("valid", "compiler", "release", "cxx", "lto", "linker", "compile-o3", "link-o3", "response", "wrapper", "toolchain", "source", "user-registry", "system-registry", "missing-registry"):
             with self.subTest(case=case):
                 cache, commands, link = original, list(compile_words), list(link_words)
+                if case == "user-registry": cache = cache.replace("CMAKE_FIND_USE_PACKAGE_REGISTRY:STRING=FALSE", "CMAKE_FIND_USE_PACKAGE_REGISTRY:STRING=TRUE")
+                if case == "system-registry": cache = cache.replace("CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY:STRING=FALSE", "CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY:STRING=TRUE")
+                if case == "missing-registry": cache = cache.replace("CMAKE_FIND_USE_PACKAGE_REGISTRY:STRING=FALSE\n", "")
                 if case == "compiler": cache = cache.replace("/bin/clang\n", "/bin/gcc\n")
                 if case == "release": cache = cache.replace("-O2 -DNDEBUG", "-O3 -DNDEBUG")
                 if case == "cxx": cache = cache.replace("CMAKE_CXX_FLAGS:STRING=-O2", "CMAKE_CXX_FLAGS:STRING=-O3")
@@ -124,6 +127,19 @@ class PortablePublicationTests(unittest.TestCase):
                     if case == "valid": portable.validate_portable_build(binary, self.driver_evidence())
                     else:
                         with self.assertRaises(WorkspaceError): portable.validate_portable_build(binary, self.driver_evidence())
+
+    def test_effective_cxx_driver_uses_its_own_identity(self):
+        evidence = self.driver_evidence()
+        evidence["tools"]["cxx_compiler"] = {"path": str(self.root / "distinct-cxx")}
+        words = [portable.LLVM_ROOT + "/bin/clang++", "-c", "fixture.cpp"]
+        c_report = self.driver_report(words)
+        cxx_report = c_report.replace(str(Path(evidence["tools"]["compiler"]["path"]).resolve()),
+                                     evidence["tools"]["cxx_compiler"]["path"])
+        with mock.patch.object(export, "_tool_report", return_value=cxx_report):
+            portable._portable_driver(words, evidence, self.root, link=False)
+        with mock.patch.object(export, "_tool_report", return_value=c_report):
+            with self.assertRaisesRegex(WorkspaceError, "effective compiler/linker contract changed"):
+                portable._portable_driver(words, evidence, self.root, link=False)
 
     def test_actual_portable_flags_reject_additive_configuration_and_runtime_overrides(self):
         words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",

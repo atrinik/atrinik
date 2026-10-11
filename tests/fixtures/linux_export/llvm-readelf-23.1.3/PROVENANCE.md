@@ -8,3 +8,11 @@ output in an isolated non-root CPU worker without network or host mounts. The pr
 invocation remains unchanged. These records exercise strict parser compatibility;
 they do not attest a published producer or replace the final immutable image and
 metadata qualification.
+
+`driver-evidence-cxx.json` adds the independently captured `cxx_compiler` record
+from that same immutable SDK. Its `clang++ --version` output identifies the C++
+driver configuration, and its executable SHA-256 was measured through the actual
+`/opt/llvm-23.1.3/bin/clang++` selection. The original nine-tool
+`driver-evidence.json` is retained unchanged as historical evidence and no longer
+satisfies the current exact ten-role admission contract. All other records in the
+new fixture are unchanged; these fixture records confer no producer authority.

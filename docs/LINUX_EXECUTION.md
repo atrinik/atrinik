@@ -749,7 +749,10 @@ it never runs the payload or ldd, and ambient PATH entries cannot select its ins
 Portable builds explicitly select the source-owned LLVM CMake toolchain, pin
 Clang/Clang++, LLD and archive tools, and use explicit `-O2`
 Release flags, ignore Clang default configuration files, and disable
-interprocedural optimization and compiler launchers. Portable CMake operations
+interprocedural optimization, compiler launchers, and both the user and system
+CMake package registries. The ten LLVM tool identities include independently
+recorded and rechecked C and C++ driver paths, versions and executable hashes;
+Clang++ is never authenticated by assuming it shares Clang bytes. Portable CMake operations
 remove Clang driver/configuration overrides and inherited CMake and pkg-config
 dependency selectors. They use `/usr/bin/pkg-config` with explicit
 `/usr/local/lib/pkgconfig` and Debian system package directories, and search the

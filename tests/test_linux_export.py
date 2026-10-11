@@ -411,10 +411,10 @@ class LinuxExportTests(unittest.TestCase):
         with self.assertRaisesRegex(export.ExportError, "bytes differ"):
             portable._verify_compiler_bytes(evidence)
 
-    def test_portable_archive_tools_require_complete_canonical_versioned_identities(self):
+    def test_portable_tools_require_complete_canonical_versioned_identities(self):
         documents = self.portable_documents()
         original = documents["compiler-evidence.json"]
-        for role in ("archiver", "ranlib", "nm", "strip", "objcopy", "objdump"):
+        for role in ("compiler", "cxx_compiler", "linker", "readelf", "archiver", "ranlib", "nm", "strip", "objcopy", "objdump"):
             for change in ("missing", "path", "version", "digest"):
                 value = json.loads(json.dumps(original))
                 if change == "missing":
@@ -426,6 +426,32 @@ class LinuxExportTests(unittest.TestCase):
                     value["tools"][role][field] = replacement
                 with self.subTest(role=role, change=change), self.assertRaises(export.ExportError):
                     export._portable_compiler_evidence(value, documents["contract.json"]["compiler"], documents["installed.json"])
+
+    def test_portable_tools_reject_extra_roles(self):
+        documents = self.portable_documents()
+        evidence = documents["compiler-evidence.json"]
+        self.assertEqual(len(evidence["tools"]), 10)
+        evidence["tools"]["extra"] = dict(evidence["tools"]["compiler"])
+        with self.assertRaisesRegex(export.ExportError, "incomplete LLVM tool identities"):
+            export._portable_compiler_evidence(evidence, documents["contract.json"]["compiler"], documents["installed.json"])
+
+    def test_portable_cxx_bytes_are_independently_sealed(self):
+        from atrinik_workspace import linux_portable as portable
+        compiler, cxx = self.root / "clang", self.root / "clang++"
+        compiler.write_bytes(b"C driver")
+        cxx.write_bytes(b"different C++ driver")
+        record = lambda path: {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        evidence = {"tools": {"compiler": record(compiler), "cxx_compiler": record(cxx)},
+                    "runtime": record(compiler), "unwinder": record(compiler)}
+        portable._verify_compiler_bytes(evidence)
+        # A valid digest copied from clang cannot authenticate distinct clang++ bytes.
+        evidence["tools"]["cxx_compiler"]["sha256"] = evidence["tools"]["compiler"]["sha256"]
+        with self.assertRaisesRegex(export.ExportError, "bytes differ"):
+            portable._verify_compiler_bytes(evidence)
+        evidence["tools"]["cxx_compiler"] = record(cxx)
+        cxx.write_bytes(b"replaced C++ driver")
+        with self.assertRaisesRegex(export.ExportError, "bytes differ"):
+            portable._verify_compiler_bytes(evidence)
 
     def test_portable_archive_tool_byte_replacement_is_rejected(self):
         from atrinik_workspace import linux_portable as portable
@@ -522,7 +548,7 @@ class LinuxExportTests(unittest.TestCase):
                                "compiler_target": "x86_64-unknown-linux-gnu",
                                "pkg_config": {"sdl3": "3.4.2"}},
             "compiler-evidence.json": json.loads((Path(__file__).parent /
-                "fixtures/linux_export/llvm-readelf-23.1.3/driver-evidence.json").read_text()),
+                "fixtures/linux_export/llvm-readelf-23.1.3/driver-evidence-cxx.json").read_text()),
             "runtime-abi.json": {"schema_version": 1, "glibc": "2.36", "cpu": "x86-64", "roots": [library],
                                  "objects": [client, obj(plugin)]},
             "shader-generation.json": {"schema_version": 1, "source_commit": "a" * 40,
@@ -556,7 +582,7 @@ class LinuxExportTests(unittest.TestCase):
         # Captured before dependency assembly from the pinned Debian producer
         # base plus the freshly built LLVM prefix. This proves parser compatibility,
         # not the final image's dependency closure or release authority.
-        evidence = json.loads((Path(__file__).parent / "fixtures/linux_export/llvm-readelf-23.1.3/driver-evidence.json").read_text())
+        evidence = json.loads((Path(__file__).parent / "fixtures/linux_export/llvm-readelf-23.1.3/driver-evidence-cxx.json").read_text())
         documents = self.portable_documents()
         documents["installed.json"]["compiler_target"] = evidence["target"]
         export._portable_compiler_evidence(evidence, documents["contract.json"]["compiler"], documents["installed.json"])

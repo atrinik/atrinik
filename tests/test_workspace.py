@@ -11017,8 +11017,12 @@ class WorkspaceTests(unittest.TestCase):
         from atrinik_workspace.linux_portable import PORTABLE_PATH, portable_configure_arguments
         source = self.workspace.paths.repositories / "content"
         (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
+        caller_home = self.root / "caller-home"
+        registry = caller_home / ".cmake/packages/SDL3"
+        registry.mkdir(parents=True)
+        (registry / "foreign").write_text("/tmp/foreign-sdl3\n")
         binary = self.workspace.paths.builds / "profiles/test/build/portable-fixture"
-        with mock.patch.dict(os.environ, {"PATH": "/tmp/caller-wrappers", "CC": "/tmp/caller-cc",
+        with mock.patch.dict(os.environ, {"HOME": str(caller_home), "PATH": "/tmp/caller-wrappers", "CC": "/tmp/caller-cc",
                                          "BASH_ENV": "/tmp/hook", "PYTHONPATH": "/tmp/modules",
                                          "CCC_OVERRIDE_OPTIONS": "+-O3", "CLANG_CONFIG_FILE_USER_DIR": "/tmp/config", "LD_PRELOAD": "/tmp/shim.so", "LD_LIBRARY_PATH": "/tmp/tools",
                                          "CPATH": "/tmp/headers", "COMPILER_PATH": "/tmp/compilers",
@@ -11045,6 +11049,9 @@ class WorkspaceTests(unittest.TestCase):
         self.assertNotIn("CCACHE_DIR", configure.kwargs["env"])
         self.assertEqual(self.workspace._build_summary["cache"]["inputs"]["compiler-cache"], "disabled")
 
+        self.assertEqual(configure.kwargs["env"]["HOME"], str(caller_home))
+        self.assertIn("-DCMAKE_FIND_USE_PACKAGE_REGISTRY=FALSE", configure.args[0])
+        self.assertIn("-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=FALSE", configure.args[0])
         self.assertIn("-DCMAKE_MAKE_PROGRAM=/usr/bin/ninja", configure.args[0])
         self.assertIn("-DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config", configure.args[0])
         self.assertTrue(identities.call_args_list)

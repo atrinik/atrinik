@@ -202,6 +202,8 @@ def portable_configure_arguments(source: Path) -> list[str]:
     settings = {
         "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkg-config",
         "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_FIND_USE_PACKAGE_REGISTRY": "FALSE",
+        "CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY": "FALSE",
         "CMAKE_MAKE_PROGRAM": "/usr/bin/ninja",
         "CMAKE_TOOLCHAIN_FILE": str(source / "cmake/toolchains/llvm.cmake"),
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
@@ -285,7 +287,8 @@ def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bo
         invocations = [shlex.split(line) for line in output.splitlines() if line.lstrip().startswith('"')]
         if not invocations or any(not args for args in invocations):
             raise ValueError("missing driver invocations")
-        compiler = str(Path(evidence["tools"]["compiler"]["path"]).resolve())
+        role = "cxx_compiler" if words[0] == LLVM_ROOT + "/bin/clang++" else "compiler"
+        compiler = str(Path(evidence["tools"][role]["path"]).resolve())
         linker = evidence["tools"]["linker"]["path"]
         runtime = evidence["runtime"]["path"]
         cc1 = [args for args in invocations if len(args) > 1 and args[1] == "-cc1" and args[0] == compiler]
@@ -389,8 +392,7 @@ def _verify_compiler_bytes(evidence: dict) -> None:
     if shared_unwinder.exists() or shared_unwinder.is_symlink():
         raise export.ExportError("portable-producer: unrecorded shared unwinder shadows static runtime")
     compiler = evidence["tools"]["compiler"]
-    cxx = {"path": str(Path(compiler["path"]).with_name("clang++")), "sha256": compiler["sha256"]}
-    records = [*evidence["tools"].values(), cxx, evidence["runtime"], evidence["unwinder"]]
+    records = [*evidence["tools"].values(), evidence["runtime"], evidence["unwinder"]]
     if "compile" in evidence:
         stages = [shlex.split(line) for line in evidence["compile"]["driver_output"].splitlines()
                   if line.lstrip().startswith('"')]

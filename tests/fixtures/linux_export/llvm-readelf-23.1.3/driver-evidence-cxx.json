@@ -1,0 +1,103 @@
+{
+  "schema_version": 2,
+  "toolchain_version": "23.1.3",
+  "flags": [
+    "-O2",
+    "-march=x86-64",
+    "-mtune=generic",
+    "--rtlib=compiler-rt",
+    "--unwindlib=libunwind",
+    "-fuse-ld=lld"
+  ],
+  "target": "x86_64-unknown-linux-gnu",
+  "tools": {
+    "compiler": {
+      "path": "/opt/llvm-23.1.3/bin/clang",
+      "sha256": "6b1008650fedb5d4227247421bfced4ad9d2aeb7617ad3f8635bc99e9891d3eb",
+      "version": "clang version 23.1.3\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /opt/llvm-23.1.3/bin\nConfiguration file: /opt/llvm-23.1.3/bin/clang.cfg"
+    },
+    "linker": {
+      "path": "/opt/llvm-23.1.3/bin/ld.lld",
+      "sha256": "57549a9d45e4626c2fda82b213b17ef4d6d0e0e54082181e49eb678ebbcb2a2e",
+      "version": "LLD 23.1.3 (compatible with GNU linkers)"
+    },
+    "readelf": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-readelf",
+      "sha256": "8d7e7aa2ba952c27fb5075875e1bd5f1e11865c912b6124b157ac5cbd7b2f46f",
+      "version": "LLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "archiver": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-ar",
+      "sha256": "61c9f6626f58e4f74a062f3daba0e762c16383d1337dd87bd8c87c4f6c4257fb",
+      "version": "LLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "ranlib": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-ranlib",
+      "sha256": "61c9f6626f58e4f74a062f3daba0e762c16383d1337dd87bd8c87c4f6c4257fb",
+      "version": "LLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "nm": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-nm",
+      "sha256": "c86ec2506d8155315b9bcd410b4d85c07e3adc5649df86e5a2049f2b92f5d4e2",
+      "version": "llvm-nm, compatible with GNU nm\nLLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "strip": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-strip",
+      "sha256": "fd074739b9e559a4c7c344bf6e509625558d17511e536d300e636956a6531081",
+      "version": "llvm-strip, compatible with GNU strip\nLLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "objcopy": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-objcopy",
+      "sha256": "fd074739b9e559a4c7c344bf6e509625558d17511e536d300e636956a6531081",
+      "version": "llvm-objcopy, compatible with GNU objcopy\nLLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build."
+    },
+    "objdump": {
+      "path": "/opt/llvm-23.1.3/bin/llvm-objdump",
+      "sha256": "c773cb6e218982714e8a0f3429f1d2764b089c18f5e3906c89bd0eb3bfbf69db",
+      "version": "LLVM (http://llvm.org/):\n  LLVM version 23.1.3\n  Optimized build.\n\n\n  Registered Targets:\n    x86    - 32-bit X86: Pentium-Pro and above\n    x86-64 - 64-bit X86: EM64T and AMD64"
+    },
+    "cxx_compiler": {
+      "path": "/opt/llvm-23.1.3/bin/clang++",
+      "sha256": "6b1008650fedb5d4227247421bfced4ad9d2aeb7617ad3f8635bc99e9891d3eb",
+      "version": "clang version 23.1.3\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /opt/llvm-23.1.3/bin\nConfiguration file: /opt/llvm-23.1.3/bin/clang++.cfg"
+    }
+  },
+  "runtime": {
+    "path": "/opt/llvm-23.1.3/lib/clang/23/lib/linux/libclang_rt.builtins-x86_64.a",
+    "sha256": "60b34bb05bef742c8eb07758ffbb5023c2548bb7365fe11eedb11c1112009098"
+  },
+  "unwinder": {
+    "path": "/opt/llvm-23.1.3/lib/libunwind.a",
+    "sha256": "9dc53429dba8d23461bdb118d469d767b9141c711e6c7b39280d6c7f66f2f09f"
+  },
+  "compile": {
+    "command": [
+      "/opt/llvm-23.1.3/bin/clang",
+      "-O2",
+      "-march=x86-64",
+      "-mtune=generic",
+      "--rtlib=compiler-rt",
+      "--unwindlib=libunwind",
+      "-fuse-ld=lld",
+      "/tmp/portable-compiler-07n9s4w0/probe.c",
+      "-o",
+      "/tmp/portable-compiler-07n9s4w0/probe"
+    ],
+    "driver_command": [
+      "/opt/llvm-23.1.3/bin/clang",
+      "-###",
+      "-O2",
+      "-march=x86-64",
+      "-mtune=generic",
+      "--rtlib=compiler-rt",
+      "--unwindlib=libunwind",
+      "-fuse-ld=lld",
+      "/tmp/portable-compiler-07n9s4w0/probe.c",
+      "-o",
+      "/tmp/portable-compiler-07n9s4w0/probe"
+    ],
+    "driver_output": "clang version 23.1.3\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /opt/llvm-23.1.3/bin\nConfiguration file: /opt/llvm-23.1.3/bin/clang.cfg\n \"/opt/llvm-23.1.3/bin/clang-23\" \"-cc1\" \"-triple\" \"x86_64-unknown-linux-gnu\" \"-O2\" \"-emit-obj\" \"-dumpdir\" \"/tmp/portable-compiler-07n9s4w0/probe-\" \"-disable-free\" \"-clear-ast-before-backend\" \"-disable-llvm-verifier\" \"-discard-value-names\" \"-main-file-name\" \"probe.c\" \"-mrelocation-model\" \"pic\" \"-pic-level\" \"2\" \"-pic-is-pie\" \"-mframe-pointer=none\" \"-fmath-errno\" \"-ffp-contract=on\" \"-fno-rounding-math\" \"-mconstructor-aliases\" \"-funwind-tables=2\" \"-target-cpu\" \"x86-64\" \"-tune-cpu\" \"generic\" \"-debugger-tuning=gdb\" \"-fdebug-compilation-dir=/\" \"-fcoverage-compilation-dir=/\" \"-resource-dir\" \"/opt/llvm-23.1.3/lib/clang/23\" \"-internal-isystem\" \"/opt/llvm-23.1.3/lib/clang/23/include\" \"-internal-isystem\" \"/usr/local/include\" \"-internal-isystem\" \"/usr/lib/gcc/x86_64-linux-gnu/12/../../../../x86_64-linux-gnu/include\" \"-internal-externc-isystem\" \"/usr/include/x86_64-linux-gnu\" \"-internal-externc-isystem\" \"/include\" \"-internal-externc-isystem\" \"/usr/include\" \"-ferror-limit\" \"19\" \"-fgnuc-version=4.2.1\" \"-fskip-odr-check-in-gmf\" \"-vectorize-loops\" \"-vectorize-slp\" \"-faddrsig\" \"-fdwarf2-cfi-asm\" \"-o\" \"/tmp/probe-164bb8.o\" \"-x\" \"c\" \"/tmp/portable-compiler-07n9s4w0/probe.c\"\n \"/opt/llvm-23.1.3/bin/ld.lld\" \"--hash-style=gnu\" \"--eh-frame-hdr\" \"-m\" \"elf_x86_64\" \"-pie\" \"-dynamic-linker\" \"/lib64/ld-linux-x86-64.so.2\" \"-o\" \"/tmp/portable-compiler-07n9s4w0/probe\" \"/lib/x86_64-linux-gnu/Scrt1.o\" \"/lib/x86_64-linux-gnu/crti.o\" \"/opt/llvm-23.1.3/lib/clang/23/lib/linux/clang_rt.crtbegin-x86_64.o\" \"-L/opt/llvm-23.1.3/bin/../lib\" \"-L/usr/lib/gcc/x86_64-linux-gnu/12\" \"-L/usr/lib/gcc/x86_64-linux-gnu/12/../../../../lib64\" \"-L/lib/x86_64-linux-gnu\" \"-L/lib/../lib64\" \"-L/usr/lib/x86_64-linux-gnu\" \"-L/usr/lib64\" \"-L/lib\" \"-L/usr/lib\" \"/tmp/probe-164bb8.o\" \"/opt/llvm-23.1.3/lib/clang/23/lib/linux/libclang_rt.builtins-x86_64.a\" \"--as-needed\" \"-lunwind\" \"--no-as-needed\" \"-lc\" \"/opt/llvm-23.1.3/lib/clang/23/lib/linux/libclang_rt.builtins-x86_64.a\" \"--as-needed\" \"-lunwind\" \"--no-as-needed\" \"/opt/llvm-23.1.3/lib/clang/23/lib/linux/clang_rt.crtend-x86_64.o\" \"/lib/x86_64-linux-gnu/crtn.o\"\n",
+    "source_sha256": "2ad75d95660563887d8d3f1d0ae1dcf18c2379cbd83a5c72f5ab276351ee6949",
+    "output_sha256": "125555b1be5ae4acbbe01a638788966123ce51b2a9f3866534bf793ef1b3dac8"
+  }
+}
