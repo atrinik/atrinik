@@ -763,7 +763,9 @@ input is restricted to the pinned producer library directories or the owned buil
 tree. Portable export receives the caller's leased generation inventories before
 staging the client, protocol and libatrinik source views. Each authored view file
 must match its exact source-proof member and bytes; cached CMake source paths and
-view metadata never grant source authority. Compiler source operands and explicit
+view metadata never grant source authority. The LLVM toolchain file is the
+proof-bound supplemental `cmake/toolchains/llvm.cmake` beside the staged client
+view, rather than beneath `client/`. Compiler source operands and explicit
 and effective header search paths are restricted to those verified views, closed
 configured-header inventories, or the pinned producer's declared SDK include
 directories. Authored include directives remain part of the trusted, proof-bound

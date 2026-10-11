@@ -43,7 +43,7 @@ class CompilerClosureTests(unittest.TestCase):
                            b"if __name__ == '__main__':\n"
                            b" import pathlib, sys\n"
                            b" pathlib.Path(sys.argv[sys.argv.index('--output') + 1]).write_bytes(header_bytes(None, None))\n"),
-                       "cmake/toolchains/llvm.cmake": b"# fixture toolchain\n"},
+                       },
             "libatrinik": {"core.c": b"int core(void) { return 0; }\n", "include/core.h": b"int core(void);\n"},
             "protocol": {"include/protocol.h": b"#define PROTOCOL 1\n"},
         }
@@ -58,6 +58,12 @@ class CompilerClosureTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(supplemental)
             proofs[role]["cmake/proof.cmake"] = {"sha256": hashlib.sha256(supplemental).hexdigest(), "size": len(supplemental)}
+            if role == "client":
+                toolchain = b"# proof-bound supplemental LLVM toolchain\n"
+                for path in (origin.parent / "cmake/toolchains/llvm.cmake", view.parent / "cmake/toolchains/llvm.cmake"):
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(toolchain)
+                proofs[role]["cmake/toolchains/llvm.cmake"] = {"sha256": hashlib.sha256(toolchain).hexdigest(), "size": len(toolchain)}
             for name, data in files.items():
                 for path in (origin / name, view / name):
                     path.parent.mkdir(parents=True, exist_ok=True)
@@ -116,8 +122,33 @@ class CompilerClosureTests(unittest.TestCase):
 
     def test_complete_off_graph_is_bound_to_caller_sources_and_build_receipt(self):
         state = self.fixture()
+        toolchain = state["views"]["client"].parent / "cmake/toolchains/llvm.cmake"
+        self.assertTrue(toolchain.is_file())
+        self.assertIn(toolchain, state["context"].authored)
+        self.assertFalse((state["views"]["client"] / "cmake").exists())
+        self.assertIn("-DCMAKE_TOOLCHAIN_FILE=" + str(toolchain),
+                      portable.portable_configure_arguments(state["views"]["client"]))
         self.assertIn(b"BUILD_TESTING:STRING=OFF", portable.validate_portable_build(
             state["binary"], state["evidence"], context=state["context"]))
+
+    def test_toolchain_requires_the_exact_supplemental_proof_member(self):
+        def missing_proof(state):
+            del state["proofs"]["client"]["cmake/toolchains/llvm.cmake"]
+            toolchain = state["views"]["client"].parent / "cmake/toolchains/llvm.cmake"
+            toolchain.unlink()
+            toolchain.parent.rmdir()
+        def fake_child(state):
+            missing_proof(state)
+            payload = b"# child toolchain cannot replace supplemental authority\n"
+            for root in (state["views"]["client"], state["selected"]["client"]):
+                path = root / "cmake/toolchains/llvm.cmake"
+                path.parent.mkdir(parents=True)
+                path.write_bytes(payload)
+            state["proofs"]["client"]["source/cmake/toolchains/llvm.cmake"] = {
+                "sha256": hashlib.sha256(payload).hexdigest(), "size": len(payload)}
+        for mutation in (missing_proof, fake_child):
+            with self.subTest(mutation=mutation.__name__), self.assertRaisesRegex(ValueError, "supplemental source proof"):
+                self.fixture(before_capture=mutation)
 
     def test_fresh_target_scope_allows_proven_unrelated_library_database_target(self):
         def extra_target(state):
@@ -360,7 +391,7 @@ class PortablePublicationTests(unittest.TestCase):
                 if case == "link-o3": link.append("-O3")
                 if case == "response": commands.append("@hidden-flags.rsp")
                 if case == "wrapper": link.insert(0, "/unverified-wrapper")
-                if case == "toolchain": cache = cache.replace(str(self.root / "cmake/toolchains/llvm.cmake"), "/tmp/unverified.cmake")
+                if case == "toolchain": cache = cache.replace(str(self.root.parent / "cmake/toolchains/llvm.cmake"), "/tmp/unverified.cmake")
                 if case == "source": cache = cache.replace("CMAKE_HOME_DIRECTORY:INTERNAL=" + str(self.root), "CMAKE_HOME_DIRECTORY:INTERNAL=/tmp/other-source")
                 (binary / "CMakeCache.txt").write_text(cache)
                 (binary / "compile_commands.json").write_text(json.dumps([{"arguments": commands, "directory": str(binary), "file": commands[commands.index("-c") + 1]}]))

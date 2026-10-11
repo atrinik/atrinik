@@ -208,7 +208,7 @@ def portable_configure_arguments(source: Path) -> list[str]:
         "CMAKE_FIND_USE_PACKAGE_REGISTRY": "FALSE",
         "CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY": "FALSE",
         "CMAKE_MAKE_PROGRAM": "/usr/bin/ninja",
-        "CMAKE_TOOLCHAIN_FILE": str(source / "cmake/toolchains/llvm.cmake"),
+        "CMAKE_TOOLCHAIN_FILE": str(source.parent / "cmake/toolchains/llvm.cmake"),
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_C_LINKER_LAUNCHER": "", "CMAKE_CXX_LINKER_LAUNCHER": "",
         "CMAKE_C_COMPILER_LAUNCHER": "", "CMAKE_CXX_COMPILER_LAUNCHER": "",
@@ -323,6 +323,8 @@ class PortableBuildContext:
                 self.authored[target] = (origin, expected)
         self.source = self.views["client"]
         self._verify_authored()
+        if self.source.parent / "cmake/toolchains/llvm.cmake" not in self.authored:
+            raise ValueError("portable toolchain is outside the caller's supplemental source proof")
 
     def _verify_authored(self) -> None:
         reserved = {".atrinik-workspace-managed.json", ".atrinik-source-view.json",
