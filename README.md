@@ -308,17 +308,31 @@ coordinator. A proposed authority change cannot authorize live resource operatio
 
 #### Linux image upgrades
 
-The ordinary Linux workspace uses the LLVM SDK in `linux-build:1.17.0`
-from devcontainer revision `0571f500ede75e7661b508d8bb40354256113223`.
-[Released SDK collector run 38161442404](https://github.com/atrinik/devcontainer/actions/runs/38161442404)
-verified the installed SDK metadata and role artifacts against that published producer;
-independent review accepted the image identity and installed LLVM tool roles.
+The ordinary Linux workspace uses the LLVM SDK in `linux-build:1.18.0`
+from devcontainer revision `4af130578df18a1944880cd279c7f23afe9cc668`.
 The immutable pin in `.devcontainer/devcontainer.json` is
+`ghcr.io/atrinik/linux-build:1.18.0@sha256:613cf43ab07634db005a28462a009c4c28c90dccb1b5175e13e8072b6dfe8d72`.
+The SDK release workflows
+[38155790600](https://github.com/atrinik/devcontainer/actions/runs/38155790600)
+and [38155792661](https://github.com/atrinik/devcontainer/actions/runs/38155792661)
+passed release metadata checks. Installed SDK collector and native artifact review
+remain separate acceptance evidence for this producer.
+
+The corresponding Classic build input is
+`ghcr.io/atrinik/classic-build:1.18.0@sha256:86d3c4182dc786db8ace56d9d8dc57ff4f14c1c4f517b728547626f576280449`;
+the general Windows cross-build composition uses
+`ghcr.io/atrinik/windows-build:1.18.0@sha256:01065f081cdf843a6591abf25f2b27734103ab385c5aa003b2eeb9a3a1ca0e5a`.
+These build inputs do not update the separately pinned portable producer, which
+still requires its final Classic consumer contract and independent acceptance.
+
+Historical SDK 1.17 acceptance remains recorded by
+[collector run 38161442404](https://github.com/atrinik/devcontainer/actions/runs/38161442404)
+against producer `0571f500ede75e7661b508d8bb40354256113223` and image
 `ghcr.io/atrinik/linux-build:1.17.0@sha256:4ca8e921b616d20b18fcef901bd554488b4d5a68a7c4304268dedef23723a3bf`.
-Installed SDK verification establishes build inputs; live coordinator authority,
-portable export, native graphics and audio qualification retain their separate checks.
-Independently pinned sound, Classic build, and Windows images retain their
-own release contracts.
+That review accepted the installed LLVM tool roles for that image. Installed SDK
+verification establishes build inputs; live coordinator authority, portable
+export, native graphics and audio qualification retain their separate checks.
+Independently pinned sound and portable images retain their own release contracts.
 
 Each new build worker must use the exact image pin and verified source/cache
 mounts. Historical bound containers retain their original image and recovery
@@ -484,7 +498,7 @@ observations, host export checksums, and exact cleanup results:
 
 ~~~sh
 python3 scripts/benchmark_devcontainer_storage.py \
-  --image ghcr.io/atrinik/windows-build:1.2.1@sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb \
+  --image ghcr.io/atrinik/windows-build:1.18.0@sha256:01065f081cdf843a6591abf25f2b27734103ab385c5aa003b2eeb9a3a1ca0e5a \
   --output build/storage/windows-docker.json
 ~~~
 

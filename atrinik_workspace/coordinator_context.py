@@ -36,12 +36,12 @@ ENTRY_MODE_NATIVE_HOST = "native-host"
 ENTRY_MODE_UNKNOWN = "unknown"
 
 CANONICAL_IMAGE = (
-    "ghcr.io/atrinik/linux-build:1.17.0@sha256:"
-    "4ca8e921b616d20b18fcef901bd554488b4d5a68a7c4304268dedef23723a3bf"
+    "ghcr.io/atrinik/linux-build:1.18.0@sha256:"
+    "613cf43ab07634db005a28462a009c4c28c90dccb1b5175e13e8072b6dfe8d72"
 )
 WINDOWS_CROSS_IMAGE = (
-    "ghcr.io/atrinik/windows-build:1.2.1@sha256:"
-    "d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb"
+    "ghcr.io/atrinik/windows-build:1.18.0@sha256:"
+    "01065f081cdf843a6591abf25f2b27734103ab385c5aa003b2eeb9a3a1ca0e5a"
 )
 CANONICAL_WORKSPACE_FOLDER = "/workspaces/atrinik"
 CANONICAL_REMOTE_USER = "ubuntu"

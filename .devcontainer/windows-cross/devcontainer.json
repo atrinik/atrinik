@@ -1,6 +1,6 @@
 {
   "name": "Atrinik Windows cross-build (LLVM)",
-  "image": "ghcr.io/atrinik/windows-build:1.2.1@sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb",
+  "image": "ghcr.io/atrinik/windows-build:1.18.0@sha256:01065f081cdf843a6591abf25f2b27734103ab385c5aa003b2eeb9a3a1ca0e5a",
   "workspaceFolder": "/workspaces/atrinik",
   "remoteUser": "vscode",
   "initializeCommand": "install -d -m 700 \"${localWorkspaceFolder}/workspace/build\" && if [ ! -e \"${localEnv:HOME}/.gitconfig\" ]; then install -m 600 /dev/null \"${localEnv:HOME}/.gitconfig\"; fi",

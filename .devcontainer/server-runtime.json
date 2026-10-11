@@ -1,5 +1,5 @@
 {
-  "image": "ghcr.io/atrinik/linux-build:1.17.0@sha256:4ca8e921b616d20b18fcef901bd554488b4d5a68a7c4304268dedef23723a3bf",
+  "image": "ghcr.io/atrinik/linux-build:1.18.0@sha256:613cf43ab07634db005a28462a009c4c28c90dccb1b5175e13e8072b6dfe8d72",
   "remoteUser": "ubuntu",
   "updateRemoteUserUID": true,
   "init": true,
