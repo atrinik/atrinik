@@ -224,8 +224,8 @@ helpers and CMake generators. The wrapper rejects a different selection, strips
 caller `PYTHON*`, virtualenv and Conda selectors, and disables user-site startup.
 Local producer `PATH` entries must all be absolute and nonempty, so tool lookup
 cannot change when packaging enters the staged source directories. The wrapper
-invokes the recorded absolute Bash path; package-script host tools use the same
-validated `PATH` that supplied their recorded identities.
+invokes the recorded absolute Bash path. The wrapper starts package scripts with
+the validated `PATH` used to record host-tool identities.
 The selected Classic package scripts must expose the reviewed host-Python
 contract; older scripts fail before local packaging. The receipt records their
 source hashes and the actual host interpreter's resolved binary, hash and
