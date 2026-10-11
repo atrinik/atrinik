@@ -196,11 +196,12 @@ PORTABLE_RELEASE_FLAGS = "-O2 -DNDEBUG"
 PORTABLE_LINK_FLAGS = "--rtlib=compiler-rt --unwindlib=libunwind -fuse-ld=lld"
 
 
-def portable_configure_arguments() -> list[str]:
+def portable_configure_arguments(source: Path) -> list[str]:
     """Pin CMake's full compiler, optimization and linker contract."""
     settings = {
         "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_TOOLCHAIN_FILE": "", "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_TOOLCHAIN_FILE": str(source / "cmake/toolchains/llvm.cmake"),
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_C_LINKER_LAUNCHER": "", "CMAKE_CXX_LINKER_LAUNCHER": "",
         "CMAKE_C_COMPILER_LAUNCHER": "", "CMAKE_CXX_COMPILER_LAUNCHER": "",
         "CMAKE_C_COMPILER": LLVM_ROOT + "/bin/clang",
@@ -244,8 +245,8 @@ def _portable_command(words: list[str], cache: dict[str, str], *, link: bool) ->
         raise WorkspaceError("portable compile/link optimization or CPU/LTO contract changed")
     for option, expected in (("fuse-ld", "lld"), ("rtlib", "compiler-rt"), ("unwindlib", "libunwind")):
         family = [word for word in words if re.match(r"^-{1,2}" + option + r"(?:=|$)", word)]
-        desired = [("-" if option == "fuse-ld" else "--") + option + "=" + expected] if link else []
-        if family != desired:
+        desired = ("-" if option == "fuse-ld" else "--") + option + "=" + expected
+        if (link and (not family or any(word != desired for word in family))) or (not link and family):
             raise WorkspaceError("portable compile/link LLD/runtime contract changed")
 
 
@@ -262,7 +263,14 @@ def validate_portable_build(binary: Path) -> bytes:
         if name in values:
             raise WorkspaceError("portable CMake configuration changed: duplicate " + name)
         values[name] = value
-    for argument in portable_configure_arguments():
+    try:
+        identity = json.loads(_read_regular(binary / ".atrinik-configure.json"), object_pairs_hook=export._unique_object)
+        source = Path(identity["source"]["path"])
+        if not source.is_absolute() or values.get("CMAKE_HOME_DIRECTORY") != str(source):
+            raise ValueError("source identity changed")
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        raise WorkspaceError("portable CMake configuration changed: source identity is unavailable or invalid") from error
+    for argument in portable_configure_arguments(source):
         name, expected = argument[2:].split("=", 1)
         if values.get(name) != expected:
             raise WorkspaceError("portable CMake configuration changed: " + name)

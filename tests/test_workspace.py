@@ -11022,7 +11022,7 @@ class WorkspaceTests(unittest.TestCase):
              mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}), \
              mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False), \
              mock.patch("atrinik_workspace.workspace.run") as run:
-            self.workspace._cmake(source, binary, portable_configure_arguments(), False, portable=True)
+            self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True)
         configure = next(call for call in run.call_args_list if call.args[0][:2] == ["cmake", "-S"])
         for name in ("CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_USER_DIR", "LD_PRELOAD"):
             self.assertNotIn(name, configure.kwargs["env"])

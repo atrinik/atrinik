@@ -13426,7 +13426,7 @@ class Workspace:
         ]
         if portable:
             from .linux_portable import portable_configure_arguments
-            arguments.extend(portable_configure_arguments())
+            arguments.extend(portable_configure_arguments(view.resolve()))
         if gpu_shader is not None:
             arguments.extend(self._gpu_shader_cmake_arguments(gpu_shader))
         if build_target is None:

@@ -730,7 +730,8 @@ separately qualified XWayland setup; no native Wayland backend is claimed here.
 `linux_export.inspect_elf` examines a leased, already-open regular ELF descriptor
 with bounded, time-limited output from the verified absolute LLVM readelf path;
 it never runs the payload or ldd, and ambient PATH entries cannot select its inspector.
-Portable builds pin Clang/Clang++, LLD and archive tools, use explicit `-O2`
+Portable builds explicitly select the source-owned LLVM CMake toolchain, pin
+Clang/Clang++, LLD and archive tools, and use explicit `-O2`
 Release flags, ignore Clang default configuration files, and disable
 interprocedural optimization and compiler launchers. Portable CMake operations
 remove Clang driver/configuration environment overrides. Export rechecks the CMake

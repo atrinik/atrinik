@@ -61,12 +61,14 @@ class PortablePublicationTests(unittest.TestCase):
         binary = self.root / "build"
         binary.mkdir()
         original = "".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
-                           for argument in portable.portable_configure_arguments())
+                           for argument in portable.portable_configure_arguments(self.root))
+        original += "CMAKE_HOME_DIRECTORY:INTERNAL=" + str(self.root) + "\n"
+        (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(self.root)}}))
         compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                          "-O2", "-DNDEBUG", "--no-default-config", "-c", "fixture.c", "-o", "fixture.o"]
         link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                       "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
-        for case in ("valid", "compiler", "release", "cxx", "lto", "linker", "compile-o3", "link-o3", "response", "wrapper"):
+        for case in ("valid", "compiler", "release", "cxx", "lto", "linker", "compile-o3", "link-o3", "response", "wrapper", "toolchain", "source"):
             with self.subTest(case=case):
                 cache, commands, link = original, list(compile_words), list(link_words)
                 if case == "compiler": cache = cache.replace("/bin/clang\n", "/bin/gcc\n")
@@ -78,6 +80,8 @@ class PortablePublicationTests(unittest.TestCase):
                 if case == "link-o3": link.append("-O3")
                 if case == "response": commands.append("@hidden-flags.rsp")
                 if case == "wrapper": link.insert(0, "/unverified-wrapper")
+                if case == "toolchain": cache = cache.replace(str(self.root / "cmake/toolchains/llvm.cmake"), "/tmp/unverified.cmake")
+                if case == "source": cache = cache.replace("CMAKE_HOME_DIRECTORY:INTERNAL=" + str(self.root), "CMAKE_HOME_DIRECTORY:INTERNAL=/tmp/other-source")
                 (binary / "CMakeCache.txt").write_text(cache)
                 (binary / "compile_commands.json").write_text(json.dumps([{"arguments": commands}]))
                 with mock.patch.object(portable.subprocess, "run", return_value=
@@ -90,6 +94,7 @@ class PortablePublicationTests(unittest.TestCase):
         words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                  "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "-o", "atrinik", "client.o"]
         portable._portable_command(words, {}, link=True)
+        portable._portable_command([*words, *portable.PORTABLE_LINK_FLAGS.split()], {}, link=True)
         for flag in ("-fuse-ld=bfd", "--rtlib=libgcc", "--unwindlib=libgcc", "-msse4.2",
                      "--config=/tmp/other.cfg", "--config-user-dir=/tmp/config", "-mavx2"):
             with self.subTest(flag=flag), self.assertRaises(WorkspaceError):
@@ -384,7 +389,10 @@ class PortablePublicationTests(unittest.TestCase):
                 binary.mkdir(parents=True)
                 cache = binary / "CMakeCache.txt"
                 cache.write_text("".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
-                                         for argument in portable.portable_configure_arguments()))
+                                         for argument in portable.portable_configure_arguments(self.root)))
+                with cache.open("a") as stream:
+                    stream.write("CMAKE_HOME_DIRECTORY:INTERNAL=" + str(self.root) + "\n")
+                (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(self.root)}}))
                 compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                                  "-O2", "-DNDEBUG", "--no-default-config", "-c", "fixture.c", "-o", "fixture.o"]
                 (binary / "compile_commands.json").write_text(json.dumps([{"arguments": compile_words}]))
