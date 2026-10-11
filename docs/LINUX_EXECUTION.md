@@ -569,6 +569,14 @@ build cache, and retains the build lease through source revalidation and atomic
 publication. A failed operation preserves its private `.atrinik-export-*` staging
 for diagnosis and does not replace an existing output.
 
+Portable shader generation binds the actual `/usr/bin/python3` executable,
+including its resolved path, file identity, SHA-256 and version, in the configure
+fingerprint and `portable-evidence.json` host-tool receipt. The build rechecks
+that identity before the shader proof and Ninja execution, after building and
+before export. Compiler capability probes use the same scrubbed environment as
+the build. This retains the existing host-tool trust boundary; it does not attest
+the Python standard library or add an interpreter to immutable SDK metadata.
+
 The complete installed producer closure is bound to an independently reconstructed
 OCI overlay inventory: 299 regular files, including all eight upstream archives,
 222 Debian source archives, build recipes and notices. Three pinned aggregate
