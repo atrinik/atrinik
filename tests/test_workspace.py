@@ -11013,8 +11013,29 @@ class WorkspaceTests(unittest.TestCase):
         ]
         self.assertEqual(len(configure_calls), 5)
 
+    def test_portable_cmake_requires_context_before_preparing_or_running(self) -> None:
+        from atrinik_workspace.linux_portable import PortableBuildContext
+        source = self.workspace.paths.repositories / "content"
+        binary = self.workspace.paths.builds / "profiles/test/build/portable-context"
+        context = mock.Mock(spec=PortableBuildContext)
+        for portable, supplied_context, tests, message in (
+            (True, None, False, "verified process build context"),
+            (True, object(), False, "verified process build context"),
+            (True, context, True, "BUILD_TESTING=OFF"),
+            (False, context, False, "requires a portable producer build"),
+        ):
+            with self.subTest(portable=portable, context=supplied_context, tests=tests), \
+                 mock.patch.object(self.workspace, "_prepare_cmake_binary") as prepare, \
+                 mock.patch("atrinik_workspace.workspace.run") as run, \
+                 self.assertRaisesRegex(WorkspaceError, message):
+                self.workspace._cmake(source, binary, [], tests,
+                                      portable=portable, portable_context=supplied_context)
+            prepare.assert_not_called()
+            run.assert_not_called()
+        self.assertEqual(context.mock_calls, [])
+
     def test_portable_cmake_disables_launchers_and_driver_environment_overrides(self) -> None:
-        from atrinik_workspace.linux_portable import PORTABLE_PATH, portable_configure_arguments
+        from atrinik_workspace.linux_portable import PortableBuildContext, PORTABLE_PATH, portable_configure_arguments
         source = self.workspace.paths.repositories / "content"
         (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
         caller_home = self.root / "caller-home"
@@ -11022,8 +11043,12 @@ class WorkspaceTests(unittest.TestCase):
         registry.mkdir(parents=True)
         (registry / "foreign").write_text("/tmp/foreign-sdl3\n")
         binary = self.workspace.paths.builds / "profiles/test/build/portable-fixture"
+        # Isolate proof capture from these environment assertions while retaining
+        # the production type gate and checking every context boundary call.
+        context = mock.Mock(spec=PortableBuildContext)
         with mock.patch.dict(os.environ, {"HOME": str(caller_home), "PATH": "/tmp/caller-wrappers", "CC": "/tmp/caller-cc",
                                          "BASH_ENV": "/tmp/hook", "PYTHONPATH": "/tmp/modules",
+                                         "PYTHONNOUSERSITE": "0",
                                          "CCC_OVERRIDE_OPTIONS": "+-O3", "CLANG_CONFIG_FILE_USER_DIR": "/tmp/config", "LD_PRELOAD": "/tmp/shim.so", "LD_LIBRARY_PATH": "/tmp/tools",
                                          "CPATH": "/tmp/headers", "COMPILER_PATH": "/tmp/compilers",
                                          "CCACHE_DIR": "/tmp/cache", "CCACHE_CONFIGPATH": "/tmp/ccache.conf",
@@ -11036,7 +11061,7 @@ class WorkspaceTests(unittest.TestCase):
              mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
              mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes") as verify, \
              mock.patch("atrinik_workspace.workspace.run") as run:
-            self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True)
+            self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True, portable_context=context)
         configure = next(call for call in run.call_args_list if call.args[0][:2] == ["/usr/bin/cmake", "-S"])
         for name in ("BASH_ENV", "PYTHONPATH", "CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_USER_DIR", "LD_PRELOAD",
                      "LD_LIBRARY_PATH", "CPATH", "COMPILER_PATH", "CCACHE_DIR",
@@ -11060,10 +11085,17 @@ class WorkspaceTests(unittest.TestCase):
             self.assertNotIn("/tmp/caller", call.args[0])
         build = next(call for call in run.call_args_list if call.args[0][:2] == ["/usr/bin/cmake", "--build"])
         self.assertEqual(build.kwargs["env"]["PATH"], PORTABLE_PATH)
+        self.assertEqual(configure.kwargs["env"]["PYTHONNOUSERSITE"], "1")
+        self.assertEqual(build.kwargs["env"]["PYTHONNOUSERSITE"], "1")
         verify.assert_called_once_with({})
+        self.assertEqual(context.mock_calls, [
+            mock.call.validate_source_binding(binary, source),
+            mock.call.capture_configure(binary, source),
+            mock.call.capture_output(binary),
+        ])
 
-    def test_portable_registry_policy_change_resets_only_owned_cached_tree(self) -> None:
-        from atrinik_workspace.linux_portable import portable_configure_arguments
+    def test_portable_registry_policy_change_refreshes_only_owned_cached_tree(self) -> None:
+        from atrinik_workspace.linux_portable import PortableBuildContext, portable_configure_arguments
         source = self.workspace.paths.repositories / "content"
         current = portable_configure_arguments(source)
         foreign = self.root / "caller-package"
@@ -11075,6 +11107,7 @@ class WorkspaceTests(unittest.TestCase):
                 cache = binary / "CMakeCache.txt"
                 sentinel = binary / "unchanged-current-tree"
                 configurations = []
+                contexts = [mock.Mock(spec=PortableBuildContext) for _ in range(3)]
 
                 def configured(command, **kwargs):
                     if command[:2] != ["/usr/bin/cmake", "-S"]:
@@ -11095,30 +11128,44 @@ class WorkspaceTests(unittest.TestCase):
                      mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes"), \
                      mock.patch("atrinik_workspace.workspace.run", side_effect=configured):
                     previous = [arg for arg in current if not arg.startswith("-D" + policy + "=")]
-                    self.workspace._cmake(source, binary, previous, False, portable=True)
+                    self.workspace._cmake(source, binary, previous, False, portable=True, portable_context=contexts[0])
                     self.assertIn(str(foreign), cache.read_text())
-                    self.workspace._cmake(source, binary, current, False, portable=True)
+                    self.workspace._cmake(source, binary, current, False, portable=True, portable_context=contexts[1])
                     self.assertNotIn(str(foreign), cache.read_text())
                     sentinel.write_text("retain unchanged current tree\n")
-                    self.workspace._cmake(source, binary, current, False, portable=True)
-                self.assertEqual(len(configurations), 2)
-                self.assertTrue(sentinel.is_file())
+                    self.workspace._cmake(source, binary, current, False, portable=True, portable_context=contexts[2])
+                self.assertEqual(len(configurations), 3)
+                self.assertFalse(sentinel.exists())
+                for context in contexts:
+                    self.assertEqual(context.mock_calls, [
+                        mock.call.validate_source_binding(binary, source),
+                        mock.call.capture_configure(binary, source),
+                        mock.call.capture_output(binary),
+                    ])
+                self.assertNotIn("-D" + policy + "=FALSE", configurations[0])
+                for configure in configurations[1:]:
+                    self.assertIn("-D" + policy + "=FALSE", configure)
                 self.assertEqual((foreign / "SDL3Config.cmake").read_text(), "# caller-owned package\n")
 
     def test_portable_tool_swap_after_configure_stops_before_build(self) -> None:
-        from atrinik_workspace.linux_portable import portable_configure_arguments
+        from atrinik_workspace.linux_portable import PortableBuildContext, portable_configure_arguments
         from atrinik_workspace.linux_export import ExportError
         source = self.workspace.paths.repositories / "content"
         (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
         binary = self.workspace.paths.builds / "profiles/test/build/portable-swap"
+        context = mock.Mock(spec=PortableBuildContext)
         with mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture"}), \
              mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
              mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes", side_effect=ExportError("archive tool bytes differ")), \
              mock.patch("atrinik_workspace.workspace.run") as run, \
              self.assertRaisesRegex(ExportError, "bytes differ"):
-            self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True)
+            self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True, portable_context=context)
         self.assertTrue(any(call.args[0][:2] == ["/usr/bin/cmake", "-S"] for call in run.call_args_list))
         self.assertFalse(any("--build" in call.args[0] for call in run.call_args_list))
+        self.assertEqual(context.mock_calls, [
+            mock.call.validate_source_binding(binary, source),
+            mock.call.capture_configure(binary, source),
+        ])
 
     def test_portable_cached_ninja_graph_uses_admitted_environment(self) -> None:
         from atrinik_workspace.linux_portable import PORTABLE_PATH
