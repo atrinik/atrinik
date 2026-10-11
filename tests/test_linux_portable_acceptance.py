@@ -35,6 +35,24 @@ class PortablePublicationTests(unittest.TestCase):
         self.output = self.root / "client"
         self.sources = {"atrinik/classic@main": "a" * 40}
 
+    def driver_evidence(self):
+        return {"target": "x86_64-unknown-linux-gnu", "tools": {
+                    "compiler": {"path": portable.LLVM_ROOT + "/bin/clang"},
+                    "linker": {"path": portable.LLVM_ROOT + "/bin/ld.lld"}},
+                "runtime": {"path": portable.LLVM_ROOT + "/lib/clang/23/lib/linux/libclang_rt.builtins-x86_64.a"},
+                "unwinder": {"path": portable.LLVM_ROOT + "/lib/libunwind.a"}}
+
+    def driver_report(self, command, **kwargs):
+        evidence = self.driver_evidence()
+        if "-c" in command:
+            args = [str(Path(evidence["tools"]["compiler"]["path"]).resolve()), "-cc1", "-emit-obj",
+                    "-triple", evidence["target"], "-target-cpu", "x86-64", "-tune-cpu", "generic",
+                    "-resource-dir", portable.LLVM_ROOT + "/lib/clang/23", "-O2"]
+        else:
+            args = [evidence["tools"]["linker"]["path"], "-m", "elf_x86_64",
+                    "-L" + portable.LLVM_ROOT + "/lib", evidence["runtime"]["path"], "-lunwind"]
+        return " ".join(json.dumps(arg) for arg in args) + "\n"
+
     def audio_archive(self, *, duplicate=False, linked=False):
         payload = b"Original attribution and license text\n"
         buffer = io.BytesIO()
@@ -83,27 +101,96 @@ class PortablePublicationTests(unittest.TestCase):
                 if case == "toolchain": cache = cache.replace(str(self.root / "cmake/toolchains/llvm.cmake"), "/tmp/unverified.cmake")
                 if case == "source": cache = cache.replace("CMAKE_HOME_DIRECTORY:INTERNAL=" + str(self.root), "CMAKE_HOME_DIRECTORY:INTERNAL=/tmp/other-source")
                 (binary / "CMakeCache.txt").write_text(cache)
-                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": commands}]))
+                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": commands, "directory": str(binary)}]))
                 with mock.patch.object(portable.subprocess, "run", return_value=
-                    subprocess.CompletedProcess([], 0, stdout=" ".join(link) + "\n")):
-                    if case == "valid": portable.validate_portable_build(binary)
+                    subprocess.CompletedProcess([], 0, stdout=" ".join(link) + "\n")), \
+                     mock.patch.object(export, "_tool_report", side_effect=self.driver_report):
+                    if case == "valid": portable.validate_portable_build(binary, self.driver_evidence())
                     else:
-                        with self.assertRaises(WorkspaceError): portable.validate_portable_build(binary)
+                        with self.assertRaises(WorkspaceError): portable.validate_portable_build(binary, self.driver_evidence())
 
     def test_actual_portable_flags_reject_additive_configuration_and_runtime_overrides(self):
         words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                  "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "-o", "atrinik", "client.o"]
         portable._portable_command(words, {}, link=True)
         portable._portable_command([*words, *portable.PORTABLE_LINK_FLAGS.split()], {}, link=True)
+        portable._portable_command([*words, "-Xlinker", "--dependency-file=atrinik.d"], {}, link=True)
         for flag in ("-fuse-ld=bfd", "--rtlib=libgcc", "--unwindlib=libgcc", "-msse4.2",
-                     "--config=/tmp/other.cfg", "--config-user-dir=/tmp/config", "-mavx2"):
+                     "--config=/tmp/other.cfg", "--config-user-dir=/tmp/config", "-mavx2",
+                     "-B/tmp/unverified-tools", "-resource-dir=/tmp/unverified-runtime",
+                     "--sysroot=/tmp/unverified-sysroot", "--gcc-toolchain=/tmp/unverified-gcc"):
             with self.subTest(flag=flag), self.assertRaises(WorkspaceError):
                 portable._portable_command([*words, flag], {}, link=True)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command([words[0], "-L/tmp/unverified-runtime", *words[1:]], {}, link=True)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command([*words, "-Wl,-L,/tmp/unverified-runtime"], {}, link=True)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command([*words, "-Xlinker", "-L/tmp/unverified-runtime"], {}, link=True)
         with self.assertRaises(WorkspaceError):
             portable._portable_command(["/tmp/unverified-launcher", *words],
                                        {"CMAKE_C_COMPILER_LAUNCHER": "/tmp/unverified-launcher"}, link=True)
         with self.assertRaises(WorkspaceError):
             portable._portable_command([word for word in words if word != "--no-default-config"], {}, link=True)
+
+    def test_effective_driver_refuses_external_tools_and_codegen_runtime_changes(self):
+        evidence = self.driver_evidence()
+        compile_words = [portable.LLVM_ROOT + "/bin/clang", "-c", "fixture.c"]
+        link_words = [portable.LLVM_ROOT + "/bin/clang", "fixture.o", "-o", "atrinik"]
+        cc1 = self.driver_report(compile_words)
+        linker = self.driver_report(link_words)
+        cases = [(cc1, False, True), (linker, True, True),
+                 (cc1.replace('"x86-64"', '"haswell"'), False, False),
+                 (cc1.replace('"-O2"', '"-O3"'), False, False),
+                 (cc1.replace('/lib/clang/23"', '/foreign-runtime"'), False, False),
+                 (cc1.rstrip() + ' "-target-feature" "+avx2"\n', False, False),
+                 (cc1.rstrip() + ' "-load" "/tmp/plugin.so"\n', False, False),
+                 (cc1.rstrip() + ' "-fpass-plugin=/tmp/plugin.so"\n', False, False),
+                 (cc1 + '"/usr/bin/as" "fixture.s"\n', False, False),
+                 (linker.replace('/bin/ld.lld', '/bin/foreign-ld'), True, False),
+                 (linker.replace('"-lunwind"', ''), True, False),
+                 (linker.replace(evidence["runtime"]["path"], '/tmp/foreign-builtins.a'), True, False),
+                 (linker.replace('"-L' + portable.LLVM_ROOT, '"-L/tmp/foreign'), True, False)]
+        for output, link, valid in cases:
+            with self.subTest(output=output), mock.patch.object(export, "_tool_report", return_value=output):
+                words = link_words if link else compile_words
+                if valid: portable._portable_driver(words, evidence, self.root, link=link)
+                else:
+                    with self.assertRaises(WorkspaceError): portable._portable_driver(words, evidence, self.root, link=link)
+
+    @unittest.skipUnless(shutil.which("clang"), "Clang driver fixture")
+    def test_actual_llvm_driver_rejects_foreign_codegen_tools_and_missing_runtimes(self):
+        compiler = Path(shutil.which("clang")).absolute()
+        version = subprocess.check_output([str(compiler), "--version"], text=True)
+        prefix = compiler.resolve().parent.parent
+        linker = prefix / "bin/ld.lld"
+        if "clang version 23.1.3" not in version or not linker.is_file():
+            self.skipTest("exact LLVM 23.1.3 compiler/linker fixture required")
+        source = self.root / "driver.c"
+        source.write_text("int main(void) { return 0; }\n")
+        object_file = self.root / "driver.o"
+        subprocess.run([str(compiler), "--no-default-config", "-c", str(source), "-o", str(object_file)], check=True)
+        evidence = self.driver_evidence()
+        evidence["tools"]["compiler"]["path"] = str(compiler)
+        evidence["tools"]["linker"]["path"] = str(linker)
+        evidence["target"] = subprocess.check_output([str(compiler), "--no-default-config", "-dumpmachine"], text=True).strip()
+        evidence["runtime"]["path"] = subprocess.check_output([str(compiler), "--no-default-config", "--rtlib=compiler-rt", "--print-libgcc-file-name"], text=True).strip()
+        evidence["unwinder"]["path"] = str(prefix / "lib/libunwind.a")
+        base = [str(compiler), "--no-default-config", "-O2", "-march=x86-64", "-mtune=generic"]
+        compile_words = [*base, "-c", str(source), "-o", str(object_file)]
+        link_words = [*base, "-L" + str(prefix / "lib"), "--rtlib=compiler-rt", "--unwindlib=libunwind",
+                      "-fuse-ld=lld", str(object_file), "-o", str(self.root / "driver")]
+        with mock.patch.object(portable, "LLVM_ROOT", str(prefix)):
+            portable._portable_driver(compile_words, evidence, self.root, link=False)
+            portable._portable_driver(link_words, evidence, self.root, link=True)
+            cases = [(compile_words + ["-fno-integrated-as"], False),
+                     (compile_words + ["-resource-dir=/tmp/foreign-resource"], False),
+                     (compile_words + ["--target=aarch64-linux-gnu"], False),
+                     (compile_words + ["-mllvm", "-force-vector-width=8"], False),
+                     (link_words + ["-nostdlib"], True), (link_words + ["-nodefaultlibs"], True)]
+            for words, link in cases:
+                with self.subTest(words=words), self.assertRaises(WorkspaceError):
+                    portable._portable_driver(words, evidence, self.root, link=link)
 
     def test_audio_notices_preserve_verified_text_and_archive_provenance(self):
         record, payload = self.audio_archive()
@@ -395,7 +482,7 @@ class PortablePublicationTests(unittest.TestCase):
                 (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(self.root)}}))
                 compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                                  "-O2", "-DNDEBUG", "--no-default-config", "-c", "fixture.c", "-o", "fixture.o"]
-                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": compile_words}]))
+                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": compile_words, "directory": str(binary)}]))
                 link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                               "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
                 patches.enter_context(mock.patch.object(portable.subprocess, "run", return_value=
@@ -454,7 +541,8 @@ class PortablePublicationTests(unittest.TestCase):
                 if case == "sound": states["sound"]["head"] = "a" * 40
                 if case == "configure": cache.write_text("CMAKE_SKIP_RPATH:BOOL=OFF\n")
                 if case == "sound-tree": sound_record["source_tree"] = "e" * 40
-                metadata = ({"contract": b"authenticated fixture"}, {})
+                patches.enter_context(mock.patch.object(export, "_tool_report", side_effect=self.driver_report))
+                metadata = ({"contract": b"authenticated fixture"}, {"compiler-evidence.json": self.driver_evidence()})
                 patches.enter_context(mock.patch.object(portable, "installed_metadata", side_effect=[
                     metadata, ({"contract": b"changed"}, {}) if case == "late-metadata" else metadata]))
                 patches.enter_context(mock.patch.object(portable, "add_runtime", side_effect=runtime))

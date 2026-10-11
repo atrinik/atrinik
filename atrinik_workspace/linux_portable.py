@@ -193,7 +193,7 @@ def _read_regular(path: Path, *, limit: int = export.MAX_MANIFEST_BYTES) -> byte
 LLVM_ROOT = "/opt/llvm-23.1.3"
 PORTABLE_C_FLAGS = "-O2 -march=x86-64 -mtune=generic --no-default-config"
 PORTABLE_RELEASE_FLAGS = "-O2 -DNDEBUG"
-PORTABLE_LINK_FLAGS = "--rtlib=compiler-rt --unwindlib=libunwind -fuse-ld=lld"
+PORTABLE_LINK_FLAGS = "-L" + LLVM_ROOT + "/lib --rtlib=compiler-rt --unwindlib=libunwind -fuse-ld=lld"
 
 
 def portable_configure_arguments(source: Path) -> list[str]:
@@ -209,6 +209,11 @@ def portable_configure_arguments(source: Path) -> list[str]:
         "CMAKE_LINKER": LLVM_ROOT + "/bin/ld.lld",
         "CMAKE_AR": LLVM_ROOT + "/bin/llvm-ar",
         "CMAKE_RANLIB": LLVM_ROOT + "/bin/llvm-ranlib",
+        "CMAKE_NM": LLVM_ROOT + "/bin/llvm-nm",
+        "CMAKE_STRIP": LLVM_ROOT + "/bin/llvm-strip",
+        "CMAKE_OBJCOPY": LLVM_ROOT + "/bin/llvm-objcopy",
+        "CMAKE_OBJDUMP": LLVM_ROOT + "/bin/llvm-objdump",
+        "CMAKE_READELF": LLVM_ROOT + "/bin/llvm-readelf",
         "CMAKE_C_FLAGS": PORTABLE_C_FLAGS, "CMAKE_CXX_FLAGS": PORTABLE_C_FLAGS,
         "CMAKE_C_FLAGS_RELEASE": PORTABLE_RELEASE_FLAGS,
         "CMAKE_CXX_FLAGS_RELEASE": PORTABLE_RELEASE_FLAGS,
@@ -233,7 +238,9 @@ def _portable_command(words: list[str], cache: dict[str, str], *, link: bool) ->
         raise WorkspaceError("portable compile/link launcher changed")
     if not words or words[0] not in compilers:
         raise WorkspaceError("portable compile/link compiler changed")
-    if (any(word.startswith(("-flto", "--target=", "--config", "-config", "--ld-path", "-ld-path")) for word in words)
+    if (any(word.startswith(("-flto", "--target=", "--config", "-config", "--ld-path", "-ld-path", "-B", "-resource-dir", "--resource-dir",
+                                "--sysroot", "-isysroot", "--gcc-toolchain", "-gcc-toolchain",
+                                "--gcc-install-dir", "--gcc-triple")) for word in words)
             or any(word.startswith("-m") and word not in {"-march=x86-64", "-mtune=generic", "-m64"} for word in words)
             or words.count("--no-default-config") != 1
             or any(word in {"-Xclang", "-target", "-target-cpu", "-target-feature"} for word in words)
@@ -243,6 +250,18 @@ def _portable_command(words: list[str], cache: dict[str, str], *, link: bool) ->
             or any(word.startswith("@") for word in words)
             or "-DNDEBUG" not in words):
         raise WorkspaceError("portable compile/link optimization or CPU/LTO contract changed")
+    if link:
+        search_paths = []
+        for index, word in enumerate(words):
+            if word == "-L":
+                search_paths.append(words[index + 1] if index + 1 < len(words) else "")
+            elif word.startswith("-L"):
+                search_paths.append(word[2:])
+            elif (word.startswith("-Wl,") and any(part.startswith(("-L", "--library-path")) for part in word[4:].split(","))) or (word == "-Xlinker" and index + 1 < len(words)
+                    and words[index + 1].startswith(("-L", "--library-path"))):
+                raise WorkspaceError("portable indirect linker search path changed")
+        if not search_paths or search_paths[0] != LLVM_ROOT + "/lib":
+            raise WorkspaceError("portable LLVM runtime search path changed")
     for option, expected in (("fuse-ld", "lld"), ("rtlib", "compiler-rt"), ("unwindlib", "libunwind")):
         family = [word for word in words if re.match(r"^-{1,2}" + option + r"(?:=|$)", word)]
         desired = ("-" if option == "fuse-ld" else "--") + option + "=" + expected
@@ -250,7 +269,49 @@ def _portable_command(words: list[str], cache: dict[str, str], *, link: bool) ->
             raise WorkspaceError("portable compile/link LLD/runtime contract changed")
 
 
-def validate_portable_build(binary: Path) -> bytes:
+
+def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bool) -> None:
+    """Bind effective driver tools and code generation to the verified cohort."""
+    from .model import WorkspaceError
+    try:
+        output = export._tool_report([words[0], "-###", *words[1:]], cwd=binary, timeout=30)
+        invocations = [shlex.split(line) for line in output.splitlines() if line.lstrip().startswith('"')]
+        if not invocations or any(not args for args in invocations):
+            raise ValueError("missing driver invocations")
+        compiler = str(Path(evidence["tools"]["compiler"]["path"]).resolve())
+        linker = evidence["tools"]["linker"]["path"]
+        runtime = evidence["runtime"]["path"]
+        cc1 = [args for args in invocations if len(args) > 1 and args[1] == "-cc1" and args[0] == compiler]
+        links = [args for args in invocations if args[0] == linker]
+        if (len(cc1) != (0 if link else 1) or len(links) != (1 if link else 0)
+                or len(invocations) != 1):
+            raise ValueError("external compiler, assembler, linker or extra tool selected")
+        if cc1:
+            args = cc1[0]
+            for option, expected in (("-target-cpu", "x86-64"), ("-tune-cpu", "generic"),
+                    ("-triple", evidence["target"]), ("-resource-dir", LLVM_ROOT + "/lib/clang/23")):
+                if args.count(option) != 1 or args[args.index(option) + 1] != expected:
+                    raise ValueError("effective CPU, target or compiler resource directory changed")
+            if ([arg for arg in args if re.fullmatch(r"-O(?:[0-9]|fast|s|z|g)", arg)] != ["-O2"]
+                    or "-emit-obj" not in args or any(arg.startswith(("-flto", "-fno-integrated-as")) for arg in args)
+                    or "-target-feature" in args
+                    or any(arg.startswith(("-load", "-plugin", "-add-plugin", "-fpass-plugin", "-fplugin", "-mllvm")) for arg in args)):
+                raise ValueError("effective code generation changed")
+        else:
+            args = links[0]
+            searches = [arg[2:] for arg in args if arg.startswith("-L")]
+            if (not searches or searches[0] != LLVM_ROOT + "/lib" or runtime not in args
+                    or "-lunwind" not in args or args.count("-m") != 1
+                    or args[args.index("-m") + 1] != "elf_x86_64"
+                    or any(("libclang_rt.builtins" in arg and arg != runtime)
+                           or ("libunwind" in arg and arg != evidence["unwinder"]["path"])
+                           or arg in {"-lgcc", "-lgcc_s"} or re.search(r"libgcc[^/]*\.(?:a|so)", arg)
+                           or arg.startswith(("--plugin", "-plugin", "--load-pass-plugin", "-load-pass-plugin", "--lto", "-lto")) for arg in args)):
+                raise ValueError("effective linker or compiler runtime changed")
+    except (OSError, ValueError, IndexError, KeyError, TypeError, export.ExportError, subprocess.SubprocessError) as error:
+        raise WorkspaceError("portable effective compiler/linker contract changed") from error
+
+def validate_portable_build(binary: Path, evidence: dict) -> bytes:
     """Check cached settings and generated compile/link commands before export."""
     from .model import WorkspaceError
     raw = _read_regular(binary / "CMakeCache.txt")
@@ -282,7 +343,10 @@ def validate_portable_build(binary: Path) -> bytes:
             words = record.get("arguments") or shlex.split(record["command"])
             if not isinstance(words, list) or not all(isinstance(word, str) for word in words):
                 raise ValueError("invalid command")
+            if record.get("directory") != str(binary):
+                raise ValueError("compile working directory changed")
             _portable_command(words, values, link=False)
+            _portable_driver(words, evidence, binary, link=False)
         result = subprocess.run(["/usr/bin/ninja", "-C", str(binary), "-t", "commands", "atrinik"],
                                 capture_output=True, text=True, timeout=30, check=True,
                                 env={"PATH": LLVM_ROOT + "/bin:/usr/bin:/bin", "LC_ALL": "C"})
@@ -305,6 +369,7 @@ def validate_portable_build(binary: Path) -> bytes:
             raise ValueError("missing link commands")
         for command in links:
             _portable_command(command, values, link=True)
+            _portable_driver(command, evidence, binary, link=True)
     except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError) as error:
         raise WorkspaceError("portable compile/link evidence is unavailable or invalid") from error
     return raw
@@ -852,7 +917,7 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
             # A concurrent rebuild between build return and lock acquisition must
             # not silently replace the pinned portable configure contract.
             binary_directory = workspace._classic_binary_directory(build_root, "client")
-            cache = validate_portable_build(binary_directory)
+            cache = validate_portable_build(binary_directory, documents["compiler-evidence.json"])
             sound_root, sound_record = workspace._prepare_sound(build_root, selected, profile_name)
             if sound_record["source_tree"] != generations["sound"]["source_tree"]:
                 raise WorkspaceError("portable sound release must match the selected sound source tree")
@@ -928,7 +993,7 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
                         raise WorkspaceError("portable producer metadata changed before publication")
                     if _read_regular(binary_directory / "CMakeCache.txt") != cache:
                         raise WorkspaceError("portable build configuration changed before publication")
-                    validate_portable_build(binary_directory)
+                    validate_portable_build(binary_directory, documents["compiler-evidence.json"])
                 result = publication.publish(revalidate)
                 return {**result, "image": IMAGE, "platform_manifest": PLATFORM_MANIFEST,
                         "runtime": runtime, "legal": legal}

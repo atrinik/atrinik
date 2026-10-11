@@ -11018,13 +11018,15 @@ class WorkspaceTests(unittest.TestCase):
         source = self.workspace.paths.repositories / "content"
         (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
         binary = self.workspace.paths.builds / "profiles/test/build/portable-fixture"
-        with mock.patch.dict(os.environ, {"CCC_OVERRIDE_OPTIONS": "+-O3", "CLANG_CONFIG_FILE_USER_DIR": "/tmp/config", "LD_PRELOAD": "/tmp/shim.so"}), \
+        with mock.patch.dict(os.environ, {"CCC_OVERRIDE_OPTIONS": "+-O3", "CLANG_CONFIG_FILE_USER_DIR": "/tmp/config", "LD_PRELOAD": "/tmp/shim.so", "LD_LIBRARY_PATH": "/tmp/tools",
+                                         "CPATH": "/tmp/headers", "COMPILER_PATH": "/tmp/compilers"}), \
              mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}), \
              mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False), \
              mock.patch("atrinik_workspace.workspace.run") as run:
             self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True)
         configure = next(call for call in run.call_args_list if call.args[0][:2] == ["cmake", "-S"])
-        for name in ("CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_USER_DIR", "LD_PRELOAD"):
+        for name in ("CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_USER_DIR", "LD_PRELOAD",
+                     "LD_LIBRARY_PATH", "CPATH", "COMPILER_PATH"):
             self.assertNotIn(name, configure.kwargs["env"])
         self.assertIn("-DCMAKE_C_COMPILER_LAUNCHER=", configure.args[0])
         self.assertNotIn("CCACHE_DIR", configure.kwargs["env"])
@@ -11070,9 +11072,11 @@ class WorkspaceTests(unittest.TestCase):
         cache.write_text("CMAKE_LINKER:FILEPATH=/opt/llvm/bin/ld.lld\n"
                          "CMAKE_AR:FILEPATH=/opt/llvm/bin/llvm-ar\n"
                          "CMAKE_EXE_LINKER_FLAGS:STRING=-fuse-ld=lld --rtlib=compiler-rt\n")
+        with cache.open("a") as stream:
+            stream.write("CMAKE_READELF:FILEPATH=/opt/llvm/bin/llvm-readelf\n")
         with mock.patch.object(self.workspace, "_tool_identity", side_effect=lambda tool: {"command": tool}):
             first = self.workspace._cmake_configured_toolchain(binary)
-        self.assertEqual(set(first["link_tools"]), {"CMAKE_LINKER", "CMAKE_AR"})
+        self.assertEqual(set(first["link_tools"]), {"CMAKE_LINKER", "CMAKE_AR", "CMAKE_READELF"})
         self.assertIn("compiler-rt", first["values"]["CMAKE_EXE_LINKER_FLAGS"])
 
     def test_local_windows_environment_requires_neutral_llvm_contract(self) -> None:

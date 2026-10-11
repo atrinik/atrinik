@@ -11745,7 +11745,9 @@ class Workspace:
         environment = os.environ.copy()
         if portable:
             for name in tuple(environment):
-                if name.startswith(("CCC_", "CLANG_CONFIG_FILE_")) or name == "LD_PRELOAD":
+                if (name.startswith(("CCC_", "CLANG_CONFIG_FILE_", "LD_"))
+                        or name in {"CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
+                                    "LIBRARY_PATH", "COMPILER_PATH", "GCC_EXEC_PREFIX", "GLIBC_TUNABLES"}):
                     environment.pop(name)
         ccache = shutil.which("ccache") if self._use_ccache and not portable else None
         cache_inputs = self._build_summary.setdefault("cache", {}).setdefault(
@@ -12226,6 +12228,8 @@ class Workspace:
             "-DCMAKE_LINKER=",
             "-DCMAKE_AR=",
             "-DCMAKE_RANLIB=",
+            "-DCMAKE_NM=", "-DCMAKE_STRIP=", "-DCMAKE_OBJCOPY=",
+            "-DCMAKE_OBJDUMP=", "-DCMAKE_READELF=",
             "-DCMAKE_TOOLCHAIN_FILE=",
             "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=",
             "-DCMAKE_GENERATOR_PLATFORM=",
@@ -12425,6 +12429,7 @@ class Workspace:
             "CMAKE_CXX_COMPILER_LINKER",
             "CMAKE_AR",
             "CMAKE_RANLIB",
+            "CMAKE_NM", "CMAKE_STRIP", "CMAKE_OBJCOPY", "CMAKE_OBJDUMP", "CMAKE_READELF",
             "CMAKE_C_FLAGS",
             "CMAKE_CXX_FLAGS",
             "CMAKE_EXE_LINKER_FLAGS",
@@ -12478,7 +12483,8 @@ class Workspace:
             "link_tools": {
                 name: self._tool_identity(values[name])
                 for name in ("CMAKE_LINKER", "CMAKE_C_COMPILER_LINKER", "CMAKE_CXX_COMPILER_LINKER",
-                             "CMAKE_AR", "CMAKE_RANLIB")
+                             "CMAKE_AR", "CMAKE_RANLIB", "CMAKE_NM", "CMAKE_STRIP",
+                             "CMAKE_OBJCOPY", "CMAKE_OBJDUMP", "CMAKE_READELF")
                 if values.get(name)
             },
             "compiler_runtimes": {

@@ -549,13 +549,12 @@ MAX_ELF_REPORT_BYTES = 4 * 1024 * 1024
 LLVM_READELF = "/opt/llvm-23.1.3/bin/llvm-readelf"
 
 
-def _readelf(descriptor: int, *, timeout: float = 15) -> str:
-    """Inspect an inherited descriptor without executing the payload."""
-    process = subprocess.Popen(
-        [LLVM_READELF, "--wide", "--file-header", "--program-headers", "--dynamic",
-         "--version-info", "--dyn-syms", f"/proc/self/fd/{descriptor}"],
-        pass_fds=(descriptor,), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        env={"PATH": "/opt/llvm-23.1.3/bin:/usr/bin:/bin", "LC_ALL": "C"})
+def _tool_report(command: list[str], *, pass_fds: tuple[int, ...] = (), timeout: float = 15,
+                 cwd: Path | None = None) -> str:
+    """Collect a bounded report from a selected tool under a fixed environment."""
+    process = subprocess.Popen(command, pass_fds=pass_fds, cwd=cwd,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        env={"PATH": "/opt/llvm-23.1.3/bin:/usr/bin:/bin", "LC_ALL": "C", "TMPDIR": "/tmp"})
     output = bytearray()
     deadline = time.monotonic() + timeout
     try:
@@ -590,6 +589,13 @@ def _readelf(descriptor: int, *, timeout: float = 15) -> str:
         process.wait()
         if process.stdout is not None:
             process.stdout.close()
+
+
+def _readelf(descriptor: int, *, timeout: float = 15) -> str:
+    """Inspect an inherited descriptor without executing the payload."""
+    return _tool_report([LLVM_READELF, "--wide", "--file-header", "--program-headers", "--dynamic",
+         "--version-info", "--dyn-syms", f"/proc/self/fd/{descriptor}"],
+         pass_fds=(descriptor,), timeout=timeout)
 
 
 def _elf_version_definitions(text: str) -> list[str]:

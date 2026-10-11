@@ -734,8 +734,10 @@ Portable builds explicitly select the source-owned LLVM CMake toolchain, pin
 Clang/Clang++, LLD and archive tools, and use explicit `-O2`
 Release flags, ignore Clang default configuration files, and disable
 interprocedural optimization and compiler launchers. Portable CMake operations
-remove Clang driver/configuration environment overrides. Export rechecks the CMake
-cache and generated compile/link invocations before publication; compiler,
+remove Clang driver/configuration environment overrides and explicitly search the
+verified LLVM runtime directory first. Export rechecks the CMake
+cache, generated compile/link invocations and bounded effective Clang driver
+reports before publication; compiler,
 optimization, CPU, runtime or LTO drift refuses export.
 It records class, endianness, machine, interpreter, static dependencies, runtime
 search paths and version-needed records by provider. The structural dependency
