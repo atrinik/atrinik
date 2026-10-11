@@ -201,6 +201,7 @@ def portable_configure_arguments(source: Path) -> list[str]:
     """Pin CMake's full compiler, optimization and linker contract."""
     settings = {
         "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkg-config",
+        "ATRINIK_GPU_SHADER_DIRECTORY": "/opt/atrinik-portable/shaders",
         "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_FIND_USE_PACKAGE_REGISTRY": "FALSE",
         "CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY": "FALSE",
@@ -279,7 +280,8 @@ def _portable_command(words: list[str], cache: dict[str, str], *, link: bool, bi
 
 
 
-def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bool) -> None:
+def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bool,
+                     admitted_build_inputs: set[Path] | None = None) -> None:
     """Bind effective driver tools and code generation to the verified cohort."""
     from .model import WorkspaceError
     try:
@@ -298,6 +300,11 @@ def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bo
             raise ValueError("external compiler, assembler, linker or extra tool selected")
         if cc1:
             args = cc1[0]
+            if (args.count("-o") != 1
+                    or any(arg.startswith("--output") or (arg.startswith("-o") and arg != "-o") for arg in args)
+                    or _portable_build_path(args[args.index("-o") + 1], binary)
+                    != _portable_compile_output(words, binary)):
+                raise ValueError("effective compile output changed")
             for option, expected in (("-target-cpu", "x86-64"), ("-tune-cpu", "generic"),
                     ("-triple", evidence["target"]), ("-resource-dir", LLVM_ROOT + "/lib/clang/23")):
                 if args.count(option) != 1 or args[args.index(option) + 1] != expected:
@@ -309,8 +316,15 @@ def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bo
                 raise ValueError("effective code generation changed")
         else:
             args = links[0]
-            export.portable_link_inputs(args, binary=binary, llvm_root=LLVM_ROOT)
-            searches = export.portable_library_paths(args, binary=binary, llvm_root=LLVM_ROOT, installed=True)
+            if (words.count("-o") != 1 or args.count("-o") != 1
+                    or any(arg.startswith("--output") or (arg.startswith("-o") and arg != "-o") for arg in args)
+                    or _portable_build_path(args[args.index("-o") + 1], binary)
+                    != _portable_build_path(words[words.index("-o") + 1], binary)):
+                raise ValueError("effective link output changed")
+            export.portable_link_inputs(args, binary=binary, llvm_root=LLVM_ROOT,
+                                        admitted_build_inputs=admitted_build_inputs)
+            searches = export.portable_library_paths(args, binary=None if admitted_build_inputs is not None else binary,
+                                                    llvm_root=LLVM_ROOT, installed=True)
             if (not searches or searches[0] != LLVM_ROOT + "/lib" or runtime not in args
                     or "-lunwind" not in args or args.count("-m") != 1
                     or args[args.index("-m") + 1] != "elf_x86_64"
@@ -322,9 +336,119 @@ def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bo
     except (OSError, ValueError, IndexError, KeyError, TypeError, export.ExportError, subprocess.SubprocessError) as error:
         raise WorkspaceError("portable effective compiler/linker contract changed") from error
 
+def _portable_build_path(value: str, binary: Path) -> Path:
+    """Resolve generated outputs and inputs only inside the canonical build tree."""
+    path = Path(value)
+    resolved = (path if path.is_absolute() else binary / path).resolve()
+    if not resolved.is_relative_to(binary) or resolved == binary:
+        raise ValueError("generated path escapes the portable build tree")
+    return resolved
+
+
+def _portable_compile_output(words: list[str], binary: Path) -> Path:
+    if (words.count("-o") != 1 or words.count("-c") != 1
+            or any(word.startswith("-o") and word != "-o" for word in words)
+            or words.index("-o") + 1 >= len(words) or words.index("-c") + 1 >= len(words)):
+        raise ValueError("invalid compile output or source")
+    output = _portable_build_path(words[words.index("-o") + 1], binary)
+    if output.suffix != ".o":
+        raise ValueError("unexpected compile output")
+    return output
+
+
+def _portable_ninja_commands(report: str, binary: Path, evidence: dict,
+                             compile_commands: dict[Path, list[str]], source: Path) -> tuple[list[str], set[Path]]:
+    """Recognize the finite CMake recipes emitted by the pinned Classic source."""
+    compiled = set()
+    archives = set()
+    link = None
+    link_inputs = None
+    generators = 0
+    compilers = {LLVM_ROOT + "/bin/clang", LLVM_ROOT + "/bin/clang++"}
+    for line in report.splitlines():
+        if not line.strip():
+            continue
+        if link is not None:
+            raise ValueError("unexpected command after final link")
+        lexer = shlex.shlex(line, posix=True, punctuation_chars=";&|<>()")
+        lexer.whitespace_split = True
+        lexer.commenters = ""
+        words = list(lexer)
+        if any((word != "&&" and word and all(char in ";&|<>()" for char in word))
+               or "$" in word or "`" in word or re.search(r"[*?\[]", word) for word in words):
+            raise ValueError("unsupported Ninja shell command")
+        segments = [[]]
+        for word in words:
+            if word == "&&":
+                segments.append([])
+            else:
+                segments[-1].append(word)
+        if any(not segment for segment in segments):
+            raise ValueError("empty Ninja command")
+        if len(segments) == 1 and words[0] in compilers and "-c" in words:
+            output = _portable_compile_output(words, binary)
+            compile_source = Path(words[words.index("-c") + 1])
+            compile_source = (compile_source if compile_source.is_absolute() else binary / compile_source).resolve()
+            if compile_source.is_relative_to(source.resolve()) and generators != 1:
+                raise ValueError("client compilation precedes shader generator")
+            normalized = list(words)
+            option = words.index("-o")
+            dependency = ["-MD", "-MT", words[option + 1], "-MF", words[option + 1] + ".d"]
+            if option >= 5 and words[option - 5:option] == dependency:
+                if words[option + 2:option + 3] != ["-c"]:
+                    raise ValueError("unexpected dependency placement")
+                normalized = words[:option - 5] + words[option:]
+            if output in compiled or compile_commands.get(output) != normalized:
+                raise ValueError("Ninja compiler differs from admitted compile database")
+            compiled.add(output)
+            continue
+        if len(segments) == 5 and segments[0] == [":"] and segments[-1] == [":"]:
+            remove, create, index = segments[1:4]
+            ar = LLVM_ROOT + "/bin/llvm-ar"
+            ranlib = LLVM_ROOT + "/bin/llvm-ranlib"
+            if (len(remove) != 5 or remove[:4] != ["/usr/bin/cmake", "-E", "rm", "-f"]
+                    or len(create) < 4 or create[:2] != [ar, "qc"]
+                    or len(index) != 2 or index[0] != ranlib):
+                raise ValueError("unexpected archive recipe")
+            for role, tool in (("archiver", ar), ("ranlib", ranlib)):
+                if Path(tool).resolve() != Path(evidence["tools"][role]["path"]).resolve():
+                    raise ValueError("archive tool identity changed")
+            archive = _portable_build_path(create[2], binary)
+            if (archive.suffix != ".a" or archive in archives
+                    or _portable_build_path(remove[4], binary) != archive
+                    or _portable_build_path(index[1], binary) != archive):
+                raise ValueError("archive output changed")
+            members = [_portable_build_path(member, binary) for member in create[3:]]
+            if len(set(members)) != len(members) or not set(members).issubset(compiled):
+                raise ValueError("duplicate or missing earlier archive member producer")
+            archives.add(archive)
+            continue
+        if len(segments) == 3 and segments[0] == [":"] and segments[-1] == [":"]:
+            command = segments[1]
+            if (link is not None or command[0] not in compilers or "-c" in command
+                    or command.count("-o") != 1 or command.index("-o") + 1 >= len(command)
+                    or _portable_build_path(command[command.index("-o") + 1], binary) != binary / "atrinik"):
+                raise ValueError("unexpected final link recipe")
+            link = command
+            link_inputs = compiled | archives
+            continue
+        generator = ["/usr/bin/python3", str(source / "tools/embed_gpu_shaders.py"),
+                     "--input", "/opt/atrinik-portable/shaders", "--manifest", str(source / "shaders/SHA256SUMS"),
+                     "--output", str(binary / "src/include/gpu_shader_data.h")]
+        if segments == [["cd", str(binary)], generator] and generators == 0:
+            generators += 1
+            continue
+        raise ValueError("unrecognized Ninja command recipe")
+    if link is None or generators != 1:
+        raise ValueError("missing final link, shader generator or archive member producer")
+    return link, link_inputs
+
+
 def validate_portable_build(binary: Path, evidence: dict) -> bytes:
     """Check cached settings and generated compile/link commands before export."""
     from .model import WorkspaceError
+    if not binary.is_absolute() or binary.resolve() != binary:
+        raise WorkspaceError("portable build directory is not canonical")
     raw = _read_regular(binary / "CMakeCache.txt")
     values = {}
     for line in raw.decode("utf-8").splitlines():
@@ -350,12 +474,23 @@ def validate_portable_build(binary: Path, evidence: dict) -> bytes:
         commands = json.loads(_read_regular(binary / "compile_commands.json"), object_pairs_hook=export._unique_object)
         if not isinstance(commands, list) or not commands:
             raise ValueError("missing compile commands")
+        compile_commands = {}
         for record in commands:
             words = record.get("arguments") or shlex.split(record["command"])
             if not isinstance(words, list) or not all(isinstance(word, str) for word in words):
                 raise ValueError("invalid command")
             if record.get("directory") != str(binary):
                 raise ValueError("compile working directory changed")
+            output = _portable_compile_output(words, binary)
+            compile_source = Path(words[words.index("-c") + 1])
+            compile_source = (compile_source if compile_source.is_absolute() else binary / compile_source).resolve()
+            declared_source = Path(record["file"])
+            declared_source = (declared_source if declared_source.is_absolute() else binary / declared_source).resolve()
+            if declared_source != compile_source:
+                raise ValueError("compile database source operand changed")
+            if output in compile_commands:
+                raise ValueError("duplicate compile database output")
+            compile_commands[output] = words
             _portable_command(words, values, link=False)
             _portable_driver(words, evidence, binary, link=False)
         result = subprocess.run(["/usr/bin/ninja", "-C", str(binary), "-t", "commands", "atrinik"],
@@ -363,24 +498,9 @@ def validate_portable_build(binary: Path, evidence: dict) -> bytes:
                                 env={"PATH": PORTABLE_PATH, "LC_ALL": "C"})
         if len(result.stdout) > export.MAX_MANIFEST_BYTES:
             raise ValueError("command report too large")
-        links = []
-        for line in result.stdout.splitlines():
-            words = shlex.split(line)
-            if ("-o" in words and "-c" not in words and words.index("-o") + 1 < len(words)
-                    and (Path(words[words.index("-o") + 1]).name == "atrinik"
-                         or ".so" in Path(words[words.index("-o") + 1]).suffixes)):
-                command = words[2:] if words[:2] == [":", "&&"] else words
-                if "&&" in command:
-                    tail = command[command.index("&&") + 1:]
-                    if tail != [":"]:
-                        raise ValueError("unexpected linker command suffix")
-                    command = command[:command.index("&&")]
-                links.append(command)
-        if not links:
-            raise ValueError("missing link commands")
-        for command in links:
-            _portable_command(command, values, link=True, binary=binary)
-            _portable_driver(command, evidence, binary, link=True)
+        command, admitted = _portable_ninja_commands(result.stdout, binary, evidence, compile_commands, source)
+        _portable_command(command, values, link=True)
+        _portable_driver(command, evidence, binary, link=True, admitted_build_inputs=admitted)
     except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError) as error:
         raise WorkspaceError("portable compile/link evidence is unavailable or invalid") from error
     return raw

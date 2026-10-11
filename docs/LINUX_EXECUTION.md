@@ -762,7 +762,17 @@ verified LLVM runtime directory first. Every linker search directory and direct
 input is restricted to the pinned producer library directories or the owned build
 tree. Export rechecks the CMake
 cache, generated compile/link invocations and bounded effective Clang driver
-reports before publication; compiler,
+reports before publication. The generated and effective linker outputs must
+name the same owned artifact, with exactly one link to the exported `atrinik`
+executable. Every Ninja row must match the pinned source's finite compiler,
+archive, final link or shader embedding recipe. Actual compiler rows must match
+the validated compilation database, allowing only CMake's exact dependency-file
+options and the declared source operand. Client compilation must follow its
+source-bound shader generator. Archive recipes must remove the matching old archive, then create and
+index it with admitted LLVM tools and admitted object members. Effective owned
+link inputs must have admitted graph producers; build-tree library search paths
+are refused. These checks establish generated graph consistency under the
+existing immutable source and leased-build assumptions; compiler,
 optimization, CPU, runtime or LTO drift refuses export.
 It records class, endianness, machine, interpreter, static dependencies, runtime
 search paths and version-needed records by provider. The structural dependency

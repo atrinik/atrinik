@@ -9,6 +9,7 @@ from unittest import mock
 import os
 from pathlib import Path
 import shutil
+import shlex
 import subprocess
 import sys
 import tarfile
@@ -63,11 +64,24 @@ class PortablePublicationTests(unittest.TestCase):
         if "-c" in command:
             args = [str(Path(evidence["tools"]["compiler"]["path"]).resolve()), "-cc1", "-emit-obj",
                     "-triple", evidence["target"], "-target-cpu", "x86-64", "-tune-cpu", "generic",
-                    "-resource-dir", portable.LLVM_ROOT + "/lib/clang/23", "-O2"]
+                    "-resource-dir", portable.LLVM_ROOT + "/lib/clang/23", "-O2",
+                    "-o", command[command.index("-o") + 1]]
         else:
             args = [evidence["tools"]["linker"]["path"], "-m", "elf_x86_64",
-                    "-L" + portable.LLVM_ROOT + "/lib", evidence["runtime"]["path"], "-lunwind"]
+                    "-o", command[command.index("-o") + 1],
+                    "-L" + portable.LLVM_ROOT + "/lib", evidence["runtime"]["path"], "-lunwind",
+                    *[word for word in command[1:] if word.endswith((".o", ".a"))]]
         return " ".join(json.dumps(arg) for arg in args) + "\n"
+
+    def ninja_report(self, binary, source, compile_words, link_words, archive=None):
+        generator = ["/usr/bin/python3", str(source / "tools/embed_gpu_shaders.py"),
+                     "--input", "/opt/atrinik-portable/shaders", "--manifest", str(source / "shaders/SHA256SUMS"),
+                     "--output", str(binary / "src/include/gpu_shader_data.h")]
+        rows = ["cd " + shlex.quote(str(binary)) + " && " + shlex.join(generator), shlex.join(compile_words)]
+        if archive:
+            rows.append(archive)
+        rows.append(": && " + shlex.join(link_words) + " && :")
+        return "\n".join(rows) + "\n"
 
     def audio_archive(self, *, duplicate=False, linked=False):
         payload = b"Original attribution and license text\n"
@@ -120,18 +134,100 @@ class PortablePublicationTests(unittest.TestCase):
                 if case == "toolchain": cache = cache.replace(str(self.root / "cmake/toolchains/llvm.cmake"), "/tmp/unverified.cmake")
                 if case == "source": cache = cache.replace("CMAKE_HOME_DIRECTORY:INTERNAL=" + str(self.root), "CMAKE_HOME_DIRECTORY:INTERNAL=/tmp/other-source")
                 (binary / "CMakeCache.txt").write_text(cache)
-                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": commands, "directory": str(binary)}]))
+                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": commands, "directory": str(binary), "file": commands[commands.index("-c") + 1]}]))
                 with mock.patch.object(portable.subprocess, "run", return_value=
-                    subprocess.CompletedProcess([], 0, stdout=" ".join(link) + "\n")), \
+                    subprocess.CompletedProcess([], 0, stdout=self.ninja_report(binary, self.root, commands, link))), \
                      mock.patch.object(export, "_tool_report", side_effect=self.driver_report):
                     if case == "valid": portable.validate_portable_build(binary, self.driver_evidence())
                     else:
                         with self.assertRaises(WorkspaceError): portable.validate_portable_build(binary, self.driver_evidence())
 
+    def test_ninja_graph_binds_outputs_compilers_archives_and_generator(self):
+        binary = self.root / "build"
+        binary.mkdir()
+        compiler = portable.LLVM_ROOT + "/bin/clang"
+        compile_words = [compiler, "-o", "fixture.o", "-c", "fixture.c"]
+        admitted = {binary / "fixture.o": compile_words}
+        ar = portable.LLVM_ROOT + "/bin/llvm-ar"
+        ranlib = portable.LLVM_ROOT + "/bin/llvm-ranlib"
+        evidence = {"tools": {"archiver": {"path": ar}, "ranlib": {"path": ranlib}}}
+        recipe = f": && /usr/bin/cmake -E rm -f owned.a && {ar} qc owned.a fixture.o && {ranlib} owned.a && :"
+        link_words = [compiler, "owned.a", "-o", "atrinik"]
+        normal = self.ninja_report(binary, self.root, compile_words, link_words, recipe)
+        self.assertEqual(portable._portable_ninja_commands(normal, binary, evidence, admitted, self.root)[1],
+                         {binary / "fixture.o", binary / "owned.a"})
+        deps = normal.replace("-o fixture.o -c", "-MD -MT fixture.o -MF fixture.o.d -o fixture.o -c")
+        portable._portable_ninja_commands(deps, binary, evidence, admitted, self.root)
+        (binary / "escape").symlink_to(self.root)
+        hostile = [normal.replace("-o atrinik", "-o /tmp/atrinik"),
+                   recipe + "\n" + normal.replace(recipe + "\n", ""),
+                   shlex.join(compile_words) + "\n" + normal.replace(shlex.join(compile_words) + "\n", ""),
+                   ": && " + shlex.join(link_words) + " && :\n" + normal,
+                   normal.replace("-o atrinik", "-o ../atrinik"),
+                   normal.replace("-o atrinik", "-o escape/atrinik"),
+                   normal.replace("-o atrinik", "-o nested/atrinik"),
+                   normal.replace("-o atrinik", "-o atrinik -o other"),
+                   normal.replace(ar, "/unrecorded/llvm-ar"),
+                   normal.replace(ranlib, "/unrecorded/llvm-ranlib"),
+                   normal.replace("rm -f owned.a", "rm -f other.a"),
+                   normal.replace("qc owned.a", "qc ../owned.a"),
+                   normal.replace("qc owned.a fixture.o", "qc owned.a unowned.o"),
+                   normal.replace("qc owned.a fixture.o", "qc owned.a fixture.o fixture.o"),
+                   normal.replace("qc owned.a fixture.o", "qc owned.a @members.rsp"),
+                   normal.replace("qc owned.a", "qT owned.a"),
+                   normal.replace(recipe, f"{ar} qc owned.a fixture.o\n{ranlib} owned.a"),
+                   normal.replace(shlex.join(compile_words), "/tmp/foreign-clang -o fixture.o -c fixture.c"),
+                   normal.replace("-o fixture.o", "-o fixture.o -oelsewhere.o"),
+                   normal.replace(shlex.join(compile_words), ""),
+                   deps.replace("-MT fixture.o", "-MT other.o"),
+                   deps.replace("-MF fixture.o.d", "-MF foreign.d"),
+                   normal + "/usr/bin/python3 -c \"open('fixture.o','wb').write(b'foreign')\"\n",
+                   normal + "cp /tmp/foreign.o fixture.o\n",
+                   normal.replace("fixture.c", "*.c"),
+                   normal.replace("qc owned.a fixture.o", "qc owned.a *.o"),
+                   normal.replace("cd " + str(binary), "cd /tmp"),
+                   normal.replace("gpu_shader_data.h", "unowned.h"),
+                   normal.replace("embed_gpu_shaders.py", "foreign.py"),
+                   normal.replace("/opt/atrinik-portable/shaders --manifest", "/tmp/shaders --manifest"),
+                   normal + shlex.join(compile_words) + "\n",
+                   normal + ": && " + shlex.join(link_words) + " && :\n"]
+        for report in hostile:
+            with self.subTest(report=report), self.assertRaises((ValueError, KeyError)):
+                portable._portable_ninja_commands(report, binary, evidence, admitted, self.root)
+        # Core-library sources do not consume the client shader header.
+        client_source = self.root / "client-source"
+        core_words = [compiler, "-o", "fixture.o", "-c", str(self.root / "libatrinik/core.c")]
+        core_report = self.ninja_report(binary, client_source, core_words, link_words, recipe)
+        core_report = shlex.join(core_words) + "\n" + core_report.replace(shlex.join(core_words) + "\n", "")
+        portable._portable_ninja_commands(core_report, binary, evidence, {binary / "fixture.o": core_words}, client_source)
+        for output in ("./atrinik", str(binary / "atrinik")):
+            portable._portable_ninja_commands(normal.replace("-o atrinik", "-o " + output),
+                                             binary, evidence, admitted, self.root)
+        orphan_link = [compiler, "missing.o", "-o", "atrinik"]
+        with mock.patch.object(export, "_tool_report", side_effect=self.driver_report):
+            with self.assertRaisesRegex(WorkspaceError, "effective compiler/linker contract changed"):
+                portable._portable_driver(orphan_link, self.driver_evidence(), binary,
+                                          link=True, admitted_build_inputs=set())
+        spaced = self.root / "build with spaces"
+        spaced.mkdir()
+        portable._portable_ninja_commands(self.ninja_report(spaced, self.root, compile_words, link_words, recipe),
+                                         spaced, evidence, {spaced / "fixture.o": compile_words}, self.root)
+        with self.assertRaises(ValueError):
+            portable._portable_compile_output([*compile_words, "-oelsewhere.o"], binary)
+        alias = self.root / "alias"
+        alias.symlink_to(binary, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "not canonical"):
+            portable.validate_portable_build(alias, {})
+        with self.assertRaisesRegex(export.ExportError, "missing build input producer"):
+            export.portable_link_inputs(["ld.lld", "missing.o"], binary=binary, admitted_build_inputs=set())
+        for report in (["ld.lld", "-L", str(binary), "-lfoo"], ["ld.lld", "-L" + str(binary), "-lfoo"]):
+            with self.assertRaises(export.ExportError):
+                export.portable_library_paths(report, binary=None, installed=True)
+
     def test_effective_cxx_driver_uses_its_own_identity(self):
         evidence = self.driver_evidence()
         evidence["tools"]["cxx_compiler"] = {"path": str(self.root / "distinct-cxx")}
-        words = [portable.LLVM_ROOT + "/bin/clang++", "-c", "fixture.cpp"]
+        words = [portable.LLVM_ROOT + "/bin/clang++", "-c", "fixture.cpp", "-o", "fixture.o"]
         c_report = self.driver_report(words)
         cxx_report = c_report.replace(str(Path(evidence["tools"]["compiler"]["path"]).resolve()),
                                      evidence["tools"]["cxx_compiler"]["path"])
@@ -177,12 +273,18 @@ class PortablePublicationTests(unittest.TestCase):
 
     def test_effective_driver_refuses_external_tools_and_codegen_runtime_changes(self):
         evidence = self.driver_evidence()
-        compile_words = [portable.LLVM_ROOT + "/bin/clang", "-c", "fixture.c"]
+        compile_words = [portable.LLVM_ROOT + "/bin/clang", "-c", "fixture.c", "-o", "fixture.o"]
         link_words = [portable.LLVM_ROOT + "/bin/clang", "fixture.o", "-o", "atrinik"]
         cc1 = self.driver_report(compile_words)
         linker = self.driver_report(link_words)
         cases = [(cc1, False, True), (linker, True, True),
+                 (linker.replace('"atrinik"', '"/tmp/atrinik"'), True, False),
+                 (linker.rstrip() + ' "-o" "atrinik"\n', True, False),
+                 (linker.rstrip() + ' "--output=/tmp/atrinik"\n', True, False),
                  (cc1.replace('"x86-64"', '"haswell"'), False, False),
+                 (cc1.replace('"fixture.o"', '"elsewhere.o"'), False, False),
+                 (cc1.rstrip() + ' "-oelsewhere.o"\n', False, False),
+                 (cc1.rstrip() + ' "--output=elsewhere.o"\n', False, False),
                  (cc1.replace('"-O2"', '"-O3"'), False, False),
                  (cc1.replace('/lib/clang/23"', '/foreign-runtime"'), False, False),
                  (cc1.rstrip() + ' "-target-feature" "+avx2"\n', False, False),
@@ -548,11 +650,11 @@ class PortablePublicationTests(unittest.TestCase):
                 (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(self.root)}}))
                 compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                                  "-O2", "-DNDEBUG", "--no-default-config", "-c", "fixture.c", "-o", "fixture.o"]
-                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": compile_words, "directory": str(binary)}]))
+                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": compile_words, "directory": str(binary), "file": compile_words[compile_words.index("-c") + 1]}]))
                 link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
                               "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
                 patches.enter_context(mock.patch.object(portable.subprocess, "run", return_value=
-                    subprocess.CompletedProcess([], 0, stdout=" ".join(link_words) + "\n")))
+                    subprocess.CompletedProcess([], 0, stdout=self.ninja_report(binary, self.root, compile_words, link_words))))
                 released = directory / "released"
                 released.mkdir()
                 (released / "COPYING").write_bytes(b"released sound attribution")
