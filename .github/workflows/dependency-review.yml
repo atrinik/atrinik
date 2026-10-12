@@ -37,7 +37,7 @@ jobs:
           retry-on-snapshot-warnings: true
           retry-on-snapshot-warnings-timeout: 120
       - name: Report advisory review failures
-        if: always() && steps.dependency_review.outcome == 'failure'
+        if: ${{ !cancelled() && steps.dependency_review.outcome == 'failure' }}
         continue-on-error: true
         timeout-minutes: 2
         env:
