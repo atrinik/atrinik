@@ -41,7 +41,7 @@ class WindowsProducerFallbackTests(unittest.TestCase):
     def synthetic_build(self, command, **kwargs):
         if command[0] == "docker":
             self.build_commands.append(command)
-            if command[command.index("--user") + 1] != "0:0":
+            if command[-2:] == ["bash", "/workspace/.atrinik-build-windows.sh"]:
                 self.write_archives()
             return ""
         if command[0] == str(self.fixture.build_tools / "bash"):
@@ -72,6 +72,24 @@ class WindowsProducerFallbackTests(unittest.TestCase):
         self.assertEqual(len(self.build_commands), 2)
         self.assertTrue(all(command[0] == "docker" for command in self.build_commands))
         identity.assert_not_called()
+
+    def test_container_fixture_writes_archives_for_root_and_nonroot_builds(self):
+        for uid, gid in ((0, 0), (1000, 1001)):
+            with self.subTest(uid=uid, gid=gid), \
+                 mock.patch("atrinik_workspace.workspace.os.getuid", return_value=uid), \
+                 mock.patch("atrinik_workspace.workspace.os.getgid", return_value=gid), \
+                 mock.patch.object(self.workspace, "_local_windows_build_environment",
+                                   return_value=None) as local_environment:
+                client, server, record = self.build()
+            local_environment.assert_called_once_with()
+            self.assertEqual(record["mode"], "container")
+            self.assertTrue(client.is_file())
+            self.assertTrue(server.is_file())
+            initialize, build = self.build_commands
+            self.assertEqual(initialize[initialize.index("--user") + 1], "0:0")
+            self.assertEqual(build[build.index("--user") + 1], f"{uid}:{gid}")
+            self.assertEqual(build[-2:], ["bash", "/workspace/.atrinik-build-windows.sh"])
+            self.reset_staging()
 
     def test_each_missing_host_tool_selects_docker_before_any_local_probe(self):
         for name in ("cmake", "cpack", "ninja", "bash"):
