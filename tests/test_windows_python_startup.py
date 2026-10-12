@@ -5,36 +5,28 @@ import json
 import os
 from pathlib import Path
 import subprocess
-import tempfile
 import unittest
 from unittest import mock
 
 from atrinik_workspace.model import WorkspaceError
 from atrinik_workspace.workspace import Workspace
+from tests import test_local_windows_producer as fixtures
 
 
 class WindowsPythonStartupTests(unittest.TestCase):
     def setUp(self):
-        temporary = tempfile.TemporaryDirectory()
-        self.addCleanup(temporary.cleanup)
-        self.root = Path(temporary.name)
-        self.toolchain = self.root / "toolchain.cmake"
-        self.toolchain.write_text("set(CMAKE_SYSTEM_NAME Windows)\n")
-        self.runtime = self.root / "target-python-runtime"
-        self.runtime.mkdir()
-        self.environment = {
-            "PATH": "/usr/bin:/bin", "HOME": str(self.root / "home"),
-            "ATRINIK_WINDOWS_TARGET": "x86_64-w64-mingw32",
-            "ATRINIK_WINDOWS_TOOLCHAIN_FILE": str(self.toolchain),
-            "ATRINIK_WINDOWS_RUNTIME_DIR": str(self.runtime),
-            "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR": str(self.runtime),
-            "ATRINIK_WINDOWS_PYTHON_LIBRARY": str(self.toolchain),
-            "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR": str(self.runtime),
-        }
+        fixture = fixtures.LocalWindowsProducerTests(
+            "test_actual_local_files_are_rehashed_for_each_admission"
+        )
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        self.root = fixture.root
+        self.toolchain = fixture.toolchain
+        self.runtime = fixture.runtime
+        self.environment = {**fixture.environment, "HOME": str(self.root / "home")}
 
     def sanitized(self, environment):
-        with mock.patch.dict(os.environ, environment, clear=True), \
-             mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/sdk/tool"):
+        with mock.patch.dict(os.environ, environment, clear=True):
             result = Workspace._local_windows_build_environment()
             self.assertEqual(dict(os.environ), environment)
         self.assertIsNotNone(result)

@@ -58,6 +58,7 @@ class LocalWindowsProducerTests(unittest.TestCase):
         self.runtime.mkdir(parents=True)
         for name in ("libc++.dll", "libunwind.dll", "libwinpthread-1.dll", "x86_64-w64-mingw32-pkg-config"):
             (self.runtime / name).write_bytes(b"test producer input")
+        (self.runtime / "x86_64-w64-mingw32-pkg-config").chmod(0o755)
         self.toolchain = self.root / "toolchain.cmake"
         recipe = (Path(__file__).parent / "fixtures/windows_llvm/toolchain.cmake").read_text()
         recipe = "\n".join(line for line in recipe.splitlines() if "COMPILER_LAUNCHER" not in line) + "\n"
