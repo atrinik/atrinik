@@ -11320,26 +11320,28 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("compiler-rt", first["values"]["CMAKE_EXE_LINKER_FLAGS"])
 
     def test_local_windows_environment_requires_neutral_llvm_contract(self) -> None:
-        toolchain = self.root / "windows-toolchain.cmake"
-        toolchain.write_text("set(CMAKE_SYSTEM_NAME Windows)\n")
-        directory = self.root / "windows-runtime"
-        directory.mkdir()
-        environment = {
-            "ATRINIK_WINDOWS_TARGET": "x86_64-w64-mingw32",
-            "ATRINIK_WINDOWS_TOOLCHAIN_FILE": str(toolchain),
-            "ATRINIK_WINDOWS_RUNTIME_DIR": str(directory),
-            "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR": str(directory),
-            "ATRINIK_WINDOWS_PYTHON_LIBRARY": str(toolchain),
-            "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR": str(directory),
-        }
+        from tests import test_local_windows_producer as windows_fixtures
+
+        fixture = windows_fixtures.LocalWindowsProducerTests(
+            "test_actual_local_files_are_rehashed_for_each_admission"
+        )
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        environment = dict(fixture.environment)
+        expected_tools = ("cmake", "cpack", "ninja", "bash")
         with mock.patch.dict(os.environ, environment, clear=True), \
-             mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/tool") as which:
+             mock.patch("atrinik_workspace.workspace.shutil.which",
+                        side_effect=lambda name, *, path: str(fixture.build_tools / name)) as which:
             self.assertIsNotNone(self.workspace._local_windows_build_environment())
-            self.assertIn(mock.call("cmake"), which.call_args_list)
-            self.assertIn(mock.call("x86_64-w64-mingw32-clang"), which.call_args_list)
+        self.assertEqual(which.call_args_list, [
+            mock.call(name, path=fixture.environment["PATH"])
+            for name in expected_tools
+        ])
         environment.pop("ATRINIK_WINDOWS_TARGET")
-        with mock.patch.dict(os.environ, environment, clear=True):
+        with mock.patch.dict(os.environ, environment, clear=True), \
+             mock.patch("atrinik_workspace.workspace.shutil.which") as which:
             self.assertIsNone(self.workspace._local_windows_build_environment())
+        which.assert_not_called()
 
     def test_tool_identity_handles_wrappers_and_empty_version_output(self) -> None:
         with (
