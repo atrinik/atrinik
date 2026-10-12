@@ -6,9 +6,12 @@ name: Dependency review
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
-    branches: [main]
   merge_group:
     types: [checks_requested]
+
+concurrency:
+  group: dependency-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -21,13 +24,24 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        id: dependency_review
         continue-on-error: true
         with:
           fail-on-severity: low
           fail-on-scopes: runtime,development,unknown
           warn-only: true
-          license-check: false
+          license-check: true
           comment-summary-in-pr: always
           show-openssf-scorecard: false
           retry-on-snapshot-warnings: true
           retry-on-snapshot-warnings-timeout: 120
+      - name: Report advisory review failures
+        if: always() && steps.dependency_review.outcome == 'failure'
+        continue-on-error: true
+        run: |
+          echo '::warning::Dependency review needs attention. The action failed; vulnerability and license results may be unavailable.'
+          {
+            echo '## Dependency review needs attention'
+            echo
+            echo 'Action reported a failure; remains advisory. Review available report, annotations and logs; if report absent vulnerability/license results unknown.'
+          } >> "$GITHUB_STEP_SUMMARY"
