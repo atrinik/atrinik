@@ -2155,15 +2155,18 @@ class ScopeLifecycle:
             raise WorkspaceError(f"scope record contains forbidden secret-shaped fields: {name}")
 
     def profile_owner(self, profile_name: str) -> str | None:
-        for record in self.list():
-            if record["profile"]["name"] == profile_name:
-                return record["name"]
-        if not self.root.exists() or self.root.is_symlink() or not self.root.is_dir():
+        if not self.root.exists():
             return None
+        if self.root.is_symlink() or not self.root.is_dir():
+            raise WorkspaceError(f"scope registry is unsafe: {self.root}")
         for directory in sorted(self.root.iterdir()):
             if directory.is_symlink() or not directory.is_dir():
                 continue
             if profile_name == f"scope-{directory.name}":
+                # Canonical names identify the only possible owner. Validate
+                # its completed record without inspecting unrelated scopes.
+                if (directory / "scope.json").is_file():
+                    self._load_record(directory.name)
                 return directory.name
         return None
 

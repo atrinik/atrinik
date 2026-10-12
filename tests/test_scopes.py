@@ -3137,6 +3137,47 @@ class ScopeLifecycleTests(unittest.TestCase):
         self.assertTrue(result["released"])
         self.assertFalse(root.exists())
 
+    def test_disjoint_malformed_scope_does_not_block_profile_updates(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="malformed-owner")
+        record["worktrees"][0]["path"] = str(self.root / "foreign-native-play")
+        record_path = self.workspace.paths.scopes / record["name"] / "scope.json"
+        atomic_json(record_path, record)
+        before = record_path.read_bytes()
+
+        for name in ("healthy-profile", "scope-disjoint-owner"):
+            with self.subTest(profile=name):
+                self.workspace.create_profile(name)
+                self.workspace.set_profile(name, "client", "primary")
+                self.assertEqual(
+                    self.workspace.component_path("client", name),
+                    self.wrapper / "client",
+                )
+        self.assertEqual(record_path.read_bytes(), before)
+
+        with self.assertRaisesRegex(WorkspaceError, "scope worktree path is invalid"):
+            self.workspace.scope_show(record["name"])
+        with self.assertRaisesRegex(WorkspaceError, "scope worktree path is invalid"):
+            self.workspace.scope_list()
+        _references, errors = Cleanup(self.workspace)._references()
+        self.assertIn("scope_inventory_error", errors)
+
+    def test_matching_malformed_scope_blocks_profile_updates(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="malformed-owner")
+        record["worktrees"][0]["path"] = str(self.root / "foreign-native-play")
+        record_path = self.workspace.paths.scopes / record["name"] / "scope.json"
+        atomic_json(record_path, record)
+        profile_name = record["profile"]["name"]
+        profile_path = Path(record["profile"]["path"])
+        before = profile_path.read_bytes()
+
+        with self.assertRaisesRegex(WorkspaceError, "scope worktree path is invalid"):
+            self.workspace.create_profile(profile_name)
+        with self.assertRaisesRegex(WorkspaceError, "scope worktree path is invalid"):
+            self.workspace.set_profile(profile_name, "client", "primary")
+        self.assertEqual(profile_path.read_bytes(), before)
+
     def test_scope_profile_is_immutable(self) -> None:
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="immutable")
