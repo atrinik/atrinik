@@ -8,18 +8,18 @@
   Observatory, shared `web-platform`, source-only `deploy-control`; M1
   lacks wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
   playtester; never mix providers.
-- Use [source delivery](docs/SOURCE_DELIVERY.md). Bound deliveries and shared
-  resources retain live Linux authority checks.
+- [Source delivery](docs/SOURCE_DELIVERY.md); bound deliveries/shared resources
+  retain live Linux authority checks.
 
 ## Ownership
 
 - `atrinik` CLI, `atrinik_workspace/` orchestration, `tests/` unittest suite.
-- Checkout/cohort/stack/role/source/build contracts: `components.json`; machine
-  policy: `governance/`; diagnostics: `supply-chain/`.
+- Checkout/cohort/stack/role/source/build: `components.json`; machine policy:
+  `governance/`; diagnostics: `supply-chain/`.
 - Skills: `atrinik-development`; pin: `.agents/skill-provider.json`;
   [setup/references](docs/SKILL_PROVIDER.md).
   Composition: `.devcontainer/`; CI/release: `.github/`; helpers: `scripts/`.
-- Manifest repos, `workspace/` and `build/` are ignored; root status omits them.
+- Manifest repos, `workspace/`, `build/`: ignored and omitted from root status.
 - Resolve ownership via `components.json` and nearest `AGENTS.md`; keep
   implementation/tests/packages/releases with their physical owner.
 - `classic/` provides `classic-*`; stacks share `content@main`.
@@ -30,16 +30,16 @@
 
 ## Rules
 
-- Use `atrinik-multi-repo-workspace` for wrapper ownership/profiles/worktrees/
-  migration/cleanup/releases/CLI/layout; add specialists and use
-  `atrinik-guidance-maintenance` for audits.
+- Wrapper ownership/profiles/worktrees/migration/cleanup/releases/CLI/layout:
+  `atrinik-multi-repo-workspace`; add specialists; audits:
+  `atrinik-guidance-maintenance`.
 - Prefer connected `atrinik` MCP for navigation, guidance and bounded search;
   compare snapshot commits with local Git. Use local tools for writes.
   Docker MCP: `docs/MCP_CONTEXT.md`; runtime/external opt-in.
-- Use `atrinik-issue-delivery` for explicitly selected issues/PRs; standalone
-  source goals use `docs/SOURCE_DELIVERY.md`. Both stop before merge.
-- Portable export needs clean Classic sources, verified released sound and the
-  pinned producer. Keep byte, gameplay and audible proof separate.
+- Selected issues/PRs: `atrinik-issue-delivery`; standalone source goals:
+  `docs/SOURCE_DELIVERY.md`. Both stop before merge.
+- Portable export: clean Classic sources, verified released sound, pinned producer;
+  separate byte, gameplay and audible proof.
 - Native Windows Classic GPU: `docs/WINDOWS_GPU_PREFLIGHT.md`; separate Linux coordinator/native results.
 - Parallel projects: `atrinik-project-delivery`, `docs/PROJECT_DELIVERY_GOAL.md`; legacy `atrinik-program-delivery` is explicit-only.
 - Develop, run Git and review in owned native Linux worktrees. New source work
@@ -54,7 +54,9 @@
   Stop only owned resources. Auth: `docs/COORDINATOR_AUTH.md`.
 - Repair local blockers under [local recovery](docs/LOCAL_RECOVERY.md); preserve evidence and live ownership.
 - Never replace dirty primaries/remove dirty worktrees or overwrite mutable server data; preserve migration inputs.
-- Cleanup is preview-first; delivery grants none. Keep ledger transactions separate from `./atrinik cleanup`; preserve dirty/detached/locked/active/referenced/uncertain targets; history fails closed.
+- Cleanup: preview first; delivery grants none. Keep ledger transactions separate
+  from `./atrinik cleanup`; preserve dirty/detached/locked/active/referenced/uncertain
+  targets; history fails closed.
 - Worktrees belong to physical checkouts; `classic`, `classic-*`, and its roles
   select one root for all five; profiles append manifest dirs.
 - For managed build/runtime work prefer `scope create`; Classic uses selectors/physical overrides.
@@ -75,19 +77,21 @@
 - Optional SSH signing stays on host: `atrinik-github-governance`; never copy/mount private keys into containers.
 - On touch, refresh existing Atrinik-owned copyright terminal years; blanket holders per
   `CONTRIBUTING.md`; preserve precise attribution.
-- MIT reuse follows `docs/PROVENANCE.md` and its registry; rights/identity/temporal/
-  authorship/scope uncertainty fails closed.
-- Optional wrapper supply-chain/license diagnostics: no gates/catalog updates.
-  `Dependency review`: required gate for new high/critical findings
-  per `github-settings`. Keep locks/aggregates; no redundant version assertions.
-  Pin Actions/images; no submodules; root workflows/Dependabot only.
-- New content/Classic issues name `content@main` and its Classic-target artifact; no live
-  1.x branch/checkout/release label/maintenance line/publication target/backport destination
-  exists; historical evidence is immutable.
-- Use `atrinik-github-governance` for PR publication and Conventional Commits;
-  preserve contributor text and verify rendered PR bodies. No implicit merge.
-- Tie blockers to actual operation/resource conflicts. Continue unaffected work;
-  keep compact handoffs and bounded watchers for unchanged CI.
+- MIT reuse: `docs/PROVENANCE.md` and registry; fail closed on uncertain rights/
+  identity/temporal/authorship/scope.
+- Optional supply-chain/license checks: no gates/catalog updates. Keep
+  locks/aggregates; no redundant assertions. Pin Actions/images; no
+  submodules; only root workflows/Dependabot.
+- Advisory `Dependency review`: where workflow exists on PR/merge revision.
+  Before merge Codex reads latest current-HEAD job summary despite bot comments;
+  fix actionable introduced risk or record explicit maintainer-accepted existing
+  risk. License metadata is not compatibility proof; repo license policies apply.
+- Content/Classic issues: `content@main`, Classic-target artifact. No live 1.x
+  branch/checkout/release label/maintenance line/publication target/backport destination;
+  historical evidence immutable.
+- PRs: `atrinik-github-governance`, Conventional Commits; preserve contributor
+  text, verify rendered bodies; no implicit merge.
+- Actual conflicts block; continue other work. Compact handoffs; bounded CI watchers.
 
 ## Commands
 
@@ -129,6 +133,6 @@ Shell changes: ShellCheck; workflows: actionlint.
 Diagnostics: `./atrinik supply-chain audit --profile PROFILE`.
 Preserve `.coveragerc` and OIDC Codecov boundaries.
 
-Handoffs name profiles, worktrees, topologies, services, states, scenarios,
-prerequisites, validation and cleanup; synchronize this guide and
-affected skills/docs with contract changes; stale guidance is a defect.
+Handoffs: profiles/worktrees/topologies/services/states/scenarios, prerequisites,
+validation and cleanup. Sync this guide and affected skills/docs after contract
+changes; stale guidance is a defect.

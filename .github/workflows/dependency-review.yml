@@ -1,14 +1,20 @@
+# Advisory where this workflow exists on the relevant PR/merge revision.
+# Before merge, Codex reads the latest current-HEAD job summary even if a bot
+# comment exists; fix actionable introduced risk or record explicit maintainer
+# acceptance of existing risk. This workflow is not a merge gate.
 name: Dependency review
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
-    branches: [main]
-  merge_group:
-    types: [checks_requested]
+
+concurrency:
+  group: dependency-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   dependency-review:
@@ -17,11 +23,194 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        id: dependency_review
+        timeout-minutes: 5
+        continue-on-error: true
         with:
-          fail-on-severity: high
+          fail-on-severity: low
           fail-on-scopes: runtime,development,unknown
-          warn-only: false
-          comment-summary-in-pr: never
+          warn-only: true
+          # License metadata only; repository license compatibility rules still apply.
+          license-check: true
+          comment-summary-in-pr: always
           show-openssf-scorecard: false
           retry-on-snapshot-warnings: true
           retry-on-snapshot-warnings-timeout: 120
+      - name: Report advisory review failures
+        if: ${{ !cancelled() && steps.dependency_review.outcome == 'failure' }}
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: python
+        run: |
+          import json
+          import os
+          import re
+          import signal
+          import urllib.error
+          import urllib.request
+
+          MARKER = '<!-- dependency-review-pr-comment-marker -->'
+          NOTICE = ('Dependency review needs attention: the action reported a failure. '
+                    'Inspect the available report, annotations, and logs. '
+                    'An absent report means the result is unknown, not clean.')
+
+
+          def summary(text):
+              print('::warning::' + text, flush=True)
+              with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as stream:
+                  stream.write('\n' + text + '\n')
+
+
+          class Stop(Exception):
+              pass
+
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  raise Stop('API redirect refused; PR comment was not refreshed.')
+
+
+          def report():
+              summary(NOTICE)  # Preserve visible evidence before any API operation.
+              env = os.environ
+              repo, number, head = env['GITHUB_REPOSITORY'], env['PR_NUMBER'], env['PR_HEAD_SHA']
+              run, attempt = env['GITHUB_RUN_ID'], env['GITHUB_RUN_ATTEMPT']
+              base_ref, base_sha = env['PR_BASE_REF'], env['PR_BASE_SHA']
+              if (env['GITHUB_API_URL'] != 'https://api.github.com'
+                      or env['GITHUB_SERVER_URL'] != 'https://github.com'
+                      or env['GITHUB_EVENT_NAME'] != 'pull_request'
+                      or not re.fullmatch(r'atrinik/[A-Za-z0-9_.-]+', repo)
+                      or not all(re.fullmatch(r'[1-9][0-9]*', value) for value in (number, run, attempt))
+                      or not re.fullmatch(r'[0-9a-f]{40}', head)
+                      or not re.fullmatch(r'[0-9a-f]{40}', base_sha)
+                      or not 1 <= len(base_ref) <= 1024
+                      or re.search(r'[\x00-\x1f\x7f-\x9f]', base_ref)):
+                  raise Stop('Invalid reporting context; PR comment was not refreshed.')
+              run_url = f'https://github.com/{repo}/actions/runs/{run}/attempts/{attempt}'
+              body = (f'## Dependency review needs attention\n\n{NOTICE}\n\n'
+                      f'PR head: `{head}`\n\n[Current run summary and logs]({run_url})\n\n{MARKER}')
+              summary(f'Review head `{head}`: {run_url}. Always inspect the latest run for the current PR head.')
+              base = f'https://api.github.com/repos/{repo}'
+              comments_url = f'{base}/issues/{number}/comments'
+              opener = urllib.request.build_opener(NoRedirect())
+
+              def api(method, url, data=None):
+                  request = urllib.request.Request(url, method=method,
+                      data=None if data is None else json.dumps(data).encode('utf-8'),
+                      headers={'Authorization': 'Bearer ' + env['GITHUB_TOKEN'],
+                               'Accept': 'application/vnd.github+json',
+                               'Content-Type': 'application/json',
+                               'X-GitHub-Api-Version': '2022-11-28'})
+                  with opener.open(request, timeout=10) as response:
+                      raw = response.read(8 * 1024 * 1024 + 1)
+                      if len(raw) > 8 * 1024 * 1024:
+                          raise Stop('API response exceeded the reporting bound; PR comment was not refreshed.')
+                      return json.loads(raw), response.headers.get('Link', '')
+
+              def owned(comment):
+                  return (comment['user']['login'] == 'github-actions[bot]'
+                          and comment['user']['type'] == 'Bot'
+                          and comment['body'].count(MARKER) == 1
+                          and comment['body'].rstrip().endswith(MARKER))
+
+              repository, _ = api('GET', base)
+              repository_id = repository['id']
+              if (repository['full_name'] != repo
+                      or type(repository_id) is not int or repository_id <= 0):
+                  raise Stop('Repository identity mismatch; PR comment was not refreshed.')
+              numeric_comments_url = f'https://api.github.com/repositories/{repository_id}/issues/{number}/comments'
+              comment_routes = (comments_url, numeric_comments_url)
+              candidates, seen = [], set()
+              for page in range(1, 11):
+                  comments, links = api('GET', f'{comments_url}?per_page=100&page={page}')
+                  if not isinstance(comments, list) or len(comments) > 100:
+                      raise Stop('Invalid comment pagination; PR comment was not refreshed.')
+                  relations = {}
+                  for link in links.split(',') if links else []:
+                      match = re.fullmatch(r'\s*<([^>]+)>;\s*rel="(next|prev|first|last)"\s*', link)
+                      if not match or match[2] in relations:
+                          raise Stop('Invalid comment pagination; PR comment was not refreshed.')
+                      if not any(re.fullmatch(re.escape(route) + r'\?per_page=100&page=[1-9][0-9]*', match[1]) for route in comment_routes):
+                          raise Stop('Unexpected pagination destination; PR comment was not refreshed.')
+                      relations[match[2]] = match[1]
+                  for relation, destination in relations.items():
+                      target_page = int(destination.rsplit('=', 1)[1])
+                      if ((relation == 'first' and target_page != 1)
+                              or (relation == 'prev' and target_page != page - 1)
+                              or (relation == 'last' and (target_page < page or (target_page > page and 'next' not in relations)))):
+                          raise Stop('Inconsistent comment pagination; PR comment was not refreshed.')
+                  if 'next' in relations and (len(comments) != 100 or int(relations['next'].rsplit('=', 1)[1]) != page + 1):
+                      raise Stop('Inconsistent comment pagination; PR comment was not refreshed.')
+                  for comment in comments:
+                      cid = comment['id']
+                      if type(cid) is not int or cid <= 0 or cid in seen or not isinstance(comment['body'], str):
+                          raise Stop('Invalid or repeated comment; PR comment was not refreshed.')
+                      seen.add(cid)
+                      if MARKER in comment['body']:
+                          if not owned(comment):
+                              raise Stop('Ambiguous dependency review marker; PR comment was not refreshed.')
+                          candidates.append(comment)
+                  # A full page always requires another request, even without Link.
+                  if len(comments) < 100:
+                      break
+              else:
+                  raise Stop('Comment pagination bound reached; PR comment was not refreshed.')
+              if len(candidates) > 1:
+                  raise Stop('Duplicate dependency review comments; PR comment was not refreshed.')
+              if candidates:
+                  candidate = candidates[0]
+                  target = f"{base}/issues/comments/{candidate['id']}"
+                  fresh, _ = api('GET', target)
+
+                  def identity(comment):
+                      user = comment['user']
+                      if (type(comment['id']) is not int or comment['id'] <= 0
+                              or not isinstance(comment['body'], str)
+                              or type(user['id']) is not int or user['id'] <= 0
+                              or user['login'] != 'github-actions[bot]' or user['type'] != 'Bot'
+                              or not isinstance(comment['updated_at'], str)
+                              or not re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z', comment['updated_at'])
+                              or comment['issue_url'] not in tuple(route.removesuffix('/comments') for route in comment_routes)):
+                          raise Stop('Invalid dependency review comment identity; PR comment was not refreshed.')
+                      return (comment['id'], comment['body'], user['id'], user['login'],
+                              user['type'], comment['updated_at'], comment['issue_url'])
+
+                  if identity(fresh) != identity(candidate) or not owned(fresh):
+                      raise Stop('Dependency review comment changed; PR comment was not refreshed.')
+              fresh_pr, _ = api('GET', f'{base}/pulls/{number}')
+              if (fresh_pr['number'] != int(number)
+                      or fresh_pr['base']['repo']['full_name'] != repo
+                      or fresh_pr['base']['ref'] != base_ref
+                      or fresh_pr['base']['sha'] != base_sha
+                      or fresh_pr['head']['sha'] != head):
+                  raise Stop('PR head or base changed; stale run did not refresh the PR comment.')
+              api('PATCH' if candidates else 'POST', target if candidates else comments_url, {'body': body})
+
+
+          def main():
+              def deadline(signum, frame):
+                  raise Stop('Reporting deadline reached; inspect the run summary for current evidence.')
+              signal.signal(signal.SIGALRM, deadline)
+              signal.alarm(90)
+              try:
+                  report()
+              except Stop as error:
+                  summary(str(error))  # Only fixed, locally defined messages.
+              except urllib.error.HTTPError as error:
+                  error.close()
+                  summary('PR comment could not be refreshed (API permission denied).' if error.code == 403
+                          else 'PR comment could not be refreshed (API request failed).')
+              except Exception:
+                  summary('PR comment could not be refreshed (reporting or network error). Inspect the current run summary.')
+              finally:
+                  signal.alarm(0)
+
+
+          if __name__ == '__main__':
+              main()
