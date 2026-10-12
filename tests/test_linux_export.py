@@ -52,6 +52,28 @@ class LinuxExportTests(unittest.TestCase):
         self.root.rename(target)
         self.assertEqual(export.verify_export(target), self.manifest)
 
+    def test_real_cli_relocation_needs_no_producer_sdk_or_compiler(self) -> None:
+        target = self.root.parent / "moved folder"
+        self.root.rename(target)
+        repository = Path(__file__).resolve().parents[1]
+        fixture = target.parent / "wrapper"
+        fixture.mkdir()
+        shutil.copy2(repository / "atrinik", fixture / "atrinik")
+        shutil.copy2(repository / "components.json", fixture / "components.json")
+        shutil.copytree(repository / "atrinik_workspace", fixture / "atrinik_workspace",
+                        ignore=shutil.ignore_patterns("__pycache__"))
+        subprocess.run(["git", "init", "--quiet", str(fixture)], check=True, capture_output=True)
+        wrapper = fixture / "atrinik"
+        tools = target.parent / "host-tools"
+        tools.mkdir()
+        (tools / "git").symlink_to(shutil.which("git"))
+        result = subprocess.run([sys.executable, str(wrapper), "linux", "verify", str(target)],
+                                check=False, capture_output=True, text=True, timeout=30,
+                                cwd=target.parent, env={"PATH": str(tools), "LC_ALL": "C"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), self.manifest)
+        self.assertFalse(self.root.exists())
+
     def test_missing_corrupt_extra_and_wrong_mode_payloads_fail(self) -> None:
         target = self.root / "lib/libapp.so"
         for data in (b"corrupt", b"longer library", b""):

@@ -622,6 +622,11 @@ package lock, compiler or `linux_platform` build-tool report. They do require
 the verified complete payload and the native runtime capabilities used by the
 selected test.
 
+`linux verify` does not invoke an ELF inspector: provider and symbol inspection
+runs during export in the pinned producer, while relocation verification checks
+the resulting inventoried bytes. The producer's LLVM inspector is therefore
+not a native host prerequisite for this command.
+
 ## Independent headless server and native client
 
 Use an isolated server workspace and container, with no display/audio mounts or
