@@ -224,6 +224,35 @@ PORTABLE_METADATA_FILES = frozenset({
     "debian-sources.json", "shader-generation.json", "compiler-evidence.json",
 })
 
+PORTABLE_BUILD_TOOL_PATHS = {"cmake": "/usr/bin/cmake", "ninja": "/usr/bin/ninja"}
+
+
+def portable_build_tools(value: object) -> dict:
+    """Validate producer-declared build tools; the caller authenticates metadata."""
+    if (not isinstance(value, dict) or set(value) != {"schema_version", "tools"}
+            or type(value.get("schema_version")) is not int or value["schema_version"] != 1):
+        raise ExportError("portable-producer: build tool identities require a newly verified immutable producer handoff")
+    tools = value["tools"]
+    if not isinstance(tools, dict) or set(tools) != set(PORTABLE_BUILD_TOOL_PATHS):
+        raise ExportError("portable-metadata: incomplete producer build tools")
+    for name, path in PORTABLE_BUILD_TOOL_PATHS.items():
+        record = tools[name]
+        if (not isinstance(record, dict)
+                or set(record) != {"path", "resolved_path", "sha256", "size", "executable", "version"}
+                or record["path"] != path or record["resolved_path"] != path
+                or type(record["size"]) is not int or record["size"] <= 0
+                or record["size"] > 512 * 1024 * 1024 or record["executable"] is not True):
+            raise ExportError("portable-metadata: invalid producer build tool identity")
+        _portable_path(record["resolved_path"])
+        _portable_digest(record["sha256"])
+        version = record["version"]
+        if (not isinstance(version, str) or not version
+                or len(version) > 65536 or any((ord(c) < 32 and c != "\n") or ord(c) == 127 for c in version)
+                or re.fullmatch(r"cmake version [0-9]+\.[0-9]+\.[0-9]+" if name == "cmake"
+                                else r"[0-9]+\.[0-9]+(?:\.[0-9]+)?", version.splitlines()[0]) is None):
+            raise ExportError("portable-metadata: invalid producer build tool version")
+    return tools
+
 
 def _portable_mapping(value: object, label: str) -> dict:
     if not isinstance(value, dict) or len(value) > MAX_FILES:
@@ -538,6 +567,10 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
     for record, version in ((contract, 2), (installed, 2), (abi, 1), (shader, 1)):
         if type(record.get("schema_version")) is not int or record["schema_version"] != version:
             raise ExportError("portable-metadata: unsupported schema version")
+    build_tools = portable_build_tools(installed.get("build_tools"))
+    versions = _portable_mapping(installed.get("tools"), "installed tool versions")
+    if any(versions.get(name) != record["version"].splitlines()[0] for name, record in build_tools.items()):
+        raise ExportError("portable-metadata: installed build tool versions differ")
     if (contract.get("platform") != "linux/amd64" or contract.get("target") != "portable-final"
             or contract.get("image") != immutable_image.split("@", 1)[0]
             or contract.get("metadata_directory") != "/opt/atrinik-portable"):

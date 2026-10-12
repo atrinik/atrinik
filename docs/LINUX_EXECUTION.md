@@ -795,6 +795,22 @@ The receipt is passed through the same operation; persisted cache metadata canno
 substitute for it. After build, it binds the executable's bytes and identity and
 rechecks them when export reacquires the build lock and before publication.
 
+The authenticated producer's `installed.json` must include `build_tools` schema
+version 1, with exactly `cmake` and `ninja` records under `tools`. Each records
+the fixed `/usr/bin` invocation path, canonical resolved path, SHA-256, size,
+executable mode and complete `--version` output, including its trailing newline.
+The wrapper admits both executables' bytes through protected regular-file
+descriptors before probing either version. Every component of these fixed
+execution paths must be root-owned, unwritable by other users and free of
+symlinks. An in-memory receipt rechecks their
+bytes, resolution and identity around configure and its tool probes, every Ninja
+graph query, shader proof, build, output capture and export publication. Stored
+configure metadata cannot supply this admission. Missing records require a newly
+qualified immutable producer; observed replacement tools are never a fallback.
+These checks admit executable bytes under the producer's trusted OS, libraries
+and CMake modules; they do not attest the transitive execution closure. The
+shader Python receipt remains a separate observed host-tool boundary.
+
 Every Ninja row must match the pinned source's finite compiler, archive, final
 link or shader embedding recipe. Compiler rows match the frozen database apart
 from CMake's exact dependency-file options, and generated/effective compiler and

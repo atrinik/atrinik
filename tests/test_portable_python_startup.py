@@ -16,6 +16,7 @@ from atrinik_workspace.workspace import Workspace
 
 class StartupContext:
     host_tools = {"fixture": "host-tools interface only"}
+    build_tools = {"fixture": "producer-build-tools interface only"}
 
     def verify_host_tools(self):
         pass

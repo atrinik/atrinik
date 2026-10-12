@@ -11767,6 +11767,12 @@ class Workspace:
         portable_context: PortableBuildContext | None = None,
     ) -> None:
         self._validate_portable_context(portable, portable_context, tests)
+        def verify_portable_tools() -> None:
+            if portable:
+                try:
+                    portable_context.verify_host_tools()
+                except (OSError, RuntimeError, ValueError) as error:
+                    raise WorkspaceError(str(error)) from error
         if portable:
             try:
                 portable_context.validate_source_binding(binary, source)
@@ -11879,12 +11885,15 @@ class Workspace:
             *arguments,
             *(["-DBUILD_TESTING=OFF"] if portable else []),
         ]
+        verify_portable_tools()
         fingerprint = self._configure_fingerprint(
             source, binary, configure, tests, environment, ccache,
             **({"portable": True} if portable else {}),
         )
+        verify_portable_tools()
         if portable:
             fingerprint["portable_host_tools"] = portable_context.host_tools
+            fingerprint["portable_build_tools"] = portable_context.build_tools
         metadata_path = binary / CONFIGURE_METADATA
         source_resolved = source.resolve()
         unchanged_view = all(
@@ -11930,15 +11939,19 @@ class Workspace:
             or not configured
         ):
             configure_started = time.monotonic()
+            verify_portable_tools()
             run(configure, env=environment)
+            verify_portable_tools()
             configure_seconds = time.monotonic() - configure_started
             configured_now = True
             fingerprint = self._configure_fingerprint(
                 source, binary, configure, tests, environment, ccache,
                 **({"portable": True} if portable else {}),
             )
+            verify_portable_tools()
             if portable:
                 fingerprint["portable_host_tools"] = portable_context.host_tools
+                fingerprint["portable_build_tools"] = portable_context.build_tools
             atomic_json(metadata_path, fingerprint)
         else:
             print(f"cmake: configure unchanged for {binary}; skipping", file=sys.stderr)
@@ -11956,12 +11969,9 @@ class Workspace:
         if build_targets and not tests:
             build_command.extend(("--target", *build_targets))
         build_started = time.monotonic()
-        if portable:
-            try:
-                portable_context.verify_host_tools()
-            except ValueError as error:
-                raise WorkspaceError(str(error)) from error
+        verify_portable_tools()
         run(build_command, env=environment)
+        verify_portable_tools()
         if portable:
             try:
                 portable_context.capture_output(binary)

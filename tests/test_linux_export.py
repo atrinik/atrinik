@@ -568,6 +568,13 @@ class LinuxExportTests(unittest.TestCase):
                                                                             "soname": ["unused.so"], "reason": "unused fixture feature"}]}},
             "installed.json": {"schema_version": 2, "architecture": "amd64", "glibc": "glibc 2.36",
                                "compiler_target": "x86_64-unknown-linux-gnu",
+                               "tools": {"cmake": "cmake version 3.25.1", "ninja": "1.11.1"},
+                               "build_tools": {"schema_version": 1, "tools": {
+                                   name: {"path": path, "resolved_path": path, "sha256": "1" * 64,
+                                          "size": 1, "executable": True,
+                                          "version": ("cmake version 3.25.1\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\n"
+                                                      if name == "cmake" else "1.11.1\n")}
+                                   for name, path in export.PORTABLE_BUILD_TOOL_PATHS.items()}},
                                "pkg_config": {"sdl3": "3.4.2"}},
             "compiler-evidence.json": json.loads((Path(__file__).parent /
                 "fixtures/linux_export/llvm-readelf-23.1.3/driver-evidence-cxx.json").read_text()),
@@ -599,6 +606,33 @@ class LinuxExportTests(unittest.TestCase):
                     "source_archives_verified", "legal_closure_verified", "dynamic_plugins_verified",
                     "symbol_versions_verified", "runtime_qualified"):
             self.assertFalse(result[key])
+
+    def test_producer_build_tool_schema_is_mandatory_and_strict(self) -> None:
+        original = self.portable_documents()
+        for mutation in ("missing", "legacy", "schema-bool", "schema-next", "extra-tool", "missing-tool",
+                         "path", "resolved", "canonical-resolved", "digest", "size-bool", "size-empty", "mode", "version", "version-del", "reported-version", "extra-field"):
+            documents = json.loads(json.dumps(original))
+            installed = documents["installed.json"]
+            receipt = installed["build_tools"]
+            if mutation == "missing": del installed["build_tools"]
+            elif mutation == "legacy": installed["build_tools"] = receipt["tools"]
+            elif mutation == "schema-bool": receipt["schema_version"] = True
+            elif mutation == "schema-next": receipt["schema_version"] = 2
+            elif mutation == "extra-tool": receipt["tools"]["shell"] = receipt["tools"]["cmake"]
+            elif mutation == "missing-tool": del receipt["tools"]["ninja"]
+            elif mutation == "path": receipt["tools"]["cmake"]["path"] = "/tmp/cmake"
+            elif mutation == "resolved": receipt["tools"]["cmake"]["resolved_path"] = "/usr/bin/../bin/cmake"
+            elif mutation == "canonical-resolved": receipt["tools"]["cmake"]["resolved_path"] = "/usr/local/bin/cmake"
+            elif mutation == "digest": receipt["tools"]["cmake"]["sha256"] = "broken"
+            elif mutation == "size-bool": receipt["tools"]["cmake"]["size"] = True
+            elif mutation == "size-empty": receipt["tools"]["cmake"]["size"] = 0
+            elif mutation == "mode": receipt["tools"]["cmake"]["executable"] = 1
+            elif mutation == "version": receipt["tools"]["cmake"]["version"] = "GNU cmake 3.25.1\n"
+            elif mutation == "version-del": receipt["tools"]["cmake"]["version"] += "\x7f"
+            elif mutation == "reported-version": installed["tools"]["ninja"] = "1.11.2"
+            else: receipt["tools"]["cmake"]["extra"] = "unbound"
+            with self.subTest(mutation=mutation), self.assertRaises(export.ExportError):
+                export.portable_metadata_report(**self.portable_arguments(documents))
 
     def test_actual_debian_producer_driver_evidence_and_default_search_paths(self):
         # Captured before dependency assembly from the pinned Debian producer

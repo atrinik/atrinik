@@ -245,12 +245,15 @@ class PortableBuildContext:
     inventories. Disk cache and source-view metadata never create this authority.
     """
 
-    def __init__(self, selected: dict[str, Path], proofs: dict, generations: dict, evidence: dict):
+    def __init__(self, selected: dict[str, Path], proofs: dict, generations: dict, evidence: dict,
+                 *, build_tools: dict):
         import copy
         self.selected = {role: Path(path) for role, path in selected.items()}
         self.proofs = copy.deepcopy(proofs)
         self.generations = copy.deepcopy(generations)
         self.evidence = copy.deepcopy(evidence)
+        self.producer_build_tools = copy.deepcopy(export.portable_build_tools(build_tools))
+        self.build_tools = None
         self.binary = None
         self.source = None
         self.views = {}
@@ -325,6 +328,7 @@ class PortableBuildContext:
         return {"path": str(path), "resolved_path": str(resolved), **record, "version": version}
 
     def verify_host_tools(self) -> None:
+        self.verify_build_tools()
         if self.host_tools is None:
             raise ValueError("portable shader Python receipt is missing")
         record = self.host_tools["shader_python"]
@@ -333,6 +337,76 @@ class PortableBuildContext:
                 or self._record(path) != {key: value for key, value in record.items()
                                           if key not in {"path", "resolved_path", "version"}}):
             raise ValueError("portable shader Python executable changed")
+
+    @staticmethod
+    def _build_tool_path_protected(info: os.stat_result) -> bool:
+        return info.st_uid == 0 and not info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
+
+    @classmethod
+    def _build_tool_record(cls, expected: dict) -> dict:
+        """Admit executable bytes before any tool probe; OS dependencies stay trusted."""
+        path = Path(expected["path"])
+        # Debian's fixed CMake/Ninja paths are regular files. Following a link,
+        # even into a protected target, could admit a writable execution chain.
+        if not path.is_absolute() or str(path) != expected["resolved_path"]:
+            raise ValueError("portable producer build tool resolution changed")
+        parent = os.open(path.anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            for part in path.parts[1:-1]:
+                if not cls._build_tool_path_protected(os.fstat(parent)):
+                    raise ValueError("portable producer build tool ancestor is not root-owned and protected")
+                child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+                os.close(parent)
+                parent = child
+            if not cls._build_tool_path_protected(os.fstat(parent)):
+                raise ValueError("portable producer build tool ancestor is not root-owned and protected")
+            descriptor = export._open_beneath(parent, path.name)
+            try:
+                info = os.fstat(descriptor)
+                if (not stat.S_ISREG(info.st_mode) or not cls._build_tool_path_protected(info)
+                        or info.st_mode & (stat.S_ISUID | stat.S_ISGID)):
+                    raise ValueError("portable producer build tool is not a protected regular executable")
+                if info.st_size != expected["size"] or bool(info.st_mode & 0o111) != expected["executable"]:
+                    raise ValueError("portable producer build tool bytes differ")
+                record = byte_record(descriptor)
+                record["identity"] = export._identity(info)
+                if export._identity(os.fstat(descriptor)) != record["identity"]:
+                    raise ValueError("portable producer build tool changed during inspection")
+            finally:
+                os.close(descriptor)
+        except OSError as error:
+            raise ValueError("portable producer build tool path is unavailable or unsafe") from error
+        finally:
+            os.close(parent)
+        if (path.resolve(strict=True) != path or export._identity(path.stat(follow_symlinks=False)) != record["identity"]
+                or any(record[key] != expected[key] for key in ("sha256", "size", "executable"))):
+            raise ValueError("portable producer build tool bytes differ")
+        return record
+
+    def _capture_build_tools(self) -> dict:
+        # Authenticate both tools before running either --version command.
+        records = {name: self._build_tool_record(expected)
+                   for name, expected in self.producer_build_tools.items()}
+        for name, expected in self.producer_build_tools.items():
+            for tool, trusted in self.producer_build_tools.items():
+                if self._build_tool_record(trusted) != records[tool]:
+                    raise ValueError("portable producer build tool changed before version inspection")
+            version = export._tool_report([expected["path"], "--version"])
+            if version != expected["version"]:
+                raise ValueError("portable producer build tool version differs")
+            for tool, trusted in self.producer_build_tools.items():
+                if self._build_tool_record(trusted) != records[tool]:
+                    raise ValueError("portable producer build tool changed during version inspection")
+        return {name: {**expected, **records[name]}
+                for name, expected in self.producer_build_tools.items()}
+
+    def verify_build_tools(self) -> None:
+        if self.build_tools is None or set(self.build_tools) != set(self.producer_build_tools):
+            raise ValueError("portable producer build tool receipt is missing")
+        for name, expected in self.producer_build_tools.items():
+            current = {**expected, **self._build_tool_record(expected)}
+            if current != self.build_tools[name]:
+                raise ValueError("portable producer build tool executable changed")
 
     def bind_source_views(self, build_root: Path, views: dict[str, Path]) -> None:
         if self.views or set(views) != {"client", "protocol", "libatrinik"}:
@@ -363,7 +437,9 @@ class PortableBuildContext:
         self._verify_authored()
         if self.source.parent / "cmake/toolchains/llvm.cmake" not in self.authored:
             raise ValueError("portable toolchain is outside the caller's supplemental source proof")
+        self.build_tools = self._capture_build_tools()
         self.host_tools = {"shader_python": self._capture_generator_python()}
+        self.verify_host_tools()
 
     def _verify_authored(self) -> None:
         reserved = {".atrinik-workspace-managed.json", ".atrinik-source-view.json",
@@ -411,14 +487,15 @@ class PortableBuildContext:
         self.authored_directories = directories
         self.authored_inputs = inputs
 
-    @staticmethod
-    def _ninja(binary: Path) -> str:
+    def _ninja(self, binary: Path) -> str:
+        self.verify_host_tools()
         try:
-            result = subprocess.run(["/usr/bin/ninja", "-C", str(binary), "-t", "commands", "atrinik"],
+            result = subprocess.run([self.build_tools["ninja"]["path"], "-C", str(binary), "-t", "commands", "atrinik"],
                                     capture_output=True, text=True, timeout=30, check=True,
                                     stdin=subprocess.DEVNULL, env={"PATH": PORTABLE_PATH, "LC_ALL": "C"})
         except (OSError, subprocess.SubprocessError) as error:
             raise ValueError("portable Ninja report is unavailable") from error
+        self.verify_host_tools()
         if len(result.stdout) > export.MAX_MANIFEST_BYTES:
             raise ValueError("Ninja report exceeds bound")
         return result.stdout
@@ -514,6 +591,7 @@ class PortableBuildContext:
         self.generated = current
         self.output = self._record(binary / "atrinik")
         validate_portable_build(binary, self.evidence, context=self)
+        self.verify_host_tools()
 
     def revalidate(self, binary: Path, *, configure_only: bool = False) -> None:
         if binary != self.binary or self.baseline is None or self.source is None:
@@ -528,6 +606,7 @@ class PortableBuildContext:
             raise ValueError("generated header inventory or bytes changed")
         if not configure_only and (self.output is None or self._record(binary / "atrinik") != self.output):
             raise ValueError("built executable receipt changed")
+        self.verify_host_tools()
 
     def check_inputs(self, words: list[str], binary: Path, *, effective: bool = False,
                      expected_source: Path | None = None) -> None:
@@ -835,7 +914,8 @@ def validate_portable_build(binary: Path, evidence: dict, *, context: PortableBu
         identity = json.loads(_read_regular(binary / ".atrinik-configure.json"), object_pairs_hook=export._unique_object)
         source = Path(identity["source"]["path"])
         if (source != context.source or values.get("CMAKE_HOME_DIRECTORY") != str(context.source)
-                or identity.get("portable_host_tools") != json.loads(json.dumps(context.host_tools))):
+                or identity.get("portable_host_tools") != json.loads(json.dumps(context.host_tools))
+                or identity.get("portable_build_tools") != json.loads(json.dumps(context.build_tools))):
             raise ValueError("source identity changed")
     except (OSError, ValueError, KeyError, TypeError) as error:
         raise WorkspaceError("portable CMake configuration changed: source identity is unavailable or invalid") from error
@@ -888,6 +968,7 @@ def validate_portable_build(binary: Path, evidence: dict, *, context: PortableBu
                     used_objects.add(path)
             if used_objects != context.target_outputs or used_archives != set(archives):
                 raise ValueError("compiled output or archive is not consumed by final link")
+        context.verify_host_tools()
     except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError) as error:
         raise WorkspaceError("portable compile/link evidence is unavailable or invalid") from error
     return raw
@@ -932,6 +1013,8 @@ def installed_metadata() -> tuple[dict[str, bytes], dict[str, dict]]:
                                    consumer_commit=CONSUMER_COMMIT)
     documents = {name: json.loads(data) for name, data in raw.items()}
     _verify_compiler_bytes(documents["compiler-evidence.json"])
+    for expected in export.portable_build_tools(documents["installed.json"].get("build_tools")).values():
+        PortableBuildContext._build_tool_record(expected)
     return raw, documents
 
 
@@ -1434,7 +1517,8 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
                 generations[role] = record
             return current
         proofs = prove_sources()
-        context = PortableBuildContext(selected, proofs, generations, documents["compiler-evidence.json"])
+        context = PortableBuildContext(selected, proofs, generations, documents["compiler-evidence.json"],
+                                       build_tools=documents["installed.json"]["build_tools"])
         targets = workspace._expand_build_target("client", profile_name)
         build_root = workspace._build_resolved("client", profile_name, False,
                     targets, selected, build_services={"client"},
@@ -1501,6 +1585,7 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
                             "metadata_sha256": METADATA_HASHES, "sources": sources,
                             "source_proofs": proofs, "profile": profile_name,
                             "host_tools": context.host_tools,
+                            "build_tools": context.build_tools,
                             "sound": {key: value for key, value in sound_record.items() if key != "root"}}
                 publication.add_bytes("portable-evidence.json", (json.dumps(evidence, sort_keys=True) + "\n").encode())
                 publication.add_bytes("README.txt", (

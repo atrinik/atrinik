@@ -4,17 +4,21 @@ from contextlib import ExitStack, contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
+import os
+import stat
 import threading
 import unittest
 from unittest import mock
 
 from atrinik_workspace import linux_portable
+from atrinik_workspace.linux_portable import PortableBuildContext as AdmittedContext
 from atrinik_workspace.model import WorkspaceError, atomic_json
 from atrinik_workspace.workspace import CONFIGURE_METADATA, Workspace
 
 
 class RecordingContext:
     host_tools = {"fixture": "host-tools interface only"}
+    build_tools = {"fixture": "producer-build-tools interface only"}
 
     def verify_host_tools(self):
         pass
@@ -96,6 +100,76 @@ class PortableWorkspaceContextTests(unittest.TestCase):
                          ["configure", "configure-evidence", "build", "output-evidence"])
         self.assertEqual(self.events[0][1][-1], "-DBUILD_TESTING=OFF")
         self.assertEqual(self.events[1][1:], (self.binary, self.source))
+
+    def test_actual_tool_replacement_stops_probes_build_and_output_capture(self):
+        import hashlib
+        import shutil
+        import subprocess
+        # Test-only policy seam for private copied tools; production accepts root only.
+        policy = mock.patch.object(AdmittedContext, "_build_tool_path_protected",
+            side_effect=lambda info: info.st_uid in {0, os.geteuid()} and (
+                not info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
+                or stat.S_ISDIR(info.st_mode) and info.st_uid == 0 and info.st_mode & stat.S_ISVTX))
+        policy.start()
+        self.addCleanup(policy.stop)
+        for phase in ("fingerprint", "configure", "prebuild", "postbuild"):
+            for name in ("cmake", "ninja"):
+                self.events.clear()
+                installation = self.root / (phase + "-" + name)
+                tools = installation / "bin"
+                tools.mkdir(parents=True)
+                share = installation / "share"
+                share.mkdir()
+                for modules in Path("/usr/share").glob("cmake-*"):
+                    (share / modules.name).symlink_to(modules, target_is_directory=True)
+                paths = {}
+                records = {}
+                for tool in ("cmake", "ninja"):
+                    path = tools / tool
+                    shutil.copyfile("/usr/bin/" + tool, path)
+                    path.chmod(0o700)
+                    paths[tool] = str(path)
+                    records[tool] = {"path": str(path), "resolved_path": str(path),
+                                     "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                                     "size": path.stat().st_size, "executable": True,
+                                     "version": subprocess.run([str(path), "--version"], check=True,
+                                                               capture_output=True, text=True, timeout=15).stdout}
+                with mock.patch.dict(linux_portable.export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
+                    admitted = AdmittedContext({}, {}, {}, {}, build_tools={"schema_version": 1, "tools": records})
+                admitted.build_tools = admitted._capture_build_tools()
+                admitted.host_tools = {"shader_python": admitted._capture_generator_python()}
+                self.context.build_tools = admitted.build_tools
+                self.context.host_tools = admitted.host_tools
+                self.context.verify_host_tools = admitted.verify_host_tools
+                def replace():
+                    path = tools / name
+                    replacement = path.with_suffix(".replacement")
+                    shutil.copyfile(path, replacement)
+                    replacement.chmod(0o700)
+                    replacement.replace(path)
+                fingerprint = self.cmake_patches()
+                def probe(*args, **kwargs):
+                    if phase == "fingerprint": replace()
+                    return fingerprint
+                def run(command, **kwargs):
+                    action = "configure" if "-S" in command else "build"
+                    self.events.append((action, command))
+                    if (phase == "configure" and action == "configure") or (phase == "postbuild" and action == "build"):
+                        replace()
+                def capture(binary, source):
+                    self.events.append(("configure-evidence", binary, source))
+                    if phase == "prebuild": replace()
+                self.context.capture_configure = capture
+                with self.subTest(phase=phase, tool=name), \
+                     mock.patch.object(self.workspace, "_configure_fingerprint", side_effect=probe), \
+                     mock.patch("atrinik_workspace.workspace.run", side_effect=run), \
+                     self.assertRaisesRegex(WorkspaceError, "build tool executable changed"):
+                    self.workspace._cmake(self.source, self.binary, [], False,
+                                          portable=True, portable_context=self.context)
+                actions = [event[0] for event in self.events]
+                self.assertNotIn("output-evidence", actions)
+                if phase != "postbuild": self.assertNotIn("build", actions)
+                if phase == "fingerprint": self.assertNotIn("configure", actions)
 
     def test_ordinary_matching_cache_still_reuses_configure(self):
         fingerprint = self.cmake_patches()
