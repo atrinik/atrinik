@@ -362,12 +362,13 @@ class CompilerClosureTests(unittest.TestCase):
         run_patch.start()
         self.addCleanup(run_patch.stop)
         def driver_with_real_missing_artifact_behavior(command, **kwargs):
-            if len(command) == 2 and command[1] == "--version":
+            if any(command == [record["path"], "--version"] for record in self.tools["tools"].values()):
                 return subprocess.run(command, check=True, capture_output=True, text=True, timeout=15,
                                       env={"PATH": os.defpath, "LC_ALL": "C"}).stdout
             if "-c" not in command and not (binary / "atrinik").exists():
                 raise AssertionError("configure-only validation invoked linker before build artifacts existed")
             return self.driver_report(command, **kwargs)
+        state["driver_report"] = driver_with_real_missing_artifact_behavior
         driver_patch = mock.patch.object(export, "_tool_report", side_effect=driver_with_real_missing_artifact_behavior)
         driver_patch.start()
         self.addCleanup(driver_patch.stop)
@@ -391,6 +392,16 @@ class CompilerClosureTests(unittest.TestCase):
                       portable.portable_configure_arguments(state["views"]["client"]))
         self.assertIn(b"BUILD_TESTING:STRING=OFF", portable.validate_portable_build(
             state["binary"], state["evidence"], context=state["context"]))
+
+    def test_only_copied_build_tool_version_probes_execute_real_processes(self):
+        state = self.fixture()
+        for command in ([portable.LLVM_ROOT + "/bin/clang", "--version"],
+                        [str(self.root / "outside-copy/bin/cmake"), "--version"]):
+            with self.subTest(command=command), mock.patch.object(self, "driver_report", return_value="synthetic report") as driver, \
+                 mock.patch.object(subprocess, "run") as execute:
+                self.assertEqual(state["driver_report"](command, cwd=state["binary"]), "synthetic report")
+                driver.assert_called_once_with(command, cwd=state["binary"])
+                execute.assert_not_called()
 
     def test_real_generator_python_receipt_and_proof_ignore_caller_startup(self):
         modules = self.root / "caller-modules"
