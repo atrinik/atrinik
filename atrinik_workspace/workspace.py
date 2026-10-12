@@ -17480,21 +17480,9 @@ class Workspace:
             "ATRINIK_WINDOWS_PYTHON_LIBRARY",
             "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR",
         )
-        target = environment.get("ATRINIK_WINDOWS_TARGET")
-        if not target or any(not environment.get(name) for name in required):
+        selectors = ("ATRINIK_WINDOWS_TARGET", "ATRINIK_WINDOWS_HOST_PYTHON", *required)
+        if not any(environment.get(name) for name in selectors):
             return None
-        for name in required:
-            selected = Path(environment[name])
-            try:
-                selected.lstat()
-            except FileNotFoundError:
-                return None
-            except OSError as error:
-                raise WorkspaceError("Windows producer selected input is invalid") from error
-            try:
-                selected.resolve(strict=True)
-            except (OSError, RuntimeError) as error:
-                raise WorkspaceError("Windows producer selected input is invalid") from error
         if not Workspace._windows_local_prerequisites_available(environment):
             return None
         for name in tuple(environment):
@@ -17525,23 +17513,62 @@ class Workspace:
         The packaging branch still freshly authenticates and probes every tool.
         """
         try:
-            search_path = cls._windows_producer_search_path(environment)
             if environment.get("ATRINIK_WINDOWS_HOST_PYTHON", "/usr/bin/python3") != "/usr/bin/python3":
                 raise WorkspaceError("Windows packaging requires the SDK host Python /usr/bin/python3")
-            toolchain = Path(environment["ATRINIK_WINDOWS_TOOLCHAIN_FILE"])
+            required = ("ATRINIK_WINDOWS_TOOLCHAIN_FILE", "ATRINIK_WINDOWS_RUNTIME_DIR",
+                        "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR", "ATRINIK_WINDOWS_PYTHON_LIBRARY",
+                        "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR")
+            present: dict[str, Path] = {}
+            for name in required:
+                if not environment.get(name):
+                    continue
+                selected = Path(environment[name])
+                try:
+                    selected.lstat()
+                except FileNotFoundError:
+                    continue
+                try:
+                    selected.resolve(strict=True)
+                except (OSError, RuntimeError) as error:
+                    raise WorkspaceError("Windows producer selected input is invalid") from error
+                present[name] = selected
+            if "ATRINIK_WINDOWS_TOOLCHAIN_FILE" not in present:
+                # No contract is available to declare SDK roots. Still inspect
+                # every other present selection before declining local mode;
+                # an absent toolchain cannot hide unsafe files or namespaces.
+                for selected in set(present.values()):
+                    if selected.is_dir():
+                        cls._windows_sdk_tree_identity(selected)
+                    else:
+                        cls._windows_producer_file_identity(selected, (selected.parent,))
+                return False
+            toolchain = present["ATRINIK_WINDOWS_TOOLCHAIN_FILE"]
             content: list[bytes] = []
             identity = cls._windows_producer_file_identity(toolchain, content=content, limit=1024 ** 2)
             values, tool_names, expected = cls._windows_producer_toolchain_contract(
-                b"".join(content).decode("utf-8"), environment["ATRINIK_WINDOWS_TARGET"]
+                b"".join(content).decode("utf-8"), environment.get("ATRINIK_WINDOWS_TARGET") or None
             )
             roots = cls._windows_producer_sdk_roots(values)
             for name in ("ATRINIK_WINDOWS_RUNTIME_DIR", "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR",
                          "ATRINIK_WINDOWS_PYTHON_LIBRARY", "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR"):
-                selected = Path(environment[name])
+                if name not in present:
+                    continue
+                selected = present[name]
                 if not selected.is_absolute() or not any(selected.is_relative_to(root)
                                                          and selected.resolve(strict=True).is_relative_to(root)
                                                          for root in roots.values()):
                     raise WorkspaceError("Windows producer selected input escaped its SDK roots")
+
+            if len(present) != len(required) or not environment.get("ATRINIK_WINDOWS_TARGET"):
+                # Validate all declared SDK namespaces before missing or unset
+                # selectors decline local mode. No tools are discovered or run
+                # for a partial selection, and no absent input is fabricated.
+                for root in roots.values():
+                    cls._windows_sdk_tree_identity(root)
+                if cls._windows_producer_file_identity(toolchain, limit=1024 ** 2) != identity:
+                    raise WorkspaceError("Windows producer inputs changed during prerequisite inspection")
+                return False
+            search_path = cls._windows_producer_search_path(environment)
 
             def present_executable(path: Path, allowed: tuple[Path, ...] = ()) -> bool:
                 try:
@@ -17804,7 +17831,7 @@ class Workspace:
 
     @staticmethod
     def _windows_producer_toolchain_contract(
-        text: str, selected_target: str,
+        text: str, selected_target: str | None,
     ) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
         """Parse the exact declarative contract without running CMake or tools."""
         values: dict[str, str] = {}
@@ -17829,7 +17856,7 @@ class Workspace:
         target = "x86_64-w64-mingw32"
         prefix = values["ATRINIK_WINDOWS_PREFIX"]
         llvm = values["ATRINIK_LLVM_MINGW"]
-        if selected_target != target or not all(
+        if (selected_target is not None and selected_target != target) or not all(
                 Path(path).is_absolute() for path in (prefix, llvm)):
             raise WorkspaceError("Windows producer target or prefix changed")
         tool_names = {"CMAKE_C_COMPILER": target + "-clang",
@@ -17892,8 +17919,11 @@ class Workspace:
             toolchain_bytes: list[bytes] = []
             toolchain_identity = file_identity(toolchain, content=toolchain_bytes, limit=1024 ** 2)
             text = b"".join(toolchain_bytes).decode("utf-8")
+            selected_target = environment["ATRINIK_WINDOWS_TARGET"]
+            if selected_target is None:
+                raise WorkspaceError("Windows producer target or prefix changed")
             values, tool_names, expected = cls._windows_producer_toolchain_contract(
-                text, environment["ATRINIK_WINDOWS_TARGET"]
+                text, selected_target
             )
             target = values["ATRINIK_WINDOWS_TARGET"]
             prefix = values["ATRINIK_WINDOWS_PREFIX"]

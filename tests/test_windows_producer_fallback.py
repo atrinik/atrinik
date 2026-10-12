@@ -199,6 +199,87 @@ class WindowsProducerFallbackTests(unittest.TestCase):
                 self.environment[name] = original
                 broken.unlink()
 
+    def test_each_missing_selected_input_retains_initial_docker_fallback(self):
+        for name in ("ATRINIK_WINDOWS_TOOLCHAIN_FILE", "ATRINIK_WINDOWS_RUNTIME_DIR",
+                     "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR", "ATRINIK_WINDOWS_PYTHON_LIBRARY",
+                     "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR"):
+            with self.subTest(input=name):
+                original = self.environment[name]
+                self.environment[name] = str(self.root / (name + "-absent"))
+                self.assert_docker_route()
+                self.environment[name] = original
+                self.reset_staging()
+
+    def test_each_unset_selector_validates_present_inputs_then_selects_docker(self):
+        for name in ("ATRINIK_WINDOWS_TARGET", "ATRINIK_WINDOWS_TOOLCHAIN_FILE",
+                     "ATRINIK_WINDOWS_RUNTIME_DIR", "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR",
+                     "ATRINIK_WINDOWS_PYTHON_LIBRARY", "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR"):
+            with self.subTest(selector=name):
+                original = self.environment.pop(name)
+                self.assert_docker_route()
+                self.environment[name] = original
+                self.reset_staging()
+
+    def test_malformed_present_toolchain_fails_with_absent_or_unset_selectors(self):
+        self.fixture.toolchain.write_text(self.fixture.toolchain.read_text()
+                                          + 'include("/tmp/unreviewed.cmake")\n')
+        for name in ("ATRINIK_WINDOWS_PYTHON_LIBRARY", "ATRINIK_WINDOWS_TARGET"):
+            for missing in ("absent", "unset"):
+                with self.subTest(selector=name, missing=missing):
+                    original = self.environment.pop(name)
+                    if missing == "absent":
+                        self.environment[name] = (str(self.root / "absent-library")
+                                                  if name.endswith("LIBRARY") else "")
+                    with mock.patch.object(module, "run") as execute, \
+                         mock.patch.object(module.shutil, "which") as discover, \
+                         mock.patch.dict(os.environ, self.environment, clear=True), \
+                         self.assertRaisesRegex(WorkspaceError, "declarative LLVM toolchain"):
+                        self.workspace._local_windows_build_environment()
+                    execute.assert_not_called()
+                    discover.assert_not_called()
+                    self.environment[name] = original
+
+    def test_missing_earlier_input_cannot_hide_a_broken_later_selected_link(self):
+        broken = self.root / "broken-library"
+        broken.symlink_to("missing-library")
+        self.environment["ATRINIK_WINDOWS_PYTHON_LIBRARY"] = str(broken)
+        for missing in ("absent", "unset"):
+            with self.subTest(missing=missing):
+                original = self.environment.pop("ATRINIK_WINDOWS_RUNTIME_DIR")
+                if missing == "absent":
+                    self.environment["ATRINIK_WINDOWS_RUNTIME_DIR"] = str(self.root / "absent-runtime")
+                with self.assertRaisesRegex(WorkspaceError, "selected input is invalid"):
+                    self.build()
+                self.assertEqual(self.build_commands, [])
+                self.environment["ATRINIK_WINDOWS_RUNTIME_DIR"] = original
+
+    def test_partial_selection_cannot_hide_unsafe_sdk_or_incomplete_layout(self):
+        self.environment.pop("ATRINIK_WINDOWS_PYTHON_LIBRARY")
+        self.fixture.header.chmod(0o666)
+        with self.assertRaisesRegex(WorkspaceError, "permissions"):
+            self.build()
+        self.assertEqual(self.build_commands, [])
+        self.fixture.header.chmod(0o644)
+        include = self.fixture.prefix / "include"
+        include.rename(self.fixture.prefix / "held-include")
+        with self.assertRaisesRegex(WorkspaceError, "SDK layout is incomplete"):
+            self.build()
+        self.assertEqual(self.build_commands, [])
+
+    def test_missing_toolchain_cannot_hide_unsafe_present_selected_namespace(self):
+        self.environment.pop("ATRINIK_WINDOWS_TOOLCHAIN_FILE")
+        self.environment["ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR"] = str(self.fixture.prefix / "include")
+        self.fixture.header.chmod(0o666)
+        with self.assertRaisesRegex(WorkspaceError, "permissions"):
+            self.build()
+        self.assertEqual(self.build_commands, [])
+
+    def test_complete_identity_keeps_rejecting_an_unselected_target(self):
+        with mock.patch.object(module, "run") as execute, \
+             self.assertRaisesRegex(WorkspaceError, "target or prefix changed"):
+            Workspace._local_windows_producer_identity({**self.environment, "ATRINIK_WINDOWS_TARGET": None})
+        execute.assert_not_called()
+
     def test_present_toolchain_bounds_and_permissions_fail_before_parsing(self):
         original = self.fixture.toolchain.read_bytes()
         for invalid in ("oversized", "writable", "directory"):
