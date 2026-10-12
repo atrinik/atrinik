@@ -75,20 +75,20 @@
 - Keep completion bounded, parser-driven, and secret-free; lease in order; gate
   same-coordinate readers; share migration barrier; unbound records inert.
 - Optional SSH signing stays on host: `atrinik-github-governance`; never copy/mount private keys into containers.
-- On touch, update Atrinik copyright terminal years; blanket holders per
+- On touch, refresh existing Atrinik-owned copyright terminal years; blanket holders per
   `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse: `docs/PROVENANCE.md` and registry; fail closed on uncertain rights/
   identity/temporal/authorship/scope.
 - Optional supply-chain/license checks: no gates/catalog updates. Keep
-  locks/aggregates; avoid redundant assertions. Pin Actions/images; no
+  locks/aggregates; no redundant assertions. Pin Actions/images; no
   submodules; only root workflows/Dependabot.
 - Advisory `Dependency review`: where workflow exists on PR/merge revision.
   Before merge Codex reads latest current-HEAD job summary despite bot comments;
   fix actionable introduced risk or record explicit maintainer-accepted existing
-  risk. License metadata cannot certify compatibility; repository license policies apply.
-- Content/Classic issues name `content@main` and its Classic-target artifact. No
-  live 1.x branch/checkout/release label/maintenance line/publication/backport
-  target exists; historical evidence immutable.
+  risk. License metadata is not compatibility proof; repo license policies apply.
+- Content/Classic issues: `content@main`, Classic-target artifact. No live 1.x
+  branch/checkout/release label/maintenance line/publication target/backport destination;
+  historical evidence immutable.
 - PRs: `atrinik-github-governance`, Conventional Commits; preserve contributor
   text, verify rendered bodies; no implicit merge.
 - Actual conflicts block; continue other work. Compact handoffs; bounded CI watchers.

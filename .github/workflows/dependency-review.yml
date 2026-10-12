@@ -44,6 +44,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         shell: python
         run: |
           import json
@@ -79,12 +81,16 @@ jobs:
               env = os.environ
               repo, number, head = env['GITHUB_REPOSITORY'], env['PR_NUMBER'], env['PR_HEAD_SHA']
               run, attempt = env['GITHUB_RUN_ID'], env['GITHUB_RUN_ATTEMPT']
+              base_ref, base_sha = env['PR_BASE_REF'], env['PR_BASE_SHA']
               if (env['GITHUB_API_URL'] != 'https://api.github.com'
                       or env['GITHUB_SERVER_URL'] != 'https://github.com'
                       or env['GITHUB_EVENT_NAME'] != 'pull_request'
                       or not re.fullmatch(r'atrinik/[A-Za-z0-9_.-]+', repo)
                       or not all(re.fullmatch(r'[1-9][0-9]*', value) for value in (number, run, attempt))
-                      or not re.fullmatch(r'[0-9a-f]{40}', head)):
+                      or not re.fullmatch(r'[0-9a-f]{40}', head)
+                      or not re.fullmatch(r'[0-9a-f]{40}', base_sha)
+                      or not 1 <= len(base_ref) <= 1024
+                      or re.search(r'[\x00-\x1f\x7f-\x9f]', base_ref)):
                   raise Stop('Invalid reporting context; PR comment was not refreshed.')
               run_url = f'https://github.com/{repo}/actions/runs/{run}/attempts/{attempt}'
               body = (f'## Dependency review needs attention\n\n{NOTICE}\n\n'
@@ -161,11 +167,27 @@ jobs:
                   candidate = candidates[0]
                   target = f"{base}/issues/comments/{candidate['id']}"
                   fresh, _ = api('GET', target)
-                  if fresh != candidate or not owned(fresh):
+
+                  def identity(comment):
+                      user = comment['user']
+                      if (type(comment['id']) is not int or comment['id'] <= 0
+                              or not isinstance(comment['body'], str)
+                              or type(user['id']) is not int or user['id'] <= 0
+                              or user['login'] != 'github-actions[bot]' or user['type'] != 'Bot'
+                              or not isinstance(comment['updated_at'], str)
+                              or not re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z', comment['updated_at'])
+                              or comment['issue_url'] not in tuple(route.removesuffix('/comments') for route in comment_routes)):
+                          raise Stop('Invalid dependency review comment identity; PR comment was not refreshed.')
+                      return (comment['id'], comment['body'], user['id'], user['login'],
+                              user['type'], comment['updated_at'], comment['issue_url'])
+
+                  if identity(fresh) != identity(candidate) or not owned(fresh):
                       raise Stop('Dependency review comment changed; PR comment was not refreshed.')
               fresh_pr, _ = api('GET', f'{base}/pulls/{number}')
               if (fresh_pr['number'] != int(number)
                       or fresh_pr['base']['repo']['full_name'] != repo
+                      or fresh_pr['base']['ref'] != base_ref
+                      or fresh_pr['base']['sha'] != base_sha
                       or fresh_pr['head']['sha'] != head):
                   raise Stop('PR head or base changed; stale run did not refresh the PR comment.')
               api('PATCH' if candidates else 'POST', target if candidates else comments_url, {'body': body})
