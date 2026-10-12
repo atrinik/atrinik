@@ -280,6 +280,34 @@ class WindowsProducerFallbackTests(unittest.TestCase):
             Workspace._local_windows_producer_identity({**self.environment, "ATRINIK_WINDOWS_TARGET": None})
         execute.assert_not_called()
 
+    def test_absent_or_unset_toolchain_cannot_hide_an_unsupported_selected_target(self):
+        for missing in ("absent", "unset"):
+            for target in ("aarch64-w64-mingw32", "x86_64-linux-gnu"):
+                with self.subTest(toolchain=missing, target=target):
+                    original = self.environment.pop("ATRINIK_WINDOWS_TOOLCHAIN_FILE", None)
+                    if missing == "absent":
+                        self.environment["ATRINIK_WINDOWS_TOOLCHAIN_FILE"] = str(self.root / "absent-toolchain")
+                    self.environment["ATRINIK_WINDOWS_TARGET"] = target
+                    with mock.patch.object(module, "run") as execute, \
+                         mock.patch.object(module.shutil, "which") as discover, \
+                         mock.patch.dict(os.environ, self.environment, clear=True), \
+                         self.assertRaisesRegex(WorkspaceError, "target or prefix changed"):
+                        self.workspace._local_windows_build_environment()
+                    execute.assert_not_called()
+                    discover.assert_not_called()
+                    self.environment["ATRINIK_WINDOWS_TOOLCHAIN_FILE"] = original
+
+    def test_fully_unconfigured_environment_retains_docker_fallback(self):
+        self.environment = {"PATH": self.environment["PATH"]}
+        for target in (None, ""):
+            with self.subTest(target=target):
+                if target is not None:
+                    self.environment["ATRINIK_WINDOWS_TARGET"] = target
+                with mock.patch.object(Workspace, "_windows_local_prerequisites_available") as inspect:
+                    self.assert_docker_route()
+                inspect.assert_not_called()
+                self.reset_staging()
+
     def test_present_toolchain_bounds_and_permissions_fail_before_parsing(self):
         original = self.fixture.toolchain.read_bytes()
         for invalid in ("oversized", "writable", "directory"):

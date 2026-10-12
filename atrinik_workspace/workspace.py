@@ -442,6 +442,7 @@ REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
 WINDOWS_PACKAGE_SCHEMA_VERSION = 1
 WINDOWS_PACKAGE_VERSION = "0.0.0"
+WINDOWS_PRODUCER_TARGET = "x86_64-w64-mingw32"
 WINDOWS_PACKAGE_MAX_ENTRIES = 100_000
 WINDOWS_PACKAGE_MAX_BYTES = 8 * 1024 * 1024 * 1024
 
@@ -17513,6 +17514,9 @@ class Workspace:
         The packaging branch still freshly authenticates and probes every tool.
         """
         try:
+            selected_target = environment.get("ATRINIK_WINDOWS_TARGET")
+            if selected_target and selected_target != WINDOWS_PRODUCER_TARGET:
+                raise WorkspaceError("Windows producer target or prefix changed")
             if environment.get("ATRINIK_WINDOWS_HOST_PYTHON", "/usr/bin/python3") != "/usr/bin/python3":
                 raise WorkspaceError("Windows packaging requires the SDK host Python /usr/bin/python3")
             required = ("ATRINIK_WINDOWS_TOOLCHAIN_FILE", "ATRINIK_WINDOWS_RUNTIME_DIR",
@@ -17546,7 +17550,7 @@ class Workspace:
             content: list[bytes] = []
             identity = cls._windows_producer_file_identity(toolchain, content=content, limit=1024 ** 2)
             values, tool_names, expected = cls._windows_producer_toolchain_contract(
-                b"".join(content).decode("utf-8"), environment.get("ATRINIK_WINDOWS_TARGET") or None
+                b"".join(content).decode("utf-8"), selected_target or None
             )
             roots = cls._windows_producer_sdk_roots(values)
             for name in ("ATRINIK_WINDOWS_RUNTIME_DIR", "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR",
@@ -17853,7 +17857,7 @@ class Workspace:
                     raise WorkspaceError("Windows producer toolchain expansion is unsupported")
                 expanded.append(operand)
             values[tokens[0]] = " ".join(expanded)
-        target = "x86_64-w64-mingw32"
+        target = WINDOWS_PRODUCER_TARGET
         prefix = values["ATRINIK_WINDOWS_PREFIX"]
         llvm = values["ATRINIK_LLVM_MINGW"]
         if (selected_target is not None and selected_target != target) or not all(
