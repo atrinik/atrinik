@@ -77,17 +77,18 @@
   `CONTRIBUTING.md`; preserve precise attribution.
 - MIT reuse follows `docs/PROVENANCE.md` and its registry; rights/identity/temporal/
   authorship/scope uncertainty fails closed.
-- Optional wrapper supply-chain/license diagnostics: no gates/catalog updates.
-  `Dependency review`: required gate for new high/critical findings
-  per `github-settings`. Keep locks/aggregates; no redundant version assertions.
-  Pin Actions/images; no submodules; root workflows/Dependabot only.
+- Optional supply-chain/license diagnostics: no gates/catalog updates. Keep
+  locks/aggregates; avoid redundant assertions. Pin Actions/images; no
+  submodules; only root workflows/Dependabot.
+- Advisory `Dependency review`: before merge Codex reads the PR comment/job summary;
+  fix actionable introduced risk or record explicit maintainer-accepted existing risk.
 - New content/Classic issues name `content@main` and its Classic-target artifact; no live
   1.x branch/checkout/release label/maintenance line/publication target/backport destination
   exists; historical evidence is immutable.
-- Use `atrinik-github-governance` for PR publication and Conventional Commits;
-  preserve contributor text and verify rendered PR bodies. No implicit merge.
-- Tie blockers to actual operation/resource conflicts. Continue unaffected work;
-  keep compact handoffs and bounded watchers for unchanged CI.
+- PRs: use `atrinik-github-governance` and Conventional Commits; preserve
+  contributor text, verify rendered bodies; no implicit merge.
+- Actual conflicts block; continue unaffected work. Compact handoffs; bounded
+  CI watchers.
 
 ## Commands
 

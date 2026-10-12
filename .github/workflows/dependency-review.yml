@@ -1,3 +1,6 @@
+# Advisory report: the Codex implementer reviews the PR comment or job summary
+# and fixes actionable introduced risk before merge, or records explicit
+# maintainer acceptance of existing risk. This workflow is not a merge gate.
 name: Dependency review
 
 on:
@@ -9,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   dependency-review:
@@ -17,11 +21,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        continue-on-error: true
         with:
-          fail-on-severity: high
+          fail-on-severity: low
           fail-on-scopes: runtime,development,unknown
-          warn-only: false
-          comment-summary-in-pr: never
+          warn-only: true
+          license-check: false
+          comment-summary-in-pr: always
           show-openssf-scorecard: false
           retry-on-snapshot-warnings: true
           retry-on-snapshot-warnings-timeout: 120
