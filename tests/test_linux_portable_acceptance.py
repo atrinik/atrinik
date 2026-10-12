@@ -22,9 +22,56 @@ from atrinik_workspace import linux_portable as portable
 from atrinik_workspace.model import WorkspaceError
 
 
-@unittest.skipUnless(sys.platform.startswith("linux") and Path("/usr/bin/cmake").is_file()
-                     and Path("/usr/bin/ninja").is_file() and Path("/usr/bin/pkgconf").is_file(),
-                     "CMake, Ninja and pkgconf fixture executables")
+def fixture_build_tools(root: Path) -> dict:
+    """Copy available host tools, never select or authenticate producer tools."""
+    root.mkdir(parents=True)
+    sources = {}
+    for role, candidates in {"cmake": ("cmake",), "ninja": ("ninja",),
+                             "pkg_config": ("pkgconf", "pkg-config")}.items():
+        selected = next((path for name in candidates if (path := shutil.which(name))), None)
+        if selected is None:
+            raise AssertionError("missing host fixture tool: " + role)
+        sources[role] = Path(selected).resolve(strict=True)
+    # Hosted CMake may be a launcher or live outside /usr. Ask the available
+    # command for its actual binary and module root without configuring a project.
+    probe = root / "probe.cmake"
+    probe.write_text('message("FIXTURE_COMMAND=${CMAKE_COMMAND}")\n'
+                     'message("FIXTURE_ROOT=${CMAKE_ROOT}")\n')
+    result = subprocess.run([str(sources["cmake"]), "-P", str(probe)], check=True,
+                            capture_output=True, text=True, timeout=15)
+    facts = {line.split("=", 1)[0]: line.split("=", 1)[1]
+             for line in result.stderr.splitlines() if line.startswith(("FIXTURE_COMMAND=", "FIXTURE_ROOT="))}
+    sources["cmake"] = Path(facts["FIXTURE_COMMAND"]).resolve(strict=True)
+    modules = Path(facts["FIXTURE_ROOT"]).resolve(strict=True)
+    (root / "share").mkdir()
+    (root / "share" / modules.name).symlink_to(modules, target_is_directory=True)
+    # CMake distributions may carry runtime libraries beside their bin directory.
+    libraries = sources["cmake"].parent.parent / "lib"
+    if libraries.is_dir(): (root / "lib").symlink_to(libraries, target_is_directory=True)
+    binary = root / "bin"
+    binary.mkdir()
+    records = {}
+    for role, source in sources.items():
+        target = binary / role
+        shutil.copyfile(source, target)
+        target.chmod(0o700)
+        records[role] = {"path": str(target), "resolved_path": str(target),
+                         "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+                         "size": target.stat().st_size, "executable": True,
+                         "version": subprocess.run([str(target), "--version"], check=True,
+                            capture_output=True, text=True, timeout=15,
+                            env={"PATH": os.defpath, "LC_ALL": "C"}).stdout}
+    return {"schema_version": 1, "tools": records}
+
+
+def fixture_tool_path_protected(info):
+    """Test-only private-copy policy; production remains root-owned and no-follow."""
+    return info.st_uid in {0, os.geteuid()} and (
+        not info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
+        or stat.S_ISDIR(info.st_mode) and info.st_uid == 0 and info.st_mode & stat.S_ISVTX)
+
+
+@unittest.skipUnless(sys.platform.startswith("linux"), "Linux copied build-tool fixtures")
 class PortableBuildToolTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
@@ -34,29 +81,16 @@ class PortableBuildToolTests(unittest.TestCase):
         # Only fixture admission permits our private copied tools/ancestry and
         # the test runner's root-owned sticky temporary anchor. Production is root-only.
         patcher = mock.patch.object(portable.PortableBuildContext, "_build_tool_path_protected",
-            side_effect=lambda info: info.st_uid in {0, os.geteuid()} and (
-                not info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
-                or stat.S_ISDIR(info.st_mode) and info.st_uid == 0 and info.st_mode & stat.S_ISVTX))
+                                    side_effect=fixture_tool_path_protected)
         patcher.start()
         self.addCleanup(patcher.stop)
 
     def context(self, *, capture=True):
         installation = self.root / str(len(list(self.root.iterdir())))
-        installation.mkdir()
-        share = installation / "share"
-        share.mkdir()
-        for modules in Path("/usr/share").glob("cmake-*"):
-            (share / modules.name).symlink_to(modules, target_is_directory=True)
+        expected = fixture_build_tools(installation)
         root = installation / "bin"
-        root.mkdir()
-        paths = {}
-        for name in ("cmake", "ninja", "pkg_config"):
-            target = root / name
-            shutil.copyfile(export.PORTABLE_BUILD_TOOL_PATHS[name], target)
-            target.chmod(0o700)
-            paths[name] = str(target)
+        paths = {name: record["path"] for name, record in expected["tools"].items()}
         with mock.patch.dict(export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
-            expected = CompilerClosureTests.build_tool_fixture()
             context = portable.PortableBuildContext({}, {}, {}, {}, build_tools=expected)
         if capture:
             context.build_tools = context._capture_build_tools()
@@ -74,6 +108,23 @@ class PortableBuildToolTests(unittest.TestCase):
         binary.mkdir()
         (binary / "build.ninja").write_text("rule fixture\n  command = /bin/echo fixture\nbuild atrinik: fixture\n")
         self.assertEqual(context._ninja(binary), "/bin/echo fixture\n")
+
+    def test_hosted_prefix_tools_need_no_fixed_producer_paths(self):
+        available = fixture_build_tools(self.root / "available-host-prefix")
+        commands = {"cmake": available["tools"]["cmake"]["path"],
+                    "ninja": available["tools"]["ninja"]["path"],
+                    "pkgconf": available["tools"]["pkg_config"]["path"]}
+        production_paths = dict(export.PORTABLE_BUILD_TOOL_PATHS)
+        with mock.patch.object(shutil, "which", side_effect=lambda name: commands.get(name)):
+            copied = fixture_build_tools(self.root / "owned-copy")
+        paths = {name: record["path"] for name, record in copied["tools"].items()}
+        with mock.patch.dict(export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
+            context = portable.PortableBuildContext({}, {}, {}, {}, build_tools=copied)
+        context.build_tools = context._capture_build_tools()
+        context.host_tools = {"shader_python": context._capture_generator_python()}
+        context.verify_host_tools()
+        self.assertEqual(export.PORTABLE_BUILD_TOOL_PATHS, production_paths)
+        self.assertTrue(all(path.startswith(str(self.root / "owned-copy")) for path in paths.values()))
 
     def test_production_policy_rejects_consumer_owned_execution_paths_before_probes(self):
         context, _root = self.context(capture=False)
@@ -215,20 +266,18 @@ class CompilerClosureTests(unittest.TestCase):
     driver_report = lambda self, command, **kwargs: PortablePublicationTests.driver_report(self, command, **kwargs)
 
     @staticmethod
-    def build_tool_fixture():
-        # Test-local observations are fixture inputs, never a producer handoff.
-        return {"schema_version": 1, "tools": {
-            name: {"path": path, "resolved_path": str(Path(path).resolve(strict=True)),
-                   "sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest(),
-                   "size": Path(path).stat().st_size, "executable": True,
-                   "version": subprocess.run([path, "--version"], check=True, capture_output=True,
-                                             text=True, timeout=15).stdout}
-            for name, path in export.PORTABLE_BUILD_TOOL_PATHS.items()}}
+    def build_tool_fixture(root):
+        return fixture_build_tools(root)
 
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
+        self.tools = self.build_tool_fixture(self.root / "host-tools")
+        policy = mock.patch.object(portable.PortableBuildContext, "_build_tool_path_protected",
+                                   side_effect=fixture_tool_path_protected)
+        policy.start()
+        self.addCleanup(policy.stop)
 
     def fixture(self, *, before_capture=None, after_bind=None, before_output=None):
         root = self.root / str(len(list(self.root.iterdir())))
@@ -299,8 +348,10 @@ class CompilerClosureTests(unittest.TestCase):
         evidence = self.driver_evidence()
         evidence["tools"].update({"archiver": {"path": portable.LLVM_ROOT + "/bin/llvm-ar"},
                                   "ranlib": {"path": portable.LLVM_ROOT + "/bin/llvm-ranlib"}})
-        context = portable.PortableBuildContext(selected, proofs, generations, evidence,
-                                               build_tools=self.build_tool_fixture())
+        paths = {name: record["path"] for name, record in self.tools["tools"].items()}
+        with mock.patch.dict(export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
+            context = portable.PortableBuildContext(selected, proofs, generations, evidence,
+                                                   build_tools=self.tools)
         state.update(context=context, evidence=evidence)
         context.validate_selected(selected)
         context.bind_source_views(root, views)
@@ -311,8 +362,9 @@ class CompilerClosureTests(unittest.TestCase):
         run_patch.start()
         self.addCleanup(run_patch.stop)
         def driver_with_real_missing_artifact_behavior(command, **kwargs):
-            if command == ["/usr/bin/cmake", "--version"] or command == ["/usr/bin/ninja", "--version"] or command == ["/usr/bin/pkgconf", "--version"]:
-                return subprocess.run(command, check=True, capture_output=True, text=True, timeout=15).stdout
+            if len(command) == 2 and command[1] == "--version":
+                return subprocess.run(command, check=True, capture_output=True, text=True, timeout=15,
+                                      env={"PATH": os.defpath, "LC_ALL": "C"}).stdout
             if "-c" not in command and not (binary / "atrinik").exists():
                 raise AssertionError("configure-only validation invoked linker before build artifacts existed")
             return self.driver_report(command, **kwargs)
@@ -1151,6 +1203,7 @@ class PortablePublicationTests(unittest.TestCase):
                 workspace._build_resolved.assert_not_called()
 
     def test_export_source_copy_and_final_publication_guards(self):
+        build_tools = fixture_build_tools(self.root / "metadata-tools")
         from scripts.linux_portable_acceptance import SOUND_RELEASE
         from atrinik_workspace import sound
         cases = {"complete": None, "dirty": "clean committed", "classic": "requires Classic",
@@ -1259,7 +1312,7 @@ class PortablePublicationTests(unittest.TestCase):
                 if case == "sound-tree": sound_record["source_tree"] = "e" * 40
                 patches.enter_context(mock.patch.object(export, "_tool_report", side_effect=self.driver_report))
                 metadata = ({"contract": b"authenticated fixture"}, {"compiler-evidence.json": self.driver_evidence(),
-                            "installed.json": {"build_tools": CompilerClosureTests.build_tool_fixture()}})
+                            "installed.json": {"build_tools": build_tools}})
                 patches.enter_context(mock.patch.object(portable, "installed_metadata", side_effect=[
                     metadata, ({"contract": b"changed"}, {}) if case == "late-metadata" else metadata]))
                 patches.enter_context(mock.patch.object(portable, "add_runtime", side_effect=runtime))

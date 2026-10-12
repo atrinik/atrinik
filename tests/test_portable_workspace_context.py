@@ -4,8 +4,6 @@ from contextlib import ExitStack, contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
-import os
-import stat
 import threading
 import unittest
 from unittest import mock
@@ -14,6 +12,7 @@ from atrinik_workspace import linux_portable
 from atrinik_workspace.linux_portable import PortableBuildContext as AdmittedContext
 from atrinik_workspace.model import WorkspaceError, atomic_json
 from atrinik_workspace.workspace import CONFIGURE_METADATA, Workspace
+from tests.test_linux_portable_acceptance import fixture_build_tools, fixture_tool_path_protected
 
 
 class RecordingContext:
@@ -102,14 +101,11 @@ class PortableWorkspaceContextTests(unittest.TestCase):
         self.assertEqual(self.events[1][1:], (self.binary, self.source))
 
     def test_actual_tool_replacement_stops_probes_build_and_output_capture(self):
-        import hashlib
         import shutil
         import subprocess
         # Test-only policy seam for private copied tools; production accepts root only.
         policy = mock.patch.object(AdmittedContext, "_build_tool_path_protected",
-            side_effect=lambda info: info.st_uid in {0, os.geteuid()} and (
-                not info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
-                or stat.S_ISDIR(info.st_mode) and info.st_uid == 0 and info.st_mode & stat.S_ISVTX))
+                                   side_effect=fixture_tool_path_protected)
         policy.start()
         self.addCleanup(policy.stop)
         for phase in ("fingerprint", "configure", "prebuild", "postbuild"):
@@ -117,25 +113,11 @@ class PortableWorkspaceContextTests(unittest.TestCase):
                 self.events.clear()
                 installation = self.root / (phase + "-" + name)
                 tools = installation / "bin"
-                tools.mkdir(parents=True)
-                share = installation / "share"
-                share.mkdir()
-                for modules in Path("/usr/share").glob("cmake-*"):
-                    (share / modules.name).symlink_to(modules, target_is_directory=True)
-                paths = {}
-                records = {}
-                for tool in ("cmake", "ninja", "pkg_config"):
-                    path = tools / tool
-                    shutil.copyfile(linux_portable.export.PORTABLE_BUILD_TOOL_PATHS[tool], path)
-                    path.chmod(0o700)
-                    paths[tool] = str(path)
-                    records[tool] = {"path": str(path), "resolved_path": str(path),
-                                     "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-                                     "size": path.stat().st_size, "executable": True,
-                                     "version": subprocess.run([str(path), "--version"], check=True,
-                                                               capture_output=True, text=True, timeout=15).stdout}
+                expected = fixture_build_tools(installation)
+                records = expected["tools"]
+                paths = {tool: record["path"] for tool, record in records.items()}
                 with mock.patch.dict(linux_portable.export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
-                    admitted = AdmittedContext({}, {}, {}, {}, build_tools={"schema_version": 1, "tools": records})
+                    admitted = AdmittedContext({}, {}, {}, {}, build_tools=expected)
                 admitted.build_tools = admitted._capture_build_tools()
                 admitted.host_tools = {"shader_python": admitted._capture_generator_python()}
                 self.context.build_tools = admitted.build_tools
