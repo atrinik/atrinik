@@ -3137,6 +3137,130 @@ class ScopeLifecycleTests(unittest.TestCase):
         self.assertTrue(result["released"])
         self.assertFalse(root.exists())
 
+    def test_disjoint_malformed_scope_does_not_block_profile_updates(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="malformed-owner")
+        record["worktrees"][0]["path"] = str(self.root / "foreign-native-play")
+        record_path = self.workspace.paths.scopes / record["name"] / "scope.json"
+        atomic_json(record_path, record)
+        before = record_path.read_bytes()
+
+        for name in ("healthy-profile", "scope-disjoint-owner"):
+            with self.subTest(profile=name):
+                self.workspace.create_profile(name)
+                self.workspace.set_profile(name, "client", "primary")
+                self.assertEqual(
+                    self.workspace.component_path("client", name),
+                    self.wrapper / "client",
+                )
+        self.assertEqual(record_path.read_bytes(), before)
+
+        with self.assertRaisesRegex(WorkspaceError, "scope worktree path is invalid"):
+            self.workspace.scope_show(record["name"])
+        with self.assertRaisesRegex(WorkspaceError, "scope worktree path is invalid"):
+            self.workspace.scope_list()
+        _references, errors = Cleanup(self.workspace)._references()
+        self.assertIn("scope_inventory_error", errors)
+
+    def test_profile_owner_without_registry_has_no_reservation(self) -> None:
+        lifecycle = ScopeLifecycle(self.workspace)
+        lifecycle.root.rmdir()
+
+        for name in ("healthy-profile", "scope-owner"):
+            with self.subTest(profile=name):
+                self.assertIsNone(lifecycle.profile_owner(name))
+        self.assertFalse(lifecycle.root.exists())
+
+    def test_profile_owner_refuses_unsafe_registry(self) -> None:
+        lifecycle = ScopeLifecycle(self.workspace)
+        lifecycle.root.rmdir()
+        foreign = self.root / "foreign-scope-registry"
+        foreign.mkdir()
+        retained = b"retained registry bytes\n"
+
+        for kind in ("file", "symlink"):
+            with self.subTest(registry=kind):
+                if kind == "file":
+                    lifecycle.root.write_bytes(retained)
+                else:
+                    lifecycle.root.symlink_to(foreign, target_is_directory=True)
+                for name in ("healthy-profile", "scope-owner"):
+                    with self.subTest(profile=name):
+                        with self.assertRaisesRegex(
+                            WorkspaceError, "scope registry is unsafe"
+                        ):
+                            lifecycle.profile_owner(name)
+                if kind == "file":
+                    self.assertEqual(lifecycle.root.read_bytes(), retained)
+                else:
+                    self.assertEqual(lifecycle.root.readlink(), foreign)
+                lifecycle.root.unlink()
+
+    def test_dangling_registry_blocks_profile_operations_after_ensure(self) -> None:
+        self.make_checkout("classic")
+        record = self.workspace.scope_create(
+            ["classic-client"], name="owner", base_profile="classic"
+        )
+        self.workspace.create_profile("healthy-profile", "classic")
+        registry = self.workspace.paths.scopes
+        retained = self.root / "retained-scope-registry"
+        absent = self.root / "absent-scope-registry"
+        profiles = self.workspace.paths.profiles
+        before = {path.name: path.read_bytes() for path in profiles.glob("*.json")}
+        original_ensure = type(self.workspace.paths).ensure
+
+        def disappear_after_ensure(paths: object) -> None:
+            original_ensure(paths)
+            registry.rename(retained)
+            registry.symlink_to(absent, target_is_directory=True)
+
+        for operation in ("create", "set", "sound"):
+            for name in ("healthy-profile", record["profile"]["name"]):
+                with self.subTest(operation=operation, profile=name):
+                    try:
+                        with mock.patch.object(
+                            type(self.workspace.paths),
+                            "ensure",
+                            autospec=True,
+                            side_effect=disappear_after_ensure,
+                        ):
+                            with self.assertRaisesRegex(
+                                WorkspaceError, "scope registry is unsafe"
+                            ):
+                                if operation == "create":
+                                    self.workspace.create_profile(f"{name}-copy", "classic")
+                                elif operation == "set":
+                                    self.workspace.set_profile(name, "classic-client", "primary")
+                                else:
+                                    self.workspace.set_profile_sound_mode(name, "local-playtest")
+                        self.assertEqual(registry.readlink(), absent)
+                        self.assertFalse(absent.exists())
+                        self.assertEqual(
+                            {path.name: path.read_bytes() for path in profiles.glob("*.json")},
+                            before,
+                        )
+                    finally:
+                        if registry.is_symlink():
+                            registry.unlink()
+                        if retained.exists():
+                            retained.rename(registry)
+
+    def test_matching_malformed_scope_blocks_profile_updates(self) -> None:
+        self.make_checkout("client")
+        record = self.workspace.scope_create(["client"], name="malformed-owner")
+        record["worktrees"][0]["path"] = str(self.root / "foreign-native-play")
+        record_path = self.workspace.paths.scopes / record["name"] / "scope.json"
+        atomic_json(record_path, record)
+        profile_name = record["profile"]["name"]
+        profile_path = Path(record["profile"]["path"])
+        before = profile_path.read_bytes()
+
+        with self.assertRaisesRegex(WorkspaceError, "scope worktree path is invalid"):
+            self.workspace.create_profile(profile_name)
+        with self.assertRaisesRegex(WorkspaceError, "scope worktree path is invalid"):
+            self.workspace.set_profile(profile_name, "client", "primary")
+        self.assertEqual(profile_path.read_bytes(), before)
+
     def test_scope_profile_is_immutable(self) -> None:
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="immutable")
