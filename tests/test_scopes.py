@@ -3162,6 +3162,40 @@ class ScopeLifecycleTests(unittest.TestCase):
         _references, errors = Cleanup(self.workspace)._references()
         self.assertIn("scope_inventory_error", errors)
 
+    def test_profile_owner_without_registry_has_no_reservation(self) -> None:
+        lifecycle = ScopeLifecycle(self.workspace)
+        lifecycle.root.rmdir()
+
+        for name in ("healthy-profile", "scope-owner"):
+            with self.subTest(profile=name):
+                self.assertIsNone(lifecycle.profile_owner(name))
+        self.assertFalse(lifecycle.root.exists())
+
+    def test_profile_owner_refuses_unsafe_registry(self) -> None:
+        lifecycle = ScopeLifecycle(self.workspace)
+        lifecycle.root.rmdir()
+        foreign = self.root / "foreign-scope-registry"
+        foreign.mkdir()
+        retained = b"retained registry bytes\n"
+
+        for kind in ("file", "symlink"):
+            with self.subTest(registry=kind):
+                if kind == "file":
+                    lifecycle.root.write_bytes(retained)
+                else:
+                    lifecycle.root.symlink_to(foreign, target_is_directory=True)
+                for name in ("healthy-profile", "scope-owner"):
+                    with self.subTest(profile=name):
+                        with self.assertRaisesRegex(
+                            WorkspaceError, "scope registry is unsafe"
+                        ):
+                            lifecycle.profile_owner(name)
+                if kind == "file":
+                    self.assertEqual(lifecycle.root.read_bytes(), retained)
+                else:
+                    self.assertEqual(lifecycle.root.readlink(), foreign)
+                lifecycle.root.unlink()
+
     def test_matching_malformed_scope_blocks_profile_updates(self) -> None:
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="malformed-owner")
