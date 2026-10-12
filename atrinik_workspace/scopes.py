@@ -2155,6 +2155,8 @@ class ScopeLifecycle:
             raise WorkspaceError(f"scope record contains forbidden secret-shaped fields: {name}")
 
     def profile_owner(self, profile_name: str) -> str | None:
+        if self.root.is_symlink():
+            raise WorkspaceError(f"scope registry is unsafe: {self.root}")
         if not self.root.exists():
             return None
         if self.root.is_symlink() or not self.root.is_dir():

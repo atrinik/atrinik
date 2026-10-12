@@ -3196,6 +3196,55 @@ class ScopeLifecycleTests(unittest.TestCase):
                     self.assertEqual(lifecycle.root.readlink(), foreign)
                 lifecycle.root.unlink()
 
+    def test_dangling_registry_blocks_profile_operations_after_ensure(self) -> None:
+        self.make_checkout("classic")
+        record = self.workspace.scope_create(
+            ["classic-client"], name="owner", base_profile="classic"
+        )
+        self.workspace.create_profile("healthy-profile", "classic")
+        registry = self.workspace.paths.scopes
+        retained = self.root / "retained-scope-registry"
+        absent = self.root / "absent-scope-registry"
+        profiles = self.workspace.paths.profiles
+        before = {path.name: path.read_bytes() for path in profiles.glob("*.json")}
+        original_ensure = type(self.workspace.paths).ensure
+
+        def disappear_after_ensure(paths: object) -> None:
+            original_ensure(paths)
+            registry.rename(retained)
+            registry.symlink_to(absent, target_is_directory=True)
+
+        for operation in ("create", "set", "sound"):
+            for name in ("healthy-profile", record["profile"]["name"]):
+                with self.subTest(operation=operation, profile=name):
+                    try:
+                        with mock.patch.object(
+                            type(self.workspace.paths),
+                            "ensure",
+                            autospec=True,
+                            side_effect=disappear_after_ensure,
+                        ):
+                            with self.assertRaisesRegex(
+                                WorkspaceError, "scope registry is unsafe"
+                            ):
+                                if operation == "create":
+                                    self.workspace.create_profile(f"{name}-copy", "classic")
+                                elif operation == "set":
+                                    self.workspace.set_profile(name, "classic-client", "primary")
+                                else:
+                                    self.workspace.set_profile_sound_mode(name, "local-playtest")
+                        self.assertEqual(registry.readlink(), absent)
+                        self.assertFalse(absent.exists())
+                        self.assertEqual(
+                            {path.name: path.read_bytes() for path in profiles.glob("*.json")},
+                            before,
+                        )
+                    finally:
+                        if registry.is_symlink():
+                            registry.unlink()
+                        if retained.exists():
+                            retained.rename(registry)
+
     def test_matching_malformed_scope_blocks_profile_updates(self) -> None:
         self.make_checkout("client")
         record = self.workspace.scope_create(["client"], name="malformed-owner")
