@@ -113,7 +113,7 @@ class PortableWorkspaceContextTests(unittest.TestCase):
         policy.start()
         self.addCleanup(policy.stop)
         for phase in ("fingerprint", "configure", "prebuild", "postbuild"):
-            for name in ("cmake", "ninja"):
+            for name in ("cmake", "ninja", "pkg_config"):
                 self.events.clear()
                 installation = self.root / (phase + "-" + name)
                 tools = installation / "bin"
@@ -124,9 +124,9 @@ class PortableWorkspaceContextTests(unittest.TestCase):
                     (share / modules.name).symlink_to(modules, target_is_directory=True)
                 paths = {}
                 records = {}
-                for tool in ("cmake", "ninja"):
+                for tool in ("cmake", "ninja", "pkg_config"):
                     path = tools / tool
-                    shutil.copyfile("/usr/bin/" + tool, path)
+                    shutil.copyfile(linux_portable.export.PORTABLE_BUILD_TOOL_PATHS[tool], path)
                     path.chmod(0o700)
                     paths[tool] = str(path)
                     records[tool] = {"path": str(path), "resolved_path": str(path),
@@ -154,6 +154,18 @@ class PortableWorkspaceContextTests(unittest.TestCase):
                 def run(command, **kwargs):
                     action = "configure" if "-S" in command else "build"
                     self.events.append((action, command))
+                    if phase == "configure" and name == "pkg_config":
+                        # Exercise an actual admitted dependency query before
+                        # replacing its bytes/identity during the configure step.
+                        packages = installation / "pkgconfig"
+                        packages.mkdir()
+                        (packages / "fixture.pc").write_text(
+                            "Name: fixture\nDescription: test-owned probe\nVersion: 1.2.3\nLibs:\nCflags:\n")
+                        queried = subprocess.run([records["pkg_config"]["path"], "--modversion", "fixture"],
+                            check=True, capture_output=True, text=True, timeout=15,
+                            env={"PATH": "/usr/bin:/bin", "LC_ALL": "C", "PKG_CONFIG_PATH": "",
+                                 "PKG_CONFIG_LIBDIR": str(packages)})
+                        self.assertEqual(queried.stdout, "1.2.3\n")
                     if (phase == "configure" and action == "configure") or (phase == "postbuild" and action == "build"):
                         replace()
                 def capture(binary, source):

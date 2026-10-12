@@ -23,7 +23,8 @@ from atrinik_workspace.model import WorkspaceError
 
 
 @unittest.skipUnless(sys.platform.startswith("linux") and Path("/usr/bin/cmake").is_file()
-                     and Path("/usr/bin/ninja").is_file(), "CMake and Ninja fixture executables")
+                     and Path("/usr/bin/ninja").is_file() and Path("/usr/bin/pkgconf").is_file(),
+                     "CMake, Ninja and pkgconf fixture executables")
 class PortableBuildToolTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
@@ -49,9 +50,9 @@ class PortableBuildToolTests(unittest.TestCase):
         root = installation / "bin"
         root.mkdir()
         paths = {}
-        for name in ("cmake", "ninja"):
+        for name in ("cmake", "ninja", "pkg_config"):
             target = root / name
-            shutil.copyfile("/usr/bin/" + name, target)
+            shutil.copyfile(export.PORTABLE_BUILD_TOOL_PATHS[name], target)
             target.chmod(0o700)
             paths[name] = str(target)
         with mock.patch.dict(export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
@@ -104,7 +105,7 @@ class PortableBuildToolTests(unittest.TestCase):
         read.assert_not_called()
 
     def test_changed_tool_is_rejected_before_any_version_execution(self):
-        for name in ("cmake", "ninja"):
+        for name in ("cmake", "ninja", "pkg_config"):
             context, root = self.context(capture=False)
             with (root / name).open("r+b") as stream:
                 original = stream.read(1)
@@ -115,6 +116,39 @@ class PortableBuildToolTests(unittest.TestCase):
                 context._capture_build_tools()
             report.assert_not_called()
 
+    def test_missing_wrong_or_unmatched_pkg_config_record_cannot_probe_any_tool(self):
+        for mutation in ("missing", "wrong-role", "path", "digest"):
+            context, _root = self.context(capture=False)
+            value = {"schema_version": 1, "tools": json.loads(json.dumps(context.producer_build_tools))}
+            paths = {name: record["path"] for name, record in value["tools"].items()}
+            if mutation == "missing": del value["tools"]["pkg_config"]
+            elif mutation == "wrong-role": value["tools"]["pkg-config"] = value["tools"].pop("pkg_config")
+            elif mutation == "path": value["tools"]["pkg_config"]["path"] = "/usr/bin/pkg-config"
+            else: value["tools"]["pkg_config"]["sha256"] = "0" * 64
+            with self.subTest(mutation=mutation), mock.patch.dict(export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True), \
+                 mock.patch.object(export, "_tool_report") as report, self.assertRaises(ValueError):
+                rejected = portable.PortableBuildContext({}, {}, {}, {}, build_tools=value)
+                rejected._capture_build_tools()
+            report.assert_not_called()
+
+    def test_pkg_config_version_execution_is_fenced_before_receipt_acceptance(self):
+        context, root = self.context(capture=False)
+        report = export._tool_report
+        executed = []
+        def changed_pkg_config(command, **kwargs):
+            result = report(command, **kwargs)
+            if command[0] == str(root / "pkg_config"):
+                executed.append(command)
+                replacement = root / "pkg_config.replacement"
+                shutil.copyfile(root / "pkg_config", replacement)
+                replacement.chmod(0o700)
+                replacement.replace(root / "pkg_config")
+            return result
+        with mock.patch.object(export, "_tool_report", side_effect=changed_pkg_config), \
+             self.assertRaisesRegex(ValueError, "changed during version inspection"):
+            context._capture_build_tools()
+        self.assertEqual(executed, [[str(root / "pkg_config"), "--version"]])
+
     def test_admitted_bytes_must_report_exact_complete_producer_version(self):
         context, _root = self.context(capture=False)
         context.producer_build_tools["cmake"]["version"] += "unmatched producer output\n"
@@ -122,7 +156,7 @@ class PortableBuildToolTests(unittest.TestCase):
             context._capture_build_tools()
 
     def test_actual_tool_drift_and_aliases_reject_existing_receipt(self):
-        for name in ("cmake", "ninja"):
+        for name in ("cmake", "ninja", "pkg_config"):
             for mutation in ("bytes", "identity", "mode", "writable", "resolution"):
                 context, root = self.context()
                 path = root / name
@@ -165,7 +199,7 @@ class PortableBuildToolTests(unittest.TestCase):
             context._ninja(binary)
 
     def test_export_revalidation_rejects_actual_tool_drift_before_cache_read(self):
-        for name in ("cmake", "ninja"):
+        for name in ("cmake", "ninja", "pkg_config"):
             context, root = self.context()
             binary = root / "build"
             binary.mkdir()
@@ -277,7 +311,7 @@ class CompilerClosureTests(unittest.TestCase):
         run_patch.start()
         self.addCleanup(run_patch.stop)
         def driver_with_real_missing_artifact_behavior(command, **kwargs):
-            if command == ["/usr/bin/cmake", "--version"] or command == ["/usr/bin/ninja", "--version"]:
+            if command == ["/usr/bin/cmake", "--version"] or command == ["/usr/bin/ninja", "--version"] or command == ["/usr/bin/pkgconf", "--version"]:
                 return subprocess.run(command, check=True, capture_output=True, text=True, timeout=15).stdout
             if "-c" not in command and not (binary / "atrinik").exists():
                 raise AssertionError("configure-only validation invoked linker before build artifacts existed")

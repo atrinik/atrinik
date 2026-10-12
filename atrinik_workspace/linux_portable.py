@@ -202,7 +202,7 @@ PORTABLE_LINK_FLAGS = "-L" + LLVM_ROOT + "/lib --rtlib=compiler-rt --unwindlib=l
 def portable_configure_arguments(source: Path) -> list[str]:
     """Pin CMake's full compiler, optimization and linker contract."""
     settings = {
-        "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkg-config",
+        "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkgconf",
         "BUILD_TESTING": "OFF",
         "ATRINIK_GPU_SHADER_DIRECTORY": "/opt/atrinik-portable/shaders",
         "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
@@ -346,7 +346,7 @@ class PortableBuildContext:
     def _build_tool_record(cls, expected: dict) -> dict:
         """Admit executable bytes before any tool probe; OS dependencies stay trusted."""
         path = Path(expected["path"])
-        # Debian's fixed CMake/Ninja paths are regular files. Following a link,
+        # Debian's fixed CMake/Ninja/pkgconf paths are regular files. Following a link,
         # even into a protected target, could admit a writable execution chain.
         if not path.is_absolute() or str(path) != expected["resolved_path"]:
             raise ValueError("portable producer build tool resolution changed")
@@ -384,7 +384,7 @@ class PortableBuildContext:
         return record
 
     def _capture_build_tools(self) -> dict:
-        # Authenticate both tools before running either --version command.
+        # Authenticate every tool before running any --version command.
         records = {name: self._build_tool_record(expected)
                    for name, expected in self.producer_build_tools.items()}
         for name, expected in self.producer_build_tools.items():

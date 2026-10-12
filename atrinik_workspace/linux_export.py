@@ -224,7 +224,8 @@ PORTABLE_METADATA_FILES = frozenset({
     "debian-sources.json", "shader-generation.json", "compiler-evidence.json",
 })
 
-PORTABLE_BUILD_TOOL_PATHS = {"cmake": "/usr/bin/cmake", "ninja": "/usr/bin/ninja"}
+PORTABLE_BUILD_TOOL_PATHS = {"cmake": "/usr/bin/cmake", "ninja": "/usr/bin/ninja",
+                             "pkg_config": "/usr/bin/pkgconf"}
 
 
 def portable_build_tools(value: object) -> dict:

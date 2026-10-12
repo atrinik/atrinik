@@ -568,12 +568,12 @@ class LinuxExportTests(unittest.TestCase):
                                                                             "soname": ["unused.so"], "reason": "unused fixture feature"}]}},
             "installed.json": {"schema_version": 2, "architecture": "amd64", "glibc": "glibc 2.36",
                                "compiler_target": "x86_64-unknown-linux-gnu",
-                               "tools": {"cmake": "cmake version 3.25.1", "ninja": "1.11.1"},
+                               "tools": {"cmake": "cmake version 3.25.1", "ninja": "1.11.1", "pkg_config": "1.8.1"},
                                "build_tools": {"schema_version": 1, "tools": {
                                    name: {"path": path, "resolved_path": path, "sha256": "1" * 64,
                                           "size": 1, "executable": True,
                                           "version": ("cmake version 3.25.1\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\n"
-                                                      if name == "cmake" else "1.11.1\n")}
+                                                      if name == "cmake" else "1.11.1\n" if name == "ninja" else "1.8.1\n")}
                                    for name, path in export.PORTABLE_BUILD_TOOL_PATHS.items()}},
                                "pkg_config": {"sdl3": "3.4.2"}},
             "compiler-evidence.json": json.loads((Path(__file__).parent /
@@ -633,6 +633,19 @@ class LinuxExportTests(unittest.TestCase):
             else: receipt["tools"]["cmake"]["extra"] = "unbound"
             with self.subTest(mutation=mutation), self.assertRaises(export.ExportError):
                 export.portable_metadata_report(**self.portable_arguments(documents))
+
+    def test_pkg_config_identity_and_reported_version_are_mandatory(self) -> None:
+        for mutation in ("missing", "path", "version", "reported-version"):
+            documents = self.portable_documents()
+            installed = documents["installed.json"]
+            if mutation == "missing": del installed["build_tools"]["tools"]["pkg_config"]
+            elif mutation == "path": installed["build_tools"]["tools"]["pkg_config"]["path"] = "/usr/bin/pkg-config"
+            elif mutation == "version": installed["build_tools"]["tools"]["pkg_config"]["version"] = "pkg-config 1.8.1\n"
+            else: installed["tools"]["pkg_config"] = "1.8.2"
+            with self.subTest(mutation=mutation), self.assertRaises(export.ExportError):
+                export.portable_metadata_report(**self.portable_arguments(documents))
+        from atrinik_workspace import linux_portable
+        self.assertIn("-DPKG_CONFIG_EXECUTABLE=/usr/bin/pkgconf", linux_portable.portable_configure_arguments(self.root))
 
     def test_actual_debian_producer_driver_evidence_and_default_search_paths(self):
         # Captured before dependency assembly from the pinned Debian producer

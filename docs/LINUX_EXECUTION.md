@@ -769,7 +769,7 @@ The ten LLVM tool identities include independently
 recorded and rechecked C and C++ driver paths, versions and executable hashes;
 Clang++ is never authenticated by assuming it shares Clang bytes. Portable CMake operations
 remove Clang driver/configuration overrides and inherited CMake and pkg-config
-dependency selectors. They use `/usr/bin/pkg-config` with explicit
+dependency selectors. They use the admitted regular `/usr/bin/pkgconf` executable with explicit
 `/usr/local/lib/pkgconfig` and Debian system package directories, and search the
 verified LLVM runtime directory first. Every linker search directory and direct
 input is restricted to the pinned producer library directories or the owned build
@@ -796,11 +796,13 @@ substitute for it. After build, it binds the executable's bytes and identity and
 rechecks them when export reacquires the build lock and before publication.
 
 The authenticated producer's `installed.json` must include `build_tools` schema
-version 1, with exactly `cmake` and `ninja` records under `tools`. Each records
+version 1, with exactly `cmake`, `ninja` and `pkg_config` records under `tools`.
+The `pkg_config` role invokes `/usr/bin/pkgconf` directly; the `pkg-config`
+symlink is outside the admitted execution paths. Each records
 the fixed `/usr/bin` invocation path, canonical resolved path, SHA-256, size,
 executable mode and complete `--version` output, including its trailing newline.
-The wrapper admits both executables' bytes through protected regular-file
-descriptors before probing either version. Every component of these fixed
+The wrapper admits all three executables' bytes through protected regular-file
+descriptors before probing any version. Every component of these fixed
 execution paths must be root-owned, unwritable by other users and free of
 symlinks. An in-memory receipt rechecks their
 bytes, resolution and identity around configure and its tool probes, every Ninja
