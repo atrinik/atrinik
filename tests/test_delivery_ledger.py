@@ -14654,7 +14654,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             )
             self.assertEqual(result.document, next_generation(current))
 
-    def test_public_helper_refuses_unproven_recorded_context_without_publication(self) -> None:
+    def test_public_helper_refuses_ineligible_context_without_publication(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             old, candidate, _, _, _ = target_refresh_setup(
@@ -14668,11 +14668,29 @@ class DeliveryLedgerTests(unittest.TestCase):
                        "revalidate-current-targets-cas", str(root), current.name]
             for key, value in cas_arguments(current).items():
                 command.extend(("--" + key.replace("_", "-"), str(value)))
-            process = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
-            self.assertEqual(process.returncode, 2, process.stderr)
-            self.assertIn("filesystem context is ineligible", process.stderr)
-            self.assertEqual(ledger.inspect(root, current.name).raw, current.raw)
-            self.assertEqual(before, {str(path.relative_to(self.live_base)) for path in self.live_base.rglob("*")})
+            # A native Linux host can legitimately be eligible. Supply explicit
+            # ineligible context evidence instead of depending on the test host.
+            for key, value in (
+                ("ATRINIK_COORDINATOR_NESTED", "true"),
+                ("ATRINIK_COORDINATOR_DEPTH", "1"),
+                ("ATRINIK_COORDINATOR_DEPTH", "invalid"),
+            ):
+                with self.subTest(key=key, value=value):
+                    environment = {
+                        **os.environ,
+                        "ATRINIK_COORDINATOR_NESTED": "false",
+                        "ATRINIK_COORDINATOR_DEPTH": "0",
+                        key: value,
+                    }
+                    process = subprocess.run(
+                        command, cwd=ROOT, env=environment, text=True, capture_output=True)
+                    self.assertEqual(process.returncode, 2, process.stderr)
+                    self.assertIn("filesystem context is ineligible", process.stderr)
+                    self.assertEqual(ledger.inspect(root, current.name).raw, current.raw)
+                    self.assertEqual(before, {
+                        str(path.relative_to(self.live_base))
+                        for path in self.live_base.rglob("*")
+                    })
 
     def test_current_targets_public_cli_has_no_candidate_argument(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
