@@ -1740,19 +1740,19 @@ A saved Classic-derived profile may instead consume the publishable Classic
 compatibility runtime from an immutable `atrinik/sound` release. Released mode
 does not invoke a source builder and never falls back to `source` or
 `local-playtest`. Supply every coordinate posted by the sound release. For
-example, the published v1.0.0 Classic runtime is selected with:
+example, the published v1.2.0 Classic runtime is selected with:
 
 ~~~sh
 ./atrinik profile create classic-released-audio --from classic
 ./atrinik profile sound-mode classic-released-audio released \
   --release-repository atrinik/sound \
-  --release-tag v1.0.0 \
-  --release-product-version 1.0.0 \
-  --release-source-commit d0561bf9ff8dc88836818dbe602a5a256c6c0e3f \
-  --release-source-tree f464de12f943f1844f8587ca1a7419f6b78b9e44 \
-  --release-asset-url https://github.com/atrinik/sound/releases/download/v1.0.0/atrinik-sound-classic-runtime-1.0.0.tar.gz \
-  --release-archive-sha256 e3f17d314b3933db9c6af3f9290c5df79375a6cc3d570ea29f225b53de362784 \
-  --release-manifest-sha256 2d7a1ba78e4f484aa0554809f72b14345c40d37cc2d46daf0416de69627f2cbb \
+  --release-tag v1.2.0 \
+  --release-product-version 1.2.0 \
+  --release-source-commit 642e5a25a476c96b764054b7b57307274b0fabb5 \
+  --release-source-tree d57ef0b499cb00f2f7cabf359c320f70f542d81c \
+  --release-asset-url https://github.com/atrinik/sound/releases/download/v1.2.0/atrinik-sound-classic-runtime-1.2.0.tar.gz \
+  --release-archive-sha256 0a48a2a0087fecf0f9bbe815f20460ab70f858656b4e4a9d1479f8f03c8b09bf \
+  --release-manifest-sha256 1894c2ca0b563d1b4ab69c29ac839cf5d873680c416f343072aacad4308889cb \
   --release-source-manifest-sha256 3aacd122abe16da771ac1eb6ad80c50c1c6e7ab43d555dc8772f21be24248366 \
   --release-schema-sha256 428e1312d9922ab4ec20c0ee89d93d842528db6d8cc75197c135f4d4f59066aa \
   --release-toolchain-sha256 ee842444c37df3c6784665c2dacef4ab9220f3abfc5c2daf9214fe4b40aadbf7 \

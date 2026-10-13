@@ -551,7 +551,7 @@ profile lets the exporter materialize immutable generations from these primary
 selectors. Advancing either repository's `main`
 branch does not change this acceptance recipe; qualifying a new Classic commit
 requires a separately reviewed immutable producer.
-Create `classic-released-audio` with the exact v1.0.0 coordinates in the
+Create `classic-released-audio` with the exact v1.2.0 coordinates in the
 [released sound recipe](../README.md) before running these producer
 commands (the CI driver creates its own equivalent saved profile):
 
