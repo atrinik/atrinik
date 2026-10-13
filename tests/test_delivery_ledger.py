@@ -12825,8 +12825,27 @@ class DeliveryLedgerTests(unittest.TestCase):
                    "resource_context": {"kind": "bound-wrapper-worktree", "worktree_slot": "worktree"}}
         return refreshed, request, roots, live, actual, state, registry_bytes
 
+    def observation_configuration_fixture(self):
+        """Keep producer and observer on the same private default Git inputs."""
+        fixture_home = self.live_base / "observation-home"
+        fixture_home.mkdir(mode=0o700)
+        config = fixture_home / ".gitconfig"
+        config.touch(mode=0o600)
+        environment = {key: value for key, value in os.environ.items()
+                       if not key.startswith("GIT_")}
+        environment.update(HOME=str(fixture_home),
+                           XDG_CONFIG_HOME=str(fixture_home / ".config"))
+        # Patch inputs only: the retained observer still pins and checks real
+        # origins, permissions, contents and races. Restore the caller at cleanup.
+        patch = mock.patch.dict(os.environ, environment, clear=True)
+        patch.start()
+        self.addCleanup(patch.stop)
+        return config
+
     def observation_transaction_fixture(self, label, *, live_resources=False, executor=True, classic_coordinates=False):
         """Real ledger/Git/CAS fixture; resource proof is a separate tested boundary."""
+        if live_resources:
+            self.observation_git_config = self.observation_configuration_fixture()
         current, roots, live, runtime = self.split_resource_context_setup(Path("/unused"), label, for_correction=True)
         root = Path(current.path).parent
         planned = next_generation(current)
@@ -13151,13 +13170,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertEqual(ledger.canonical_bytes(next(row["correction"] for row in recorded.document["resources"] if "correction" in row)), original_proof)
 
     def test_runtime_handoff_retained_public_forward(self):
-        # Fixture-only defaults: production deliberately rejects writable host
-        # Git origins, and this forward test must not adopt the user's config.
-        fixture_home = self.live_base / "handoff-home"
-        fixture_home.mkdir(mode=0o700)
-        with mock.patch.dict(os.environ, {"HOME": str(fixture_home),
-                                         "XDG_CONFIG_HOME": str(fixture_home / ".config")}):
-            self.retained_dependency_advance_forward(handoff=True)
+        self.retained_dependency_advance_forward(handoff=True)
 
     def runtime_handoff_forward_fixture(self, root, snapshot, live, plan):
         import multiprocessing
@@ -13836,6 +13849,16 @@ class DeliveryLedgerTests(unittest.TestCase):
             ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
         spec_path.write_bytes(original_spec)
         self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+        # Unsafe default origins must fail even when their contents still match
+        # the producer's digest. This exercises the real retained origin guard.
+        self.observation_git_config.chmod(0o660)
+        try:
+            with self.assertRaisesRegex(ledger.LedgerError, "unsafe Git configuration origin"):
+                ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+        finally:
+            self.observation_git_config.chmod(0o600)
+        self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+        self.assertEqual(mutable_bytes(), data)
         corrected = public("correct-resource-observations-cas", before, request)
         proof = next(row["correction"] for row in corrected.document["resources"] if "correction" in row)
         topology = next(row for row in corrected.document["resources"] if row["kind"] == "topology")
