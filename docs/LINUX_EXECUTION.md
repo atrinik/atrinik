@@ -583,6 +583,25 @@ before export. Compiler capability probes use the same scrubbed environment as
 the build. This retains the existing host-tool trust boundary; it does not attest
 the Python standard library or add an interpreter to immutable SDK metadata.
 
+Portable Ninja commands additionally admit the measured `/bin/sh` chain as
+`command_shell` in the separate `host_tools` receipt. The fixed producer and
+consumer coordinates must match the shell literal before capture and every
+revalidation. The accepted chain is `/bin -> usr/bin` and `/usr/bin/sh -> dash`,
+with root-owned mode0755 directories and `/usr/bin/dash`, and root-owned mode0777
+symlinks protected by those directories. The target's exact 125,640 bytes and
+ELF64 little-endian x86-64 ET_DYN header are bound to the successful
+[fixed SDK shell collector run](https://github.com/atrinik/atrinik/actions/runs/38525579823).
+A finite no-follow descriptor walk holds all six entries through hashing and
+pathname rechecks; the operation receipt freezes device, inode and stat identity.
+Missing entries, alternate links, hardlinked targets, unsafe owners or modes,
+changed bytes or identities and mismatched cohort/receipts refuse admission.
+The requirement that the target have one hard link is a runtime safety
+precondition, separate from the collector's retained byte and symlink observations. No observed replacement
+shell is accepted as a fallback. This remains separate from the three published
+build-tool records and seven SDK metadata files. It does not execute the shell
+or an ELF inspector, attest its OS loader/libraries/standard data, or prove
+historical execution against a privileged swap-and-restore.
+
 The complete installed producer closure is bound to the collector maps accepted
 through trusted hosted filesystem equality: 364 regular producer files, including
 upstream and Debian source archives, build recipes and notices. Three pinned aggregate
