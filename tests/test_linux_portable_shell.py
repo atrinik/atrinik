@@ -260,6 +260,39 @@ class PortableShellTests(unittest.TestCase):
             with self.subTest(receipt=type(receipt)), self.assertRaises(shell.LinuxPortableShellError):
                 shell.verify_identity(receipt)
 
+    def test_unsupported_platform_fails_before_filesystem_access(self):
+        for platform in ("win32", "darwin"):
+            with self.subTest(platform=platform), mock.patch.object(shell.sys, "platform", platform), \
+                    mock.patch.object(shell, "_open_root") as opened:
+                with self.assertRaisesRegex(shell.LinuxPortableShellError,
+                                            "Linux descriptor capabilities required"):
+                    shell.capture_identity()
+                opened.assert_not_called()
+
+    def test_missing_descriptor_capability_fails_before_filesystem_access(self):
+        for name in ("O_PATH", "O_NOFOLLOW", "O_DIRECTORY", "O_CLOEXEC", "O_NONBLOCK", "O_RDONLY"):
+            with self.subTest(flag=name), mock.patch.object(shell.os, name), \
+                    mock.patch.object(shell, "_open_root") as opened:
+                delattr(shell.os, name)
+                with self.assertRaisesRegex(shell.LinuxPortableShellError,
+                                            "Linux descriptor capabilities required"):
+                    shell.capture_identity()
+                opened.assert_not_called()
+
+    def test_import_and_cohort_remain_available_on_unsupported_platform(self):
+        code = compile(Path(shell.__file__).read_bytes(), shell.__file__, "exec")
+        namespace = {}
+        with mock.patch.object(shell.sys, "platform", "win32"):
+            exec(code, namespace)
+            namespace["verify_cohort"](image=namespace["_IMAGE"],
+                platform_manifest=namespace["_PLATFORM"], producer_commit=namespace["_PRODUCER"],
+                consumer_commit=namespace["_CONSUMER"])
+            self.assertTrue(issubclass(namespace["LinuxPortableShellError"], ValueError))
+            with mock.patch.dict(namespace, {"_open_root": mock.Mock()}) as patched:
+                with self.assertRaises(namespace["LinuxPortableShellError"]):
+                    namespace["capture_identity"]()
+                patched["_open_root"].assert_not_called()
+
     def test_descriptor_closed_on_failure(self):
         opened = []
         def track(*args, **kwargs):

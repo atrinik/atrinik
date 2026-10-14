@@ -12,6 +12,7 @@ import json
 import os
 import stat
 import struct
+import sys
 
 
 class LinuxPortableShellError(ValueError):
@@ -159,6 +160,9 @@ def _observe():
 
 def capture_identity():
     """Capture one operation's fixed shell identity after caller cohort admission."""
+    _require(sys.platform == "linux" and all(type(getattr(os, name, None)) is int
+             for name in ("O_PATH", "O_NOFOLLOW", "O_DIRECTORY", "O_CLOEXEC", "O_NONBLOCK", "O_RDONLY")),
+             "Linux descriptor capabilities required")
     try:
         records = _observe()
     except OSError:
