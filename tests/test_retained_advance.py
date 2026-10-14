@@ -140,7 +140,7 @@ class RetainedAdvanceSchemaTests(unittest.TestCase):
             check(bad)
 
     def test_accepted_pins_are_literals_and_exact_inventory(self):
-        self.assertEqual(self.pins["CONSUMER_COMMIT"], "d926f6fd0418fb1af9060158c43d8d3ff5252580")
+        self.assertEqual(self.pins["CONSUMER_COMMIT"], "bd5317a03cdc82f029105c5dc26428b09fcd54b3")
         for raw in (self.raw + b'\nIMAGE = "duplicate"\n', self.raw.replace(b'IMAGE = "', b'IMAGE = str("', 1),
                     self.raw.replace(b'@sha256:', b':latest#', 1), b'IMAGE = __import__("os").system("false")'):
             with self.subTest(raw=raw[-40:]), self.assertRaises(WorkspaceError):
