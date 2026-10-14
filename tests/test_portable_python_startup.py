@@ -15,6 +15,7 @@ from atrinik_workspace.workspace import Workspace
 
 
 class StartupContext:
+    evidence = {}
     host_tools = {"fixture": "host-tools interface only"}
     build_tools = {"fixture": "producer-build-tools interface only"}
 

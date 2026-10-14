@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
 from types import SimpleNamespace
+import hashlib
 import tempfile
 import threading
 import unittest
@@ -16,6 +17,7 @@ from tests.test_linux_portable_acceptance import fixture_build_tools, fixture_to
 
 
 class RecordingContext:
+    evidence = {}
     host_tools = {"fixture": "host-tools interface only"}
     build_tools = {"fixture": "producer-build-tools interface only"}
 
@@ -59,15 +61,16 @@ class PortableWorkspaceContextTests(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
 
-    def cmake_patches(self, fail=None):
+    def cmake_patches(self, fail=None, *, real_compiler=False):
         stack = ExitStack()
         self.addCleanup(stack.close)
         fingerprint = {"build_tree_identity": {"toolchain_file": None}, "source": {"configure_skip_safe": True}}
         stack.enter_context(mock.patch.object(self.workspace, "_add_debug_prefix_environment", return_value={}))
         stack.enter_context(mock.patch.object(self.workspace, "_configure_fingerprint", return_value=fingerprint))
         stack.enter_context(mock.patch.object(self.workspace, "_cmake_state_valid", return_value=True))
-        stack.enter_context(mock.patch.object(linux_portable, "installed_metadata", return_value=({}, {"compiler-evidence.json": {}})))
-        stack.enter_context(mock.patch.object(linux_portable, "_verify_compiler_bytes"))
+        stack.enter_context(mock.patch.object(linux_portable, "installed_metadata", return_value=({}, {"compiler-evidence.json": self.context.evidence})))
+        if not real_compiler:
+            stack.enter_context(mock.patch.object(linux_portable, "_verify_compiler_bytes"))
 
         def run(command, **kwargs):
             phase = "configure" if "-S" in command else "build"
@@ -164,6 +167,104 @@ class PortableWorkspaceContextTests(unittest.TestCase):
                 self.assertNotIn("output-evidence", actions)
                 if phase != "postbuild": self.assertNotIn("build", actions)
                 if phase == "fingerprint": self.assertNotIn("configure", actions)
+
+    def compiler_context(self, root):
+        root.mkdir()
+        records = {}
+        for role in ("compiler", "cxx_compiler", "linker", "archiver", "ranlib", "nm",
+                     "strip", "objcopy", "objdump", "readelf", "runtime", "unwinder"):
+            path = root / role
+            path.write_bytes(("authenticated fixture " + role).encode())
+            records[role] = {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        evidence = {"tools": {name: row for name, row in records.items()
+                               if name not in {"runtime", "unwinder"}},
+                    "runtime": records["runtime"], "unwinder": records["unwinder"]}
+        # No compiler executable is invoked by these byte-drift controls.
+        with mock.patch.object(linux_portable.export, "portable_build_tools", return_value={}):
+            admitted = AdmittedContext({}, {}, {}, evidence, build_tools={})
+        admitted.build_tools = {}
+        python = root / "python"
+        python.write_bytes(b"fixture host-tool receipt")
+        python_patch = mock.patch.object(linux_portable, "PORTABLE_GENERATOR_PYTHON", python)
+        python_patch.start()
+        self.addCleanup(python_patch.stop)
+        admitted.host_tools = {"shader_python": {"path": str(python), "resolved_path": str(python),
+                                                **admitted._record(python), "version": {}}}
+        return admitted, records, evidence
+
+    def test_whole_compiler_cohort_drift_stops_next_build_phase(self):
+        for phase in ("prefix", "fingerprint", "configure", "prebuild", "postbuild"):
+            for role in ("compiler", "cxx_compiler", "linker", "archiver", "ranlib", "nm",
+                         "strip", "objcopy", "objdump", "readelf", "runtime", "unwinder"):
+                with self.subTest(phase=phase, role=role), ExitStack() as stack:
+                    self.events.clear()
+                    admitted, records, evidence = self.compiler_context(self.root / (phase + role))
+                    self.context.evidence = admitted.evidence
+                    self.context.verify_host_tools = admitted.verify_host_tools
+                    self.context.host_tools = admitted.host_tools
+                    self.context.build_tools = admitted.build_tools
+                    fingerprint = self.cmake_patches(real_compiler=True)
+                    def mutate():
+                        path = Path(records[role]["path"])
+                        path.write_bytes(b"changed compiler cohort member")
+                        # Refreshing caller data must not replace in-memory authority.
+                        records[role]["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+                    def prefix(*args, **kwargs):
+                        if phase == "prefix": mutate()
+                        return {}
+                    def probe(*args, **kwargs):
+                        if phase == "fingerprint": mutate()
+                        return fingerprint
+                    def run(command, **kwargs):
+                        action = "configure" if "-S" in command else "build"
+                        self.events.append((action, command))
+                        if (phase == "configure" and action == "configure") or (phase == "postbuild" and action == "build"):
+                            mutate()
+                    def capture(binary, source):
+                        self.events.append(("configure-evidence", binary, source))
+                        if phase == "prebuild": mutate()
+                    self.context.capture_configure = capture
+                    stack.enter_context(mock.patch.object(self.workspace, "_add_debug_prefix_environment", side_effect=prefix))
+                    stack.enter_context(mock.patch.object(self.workspace, "_configure_fingerprint", side_effect=probe))
+                    stack.enter_context(mock.patch("atrinik_workspace.workspace.run", side_effect=run))
+                    with self.assertRaisesRegex(WorkspaceError, "selected tool or runtime bytes differ"):
+                        self.workspace._cmake(self.source, self.binary, [], False,
+                                              portable=True, portable_context=self.context)
+                    actions = [event[0] for event in self.events]
+                    self.assertNotIn("output-evidence", actions)
+                    if phase != "postbuild": self.assertNotIn("build", actions)
+                    if phase in {"prefix", "fingerprint"}: self.assertNotIn("configure", actions)
+
+    def test_refreshed_disk_evidence_cannot_replace_caller_authority(self):
+        self.cmake_patches()
+        with mock.patch.object(linux_portable, "installed_metadata", return_value=(
+                {}, {"compiler-evidence.json": {"foreign": "metadata"}})), \
+             mock.patch.object(self.workspace, "_add_debug_prefix_environment") as prefix, \
+             mock.patch.object(self.workspace, "_configure_fingerprint") as fingerprint, \
+             self.assertRaisesRegex(WorkspaceError, "compiler evidence changed from caller context"):
+            self.workspace._cmake(self.source, self.binary, [], False,
+                                  portable=True, portable_context=self.context)
+        prefix.assert_not_called()
+        fingerprint.assert_not_called()
+        self.assertEqual(self.events, [])
+
+    def test_context_cohort_drift_precedes_capture_and_revalidation_probes(self):
+        for boundary in ("capture_output", "revalidate"):
+            for role in ("compiler", "cxx_compiler", "linker", "archiver", "ranlib", "nm",
+                         "strip", "objcopy", "objdump", "readelf", "runtime", "unwinder"):
+                with self.subTest(boundary=boundary, role=role):
+                    admitted, records, _ = self.compiler_context(self.root / (boundary + role))
+                    admitted.binary, admitted.source, admitted.baseline = self.binary, self.source, {}
+                    Path(records[role]["path"]).write_bytes(b"changed after build return")
+                    with mock.patch.object(admitted, "_ninja") as ninja, \
+                         mock.patch.object(admitted, "_generated_inventory") as inventory, \
+                         mock.patch.object(linux_portable.export, "_tool_report") as driver, \
+                         self.assertRaisesRegex(linux_portable.export.ExportError, "selected tool or runtime bytes differ"):
+                        getattr(admitted, boundary)(self.binary)
+                    ninja.assert_not_called()
+                    inventory.assert_not_called()
+                    driver.assert_not_called()
+                    self.assertIsNone(admitted.output)
 
     def test_ordinary_matching_cache_still_reuses_configure(self):
         fingerprint = self.cmake_patches()

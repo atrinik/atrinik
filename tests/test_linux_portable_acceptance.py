@@ -74,6 +74,9 @@ def fixture_tool_path_protected(info):
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux copied build-tool fixtures")
 class PortableBuildToolTests(unittest.TestCase):
     def setUp(self):
+        compiler_guard = mock.patch.object(portable, "_verify_compiler_bytes")
+        compiler_guard.start()
+        self.addCleanup(compiler_guard.stop)
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
@@ -270,6 +273,9 @@ class CompilerClosureTests(unittest.TestCase):
         return fixture_build_tools(root)
 
     def setUp(self):
+        compiler_guard = mock.patch.object(portable, "_verify_compiler_bytes")
+        compiler_guard.start()
+        self.addCleanup(compiler_guard.stop)
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
@@ -1268,7 +1274,8 @@ class PortablePublicationTests(unittest.TestCase):
                  "configure": "CMake configuration changed", "sound-tree": "source tree",
                  "source-bytes": "source proof changed", "late-record": "source generation changed",
                  "late-proof": "source closure changed", "late-sound": "released sound changed",
-                 "late-metadata": "producer metadata changed", "late-configure": "build configuration changed"}
+                 "late-metadata": "producer metadata changed", "late-configure": "build configuration changed",
+                 "pre-runtime-tools": "runtime tool changed", "post-runtime-tools": "runtime tool changed"}
         for case, failure in cases.items():
             with self.subTest(case=case), ExitStack() as patches:
                 directory = self.root / case
@@ -1340,8 +1347,12 @@ class PortablePublicationTests(unittest.TestCase):
                 workspace._build_resolved.side_effect = build
                 # Isolate export's source/publication guards from compilation;
                 # CompilerClosureTests exercises the real build receipt API.
-                patches.enter_context(mock.patch.object(portable, "PortableBuildContext",
-                                                        return_value=mock.Mock(binary=binary, host_tools={}, build_tools={})))
+                export_context = mock.Mock(binary=binary, host_tools={}, build_tools={})
+                if case in {"pre-runtime-tools", "post-runtime-tools"}:
+                    export_context.verify_host_tools.side_effect = (
+                        [export.ExportError("runtime tool changed")] if case == "pre-runtime-tools" else
+                        [None, export.ExportError("runtime tool changed")])
+                patches.enter_context(mock.patch.object(portable, "PortableBuildContext", return_value=export_context))
                 def validated_cache(*args, **kwargs):
                     data = cache.read_bytes()
                     if case == "configure":
@@ -1372,13 +1383,15 @@ class PortablePublicationTests(unittest.TestCase):
                             "installed.json": {"build_tools": build_tools}})
                 patches.enter_context(mock.patch.object(portable, "installed_metadata", side_effect=[
                     metadata, ({"contract": b"changed"}, {}) if case == "late-metadata" else metadata]))
-                patches.enter_context(mock.patch.object(portable, "add_runtime", side_effect=runtime))
-                patches.enter_context(mock.patch.object(portable, "add_corresponding_sources", side_effect=legal))
+                runtime_probe = patches.enter_context(mock.patch.object(portable, "add_runtime", side_effect=runtime))
+                legal_copy = patches.enter_context(mock.patch.object(portable, "add_corresponding_sources", side_effect=legal))
                 patches.enter_context(mock.patch.object(sound, "verify_release_tree", side_effect=verify_sound))
                 if failure:
                     with self.assertRaisesRegex((WorkspaceError, export.ExportError), failure):
                         portable.export_client(workspace, "qualified", destination)
                     self.assertFalse(destination.exists())
+                    if case == "pre-runtime-tools": runtime_probe.assert_not_called()
+                    if case in {"pre-runtime-tools", "post-runtime-tools"}: legal_copy.assert_not_called()
                     if case in ("dirty", "classic", "sound", "generation"):
                         workspace._build_resolved.assert_not_called()
                 else:

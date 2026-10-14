@@ -329,6 +329,9 @@ class PortableBuildContext:
         return {"path": str(path), "resolved_path": str(resolved), **record, "version": version}
 
     def verify_host_tools(self) -> None:
+        # The caller authenticated this complete cohort before creating the context.
+        # Never refresh its authority from mutable on-disk metadata during a build.
+        _verify_compiler_bytes(self.evidence)
         self.verify_build_tools()
         if self.host_tools is None:
             raise ValueError("portable shader Python receipt is missing")
@@ -438,7 +441,9 @@ class PortableBuildContext:
         self._verify_authored()
         if self.source.parent / "cmake/toolchains/llvm.cmake" not in self.authored:
             raise ValueError("portable toolchain is outside the caller's supplemental source proof")
+        _verify_compiler_bytes(self.evidence)
         self.build_tools = self._capture_build_tools()
+        _verify_compiler_bytes(self.evidence)
         self.host_tools = {"shader_python": self._capture_generator_python()}
         self.verify_host_tools()
 
@@ -1537,7 +1542,9 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
             sources = {"atrinik/" + name + "@main": state["head"] for name, state in states.items()}
             sources["atrinik/devcontainer@main"] = PRODUCER_COMMIT
             with Publication(destination, sources) as publication:
+                context.verify_host_tools()
                 runtime = add_runtime(publication, documents, binary_directory / "atrinik")
+                context.verify_host_tools()
                 legal = add_corresponding_sources(publication, documents)
                 if runtime["derivatives"]:
                     publication.add_bytes("sources/export-recipes/libpulse-origin.py", derivative_recipe_script())
