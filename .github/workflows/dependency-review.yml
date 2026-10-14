@@ -214,13 +214,320 @@ jobs:
 
           if __name__ == '__main__':
               main()
+      # The pinned action's >1 MiB report artifact expires after one day.
+      # Runner 2.337.0 (397b032cbf865e9c3ddfab89d533ec19325e1273)
+      # FileCommandManager.cs masks summaries per CR/LF line after the 1 MiB check.
+      # Preserve those masking units; never upload the raw workspace report.
+      - name: Prepare oversized dependency report
+        id: report_parts
+        if: ${{ always() }}
+        continue-on-error: true
+        timeout-minutes: 1
+        shell: python
+        run: |
+          import os
+          from pathlib import Path
+          import re
+          import stat
+
+          LIMIT = 1024 * 1024
+          PARTS = 16
+
+
+          def read_regular(path, bound):
+              descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+              with os.fdopen(descriptor, 'rb') as stream:
+                  info = os.fstat(stream.fileno())
+                  if not stat.S_ISREG(info.st_mode) or info.st_size > bound:
+                      raise ValueError('Report file type or size is outside the retention bound.')
+                  data = stream.read(bound + 1)
+                  if len(data) > bound:
+                      raise ValueError('Report read exceeded the retention bound.')
+                  return data
+
+
+          def plan_parts(data):
+              # Match StreamReader.ReadLine: CR, LF, or CRLF only. Other Unicode
+              # separators remain within the same masking unit. Strip only the initial BOM.
+              text = data.decode('utf-8-sig')
+              lines = re.split(r'\r\n|\r|\n', text)
+              if lines[-1] == '':
+                  lines.pop()
+              heading = b'## Dependency review report part 01\n\n'
+              chunks, chunk = [], bytearray(heading)
+              for line in lines:
+                  encoded = line.encode('utf-8') + b'\n'
+                  if len(heading) + len(encoded) > LIMIT:
+                      raise ValueError('A complete report line exceeds the summary limit.')
+                  if len(chunk) + len(encoded) > LIMIT:
+                      chunks.append(bytes(chunk))
+                      if len(chunks) >= PARTS:
+                          raise ValueError('The complete report exceeds the part-count bound.')
+                      heading = f'## Dependency review report part {len(chunks) + 1:02d}\n\n'.encode()
+                      chunk = bytearray(heading)
+                  chunk.extend(encoded)
+              chunks.append(bytes(chunk))
+              return chunks
+
+
+          def notice():
+              message = ('The complete oversized dependency report could not be safely retained. '
+                         'Inspect the available action report, annotations, and logs. '
+                         'Missing report evidence means the result is unknown, not clean.')
+              print('::warning::' + message, flush=True)
+              Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(message + '\n', encoding='utf-8')
+
+
+          def main():
+              count = 0
+              try:
+                  report = Path(os.environ['GITHUB_WORKSPACE']) / 'summary.md'
+                  try:
+                      data = read_regular(report, PARTS * LIMIT)
+                  except FileNotFoundError:
+                      # The pinned action creates this file only for oversized reports.
+                      return
+                  if len(data) <= LIMIT:
+                      return
+                  chunks = plan_parts(data)  # Validate the entire report before publishing any part.
+                  directory = Path(os.environ['RUNNER_TEMP']) / 'dependency-review-report-parts'
+                  directory.mkdir(mode=0o700)
+                  for number, chunk in enumerate(chunks, 1):
+                      with (directory / f'part-{number:02d}.md').open('xb') as stream:
+                          os.chmod(stream.name, 0o600)
+                          stream.write(chunk)
+                  count = len(chunks)
+              except Exception:
+                  notice()  # Do not print exception text or report data.
+              finally:
+                  with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+                      output.write(f'count={count}\n')
+
+
+          if __name__ == '__main__':
+              main()
+      - name: Mask dependency report part 01
+        if: ${{ always() && steps.report_parts.outputs.count >= 1 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '1'
+        shell: python
+        run: &mask_dependency_report_part |
+          import os
+          from pathlib import Path
+          import stat
+
+          number = int(os.environ['REPORT_PART'])
+          directory = Path(os.environ['RUNNER_TEMP']) / 'dependency-review-report-parts'
+          path = directory / f'part-{number:02d}.md'
+          try:
+              descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+              with os.fdopen(descriptor, 'rb') as source:
+                  info = os.fstat(source.fileno())
+                  if not stat.S_ISREG(info.st_mode) or not 0 < info.st_size <= 1024 * 1024:
+                      raise ValueError()
+                  data = source.read(1024 * 1024 + 1)
+                  if not 0 < len(data) <= 1024 * 1024:
+                      raise ValueError()
+              summary = Path(os.environ['GITHUB_STEP_SUMMARY'])
+              summary.write_bytes(data)
+              # The runner masks this exact file after the step finishes.
+              (directory / f'scrubbed-{number:02d}.path').write_text(str(summary) + '-scrubbed', encoding='utf-8')
+          except Exception:
+              print('::warning::A dependency report part is unavailable; complete report evidence is unknown.', flush=True)
+      - name: Mask dependency report part 02
+        if: ${{ always() && steps.report_parts.outputs.count >= 2 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '2'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 03
+        if: ${{ always() && steps.report_parts.outputs.count >= 3 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '3'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 04
+        if: ${{ always() && steps.report_parts.outputs.count >= 4 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '4'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 05
+        if: ${{ always() && steps.report_parts.outputs.count >= 5 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '5'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 06
+        if: ${{ always() && steps.report_parts.outputs.count >= 6 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '6'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 07
+        if: ${{ always() && steps.report_parts.outputs.count >= 7 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '7'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 08
+        if: ${{ always() && steps.report_parts.outputs.count >= 8 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '8'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 09
+        if: ${{ always() && steps.report_parts.outputs.count >= 9 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '9'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 10
+        if: ${{ always() && steps.report_parts.outputs.count >= 10 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '10'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 11
+        if: ${{ always() && steps.report_parts.outputs.count >= 11 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '11'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 12
+        if: ${{ always() && steps.report_parts.outputs.count >= 12 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '12'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 13
+        if: ${{ always() && steps.report_parts.outputs.count >= 13 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '13'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 14
+        if: ${{ always() && steps.report_parts.outputs.count >= 14 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '14'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 15
+        if: ${{ always() && steps.report_parts.outputs.count >= 15 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '15'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Mask dependency report part 16
+        if: ${{ always() && steps.report_parts.outputs.count >= 16 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART: '16'
+        shell: python
+        run: *mask_dependency_report_part
+      - name: Assemble runner-masked dependency report
+        if: ${{ always() && steps.report_parts.outputs.count > 0 }}
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          REPORT_PART_COUNT: ${{ steps.report_parts.outputs.count }}
+        shell: python
+        run: |
+          import os
+          from pathlib import Path
+          import stat
+
+          LIMIT = 1024 * 1024
+          try:
+              count = int(os.environ['REPORT_PART_COUNT'])
+              if not 1 <= count <= 16:
+                  raise ValueError()
+              directory = Path(os.environ['RUNNER_TEMP']) / 'dependency-review-report-parts'
+              command_directory = Path(os.environ['GITHUB_STEP_SUMMARY']).parent
+              chunks = []
+              for number in range(1, count + 1):
+                  record = directory / f'scrubbed-{number:02d}.path'
+                  descriptor = os.open(record, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+                  with os.fdopen(descriptor, 'rb') as stream:
+                      info = os.fstat(stream.fileno())
+                      if not stat.S_ISREG(info.st_mode) or not 0 < info.st_size <= 4096:
+                          raise ValueError()
+                      recorded = stream.read(4097)
+                      if not 0 < len(recorded) <= 4096:
+                          raise ValueError()
+                      path = Path(recorded.decode('utf-8'))
+                  if (path.parent != command_directory or not path.name.startswith('step_summary_')
+                          or not path.name.endswith('-scrubbed')):
+                      raise ValueError()
+                  descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+                  with os.fdopen(descriptor, 'rb') as stream:
+                      info = os.fstat(stream.fileno())
+                      if not stat.S_ISREG(info.st_mode) or not 0 < info.st_size <= 3 * LIMIT:
+                          raise ValueError()
+                      data = stream.read(3 * LIMIT + 1)
+                      if not 0 < len(data) <= 3 * LIMIT:
+                          raise ValueError()
+                      data.decode('utf-8')
+                      heading = f'## Dependency review report part {number:02d}\n\n'.encode()
+                      if not data.startswith(heading) or len(data) <= len(heading):
+                          raise ValueError()
+                      chunks.append(data)
+              # Publish only after all exact expected runner-masked parts are available.
+              destination = Path(os.environ['RUNNER_TEMP']) / 'dependency-review-retained'
+              destination.mkdir(mode=0o700)
+              temporary = destination / '.report.tmp'
+              with temporary.open('xb') as report:
+                  for chunk in chunks:
+                      report.write(chunk)
+              temporary.rename(destination / 'report.md')
+              message = ('The complete oversized dependency report is prepared as runner-masked report.md '
+                         'for the seven-day artifact upload. Confirm the retention step succeeded before relying on the artifact.')
+          except Exception:
+              message = ('The complete oversized dependency report could not be safely retained. '
+                         'Inspect the available action report, annotations, and logs. '
+                         'Missing report evidence means the result is unknown, not clean.')
+              print('::warning::' + message, flush=True)
+          Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(message + '\n', encoding='utf-8')
       - name: Retain dependency review job summary
         if: ${{ always() }}
         continue-on-error: true
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: dependency-review-job-summary-${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          # Retain only the runner's masked copies used for the actual job summary.
-          path: ${{ runner.temp }}/_runner_file_commands/step_summary_*-scrubbed
+          # Retain only runner-masked job summaries and their ordered report assembly.
+          path: |
+            ${{ runner.temp }}/_runner_file_commands/step_summary_*-scrubbed
+            ${{ runner.temp }}/dependency-review-retained/report.md
           retention-days: 7
           if-no-files-found: warn
