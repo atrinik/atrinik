@@ -12667,7 +12667,7 @@ class Workspace:
                 and isinstance(metadata.get("entries"), dict)
             )
             if valid:
-                return metadata
+                return {**metadata, "path": str(resolved)}
         except (OSError, RuntimeError, WorkspaceError):
             pass
         cmakelists = source / "CMakeLists.txt"

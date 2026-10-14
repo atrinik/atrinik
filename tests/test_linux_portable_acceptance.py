@@ -393,6 +393,52 @@ class CompilerClosureTests(unittest.TestCase):
         self.assertIn(b"BUILD_TESTING:STRING=OFF", portable.validate_portable_build(
             state["binary"], state["evidence"], context=state["context"]))
 
+    def test_managed_source_view_identity_survives_portable_configuration_validation(self):
+        from types import SimpleNamespace
+        from atrinik_workspace.workspace import (Workspace, MANAGED_MARKER,
+                                                 SCHEMA_VERSION, SOURCE_VIEW_METADATA,
+                                                 SOURCE_VIEW_SCHEMA_VERSION)
+        state = self.fixture()
+        source = state["views"]["client"]
+        metadata = {"schema_version": SOURCE_VIEW_SCHEMA_VERSION,
+                    "purpose": "source-view:portable-client-layout",
+                    "source": str(state["selected"]["client"]),
+                    "source_head": "a" * 40,
+                    "entries": state["proofs"]["client"]}
+        (source / SOURCE_VIEW_METADATA).write_text(json.dumps(metadata))
+        (source / MANAGED_MARKER).write_text(json.dumps({
+            "schema_version": SCHEMA_VERSION, "purpose": metadata["purpose"]}))
+        workspace = object.__new__(Workspace)
+        workspace.paths = SimpleNamespace(builds=self.root)
+        metadata_bytes = (source / SOURCE_VIEW_METADATA).read_bytes()
+        with mock.patch.object(workspace, "_source_generation_provenance", return_value=None), \
+             mock.patch.object(workspace, "_tool_identity", return_value={"path": "/fixture/tool"}), \
+             mock.patch.object(workspace, "_compiler_runtime_identity", return_value={}), \
+             mock.patch.object(workspace, "_cmake_configured_toolchain", return_value={}):
+            configure = workspace._configure_fingerprint(
+                source, state["binary"], ["cmake", "-S", str(source)], False, {}, None,
+                portable=True)
+        identity = configure["source"]
+        configure["portable_host_tools"] = state["context"].host_tools
+        configure["portable_build_tools"] = state["context"].build_tools
+        configure_path = state["binary"] / ".atrinik-configure.json"
+        configure_path.write_text(json.dumps(configure))
+        self.assertIn(b"BUILD_TESTING:STRING=OFF", portable.validate_portable_build(
+            state["binary"], state["evidence"], context=state["context"]))
+        self.assertEqual(identity, {**metadata, "path": str(source.resolve())})
+        self.assertEqual((source / SOURCE_VIEW_METADATA).read_bytes(), metadata_bytes)
+        for path in (str(state["selected"]["client"]), None):
+            with self.subTest(path=path):
+                configure["source"] = dict(identity)
+                if path is None:
+                    configure["source"].pop("path")
+                else:
+                    configure["source"]["path"] = path
+                configure_path.write_text(json.dumps(configure))
+                with self.assertRaisesRegex(WorkspaceError, "source identity is unavailable or invalid"):
+                    portable.validate_portable_build(state["binary"], state["evidence"],
+                                                    context=state["context"])
+
     def test_only_copied_build_tool_version_probes_execute_real_processes(self):
         state = self.fixture()
         for command in ([portable.LLVM_ROOT + "/bin/clang", "--version"],
