@@ -17,7 +17,8 @@ jobs:
   test-shards:
     name: Test shard ${{ matrix.shard }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    # Include setup, evidence upload, and post-job cleanup in the shard budget.
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
