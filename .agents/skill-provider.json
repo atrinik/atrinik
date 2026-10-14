@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "repository": "https://github.com/atrinik/agent-integrations",
-  "revision": "89288ac890697ebbdd3f294db9e645319864e5a7",
+  "revision": "daa3073dda60b842ca50af98129ea8945447cae5",
   "marketplace": "atrinik",
   "plugin": "atrinik-development",
   "path": "plugins/atrinik-development",
