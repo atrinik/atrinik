@@ -815,6 +815,15 @@ directories. Authored include directives remain part of the trusted, proof-bound
 source; these checks do not attest every transitive header opened by the compiler. Forced headers, PCH,
 modules, overlays and preprocessor input redirection are unsupported.
 
+The same-operation context freezes the authenticated compiler evidence and
+rehashes all ten LLVM executable roles and both runtime archives around prefix
+and fingerprint probes, configure, build, output capture, runtime inspection and
+export publication. Refreshed installed metadata must still equal that frozen
+evidence; it cannot replace the caller's compiler authority. The final installed
+producer hash check remains required. These phase checks detect observed byte
+drift; they do not prove historical execution against a privileged
+swap-and-restore or attest the tools' transitive execution closure.
+
 Every portable operation resets its owned CMake binary tree and configures with
 `BUILD_TESTING=OFF`. Immediately after configure, an in-memory receipt freezes
 the complete compilation database, the client target's Ninja report, configured
