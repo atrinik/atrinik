@@ -364,7 +364,7 @@ docker pull ghcr.io/atrinik/linux-build:1.18.0@sha256:613cf43ab07634db005a28462a
 For portable export, pull its separate producer only when needed:
 
 ```sh
-docker pull ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338
+docker pull ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc
 ```
 
 A pull of a public package needs no login. A private-package denial requires the
@@ -526,10 +526,16 @@ mode, host credentials or a Docker socket to the client.
 ## Portable client export
 
 The public exporter runs in the exact published portable build environment,
-`ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338`.
-This is a separate immutable producer after the short-lived pinned CPU
-build/test stage; it grants no delivery authority and does not replace the
-native host runtime. Before merge, the automatic `Linux portable acceptance`
+`ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc`.
+This fixed SDK 1.22.0 producer comes from devcontainer
+`eb1f6af78216adb4375826cdb70ef78a61ab403a`.
+[Collector run 38513888428](https://github.com/atrinik/devcontainer/actions/runs/38513888428)
+provides installed identity and trusted hosted filesystem equality, including
+seven authenticated metadata files. Its `final_portable_cohort` receipt remains
+false; retained assessment does not independently rehash executable/provider
+payloads or prove portable export. This is a separate immutable producer after
+the short-lived pinned CPU build/test stage; it grants no delivery authority and
+does not replace the native host runtime. Before merge, the automatic `Linux portable acceptance`
 pull-request workflow is the supported actual producer route. Its
 `Portable client build and relocation` job is nonpublishing, limits the producer
 to two CPUs, and serializes heavy runs without cancelling another owner's run.
@@ -540,7 +546,7 @@ The final runtime process has neither credentials nor original source/build
 mounts, and its network, display, GPU and audio endpoints are absent.
 
 Its current full-commit consumer
-guard requires Classic `d926f6fd0418fb1af9060158c43d8d3ff5252580`.
+guard requires Classic `bd5317a03cdc82f029105c5dc26428b09fcd54b3`.
 Use a clean Classic profile with verified released sound matching its selected
 sound source commit, and a new absolute destination
 whose parent is owned by the invoking user and not writable by other users.
@@ -577,10 +583,10 @@ before export. Compiler capability probes use the same scrubbed environment as
 the build. This retains the existing host-tool trust boundary; it does not attest
 the Python standard library or add an interpreter to immutable SDK metadata.
 
-The complete installed producer closure is bound to an independently reconstructed
-OCI overlay inventory: 299 regular files, including all eight upstream archives,
-222 Debian source archives, build recipes and notices. Three pinned aggregate
-SHA-256 values cover the producer tree, 145 Debian copyright paths and 14 common
+The complete installed producer closure is bound to the collector maps accepted
+through trusted hosted filesystem equality: 364 regular producer files, including
+upstream and Debian source archives, build recipes and notices. Three pinned aggregate
+SHA-256 values cover the producer tree, 165 Debian copyright paths and 14 common
 license texts. Each canonical JSON map uses sorted keys and compact separators;
 producer/common-license keys are relative paths and values are
 `sha256`, `size`, `executable`. Debian keys are requested absolute copyright paths
@@ -597,6 +603,11 @@ its loader and graphics drivers. The X11/Vulkan producer uses XWayland on a
 Wayland desktop; PulseAudio or PipeWire's Pulse service supplies audio.
 
 The pinned Debian libpulse input has an absolute PulseAudio search directory.
+The retained ABI metadata corroborates the original provider path and input hash;
+it supplies no raw provider size, edit span or derivative output proof. The
+candidate recipe rebinds only the producer image/platform coordinates; all
+strict byte checks remain unchanged. Exact-revision hosted export must verify
+the actual input bytes, size, span and derivative output before acceptance.
 Export derives only that exact provider's private copy by replacing its 37-byte
 NUL-terminated DT_RUNPATH string with `$ORIGIN` and NUL padding. Strict ELF
 inspection remains mandatory for the derived bytes and every other provider.

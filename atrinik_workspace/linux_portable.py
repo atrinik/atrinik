@@ -23,24 +23,25 @@ from typing import Callable
 
 from . import linux_export as export
 
-IMAGE = "ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338"
-PLATFORM_MANIFEST = "sha256:7b7f36fef585c5424a56edbe2939a25ab1facbb3dd17a2f3a55980866dd85486"
-PRODUCER_COMMIT = "960b41ced51418892f18fc157373d89444c843db"
-CONSUMER_COMMIT = "d926f6fd0418fb1af9060158c43d8d3ff5252580"
+IMAGE = "ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc"
+PLATFORM_MANIFEST = "sha256:5e30957e54277bdaadeeffa42246258dc9df2086f3fb41f2125d041735ac72aa"
+PRODUCER_COMMIT = "eb1f6af78216adb4375826cdb70ef78a61ab403a"
+CONSUMER_COMMIT = "bd5317a03cdc82f029105c5dc26428b09fcd54b3"
 METADATA_HASHES = {
-    "contract.json": "865a9d7fc32fae8a73b2ee3d9c1b30be68d2366dd1aed3257ec34a022d07820b",
-    "debian-sources.json": "fd83eb65839b76f692b26cb8b333c9baa0f6ce7379e3d6477351ea501342aec4",
-    "installed.json": "85b428e078868940da39a7fa7c7e40de386ca33fcb613e3b1f5bd52f1442f435",
-    "runtime-abi.json": "e5bf6972695f1d93779eb964bae73f6015028a4fa8d29ed8c6f180d217a06a13",
-    "runtime-sources.json": "ac034c398016886d90d1f8d9601a61040bd760b9c8965c2f258818bf7fa3bf3d",
-    "shader-generation.json": "f8e18f2a0e4f1357c7bd415d0b5079f056a609eef7c2453cfaae9884ed5e1563",
+    "compiler-evidence.json": "e0b3642e19203674e89be910e81ea25da78d812c13c8d75b9189c57928dabd88",
+    "contract.json": "7434e16002064ceec2140f9f2e2d86490f742bd385c33985f62ffcb92834d7cf",
+    "debian-sources.json": "0882c128d989bf4b8491d7ed666b73f9d572a4da201caa155ee711cff5c9bf13",
+    "installed.json": "ae80e4fabe38ea5395c7be4597121cf5e306206a93396a4b40667865ecaf05c5",
+    "runtime-abi.json": "19ac09c2323114b6ecb80015894954a5a891c2335d6f4f405252cd66515d682f",
+    "runtime-sources.json": "01ff08df86fbb1b58e0c147c122c6c23b1008640f987eaf0785d933b5c9a8963",
+    "shader-generation.json": "d0196dcdfd2cdf071b9cbd8e38f0e2ee655b07013db86d4975ff3e6e2132eda5",
 }
-# Complete final OCI overlay, independently reconstructed from every layer of
-# PLATFORM_MANIFEST. Canonical JSON is sorted with compact separators; source
-# records contain relative path -> sha256/size/executable. This pins omitted
+# Complete installed maps accepted through the released SDK collector and
+# trusted hosted filesystem equality. Canonical JSON uses sorted keys and compact
+# separators; source records contain relative path -> sha256/size/executable. This pins omitted
 # archives/recipes/notices as well as bytes, without a caller-supplied override.
-PRODUCER_FILES_SHA256 = '838e181c5adef32eea3d82478581d72408012ab27e871af77a2bf93dab934729'
-DEBIAN_NOTICES_SHA256 = '6670f1afe9d1face038ae959386c3f264a4b3f05328c493579ea359a8cd2f4e5'
+PRODUCER_FILES_SHA256 = '9b5021d22ff56aab80bcb7d845885bcc2c120104930d75bab2e733d1e993c078'
+DEBIAN_NOTICES_SHA256 = 'b28d492f795de20e334c7fe08931d7c024374b9f89a07111b6c7fdfc63cd131e'
 COMMON_LICENSES_SHA256 = 'cfe52936825faa1cd66a4b17ed41051f5c777c5035c8206eaad4db5b730f2bfd'
 COMMON_LICENSE_NAMES = ('Apache-2.0', 'Artistic', 'BSD', 'CC0-1.0', 'GFDL-1.2', 'GFDL-1.3', 'GPL-1', 'GPL-2', 'GPL-3', 'LGPL-2', 'LGPL-2.1', 'LGPL-3', 'MPL-1.1', 'MPL-2.0')
 # Exact notice bytes in the already pinned source archives. Full embedded
@@ -82,8 +83,8 @@ HOST_GLIBC = frozenset({"libc.so.6", "libm.so.6", "libpthread.so.0", "libdl.so.2
 # ELF inspector validates the derived bytes; no other search path is normalized.
 PULSE_RECIPE = {
     "id": "debian12-libpulse-origin-v1",
-    "image": "ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338",
-    "platform_manifest": "sha256:7b7f36fef585c5424a56edbe2939a25ab1facbb3dd17a2f3a55980866dd85486",
+    "image": "ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc",
+    "platform_manifest": "sha256:5e30957e54277bdaadeeffa42246258dc9df2086f3fb41f2125d041735ac72aa",
     "provider_path": "/usr/lib/x86_64-linux-gnu/libpulse.so.0.24.2",
     "input_sha256": "38b07a06cefcaabd8db3edaddafea0ab5b5d2ee15e8641929f7d07d45fb66d59",
     "output_sha256": "43da0e3a6816292d4c4c973d56d2753e968a28bb020f8b3035e404044513acf2",

@@ -322,8 +322,14 @@ The corresponding Classic build input is
 `ghcr.io/atrinik/classic-build:1.18.0@sha256:86d3c4182dc786db8ace56d9d8dc57ff4f14c1c4f517b728547626f576280449`;
 the general Windows cross-build composition uses
 `ghcr.io/atrinik/windows-build:1.18.0@sha256:01065f081cdf843a6591abf25f2b27734103ab385c5aa003b2eeb9a3a1ca0e5a`.
-These build inputs do not update the separately pinned portable producer, which
-still requires its final Classic consumer contract and independent acceptance.
+The separately pinned portable producer uses the fixed SDK 1.22.0 release,
+`ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc`,
+from producer `eb1f6af78216adb4375826cdb70ef78a61ab403a` for Classic
+`bd5317a03cdc82f029105c5dc26428b09fcd54b3`.
+[Collector run 38513888428](https://github.com/atrinik/devcontainer/actions/runs/38513888428)
+establishes installed identity and trusted hosted filesystem equality. Its
+`final_portable_cohort` receipt remains false; actual export, relocation, native
+graphics and audible playback retain separate acceptance checks.
 
 Historical SDK 1.17 acceptance remains recorded by
 [collector run 38161442404](https://github.com/atrinik/devcontainer/actions/runs/38161442404)
