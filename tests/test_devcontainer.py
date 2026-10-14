@@ -4,6 +4,7 @@ from pathlib import Path
 import re
 import unittest
 
+from atrinik_workspace import coordinator_context
 from atrinik_workspace.jsonc import loads as jsonc_loads
 
 
@@ -48,6 +49,16 @@ class DevcontainerTests(unittest.TestCase):
             "ghcr.io/atrinik/linux-build",
         )
         self.assertNotIn("SDL_VIDEODRIVER", config["containerEnv"])
+
+    def test_composition_images_match_coordinator_probe_contract(self) -> None:
+        for config_path, expected in (
+            (".devcontainer/devcontainer.json", coordinator_context.CANONICAL_IMAGE),
+            (".devcontainer/windows-wslg/devcontainer.json", coordinator_context.CANONICAL_IMAGE),
+            (".devcontainer/server-runtime.json", coordinator_context.CANONICAL_IMAGE),
+            (".devcontainer/windows-cross/devcontainer.json", coordinator_context.WINDOWS_CROSS_IMAGE),
+        ):
+            with self.subTest(config=config_path):
+                self.assertEqual(self.load_config(config_path)["image"], expected)
 
     def test_linux_default_has_no_graphics_or_privileged_bootstrap(self) -> None:
         config = self.load_config(".devcontainer/devcontainer.json")

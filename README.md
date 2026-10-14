@@ -308,15 +308,37 @@ coordinator. A proposed authority change cannot authorize live resource operatio
 
 #### Linux image upgrades
 
-The ordinary Linux workspace now uses the Git LFS-enabled `linux-build:1.10.0`
-release from devcontainer revision
-`f51d809a2670387833476954ee6cc05692ce6c56`, published by
-[Linux run 34168767678, attempt 2](https://github.com/atrinik/devcontainer/actions/runs/34168767678/attempts/2).
+The ordinary Linux workspace uses the LLVM SDK in `linux-build:1.18.0`
+from devcontainer revision `4af130578df18a1944880cd279c7f23afe9cc668`.
 The immutable pin in `.devcontainer/devcontainer.json` is
-`ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8`.
-The registry's source/revision labels and build provenance match that producer.
-Independently pinned sound, Classic build, and Windows images retain their
-own release contracts.
+`ghcr.io/atrinik/linux-build:1.18.0@sha256:613cf43ab07634db005a28462a009c4c28c90dccb1b5175e13e8072b6dfe8d72`.
+The SDK release workflows
+[38155790600](https://github.com/atrinik/devcontainer/actions/runs/38155790600)
+and [38155792661](https://github.com/atrinik/devcontainer/actions/runs/38155792661)
+passed release metadata checks. Installed SDK collector and native artifact review
+remain separate acceptance evidence for this producer.
+
+The corresponding Classic build input is
+`ghcr.io/atrinik/classic-build:1.18.0@sha256:86d3c4182dc786db8ace56d9d8dc57ff4f14c1c4f517b728547626f576280449`;
+the general Windows cross-build composition uses
+`ghcr.io/atrinik/windows-build:1.18.0@sha256:01065f081cdf843a6591abf25f2b27734103ab385c5aa003b2eeb9a3a1ca0e5a`.
+The separately pinned portable producer uses the fixed SDK 1.22.0 release,
+`ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc`,
+from producer `eb1f6af78216adb4375826cdb70ef78a61ab403a` for Classic
+`bd5317a03cdc82f029105c5dc26428b09fcd54b3`.
+[Collector run 38513888428](https://github.com/atrinik/devcontainer/actions/runs/38513888428)
+establishes installed identity and trusted hosted filesystem equality. Its
+`final_portable_cohort` receipt remains false; actual export, relocation, native
+graphics and audible playback retain separate acceptance checks.
+
+Historical SDK 1.17 acceptance remains recorded by
+[collector run 38161442404](https://github.com/atrinik/devcontainer/actions/runs/38161442404)
+against producer `0571f500ede75e7661b508d8bb40354256113223` and image
+`ghcr.io/atrinik/linux-build:1.17.0@sha256:4ca8e921b616d20b18fcef901bd554488b4d5a68a7c4304268dedef23723a3bf`.
+That review accepted the installed LLVM tool roles for that image. Installed SDK
+verification establishes build inputs; live coordinator authority, portable
+export, native graphics and audio qualification retain their separate checks.
+Independently pinned sound and portable images retain their own release contracts.
 
 Each new build worker must use the exact image pin and verified source/cache
 mounts. Historical bound containers retain their original image and recovery
@@ -482,7 +504,7 @@ observations, host export checksums, and exact cleanup results:
 
 ~~~sh
 python3 scripts/benchmark_devcontainer_storage.py \
-  --image ghcr.io/atrinik/windows-build:1.2.1@sha256:d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb \
+  --image ghcr.io/atrinik/windows-build:1.18.0@sha256:01065f081cdf843a6591abf25f2b27734103ab385c5aa003b2eeb9a3a1ca0e5a \
   --output build/storage/windows-docker.json
 ~~~
 
@@ -1724,19 +1746,19 @@ A saved Classic-derived profile may instead consume the publishable Classic
 compatibility runtime from an immutable `atrinik/sound` release. Released mode
 does not invoke a source builder and never falls back to `source` or
 `local-playtest`. Supply every coordinate posted by the sound release. For
-example, the published v1.0.0 Classic runtime is selected with:
+example, the published v1.2.0 Classic runtime is selected with:
 
 ~~~sh
 ./atrinik profile create classic-released-audio --from classic
 ./atrinik profile sound-mode classic-released-audio released \
   --release-repository atrinik/sound \
-  --release-tag v1.0.0 \
-  --release-product-version 1.0.0 \
-  --release-source-commit d0561bf9ff8dc88836818dbe602a5a256c6c0e3f \
-  --release-source-tree f464de12f943f1844f8587ca1a7419f6b78b9e44 \
-  --release-asset-url https://github.com/atrinik/sound/releases/download/v1.0.0/atrinik-sound-classic-runtime-1.0.0.tar.gz \
-  --release-archive-sha256 e3f17d314b3933db9c6af3f9290c5df79375a6cc3d570ea29f225b53de362784 \
-  --release-manifest-sha256 2d7a1ba78e4f484aa0554809f72b14345c40d37cc2d46daf0416de69627f2cbb \
+  --release-tag v1.2.0 \
+  --release-product-version 1.2.0 \
+  --release-source-commit 642e5a25a476c96b764054b7b57307274b0fabb5 \
+  --release-source-tree d57ef0b499cb00f2f7cabf359c320f70f542d81c \
+  --release-asset-url https://github.com/atrinik/sound/releases/download/v1.2.0/atrinik-sound-classic-runtime-1.2.0.tar.gz \
+  --release-archive-sha256 0a48a2a0087fecf0f9bbe815f20460ab70f858656b4e4a9d1479f8f03c8b09bf \
+  --release-manifest-sha256 1894c2ca0b563d1b4ab69c29ac839cf5d873680c416f343072aacad4308889cb \
   --release-source-manifest-sha256 3aacd122abe16da771ac1eb6ad80c50c1c6e7ab43d555dc8772f21be24248366 \
   --release-schema-sha256 428e1312d9922ab4ec20c0ee89d93d842528db6d8cc75197c135f4d4f59066aa \
   --release-toolchain-sha256 ee842444c37df3c6784665c2dacef4ab9220f3abfc5c2daf9214fe4b40aadbf7 \
@@ -1770,7 +1792,8 @@ and `./atrinik linux verify DIRECTORY`. Export requires the pinned portable
 producer and a verified released-sound profile matching the selected source.
 Before merge, the automatic nonpublishing pull-request acceptance job is the
 actual producer route. Keep relocation/decoding, hardware gameplay, audible
-playback, Windows/WSLg, MXE and native Windows D3D12 evidence separate.
+playback, Windows/WSLg, current LLVM Windows packaging, historical MXE paired
+font baselines and native Windows D3D12 evidence separate.
 
 ## Deterministic test scenarios
 

@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 import subprocess
 import shutil
@@ -17,6 +18,11 @@ from atrinik_workspace import linux_export as export
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux filesystem and desktop capabilities")
 class LinuxExportTests(unittest.TestCase):
     def setUp(self) -> None:
+        inspector = shutil.which("llvm-readelf")
+        if inspector:
+            patcher = mock.patch.object(export, "LLVM_READELF", str(Path(inspector).absolute()))
+            patcher.start()
+            self.addCleanup(patcher.stop)
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name) / "client"
@@ -45,6 +51,28 @@ class LinuxExportTests(unittest.TestCase):
         target = self.root.parent / "moved folder"
         self.root.rename(target)
         self.assertEqual(export.verify_export(target), self.manifest)
+
+    def test_real_cli_relocation_needs_no_producer_sdk_or_compiler(self) -> None:
+        target = self.root.parent / "moved folder"
+        self.root.rename(target)
+        repository = Path(__file__).resolve().parents[1]
+        fixture = target.parent / "wrapper"
+        fixture.mkdir()
+        shutil.copy2(repository / "atrinik", fixture / "atrinik")
+        shutil.copy2(repository / "components.json", fixture / "components.json")
+        shutil.copytree(repository / "atrinik_workspace", fixture / "atrinik_workspace",
+                        ignore=shutil.ignore_patterns("__pycache__"))
+        subprocess.run(["git", "init", "--quiet", str(fixture)], check=True, capture_output=True)
+        wrapper = fixture / "atrinik"
+        tools = target.parent / "host-tools"
+        tools.mkdir()
+        (tools / "git").symlink_to(shutil.which("git"))
+        result = subprocess.run([sys.executable, str(wrapper), "linux", "verify", str(target)],
+                                check=False, capture_output=True, text=True, timeout=30,
+                                cwd=target.parent, env={"PATH": str(tools), "LC_ALL": "C"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), self.manifest)
+        self.assertFalse(self.root.exists())
 
     def test_missing_corrupt_extra_and_wrong_mode_payloads_fail(self) -> None:
         target = self.root / "lib/libapp.so"
@@ -180,15 +208,15 @@ class LinuxExportTests(unittest.TestCase):
             with self.assertRaisesRegex(export.ExportError, "pathname changed"):
                 export.verify_export(self.root)
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "ELF toolchain required")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "ELF toolchain required")
     def test_real_elf_inspection_and_explicit_dependency_closure(self) -> None:
         source = self.root / "library.c"
         source.write_text("int value(void) { return 0; }\n")
         library = self.root / "libsample.so"
-        subprocess.run(["cc", "-shared", "-fPIC", "-Wl,-soname,libsample.so", "-o", str(library), str(source)], check=True)
+        subprocess.run(["clang", "-shared", "-fPIC", "-Wl,-soname,libsample.so", "-o", str(library), str(source)], check=True)
         source.write_text('extern int value(void); int main(void) { return value(); }\n')
         binary = self.root / "client"
-        subprocess.run(["cc", "-o", str(binary), str(source), "-L" + str(self.root), "-lsample", "-Wl,-rpath,$ORIGIN/../lib"], check=True)
+        subprocess.run(["clang", "-o", str(binary), str(source), "-L" + str(self.root), "-lsample", "-Wl,-rpath,$ORIGIN/../lib"], check=True)
         with binary.open("rb") as stream:
             client = export.inspect_elf(stream.fileno())
         with library.open("rb") as stream:
@@ -210,19 +238,19 @@ class LinuxExportTests(unittest.TestCase):
         with self.assertRaisesRegex(export.ExportError, "incompatible object ABI"):
             export.elf_dependency_report(objects, entrypoint="bin/client", host_libraries=frozenset({"libc.so.6"}))
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "ELF toolchain required")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "ELF toolchain required")
     def test_real_provider_versions_require_the_resolved_library(self) -> None:
         source = self.root / "provider.c"
         source.write_text("int value(void) { return 1; }\nint extra(void) { return 2; }\n")
         script = self.root / "versions.map"
         script.write_text("SAMPLE_1 { global: value; local: *; }; SAMPLE_2 { global: extra; } SAMPLE_1;\n")
         library = self.root / "libsample.so"
-        command = ["cc", "-shared", "-fPIC", "-nostdlib", "-Wl,-soname,libsample.so", "-o", str(library), str(source)]
+        command = ["clang", "-shared", "-fPIC", "-nostdlib", "-Wl,-soname,libsample.so", "-o", str(library), str(source)]
         subprocess.run(command + ["-Wl,--version-script=" + str(script)], check=True)
         consumer = self.root / "consumer.c"
         consumer.write_text("extern int value(void); int use(void) { return value(); }\n")
         binary = self.root / "consumer.so"
-        subprocess.run(["cc", "-shared", "-fPIC", "-nostdlib", "-o", str(binary), str(consumer),
+        subprocess.run(["clang", "-shared", "-fPIC", "-nostdlib", "-o", str(binary), str(consumer),
                         "-L" + str(self.root), "-lsample"], check=True)
         with binary.open("rb") as stream:
             client = export.inspect_elf(stream.fileno())
@@ -256,10 +284,14 @@ class LinuxExportTests(unittest.TestCase):
             objects["lib/libunrelated.so"] = unrelated
             with self.assertRaisesRegex(export.ExportError, "libsample.so lacks required versions SAMPLE_1"):
                 export.elf_dependency_report(objects, entrypoint="bin/consumer.so", host_libraries=frozenset())
-        corruptions = [raw_provider.replace("Parent 1: SAMPLE_1", "Parent 2: SAMPLE_1"),
-                       raw_provider.replace("Parent 1: SAMPLE_1", "Parent 1: MISSING"),
-                       raw_provider.replace("Parent 1: SAMPLE_1", "Parent 1: SAMPLE_2"),
-                       raw_provider.replace("Parent 1: SAMPLE_1", ""),
+        # GNU ld emits a parent for SAMPLE_2; LLD emits only the version name.
+        # Increment the observed auxiliary count so both layouts lose completeness.
+        counts = list(re.finditer(r"Cnt: ([0-9]+)(?=\s+Name: SAMPLE_2$)", raw_provider, re.MULTILINE))
+        self.assertEqual(len(counts), 1)
+        count = counts[0]
+        missing_parent = (raw_provider[:count.start(1)] + str(int(count[1]) + 1)
+                          + raw_provider[count.end(1):])
+        corruptions = [missing_parent,
                        raw_provider.replace("Index: 3", "Index: 2"),
                        raw_provider.replace("Name: SAMPLE_2", "Name: SAMPLE_1"),
                        raw_provider.replace("contains 3 entries:", "contains 4 entries:"),
@@ -273,6 +305,48 @@ class LinuxExportTests(unittest.TestCase):
                  mock.patch.object(export, "_readelf", return_value=text):
                 with self.assertRaises(export.ExportError):
                     export.inspect_elf(stream.fileno())
+
+    def test_version_definition_parent_records_remain_strict(self) -> None:
+        # Explicit GNU-layout fixture: LLD does not emit auxiliary parent rows.
+        golden = (" 0x6ffffffd (VERDEFNUM) 3\n"
+                  "Version definition section '.gnu.version_d' contains 3 entries:\n"
+                  " 0x0000: Rev: 1  Flags: BASE  Index: 1  Cnt: 1  Name: libsample.so\n"
+                  " 0x001c: Rev: 1  Flags: none  Index: 2  Cnt: 1  Name: SAMPLE_1\n"
+                  " 0x0038: Rev: 1  Flags: none  Index: 3  Cnt: 2  Name: SAMPLE_2\n"
+                  " 0x0054: Parent 1: SAMPLE_1\n")
+        self.assertEqual(export._elf_version_definitions(golden), ["SAMPLE_1", "SAMPLE_2"])
+        cases = [golden.replace("Parent 1:", "Parent 2:"),
+                 golden.replace("Parent 1: SAMPLE_1", "Parent 1: MISSING"),
+                 golden.replace("Parent 1: SAMPLE_1", "Parent 1: SAMPLE_2"),
+                 golden.replace("Parent 1: SAMPLE_1", "Parent 1: libsample.so"),
+                 golden.replace(" 0x0054: Parent 1: SAMPLE_1\n", ""),
+                 golden + " 0x005c: Parent 2: SAMPLE_1\n",
+                 golden.replace("Cnt: 2", "Cnt: 3") + " 0x005c: Parent 2: SAMPLE_1\n"]
+        for text in cases:
+            with self.subTest(text=text), self.assertRaises(export.ExportError):
+                export._elf_version_definitions(text)
+
+    def test_llvm_base_path_is_not_a_symbol_version(self) -> None:
+        fixture_root = Path(__file__).parent / "fixtures/linux_export/llvm-readelf-23.1.3"
+        text = (fixture_root / "no-soname-all.txt").read_text()
+        self.assertEqual(export._elf_version_definitions(text), ["SAMPLE_1"])
+        payload = self.root / "elf-base-path-fixture"
+        payload.write_bytes(b"\x7fELF")
+        with payload.open("rb") as stream, mock.patch.object(export, "_readelf", return_value=text):
+            facts = export.inspect_elf(stream.fileno())
+        self.assertIsNone(facts["soname"])
+        self.assertCountEqual(facts["symbols"]["defined"], ["sample", "sample@SAMPLE_1"])
+        cases = [text.replace("Name: SAMPLE_1", "Name: /tmp/SAMPLE_1"),
+                 text.replace("Name: SAMPLE_1", "Name: /tmp/evidence/libsample.so"),
+                 text.replace("Flags: BASE", "Flags: none"),
+                 text.replace("Index: 2", "Index: 1"),
+                 text.replace("Cnt: 1  Name: /tmp/", "Cnt: 2  Name: /tmp/"),
+                 text.replace("Name: /tmp/evidence/libsample.so", "Name: /tmp/evidence/\nlibsample.so"),
+                 text.replace("Name: /tmp/evidence/libsample.so", "Name: /tmp/evidence/libsample.so Index: 2")]
+        for corrupted in cases:
+            self.assertNotEqual(corrupted, text)
+            with self.subTest(text=corrupted), self.assertRaises(export.ExportError):
+                export._elf_version_definitions(corrupted)
 
     def test_provider_version_metadata_cannot_be_omitted_or_forged(self) -> None:
         consumer = {"class": "ELF64", "endianness": "little", "machine": "test", "needed": ["libsample.so"],
@@ -303,6 +377,19 @@ class LinuxExportTests(unittest.TestCase):
             with self.assertRaisesRegex(export.ExportError, "changed during inspection"):
                 export.inspect_elf(stream.fileno())
 
+    def test_elf_inspection_ignores_path_shadowing(self) -> None:
+        shadow = self.root / "llvm-readelf"
+        marker = self.root / "shadow-ran"
+        shadow.write_text("#!/bin/sh\ntouch '" + str(marker) + "'\necho forged ELF\n")
+        shadow.chmod(0o700)
+        fixed = self.root / "verified-readelf"
+        fixed.write_text("#!/bin/sh\necho fixed-inspector\n")
+        fixed.chmod(0o700)
+        with mock.patch.dict(os.environ, {"PATH": str(self.root)}), \
+             mock.patch.object(export, "LLVM_READELF", str(fixed)):
+            self.assertEqual(export._readelf(0).strip(), "fixed-inspector")
+        self.assertFalse(marker.exists())
+
     def test_elf_reports_are_bounded_and_timed_out(self) -> None:
         real_popen = subprocess.Popen
         for source, message in [("import sys; sys.stdout.write('x'*4096)", "size limit"),
@@ -331,6 +418,97 @@ class LinuxExportTests(unittest.TestCase):
         facts["search_paths"] = ["$ORIGIN/../../outside"]
         with self.assertRaisesRegex(export.ExportError, "escapes export"):
             export.elf_dependency_report({"bin/client": facts}, entrypoint="bin/client", host_libraries=frozenset())
+
+    def test_portable_compiler_evidence_is_bound_to_installed_bytes(self) -> None:
+        from atrinik_workspace import linux_portable as portable
+        runtime = self.root / "runtime.a"
+        runtime.write_bytes(b"verified-runtime")
+        tool = self.root / "clang"
+        tool.symlink_to(runtime.name)
+        (self.root / "clang++").symlink_to(runtime.name)
+        record = {"path": str(tool), "sha256": hashlib.sha256(runtime.read_bytes()).hexdigest()}
+        evidence = {"tools": {"compiler": record}, "runtime": record, "unwinder": record}
+        portable._verify_compiler_bytes(evidence)
+        runtime.write_bytes(b"changed-runtime")
+        with self.assertRaisesRegex(export.ExportError, "bytes differ"):
+            portable._verify_compiler_bytes(evidence)
+
+    def test_portable_tools_require_complete_canonical_versioned_identities(self):
+        documents = self.portable_documents()
+        original = documents["compiler-evidence.json"]
+        for role in ("compiler", "cxx_compiler", "linker", "readelf", "archiver", "ranlib", "nm", "strip", "objcopy", "objdump"):
+            for change in ("missing", "path", "version", "digest"):
+                value = json.loads(json.dumps(original))
+                if change == "missing":
+                    del value["tools"][role]
+                else:
+                    field, replacement = {"path": ("path", "/tmp/foreign-tool"),
+                                          "version": ("version", "LLVM version 23.1.30"),
+                                          "digest": ("sha256", "bad")}[change]
+                    value["tools"][role][field] = replacement
+                with self.subTest(role=role, change=change), self.assertRaises(export.ExportError):
+                    export._portable_compiler_evidence(value, documents["contract.json"]["compiler"], documents["installed.json"])
+
+    def test_portable_tools_reject_extra_roles(self):
+        documents = self.portable_documents()
+        evidence = documents["compiler-evidence.json"]
+        self.assertEqual(len(evidence["tools"]), 10)
+        evidence["tools"]["extra"] = dict(evidence["tools"]["compiler"])
+        with self.assertRaisesRegex(export.ExportError, "incomplete LLVM tool identities"):
+            export._portable_compiler_evidence(evidence, documents["contract.json"]["compiler"], documents["installed.json"])
+
+    def test_portable_cxx_bytes_are_independently_sealed(self):
+        from atrinik_workspace import linux_portable as portable
+        compiler, cxx = self.root / "clang", self.root / "clang++"
+        compiler.write_bytes(b"C driver")
+        cxx.write_bytes(b"different C++ driver")
+        record = lambda path: {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        evidence = {"tools": {"compiler": record(compiler), "cxx_compiler": record(cxx)},
+                    "runtime": record(compiler), "unwinder": record(compiler)}
+        portable._verify_compiler_bytes(evidence)
+        # A valid digest copied from clang cannot authenticate distinct clang++ bytes.
+        evidence["tools"]["cxx_compiler"]["sha256"] = evidence["tools"]["compiler"]["sha256"]
+        with self.assertRaisesRegex(export.ExportError, "bytes differ"):
+            portable._verify_compiler_bytes(evidence)
+        evidence["tools"]["cxx_compiler"] = record(cxx)
+        cxx.write_bytes(b"replaced C++ driver")
+        with self.assertRaisesRegex(export.ExportError, "bytes differ"):
+            portable._verify_compiler_bytes(evidence)
+
+    def test_portable_archive_tool_byte_replacement_is_rejected(self):
+        from atrinik_workspace import linux_portable as portable
+        compiler = self.root / "clang"
+        compiler.write_bytes(b"compiler")
+        (self.root / "clang++").symlink_to(compiler.name)
+        record = {"path": str(compiler), "sha256": hashlib.sha256(compiler.read_bytes()).hexdigest()}
+        for role in ("archiver", "ranlib"):
+            archive_tool = self.root / role
+            archive_tool.write_bytes(b"archive tool")
+            tool_record = {"path": str(archive_tool), "sha256": hashlib.sha256(archive_tool.read_bytes()).hexdigest()}
+            evidence = {"tools": {"compiler": record, role: tool_record}, "runtime": record, "unwinder": record}
+            portable._verify_compiler_bytes(evidence)
+            archive_tool.write_bytes(b"replaced archive tool")
+            with self.subTest(role=role), self.assertRaisesRegex(export.ExportError, "bytes differ"):
+                portable._verify_compiler_bytes(evidence)
+
+    def test_llvm_23_readelf_fixtures_preserve_versions_and_symbols(self) -> None:
+        fixture_root = Path(__file__).parent / "fixtures/linux_export/llvm-readelf-23.1.3"
+        payload = self.root / "elf-llvm-fixture"
+        payload.write_bytes(b"\x7fELF")
+        for name in ("executable-all.txt", "shared-all.txt"):
+            text = (fixture_root / name).read_text()
+            with self.subTest(name=name), payload.open("rb") as stream, \
+                 mock.patch.object(export, "_readelf", return_value=text):
+                facts = export.inspect_elf(stream.fileno())
+                self.assertEqual(facts["class"], "ELF64")
+                if name == "executable-all.txt":
+                    self.assertEqual(facts["needed"], ["libc.so.6"])
+                    self.assertIn("GLIBC_2.34", facts["required_versions"]["libc.so.6"])
+                    self.assertIn("__libc_start_main@GLIBC_2.34", facts["symbols"]["required"])
+                else:
+                    self.assertEqual(facts["soname"], "versions.so")
+                    self.assertEqual(facts["defined_versions"], ["ABI_1", "ABI_2"])
+                    self.assertTrue(facts["symbols"]["defined"])
 
     def test_elf_extraction_rejects_truncated_or_injected_records(self) -> None:
         payload = self.root / "elf-fixture"
@@ -373,11 +551,14 @@ class LinuxExportTests(unittest.TestCase):
                             {"feature": "unused", "soname": ["unused.so"]}]
         client["dlopen_providers"] = {"sample": [plugin]}
         return {
-            "contract.json": {"schema_version": 1, "platform": "linux/amd64", "target": "portable-final",
+            "contract.json": {"schema_version": 2, "platform": "linux/amd64", "target": "portable-final",
                               "image": "ghcr.io/atrinik/classic-portable-build", "metadata_directory": "/opt/atrinik-portable",
                               "base": {"image": "debian:bookworm-slim", "digest": "sha256:" + "2" * 64,
                                        "apt_snapshot": "20260901T000000Z", "glibc": "2.36"},
-                              "compiler": {"cpu": "x86-64", "c_standard": 17, "cflags": "-O2 -march=x86-64 -mtune=generic",
+                              "compiler": {"family": "clang", "version": "23.1.3", "linker": "lld", "builtins": "compiler-rt",
+                                           "unwinder": "libunwind", "binary_inspector": "llvm-readelf",
+                                           "toolchain_manifest": "llvm-toolchain.json", "lto": False,
+                                           "evidence": "/opt/atrinik-portable/compiler-evidence.json", "cpu": "x86-64", "c_standard": 17, "cflags": "-O2 -march=x86-64 -mtune=generic",
                                            "cxxflags": "-O2 -march=x86-64 -mtune=generic"},
                               "consumer": {"repository": "atrinik/classic", "commit": "a" * 40,
                                            "input_verification": "exact-source-commit-and-shader-input-sha256"},
@@ -385,9 +566,18 @@ class LinuxExportTests(unittest.TestCase):
                               "runtime": {"bundled_graphics_drivers": False, "providers": [plugin],
                                           "unsupported_dlopen_features": [{"object": library, "feature": "unused",
                                                                             "soname": ["unused.so"], "reason": "unused fixture feature"}]}},
-            "installed.json": {"schema_version": 1, "architecture": "amd64", "glibc": "glibc 2.36",
-                               "compiler_target": "x86_64-linux-gnu", "compiler_options": " -march= x86-64\n -mtune= generic\n",
+            "installed.json": {"schema_version": 2, "architecture": "amd64", "glibc": "glibc 2.36",
+                               "compiler_target": "x86_64-unknown-linux-gnu",
+                               "tools": {"cmake": "cmake version 3.25.1", "ninja": "1.11.1", "pkg_config": "1.8.1"},
+                               "build_tools": {"schema_version": 1, "tools": {
+                                   name: {"path": path, "resolved_path": path, "sha256": "1" * 64,
+                                          "size": 1, "executable": True,
+                                          "version": ("cmake version 3.25.1\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\n"
+                                                      if name == "cmake" else "1.11.1\n" if name == "ninja" else "1.8.1\n")}
+                                   for name, path in export.PORTABLE_BUILD_TOOL_PATHS.items()}},
                                "pkg_config": {"sdl3": "3.4.2"}},
+            "compiler-evidence.json": json.loads((Path(__file__).parent /
+                "fixtures/linux_export/llvm-readelf-23.1.3/driver-evidence-cxx.json").read_text()),
             "runtime-abi.json": {"schema_version": 1, "glibc": "2.36", "cpu": "x86-64", "roots": [library],
                                  "objects": [client, obj(plugin)]},
             "shader-generation.json": {"schema_version": 1, "source_commit": "a" * 40,
@@ -402,6 +592,7 @@ class LinuxExportTests(unittest.TestCase):
     def portable_arguments(self, documents: dict) -> dict:
         # Synthetic fixture hashes exercise relationships, not registry authority.
         documents["installed.json"]["contract_sha256"] = hashlib.sha256(json.dumps(documents["contract.json"]).encode()).hexdigest()
+        documents["installed.json"]["compiler_evidence_sha256"] = hashlib.sha256(json.dumps(documents["compiler-evidence.json"]).encode()).hexdigest()
         metadata = {name: json.dumps(value).encode() for name, value in documents.items()}
         return {"metadata": metadata, "expected_hashes": {name: hashlib.sha256(value).hexdigest() for name, value in metadata.items()},
                 "immutable_image": "ghcr.io/atrinik/classic-portable-build@sha256:" + "8" * 64,
@@ -416,14 +607,149 @@ class LinuxExportTests(unittest.TestCase):
                     "symbol_versions_verified", "runtime_qualified"):
             self.assertFalse(result[key])
 
+    def test_producer_build_tool_schema_is_mandatory_and_strict(self) -> None:
+        original = self.portable_documents()
+        for mutation in ("missing", "legacy", "schema-bool", "schema-next", "extra-tool", "missing-tool",
+                         "path", "resolved", "canonical-resolved", "digest", "size-bool", "size-empty", "mode", "version", "version-del", "reported-version", "extra-field"):
+            documents = json.loads(json.dumps(original))
+            installed = documents["installed.json"]
+            receipt = installed["build_tools"]
+            if mutation == "missing": del installed["build_tools"]
+            elif mutation == "legacy": installed["build_tools"] = receipt["tools"]
+            elif mutation == "schema-bool": receipt["schema_version"] = True
+            elif mutation == "schema-next": receipt["schema_version"] = 2
+            elif mutation == "extra-tool": receipt["tools"]["shell"] = receipt["tools"]["cmake"]
+            elif mutation == "missing-tool": del receipt["tools"]["ninja"]
+            elif mutation == "path": receipt["tools"]["cmake"]["path"] = "/tmp/cmake"
+            elif mutation == "resolved": receipt["tools"]["cmake"]["resolved_path"] = "/usr/bin/../bin/cmake"
+            elif mutation == "canonical-resolved": receipt["tools"]["cmake"]["resolved_path"] = "/usr/local/bin/cmake"
+            elif mutation == "digest": receipt["tools"]["cmake"]["sha256"] = "broken"
+            elif mutation == "size-bool": receipt["tools"]["cmake"]["size"] = True
+            elif mutation == "size-empty": receipt["tools"]["cmake"]["size"] = 0
+            elif mutation == "mode": receipt["tools"]["cmake"]["executable"] = 1
+            elif mutation == "version": receipt["tools"]["cmake"]["version"] = "GNU cmake 3.25.1\n"
+            elif mutation == "version-del": receipt["tools"]["cmake"]["version"] += "\x7f"
+            elif mutation == "reported-version": installed["tools"]["ninja"] = "1.11.2"
+            else: receipt["tools"]["cmake"]["extra"] = "unbound"
+            with self.subTest(mutation=mutation), self.assertRaises(export.ExportError):
+                export.portable_metadata_report(**self.portable_arguments(documents))
+
+    def test_pkg_config_identity_and_reported_version_are_mandatory(self) -> None:
+        for mutation in ("missing", "path", "version", "reported-version"):
+            documents = self.portable_documents()
+            installed = documents["installed.json"]
+            if mutation == "missing": del installed["build_tools"]["tools"]["pkg_config"]
+            elif mutation == "path": installed["build_tools"]["tools"]["pkg_config"]["path"] = "/usr/bin/pkg-config"
+            elif mutation == "version": installed["build_tools"]["tools"]["pkg_config"]["version"] = "pkg-config 1.8.1\n"
+            else: installed["tools"]["pkg_config"] = "1.8.2"
+            with self.subTest(mutation=mutation), self.assertRaises(export.ExportError):
+                export.portable_metadata_report(**self.portable_arguments(documents))
+        from atrinik_workspace import linux_portable
+        self.assertIn("-DPKG_CONFIG_EXECUTABLE=/usr/bin/pkgconf", linux_portable.portable_configure_arguments(self.root))
+
+    def test_actual_debian_producer_driver_evidence_and_default_search_paths(self):
+        # Captured before dependency assembly from the pinned Debian producer
+        # base plus the freshly built LLVM prefix. This proves parser compatibility,
+        # not the final image's dependency closure or release authority.
+        evidence = json.loads((Path(__file__).parent / "fixtures/linux_export/llvm-readelf-23.1.3/driver-evidence-cxx.json").read_text())
+        documents = self.portable_documents()
+        documents["installed.json"]["compiler_target"] = evidence["target"]
+        export._portable_compiler_evidence(evidence, documents["contract.json"]["compiler"], documents["installed.json"])
+        evidence["compile"]["driver_output"] += '"/usr/bin/as" "unexpected.s"\n'
+        with self.assertRaises(export.ExportError):
+            export._portable_compiler_evidence(evidence, documents["contract.json"]["compiler"], documents["installed.json"])
+
+    def test_sealed_probe_rejects_flag_source_output_identity_and_search_drift(self):
+        import shlex
+        original = self.portable_documents()
+        evidence = original["compiler-evidence.json"]
+        stages = [shlex.split(line) for line in evidence["compile"]["driver_output"].splitlines()
+                  if line.lstrip().startswith('"')]
+        def altered_stage(index, alter):
+            changed = [list(args) for args in stages]
+            alter(changed[index])
+            return "\n".join(" ".join(json.dumps(arg) for arg in args) for args in changed) + "\n"
+        def validate(value):
+            export._portable_compiler_evidence(value, original["contract.json"]["compiler"], original["installed.json"])
+        mutations = [
+            ("compile", "driver_output", altered_stage(0, lambda args: args.extend(["-O0"]))),
+            ("compile", "driver_output", altered_stage(0, lambda args: args.extend(["-target-feature", "+avx2"]))),
+            ("compile", "driver_output", altered_stage(0, lambda args: args.extend(["-target-cpu", "x86-64"]))),
+            ("compile", "driver_output", altered_stage(0, lambda args: args.extend(["-include", "/tmp/foreign.h"]))),
+            ("compile", "driver_output", altered_stage(0, lambda args: args.__setitem__(-1, "/tmp/other.c"))),
+            ("compile", "driver_output", altered_stage(1, lambda args: args.__setitem__(args.index("-o") + 1, "/tmp/other"))),
+            ("compile", "driver_output", altered_stage(1, lambda args: args.__setitem__(
+                next(index for index, arg in enumerate(args) if arg.startswith("/tmp/probe-")), "/tmp/probe-foreign.o"))),
+            ("compile", "driver_output", altered_stage(1, lambda args: args.insert(13, "-L/usr/local/lib"))),
+            ("compile", "driver_output", altered_stage(1, lambda args: args.insert(14, "-L/tmp/foreign/../../usr/lib"))),
+            ("compile", "source_sha256", "1" * 64),
+            ("runtime", "path", "/opt/llvm-23.1.3/foreign/libclang_rt.builtins-x86_64.a"),
+            ("unwinder", "path", "/opt/llvm-23.1.3/foreign/libunwind.a"),
+        ]
+        for record, key, value in mutations:
+            changed = json.loads(json.dumps(evidence))
+            changed[record][key] = value
+            with self.subTest(record=record, key=key, value=value), self.assertRaises(export.ExportError):
+                validate(changed)
+        changed = json.loads(json.dumps(evidence))
+        changed["compile"]["command"].append("-O0")
+        changed["compile"]["driver_command"].append("-O0")
+        with self.assertRaises(export.ExportError):
+            validate(changed)
+        # Coordinates may vary while the exact sealed invocation remains bound.
+        changed = json.loads(json.dumps(evidence))
+        old_source = changed["compile"]["command"][7]
+        old_root = str(Path(old_source).parent)
+        for key in ("command", "driver_command"):
+            changed["compile"][key] = [arg.replace(old_root, "/tmp/portable-compiler-fresh")
+                                        for arg in changed["compile"][key]]
+        changed["compile"]["driver_output"] = changed["compile"]["driver_output"].replace(old_root, "/tmp/portable-compiler-fresh")
+        validate(changed)
+
+    def test_installed_runtime_refuses_shared_unwinder_shadow(self):
+        from atrinik_workspace import linux_portable as portable
+        payload = self.root / "runtime.a"
+        payload.write_bytes(b"cohort")
+        (self.root / "clang++").symlink_to(payload.name)
+        record = {"path": str(payload), "sha256": hashlib.sha256(payload.read_bytes()).hexdigest()}
+        evidence = {"tools": {"compiler": record}, "runtime": record, "unwinder": record}
+        portable._verify_compiler_bytes(evidence)
+        shadow = self.root / "libunwind.so"
+        for linked in (False, True):
+            if linked:
+                shadow.symlink_to("missing.so")
+            else:
+                shadow.write_bytes(b"foreign shared unwinder")
+            with self.assertRaisesRegex(export.ExportError, "shadows"):
+                portable._verify_compiler_bytes(evidence)
+            shadow.unlink()
+
+    def test_portable_metadata_rejects_extra_stages_forged_cc1_and_later_foreign_search(self):
+        documents = self.portable_documents()
+        original = documents["compiler-evidence.json"]["compile"]["driver_output"]
+        for report in (
+                original + '"/usr/bin/as" "probe.s"\n',
+                original.rstrip() + ' "/tmp/foreign/libhidden.a"\n',
+                original.replace('"/opt/llvm-23.1.3/bin/clang-23" "-cc1"', '"/tmp/foreign" "-cc1"'),
+                original.replace('"-cc1"', '"--forged" "-cc1"'),
+                original.rstrip() + ' "-L/opt/llvm-23.1.3/lib" "-L/tmp/foreign"\n',
+                original.rstrip() + ' "--library-path=/usr/local/unrecorded"\n'):
+            with self.subTest(report=report):
+                documents["compiler-evidence.json"]["compile"]["driver_output"] = report
+                with self.assertRaises(export.ExportError):
+                    export.portable_metadata_report(**self.portable_arguments(documents))
+
     def test_portable_metadata_rejects_cross_record_inconsistency(self) -> None:
         changes = [
             ("contract.json", ["schema_version"], True),
             ("contract.json", ["target"], "ordinary-coordinator"),
             ("contract.json", ["base", "digest"], "latest"),
             ("contract.json", ["compiler", "cflags"], "-march=native"),
-            ("installed.json", ["compiler_options"], " -march= x86-64-v3\n -mtune= generic\n"),
-            ("installed.json", ["compiler_options"], " -march= x86-64\n -march= x86-64\n -mtune= generic\n"),
+            ("compiler-evidence.json", ["compile", "driver_output"], '"clang" "-cc1" "-target-cpu" "x86-64-v3"'),
+            ("compiler-evidence.json", ["flags"], ["-march=native"]),
+            ("compiler-evidence.json", ["tools", "linker", "version"], "GNU ld 2.40"),
+            ("compiler-evidence.json", ["runtime", "path"], "/usr/lib/libgcc.a"),
+            ("contract.json", ["compiler", "lto"], True),
             ("installed.json", ["pkg_config", "sdl3"], "different"),
             ("runtime-abi.json", ["glibc"], "2.43"),
             ("shader-generation.json", ["source_commit"], "b" * 40),
@@ -519,7 +845,7 @@ class LinuxExportTests(unittest.TestCase):
                 if change == "duplicate-key":
                     value = value.replace(b'{', b'{"schema_version":1,', 1)
                 elif change == "nan":
-                    value = value.replace(b'"schema_version": 1', b'"schema_version": NaN')
+                    value = value.replace(b'"schema_version": 2', b'"schema_version": NaN')
                 else:
                     data = json.loads(value); data["contract_sha256"] = "0" * 64; value = json.dumps(data).encode()
                 args["metadata"][key] = value

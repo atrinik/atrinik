@@ -30,8 +30,11 @@ import tarfile
 import tempfile
 import threading
 import time
-from typing import Any, Callable, Iterator, TextIO
+from typing import TYPE_CHECKING, Any, Callable, Iterator, TextIO
 import zipfile
+
+if TYPE_CHECKING:
+    from .linux_portable import PortableBuildContext
 
 from . import coordinator_context, runtime_handoff, prebuilt
 from .launch_identity import CLIENT_LAUNCH_LABEL_ENV, client_launch_label
@@ -439,6 +442,7 @@ REGION_MAP_SCHEMA_VERSION = 1
 EXPECTED_REGION_MAP = "incuna_-1"
 WINDOWS_PACKAGE_SCHEMA_VERSION = 1
 WINDOWS_PACKAGE_VERSION = "0.0.0"
+WINDOWS_PRODUCER_TARGET = "x86_64-w64-mingw32"
 WINDOWS_PACKAGE_MAX_ENTRIES = 100_000
 WINDOWS_PACKAGE_MAX_BYTES = 8 * 1024 * 1024 * 1024
 
@@ -3355,7 +3359,7 @@ class Workspace:
         self._owns_delivery_scope_proof = False
         self._build_state = threading.local()
         self._prefix_map_support: dict[
-            tuple[str, str, str | None, str | None], bool
+            tuple[str, str, str | None, str | None, str | None], bool
         ] = {}
         self._prefix_map_support_lock = threading.Lock()
 
@@ -9266,11 +9270,18 @@ class Workspace:
         build_services: set[str] | None = None,
         generate_region_maps: bool = True,
         portable: bool = False,
+        portable_context: PortableBuildContext | None = None,
         retained_runtime_plan: str | None = None,
         retained_content_input: str | None = None,
         completion_plan: dict[str, Any] | None = None,
         completion_wrapper_head: str | None = None,
     ) -> Path:
+        self._validate_portable_context(portable, portable_context, tests)
+        if portable:
+            try:
+                portable_context.validate_selected(selected)
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
         requested_services = set(targets).intersection(TOPOLOGY_SERVICES)
         selective_build = build_services is not None
         if build_services is None:
@@ -9375,6 +9386,7 @@ class Workspace:
                     }
                     if portable:
                         client_arguments["portable"] = True
+                        client_arguments["portable_context"] = portable_context
                     if selective_build:
                         client_arguments["build_target"] = "atrinik"
                     if gpu_shader is not None:
@@ -11731,6 +11743,19 @@ class Workspace:
         print(f"resources: staged {output}", file=sys.stderr)
         return output
 
+    @staticmethod
+    def _validate_portable_context(
+        portable: bool, context: PortableBuildContext | None, tests: bool,
+    ) -> None:
+        if portable:
+            from .linux_portable import PortableBuildContext
+            if not isinstance(context, PortableBuildContext):
+                raise WorkspaceError("portable builds require a verified process build context")
+            if tests:
+                raise WorkspaceError("portable producer builds require BUILD_TESTING=OFF")
+        elif context is not None:
+            raise WorkspaceError("portable build context requires a portable producer build")
+
     def _cmake(
         self,
         source: Path,
@@ -11739,14 +11764,54 @@ class Workspace:
         tests: bool,
         *,
         build_targets: list[str] | None = None,
+        portable: bool = False,
+        portable_context: PortableBuildContext | None = None,
     ) -> None:
+        self._validate_portable_context(portable, portable_context, tests)
+        def verify_portable_tools() -> None:
+            if portable:
+                try:
+                    portable_context.verify_host_tools()
+                except (OSError, RuntimeError, ValueError) as error:
+                    raise WorkspaceError(str(error)) from error
+        if portable:
+            try:
+                portable_context.validate_source_binding(binary, source)
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
         self._prepare_cmake_binary(binary)
+        if portable:
+            # Fresh configure evidence must never trust mutable cached fingerprints.
+            managed_reset(binary, self.paths.builds, "cmake-binary")
         environment = os.environ.copy()
-        ccache = shutil.which("ccache") if self._use_ccache else None
+        if portable:
+            from .linux_portable import LLVM_ROOT, PORTABLE_PATH, installed_metadata
+            _, producer_documents = installed_metadata()
+            if producer_documents["compiler-evidence.json"] != portable_context.evidence:
+                raise WorkspaceError("portable producer compiler evidence changed from caller context")
+            environment["PATH"] = PORTABLE_PATH
+            for name in tuple(environment):
+                if (name.startswith(("CCACHE_", "CCC_", "CLANG_CONFIG_FILE_", "LD_",
+                                     "CMAKE_", "PKG_CONFIG_", "PYTHON"))
+                        or name in {"BASH_ENV", "ENV", "PKG_CONFIG", "CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
+                                    "LIBRARY_PATH", "COMPILER_PATH", "GCC_EXEC_PREFIX", "GLIBC_TUNABLES"}):
+                    environment.pop(name)
+            # Ninja's admitted Python commands inherit HOME and run without
+            # -s/-I. Disable user .pth and usercustomize hooks after scrubbing
+            # caller-controlled Python settings.
+            environment["PYTHONNOUSERSITE"] = "1"
+            environment.update({name: LLVM_ROOT + "/bin/" + tool for name, tool in
+                                {"CC": "clang", "CXX": "clang++", "AR": "llvm-ar",
+                                 "RANLIB": "llvm-ranlib", "LD": "ld.lld"}.items()})
+            # This exact pkg-config directory belongs to the pinned portable
+            # producer recipe; never inherit a caller's dependency search roots.
+            environment["PKG_CONFIG_PATH"] = "/usr/local/lib/pkgconfig"
+            environment["PKG_CONFIG_LIBDIR"] = "/usr/local/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig"
+        ccache = shutil.which("ccache") if self._use_ccache and not portable else None
         cache_inputs = self._build_summary.setdefault("cache", {}).setdefault(
             "inputs", {}
         )
-        if not self._use_ccache:
+        if not self._use_ccache or portable:
             cache_inputs["compiler-cache"] = "disabled"
         elif ccache is None:
             cache_inputs["compiler-cache"] = "unavailable"
@@ -11754,9 +11819,12 @@ class Workspace:
             "-DCMAKE_C_COMPILER_LAUNCHER=",
             "-DCMAKE_CXX_COMPILER_LAUNCHER=",
         ]
+        verify_portable_tools()
         prefix_map_support = self._add_debug_prefix_environment(
-            source, binary, environment, arguments
+            source, binary, environment, arguments,
+            **({"probe_environment": environment} if portable else {}),
         )
+        verify_portable_tools()
         if ccache is not None:
             cache = self.paths.builds / COMPILER_CACHE_PURPOSE
             cache_inputs["compiler-cache"] = (
@@ -11799,15 +11867,16 @@ class Workspace:
                 f"ccache: enabled at {cache} (maximum {COMPILER_CACHE_MAX_SIZE})",
                 file=sys.stderr,
             )
-        elif self._use_ccache:
+        elif self._use_ccache and not portable:
             print(
                 "ccache: command not found; install ccache or pass --no-ccache "
                 "to disable this diagnostic",
                 file=sys.stderr,
             )
 
+        cmake = "/usr/bin/cmake" if portable else "cmake"
         configure = [
-            "cmake",
+            cmake,
             "-S",
             str(source),
             "-B",
@@ -11818,10 +11887,17 @@ class Workspace:
             f"-DBUILD_TESTING={'ON' if tests else 'OFF'}",
             *cache_arguments,
             *arguments,
+            *(["-DBUILD_TESTING=OFF"] if portable else []),
         ]
+        verify_portable_tools()
         fingerprint = self._configure_fingerprint(
-            source, binary, configure, tests, environment, ccache
+            source, binary, configure, tests, environment, ccache,
+            **({"portable": True} if portable else {}),
         )
+        verify_portable_tools()
+        if portable:
+            fingerprint["portable_host_tools"] = portable_context.host_tools
+            fingerprint["portable_build_tools"] = portable_context.build_tools
         metadata_path = binary / CONFIGURE_METADATA
         source_resolved = source.resolve()
         unchanged_view = all(
@@ -11845,30 +11921,50 @@ class Workspace:
         toolchain_identity = fingerprint["build_tree_identity"]["toolchain_file"]
         if toolchain_identity is not None and not toolchain_identity["complete"]:
             build_tree_changed = True
-        if build_tree_changed or not self._cmake_state_valid(
-            source, binary, configure
-        ):
+        runtime_groups = [fingerprint["build_tree_identity"].get("compiler_runtimes", {})]
+        configured_toolchain = fingerprint["build_tree_identity"].get("configured_toolchain")
+        if isinstance(configured_toolchain, dict):
+            runtime_groups.append(configured_toolchain.get("compiler_runtimes", {}))
+        if any(record is not None and not record.get("complete")
+               for group in runtime_groups for record in group.values()):
+            build_tree_changed = True
+        if not portable and (build_tree_changed or not self._cmake_state_valid(
+            source, binary, configure, **({"environment": environment} if portable else {})
+        )):
             managed_reset(binary, self.paths.builds, "cmake-binary")
             configured = False
         configured_now = False
         configure_seconds: float | None = None
         if (
-            self._force_reconfigure
+            portable
+            or self._force_reconfigure
             or not unchanged_view
             or not fingerprint["source"].get("configure_skip_safe", True)
             or not configured
         ):
             configure_started = time.monotonic()
+            verify_portable_tools()
             run(configure, env=environment)
+            verify_portable_tools()
             configure_seconds = time.monotonic() - configure_started
             configured_now = True
             fingerprint = self._configure_fingerprint(
-                source, binary, configure, tests, environment, ccache
+                source, binary, configure, tests, environment, ccache,
+                **({"portable": True} if portable else {}),
             )
+            verify_portable_tools()
+            if portable:
+                fingerprint["portable_host_tools"] = portable_context.host_tools
+                fingerprint["portable_build_tools"] = portable_context.build_tools
             atomic_json(metadata_path, fingerprint)
         else:
             print(f"cmake: configure unchanged for {binary}; skipping", file=sys.stderr)
-        build_command = ["cmake", "--build", str(binary), "--parallel"]
+        if portable:
+            try:
+                portable_context.capture_configure(binary, source)
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
+        build_command = [cmake, "--build", str(binary), "--parallel"]
         # CTest is registered for the whole configured graph.  An explicit
         # validation request therefore has to materialize that graph before
         # running the unfiltered suite; ordinary development builds retain
@@ -11876,7 +11972,14 @@ class Workspace:
         if build_targets and not tests:
             build_command.extend(("--target", *build_targets))
         build_started = time.monotonic()
+        verify_portable_tools()
         run(build_command, env=environment)
+        verify_portable_tools()
+        if portable:
+            try:
+                portable_context.capture_output(binary)
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
         build_seconds = time.monotonic() - build_started
         cmake_summary = self._build_summary.setdefault("cache", {}).setdefault(
             "cmake", {}
@@ -11895,7 +11998,7 @@ class Workspace:
         if tests:
             test_started = time.monotonic()
             run(
-                ["ctest", "--test-dir", str(binary), "--output-on-failure"],
+                ["/usr/bin/ctest" if portable else "ctest", "--test-dir", str(binary), "--output-on-failure"],
                 env=environment,
             )
             cmake_summary[str(binary)]["test_seconds"] = round(
@@ -11943,7 +12046,8 @@ class Workspace:
 
     @staticmethod
     def _cmake_state_valid(
-        source: Path, binary: Path, configure: list[str]
+        source: Path, binary: Path, configure: list[str],
+        *, environment: dict[str, str] | None = None,
     ) -> bool:
         cache = binary / "CMakeCache.txt"
         ninja = binary / "build.ninja"
@@ -11979,9 +12083,11 @@ class Workspace:
             return False
         try:
             graph = run(
-                ["ninja", "-C", str(binary), "-t", "query", "build.ninja"],
+                ["/usr/bin/ninja" if environment is not None else "ninja",
+                 "-C", str(binary), "-t", "query", "build.ninja"],
                 capture=True,
                 trace=False,
+                **({"env": environment} if environment is not None else {}),
             )
         except WorkspaceError:
             return False
@@ -11993,6 +12099,8 @@ class Workspace:
         binary: Path,
         environment: dict[str, str],
         arguments: list[str],
+        *,
+        probe_environment: dict[str, str] | None = None,
     ) -> dict[str, bool]:
         if environment.get("CMAKE_TOOLCHAIN_FILE") or any(
             argument.startswith(
@@ -12018,7 +12126,10 @@ class Workspace:
             ("cxx", "CXXFLAGS", environment.get("CXX", "c++"), "c++"),
         )
         support = {
-            name: self._compiler_supports_prefix_maps(command, language)
+            name: self._compiler_supports_prefix_maps(
+                command, language,
+                **({"environment": probe_environment} if probe_environment is not None else {}),
+            )
             for name, _variable, command, language in compilers
         }
         for name, variable, _command, _language in compilers:
@@ -12028,9 +12139,19 @@ class Workspace:
                 )
         return support
 
-    def _compiler_supports_prefix_maps(self, command: str, language: str) -> bool:
-        identity = self._tool_identity(command)
-        key = (command, language, identity.get("resolved_path"), identity.get("sha256"))
+    def _compiler_supports_prefix_maps(
+        self, command: str, language: str,
+        *, environment: dict[str, str] | None = None,
+    ) -> bool:
+        probe_arguments = {"environment": environment} if environment is not None else {}
+        identity = self._tool_identity(command, **probe_arguments)
+        # A result from the inherited host environment cannot prove support in
+        # the admitted producer environment, even for the same compiler bytes.
+        environment_digest = (hashlib.sha256(
+            json.dumps(environment, sort_keys=True).encode("utf-8")
+        ).hexdigest() if environment is not None else None)
+        key = (command, language, identity.get("resolved_path"),
+               identity.get("sha256"), environment_digest)
         with self._prefix_map_support_lock:
             cached = self._prefix_map_support.get(key)
         if cached is not None:
@@ -12039,7 +12160,8 @@ class Workspace:
             words = shlex.split(command)
         except ValueError:
             words = [command]
-        executable = shutil.which(words[0]) if words else None
+        executable = ((shutil.which(words[0], path=environment.get("PATH", os.defpath))
+                       if environment is not None else shutil.which(words[0])) if words else None)
         supported = False
         if executable is not None:
             with tempfile.TemporaryDirectory(prefix="atrinik-prefix-probe-") as temporary:
@@ -12062,6 +12184,7 @@ class Workspace:
                             str(output),
                         ],
                         trace=False,
+                        **({"env": environment} if environment is not None else {}),
                     )
                     supported = output.is_file()
                 except WorkspaceError:
@@ -12070,12 +12193,13 @@ class Workspace:
             return self._prefix_map_support.setdefault(key, supported)
 
     @staticmethod
-    def _tool_identity(command: str) -> dict[str, str | None]:
+    def _tool_identity(command: str, environment: dict[str, str] | None = None) -> dict[str, str | None]:
         try:
             words = shlex.split(command)
         except ValueError:
             words = [command]
-        executable = shutil.which(words[0]) if words else None
+        executable = ((shutil.which(words[0], path=environment.get("PATH", os.defpath))
+                       if environment is not None else shutil.which(words[0])) if words else None)
         version = None
         resolved = None
         sha256 = None
@@ -12092,6 +12216,7 @@ class Workspace:
                     [executable, *words[1:], "--version"],
                     capture=True,
                     trace=False,
+                    **({"env": environment} if environment is not None else {}),
                 )
                 version = (
                     output.splitlines()[0]
@@ -12108,6 +12233,39 @@ class Workspace:
             "version": version,
         }
 
+    @staticmethod
+    def _compiler_runtime_identity(
+        identity: dict[str, Any], options: tuple[str, ...] = (),
+        environment: dict[str, str] | None = None,
+    ) -> dict[str, Any] | None:
+        """Fingerprint Clang's selected builtins and coverage runtime archives."""
+        if "clang" not in str(identity.get("version", "")).lower():
+            return None
+        command = identity.get("command")
+        if not isinstance(command, str):
+            return {"complete": False, "files": []}
+        try:
+            words = [*shlex.split(command), *options]
+            arguments = {"env": environment} if environment is not None else {}
+            resource = run([*words, "-print-resource-dir"], capture=True, trace=False, **arguments).strip()
+            builtins = run([*words, "--rtlib=compiler-rt", "-print-libgcc-file-name"],
+                           capture=True, trace=False, **arguments).strip()
+            root = Path(resource)
+            archive = Path(builtins)
+            if not root.is_absolute() or not root.is_dir() or not archive.is_absolute():
+                return {"complete": False, "files": []}
+            paths = {archive, *root.glob("lib/**/libclang_rt.profile*.a")}
+            records = []
+            for path in sorted(paths):
+                resolved = path.resolve(strict=True)
+                if not resolved.is_file():
+                    return {"complete": False, "files": []}
+                records.append({"path": str(path), "resolved_path": str(resolved),
+                                "sha256": hashlib.sha256(resolved.read_bytes()).hexdigest()})
+            return {"complete": True, "resource_directory": resource, "files": records}
+        except (OSError, RuntimeError, ValueError, WorkspaceError):
+            return {"complete": False, "files": []}
+
     def _configure_fingerprint(
         self,
         source: Path,
@@ -12116,6 +12274,7 @@ class Workspace:
         tests: bool,
         environment: dict[str, str],
         ccache: str | None,
+        *, portable: bool = False,
     ) -> dict[str, Any]:
         relevant_names = (
             "ATRINIK_PACKAGE_VERSION",
@@ -12125,6 +12284,12 @@ class Workspace:
             "CFLAGS",
             "CXXFLAGS",
             "LDFLAGS",
+            "LD",
+            "AR",
+            "RANLIB",
+            "ATRINIK_WINDOWS_TOOLCHAIN_FILE",
+            "ATRINIK_WINDOWS_TARGET",
+            "ATRINIK_WINDOWS_RUNTIME_DIR",
             "PATH",
             "CPATH",
             "C_INCLUDE_PATH",
@@ -12163,15 +12328,25 @@ class Workspace:
         # pkg-config cache entries, so every relevant environment change is a
         # build-tree identity change.
         initialization_environment = environment_identity
-        generator_tool = self._tool_identity("ninja")
-        cmake_tool = self._tool_identity("cmake")
+        tool_environment = {"environment": environment} if portable else {}
+        generator_tool = self._tool_identity("/usr/bin/ninja" if portable else "ninja", **tool_environment)
+        cmake_tool = self._tool_identity(configure[0], **tool_environment)
         compilers = {
-            "c": self._tool_identity(environment.get("CC", "cc")),
-            "cxx": self._tool_identity(environment.get("CXX", "c++")),
+            "c": self._tool_identity(environment.get("CC", "cc"), **tool_environment),
+            "cxx": self._tool_identity(environment.get("CXX", "c++"), **tool_environment),
         }
         tree_argument_prefixes = (
+            "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=",
+            "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=",
             "-DCMAKE_C_COMPILER=",
             "-DCMAKE_CXX_COMPILER=",
+            "-DCMAKE_C_COMPILER_TARGET=",
+            "-DCMAKE_CXX_COMPILER_TARGET=",
+            "-DCMAKE_LINKER=",
+            "-DCMAKE_AR=",
+            "-DCMAKE_RANLIB=",
+            "-DCMAKE_NM=", "-DCMAKE_STRIP=", "-DCMAKE_OBJCOPY=",
+            "-DCMAKE_OBJDUMP=", "-DCMAKE_READELF=",
             "-DCMAKE_TOOLCHAIN_FILE=",
             "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=",
             "-DCMAKE_GENERATOR_PLATFORM=",
@@ -12183,7 +12358,15 @@ class Workspace:
             "generator_tool": generator_tool,
             "cmake": cmake_tool,
             "compilers": compilers,
-            "configured_toolchain": self._cmake_configured_toolchain(binary),
+            "compiler_runtimes": {
+                language: self._compiler_runtime_identity(record, **tool_environment)
+                for language, record in compilers.items()
+            },
+            "link_tools": {
+                name: self._tool_identity(environment[name], **tool_environment)
+                for name in ("LD", "AR", "RANLIB") if environment.get(name)
+            },
+            "configured_toolchain": self._cmake_configured_toolchain(binary, **tool_environment),
             "environment": initialization_environment,
             "arguments": [
                 argument
@@ -12348,7 +12531,9 @@ class Workspace:
             "complete": complete,
         }
 
-    def _cmake_configured_toolchain(self, binary: Path) -> dict[str, Any] | None:
+    def _cmake_configured_toolchain(
+        self, binary: Path, *, environment: dict[str, str] | None = None,
+    ) -> dict[str, Any] | None:
         cache = binary / "CMakeCache.txt"
         if cache.is_symlink() or not cache.is_file():
             return None
@@ -12358,6 +12543,16 @@ class Workspace:
             "CMAKE_CXX_COMPILER",
             "CMAKE_C_COMPILER_TARGET",
             "CMAKE_CXX_COMPILER_TARGET",
+            "CMAKE_LINKER",
+            "CMAKE_C_COMPILER_LINKER",
+            "CMAKE_CXX_COMPILER_LINKER",
+            "CMAKE_AR",
+            "CMAKE_RANLIB",
+            "CMAKE_NM", "CMAKE_STRIP", "CMAKE_OBJCOPY", "CMAKE_OBJDUMP", "CMAKE_READELF",
+            "CMAKE_C_FLAGS",
+            "CMAKE_CXX_FLAGS",
+            "CMAKE_EXE_LINKER_FLAGS",
+            "CMAKE_SHARED_LINKER_FLAGS",
             "CMAKE_SYSROOT",
             "CMAKE_OSX_SYSROOT",
         }
@@ -12376,6 +12571,8 @@ class Workspace:
             compiler_patterns = {
                 "CMAKE_C_COMPILER": "CMakeCCompiler.cmake",
                 "CMAKE_CXX_COMPILER": "CMakeCXXCompiler.cmake",
+                "CMAKE_C_COMPILER_LINKER": "CMakeCCompiler.cmake",
+                "CMAKE_CXX_COMPILER_LINKER": "CMakeCXXCompiler.cmake",
             }
             for name, filename in compiler_patterns.items():
                 matches = sorted((binary / "CMakeFiles").glob(f"*/{filename}"))
@@ -12394,11 +12591,33 @@ class Workspace:
                         break
         except (OSError, UnicodeError):
             return {"valid": False}
+        tool_environment = {"environment": environment} if environment is not None else {}
         return {
             "valid": True,
             "values": values,
             "compilers": {
-                name: self._tool_identity(values[name])
+                name: self._tool_identity(values[name], **tool_environment)
+                for name in ("CMAKE_C_COMPILER", "CMAKE_CXX_COMPILER")
+                if values.get(name)
+            },
+            "link_tools": {
+                name: self._tool_identity(values[name], **tool_environment)
+                for name in ("CMAKE_LINKER", "CMAKE_C_COMPILER_LINKER", "CMAKE_CXX_COMPILER_LINKER",
+                             "CMAKE_AR", "CMAKE_RANLIB", "CMAKE_NM", "CMAKE_STRIP",
+                             "CMAKE_OBJCOPY", "CMAKE_OBJDUMP", "CMAKE_READELF")
+                if values.get(name)
+            },
+            "compiler_runtimes": {
+                name: self._compiler_runtime_identity(
+                    self._tool_identity(values[name], **tool_environment),
+                    tuple(option for option in (
+                        ("--target=" + values[name + "_TARGET"])
+                        if values.get(name + "_TARGET") else None,
+                        ("--sysroot=" + values["CMAKE_SYSROOT"])
+                        if values.get("CMAKE_SYSROOT") else None,
+                    ) if option is not None),
+                    **tool_environment,
+                )
                 for name in ("CMAKE_C_COMPILER", "CMAKE_CXX_COMPILER")
                 if values.get(name)
             },
@@ -12450,7 +12669,7 @@ class Workspace:
                 and isinstance(metadata.get("entries"), dict)
             )
             if valid:
-                return metadata
+                return {**metadata, "path": str(resolved)}
         except (OSError, RuntimeError, WorkspaceError):
             pass
         cmakelists = source / "CMakeLists.txt"
@@ -13292,7 +13511,14 @@ class Workspace:
         build_target: str | None = None,
         gpu_shader: dict[str, Any] | None = None,
         portable: bool = False,
+        portable_context: PortableBuildContext | None = None,
     ) -> None:
+        self._validate_portable_context(portable, portable_context, tests)
+        if portable:
+            try:
+                portable_context.validate_selected(selected)
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
         peer_inputs = any(
             peer.name != component.name and peer.checkout_name == component.checkout_name
             and PurePosixPath(peer.source) in PurePosixPath(include).parents
@@ -13333,9 +13559,14 @@ class Workspace:
             *self._classic_identity_arguments(selected["client"]),
         ]
         if portable:
-            arguments.extend(["-DCMAKE_SKIP_RPATH=ON", "-DCMAKE_BUILD_TYPE=Release",
-                              "-DCMAKE_C_FLAGS=-O2 -march=x86-64 -mtune=generic",
-                              "-DCMAKE_CXX_FLAGS=-O2 -march=x86-64 -mtune=generic"])
+            try:
+                portable_context.bind_source_views(
+                    root, {"client": view, "protocol": protocol, "libatrinik": library}
+                )
+            except ValueError as error:
+                raise WorkspaceError(str(error)) from error
+            from .linux_portable import portable_configure_arguments
+            arguments.extend(portable_configure_arguments(view.resolve()))
         if gpu_shader is not None:
             arguments.extend(self._gpu_shader_cmake_arguments(gpu_shader))
         if build_target is None:
@@ -13344,6 +13575,7 @@ class Workspace:
                 root / "build" / "client",
                 arguments,
                 tests,
+                **({"portable": True, "portable_context": portable_context} if portable else {}),
             )
         else:
             self._cmake(
@@ -13352,6 +13584,7 @@ class Workspace:
                 arguments,
                 tests,
                 build_targets=[build_target],
+                **({"portable": True, "portable_context": portable_context} if portable else {}),
             )
         self._record_classic_graph(root, {"client"}, "standalone")
 
@@ -17244,29 +17477,557 @@ class Workspace:
     def _local_windows_build_environment() -> dict[str, str] | None:
         environment = os.environ.copy()
         required = (
-            "MXE_TOOLCHAIN_FILE",
-            "MXE_RUNTIME_DIR",
+            "ATRINIK_WINDOWS_TOOLCHAIN_FILE",
+            "ATRINIK_WINDOWS_RUNTIME_DIR",
             "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR",
             "ATRINIK_WINDOWS_PYTHON_LIBRARY",
             "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR",
         )
-        target = environment.get("MXE_TARGET", "x86_64-w64-mingw32.shared")
-        if shutil.which(f"{target}-cmake") is None or any(
-            not environment.get(name) or not Path(environment[name]).exists()
-            for name in required
-        ):
+        selectors = ("ATRINIK_WINDOWS_TARGET", "ATRINIK_WINDOWS_HOST_PYTHON", *required)
+        if not any(environment.get(name) for name in selectors):
             return None
+        if not Workspace._windows_local_prerequisites_available(environment):
+            return None
+        for name in tuple(environment):
+            if (name.startswith(("CCACHE_", "CCC_", "CLANG_CONFIG_FILE_", "LD_", "CMAKE_", "PKG_CONFIG_", "BASH_FUNC_", "PYTHON"))
+                    or name in {"VIRTUAL_ENV", "CONDA_PREFIX", "CONDA_DEFAULT_ENV", "BASH_ENV", "ENV", "PKG_CONFIG", "CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH",
+                                "OBJC_INCLUDE_PATH", "LIBRARY_PATH", "COMPILER_PATH", "GCC_EXEC_PREFIX",
+                                "CC", "CXX", "CPPFLAGS", "CFLAGS", "CXXFLAGS", "RCFLAGS", "LDFLAGS", "LD", "AR", "RANLIB"}):
+                environment.pop(name)
+        # Fresh staging has no CMake cache. These initialization flags suppress
+        # ambient Clang configuration files for both compilation and linking.
+        environment.update(CFLAGS="--no-default-config", CXXFLAGS="--no-default-config",
+                           LDFLAGS="--no-default-config", CCACHE_DISABLE="1")
+        # Host Python generates/checks package inputs; the Windows Python
+        # include/library/runtime coordinates below describe a separate target.
+        # Strip startup selectors before disabling HOME's user-site callbacks.
+        environment["PYTHONNOUSERSITE"] = "1"
+        environment["ATRINIK_WINDOWS_HOST_PYTHON"] = "/usr/bin/python3"
         environment["ATRINIK_PACKAGE_VERSION"] = WINDOWS_PACKAGE_VERSION
         environment["ATRINIK_DISCORD_APPLICATION_ID_FILE"] = ""
         return environment
 
+    @classmethod
+    def _windows_local_prerequisites_available(cls, environment: dict[str, str]) -> bool:
+        """Discover the complete local executable closure without executing it.
+
+        Only initially absent prerequisites allow Docker selection. Present
+        unsafe inputs, malformed contracts and inspection drift remain errors.
+        The packaging branch still freshly authenticates and probes every tool.
+        """
+        try:
+            selected_target = environment.get("ATRINIK_WINDOWS_TARGET")
+            if selected_target and selected_target != WINDOWS_PRODUCER_TARGET:
+                raise WorkspaceError("Windows producer target or prefix changed")
+            if environment.get("ATRINIK_WINDOWS_HOST_PYTHON", "/usr/bin/python3") != "/usr/bin/python3":
+                raise WorkspaceError("Windows packaging requires the SDK host Python /usr/bin/python3")
+            required = ("ATRINIK_WINDOWS_TOOLCHAIN_FILE", "ATRINIK_WINDOWS_RUNTIME_DIR",
+                        "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR", "ATRINIK_WINDOWS_PYTHON_LIBRARY",
+                        "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR")
+            present: dict[str, Path] = {}
+            for name in required:
+                if not environment.get(name):
+                    continue
+                selected = Path(environment[name])
+                try:
+                    selected.lstat()
+                except FileNotFoundError:
+                    continue
+                try:
+                    selected.resolve(strict=True)
+                except (OSError, RuntimeError) as error:
+                    raise WorkspaceError("Windows producer selected input is invalid") from error
+                present[name] = selected
+            if "ATRINIK_WINDOWS_TOOLCHAIN_FILE" not in present:
+                # No contract is available to declare SDK roots. Still inspect
+                # every other present selection before declining local mode;
+                # an absent toolchain cannot hide unsafe files or namespaces.
+                for selected in set(present.values()):
+                    if selected.is_dir():
+                        cls._windows_sdk_tree_identity(selected)
+                    else:
+                        cls._windows_producer_file_identity(selected, (selected.parent,))
+                return False
+            toolchain = present["ATRINIK_WINDOWS_TOOLCHAIN_FILE"]
+            content: list[bytes] = []
+            identity = cls._windows_producer_file_identity(toolchain, content=content, limit=1024 ** 2)
+            values, tool_names, expected = cls._windows_producer_toolchain_contract(
+                b"".join(content).decode("utf-8"), selected_target or None
+            )
+            roots = cls._windows_producer_sdk_roots(values)
+            for name in ("ATRINIK_WINDOWS_RUNTIME_DIR", "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR",
+                         "ATRINIK_WINDOWS_PYTHON_LIBRARY", "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR"):
+                if name not in present:
+                    continue
+                selected = present[name]
+                if not selected.is_absolute() or not any(selected.is_relative_to(root)
+                                                         and selected.resolve(strict=True).is_relative_to(root)
+                                                         for root in roots.values()):
+                    raise WorkspaceError("Windows producer selected input escaped its SDK roots")
+
+            if len(present) != len(required) or not environment.get("ATRINIK_WINDOWS_TARGET"):
+                # Validate all declared SDK namespaces before missing or unset
+                # selectors decline local mode. No tools are discovered or run
+                # for a partial selection, and no absent input is fabricated.
+                for root in roots.values():
+                    cls._windows_sdk_tree_identity(root)
+                if cls._windows_producer_file_identity(toolchain, limit=1024 ** 2) != identity:
+                    raise WorkspaceError("Windows producer inputs changed during prerequisite inspection")
+                return False
+            search_path = cls._windows_producer_search_path(environment)
+
+            def present_executable(path: Path, allowed: tuple[Path, ...] = ()) -> bool:
+                try:
+                    path.lstat()
+                except FileNotFoundError:
+                    return False
+                cls._windows_producer_file_identity(path, allowed)
+                if not os.access(path, os.X_OK):
+                    raise WorkspaceError("Windows producer selected tool is not executable: " + str(path))
+                return True
+
+            available = True
+            for name in cls._windows_producer_build_tool_names(values):
+                path = shutil.which(name, path=search_path)
+                if path is None:
+                    # which() also returns None for present non-executable or
+                    # broken inputs. Those are invalid, rather than absent.
+                    for directory in search_path.split(os.pathsep):
+                        if present_executable(Path(directory) / name):
+                            raise WorkspaceError("Windows producer tool discovery changed: " + name)
+                    available = False
+                else:
+                    if not present_executable(Path(path)):
+                        raise WorkspaceError("Windows producer tool disappeared during discovery: " + name)
+            for name in (*tool_names.values(), "clang"):
+                if not present_executable(roots["llvm"] / "bin" / name, (roots["llvm"],)):
+                    available = False
+            if not present_executable(Path(expected["PKG_CONFIG_EXECUTABLE"]), (roots["dependencies"],)):
+                available = False
+            if not present_executable(Path("/usr/bin/python3")):
+                available = False
+            if not available:
+                # Missing tools must not hide an unsafe selected SDK. Complete
+                # local producers receive this inspection in their identity
+                # validation, avoiding another full SDK hash on that route.
+                for root in roots.values():
+                    cls._windows_sdk_tree_identity(root)
+            if cls._windows_producer_file_identity(toolchain, limit=1024 ** 2) != identity:
+                raise WorkspaceError("Windows producer inputs changed during prerequisite inspection")
+            return available
+        except WorkspaceError:
+            raise
+        except (OSError, ValueError, KeyError, TypeError, RuntimeError) as error:
+            raise WorkspaceError("Windows producer input identity is unavailable or invalid") from error
+
+    @staticmethod
+    def _windows_producer_search_path(environment: dict[str, str]) -> str:
+        """Keep host tool discovery independent of the staged source cwd."""
+        search_path = environment.get("PATH", os.defpath)
+        if any(not Path(entry).is_absolute() for entry in search_path.split(os.pathsep)):
+            raise WorkspaceError("Windows producer PATH requires nonempty absolute entries")
+        return search_path
+
+    @staticmethod
+    def _windows_producer_open(path: Path, *, directory: bool = False) -> int:
+        """Open an absolute producer path without following any component link."""
+        if not path.is_absolute():
+            raise WorkspaceError("Windows producer input path is not absolute")
+        parent_fd = os.open(path.anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            for part in path.parts[1:-1]:
+                next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent_fd)
+                os.close(parent_fd)
+                parent_fd = next_fd
+            flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+            if directory:
+                flags |= os.O_DIRECTORY
+            return os.open(path.name, flags, dir_fd=parent_fd)
+        finally:
+            os.close(parent_fd)
+
+    @classmethod
+    def _windows_sdk_tree_identity(cls, root: Path) -> dict[str, Any]:
+        """Hash a bounded SDK namespace without following links while reading.
+
+        Internal links are recorded and their targets are covered by the same
+        complete tree. Descriptors and final metadata checks fence replacement
+        during traversal; each packaging phase obtains a fresh identity.
+        """
+        if not root.is_absolute() or len(root.parts) < 3:
+            raise WorkspaceError("Windows producer SDK root is invalid")
+        assert_no_symlink_components(root, "Windows producer SDK root")
+        if root.resolve(strict=True) != root or root == Path.home() or root in Path.home().parents:
+            raise WorkspaceError("Windows producer SDK root is unsafe")
+        records = []
+        observed = []
+        total_bytes = 0
+
+        def stamp(info):
+            return (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_gid,
+                    info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+
+        def owned(info):
+            if info.st_uid not in {0, os.getuid()} or (not stat.S_ISLNK(info.st_mode) and info.st_mode & 0o022):
+                raise WorkspaceError("Windows producer SDK entry has unsafe ownership or permissions")
+
+        def visit(directory: int, relative: Path):
+            nonlocal total_bytes
+            before = os.fstat(directory)
+            owned(before)
+            with os.scandir(directory) as entries:
+                names = []
+                for entry in entries:
+                    names.append(entry.name)
+                    if len(names) + len(observed) > 100000:
+                        raise WorkspaceError("Windows producer SDK entry bound exceeded")
+            names.sort()
+            for name in names:
+                if name.startswith("."):
+                    raise WorkspaceError("Windows producer SDK contains private or hidden inputs")
+                child = relative / name
+                info = os.stat(name, dir_fd=directory, follow_symlinks=False)
+                owned(info)
+                observed.append((child, stamp(info)))
+                if len(observed) > 100000:
+                    raise WorkspaceError("Windows producer SDK entry bound exceeded")
+                record = {"path": child.as_posix(), "mode": stat.S_IMODE(info.st_mode)}
+                if stat.S_ISLNK(info.st_mode):
+                    target = os.readlink(name, dir_fd=directory)
+                    resolved = (root / child).resolve(strict=True)
+                    if not resolved.is_relative_to(root):
+                        raise WorkspaceError("Windows producer SDK link escaped its root")
+                    record.update(kind="symlink", target=target)
+                elif stat.S_ISDIR(info.st_mode):
+                    fd = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=directory)
+                    try:
+                        if stamp(os.fstat(fd)) != stamp(info):
+                            raise WorkspaceError("Windows producer SDK changed during inspection")
+                        visit(fd, child)
+                    finally:
+                        os.close(fd)
+                    record.update(kind="directory")
+                elif stat.S_ISREG(info.st_mode):
+                    total_bytes += info.st_size
+                    if info.st_size > 512 * 1024 ** 2 or total_bytes > 8 * 1024 ** 3:
+                        raise WorkspaceError("Windows producer SDK byte bound exceeded")
+                    fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)
+                    try:
+                        if stamp(os.fstat(fd)) != stamp(info):
+                            raise WorkspaceError("Windows producer SDK changed during inspection")
+                        digest = hashlib.sha256()
+                        with os.fdopen(fd, "rb", closefd=False) as stream:
+                            consumed = 0
+                            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                                consumed += len(block)
+                                if consumed > info.st_size:
+                                    raise WorkspaceError("Windows producer SDK changed while hashing")
+                                digest.update(block)
+                        if stamp(os.fstat(fd)) != stamp(info):
+                            raise WorkspaceError("Windows producer SDK changed while hashing")
+                    finally:
+                        os.close(fd)
+                    record.update(kind="file", sha256=digest.hexdigest())
+                else:
+                    raise WorkspaceError("Windows producer SDK contains a special file")
+                records.append(record)
+            if stamp(os.fstat(directory)) != stamp(before):
+                raise WorkspaceError("Windows producer SDK directory changed during inspection")
+            observed.append((relative, stamp(before)))
+
+        fd = cls._windows_producer_open(root, directory=True)
+        try:
+            visit(fd, Path("."))
+            for relative, expected in observed:
+                if stamp((root / relative).lstat()) != expected:
+                    raise WorkspaceError("Windows producer SDK changed during inspection")
+        finally:
+            os.close(fd)
+        encoded = json.dumps(sorted(records, key=lambda item: item["path"]), sort_keys=True,
+                             separators=(",", ":")).encode()
+        return {"path": str(root), "sha256": hashlib.sha256(encoded).hexdigest(),
+                "entries": len(records), "bytes": total_bytes}
+
+    @staticmethod
+    def _windows_host_python_identity(environment: dict[str, str], fingerprint: Callable[[Path], dict]) -> dict:
+        """Observe the fixed SDK host executable, separately from target Python.
+
+        Like host CMake/Ninja identities, this fingerprints the actual executable;
+        it does not attest its system libraries or claim an immutable image digest.
+        """
+        path = Path("/usr/bin/python3")
+        if environment.get("ATRINIK_WINDOWS_HOST_PYTHON", str(path)) != str(path):
+            raise WorkspaceError("Windows packaging requires the SDK host Python /usr/bin/python3")
+        identity = fingerprint(path)
+        probe = "import json, sys; print(json.dumps({'implementation': sys.implementation.name, 'version': list(sys.version_info[:3]), 'executable': sys.executable, 'prefix': sys.base_prefix}))"
+        observed = json.loads(run([str(path), "-I", "-c", probe], capture=True, trace=False, env=environment))
+        version = observed.get("version")
+        if (observed.get("implementation") != "cpython" or observed.get("executable") != str(path)
+                or observed.get("prefix") != "/usr" or not isinstance(version, list) or len(version) != 3
+                or not all(type(item) is int for item in version) or version[0] != 3 or version[:2] < [3, 11]):
+            raise WorkspaceError("Windows packaging requires the supported host CPython 3.11 or newer")
+        if fingerprint(path) != identity:
+            raise WorkspaceError("Windows host Python changed during inspection")
+        return {**identity, "version": observed}
+
+    @classmethod
+    def _windows_host_python_script_proofs(cls, staging: Path) -> dict[str, dict]:
+        """Admit the reviewed source interface before local package execution."""
+        result = {}
+        for component in ("client", "server"):
+            path = staging / component / "tools/build-windows-package.sh"
+            try:
+                assert_no_symlink_components(path, "Windows host Python source contract")
+                descriptor = cls._windows_producer_open(path)
+                try:
+                    before = os.fstat(descriptor)
+                    if not stat.S_ISREG(before.st_mode) or before.st_size > 1024 ** 2:
+                        raise WorkspaceError("Windows host Python script requires a bounded regular file")
+                    data = os.pread(descriptor, before.st_size + 1, 0)
+                    fields = ("st_dev", "st_ino", "st_size", "st_mode", "st_mtime_ns", "st_ctime_ns")
+                    after = os.fstat(descriptor)
+                    visible = path.stat(follow_symlinks=False)
+                    if (len(data) != before.st_size
+                            or any(getattr(before, key) != getattr(after, key) or getattr(before, key) != getattr(visible, key)
+                                   for key in fields)):
+                        raise WorkspaceError("Windows host Python script changed during inspection")
+                finally:
+                    os.close(descriptor)
+                if b"# atrinik-windows-host-python-contract: 1" not in data.splitlines():
+                    raise WorkspaceError("selected Classic source lacks the Windows host Python contract: " + component)
+                result[component] = {"path": str(path), "sha256": hashlib.sha256(data).hexdigest(), "contract_version": 1}
+            except OSError as error:
+                raise WorkspaceError("Windows host Python source contract is unavailable: " + component) from error
+        return result
+
+    @classmethod
+    def _windows_producer_file_identity(
+        cls, path: Path, allowed: tuple[Path, ...] = (), *,
+        content: list[bytes] | None = None, limit: int = 512 * 1024 ** 2,
+    ) -> dict[str, str]:
+        resolved = path.resolve(strict=True)
+        if allowed and not any(resolved.is_relative_to(root) for root in allowed):
+            raise WorkspaceError("Windows producer input escaped its SDK roots")
+        assert_no_symlink_components(resolved, "Windows producer input")
+        fd = cls._windows_producer_open(resolved)
+        try:
+            before = os.fstat(fd)
+            if (not stat.S_ISREG(before.st_mode) or before.st_size > limit
+                    or (allowed and before.st_uid not in {0, os.getuid()}) or before.st_mode & 0o022):
+                raise WorkspaceError("Windows producer input is not a safe bounded regular file")
+            digest = hashlib.sha256()
+            consumed = 0
+            with os.fdopen(fd, "rb", closefd=False) as stream:
+                for block in iter(lambda: stream.read(1024 * 1024), b""):
+                    consumed += len(block)
+                    if consumed > before.st_size:
+                        raise WorkspaceError("Windows producer input changed while hashing")
+                    digest.update(block)
+                    if content is not None:
+                        content.append(block)
+            after = os.fstat(fd)
+            fields = ("st_dev", "st_ino", "st_size", "st_mode", "st_uid", "st_gid", "st_mtime_ns", "st_ctime_ns")
+            if (any(getattr(before, key) != getattr(after, key) for key in fields)
+                    or path.resolve(strict=True) != resolved
+                    or any(getattr(before, key) != getattr(resolved.stat(), key) for key in fields)):
+                raise WorkspaceError("Windows producer input changed while hashing")
+        finally:
+            os.close(fd)
+        return {"path": str(path), "resolved_path": str(resolved), "sha256": digest.hexdigest()}
+
+    @staticmethod
+    def _windows_producer_toolchain_contract(
+        text: str, selected_target: str | None,
+    ) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
+        """Parse the exact declarative contract without running CMake or tools."""
+        values: dict[str, str] = {}
+        for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            match = re.fullmatch(r"set\(([^()]*)\)", line)
+            if match is None:
+                raise WorkspaceError("Windows producer requires the declarative LLVM toolchain")
+            tokens = shlex.split(match[1])
+            if len(tokens) < 2 or tokens[0] in values:
+                raise WorkspaceError("Windows producer toolchain assignment is ambiguous")
+            operands = tokens[1:tokens.index("CACHE")] if "CACHE" in tokens else tokens[1:]
+            expanded = []
+            for operand in operands:
+                operand = re.sub(r"\$\{([^}]+)\}", lambda item: values[item[1]], operand)
+                if "$" in operand or ";" in operand:
+                    raise WorkspaceError("Windows producer toolchain expansion is unsupported")
+                expanded.append(operand)
+            values[tokens[0]] = " ".join(expanded)
+        target = WINDOWS_PRODUCER_TARGET
+        prefix = values["ATRINIK_WINDOWS_PREFIX"]
+        llvm = values["ATRINIK_LLVM_MINGW"]
+        if (selected_target is not None and selected_target != target) or not all(
+                Path(path).is_absolute() for path in (prefix, llvm)):
+            raise WorkspaceError("Windows producer target or prefix changed")
+        tool_names = {"CMAKE_C_COMPILER": target + "-clang",
+                      "CMAKE_CXX_COMPILER": target + "-clang++",
+                      "CMAKE_RC_COMPILER": target + "-windres",
+                      "CMAKE_LINKER": "ld.lld", "CMAKE_AR": "llvm-ar",
+                      "CMAKE_RANLIB": "llvm-ranlib", "CMAKE_NM": "llvm-nm",
+                      "CMAKE_OBJCOPY": "llvm-objcopy", "CMAKE_OBJDUMP": "llvm-objdump",
+                      "CMAKE_READELF": "llvm-readelf", "CMAKE_STRIP": "llvm-strip",
+                      "CMAKE_DLLTOOL": "llvm-dlltool"}
+        expected = {"CMAKE_SYSTEM_NAME": "Windows", "CMAKE_SYSTEM_PROCESSOR": "AMD64",
+                    "ATRINIK_WINDOWS_TARGET": target, "ATRINIK_WINDOWS_PREFIX": prefix,
+                    "ATRINIK_LLVM_MINGW": llvm, "CMAKE_INSTALL_PREFIX": prefix,
+                    "CMAKE_PREFIX_PATH": prefix, "CMAKE_FIND_ROOT_PATH": prefix + " " + llvm + "/" + target,
+                    "CMAKE_FIND_ROOT_PATH_MODE_PROGRAM": "NEVER",
+                    "PKG_CONFIG_EXECUTABLE": prefix + "/bin/" + target + "-pkg-config"}
+        expected.update({key: llvm + "/bin/" + name for key, name in tool_names.items()})
+        expected.update({"CMAKE_FIND_ROOT_PATH_MODE_" + name: "ONLY" for name in ("LIBRARY", "INCLUDE", "PACKAGE")})
+        expected.update({"CMAKE_" + name + "_LINKER_FLAGS_INIT": "-rtlib=compiler-rt -fuse-ld=lld"
+                         for name in ("EXE", "SHARED", "MODULE")})
+        for name in ("CMAKE_C_COMPILER_LAUNCHER", "CMAKE_CXX_COMPILER_LAUNCHER"):
+            if name in values:
+                expected[name] = "ccache"
+        if values != expected:
+            raise WorkspaceError("Windows producer LLVM toolchain contract changed")
+        return values, tool_names, expected
+
+    @staticmethod
+    def _windows_producer_build_tool_names(values: dict[str, str]) -> tuple[str, ...]:
+        launchers = ("CMAKE_C_COMPILER_LAUNCHER", "CMAKE_CXX_COMPILER_LAUNCHER")
+        tools = ("cmake", "cpack", "ninja", "bash")
+        return (*tools, "ccache") if any(name in values for name in launchers) else tools
+
+    @staticmethod
+    def _windows_producer_sdk_roots(values: dict[str, str]) -> dict[str, Path]:
+        roots = {"dependencies": Path(values["ATRINIK_WINDOWS_PREFIX"]), "llvm": Path(values["ATRINIK_LLVM_MINGW"])}
+        if roots["dependencies"].is_relative_to(roots["llvm"]) or roots["llvm"].is_relative_to(roots["dependencies"]):
+            raise WorkspaceError("Windows producer SDK roots overlap")
+        for root in roots.values():
+            if not all((root / name).is_dir() for name in ("bin", "include", "lib")):
+                raise WorkspaceError("Windows producer SDK layout is incomplete")
+        if not (roots["llvm"] / values["ATRINIK_WINDOWS_TARGET"]).is_dir():
+            raise WorkspaceError("Windows producer target sysroot is unavailable")
+        return roots
+
+    @classmethod
+    def _local_windows_producer_identity(cls, environment: dict[str, str]) -> dict[str, Any]:
+        """Validate and freshly fingerprint the local LLVM packaging inputs.
+
+        The supported producer toolchain is declarative. Refuse executable CMake
+        extensions: an uninspected include could choose a different compiler.
+        This identity records local inputs, and does not claim an image digest.
+        """
+        search_path = cls._windows_producer_search_path(environment)
+
+        file_identity = cls._windows_producer_file_identity
+
+        try:
+            toolchain = Path(environment["ATRINIK_WINDOWS_TOOLCHAIN_FILE"])
+            toolchain_bytes: list[bytes] = []
+            toolchain_identity = file_identity(toolchain, content=toolchain_bytes, limit=1024 ** 2)
+            text = b"".join(toolchain_bytes).decode("utf-8")
+            selected_target = environment["ATRINIK_WINDOWS_TARGET"]
+            if selected_target is None:
+                raise WorkspaceError("Windows producer target or prefix changed")
+            values, tool_names, expected = cls._windows_producer_toolchain_contract(
+                text, selected_target
+            )
+            target = values["ATRINIK_WINDOWS_TARGET"]
+            prefix = values["ATRINIK_WINDOWS_PREFIX"]
+            llvm = values["ATRINIK_LLVM_MINGW"]
+            roots = cls._windows_producer_sdk_roots(values)
+            sdk_trees = {name: cls._windows_sdk_tree_identity(root) for name, root in roots.items()}
+            for name in ("ATRINIK_WINDOWS_RUNTIME_DIR", "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR",
+                         "ATRINIK_WINDOWS_PYTHON_LIBRARY", "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR"):
+                selected = Path(environment[name])
+                if not selected.is_absolute() or not any(selected.is_relative_to(root)
+                                                         and selected.resolve(strict=True).is_relative_to(root)
+                                                         for root in roots.values()):
+                    raise WorkspaceError("Windows producer selected input escaped its SDK roots")
+            tools = {}
+            for name in cls._windows_producer_build_tool_names(values):
+                path = shutil.which(name, path=search_path)
+                if path is None:
+                    raise WorkspaceError("Windows producer build tool is unavailable: " + name)
+                tools[name] = file_identity(Path(path))
+            tools["host_python"] = cls._windows_host_python_identity(environment, file_identity)
+            for key, name in (*tool_names.items(), ("clang", "clang")):
+                path = Path(llvm) / "bin" / name
+                identity = file_identity(path, (Path(llvm),))
+                if not Path(identity["resolved_path"]).is_relative_to(Path(llvm)):
+                    raise WorkspaceError("Windows producer tool escaped its SDK root")
+                version_path = path
+                # LLVM's dlltool personality has no --version. The official SDK
+                # selects it through the llvm-ar multicall binary; prove that
+                # exact implementation identity before querying its ar mode.
+                if key == "CMAKE_DLLTOOL":
+                    version_path = Path(llvm) / "bin/llvm-ar"
+                    if path.resolve(strict=True) != version_path.resolve(strict=True):
+                        raise WorkspaceError("Windows producer dlltool is not the LLVM ar implementation")
+                options = ["--no-default-config"] if key in {"clang", "CMAKE_C_COMPILER", "CMAKE_CXX_COMPILER"} else []
+                version = run([str(version_path), *options, "--version"], capture=True, trace=False, env=environment).strip()
+                family = (r"clang version" if key in {"clang", "CMAKE_C_COMPILER", "CMAKE_CXX_COMPILER"}
+                          else r"LLD" if key == "CMAKE_LINKER" else r"LLVM version")
+                if not re.search(r"\b" + family + r" 23\.1\.3(?:\s|$)", version):
+                    raise WorkspaceError("Windows producer requires LLVM 23.1.3 tools")
+                identity.update(command=str(path), version=version, version_path=str(version_path))
+                if file_identity(path, (Path(llvm),))["sha256"] != identity["sha256"]:
+                    raise WorkspaceError("Windows producer tool changed during inspection")
+                tools[key] = identity
+            compiler = tools["CMAKE_C_COMPILER"]
+            if run([compiler["path"], "--no-default-config", "-dumpmachine"],
+                   capture=True, trace=False, env=environment).strip() != "x86_64-w64-windows-gnu":
+                raise WorkspaceError("Windows producer compiler target changed")
+            compiler_command = [compiler["path"], "--no-default-config"]
+            resource = Path(run([*compiler_command, "-print-resource-dir"],
+                                capture=True, trace=False, env=environment).strip())
+            builtins = Path(run([*compiler_command, "--rtlib=compiler-rt", "-print-libgcc-file-name"],
+                                capture=True, trace=False, env=environment).strip())
+            for path in (resource, builtins):
+                if not path.is_absolute() or not path.resolve(strict=True).is_relative_to(Path(llvm)):
+                    raise WorkspaceError("Windows producer compiler runtime escaped its prefix")
+            if not resource.is_dir() or "libclang_rt.builtins" not in builtins.name:
+                raise WorkspaceError("Windows producer compiler-rt builtins are unavailable")
+            runtime = {"complete": True, "resource_directory": str(resource),
+                       "files": [file_identity(path, (Path(llvm),)) for path in sorted({builtins, *resource.glob("lib/**/libclang_rt.profile*.a")})]}
+            inputs = {"toolchain": toolchain_identity,
+                      "pkg_config": file_identity(Path(expected["PKG_CONFIG_EXECUTABLE"]), (Path(prefix),))}
+            for name in ("ATRINIK_WINDOWS_RUNTIME_DIR", "ATRINIK_WINDOWS_PYTHON_INCLUDE_DIR",
+                         "ATRINIK_WINDOWS_PYTHON_LIBRARY", "ATRINIK_WINDOWS_PYTHON_RUNTIME_DIR"):
+                path = Path(environment[name])
+                if path.is_dir():
+                    files = sorted(item for item in path.rglob("*") if item.is_file())
+                    if not files or any(item.is_symlink() and item.is_dir() for item in path.rglob("*")):
+                        raise WorkspaceError("Windows producer input directory is empty or linked")
+                    inputs[name] = [file_identity(item, tuple(roots.values())) for item in files]
+                else:
+                    inputs[name] = file_identity(path, tuple(roots.values()))
+            dlls = {Path(item["path"]).name.lower() for item in inputs["ATRINIK_WINDOWS_RUNTIME_DIR"]}
+            if not {"libc++.dll", "libunwind.dll", "libwinpthread-1.dll"} <= dlls:
+                raise WorkspaceError("Windows producer runtime DLL cohort is incomplete")
+            if file_identity(toolchain) != toolchain_identity:
+                raise WorkspaceError("Windows producer toolchain changed during inspection")
+            if {name: cls._windows_sdk_tree_identity(root) for name, root in roots.items()} != sdk_trees:
+                raise WorkspaceError("Windows producer SDK changed during inspection")
+            return {"schema_version": 2, "target": target, "tools": tools,
+                    "compiler_runtime": runtime, "sdk_trees": sdk_trees, "inputs": inputs}
+        except WorkspaceError:
+            raise
+        except (OSError, ValueError, KeyError, TypeError, RuntimeError) as error:
+            raise WorkspaceError("Windows producer input identity is unavailable or invalid") from error
+
     def _build_windows_profile_archives(
         self, staging: Path
     ) -> tuple[Path, Path, dict[str, object]]:
-        packages = staging / "packages"
-        packages.mkdir()
         local_environment = self._local_windows_build_environment()
         if local_environment is not None:
+            if local_environment.get("ATRINIK_WINDOWS_HOST_PYTHON", "/usr/bin/python3") != "/usr/bin/python3":
+                raise WorkspaceError("Windows packaging requires the SDK host Python /usr/bin/python3")
+            local_environment["ATRINIK_WINDOWS_HOST_PYTHON"] = "/usr/bin/python3"
+        script_proofs = self._windows_host_python_script_proofs(staging) if local_environment is not None else None
+        packages = staging / "packages"
+        packages.mkdir()
+        if local_environment is not None:
+            producer = self._local_windows_producer_identity(local_environment)
             local_environment["ATRINIK_PROFILE_SOUND_DIR"] = str(
                 staging / "client" / "sound"
             )
@@ -17277,16 +18038,23 @@ class Workspace:
                 staging / "server" / "resources"
             )
             for component in ("client", "server"):
+                if (self._local_windows_producer_identity(local_environment) != producer
+                        or self._windows_host_python_script_proofs(staging) != script_proofs):
+                    raise WorkspaceError("Windows producer inputs changed before packaging")
                 run(
                     [
-                        "bash",
+                        producer["tools"]["bash"]["path"],
                         "tools/build-windows-package.sh",
                         str(packages),
                     ],
                     cwd=staging / component,
                     env=local_environment,
                 )
-            build = {"mode": "local", "image": ""}
+            if (self._local_windows_producer_identity(local_environment) != producer
+                    or self._windows_host_python_script_proofs(staging) != script_proofs):
+                raise WorkspaceError("Windows producer inputs changed during packaging")
+            build = {"mode": "local", "image": "", "producer": producer,
+                     "host_python_scripts": script_proofs}
         else:
             if shutil.which("docker") is None:
                 raise WorkspaceError(

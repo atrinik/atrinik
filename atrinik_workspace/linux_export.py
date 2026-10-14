@@ -221,8 +221,38 @@ def verify_export(root: Path) -> dict[str, object]:
 
 PORTABLE_METADATA_FILES = frozenset({
     "contract.json", "installed.json", "runtime-abi.json", "runtime-sources.json",
-    "debian-sources.json", "shader-generation.json",
+    "debian-sources.json", "shader-generation.json", "compiler-evidence.json",
 })
+
+PORTABLE_BUILD_TOOL_PATHS = {"cmake": "/usr/bin/cmake", "ninja": "/usr/bin/ninja",
+                             "pkg_config": "/usr/bin/pkgconf"}
+
+
+def portable_build_tools(value: object) -> dict:
+    """Validate producer-declared build tools; the caller authenticates metadata."""
+    if (not isinstance(value, dict) or set(value) != {"schema_version", "tools"}
+            or type(value.get("schema_version")) is not int or value["schema_version"] != 1):
+        raise ExportError("portable-producer: build tool identities require a newly verified immutable producer handoff")
+    tools = value["tools"]
+    if not isinstance(tools, dict) or set(tools) != set(PORTABLE_BUILD_TOOL_PATHS):
+        raise ExportError("portable-metadata: incomplete producer build tools")
+    for name, path in PORTABLE_BUILD_TOOL_PATHS.items():
+        record = tools[name]
+        if (not isinstance(record, dict)
+                or set(record) != {"path", "resolved_path", "sha256", "size", "executable", "version"}
+                or record["path"] != path or record["resolved_path"] != path
+                or type(record["size"]) is not int or record["size"] <= 0
+                or record["size"] > 512 * 1024 * 1024 or record["executable"] is not True):
+            raise ExportError("portable-metadata: invalid producer build tool identity")
+        _portable_path(record["resolved_path"])
+        _portable_digest(record["sha256"])
+        version = record["version"]
+        if (not isinstance(version, str) or not version
+                or len(version) > 65536 or any((ord(c) < 32 and c != "\n") or ord(c) == 127 for c in version)
+                or re.fullmatch(r"cmake version [0-9]+\.[0-9]+\.[0-9]+" if name == "cmake"
+                                else r"[0-9]+\.[0-9]+(?:\.[0-9]+)?", version.splitlines()[0]) is None):
+            raise ExportError("portable-metadata: invalid producer build tool version")
+    return tools
 
 
 def _portable_mapping(value: object, label: str) -> dict:
@@ -252,6 +282,253 @@ def _portable_path(value: object) -> str:
     return value
 
 
+# Exact library directories from the pinned Debian bookworm producer cohort.
+# In particular /usr/local is NOT an extensible trust prefix.
+PORTABLE_LIBRARY_DIRECTORIES = frozenset({
+    "/opt/llvm-23.1.3/lib", "/usr/local/lib",
+    "/usr/lib/gcc/x86_64-linux-gnu/12", "/usr/lib/x86_64-linux-gnu",
+    "/lib/x86_64-linux-gnu", "/usr/lib64", "/lib64", "/usr/lib", "/lib",
+})
+
+
+PORTABLE_LIBRARY_SPELLINGS = PORTABLE_LIBRARY_DIRECTORIES | {
+    "/opt/llvm-23.1.3/bin/../lib",
+    "/usr/lib/gcc/x86_64-linux-gnu/12/../../../../lib64", "/lib/../lib64",
+}
+
+
+def portable_library_paths(words: list[str], *, binary: Path | None = None,
+                           llvm_root: str = "/opt/llvm-23.1.3", installed: bool = False) -> list[str]:
+    """Check every explicit/default linker directory against producer or build roots."""
+    paths = []
+    allowed = (PORTABLE_LIBRARY_DIRECTORIES - {"/opt/llvm-23.1.3/lib"}) | {llvm_root + "/lib"}
+    spellings = PORTABLE_LIBRARY_SPELLINGS | {llvm_root + "/lib", llvm_root + "/bin/../lib"}
+    for index, word in enumerate(words):
+        if word in {"-L", "--library-path"}:
+            value = words[index + 1] if index + 1 < len(words) else ""
+        elif word.startswith("-L"):
+            value = word[2:]
+        elif word.startswith("--library-path="):
+            value = word.split("=", 1)[1]
+        else:
+            continue
+        path = Path(value)
+        # Clang emits lexical ../ aliases for its system directories. Normalize
+        # those without granting trust to arbitrary descendants of the prefix.
+        normalized = os.path.normpath(value)
+        if not path.is_absolute():
+            if binary is None or not value:
+                raise ExportError("portable-metadata: untrusted linker search directory")
+            path = binary / path
+        build_path = binary is not None and path.resolve().is_relative_to(binary.resolve())
+        if not build_path and (value not in spellings or normalized not in allowed
+                               or (installed and str(path.resolve()) not in allowed)):
+            raise ExportError("portable-metadata: untrusted linker search directory: " + value)
+        paths.append(value)
+    return paths
+
+
+def portable_link_inputs(words: list[str], *, binary: Path | None = None,
+                         llvm_root: str = "/opt/llvm-23.1.3", generated_objects: tuple[str, ...] = (),
+                         admitted_build_inputs: set[Path] | None = None,
+                         observed_build_inputs: set[Path] | None = None) -> None:
+    """Reject direct foreign archives/objects as well as hidden linker scripts."""
+    flags = {"--as-needed", "--no-as-needed", "-shared", "-pie", "-static", "--no-undefined",
+             "--eh-frame-hdr", "--export-dynamic", "-export-dynamic", "--gc-sections", "--no-gc-sections",
+             "--start-group", "--end-group", "--whole-archive", "--no-whole-archive", "--push-state",
+             "--pop-state", "-Bstatic", "-Bdynamic", "--build-id", "-s", "-S", "--strip-all",
+             "--strip-debug", "-X", "-x"}
+    skip = False
+    library_operand = False
+    for index, word in enumerate(words[1:], 1):
+        if library_operand:
+            if not re.fullmatch(r":?[A-Za-z0-9_.+~-]+", word):
+                raise ExportError("portable-metadata: invalid library name")
+            library_operand = False
+            continue
+        if skip:
+            skip = False
+            continue
+        if word in {"-o", "--output", "-m", "-dynamic-linker", "--dynamic-linker", "-z", "-L", "--library-path",
+                    "-soname", "--soname", "-h", "-u", "--undefined", "-Map", "--Map", "--dependency-file"}:
+            if index + 1 == len(words):
+                raise ExportError("portable-metadata: missing linker option value")
+            if word in {"-dynamic-linker", "--dynamic-linker"} and words[index + 1] != "/lib64/ld-linux-x86-64.so.2":
+                raise ExportError("portable-metadata: foreign dynamic loader")
+            skip = True
+            continue
+        if word in {"-l", "--library"}:
+            library_operand = True
+            continue
+        if word.startswith("-l") or word.startswith("--library="):
+            value = word.split("=", 1)[1] if word.startswith("--library=") else word[2:]
+            if not re.fullmatch(r":?[A-Za-z0-9_.+~-]+", value):
+                raise ExportError("portable-metadata: invalid library name")
+            continue
+        if word.startswith("-L") or word.startswith("--library-path="):
+            continue  # Every directory is validated by portable_library_paths.
+        if word in flags or re.fullmatch(r"-O[0-3]", word):
+            continue
+        if re.fullmatch(r"--(?:hash-style|build-id|compress-debug-sections|error-limit|threads|icf|wrap|soname)=[A-Za-z0-9_.+-]+", word):
+            continue
+        if word.startswith("--dependency-file="):
+            continue  # An output, not a producer input.
+        # A closed option set prevents input aliases, remapping and linker
+        # scripts from bypassing the positional archive/object checks below.
+        if word.startswith(("-", "@")):
+            raise ExportError("portable-metadata: unsupported linker input option: " + word)
+        path = Path(word)
+        # Only an output named by the preceding validated cc1 stage can be a
+        # temporary input to the metadata's compile-and-link probe.
+        if word in generated_objects:
+            continue
+        if not path.is_absolute():
+            if binary is None:
+                raise ExportError("portable-metadata: unbound linker input")
+            path = binary / path
+        if binary is not None and path.resolve().is_relative_to(binary.resolve()):
+            if admitted_build_inputs is not None and path.resolve() not in admitted_build_inputs:
+                raise ExportError("portable-metadata: missing build input producer: " + word)
+            if observed_build_inputs is not None:
+                observed_build_inputs.add(path.resolve())
+            continue
+        normalized = Path(os.path.normpath(str(path)))
+        if (str(normalized.parent) in PORTABLE_LIBRARY_DIRECTORIES
+                or normalized.is_relative_to(Path(llvm_root) / "lib")):
+            resolved = path.resolve()
+            if binary is None or (str(resolved.parent) in PORTABLE_LIBRARY_DIRECTORIES
+                                  or resolved.is_relative_to(Path(llvm_root) / "lib")):
+                continue
+        raise ExportError("portable-metadata: foreign direct linker input: " + word)
+    if library_operand:
+        raise ExportError("portable-metadata: missing library name")
+
+
+def _portable_probe_cc1(source: str, object_path: str, directory: str) -> list[str]:
+    """Exact LLVM 23 Debian probe grammar, captured in driver-evidence.json.
+
+    Source, object and working-directory coordinates vary between producer runs;
+    every other argument is fixed by the sealed header-free probe contract.
+    """
+    return [
+        "/opt/llvm-23.1.3/bin/clang-23", "-cc1", "-triple", "x86_64-unknown-linux-gnu",
+        "-O2", "-emit-obj", "-dumpdir", source[:-2] + "-",
+        "-disable-free", "-clear-ast-before-backend", "-disable-llvm-verifier", "-discard-value-names",
+        "-main-file-name", "probe.c", "-mrelocation-model", "pic",
+        "-pic-level", "2", "-pic-is-pie", "-mframe-pointer=none",
+        "-fmath-errno", "-ffp-contract=on", "-fno-rounding-math", "-mconstructor-aliases",
+        "-funwind-tables=2", "-target-cpu", "x86-64", "-tune-cpu",
+        "generic", "-debugger-tuning=gdb", "-fdebug-compilation-dir=" + directory, "-fcoverage-compilation-dir=" + directory,
+        "-resource-dir", "/opt/llvm-23.1.3/lib/clang/23", "-internal-isystem", "/opt/llvm-23.1.3/lib/clang/23/include",
+        "-internal-isystem", "/usr/local/include", "-internal-isystem", "/usr/lib/gcc/x86_64-linux-gnu/12/../../../../x86_64-linux-gnu/include",
+        "-internal-externc-isystem", "/usr/include/x86_64-linux-gnu", "-internal-externc-isystem", "/include",
+        "-internal-externc-isystem", "/usr/include", "-ferror-limit", "19",
+        "-fgnuc-version=4.2.1", "-fskip-odr-check-in-gmf", "-vectorize-loops", "-vectorize-slp",
+        "-faddrsig", "-fdwarf2-cfi-asm", "-o", object_path,
+        "-x", "c", source,
+    ]
+
+
+def _portable_compiler_evidence(evidence: dict, compiler: dict, installed: dict) -> None:
+    """Validate the observed Clang compile and link invocations, not flag claims."""
+    expected = {"family": "clang", "version": "23.1.3", "linker": "lld",
+                "builtins": "compiler-rt", "unwinder": "libunwind",
+                "binary_inspector": "llvm-readelf", "toolchain_manifest": "llvm-toolchain.json",
+                "evidence": "/opt/atrinik-portable/compiler-evidence.json", "lto": False}
+    if any(compiler.get(name) != value or (name == "lto" and compiler.get(name) is not False)
+           for name, value in expected.items()):
+        raise ExportError("portable-metadata: unsupported LLVM compiler contract")
+    if (type(evidence.get("schema_version")) is not int or evidence["schema_version"] != 2
+            or evidence.get("toolchain_version") != compiler["version"]
+            or evidence.get("target") != installed.get("compiler_target")):
+        raise ExportError("portable-metadata: incompatible compiler evidence")
+    flags = ["-O2", "-march=x86-64", "-mtune=generic", "--rtlib=compiler-rt",
+             "--unwindlib=libunwind", "-fuse-ld=lld"]
+    if evidence.get("flags") != flags:
+        raise ExportError("portable-metadata: observed compiler flags differ")
+    tools = _portable_mapping(evidence.get("tools"), "LLVM tools")
+    tool_names = {"compiler": "clang", "cxx_compiler": "clang++",
+                  "linker": "ld.lld", "readelf": "llvm-readelf",
+                  "archiver": "llvm-ar", "ranlib": "llvm-ranlib", "nm": "llvm-nm",
+                  "strip": "llvm-strip", "objcopy": "llvm-objcopy", "objdump": "llvm-objdump"}
+    if set(tools) != set(tool_names):
+        raise ExportError("portable-metadata: incomplete LLVM tool identities")
+    for name, basename in tool_names.items():
+        tool = _portable_mapping(tools[name], "LLVM tool")
+        path = _portable_path(tool.get("path"))
+        if path != "/opt/llvm-23.1.3/bin/" + basename:
+            raise ExportError("portable-metadata: unexpected LLVM tool path")
+        _portable_digest(tool.get("sha256"))
+        if not isinstance(tool.get("version"), str) or not re.search(r"\b23\.1\.3\b", tool["version"]):
+            raise ExportError("portable-metadata: unexpected LLVM tool version")
+    runtime = _portable_mapping(evidence.get("runtime"), "compiler runtime")
+    unwinder = _portable_mapping(evidence.get("unwinder"), "compiler unwinder")
+    for record, expected_path in ((runtime, "/opt/llvm-23.1.3/lib/clang/23/lib/linux/libclang_rt.builtins-x86_64.a"),
+                                  (unwinder, "/opt/llvm-23.1.3/lib/libunwind.a")):
+        if _portable_path(record.get("path")) != expected_path:
+            raise ExportError("portable-metadata: unexpected compiler runtime path")
+        _portable_digest(record.get("sha256"))
+    compile_record = _portable_mapping(evidence.get("compile"), "compile evidence")
+    command = _portable_strings(compile_record.get("command"), "compile command", unique=False)
+    driver_command = _portable_strings(compile_record.get("driver_command"), "driver command", unique=False)
+    if (len(command) != 10 or command[:7] != [tools["compiler"]["path"], *flags]
+            or driver_command != [command[0], "-###", *command[1:]] or command[8] != "-o"
+            or not re.fullmatch(r"/tmp/portable-compiler-[a-z0-9_]+/probe\.c", command[7])
+            or command[9] != command[7][:-2]
+            or compile_record.get("source_sha256") != hashlib.sha256(b"int main(void) { return 0; }\n").hexdigest()
+            or evidence["target"] != "x86_64-unknown-linux-gnu"):
+        raise ExportError("portable-metadata: inconsistent compiler probe invocation")
+    for name in ("source_sha256", "output_sha256"):
+        _portable_digest(compile_record.get(name))
+    output = compile_record.get("driver_output")
+    if not isinstance(output, str) or not output or len(output) > MAX_ELF_REPORT_BYTES:
+        raise ExportError("portable-metadata: missing compiler invocation output")
+    try:
+        invocations = [shlex.split(line) for line in output.splitlines() if line.lstrip().startswith('"')]
+    except ValueError as error:
+        raise ExportError("portable-metadata: malformed compiler invocation output") from error
+    if (len(invocations) != 2 or not all(invocations)
+            or invocations[0][:2] != ["/opt/llvm-23.1.3/bin/clang-23", "-cc1"]
+            or invocations[1][0] != tools["linker"]["path"]):
+        raise ExportError("portable-metadata: missing compiler or LLD invocation")
+    cc1, linker = invocations
+    directories = [arg.split("=", 1)[1] for arg in cc1 if arg.startswith("-fdebug-compilation-dir=")]
+    if (cc1.count("-o") != 1 or cc1.index("-o") + 1 == len(cc1) or len(directories) != 1):
+        raise ExportError("portable-metadata: ambiguous compiler probe coordinates")
+    object_path = cc1[cc1.index("-o") + 1]
+    directory = directories[0]
+    if directory != "/":
+        _portable_path(directory)
+    if (not re.fullmatch(r"/tmp/probe-[a-z0-9]+\.o", object_path)
+            or cc1 != _portable_probe_cc1(command[7], object_path, directory)):
+        raise ExportError("portable-metadata: observed compiler probe changed")
+    prefix = [tools["linker"]["path"], "--hash-style=gnu", "--eh-frame-hdr", "-m", "elf_x86_64",
+              "-pie", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "-o", command[9],
+              "/lib/x86_64-linux-gnu/Scrt1.o", "/lib/x86_64-linux-gnu/crti.o",
+              "/opt/llvm-23.1.3/lib/clang/23/lib/linux/clang_rt.crtbegin-x86_64.o"]
+    if linker[:len(prefix)] != prefix:
+        raise ExportError("portable-metadata: observed probe linker prefix changed")
+    index = len(prefix)
+    while index < len(linker):
+        word = linker[index]
+        if word in {"-L", "--library-path"}:
+            index += 2
+        elif word.startswith(("-L", "--library-path=")):
+            index += 1
+        else:
+            break
+    paths = portable_library_paths(linker[len(prefix):index])
+    if not paths or os.path.normpath(paths[0]) != "/opt/llvm-23.1.3/lib":
+        raise ExportError("portable-metadata: probe LLVM search directory missing")
+    runtime_path = runtime["path"]
+    suffix = [object_path, runtime_path, "--as-needed", "-lunwind", "--no-as-needed", "-lc", runtime_path,
+              "--as-needed", "-lunwind", "--no-as-needed",
+              "/opt/llvm-23.1.3/lib/clang/23/lib/linux/clang_rt.crtend-x86_64.o",
+              "/lib/x86_64-linux-gnu/crtn.o"]
+    if linker[index:] != suffix:
+        raise ExportError("portable-metadata: observed probe linker inputs changed")
+
+
 def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dict[str, str],
                              immutable_image: str, runnable_manifest: str,
                              consumer_commit: str) -> dict[str, object]:
@@ -265,7 +542,7 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
     """
     if (not isinstance(metadata, dict) or set(metadata) != PORTABLE_METADATA_FILES
             or not isinstance(expected_hashes, dict) or set(expected_hashes) != PORTABLE_METADATA_FILES):
-        raise ExportError("portable-metadata: exact six-file handoff required")
+        raise ExportError("portable-metadata: exact seven-file handoff required")
     if (not isinstance(immutable_image, str) or not re.fullmatch(
             r"ghcr\.io/atrinik/classic-portable-build@sha256:[0-9a-f]{64}", immutable_image)
             or not isinstance(runnable_manifest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", runnable_manifest)):
@@ -288,9 +565,13 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
     installed = _portable_mapping(documents["installed.json"], "installed tools")
     abi = _portable_mapping(documents["runtime-abi.json"], "ABI report")
     shader = _portable_mapping(documents["shader-generation.json"], "shader record")
-    for record in (contract, installed, abi, shader):
-        if type(record.get("schema_version")) is not int or record["schema_version"] != 1:
+    for record, version in ((contract, 2), (installed, 2), (abi, 1), (shader, 1)):
+        if type(record.get("schema_version")) is not int or record["schema_version"] != version:
             raise ExportError("portable-metadata: unsupported schema version")
+    build_tools = portable_build_tools(installed.get("build_tools"))
+    versions = _portable_mapping(installed.get("tools"), "installed tool versions")
+    if any(versions.get(name) != record["version"].splitlines()[0] for name, record in build_tools.items()):
+        raise ExportError("portable-metadata: installed build tool versions differ")
     if (contract.get("platform") != "linux/amd64" or contract.get("target") != "portable-final"
             or contract.get("image") != immutable_image.split("@", 1)[0]
             or contract.get("metadata_directory") != "/opt/atrinik-portable"):
@@ -301,7 +582,8 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
     if (base.get("glibc") != "2.36" or abi.get("glibc") != base["glibc"]
             or installed.get("glibc") != "glibc " + base["glibc"]
             or installed.get("architecture") != "amd64"
-            or installed.get("compiler_target") != "x86_64-linux-gnu"
+            or not isinstance(installed.get("compiler_target"), str)
+            or not re.fullmatch(r"x86_64-(?:(?:unknown|pc)-)?linux-gnu", installed["compiler_target"])
             or compiler.get("cpu") != "x86-64" or abi.get("cpu") != compiler["cpu"]
             or compiler.get("cflags") != "-O2 -march=x86-64 -mtune=generic"
             or compiler.get("cxxflags") != compiler["cflags"]):
@@ -313,11 +595,10 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
             or not re.fullmatch(r"[0-9]{8}T[0-9]{6}Z", base["apt_snapshot"])
             or type(compiler.get("c_standard")) is not int or compiler["c_standard"] != 17):
         raise ExportError("portable-metadata: invalid baseline coordinates")
-    options = installed.get("compiler_options")
-    if (not isinstance(options, str)
-            or re.findall(r"^\s*-march=\s+(\S+)\s*$", options, re.MULTILINE) != ["x86-64"]
-            or re.findall(r"^\s*-mtune=\s+(\S+)\s*$", options, re.MULTILINE) != ["generic"]):
-        raise ExportError("portable-metadata: observed compiler baseline differs")
+    if installed.get("compiler_evidence_sha256") != expected_hashes["compiler-evidence.json"]:
+        raise ExportError("portable-metadata: installed compiler evidence hash mismatch")
+    _portable_compiler_evidence(_portable_mapping(documents["compiler-evidence.json"], "compiler evidence"),
+                                compiler, installed)
     if installed.get("contract_sha256") != expected_hashes["contract.json"]:
         raise ExportError("portable-metadata: installed contract hash mismatch")
     packages = _portable_mapping(contract.get("pkg_config"), "package versions")
@@ -476,15 +757,15 @@ def portable_metadata_report(metadata: dict[str, bytes], *, expected_hashes: dic
 
 
 MAX_ELF_REPORT_BYTES = 4 * 1024 * 1024
+LLVM_READELF = "/opt/llvm-23.1.3/bin/llvm-readelf"
 
 
-def _readelf(descriptor: int, *, timeout: float = 15) -> str:
-    """Inspect an inherited descriptor without executing the payload."""
-    process = subprocess.Popen(
-        ["readelf", "--wide", "--file-header", "--program-headers", "--dynamic",
-         "--version-info", "--dyn-syms", f"/proc/self/fd/{descriptor}"],
-        pass_fds=(descriptor,), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        env={"PATH": os.defpath, "LC_ALL": "C"})
+def _tool_report(command: list[str], *, pass_fds: tuple[int, ...] = (), timeout: float = 15,
+                 cwd: Path | None = None) -> str:
+    """Collect a bounded report from a selected tool under a fixed environment."""
+    process = subprocess.Popen(command, pass_fds=pass_fds, cwd=cwd,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        env={"PATH": "/opt/llvm-23.1.3/bin:/usr/bin:/bin", "LC_ALL": "C", "TMPDIR": "/tmp"})
     output = bytearray()
     deadline = time.monotonic() + timeout
     try:
@@ -521,6 +802,13 @@ def _readelf(descriptor: int, *, timeout: float = 15) -> str:
             process.stdout.close()
 
 
+def _readelf(descriptor: int, *, timeout: float = 15) -> str:
+    """Inspect an inherited descriptor without executing the payload."""
+    return _tool_report([LLVM_READELF, "--wide", "--file-header", "--program-headers", "--dynamic",
+         "--version-info", "--dyn-syms", f"/proc/self/fd/{descriptor}"],
+         pass_fds=(descriptor,), timeout=timeout)
+
+
 def _elf_version_definitions(text: str) -> list[str]:
     """Validate GNU version definitions, including their auxiliary parent rows."""
     definitions: dict[str, tuple[int, list[str]]] = {}
@@ -541,13 +829,17 @@ def _elf_version_definitions(text: str) -> list[str]:
             continue
         if not active or not line.strip():
             continue
-        if re.fullmatch(r"\s*Addr: 0x[0-9a-f]+\s+Offset: 0x[0-9a-f]+\s+Link: [0-9]+ \([^()]+\)", line):
+        if re.fullmatch(r"\s*Addr: (?:0x)?[0-9a-f]+\s+Offset: 0x[0-9a-f]+\s+Link: [0-9]+ \([^()]+\)", line):
             continue
         match = re.fullmatch(
             r"\s*[0-9a-fx]+: Rev: 1\s+Flags: (none|BASE|WEAK)\s+Index: ([0-9]+)"
-            r"\s+Cnt: ([0-9]+)\s+Name: ([A-Za-z0-9_.+-]+)", line)
+            r"\s+Cnt: ([0-9]+)\s+Name: ([A-Za-z0-9_./+-]+)", line)
         if match:
             flags, index, count, name = match[1], int(match[2]), int(match[3]), match[4]
+            # LLD uses the output path as the BASE name when no SONAME is set.
+            # This object identity is never a supplied symbol version.
+            if flags != "BASE" and "/" in name:
+                raise ExportError("export-elf: invalid version definition name")
             if (index < 1 or index >= 32768 or index in indexes or count < 1
                     or name in definitions or (flags == "BASE") != (index == 1)):
                 raise ExportError("export-elf: invalid version definition")
@@ -704,7 +996,7 @@ def inspect_elf(descriptor: int) -> dict[str, object]:
             continue
         if not in_needs or not line.strip():
             continue
-        if re.fullmatch(r"\s*Addr: 0x[0-9a-f]+\s+Offset: 0x[0-9a-f]+\s+Link: [0-9]+ \([^()]+\)", line):
+        if re.fullmatch(r"\s*Addr: (?:0x)?[0-9a-f]+\s+Offset: 0x[0-9a-f]+\s+Link: [0-9]+ \([^()]+\)", line):
             continue
         match = re.fullmatch(r"\s*[0-9a-fx]+: Version: [0-9]+\s+File: ([A-Za-z0-9_.+-]+)\s+Cnt: ([0-9]+)", line)
         if match:

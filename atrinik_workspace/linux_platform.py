@@ -124,7 +124,9 @@ def desktop_options(
 
 def prerequisite_report(*, docker: bool = False) -> dict[str, object]:
     """Check tools separately from optional Docker and graphics capabilities."""
-    missing = [name for name in ("python3", "git", "git-lfs", "cmake", "ninja", "pkg-config")
+    missing = [name for name in ("python3", "git", "git-lfs", "cmake", "ninja", "pkg-config",
+                                  "clang", "clang++", "ld.lld", "llvm-ar", "llvm-ranlib",
+                                  "llvm-readelf", "llvm-profdata", "llvm-cov")
                if shutil.which(name) is None]
     failures = ["missing-tool:" + name for name in missing]
     if "git" not in missing and "git-lfs" not in missing:

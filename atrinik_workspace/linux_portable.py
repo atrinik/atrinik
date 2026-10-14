@@ -15,29 +15,34 @@ from pathlib import Path
 import re
 import secrets
 import stat
+import subprocess
+import shlex
 import tarfile
+import tempfile
 from typing import Callable
 
 from . import linux_export as export
+from . import linux_portable_shell as command_shell
 
-IMAGE = "ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338"
-PLATFORM_MANIFEST = "sha256:7b7f36fef585c5424a56edbe2939a25ab1facbb3dd17a2f3a55980866dd85486"
-PRODUCER_COMMIT = "960b41ced51418892f18fc157373d89444c843db"
-CONSUMER_COMMIT = "d926f6fd0418fb1af9060158c43d8d3ff5252580"
+IMAGE = "ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc"
+PLATFORM_MANIFEST = "sha256:5e30957e54277bdaadeeffa42246258dc9df2086f3fb41f2125d041735ac72aa"
+PRODUCER_COMMIT = "eb1f6af78216adb4375826cdb70ef78a61ab403a"
+CONSUMER_COMMIT = "bd5317a03cdc82f029105c5dc26428b09fcd54b3"
 METADATA_HASHES = {
-    "contract.json": "865a9d7fc32fae8a73b2ee3d9c1b30be68d2366dd1aed3257ec34a022d07820b",
-    "debian-sources.json": "fd83eb65839b76f692b26cb8b333c9baa0f6ce7379e3d6477351ea501342aec4",
-    "installed.json": "85b428e078868940da39a7fa7c7e40de386ca33fcb613e3b1f5bd52f1442f435",
-    "runtime-abi.json": "e5bf6972695f1d93779eb964bae73f6015028a4fa8d29ed8c6f180d217a06a13",
-    "runtime-sources.json": "ac034c398016886d90d1f8d9601a61040bd760b9c8965c2f258818bf7fa3bf3d",
-    "shader-generation.json": "f8e18f2a0e4f1357c7bd415d0b5079f056a609eef7c2453cfaae9884ed5e1563",
+    "compiler-evidence.json": "e0b3642e19203674e89be910e81ea25da78d812c13c8d75b9189c57928dabd88",
+    "contract.json": "7434e16002064ceec2140f9f2e2d86490f742bd385c33985f62ffcb92834d7cf",
+    "debian-sources.json": "0882c128d989bf4b8491d7ed666b73f9d572a4da201caa155ee711cff5c9bf13",
+    "installed.json": "ae80e4fabe38ea5395c7be4597121cf5e306206a93396a4b40667865ecaf05c5",
+    "runtime-abi.json": "19ac09c2323114b6ecb80015894954a5a891c2335d6f4f405252cd66515d682f",
+    "runtime-sources.json": "01ff08df86fbb1b58e0c147c122c6c23b1008640f987eaf0785d933b5c9a8963",
+    "shader-generation.json": "d0196dcdfd2cdf071b9cbd8e38f0e2ee655b07013db86d4975ff3e6e2132eda5",
 }
-# Complete final OCI overlay, independently reconstructed from every layer of
-# PLATFORM_MANIFEST. Canonical JSON is sorted with compact separators; source
-# records contain relative path -> sha256/size/executable. This pins omitted
+# Complete installed maps accepted through the released SDK collector and
+# trusted hosted filesystem equality. Canonical JSON uses sorted keys and compact
+# separators; source records contain relative path -> sha256/size/executable. This pins omitted
 # archives/recipes/notices as well as bytes, without a caller-supplied override.
-PRODUCER_FILES_SHA256 = '838e181c5adef32eea3d82478581d72408012ab27e871af77a2bf93dab934729'
-DEBIAN_NOTICES_SHA256 = '6670f1afe9d1face038ae959386c3f264a4b3f05328c493579ea359a8cd2f4e5'
+PRODUCER_FILES_SHA256 = '9b5021d22ff56aab80bcb7d845885bcc2c120104930d75bab2e733d1e993c078'
+DEBIAN_NOTICES_SHA256 = 'b28d492f795de20e334c7fe08931d7c024374b9f89a07111b6c7fdfc63cd131e'
 COMMON_LICENSES_SHA256 = 'cfe52936825faa1cd66a4b17ed41051f5c777c5035c8206eaad4db5b730f2bfd'
 COMMON_LICENSE_NAMES = ('Apache-2.0', 'Artistic', 'BSD', 'CC0-1.0', 'GFDL-1.2', 'GFDL-1.3', 'GPL-1', 'GPL-2', 'GPL-3', 'LGPL-2', 'LGPL-2.1', 'LGPL-3', 'MPL-1.1', 'MPL-2.0')
 # Exact notice bytes in the already pinned source archives. Full embedded
@@ -79,8 +84,8 @@ HOST_GLIBC = frozenset({"libc.so.6", "libm.so.6", "libpthread.so.0", "libdl.so.2
 # ELF inspector validates the derived bytes; no other search path is normalized.
 PULSE_RECIPE = {
     "id": "debian12-libpulse-origin-v1",
-    "image": "ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338",
-    "platform_manifest": "sha256:7b7f36fef585c5424a56edbe2939a25ab1facbb3dd17a2f3a55980866dd85486",
+    "image": "ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc",
+    "platform_manifest": "sha256:5e30957e54277bdaadeeffa42246258dc9df2086f3fb41f2125d041735ac72aa",
     "provider_path": "/usr/lib/x86_64-linux-gnu/libpulse.so.0.24.2",
     "input_sha256": "38b07a06cefcaabd8db3edaddafea0ab5b5d2ee15e8641929f7d07d45fb66d59",
     "output_sha256": "43da0e3a6816292d4c4c973d56d2753e968a28bb020f8b3035e404044513acf2",
@@ -188,13 +193,864 @@ def _read_regular(path: Path, *, limit: int = export.MAX_MANIFEST_BYTES) -> byte
         return data
 
 
+LLVM_ROOT = "/opt/llvm-23.1.3"
+PORTABLE_C_FLAGS = "-O2 -march=x86-64 -mtune=generic --no-default-config"
+PORTABLE_RELEASE_FLAGS = "-O2 -DNDEBUG"
+PORTABLE_PATH = LLVM_ROOT + "/bin:/usr/bin:/bin"
+PORTABLE_GENERATOR_PYTHON = Path("/usr/bin/python3")
+PORTABLE_LINK_FLAGS = "-L" + LLVM_ROOT + "/lib --rtlib=compiler-rt --unwindlib=libunwind -fuse-ld=lld"
+
+
+def portable_configure_arguments(source: Path) -> list[str]:
+    """Pin CMake's full compiler, optimization and linker contract."""
+    settings = {
+        "PKG_CONFIG_EXECUTABLE": "/usr/bin/pkgconf",
+        "BUILD_TESTING": "OFF",
+        "ATRINIK_GPU_SHADER_DIRECTORY": "/opt/atrinik-portable/shaders",
+        "CMAKE_SKIP_RPATH": "ON", "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_FIND_USE_PACKAGE_REGISTRY": "FALSE",
+        "CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY": "FALSE",
+        "CMAKE_MAKE_PROGRAM": "/usr/bin/ninja",
+        "CMAKE_TOOLCHAIN_FILE": str(source.parent / "cmake/toolchains/llvm.cmake"),
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_C_LINKER_LAUNCHER": "", "CMAKE_CXX_LINKER_LAUNCHER": "",
+        "CMAKE_C_COMPILER_LAUNCHER": "", "CMAKE_CXX_COMPILER_LAUNCHER": "",
+        "CMAKE_C_COMPILER": LLVM_ROOT + "/bin/clang",
+        "CMAKE_CXX_COMPILER": LLVM_ROOT + "/bin/clang++",
+        "CMAKE_LINKER": LLVM_ROOT + "/bin/ld.lld",
+        "CMAKE_AR": LLVM_ROOT + "/bin/llvm-ar",
+        "CMAKE_RANLIB": LLVM_ROOT + "/bin/llvm-ranlib",
+        "CMAKE_NM": LLVM_ROOT + "/bin/llvm-nm",
+        "CMAKE_STRIP": LLVM_ROOT + "/bin/llvm-strip",
+        "CMAKE_OBJCOPY": LLVM_ROOT + "/bin/llvm-objcopy",
+        "CMAKE_OBJDUMP": LLVM_ROOT + "/bin/llvm-objdump",
+        "CMAKE_READELF": LLVM_ROOT + "/bin/llvm-readelf",
+        "CMAKE_C_FLAGS": PORTABLE_C_FLAGS, "CMAKE_CXX_FLAGS": PORTABLE_C_FLAGS,
+        "CMAKE_C_FLAGS_RELEASE": PORTABLE_RELEASE_FLAGS,
+        "CMAKE_CXX_FLAGS_RELEASE": PORTABLE_RELEASE_FLAGS,
+        "CMAKE_EXE_LINKER_FLAGS": PORTABLE_LINK_FLAGS,
+        "CMAKE_SHARED_LINKER_FLAGS": PORTABLE_LINK_FLAGS,
+        "CMAKE_MODULE_LINKER_FLAGS": PORTABLE_LINK_FLAGS,
+        "CMAKE_EXE_LINKER_FLAGS_RELEASE": "",
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "",
+        "CMAKE_MODULE_LINKER_FLAGS_RELEASE": "",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "OFF",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE": "OFF",
+    }
+    return ["-D" + name + "=" + value for name, value in settings.items()]
+
+
+def _verify_command_shell_cohort() -> None:
+    try:
+        command_shell.verify_cohort(image=IMAGE, platform_manifest=PLATFORM_MANIFEST,
+                                    producer_commit=PRODUCER_COMMIT, consumer_commit=CONSUMER_COMMIT)
+    except command_shell.LinuxPortableShellError as error:
+        raise export.ExportError(str(error)) from error
+
+
+def _capture_command_shell() -> dict:
+    _verify_command_shell_cohort()
+    try:
+        return command_shell.capture_identity()
+    except command_shell.LinuxPortableShellError as error:
+        raise export.ExportError(str(error)) from error
+
+
+def _verify_command_shell(receipt: dict) -> None:
+    _verify_command_shell_cohort()
+    try:
+        command_shell.verify_identity(receipt)
+    except command_shell.LinuxPortableShellError as error:
+        raise export.ExportError(str(error)) from error
+
+
+class PortableBuildContext:
+    """Same-operation source authority and configure/build observations kept in memory.
+
+    Only the leased export caller supplies selected generations and their verified
+    inventories. Disk cache and source-view metadata never create this authority.
+    """
+
+    def __init__(self, selected: dict[str, Path], proofs: dict, generations: dict, evidence: dict,
+                 *, build_tools: dict):
+        import copy
+        self.selected = {role: Path(path) for role, path in selected.items()}
+        self.proofs = copy.deepcopy(proofs)
+        self.generations = copy.deepcopy(generations)
+        self.evidence = copy.deepcopy(evidence)
+        self.producer_build_tools = copy.deepcopy(export.portable_build_tools(build_tools))
+        self.build_tools = None
+        self.binary = None
+        self.source = None
+        self.views = {}
+        self.authored = {}
+        self.authored_roots = {}
+        self.authored_directories = set()
+        self.authored_inputs = set()
+        self.authored_observation = None
+        self.generated_directories = set()
+        self.generated = {}
+        self.expected_shader = None
+        self.baseline = None
+        self.output = None
+        self.target_outputs = None
+        self.host_tools = None
+
+    def validate_selected(self, selected: dict[str, Path]) -> None:
+        if self.baseline is not None or {role: Path(path) for role, path in selected.items()} != self.selected:
+            raise ValueError("portable selected-source context differs from caller snapshot")
+        for role in ("client", "protocol", "libatrinik"):
+            if role not in self.selected or role not in self.proofs or role not in self.generations:
+                raise ValueError("portable source proof context is incomplete")
+
+    def validate_source_binding(self, binary: Path, source: Path) -> None:
+        if (not self.views or self.baseline is not None or source != self.source
+                or binary != self.build_root / "build/client"):
+            raise ValueError("portable configure coordinates differ from caller context")
+        self._verify_authored()
+        self.verify_host_tools()
+
+    @staticmethod
+    def _record(path: Path) -> dict:
+        resolved = path.resolve(strict=True)
+        parent = export._open_root(resolved.parent)
+        try:
+            descriptor = export._open_beneath(parent, resolved.name)
+            try:
+                record = byte_record(descriptor)
+                info = os.fstat(descriptor)
+                record["identity"] = export._identity(info)
+            finally:
+                os.close(descriptor)
+        finally:
+            os.close(parent)
+        if path.resolve(strict=True) != resolved:
+            raise ValueError("compiler input path changed")
+        return record
+
+    @classmethod
+    def _capture_generator_python(cls) -> dict:
+        """Observe the fixed host tool; system libraries remain host-tool trust."""
+        path = PORTABLE_GENERATOR_PYTHON
+        resolved = path.resolve(strict=True)
+        record = cls._record(path)
+        if not record["executable"]:
+            raise ValueError("portable shader Python is not executable")
+        probe = "import json, sys; print(json.dumps({'implementation': sys.implementation.name, 'version': list(sys.version_info[:3]), 'executable': sys.executable, 'prefix': sys.base_prefix}))"
+        try:
+            result = subprocess.run([str(path), "-I", "-c", probe], check=True, capture_output=True,
+                                    text=True, timeout=30, stdin=subprocess.DEVNULL,
+                                    env={"PATH": PORTABLE_PATH, "LC_ALL": "C", "PYTHONNOUSERSITE": "1"})
+            version = json.loads(result.stdout)
+            numbers = version["version"]
+            if (version["implementation"] != "cpython" or version["executable"] != str(path)
+                    or not isinstance(numbers, list) or len(numbers) != 3
+                    or not all(type(item) is int for item in numbers) or numbers[0] != 3 or numbers[:2] < [3, 11]):
+                raise ValueError("unsupported portable shader Python")
+        except (OSError, subprocess.SubprocessError, KeyError, TypeError, ValueError) as error:
+            raise ValueError("portable shader Python identity is unavailable or invalid") from error
+        if path.resolve(strict=True) != resolved or cls._record(path) != record:
+            raise ValueError("portable shader Python changed during inspection")
+        return {"path": str(path), "resolved_path": str(resolved), **record, "version": version}
+
+    def verify_host_tools(self) -> None:
+        # The caller authenticated this complete cohort before creating the context.
+        # Never refresh its authority from mutable on-disk metadata during a build.
+        _verify_compiler_bytes(self.evidence)
+        self.verify_build_tools()
+        if self.host_tools is None or set(self.host_tools) != {"shader_python", "command_shell"}:
+            raise ValueError("portable host-tool receipt is missing")
+        _verify_command_shell(self.host_tools["command_shell"])
+        record = self.host_tools["shader_python"]
+        path = PORTABLE_GENERATOR_PYTHON
+        if (record["path"] != str(path) or record["resolved_path"] != str(path.resolve(strict=True))
+                or self._record(path) != {key: value for key, value in record.items()
+                                          if key not in {"path", "resolved_path", "version"}}):
+            raise ValueError("portable shader Python executable changed")
+
+    @staticmethod
+    def _build_tool_path_protected(info: os.stat_result) -> bool:
+        return info.st_uid == 0 and not info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
+
+    @classmethod
+    def _build_tool_record(cls, expected: dict) -> dict:
+        """Admit executable bytes before any tool probe; OS dependencies stay trusted."""
+        path = Path(expected["path"])
+        # Debian's fixed CMake/Ninja/pkgconf paths are regular files. Following a link,
+        # even into a protected target, could admit a writable execution chain.
+        if not path.is_absolute() or str(path) != expected["resolved_path"]:
+            raise ValueError("portable producer build tool resolution changed")
+        parent = os.open(path.anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            for part in path.parts[1:-1]:
+                if not cls._build_tool_path_protected(os.fstat(parent)):
+                    raise ValueError("portable producer build tool ancestor is not root-owned and protected")
+                child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+                os.close(parent)
+                parent = child
+            if not cls._build_tool_path_protected(os.fstat(parent)):
+                raise ValueError("portable producer build tool ancestor is not root-owned and protected")
+            descriptor = export._open_beneath(parent, path.name)
+            try:
+                info = os.fstat(descriptor)
+                if (not stat.S_ISREG(info.st_mode) or not cls._build_tool_path_protected(info)
+                        or info.st_mode & (stat.S_ISUID | stat.S_ISGID)):
+                    raise ValueError("portable producer build tool is not a protected regular executable")
+                if info.st_size != expected["size"] or bool(info.st_mode & 0o111) != expected["executable"]:
+                    raise ValueError("portable producer build tool bytes differ")
+                record = byte_record(descriptor)
+                record["identity"] = export._identity(info)
+                if export._identity(os.fstat(descriptor)) != record["identity"]:
+                    raise ValueError("portable producer build tool changed during inspection")
+            finally:
+                os.close(descriptor)
+        except OSError as error:
+            raise ValueError("portable producer build tool path is unavailable or unsafe") from error
+        finally:
+            os.close(parent)
+        if (path.resolve(strict=True) != path or export._identity(path.stat(follow_symlinks=False)) != record["identity"]
+                or any(record[key] != expected[key] for key in ("sha256", "size", "executable"))):
+            raise ValueError("portable producer build tool bytes differ")
+        return record
+
+    def _capture_build_tools(self) -> dict:
+        # Authenticate every tool before running any --version command.
+        records = {name: self._build_tool_record(expected)
+                   for name, expected in self.producer_build_tools.items()}
+        for name, expected in self.producer_build_tools.items():
+            for tool, trusted in self.producer_build_tools.items():
+                if self._build_tool_record(trusted) != records[tool]:
+                    raise ValueError("portable producer build tool changed before version inspection")
+            version = export._tool_report([expected["path"], "--version"])
+            if version != expected["version"]:
+                raise ValueError("portable producer build tool version differs")
+            for tool, trusted in self.producer_build_tools.items():
+                if self._build_tool_record(trusted) != records[tool]:
+                    raise ValueError("portable producer build tool changed during version inspection")
+        return {name: {**expected, **records[name]}
+                for name, expected in self.producer_build_tools.items()}
+
+    def verify_build_tools(self) -> None:
+        if self.build_tools is None or set(self.build_tools) != set(self.producer_build_tools):
+            raise ValueError("portable producer build tool receipt is missing")
+        for name, expected in self.producer_build_tools.items():
+            current = {**expected, **self._build_tool_record(expected)}
+            if current != self.build_tools[name]:
+                raise ValueError("portable producer build tool executable changed")
+
+    def bind_source_views(self, build_root: Path, views: dict[str, Path]) -> None:
+        if self.views or set(views) != {"client", "protocol", "libatrinik"}:
+            raise ValueError("portable source view binding is missing or repeated")
+        self.build_root = Path(build_root)
+        if not self.build_root.is_absolute() or self.build_root.resolve() != self.build_root:
+            raise ValueError("portable build namespace is not canonical")
+        for role, requested in views.items():
+            view = Path(requested)
+            generation = self.generations[role]
+            namespace = role if generation["source_includes"] else ""
+            allowed = ({self.build_root / "sources/client", self.build_root / "sources/client-layout/client"}
+                       if role == "client" else
+                       {self.build_root / "sources" / namespace / ("input" if namespace else role)})
+            if view not in allowed or view.resolve() != view:
+                raise ValueError("portable source view is outside the caller's build namespace")
+            self.views[role] = view
+            for name, expected in self.proofs[role].items():
+                relative = export.relative_path(name)
+                target = view / relative[7:] if relative.startswith("source/") else view.parent / relative
+                origin = self.selected[role].parent / relative
+                root = view if relative.startswith("source/") else view.parent / relative.split("/", 1)[0]
+                self.authored_roots.setdefault(root, set()).add(target)
+                if target in self.authored and self.authored[target][1] != expected:
+                    raise ValueError("ambiguous source proof mapping")
+                self.authored[target] = (origin, expected)
+        self.source = self.views["client"]
+        self._verify_authored()
+        if self.source.parent / "cmake/toolchains/llvm.cmake" not in self.authored:
+            raise ValueError("portable toolchain is outside the caller's supplemental source proof")
+        shell = _capture_command_shell()
+        _verify_compiler_bytes(self.evidence)
+        self.build_tools = self._capture_build_tools()
+        _verify_compiler_bytes(self.evidence)
+        _verify_command_shell(shell)
+        self.host_tools = {"command_shell": shell, "shader_python": self._capture_generator_python()}
+        self.verify_host_tools()
+
+    def _verify_authored(self) -> None:
+        reserved = {".atrinik-workspace-managed.json", ".atrinik-source-view.json",
+                    ".atrinik-source-includes.json"}
+        observed = set()
+        for root in self.authored_roots:
+            if root.is_file():
+                observed.add(root)
+                continue
+            pending = [root]
+            while pending:
+                directory = pending.pop()
+                for entry in directory.iterdir():
+                    if entry.name in reserved or (directory == self.views["client"] and entry.name in {".git", "build", "sound"}):
+                        continue
+                    if entry.is_dir():
+                        if not any(path.is_relative_to(entry) for path in self.authored):
+                            raise ValueError("unrecorded authored source directory")
+                        pending.append(entry)
+                    else:
+                        observed.add(entry)
+                        if len(observed) > export.MAX_FILES:
+                            raise ValueError("source inventory exceeds bound")
+        if observed != set(self.authored):
+            raise ValueError("authored source view inventory changed")
+        directories = set()
+        inputs = set()
+        records = {}
+        for requested, (origin, expected) in self.authored.items():
+            resolved = requested.resolve(strict=True)
+            if resolved not in {requested, origin.resolve(strict=True)}:
+                raise ValueError("authored source alias escapes its proven origin")
+            record = self._record(requested)
+            if any(record[key] != expected[key] for key in ("sha256", "size")):
+                raise ValueError("authored source view bytes differ from generation proof")
+            records[requested] = record
+            inputs.update((requested, resolved))
+            parent = requested.parent
+            while any(parent == root or parent.is_relative_to(root) for root in self.authored_roots if root.is_dir()):
+                directories.update((parent, parent.resolve()))
+                parent = parent.parent
+        if self.authored_observation is not None and records != self.authored_observation:
+            raise ValueError("authored source file identity changed")
+        self.authored_observation = records
+        self.authored_directories = directories
+        self.authored_inputs = inputs
+
+    def _ninja(self, binary: Path) -> str:
+        self.verify_host_tools()
+        try:
+            result = subprocess.run([self.build_tools["ninja"]["path"], "-C", str(binary), "-t", "commands", "atrinik"],
+                                    capture_output=True, text=True, timeout=30, check=True,
+                                    stdin=subprocess.DEVNULL, env={"PATH": PORTABLE_PATH, "LC_ALL": "C"})
+        except (OSError, subprocess.SubprocessError) as error:
+            raise ValueError("portable Ninja report is unavailable") from error
+        self.verify_host_tools()
+        if len(result.stdout) > export.MAX_MANIFEST_BYTES:
+            raise ValueError("Ninja report exceeds bound")
+        return result.stdout
+
+    def _generated_inventory(self) -> dict:
+        inventory = {}
+        for root in self.generated_directories:
+            if root.resolve() != root:
+                raise ValueError("generated header directory aliases another tree")
+            if not root.exists():
+                continue
+            for directory, dirs, files in os.walk(root, followlinks=False):
+                parent = Path(directory)
+                for name in dirs:
+                    if (parent / name).is_symlink():
+                        raise ValueError("generated header directory contains a symlink")
+                for name in files:
+                    path = parent / name
+                    if path.is_symlink():
+                        raise ValueError("generated header inventory contains a symlink")
+                    inventory[path] = self._record(path)
+                    if len(inventory) > export.MAX_FILES:
+                        raise ValueError("generated header inventory exceeds bound")
+        return inventory
+
+    def capture_configure(self, binary: Path, source: Path) -> None:
+        if self.baseline is not None or not self.views or source != self.source:
+            raise ValueError("portable configure authority is missing or repeated")
+        if binary != self.build_root / "build/client" or binary.resolve() != binary:
+            raise ValueError("portable binary differs from the caller's standalone build")
+        self.binary = binary
+        self._verify_authored()
+        self.verify_host_tools()
+        database = _read_regular(binary / "compile_commands.json")
+        commands = json.loads(database, object_pairs_hook=export._unique_object)
+        for record in commands:
+            words = record.get("arguments") or shlex.split(record["command"])
+            for value in _portable_include_operands(words):
+                path = Path(value)
+                path = path if path.is_absolute() else binary / path
+                if path.is_relative_to(binary):
+                    if path.resolve() != path:
+                        raise ValueError("generated include directory is not canonical")
+                    self.generated_directories.add(path)
+        # The shader output is the only build-generated addition admitted later.
+        self.generated_directories.add(binary / "src/include")
+        self.baseline = {"cache": _read_regular(binary / "CMakeCache.txt"),
+                         "database": database, "ninja": self._ninja(binary)}
+        self.generated = self._generated_inventory()
+        script = self.source / "tools/embed_gpu_shaders.py"
+        manifest = self.source / "shaders/SHA256SUMS"
+        if script not in self.authored or manifest not in self.authored:
+            raise ValueError("shader generator or manifest is outside source closure")
+        # Keep selected repository code outside the wrapper process. This is
+        # the exact proof-bound CLI used by the admitted Ninja generator row.
+        self.verify_host_tools()
+        with tempfile.TemporaryDirectory(prefix=".atrinik-shader-proof-", dir=binary) as temporary:
+            expected = Path(temporary) / "gpu_shader_data.h"
+            try:
+                subprocess.run([str(PORTABLE_GENERATOR_PYTHON), "-I", str(script), "--input", "/opt/atrinik-portable/shaders",
+                                "--manifest", str(manifest), "--output", str(expected)],
+                               check=True, timeout=30, stdin=subprocess.DEVNULL,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                               env={"PATH": PORTABLE_PATH, "LC_ALL": "C"})
+            except (OSError, subprocess.SubprocessError) as error:
+                raise ValueError("source-bound shader proof subprocess failed") from error
+            payload = _read_regular(expected, limit=512 * 1024 * 1024)
+        self._verify_authored()
+        self.verify_host_tools()
+        self.expected_shader = {"sha256": hashlib.sha256(payload).hexdigest(), "size": len(payload)}
+        if binary / "src/include/gpu_shader_data.h" in self.generated:
+            raise ValueError("fresh configure unexpectedly retained a shader header")
+        compile_map = {_portable_compile_output(record.get("arguments") or shlex.split(record["command"]), binary):
+                       record.get("arguments") or shlex.split(record["command"]) for record in commands}
+        self.target_outputs = set()
+        _portable_ninja_commands(self.baseline["ninja"], binary, self.evidence, compile_map, self.source,
+                                 compiled_outputs=self.target_outputs)
+        validate_portable_build(binary, self.evidence, context=self, _configure_only=True)
+
+    def capture_output(self, binary: Path) -> None:
+        if self.output is not None or binary != self.binary or self.baseline is None:
+            raise ValueError("portable output capture is missing or repeated")
+        self.verify_host_tools()
+        current = self._generated_inventory()
+        shader = binary / "src/include/gpu_shader_data.h"
+        if shader not in current or any(current[shader][key] != value for key, value in self.expected_shader.items()):
+            raise ValueError("shader header differs from source-bound pinned cohort")
+        if set(current) != set(self.generated) | {shader}:
+            raise ValueError("build changed configured header inventory")
+        for path, record in self.generated.items():
+            if current[path] != record:
+                raise ValueError("build changed configured header bytes or identity")
+        self.generated = current
+        self.output = self._record(binary / "atrinik")
+        validate_portable_build(binary, self.evidence, context=self)
+        self.verify_host_tools()
+
+    def revalidate(self, binary: Path, *, configure_only: bool = False) -> None:
+        if binary != self.binary or self.baseline is None or self.source is None:
+            raise ValueError("same-operation portable receipt is missing")
+        self.verify_host_tools()
+        if self.baseline != {"cache": _read_regular(binary / "CMakeCache.txt"),
+                             "database": _read_regular(binary / "compile_commands.json"),
+                             "ninja": self._ninja(binary)}:
+            raise ValueError("fresh configure baseline changed")
+        self._verify_authored()
+        if self._generated_inventory() != self.generated:
+            raise ValueError("generated header inventory or bytes changed")
+        if not configure_only and (self.output is None or self._record(binary / "atrinik") != self.output):
+            raise ValueError("built executable receipt changed")
+        self.verify_host_tools()
+
+    def check_inputs(self, words: list[str], binary: Path, *, effective: bool = False,
+                     expected_source: Path | None = None) -> None:
+        forbidden = ("-include", "-imacros", "-include-pch", "-fmodule", "-ivfsoverlay", "-vfsoverlay",
+                     "-iwithprefix", "-iframework", "-iprefix", "-working-directory", "-Wp,", "-Xpreprocessor",
+                     "-index-header-map", "-fbuild-session", "-header-include-file")
+        if any(word.startswith(forbidden) for word in words):
+            raise ValueError("unsupported compiler input redirection")
+        allowed_files = self.authored_inputs
+        if effective:
+            path = Path(words[-1]) if words else Path("")
+            path = Path(os.path.normpath(str(path if path.is_absolute() else binary / path)))
+            if not words or path not in allowed_files or path.resolve() != expected_source:
+                raise ValueError("effective compiler source is unproven or changed")
+        else:
+            source = Path(words[words.index("-c") + 1])
+            source = Path(os.path.normpath(str(source if source.is_absolute() else binary / source)))
+            if source not in allowed_files:
+                raise ValueError("translation unit is outside proven source views")
+        system = {LLVM_ROOT + "/lib/clang/23/include", "/usr/local/include", "/usr/include",
+                  "/usr/include/x86_64-linux-gnu", "/usr/include/libxml2", "/usr/include/c++/12",
+                  "/usr/include/x86_64-linux-gnu/c++/12", "/usr/include/c++/12/backward",
+                  "/usr/x86_64-linux-gnu/include"}
+        allowed_dirs = self.authored_directories | self.generated_directories
+        for value in _portable_include_operands(words, effective=effective):
+            path = Path(value)
+            path = Path(os.path.normpath(str(path if path.is_absolute() else binary / path)))
+            if path in allowed_dirs or (str(path) in system and path.resolve() == path):
+                continue
+            # This absent built-in spelling comes only from the authenticated
+            # Debian cc1 probe; it does not admit arbitrary files beneath /.
+            probe = self.evidence.get("compile", {}).get("driver_output", "")
+            builtin = any("-cc1" in args and any(args[index:index + 2] == ["-internal-externc-isystem", "/include"]
+                          for index in range(len(args) - 1))
+                          for line in probe.splitlines() if line.lstrip().startswith('"')
+                          for args in [shlex.split(line)])
+            if effective and value == "/include" and builtin and not path.exists():
+                continue
+            raise ValueError("compiler header search is outside admitted roots")
+
+
+def _portable_include_operands(words: list[str], *, effective: bool = False) -> list[str]:
+    result = []
+    options = ("-internal-externc-isystem", "-internal-isystem", "-isystem", "-iquote", "-idirafter", "-I")
+    for index, word in enumerate(words):
+        for option in options:
+            if word == option:
+                if index + 1 >= len(words):
+                    raise ValueError("missing compiler include directory")
+                result.append(words[index + 1])
+                break
+            if word.startswith(option) and len(word) > len(option):
+                if option.startswith("-internal") and not effective:
+                    raise ValueError("explicit internal include override")
+                result.append(word[len(option):])
+                break
+    return result
+
+
+def _portable_command(words: list[str], cache: dict[str, str], *, link: bool, binary: Path | None = None) -> None:
+    from .model import WorkspaceError
+    compilers = {LLVM_ROOT + "/bin/clang", LLVM_ROOT + "/bin/clang++"}
+    if not words:
+        raise WorkspaceError("portable compile/link invocation is missing")
+    if any(cache.get(name) for name in ("CMAKE_C_COMPILER_LAUNCHER", "CMAKE_CXX_COMPILER_LAUNCHER")):
+        raise WorkspaceError("portable compile/link launcher changed")
+    if not words or words[0] not in compilers:
+        raise WorkspaceError("portable compile/link compiler changed")
+    if (any(word.startswith(("-flto", "--target=", "--config", "-config", "--ld-path", "-ld-path", "-B", "-resource-dir", "--resource-dir",
+                                "--sysroot", "-isysroot", "--gcc-toolchain", "-gcc-toolchain",
+                                "--gcc-install-dir", "--gcc-triple")) for word in words)
+            or any(word.startswith("-m") and word not in {"-march=x86-64", "-mtune=generic", "-m64"} for word in words)
+            or words.count("--no-default-config") != 1
+            or any(word in {"-Xclang", "-target", "-target-cpu", "-target-feature"} for word in words)
+            or [word for word in words if re.fullmatch(r"-O(?:[0-9]|fast|s|z|g)", word)] != ["-O2", "-O2"]
+            or [word for word in words if word.startswith("-march=")] != ["-march=x86-64"]
+            or [word for word in words if word.startswith("-mtune=")] != ["-mtune=generic"]
+            or any(word.startswith("@") for word in words)
+            or "-DNDEBUG" not in words):
+        raise WorkspaceError("portable compile/link optimization or CPU/LTO contract changed")
+    if link:
+        search_paths = []
+        for index, word in enumerate(words):
+            if word == "-L":
+                search_paths.append(words[index + 1] if index + 1 < len(words) else "")
+            elif word.startswith("-L"):
+                search_paths.append(word[2:])
+            elif (word.startswith("-Wl,") and any(part.startswith(("-L", "--library-path")) for part in word[4:].split(","))) or (word == "-Xlinker" and index + 1 < len(words)
+                    and words[index + 1].startswith(("-L", "--library-path"))):
+                raise WorkspaceError("portable indirect linker search path changed")
+        try:
+            export.portable_library_paths(words, binary=binary, llvm_root=LLVM_ROOT, installed=True)
+        except export.ExportError as error:
+            raise WorkspaceError("portable linker search path changed") from error
+        if not search_paths or search_paths[0] != LLVM_ROOT + "/lib":
+            raise WorkspaceError("portable LLVM runtime search path changed")
+    for option, expected in (("fuse-ld", "lld"), ("rtlib", "compiler-rt"), ("unwindlib", "libunwind")):
+        family = [word for word in words if re.match(r"^-{1,2}" + option + r"(?:=|$)", word)]
+        desired = ("-" if option == "fuse-ld" else "--") + option + "=" + expected
+        if (link and (not family or any(word != desired for word in family))) or (not link and family):
+            raise WorkspaceError("portable compile/link LLD/runtime contract changed")
+
+
+
+def _portable_driver(words: list[str], evidence: dict, binary: Path, *, link: bool,
+                     admitted_build_inputs: set[Path] | None = None, context: PortableBuildContext | None = None) -> set[Path] | None:
+    """Bind effective driver tools and code generation to the verified cohort."""
+    from .model import WorkspaceError
+    try:
+        output = export._tool_report([words[0], "-###", *words[1:]], cwd=binary, timeout=30)
+        invocations = [shlex.split(line) for line in output.splitlines() if line.lstrip().startswith('"')]
+        if not invocations or any(not args for args in invocations):
+            raise ValueError("missing driver invocations")
+        role = "cxx_compiler" if words[0] == LLVM_ROOT + "/bin/clang++" else "compiler"
+        compiler = str(Path(evidence["tools"][role]["path"]).resolve())
+        linker = evidence["tools"]["linker"]["path"]
+        runtime = evidence["runtime"]["path"]
+        cc1 = [args for args in invocations if len(args) > 1 and args[1] == "-cc1" and args[0] == compiler]
+        links = [args for args in invocations if args[0] == linker]
+        if (len(cc1) != (0 if link else 1) or len(links) != (1 if link else 0)
+                or len(invocations) != 1):
+            raise ValueError("external compiler, assembler, linker or extra tool selected")
+        if cc1:
+            args = cc1[0]
+            if context is not None:
+                source = Path(words[words.index("-c") + 1])
+                source = source if source.is_absolute() else binary / source
+                context.check_inputs(args, binary, effective=True, expected_source=source.resolve())
+            if (args.count("-o") != 1
+                    or any(arg.startswith("--output") or (arg.startswith("-o") and arg != "-o") for arg in args)
+                    or _portable_build_path(args[args.index("-o") + 1], binary)
+                    != _portable_compile_output(words, binary)):
+                raise ValueError("effective compile output changed")
+            for option, expected in (("-target-cpu", "x86-64"), ("-tune-cpu", "generic"),
+                    ("-triple", evidence["target"]), ("-resource-dir", LLVM_ROOT + "/lib/clang/23")):
+                if args.count(option) != 1 or args[args.index(option) + 1] != expected:
+                    raise ValueError("effective CPU, target or compiler resource directory changed")
+            if ([arg for arg in args if re.fullmatch(r"-O(?:[0-9]|fast|s|z|g)", arg)] != ["-O2"]
+                    or "-emit-obj" not in args or any(arg.startswith(("-flto", "-fno-integrated-as")) for arg in args)
+                    or "-target-feature" in args
+                    or any(arg.startswith(("-load", "-plugin", "-add-plugin", "-fpass-plugin", "-fplugin", "-mllvm")) for arg in args)):
+                raise ValueError("effective code generation changed")
+        else:
+            args = links[0]
+            if (words.count("-o") != 1 or args.count("-o") != 1
+                    or any(arg.startswith("--output") or (arg.startswith("-o") and arg != "-o") for arg in args)
+                    or _portable_build_path(args[args.index("-o") + 1], binary)
+                    != _portable_build_path(words[words.index("-o") + 1], binary)):
+                raise ValueError("effective link output changed")
+            consumed = set()
+            export.portable_link_inputs(args, binary=binary, llvm_root=LLVM_ROOT,
+                                        admitted_build_inputs=admitted_build_inputs,
+                                        observed_build_inputs=consumed)
+            searches = export.portable_library_paths(args, binary=None if admitted_build_inputs is not None else binary,
+                                                    llvm_root=LLVM_ROOT, installed=True)
+            if (not searches or searches[0] != LLVM_ROOT + "/lib" or runtime not in args
+                    or "-lunwind" not in args or args.count("-m") != 1
+                    or args[args.index("-m") + 1] != "elf_x86_64"
+                    or any(("libclang_rt.builtins" in arg and arg != runtime)
+                           or ("libunwind" in arg and arg != evidence["unwinder"]["path"])
+                           or arg in {"-lgcc", "-lgcc_s"} or re.search(r"libgcc[^/]*\.(?:a|so)", arg)
+                           or arg.startswith(("--plugin", "-plugin", "--load-pass-plugin", "-load-pass-plugin", "--lto", "-lto")) for arg in args)):
+                raise ValueError("effective linker or compiler runtime changed")
+            return consumed
+    except (OSError, ValueError, IndexError, KeyError, TypeError, export.ExportError, subprocess.SubprocessError) as error:
+        raise WorkspaceError("portable effective compiler/linker contract changed") from error
+
+def _portable_build_path(value: str, binary: Path) -> Path:
+    """Resolve generated outputs and inputs only inside the canonical build tree."""
+    path = Path(value)
+    resolved = (path if path.is_absolute() else binary / path).resolve()
+    if not resolved.is_relative_to(binary) or resolved == binary:
+        raise ValueError("generated path escapes the portable build tree")
+    return resolved
+
+
+def _portable_compile_output(words: list[str], binary: Path) -> Path:
+    if (words.count("-o") != 1 or words.count("-c") != 1
+            or any(word.startswith("-o") and word != "-o" for word in words)
+            or words.index("-o") + 1 >= len(words) or words.index("-c") + 1 >= len(words)):
+        raise ValueError("invalid compile output or source")
+    output = _portable_build_path(words[words.index("-o") + 1], binary)
+    if output.suffix != ".o":
+        raise ValueError("unexpected compile output")
+    return output
+
+
+def _portable_ninja_commands(report: str, binary: Path, evidence: dict,
+                             compile_commands: dict[Path, list[str]], source: Path,
+                             archive_members: dict[Path, set[Path]] | None = None,
+                             compiled_outputs: set[Path] | None = None) -> tuple[list[str], set[Path]]:
+    """Recognize the finite CMake recipes emitted by the pinned Classic source."""
+    compiled = set()
+    archives = set()
+    link = None
+    link_inputs = None
+    generators = 0
+    compilers = {LLVM_ROOT + "/bin/clang", LLVM_ROOT + "/bin/clang++"}
+    for line in report.splitlines():
+        if not line.strip():
+            continue
+        if link is not None:
+            raise ValueError("unexpected command after final link")
+        lexer = shlex.shlex(line, posix=True, punctuation_chars=";&|<>()")
+        lexer.whitespace_split = True
+        lexer.commenters = ""
+        words = list(lexer)
+        if any((word != "&&" and word and all(char in ";&|<>()" for char in word))
+               or "$" in word or "`" in word or re.search(r"[*?\[]", word) for word in words):
+            raise ValueError("unsupported Ninja shell command")
+        segments = [[]]
+        for word in words:
+            if word == "&&":
+                segments.append([])
+            else:
+                segments[-1].append(word)
+        if any(not segment for segment in segments):
+            raise ValueError("empty Ninja command")
+        if len(segments) == 1 and words[0] in compilers and "-c" in words:
+            output = _portable_compile_output(words, binary)
+            compile_source = Path(words[words.index("-c") + 1])
+            compile_source = (compile_source if compile_source.is_absolute() else binary / compile_source).resolve()
+            if compile_source.is_relative_to(source.resolve()) and generators != 1:
+                raise ValueError("client compilation precedes shader generator")
+            normalized = list(words)
+            option = words.index("-o")
+            dependency = ["-MD", "-MT", words[option + 1], "-MF", words[option + 1] + ".d"]
+            if option >= 5 and words[option - 5:option] == dependency:
+                if words[option + 2:option + 3] != ["-c"]:
+                    raise ValueError("unexpected dependency placement")
+                normalized = words[:option - 5] + words[option:]
+            if output in compiled or compile_commands.get(output) != normalized:
+                raise ValueError("Ninja compiler differs from admitted compile database")
+            compiled.add(output)
+            continue
+        if len(segments) == 5 and segments[0] == [":"] and segments[-1] == [":"]:
+            remove, create, index = segments[1:4]
+            ar = LLVM_ROOT + "/bin/llvm-ar"
+            ranlib = LLVM_ROOT + "/bin/llvm-ranlib"
+            if (len(remove) != 5 or remove[:4] != ["/usr/bin/cmake", "-E", "rm", "-f"]
+                    or len(create) < 4 or create[:2] != [ar, "qc"]
+                    or len(index) != 2 or index[0] != ranlib):
+                raise ValueError("unexpected archive recipe")
+            for role, tool in (("archiver", ar), ("ranlib", ranlib)):
+                if Path(tool).resolve() != Path(evidence["tools"][role]["path"]).resolve():
+                    raise ValueError("archive tool identity changed")
+            archive = _portable_build_path(create[2], binary)
+            if (archive.suffix != ".a" or archive in archives
+                    or _portable_build_path(remove[4], binary) != archive
+                    or _portable_build_path(index[1], binary) != archive):
+                raise ValueError("archive output changed")
+            members = [_portable_build_path(member, binary) for member in create[3:]]
+            if len(set(members)) != len(members) or not set(members).issubset(compiled):
+                raise ValueError("duplicate or missing earlier archive member producer")
+            archives.add(archive)
+            if archive_members is not None:
+                archive_members[archive] = set(members)
+            continue
+        if len(segments) == 3 and segments[0] == [":"] and segments[-1] == [":"]:
+            command = segments[1]
+            if (link is not None or command[0] not in compilers or "-c" in command
+                    or command.count("-o") != 1 or command.index("-o") + 1 >= len(command)
+                    or _portable_build_path(command[command.index("-o") + 1], binary) != binary / "atrinik"):
+                raise ValueError("unexpected final link recipe")
+            link = command
+            link_inputs = compiled | archives
+            continue
+        generator = [str(PORTABLE_GENERATOR_PYTHON), str(source / "tools/embed_gpu_shaders.py"),
+                     "--input", "/opt/atrinik-portable/shaders", "--manifest", str(source / "shaders/SHA256SUMS"),
+                     "--output", str(binary / "src/include/gpu_shader_data.h")]
+        if segments == [["cd", str(binary)], generator] and generators == 0:
+            generators += 1
+            continue
+        raise ValueError("unrecognized Ninja command recipe")
+    if link is None or generators != 1:
+        raise ValueError("missing final link, shader generator or compile database producer")
+    if compiled_outputs is not None:
+        compiled_outputs.update(compiled)
+    return link, link_inputs
+
+
+def validate_portable_build(binary: Path, evidence: dict, *, context: PortableBuildContext,
+                            _configure_only: bool = False) -> bytes:
+    """Check cached settings and generated compile/link commands before export."""
+    from .model import WorkspaceError
+    if not binary.is_absolute() or binary.resolve() != binary:
+        raise WorkspaceError("portable build directory is not canonical")
+    if not isinstance(context, PortableBuildContext):
+        raise WorkspaceError("portable export requires caller source and build context")
+    try:
+        context.revalidate(binary, configure_only=_configure_only)
+    except (OSError, ValueError, RuntimeError) as error:
+        raise WorkspaceError("portable same-operation build receipt changed") from error
+    raw = _read_regular(binary / "CMakeCache.txt")
+    values = {}
+    for line in raw.decode("utf-8").splitlines():
+        if line.startswith(("#", "//")) or "=" not in line or ":" not in line.split("=", 1)[0]:
+            continue
+        key, value = line.split("=", 1)
+        name = key.split(":", 1)[0]
+        if name in values:
+            raise WorkspaceError("portable CMake configuration changed: duplicate " + name)
+        values[name] = value
+    try:
+        identity = json.loads(_read_regular(binary / ".atrinik-configure.json"), object_pairs_hook=export._unique_object)
+        source = Path(identity["source"]["path"])
+        if (source != context.source or values.get("CMAKE_HOME_DIRECTORY") != str(context.source)
+                or identity.get("portable_host_tools") != json.loads(json.dumps(context.host_tools))
+                or identity.get("portable_build_tools") != json.loads(json.dumps(context.build_tools))):
+            raise ValueError("source identity changed")
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        raise WorkspaceError("portable CMake configuration changed: source identity is unavailable or invalid") from error
+    for argument in portable_configure_arguments(source):
+        name, expected = argument[2:].split("=", 1)
+        if values.get(name) != expected:
+            raise WorkspaceError("portable CMake configuration changed: " + name)
+    try:
+        commands = json.loads(_read_regular(binary / "compile_commands.json"), object_pairs_hook=export._unique_object)
+        if not isinstance(commands, list) or not commands:
+            raise ValueError("missing compile commands")
+        compile_commands = {}
+        for record in commands:
+            words = record.get("arguments") or shlex.split(record["command"])
+            if not isinstance(words, list) or not all(isinstance(word, str) for word in words):
+                raise ValueError("invalid command")
+            if record.get("directory") != str(binary):
+                raise ValueError("compile working directory changed")
+            output = _portable_compile_output(words, binary)
+            compile_source = Path(words[words.index("-c") + 1])
+            compile_source = (compile_source if compile_source.is_absolute() else binary / compile_source).resolve()
+            declared_source = Path(record["file"])
+            declared_source = (declared_source if declared_source.is_absolute() else binary / declared_source).resolve()
+            if declared_source != compile_source:
+                raise ValueError("compile database source operand changed")
+            if output in compile_commands:
+                raise ValueError("duplicate compile database output")
+            compile_commands[output] = words
+            context.check_inputs(words, binary)
+            _portable_command(words, values, link=False)
+            _portable_driver(words, evidence, binary, link=False, context=context)
+        archives = {}
+        observed_outputs = set()
+        command, admitted = _portable_ninja_commands(context.baseline["ninja"], binary, evidence,
+                                                     compile_commands, source, archives, observed_outputs)
+        if observed_outputs != context.target_outputs:
+            raise ValueError("fresh target compilation closure changed")
+        _portable_command(command, values, link=True)
+        if not _configure_only:
+            consumed = _portable_driver(command, evidence, binary, link=True, admitted_build_inputs=admitted)
+            pending = list(consumed)
+            used_archives = set()
+            used_objects = set()
+            while pending:
+                path = pending.pop()
+                if path in archives:
+                    used_archives.add(path)
+                    pending.extend(archives[path])
+                else:
+                    used_objects.add(path)
+            if used_objects != context.target_outputs or used_archives != set(archives):
+                raise ValueError("compiled output or archive is not consumed by final link")
+        context.verify_host_tools()
+    except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError) as error:
+        raise WorkspaceError("portable compile/link evidence is unavailable or invalid") from error
+    return raw
+
+
+def _verify_compiler_bytes(evidence: dict) -> None:
+    """Rehash the selected tools and runtimes before using image metadata."""
+    shared_unwinder = Path(evidence["unwinder"]["path"]).with_name("libunwind.so")
+    if shared_unwinder.exists() or shared_unwinder.is_symlink():
+        raise export.ExportError("portable-producer: unrecorded shared unwinder shadows static runtime")
+    compiler = evidence["tools"]["compiler"]
+    records = [*evidence["tools"].values(), evidence["runtime"], evidence["unwinder"]]
+    if "compile" in evidence:
+        stages = [shlex.split(line) for line in evidence["compile"]["driver_output"].splitlines()
+                  if line.lstrip().startswith('"')]
+        records.extend({"path": args[0], "sha256": compiler["sha256"]}
+                       for args in stages if len(args) > 1 and args[1] == "-cc1")
+    for record in records:
+        requested = Path(record["path"])
+        try:
+            resolved = requested.resolve(strict=True)
+            with ExitStack() as stack:
+                parent = export._open_root(resolved.parent)
+                stack.callback(os.close, parent)
+                descriptor = export._open_beneath(parent, resolved.name)
+                stack.callback(os.close, descriptor)
+                if (byte_record(descriptor)["sha256"] != record["sha256"]
+                        or requested.resolve(strict=True) != resolved):
+                    raise export.ExportError("portable-compiler: selected tool or runtime bytes differ")
+        except (OSError, RuntimeError) as error:
+            raise export.ExportError("portable-compiler: selected tool or runtime unavailable") from error
+
+
 def installed_metadata() -> tuple[dict[str, bytes], dict[str, dict]]:
+    _capture_command_shell()
     root = Path("/opt/atrinik-portable")
+    if set(METADATA_HASHES) != export.PORTABLE_METADATA_FILES:
+        raise export.ExportError(
+            "portable-producer: LLVM contract requires a newly verified immutable producer handoff")
     raw = {name: _read_regular(root / name) for name in METADATA_HASHES}
     export.portable_metadata_report(raw, expected_hashes=METADATA_HASHES,
                                    immutable_image=IMAGE, runnable_manifest=PLATFORM_MANIFEST,
                                    consumer_commit=CONSUMER_COMMIT)
-    return raw, {name: json.loads(data) for name, data in raw.items()}
+    documents = {name: json.loads(data) for name, data in raw.items()}
+    _verify_compiler_bytes(documents["compiler-evidence.json"])
+    for expected in export.portable_build_tools(documents["installed.json"].get("build_tools")).values():
+        PortableBuildContext._build_tool_record(expected)
+    return raw, documents
 
 
 def _output_parent(path: Path) -> int:
@@ -696,26 +1552,28 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
                 generations[role] = record
             return current
         proofs = prove_sources()
+        context = PortableBuildContext(selected, proofs, generations, documents["compiler-evidence.json"],
+                                       build_tools=documents["installed.json"]["build_tools"])
         targets = workspace._expand_build_target("client", profile_name)
         build_root = workspace._build_resolved("client", profile_name, False,
                     targets, selected, build_services={"client"},
-                    generate_region_maps=False, portable=True)
+                    generate_region_maps=False, portable=True, portable_context=context)
         with workspace._profile_build_lock(build_root, profile_name):
             # A concurrent rebuild between build return and lock acquisition must
             # not silently replace the pinned portable configure contract.
-            binary_directory = workspace._classic_binary_directory(build_root, "client")
-            cache = (binary_directory / "CMakeCache.txt").read_text()
-            for expected in ("CMAKE_SKIP_RPATH:BOOL=ON", "CMAKE_BUILD_TYPE:STRING=Release",
-                             "CMAKE_C_FLAGS:STRING=-O2 -march=x86-64 -mtune=generic"):
-                if expected not in cache.splitlines():
-                    raise WorkspaceError("portable CMake configuration changed: " + expected.split(":", 1)[0])
+            binary_directory = context.binary
+            if binary_directory is None or workspace._classic_binary_directory(build_root, "client") != binary_directory:
+                raise WorkspaceError("portable build graph coordinate differs from same-operation receipt")
+            cache = validate_portable_build(binary_directory, documents["compiler-evidence.json"], context=context)
             sound_root, sound_record = workspace._prepare_sound(build_root, selected, profile_name)
             if sound_record["source_tree"] != generations["sound"]["source_tree"]:
                 raise WorkspaceError("portable sound release must match the selected sound source tree")
             sources = {"atrinik/" + name + "@main": state["head"] for name, state in states.items()}
             sources["atrinik/devcontainer@main"] = PRODUCER_COMMIT
             with Publication(destination, sources) as publication:
+                context.verify_host_tools()
                 runtime = add_runtime(publication, documents, binary_directory / "atrinik")
+                context.verify_host_tools()
                 legal = add_corresponding_sources(publication, documents)
                 if runtime["derivatives"]:
                     publication.add_bytes("sources/export-recipes/libpulse-origin.py", derivative_recipe_script())
@@ -763,6 +1621,8 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
                 evidence = {"schema_version": 1, "runtime": runtime, "legal": legal,
                             "metadata_sha256": METADATA_HASHES, "sources": sources,
                             "source_proofs": proofs, "profile": profile_name,
+                            "host_tools": context.host_tools,
+                            "build_tools": context.build_tools,
                             "sound": {key: value for key, value in sound_record.items() if key != "root"}}
                 publication.add_bytes("portable-evidence.json", (json.dumps(evidence, sort_keys=True) + "\n").encode())
                 publication.add_bytes("README.txt", (
@@ -782,8 +1642,9 @@ def export_client(workspace, profile_name: str, destination: Path) -> dict:
                     fresh, _documents = installed_metadata()
                     if fresh != raw:
                         raise WorkspaceError("portable producer metadata changed before publication")
-                    if (binary_directory / "CMakeCache.txt").read_text() != cache:
+                    if _read_regular(binary_directory / "CMakeCache.txt") != cache:
                         raise WorkspaceError("portable build configuration changed before publication")
+                    validate_portable_build(binary_directory, documents["compiler-evidence.json"], context=context)
                 result = publication.publish(revalidate)
                 return {**result, "image": IMAGE, "platform_manifest": PLATFORM_MANIFEST,
                         "runtime": runtime, "legal": legal}

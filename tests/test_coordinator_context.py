@@ -59,7 +59,7 @@ class CoordinatorContextTests(unittest.TestCase):
         windows_cross = {
             "image": context.WINDOWS_CROSS_IMAGE,
             "remoteUser": "vscode",
-            "remoteEnv": {"PATH": "/opt/mxe/usr/bin:${containerEnv:PATH}"},
+            "remoteEnv": {"PATH": "/opt/llvm-mingw/bin:${containerEnv:PATH}"},
         }
         (self.repository / ".devcontainer/devcontainer.json").write_text(
             "// canonical fixture\n" + json.dumps(canonical), encoding="utf-8"
@@ -293,7 +293,7 @@ class CoordinatorContextTests(unittest.TestCase):
                  (canonical, "mounts", [], "canonical-codex-mount"),
                  (cross, "image", "unqualified", "windows-cross-image-reference"),
                  (cross, "remoteUser", "root", "windows-cross-remote-user-reference"),
-                 (cross, "remoteEnv", {"PATH": "/usr/bin"}, "windows-cross-mxe-reference")]
+                 (cross, "remoteEnv", {"PATH": "/usr/bin"}, "windows-cross-toolchain-reference")]
         for path, key, value, failure in cases:
             with self.subTest(key=key, path=path):
                 config = json.loads(context._strip_jsonc(original[path].decode()))
@@ -363,12 +363,12 @@ class CoordinatorContextTests(unittest.TestCase):
             environment={
                 "HOME": "/home/vscode",
                 "CODEX_HOME": "/home/vscode/.codex",
-                "PATH": f"{context.MXE_PATH}:/usr/bin",
+                "PATH": f"{context.WINDOWS_TOOLCHAIN_PATH}:/usr/bin",
             },
         )
         self.assertEqual(result["status"], "windows-cross")
         self.assertFalse(result["authoritative"])
-        self.assertIn("mxe-toolchain-present", result["failed_checks"])
+        self.assertIn("windows-toolchain-present", result["failed_checks"])
 
     def test_cli_json_and_human_output_are_bounded_and_stable(self) -> None:
         expected = context._result(

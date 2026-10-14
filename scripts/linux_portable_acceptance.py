@@ -20,17 +20,17 @@ from atrinik_workspace import linux_export, linux_portable
 
 SOURCE_COMMITS = {
     "classic": linux_portable.CONSUMER_COMMIT,
-    "sound": "d0561bf9ff8dc88836818dbe602a5a256c6c0e3f",
+    "sound": "642e5a25a476c96b764054b7b57307274b0fabb5",
 }
 SOUND_RELEASE = {
-    "repository": "atrinik/sound", "tag": "v1.0.0",
-    "product": "atrinik-sound-classic-runtime", "product_version": "1.0.0",
+    "repository": "atrinik/sound", "tag": "v1.2.0",
+    "product": "atrinik-sound-classic-runtime", "product_version": "1.2.0",
     "manifest_schema_version": 1,
     "source_commit": SOURCE_COMMITS["sound"],
-    "source_tree": "f464de12f943f1844f8587ca1a7419f6b78b9e44",
-    "asset_url": "https://github.com/atrinik/sound/releases/download/v1.0.0/atrinik-sound-classic-runtime-1.0.0.tar.gz",
-    "archive_sha256": "e3f17d314b3933db9c6af3f9290c5df79375a6cc3d570ea29f225b53de362784",
-    "release_manifest_sha256": "2d7a1ba78e4f484aa0554809f72b14345c40d37cc2d46daf0416de69627f2cbb",
+    "source_tree": "d57ef0b499cb00f2f7cabf359c320f70f542d81c",
+    "asset_url": "https://github.com/atrinik/sound/releases/download/v1.2.0/atrinik-sound-classic-runtime-1.2.0.tar.gz",
+    "archive_sha256": "0a48a2a0087fecf0f9bbe815f20460ab70f858656b4e4a9d1479f8f03c8b09bf",
+    "release_manifest_sha256": "1894c2ca0b563d1b4ab69c29ac839cf5d873680c416f343072aacad4308889cb",
     "source_manifest_sha256": "3aacd122abe16da771ac1eb6ad80c50c1c6e7ab43d555dc8772f21be24248366",
     "schema_sha256": "428e1312d9922ab4ec20c0ee89d93d842528db6d8cc75197c135f4d4f59066aa",
     "toolchain_sha256": "ee842444c37df3c6784665c2dacef4ab9220f3abfc5c2daf9214fe4b40aadbf7",

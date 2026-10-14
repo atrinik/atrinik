@@ -1151,6 +1151,27 @@ class WorkspaceTests(unittest.TestCase):
         self.environment.stop()
         self.temporary.cleanup()
 
+    @staticmethod
+    def _portable_build_tool_receipt() -> dict[str, dict[str, object]]:
+        """A complete admitted producer receipt for mocked portable contexts."""
+        return {
+            "cmake": {
+                "path": "/usr/bin/cmake", "resolved_path": "/usr/bin/cmake",
+                "sha256": "1" * 64, "size": 1, "executable": True,
+                "version": "cmake version 3.25.1\n",
+            },
+            "ninja": {
+                "path": "/usr/bin/ninja", "resolved_path": "/usr/bin/ninja",
+                "sha256": "2" * 64, "size": 1, "executable": True,
+                "version": "1.11.1\n",
+            },
+            "pkg_config": {
+                "path": "/usr/bin/pkgconf", "resolved_path": "/usr/bin/pkgconf",
+                "sha256": "3" * 64, "size": 1, "executable": True,
+                "version": "1.8.1\n",
+            },
+        }
+
     def test_fixture_teardown_releases_retained_workspace_lease(self):
         # Retain the fixture cycle deliberately: release must not depend on GC.
         fixture = type(self)("runTest")
@@ -11013,6 +11034,326 @@ class WorkspaceTests(unittest.TestCase):
         ]
         self.assertEqual(len(configure_calls), 5)
 
+    def test_portable_cmake_requires_context_before_preparing_or_running(self) -> None:
+        from atrinik_workspace.linux_portable import PortableBuildContext
+        source = self.workspace.paths.repositories / "content"
+        binary = self.workspace.paths.builds / "profiles/test/build/portable-context"
+        context = mock.Mock(spec=PortableBuildContext)
+        context.evidence = {}
+        context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
+        context.build_tools = self._portable_build_tool_receipt()
+        context.verify_host_tools = mock.Mock()
+        for portable, supplied_context, tests, message in (
+            (True, None, False, "verified process build context"),
+            (True, object(), False, "verified process build context"),
+            (True, context, True, "BUILD_TESTING=OFF"),
+            (False, context, False, "requires a portable producer build"),
+        ):
+            with self.subTest(portable=portable, context=supplied_context, tests=tests), \
+                 mock.patch.object(self.workspace, "_prepare_cmake_binary") as prepare, \
+                 mock.patch("atrinik_workspace.workspace.run") as run, \
+                 self.assertRaisesRegex(WorkspaceError, message):
+                self.workspace._cmake(source, binary, [], tests,
+                                      portable=portable, portable_context=supplied_context)
+            prepare.assert_not_called()
+            run.assert_not_called()
+        self.assertEqual(context.mock_calls, [])
+
+    def test_portable_cmake_disables_launchers_and_driver_environment_overrides(self) -> None:
+        from atrinik_workspace.linux_portable import PortableBuildContext, PORTABLE_PATH, portable_configure_arguments
+        source = self.workspace.paths.repositories / "content"
+        (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
+        caller_home = self.root / "caller-home"
+        registry = caller_home / ".cmake/packages/SDL3"
+        registry.mkdir(parents=True)
+        (registry / "foreign").write_text("/tmp/foreign-sdl3\n")
+        binary = self.workspace.paths.builds / "profiles/test/build/portable-fixture"
+        # Isolate proof capture from these environment assertions while retaining
+        # the production type gate and checking every context boundary call.
+        context = mock.Mock(spec=PortableBuildContext)
+        context.evidence = {}
+        context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
+        context.build_tools = self._portable_build_tool_receipt()
+        context.verify_host_tools = mock.Mock()
+        with mock.patch.dict(os.environ, {"HOME": str(caller_home), "PATH": "/tmp/caller-wrappers", "CC": "/tmp/caller-cc",
+                                         "BASH_ENV": "/tmp/hook", "PYTHONPATH": "/tmp/modules",
+                                         "PYTHONNOUSERSITE": "0",
+                                         "CCC_OVERRIDE_OPTIONS": "+-O3", "CLANG_CONFIG_FILE_USER_DIR": "/tmp/config", "LD_PRELOAD": "/tmp/shim.so", "LD_LIBRARY_PATH": "/tmp/tools",
+                                         "CPATH": "/tmp/headers", "COMPILER_PATH": "/tmp/compilers",
+                                         "CCACHE_DIR": "/tmp/cache", "CCACHE_CONFIGPATH": "/tmp/ccache.conf",
+                                         "CCACHE_PREFIX": "/tmp/launcher",
+                                         "CMAKE_PREFIX_PATH": "/tmp/foreign", "CMAKE_INCLUDE_PATH": "/tmp/foreign/include",
+                                         "CMAKE_LIBRARY_PATH": "/tmp/foreign/lib", "PKG_CONFIG": "/tmp/foreign-pkg-config", "PKG_CONFIG_PATH": "/tmp/foreign/pc",
+                                         "PKG_CONFIG_LIBDIR": "/tmp/foreign/lib", "PKG_CONFIG_SYSROOT_DIR": "/tmp/foreign"}), \
+             mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}) as identities, \
+             mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False), \
+             mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
+             mock.patch("atrinik_workspace.workspace.run") as run:
+            self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True, portable_context=context)
+        configure = next(call for call in run.call_args_list if call.args[0][:2] == ["/usr/bin/cmake", "-S"])
+        for name in ("BASH_ENV", "PYTHONPATH", "CCC_OVERRIDE_OPTIONS", "CLANG_CONFIG_FILE_USER_DIR", "LD_PRELOAD",
+                     "LD_LIBRARY_PATH", "CPATH", "COMPILER_PATH", "CCACHE_DIR",
+                     "CCACHE_CONFIGPATH", "CCACHE_PREFIX", "CMAKE_PREFIX_PATH",
+                     "CMAKE_INCLUDE_PATH", "CMAKE_LIBRARY_PATH", "PKG_CONFIG_SYSROOT_DIR", "PKG_CONFIG"):
+            self.assertNotIn(name, configure.kwargs["env"])
+        self.assertEqual(configure.kwargs["env"]["PKG_CONFIG_PATH"], "/usr/local/lib/pkgconfig")
+        self.assertNotIn("/tmp/foreign", configure.kwargs["env"]["PKG_CONFIG_LIBDIR"])
+        self.assertIn("-DCMAKE_C_COMPILER_LAUNCHER=", configure.args[0])
+        self.assertNotIn("CCACHE_DIR", configure.kwargs["env"])
+        self.assertEqual(self.workspace._build_summary["cache"]["inputs"]["compiler-cache"], "disabled")
+
+        self.assertEqual(configure.kwargs["env"]["HOME"], str(caller_home))
+        self.assertIn("-DCMAKE_FIND_USE_PACKAGE_REGISTRY=FALSE", configure.args[0])
+        self.assertIn("-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=FALSE", configure.args[0])
+        self.assertIn("-DCMAKE_MAKE_PROGRAM=/usr/bin/ninja", configure.args[0])
+        self.assertIn("-DPKG_CONFIG_EXECUTABLE=/usr/bin/pkgconf", configure.args[0])
+        self.assertTrue(identities.call_args_list)
+        for call in identities.call_args_list:
+            self.assertEqual(call.kwargs["environment"]["PATH"], PORTABLE_PATH)
+            self.assertNotIn("/tmp/caller", call.args[0])
+        build = next(call for call in run.call_args_list if call.args[0][:2] == ["/usr/bin/cmake", "--build"])
+        self.assertEqual(build.kwargs["env"]["PATH"], PORTABLE_PATH)
+        self.assertEqual(configure.kwargs["env"]["PYTHONNOUSERSITE"], "1")
+        self.assertEqual(build.kwargs["env"]["PYTHONNOUSERSITE"], "1")
+        self.assertEqual(context.mock_calls, [
+            mock.call.validate_source_binding(binary, source),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.capture_configure(binary, source),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.capture_output(binary),
+        ])
+
+    def test_portable_registry_policy_change_refreshes_only_owned_cached_tree(self) -> None:
+        from atrinik_workspace.linux_portable import PortableBuildContext, portable_configure_arguments
+        source = self.workspace.paths.repositories / "content"
+        current = portable_configure_arguments(source)
+        foreign = self.root / "caller-package"
+        foreign.mkdir()
+        (foreign / "SDL3Config.cmake").write_text("# caller-owned package\n")
+        for policy in ("CMAKE_FIND_USE_PACKAGE_REGISTRY", "CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY"):
+            with self.subTest(policy=policy):
+                binary = self.workspace.paths.builds / "profiles/test/build" / policy
+                cache = binary / "CMakeCache.txt"
+                sentinel = binary / "unchanged-current-tree"
+                configurations = []
+                contexts = [mock.Mock(spec=PortableBuildContext) for _ in range(3)]
+                for context in contexts:
+                    context.evidence = {}
+                    context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
+                    context.build_tools = self._portable_build_tool_receipt()
+                    context.verify_host_tools = mock.Mock()
+
+                def configured(command, **kwargs):
+                    if command[:2] != ["/usr/bin/cmake", "-S"]:
+                        return
+                    # Real managed_reset must remove cached package discovery before configure.
+                    self.assertFalse(cache.exists())
+                    configurations.append(command)
+                    package = foreign if len(configurations) == 1 else Path("/usr/local/lib/cmake/SDL3")
+                    cache.write_text("SDL3_DIR:PATH=" + str(package) + "\n")
+
+                with mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}), \
+                     mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False), \
+                     mock.patch.object(self.workspace, "_cmake_source_identity", return_value={"configure_skip_safe": True}), \
+                     mock.patch.object(self.workspace, "_cmake_configured_toolchain", return_value=None), \
+                     mock.patch.object(self.workspace, "_cmake_toolchain_identity", return_value=None), \
+                     mock.patch.object(self.workspace, "_cmake_state_valid", return_value=True), \
+                     mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
+                     mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes"), \
+                     mock.patch("atrinik_workspace.workspace.run", side_effect=configured):
+                    previous = [arg for arg in current if not arg.startswith("-D" + policy + "=")]
+                    self.workspace._cmake(source, binary, previous, False, portable=True, portable_context=contexts[0])
+                    self.assertIn(str(foreign), cache.read_text())
+                    self.workspace._cmake(source, binary, current, False, portable=True, portable_context=contexts[1])
+                    self.assertNotIn(str(foreign), cache.read_text())
+                    sentinel.write_text("retain unchanged current tree\n")
+                    self.workspace._cmake(source, binary, current, False, portable=True, portable_context=contexts[2])
+                self.assertEqual(len(configurations), 3)
+                self.assertFalse(sentinel.exists())
+                for context in contexts:
+                    self.assertEqual(context.mock_calls, [
+                        mock.call.validate_source_binding(binary, source),
+                        mock.call.verify_host_tools(),
+                        mock.call.verify_host_tools(),
+                        mock.call.verify_host_tools(),
+                        mock.call.verify_host_tools(),
+                        mock.call.verify_host_tools(),
+                        mock.call.verify_host_tools(),
+                        mock.call.verify_host_tools(),
+                        mock.call.capture_configure(binary, source),
+                        mock.call.verify_host_tools(),
+                        mock.call.verify_host_tools(),
+                        mock.call.capture_output(binary),
+                    ])
+                self.assertNotIn("-D" + policy + "=FALSE", configurations[0])
+                for configure in configurations[1:]:
+                    self.assertIn("-D" + policy + "=FALSE", configure)
+                self.assertEqual((foreign / "SDL3Config.cmake").read_text(), "# caller-owned package\n")
+
+    def test_portable_tool_swap_after_configure_stops_before_build(self) -> None:
+        from atrinik_workspace.linux_portable import PortableBuildContext, portable_configure_arguments
+        from atrinik_workspace.linux_export import ExportError
+        source = self.workspace.paths.repositories / "content"
+        (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
+        binary = self.workspace.paths.builds / "profiles/test/build/portable-swap"
+        context = mock.Mock(spec=PortableBuildContext)
+        context.evidence = {}
+        context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
+        context.build_tools = self._portable_build_tool_receipt()
+        context.verify_host_tools = mock.Mock(side_effect=[None] * 7 + [ExportError("archive tool bytes differ")])
+        with mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture"}), \
+             mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
+             mock.patch("atrinik_workspace.workspace.run") as run, \
+             self.assertRaisesRegex(WorkspaceError, "bytes differ"):
+            self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True, portable_context=context)
+        self.assertTrue(any(call.args[0][:2] == ["/usr/bin/cmake", "-S"] for call in run.call_args_list))
+        self.assertFalse(any("--build" in call.args[0] for call in run.call_args_list))
+        self.assertEqual(context.mock_calls, [
+            mock.call.validate_source_binding(binary, source),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.capture_configure(binary, source),
+            mock.call.verify_host_tools(),
+        ])
+
+    def test_portable_host_tool_receipt_is_retained_and_drift_stops_before_build(self) -> None:
+        from atrinik_workspace.linux_portable import PortableBuildContext
+        source = self.workspace.paths.repositories / "content"
+        (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
+        binary = self.workspace.paths.builds / "profiles/test/build/portable-host-tool-swap"
+        context = mock.Mock(spec=PortableBuildContext)
+        context.evidence = {}
+        context.host_tools = {"shader_python": {"sha256": "admitted-python-digest"}}
+        context.build_tools = self._portable_build_tool_receipt()
+        context.verify_host_tools = mock.Mock(side_effect=[None] * 7 + [
+            ValueError("host tool bytes changed"),
+        ])
+        with (
+            mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture"}),
+            mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False),
+            mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})),
+            mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes"),
+            mock.patch("atrinik_workspace.workspace.run") as run,
+            self.assertRaisesRegex(WorkspaceError, "host tool bytes changed"),
+        ):
+            self.workspace._cmake(source, binary, [], False, portable=True, portable_context=context)
+        metadata = load_json(binary / workspace_module.CONFIGURE_METADATA)
+        self.assertEqual(metadata["portable_host_tools"], context.host_tools)
+        self.assertEqual(metadata["portable_build_tools"], context.build_tools)
+        self.assertTrue(any(call.args[0][:2] == ["/usr/bin/cmake", "-S"] for call in run.call_args_list))
+        self.assertFalse(any("--build" in call.args[0] for call in run.call_args_list))
+        self.assertEqual(context.mock_calls, [
+            mock.call.validate_source_binding(binary, source),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.capture_configure(binary, source),
+            mock.call.verify_host_tools(),
+        ])
+
+    def test_portable_cached_ninja_graph_uses_admitted_environment(self) -> None:
+        from atrinik_workspace.linux_portable import PORTABLE_PATH
+        source = self.root / "graph-source"
+        source.mkdir()
+        binary = self.root / "graph-binary"
+        binary.mkdir()
+        (binary / "CMakeCache.txt").write_text(
+            f"CMAKE_HOME_DIRECTORY:INTERNAL={source}\nCMAKE_GENERATOR:INTERNAL=Ninja\n")
+        (binary / "build.ninja").write_text("fixture")
+        environment = {"PATH": PORTABLE_PATH}
+        with mock.patch.dict(os.environ, {"PATH": "/tmp/foreign-tools"}), \
+             mock.patch("atrinik_workspace.workspace.run", return_value="build.ninja:\n  input: RERUN_CMAKE") as run:
+            self.assertTrue(self.workspace._cmake_state_valid(source, binary, [], environment=environment))
+        self.assertEqual(run.call_args.args[0][0], "/usr/bin/ninja")
+        self.assertEqual(run.call_args.kwargs["env"], environment)
+
+    def test_clang_runtime_fingerprint_detects_replaced_archives(self) -> None:
+        resource = self.root / "llvm-resource"
+        libraries = resource / "lib" / "linux"
+        libraries.mkdir(parents=True)
+        builtins = libraries / "libclang_rt.builtins-x86_64.a"
+        profile = libraries / "libclang_rt.profile-x86_64.a"
+        builtins.write_bytes(b"builtins")
+        profile.write_bytes(b"profile")
+        identity = {"command": "clang", "version": "clang version 23.1.3"}
+        with mock.patch("atrinik_workspace.workspace.run", side_effect=lambda command, **kwargs:
+                        str(resource) if command[-1] == "-print-resource-dir" else str(builtins)):
+            first = self.workspace._compiler_runtime_identity(identity)
+            profile.write_bytes(b"replaced-profile")
+            second = self.workspace._compiler_runtime_identity(identity)
+        self.assertTrue(first["complete"])
+        self.assertEqual(len(first["files"]), 2)
+        self.assertNotEqual(first, second)
+        with mock.patch("atrinik_workspace.workspace.run", return_value="relative.a"):
+            self.assertFalse(self.workspace._compiler_runtime_identity(identity)["complete"])
+
+    def test_configured_cmake_runtime_probe_uses_selected_target_and_sysroot(self) -> None:
+        binary = self.root / "cmake-cross-build"
+        binary.mkdir()
+        (binary / "CMakeCache.txt").write_text(
+            "CMAKE_C_COMPILER:FILEPATH=/opt/llvm/bin/clang\n"
+            "CMAKE_C_COMPILER_TARGET:STRING=x86_64-w64-mingw32\n"
+            "CMAKE_SYSROOT:PATH=/opt/windows-sysroot\n")
+        with mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "clang 23.1.3"}), \
+             mock.patch.object(self.workspace, "_compiler_runtime_identity", return_value={"complete": True}) as runtime:
+            self.workspace._cmake_configured_toolchain(binary)
+        self.assertEqual(runtime.call_args.args[1],
+                         ("--target=x86_64-w64-mingw32", "--sysroot=/opt/windows-sysroot"))
+
+    def test_configured_cmake_linker_and_archiver_fingerprints(self) -> None:
+        binary = self.root / "cmake-llvm-build"
+        binary.mkdir()
+        cache = binary / "CMakeCache.txt"
+        cache.write_text("CMAKE_LINKER:FILEPATH=/opt/llvm/bin/ld.lld\n"
+                         "CMAKE_AR:FILEPATH=/opt/llvm/bin/llvm-ar\n"
+                         "CMAKE_EXE_LINKER_FLAGS:STRING=-fuse-ld=lld --rtlib=compiler-rt\n")
+        with cache.open("a") as stream:
+            stream.write("CMAKE_READELF:FILEPATH=/opt/llvm/bin/llvm-readelf\n")
+        with mock.patch.object(self.workspace, "_tool_identity", side_effect=lambda tool: {"command": tool}):
+            first = self.workspace._cmake_configured_toolchain(binary)
+        self.assertEqual(set(first["link_tools"]), {"CMAKE_LINKER", "CMAKE_AR", "CMAKE_READELF"})
+        self.assertIn("compiler-rt", first["values"]["CMAKE_EXE_LINKER_FLAGS"])
+
+    def test_local_windows_environment_requires_neutral_llvm_contract(self) -> None:
+        from tests import test_local_windows_producer as windows_fixtures
+
+        fixture = windows_fixtures.LocalWindowsProducerTests(
+            "test_actual_local_files_are_rehashed_for_each_admission"
+        )
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        environment = dict(fixture.environment)
+        expected_tools = ("cmake", "cpack", "ninja", "bash")
+        with mock.patch.dict(os.environ, environment, clear=True), \
+             mock.patch("atrinik_workspace.workspace.shutil.which",
+                        side_effect=lambda name, *, path: str(fixture.build_tools / name)) as which:
+            self.assertIsNotNone(self.workspace._local_windows_build_environment())
+        self.assertEqual(which.call_args_list, [
+            mock.call(name, path=fixture.environment["PATH"])
+            for name in expected_tools
+        ])
+        environment.pop("ATRINIK_WINDOWS_TARGET")
+        with mock.patch.dict(os.environ, environment, clear=True), \
+             mock.patch("atrinik_workspace.workspace.shutil.which") as which:
+            self.assertIsNone(self.workspace._local_windows_build_environment())
+        which.assert_not_called()
+
     def test_tool_identity_handles_wrappers_and_empty_version_output(self) -> None:
         with (
             mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/tool"),
@@ -11135,6 +11476,93 @@ class WorkspaceTests(unittest.TestCase):
         cache = self.workspace.paths.builds / "compiler-cache"
         self.assertEqual(load_json(cache / MANAGED_MARKER)["purpose"], "compiler-cache")
         self.assertEqual(load_json(cache / ".atrinik-cache.json")["max_size"], "5G")
+
+    def test_portable_prefix_probe_subprocess_uses_scrubbed_environment(self) -> None:
+        from atrinik_workspace.linux_portable import (
+            LLVM_ROOT, PORTABLE_PATH, PortableBuildContext,
+        )
+        source = self.workspace.paths.repositories / "content"
+        (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
+        binary = self.workspace.paths.builds / "profiles/test/build/prefix-probe"
+        context = mock.Mock(spec=PortableBuildContext)
+        context.evidence = {}
+        context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
+        context.build_tools = self._portable_build_tool_receipt()
+        context.verify_host_tools = mock.Mock()
+        compiler = self.root / "compiler-fixture"
+        observations = self.root / "probe-environments.jsonl"
+        compiler.write_text(
+            "#!/usr/bin/python3\n"
+            "import json, os, pathlib, sys\n"
+            f"with open({str(observations)!r}, 'a') as record:\n"
+            "    record.write(json.dumps(dict(os.environ)) + '\\n')\n"
+            "pathlib.Path(sys.argv[sys.argv.index('-o') + 1]).write_bytes(b'object')\n"
+        )
+        compiler.chmod(0o755)
+        actual_run = workspace_module.run
+
+        def execute_probe(command: list[str], **kwargs: object) -> str:
+            if "-fdebug-prefix-map=/atrinik-prefix-probe=/atrinik/probe" in command:
+                return actual_run(command, **kwargs)
+            return ""
+
+        poison = {
+            "PATH": "/tmp/caller-wrappers", "CC": "/tmp/caller-cc",
+            "CXX": "/tmp/caller-cxx", "LD_PRELOAD": "/tmp/caller-shim.so",
+            "LD_LIBRARY_PATH": "/tmp/caller-libraries",
+            "CCC_OVERRIDE_OPTIONS": "+-O3", "COMPILER_PATH": "/tmp/caller-compilers",
+            "CLANG_CONFIG_FILE_USER_DIR": "/tmp/caller-config",
+            "PYTHONPATH": "/tmp/caller-python",
+        }
+        with (
+            mock.patch.dict(os.environ, poison),
+            mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture"}) as identities,
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value=str(compiler)),
+            mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})),
+            mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes"),
+            mock.patch("atrinik_workspace.workspace.run", side_effect=execute_probe),
+        ):
+            self.workspace._cmake(source, binary, [], False,
+                                  portable=True, portable_context=context)
+        environments = [json.loads(line) for line in observations.read_text().splitlines()]
+        self.assertEqual(len(environments), 2)
+        for environment in environments:
+            for name in poison.keys() - {"PATH", "CC", "CXX"}:
+                self.assertNotIn(name, environment)
+            self.assertEqual(environment["PATH"], PORTABLE_PATH)
+            self.assertEqual(environment["CC"], LLVM_ROOT + "/bin/clang")
+            self.assertEqual(environment["CXX"], LLVM_ROOT + "/bin/clang++")
+            self.assertEqual(environment["PYTHONNOUSERSITE"], "1")
+        for call in identities.call_args_list:
+            self.assertEqual(call.kwargs["environment"]["PATH"], PORTABLE_PATH)
+            self.assertNotIn("LD_PRELOAD", call.kwargs["environment"])
+
+    def test_prefix_probe_keeps_inherited_behavior_and_separates_environment_cache(self) -> None:
+        def compile_probe(command: list[str], **kwargs: object) -> str:
+            Path(command[command.index("-o") + 1]).write_bytes(b"object")
+            return ""
+
+        environment = {"PATH": "/admitted/tools"}
+        with (
+            mock.patch.object(self.workspace, "_tool_identity", return_value={}) as identity,
+            mock.patch("atrinik_workspace.workspace.shutil.which", return_value="/fixture/compiler") as which,
+            mock.patch("atrinik_workspace.workspace.run", side_effect=compile_probe) as run,
+        ):
+            self.assertTrue(self.workspace._compiler_supports_prefix_maps("cc", "c"))
+            identity.assert_called_once_with("cc")
+            which.assert_called_once_with("cc")
+            self.assertNotIn("env", run.call_args.kwargs)
+            self.assertTrue(self.workspace._compiler_supports_prefix_maps("cc", "c", environment=environment))
+            identity.assert_called_with("cc", environment=environment)
+            which.assert_called_with("cc", path="/admitted/tools")
+            self.assertEqual(run.call_args.kwargs["env"], environment)
+            self.assertEqual(run.call_count, 2)
+            self.assertTrue(self.workspace._compiler_supports_prefix_maps("cc", "c", environment=dict(environment)))
+            self.assertEqual(run.call_count, 2)
+            self.assertTrue(self.workspace._compiler_supports_prefix_maps(
+                "cc", "c", environment={**environment, "CCC_OVERRIDE_OPTIONS": "+-O3"},
+            ))
+            self.assertEqual(run.call_count, 3)
 
     def test_compiler_cache_first_use_is_serialized_across_processes(self) -> None:
         context = multiprocessing.get_context("spawn")

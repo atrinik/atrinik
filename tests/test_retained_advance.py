@@ -13,6 +13,16 @@ class RetainedAdvanceSchemaTests(unittest.TestCase):
         self.raw = (Path(__file__).parents[1] / "atrinik_workspace/linux_portable.py").read_bytes()
         self.pins = advance.accepted_portable_pins(self.raw)
 
+    def test_llvm_producer_adds_compiler_evidence_without_rewriting_historical_pins(self):
+        historical = copy.deepcopy(self.pins)
+        current = copy.deepcopy(historical)
+        current["METADATA_HASHES"]["compiler-evidence.json"] = "a" * 64
+        self.assertEqual(advance.validate_pins(current), current)
+        self.assertEqual(advance.validate_pins(historical), historical)
+        current["METADATA_HASHES"]["compiler-evidence.json"] = "not-a-digest"
+        with self.assertRaises(WorkspaceError):
+            advance.validate_pins(current)
+
     def envelope(self):
         return {"schema_version": 1, "correction_sha256": "a" * 64,
                 "declaration": {"accepted_wrapper_commit": "b" * 40,
@@ -130,7 +140,7 @@ class RetainedAdvanceSchemaTests(unittest.TestCase):
             check(bad)
 
     def test_accepted_pins_are_literals_and_exact_inventory(self):
-        self.assertEqual(self.pins["CONSUMER_COMMIT"], "d926f6fd0418fb1af9060158c43d8d3ff5252580")
+        self.assertEqual(self.pins["CONSUMER_COMMIT"], "bd5317a03cdc82f029105c5dc26428b09fcd54b3")
         for raw in (self.raw + b'\nIMAGE = "duplicate"\n', self.raw.replace(b'IMAGE = "', b'IMAGE = str("', 1),
                     self.raw.replace(b'@sha256:', b':latest#', 1), b'IMAGE = __import__("os").system("false")'):
             with self.subTest(raw=raw[-40:]), self.assertRaises(WorkspaceError):

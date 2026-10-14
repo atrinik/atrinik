@@ -36,19 +36,19 @@ ENTRY_MODE_NATIVE_HOST = "native-host"
 ENTRY_MODE_UNKNOWN = "unknown"
 
 CANONICAL_IMAGE = (
-    "ghcr.io/atrinik/linux-build:1.10.0@sha256:"
-    "7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8"
+    "ghcr.io/atrinik/linux-build:1.18.0@sha256:"
+    "613cf43ab07634db005a28462a009c4c28c90dccb1b5175e13e8072b6dfe8d72"
 )
 WINDOWS_CROSS_IMAGE = (
-    "ghcr.io/atrinik/windows-build:1.2.1@sha256:"
-    "d1f082eb28891600a9cf018a1d4310b9f3e1f985f82139fa48fbd4ac77b623bb"
+    "ghcr.io/atrinik/windows-build:1.18.0@sha256:"
+    "01065f081cdf843a6591abf25f2b27734103ab385c5aa003b2eeb9a3a1ca0e5a"
 )
 CANONICAL_WORKSPACE_FOLDER = "/workspaces/atrinik"
 CANONICAL_REMOTE_USER = "ubuntu"
 CANONICAL_HOME = "/home/ubuntu"
 CANONICAL_CODEX_HOME = "/home/ubuntu/.codex"
 WINDOWS_CROSS_REMOTE_USER = "vscode"
-MXE_PATH = "/opt/mxe/usr/bin"
+WINDOWS_TOOLCHAIN_PATH = "/opt/llvm-mingw/bin"
 
 MAX_CONFIG_BYTES = 128 * 1024
 MAX_COMPONENTS_BYTES = 4 * 1024 * 1024
@@ -377,7 +377,7 @@ def _posix_locking_available() -> bool:
     return callable(getattr(locking, "flock", None))
 
 
-def _mxe_signals(
+def _windows_toolchain_signals(
     environment: Mapping[str, str], user_name: str | None
 ) -> list[str]:
     signals: list[str] = []
@@ -385,8 +385,9 @@ def _mxe_signals(
         signals.append("windows-cross-remote-user")
     if environment.get("HOME") == "/home/vscode":
         signals.append("windows-cross-home")
-    if MXE_PATH in environment.get("PATH", "").split(os.pathsep):
-        signals.append("mxe-toolchain-present")
+    if (WINDOWS_TOOLCHAIN_PATH in environment.get("PATH", "").split(os.pathsep)
+            or environment.get("ATRINIK_WINDOWS_TOOLCHAIN_FILE")):
+        signals.append("windows-toolchain-present")
     if environment.get("DEVCONTAINER_IMAGE") == WINDOWS_CROSS_IMAGE:
         signals.append("windows-cross-image")
     return signals
@@ -713,7 +714,7 @@ def probe(
         )
 
     runtime_marker = _marker_present(runtime_root, failures)
-    role_signals = _mxe_signals(environment, user_name)
+    role_signals = _windows_toolchain_signals(environment, user_name)
     if not runtime_marker:
         role_signals = [signal for signal in role_signals
                         if signal not in {"windows-cross-remote-user", "windows-cross-home"}]
@@ -799,8 +800,8 @@ def probe(
     windows_remote_env = windows_config.get("remoteEnv")
     if not isinstance(windows_remote_env, dict) or windows_remote_env.get(
         "PATH"
-    ) != "/opt/mxe/usr/bin:${containerEnv:PATH}":
-        failures.append("windows-cross-mxe-reference")
+    ) != "/opt/llvm-mingw/bin:${containerEnv:PATH}":
+        failures.append("windows-cross-toolchain-reference")
 
     if not _marker_present(runtime_root, failures):
         return _native_probe(repository_root, environment, uid, failures,

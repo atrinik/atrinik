@@ -1,0 +1,55 @@
+name: Fixed portable shell identity
+
+on:
+  push:
+    branches: [build/llvm-portable-shell-identity]
+    paths:
+      - '.github/workflows/linux-portable-shell-identity.yml'
+      - 'scripts/collect_portable_shell_identity.py'
+      - 'tests/test_collect_portable_shell_identity.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: portable-shell-identity-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    if: >-
+      github.repository == 'atrinik/atrinik' &&
+      ((github.event_name == 'push' && github.ref == 'refs/heads/build/llvm-portable-shell-identity') ||
+       (github.event_name == 'workflow_dispatch' &&
+        (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/build/llvm-portable-shell-identity')))
+    runs-on: ubuntu-26.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Read the reviewed immutable host collector dependency
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: atrinik/devcontainer
+          ref: 4b68b6869ac7f6d0fcb2478777bf0dbf528797a0
+          path: .shell-sdk-source
+          persist-credentials: false
+      - name: Replay archive fixtures with the exact host dependency
+        run: python3 -I -B tests/test_collect_portable_shell_identity.py --pinned-sdk
+      - name: Collect bounded shell identity without executing image code
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 -I -B scripts/collect_portable_shell_identity.py
+      - name: Retain exact identity and cleanup evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: portable-shell-identity-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/portable-shell-identity
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0

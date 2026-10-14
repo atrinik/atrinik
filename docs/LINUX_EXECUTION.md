@@ -15,7 +15,7 @@ before activation, without modifying existing journals or ledgers.
 | Already-bound historical Linux coordinator | None required | Existing `canonical-linux` contract after complete live proof | Exact retained image/mount/worktree/ledger coordinates |
 | Optional native Linux client container | Selected X11/Wayland and real GPU | Runtime capability does not grant delivery authority | Selected renderer and gameplay evidence |
 | Retained Windows/WSL2/WSLg desktop composition | Existing WSLg display/audio/GPU mounts | Runtime capability alone grants no authority; existing canonical proof is separate | [Credential-bearing prerequisites](../README.md#pinned-build-and-runtime-containers); keep native Windows evidence separate |
-| Windows cross-build container | None | No ledger authority | MXE package/build evidence only |
+| Windows cross-build container | None | No ledger authority | LLVM Windows package/build evidence only |
 | Native Windows | Native graphics for D3D12 qualification | No Linux ledger authority | Native Windows runtime evidence |
 
 The version list is the implementation's supported systemd distribution contract,
@@ -93,6 +93,28 @@ image. No mandatory host compiler, QEMU, GUI editor or long-lived coordinator
 container is needed. An already-bound historical container delivery retains
 its original coordinates under the compatibility contract below.
 
+Classic workers use LLVM 23.1.3 Clang, LLD and compiler-rt with ThinLTO disabled.
+Native coverage uses matching `llvm-profdata` and `llvm-cov`. Preserve the
+selected platform glibc, libstdc++ and graphics/audio dependencies. The wrapper
+fingerprints compiler, configured linker/archive tools and Clang builtins/profile
+archives so changing their bytes invalidates a cached build tree.
+
+Local Windows packaging requires the canonical declarative LLVM-MinGW toolchain.
+It clears compiler, resource-compiler and dependency overrides, Bash startup
+hooks and compiler cache selectors. Before, between and after packaging steps,
+it hashes the complete dependency prefix and LLVM SDK (including headers,
+pkg-config metadata, import/static libraries, target CRT, internal symlink
+identities and shared tool implementations), selected build tools, Python files
+and toolchain. SDK trees must have safe ownership and permissions, remain within
+separate declared roots, and contain no hidden or special files or escaping
+links. Inspection is bounded to 100,000 entries, 512 MiB per file and 8 GiB per
+tree; changing a tree during inspection refuses packaging. Every selected LLVM
+tool must report LLVM 23.1.3; dlltool must resolve to the same multicall binary as
+llvm-ar, whose supported version mode identifies that implementation. The package records these identities in
+`build.producer`; changed or noncanonical inputs refuse packaging. When initial
+local-toolchain prerequisites are absent, packaging selects the supported Docker
+producer route; invalid selected local inputs fail closed.
+
 A build worker is an execution resource, not delivery authority. Keep native
 `HOME`, private Codex state, authentication and evidence on the host. Native
 ownership survives worker exit/recreation, while each new execution still
@@ -128,7 +150,7 @@ reports or other files that cannot safely be exposed to this trusted worker.
 NATIVE_PRIMARY=/absolute/owned/primary
 NATIVE_WORKTREE=/absolute/owned/primary/workspace/worktrees/atrinik/owned-label
 BUILD_JOB=atrinik-owned-unique-build
-BUILD_IMAGE=ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8
+BUILD_IMAGE=ghcr.io/atrinik/linux-build:1.18.0@sha256:613cf43ab07634db005a28462a009c4c28c90dccb1b5175e13e8072b6dfe8d72
 COMMON_GIT=$(git -C "$NATIVE_WORKTREE" rev-parse --path-format=absolute --git-common-dir)
 # The wrapper status operation has established this physical lease namespace.
 BUILD_LEASES="$COMMON_GIT/atrinik-resource-leases"
@@ -336,13 +358,13 @@ GitHub CLI token into Docker configuration.
 
 ```sh
 docker login ghcr.io --username YOUR_GITHUB_LOGIN
-docker pull ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8
+docker pull ghcr.io/atrinik/linux-build:1.18.0@sha256:613cf43ab07634db005a28462a009c4c28c90dccb1b5175e13e8072b6dfe8d72
 ```
 
 For portable export, pull its separate producer only when needed:
 
 ```sh
-docker pull ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338
+docker pull ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc
 ```
 
 A pull of a public package needs no login. A private-package denial requires the
@@ -482,7 +504,7 @@ arguments = ['docker', 'run', '--detach', '--init', '--name', name, '--network',
     '--mount', f'type=bind,source={payload},target=/client,readonly',
     '--mount', f'type=bind,source={config},target=/client-state',
     '--env', 'ATRINIK_CONFIG_DIR=/client-state', '--workdir', '/client',
-    'ghcr.io/atrinik/linux-build:1.10.0@sha256:7904a1802054662b0ede5b55de72e4c92b0112a3c211125f994ed6c62e9ec9d8',
+    'ghcr.io/atrinik/linux-build:1.18.0@sha256:613cf43ab07634db005a28462a009c4c28c90dccb1b5175e13e8072b6dfe8d72',
     '/client/atrinik', f'--server={host} {port} {fingerprint}', '--stun_server=off', '--nometa']
 container_id = subprocess.run(arguments, check=True, text=True, capture_output=True).stdout.strip()
 if not re.fullmatch('[0-9a-f]{64}', container_id):
@@ -504,10 +526,16 @@ mode, host credentials or a Docker socket to the client.
 ## Portable client export
 
 The public exporter runs in the exact published portable build environment,
-`ghcr.io/atrinik/classic-portable-build@sha256:8f6d345f0e24afad5e53d9e35c37f3e3b4012e5cc2c399334711e55e61a2a338`.
-This is a separate immutable producer after the short-lived pinned CPU
-build/test stage; it grants no delivery authority and does not replace the
-native host runtime. Before merge, the automatic `Linux portable acceptance`
+`ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc`.
+This fixed SDK 1.22.0 producer comes from devcontainer
+`eb1f6af78216adb4375826cdb70ef78a61ab403a`.
+[Collector run 38513888428](https://github.com/atrinik/devcontainer/actions/runs/38513888428)
+provides installed identity and trusted hosted filesystem equality, including
+seven authenticated metadata files. Its `final_portable_cohort` receipt remains
+false; retained assessment does not independently rehash executable/provider
+payloads or prove portable export. This is a separate immutable producer after
+the short-lived pinned CPU build/test stage; it grants no delivery authority and
+does not replace the native host runtime. Before merge, the automatic `Linux portable acceptance`
 pull-request workflow is the supported actual producer route. Its
 `Portable client build and relocation` job is nonpublishing, limits the producer
 to two CPUs, and serializes heavy runs without cancelling another owner's run.
@@ -518,7 +546,7 @@ The final runtime process has neither credentials nor original source/build
 mounts, and its network, display, GPU and audio endpoints are absent.
 
 Its current full-commit consumer
-guard requires Classic `d926f6fd0418fb1af9060158c43d8d3ff5252580`.
+guard requires Classic `bd5317a03cdc82f029105c5dc26428b09fcd54b3`.
 Use a clean Classic profile with verified released sound matching its selected
 sound source commit, and a new absolute destination
 whose parent is owned by the invoking user and not writable by other users.
@@ -529,7 +557,7 @@ profile lets the exporter materialize immutable generations from these primary
 selectors. Advancing either repository's `main`
 branch does not change this acceptance recipe; qualifying a new Classic commit
 requires a separately reviewed immutable producer.
-Create `classic-released-audio` with the exact v1.0.0 coordinates in the
+Create `classic-released-audio` with the exact v1.2.0 coordinates in the
 [released sound recipe](../README.md) before running these producer
 commands (the CI driver creates its own equivalent saved profile):
 
@@ -547,10 +575,37 @@ build cache, and retains the build lease through source revalidation and atomic
 publication. A failed operation preserves its private `.atrinik-export-*` staging
 for diagnosis and does not replace an existing output.
 
-The complete installed producer closure is bound to an independently reconstructed
-OCI overlay inventory: 299 regular files, including all eight upstream archives,
-222 Debian source archives, build recipes and notices. Three pinned aggregate
-SHA-256 values cover the producer tree, 145 Debian copyright paths and 14 common
+Portable shader generation binds the actual `/usr/bin/python3` executable,
+including its resolved path, file identity, SHA-256 and version, in the configure
+fingerprint and `portable-evidence.json` host-tool receipt. The build rechecks
+that identity before the shader proof and Ninja execution, after building and
+before export. Compiler capability probes use the same scrubbed environment as
+the build. This retains the existing host-tool trust boundary; it does not attest
+the Python standard library or add an interpreter to immutable SDK metadata.
+
+Portable Ninja commands additionally admit the measured `/bin/sh` chain as
+`command_shell` in the separate `host_tools` receipt. The fixed producer and
+consumer coordinates must match the shell literal before capture and every
+revalidation. The accepted chain is `/bin -> usr/bin` and `/usr/bin/sh -> dash`,
+with root-owned mode0755 directories and `/usr/bin/dash`, and root-owned mode0777
+symlinks protected by those directories. The target's exact 125,640 bytes and
+ELF64 little-endian x86-64 ET_DYN header are bound to the successful
+[fixed SDK shell collector run](https://github.com/atrinik/atrinik/actions/runs/38525579823).
+A finite no-follow descriptor walk holds all six entries through hashing and
+pathname rechecks; the operation receipt freezes device, inode and stat identity.
+Missing entries, alternate links, hardlinked targets, unsafe owners or modes,
+changed bytes or identities and mismatched cohort/receipts refuse admission.
+The requirement that the target have one hard link is a runtime safety
+precondition, separate from the collector's retained byte and symlink observations. No observed replacement
+shell is accepted as a fallback. This remains separate from the three published
+build-tool records and seven SDK metadata files. It does not execute the shell
+or an ELF inspector, attest its OS loader/libraries/standard data, or prove
+historical execution against a privileged swap-and-restore.
+
+The complete installed producer closure is bound to the collector maps accepted
+through trusted hosted filesystem equality: 364 regular producer files, including
+upstream and Debian source archives, build recipes and notices. Three pinned aggregate
+SHA-256 values cover the producer tree, 165 Debian copyright paths and 14 common
 license texts. Each canonical JSON map uses sorted keys and compact separators;
 producer/common-license keys are relative paths and values are
 `sha256`, `size`, `executable`. Debian keys are requested absolute copyright paths
@@ -567,6 +622,11 @@ its loader and graphics drivers. The X11/Vulkan producer uses XWayland on a
 Wayland desktop; PulseAudio or PipeWire's Pulse service supplies audio.
 
 The pinned Debian libpulse input has an absolute PulseAudio search directory.
+The retained ABI metadata corroborates the original provider path and input hash;
+it supplies no raw provider size, edit span or derivative output proof. The
+candidate recipe rebinds only the producer image/platform coordinates; all
+strict byte checks remain unchanged. Exact-revision hosted export must verify
+the actual input bytes, size, span and derivative output before acceptance.
 Export derives only that exact provider's private copy by replacing its 37-byte
 NUL-terminated DT_RUNPATH string with `$ORIGIN` and NUL padding. Strict ELF
 inspection remains mandatory for the derived bytes and every other provider.
@@ -591,6 +651,11 @@ Neither `linux verify` nor launcher execution requires the host source-build
 package lock, compiler or `linux_platform` build-tool report. They do require
 the verified complete payload and the native runtime capabilities used by the
 selected test.
+
+`linux verify` does not invoke an ELF inspector: provider and symbol inspection
+runs during export in the pinned producer, while relocation verification checks
+the resulting inventoried bytes. The producer's LLVM inspector is therefore
+not a native host prerequisite for this command.
 
 ## Independent headless server and native client
 
@@ -683,16 +748,18 @@ Reconnect using the fresh endpoint result and verify the saved player/change.
 After final client shutdown, run `down` again and verify no live topology before
 stopping only the exact owned container. Do not signal saved PIDs, delete lease
 or control files, or use cleanup as shutdown. Keep the persistent state and
-verification evidence. Windows/WSLg, MXE and native Windows D3D12 results remain
+verification evidence. Windows/WSLg, LLVM cross-build and native Windows D3D12 results remain
 separate records.
 
 ## Portable binary evidence
 
-`linux_export.portable_metadata_report` checks the six published portable metadata
+`linux_export.portable_metadata_report` checks the seven published portable metadata
 records against hashes and immutable OCI coordinates supplied by the caller's
 separate authenticated producer/registry verification. It accepts only the
 Linux/amd64 Debian 12/glibc 2.36 portable target, checks the installed contract,
-package and CPU declarations, resolves reported library/plugin edges, checks
+package and CPU declarations, verifies the recorded Clang/LLD/compiler-rt
+identities and exact driver probe invocations (including the x86-64 CPU baseline
+and absence of LTO), resolves reported library/plugin edges, checks
 versioned-symbol provider records and compares source/shader coordinates.
 Duplicate, malformed, missing, disconnected or contradictory records fail.
 Distinct SONAME declarations may share a dynamic feature name, as SDL does for
@@ -720,7 +787,86 @@ execution authority. Its X11/Vulkan client supports a Wayland desktop only via a
 separately qualified XWayland setup; no native Wayland backend is claimed here.
 
 `linux_export.inspect_elf` examines a leased, already-open regular ELF descriptor
-with bounded, time-limited GNU readelf output; it never runs the payload or ldd.
+with bounded, time-limited output from the verified absolute LLVM readelf path;
+it never runs the payload or ldd, and ambient PATH entries cannot select its inspector.
+Portable builds explicitly select the source-owned LLVM CMake toolchain, pin
+Clang/Clang++, LLD and archive tools, and use explicit `-O2`
+Release flags, ignore Clang default configuration files, and disable
+interprocedural optimization, compiler launchers, and both the user and system
+CMake package registries. Changing either registry control resets the owned
+CMake build tree so older cached package paths cannot survive reconfiguration.
+The ten LLVM tool identities include independently
+recorded and rechecked C and C++ driver paths, versions and executable hashes;
+Clang++ is never authenticated by assuming it shares Clang bytes. Portable CMake operations
+remove Clang driver/configuration overrides and inherited CMake and pkg-config
+dependency selectors. They use the admitted regular `/usr/bin/pkgconf` executable with explicit
+`/usr/local/lib/pkgconfig` and Debian system package directories, and search the
+verified LLVM runtime directory first. Every linker search directory and direct
+input is restricted to the pinned producer library directories or the owned build
+tree. Portable export receives the caller's leased generation inventories before
+staging the client, protocol and libatrinik source views. Each authored view file
+must match its exact source-proof member and bytes; cached CMake source paths and
+view metadata never grant source authority. The LLVM toolchain file is the
+proof-bound supplemental `cmake/toolchains/llvm.cmake` beside the staged client
+view, rather than beneath `client/`. Compiler source operands and explicit
+and effective header search paths are restricted to those verified views, closed
+configured-header inventories, or the pinned producer's declared SDK include
+directories. Authored include directives remain part of the trusted, proof-bound
+source; these checks do not attest every transitive header opened by the compiler. Forced headers, PCH,
+modules, overlays and preprocessor input redirection are unsupported.
+
+The same-operation context freezes the authenticated compiler evidence and
+rehashes all ten LLVM executable roles and both runtime archives around prefix
+and fingerprint probes, configure, build, output capture, runtime inspection and
+export publication. Refreshed installed metadata must still equal that frozen
+evidence; it cannot replace the caller's compiler authority. The final installed
+producer hash check remains required. These phase checks detect observed byte
+drift; they do not prove historical execution against a privileged
+swap-and-restore or attest the tools' transitive execution closure.
+
+Every portable operation resets its owned CMake binary tree and configures with
+`BUILD_TESTING=OFF`. Immediately after configure, an in-memory receipt freezes
+the complete compilation database, the client target's Ninja report, configured
+header inventory and exact source/binary coordinates. The target compile set
+comes from that fresh report: unrelated database targets remain source-checked
+and byte-bound, but are outside the client's object consumption requirement.
+The receipt is passed through the same operation; persisted cache metadata cannot
+substitute for it. After build, it binds the executable's bytes and identity and
+rechecks them when export reacquires the build lock and before publication.
+
+The authenticated producer's `installed.json` must include `build_tools` schema
+version 1, with exactly `cmake`, `ninja` and `pkg_config` records under `tools`.
+The `pkg_config` role invokes `/usr/bin/pkgconf` directly; the `pkg-config`
+symlink is outside the admitted execution paths. Each records
+the fixed `/usr/bin` invocation path, canonical resolved path, SHA-256, size,
+executable mode and complete `--version` output, including its trailing newline.
+The wrapper admits all three executables' bytes through protected regular-file
+descriptors before probing any version. Every component of these fixed
+execution paths must be root-owned, unwritable by other users and free of
+symlinks. An in-memory receipt rechecks their
+bytes, resolution and identity around configure and its tool probes, every Ninja
+graph query, shader proof, build, output capture and export publication. Stored
+configure metadata cannot supply this admission. Missing records require a newly
+qualified immutable producer; observed replacement tools are never a fallback.
+These checks admit executable bytes under the producer's trusted OS, libraries
+and CMake modules; they do not attest the transitive execution closure. The
+shader Python receipt remains a separate observed host-tool boundary.
+
+Every Ninja row must match the pinned source's finite compiler, archive, final
+link or shader embedding recipe. Compiler rows match the frozen database apart
+from CMake's exact dependency-file options, and generated/effective compiler and
+linker outputs name the same owned artifact. Client compilation follows its
+source-bound shader generator. Archive recipes remove the matching old archive,
+then create and index it with admitted LLVM tools and previously compiled object
+members. Every target object and archive must be transitively consumed by the
+terminal final link; build-tree library search paths are refused. Configured
+header directories reject added files and symlink aliases, including headers
+that could shadow SDK inputs. Shader header bytes are independently regenerated
+by the proof-bound source CLI against the pinned shader cohort in a bounded,
+scrubbed child process and compared before admission. These checks establish
+source/input and generated-command consistency under the existing immutable
+source and trusted leased-build assumptions; they do not attest historical
+execution. Compiler, optimization, CPU, runtime or LTO drift refuses export.
 It records class, endianness, machine, interpreter, static dependencies, runtime
 search paths and version-needed records by provider. The structural dependency
 report requires explicit bundled providers, materialized SONAME filenames and
@@ -746,7 +892,7 @@ Ubuntu 26.04 image uses glibc 2.43; moving its output does not demonstrate that 
 runs on older supported native build hosts. Record required loader/provider
 versions and qualify the exported application on each supported runtime baseline.
 
-See the [GNU readelf reference](https://sourceware.org/binutils/docs/binutils/readelf.html)
+See the [LLVM readelf reference](https://llvm.org/docs/CommandGuide/llvm-readelf.html)
 for the inspected header, program-header, dynamic and version sections.
 
 

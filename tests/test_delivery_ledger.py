@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import base64
-from contextlib import ExitStack, contextmanager, nullcontext, redirect_stdout
+from contextlib import ExitStack, contextmanager, nullcontext, redirect_stderr, redirect_stdout
 import fcntl
 import hashlib
 import importlib.util
@@ -2043,6 +2043,58 @@ class DeliveryHelperLocationTests(unittest.TestCase):
                 mock.call(ROOT, retained, storage, (subject, constructor_subject)),
             ])
             module.Workspace._delivery_context_subjects.assert_called_once_with(retained)
+
+
+class RetainedAdvanceHelperSchemaTests(unittest.TestCase):
+    def test_embedded_pins_match_pure_schema_for_legacy_llvm_and_malformed_inventory(self):
+        from atrinik_workspace import retained_advance as advance
+        raw = (ROOT / "atrinik_workspace/linux_portable.py").read_bytes()
+        historical = advance.accepted_portable_pins(raw)
+        historical["METADATA_HASHES"].pop("compiler-evidence.json", None)
+        llvm = copy.deepcopy(historical)
+        llvm["METADATA_HASHES"]["compiler-evidence.json"] = "a" * 64
+        cases = [("historical", historical, None), ("llvm", llvm, None)]
+        for name in historical["METADATA_HASHES"]:
+            bad = copy.deepcopy(llvm)
+            del bad["METADATA_HASHES"][name]
+            cases.append(("missing " + name, bad, "producer metadata inventory has an unsupported shape"))
+        for value in (None, True, 1, "a" * 63, "A" * 64, "a" * 64 + "\n"):
+            bad = copy.deepcopy(llvm)
+            bad["METADATA_HASHES"]["compiler-evidence.json"] = value
+            cases.append(("compiler digest " + repr(value), bad, "compiler-evidence.json is invalid"))
+        for pins in (historical, llvm):
+            bad = copy.deepcopy(pins)
+            bad["METADATA_HASHES"]["unrelated.json"] = "b" * 64
+            cases.append(("extra file " + str(len(pins["METADATA_HASHES"])), bad,
+                          "producer metadata inventory has an unsupported shape"))
+        for value in (None, [], list(llvm["METADATA_HASHES"])):
+            bad = copy.deepcopy(llvm)
+            bad["METADATA_HASHES"] = value
+            cases.append(("inventory type " + repr(value), bad,
+                          "producer metadata inventory has an unsupported shape"))
+        for label, pins, error in cases:
+            literal = ("\n".join(f"{key} = {value!r}" for key, value in pins.items()) + "\n").encode()
+            envelope = {"schema_version": 1, "correction_sha256": "a" * 64,
+                "declaration": {"accepted_wrapper_commit": "b" * 40,
+                    "producer_blob_sha256": "c" * 64, "portable_pins": pins,
+                    "classic_root": "/fixture/classic", "old_classic_head": "d" * 40,
+                    "new_classic_head": pins["CONSUMER_COMMIT"], "profile": "fixture-profile",
+                    "scenario": "fixture-scenario", "topology": "fixture-topology", "build_slot": "fixture-build"},
+                "steps": [{"stage": "declare", "generation": 10, "predecessor_sha256": "e" * 64,
+                           "request": {}, "observations": {}, "previous_topology_current": None}]}
+            for module, exception in ((advance, advance.WorkspaceError), (ledger._advance_module(), ledger.LedgerError)):
+                with self.subTest(case=label, schema=exception.__name__):
+                    if error is None:
+                        self.assertEqual(module.accepted_portable_pins(literal), pins)
+                        self.assertEqual(module.validate_envelope(envelope), envelope)
+                        module.require_append(None, envelope)
+                    else:
+                        for operation in (lambda: module.accepted_portable_pins(literal),
+                                          lambda: module.validate_envelope(envelope),
+                                          lambda: module.require_append(None, envelope)):
+                            with self.assertRaises(exception) as rejected:
+                                operation()
+                            self.assertEqual(str(rejected.exception), "retained advance " + error)
 
 
 class DeliveryLedgerTests(unittest.TestCase):
@@ -12773,8 +12825,27 @@ class DeliveryLedgerTests(unittest.TestCase):
                    "resource_context": {"kind": "bound-wrapper-worktree", "worktree_slot": "worktree"}}
         return refreshed, request, roots, live, actual, state, registry_bytes
 
-    def observation_transaction_fixture(self, label, *, live_resources=False, executor=True):
+    def observation_configuration_fixture(self):
+        """Keep producer and observer on the same private default Git inputs."""
+        fixture_home = self.live_base / "observation-home"
+        fixture_home.mkdir(mode=0o700)
+        config = fixture_home / ".gitconfig"
+        config.touch(mode=0o600)
+        environment = {key: value for key, value in os.environ.items()
+                       if not key.startswith("GIT_")}
+        environment.update(HOME=str(fixture_home),
+                           XDG_CONFIG_HOME=str(fixture_home / ".config"))
+        # Patch inputs only: the retained observer still pins and checks real
+        # origins, permissions, contents and races. Restore the caller at cleanup.
+        patch = mock.patch.dict(os.environ, environment, clear=True)
+        patch.start()
+        self.addCleanup(patch.stop)
+        return config
+
+    def observation_transaction_fixture(self, label, *, live_resources=False, executor=True, classic_coordinates=False):
         """Real ledger/Git/CAS fixture; resource proof is a separate tested boundary."""
+        if live_resources:
+            self.observation_git_config = self.observation_configuration_fixture()
         current, roots, live, runtime = self.split_resource_context_setup(Path("/unused"), label, for_correction=True)
         root = Path(current.path).parent
         planned = next_generation(current)
@@ -12796,6 +12867,10 @@ class DeliveryLedgerTests(unittest.TestCase):
         planned = ledger.cas(root, current.name, planned, **cas_arguments(current))
         scenario = {"name": "player", "state": "scenario-player", "path": str(live / "workspace/scenarios/player"),
                     "profile": "classic", "preset": "basic-player"}
+        if classic_coordinates:
+            classic = live / "classic"
+            scenario["resolved"] = {"server": {"checkout": "classic", "checkout_path": str(classic),
+                                               "head": git_run(classic, "rev-parse", "HEAD").stdout.strip()}}
         produced = self.produce_observation_resources(live, legacy_listener=True) if live_resources else None
         if produced:
             scenario = produced["scenario"]
@@ -13095,13 +13170,7 @@ class DeliveryLedgerTests(unittest.TestCase):
                 self.assertEqual(ledger.canonical_bytes(next(row["correction"] for row in recorded.document["resources"] if "correction" in row)), original_proof)
 
     def test_runtime_handoff_retained_public_forward(self):
-        # Fixture-only defaults: production deliberately rejects writable host
-        # Git origins, and this forward test must not adopt the user's config.
-        fixture_home = self.live_base / "handoff-home"
-        fixture_home.mkdir(mode=0o700)
-        with mock.patch.dict(os.environ, {"HOME": str(fixture_home),
-                                         "XDG_CONFIG_HOME": str(fixture_home / ".config")}):
-            self.retained_dependency_advance_forward(handoff=True)
+        self.retained_dependency_advance_forward(handoff=True)
 
     def runtime_handoff_forward_fixture(self, root, snapshot, live, plan):
         import multiprocessing
@@ -13203,6 +13272,79 @@ class DeliveryLedgerTests(unittest.TestCase):
 
     def test_retained_dependency_advance_public_declaration_and_plan(self):
         self.retained_dependency_advance_forward()
+
+    def test_retained_dependency_advance_pin_schemas_public_cli(self):
+        # Keep Git blob parsing, inline schema, ledger CAS and the public parser
+        # real. Resource/actor observations are fixtures, never live authority.
+        from atrinik_workspace.retained_advance import accepted_portable_pins
+        original = accepted_portable_pins((ROOT / "atrinik_workspace/linux_portable.py").read_bytes())
+        original["METADATA_HASHES"].pop("compiler-evidence.json", None)
+        for llvm in (False, True):
+            with self.subTest(llvm=llvm):
+                root, before, correction_request, observation = self.observation_transaction_fixture(
+                    "llvm" if llvm else "legacy", classic_coordinates=True)
+                self.transaction_observation = observation
+                observation["topology"]["status"]["name"] = "stopped-server"
+                with mock.patch.object(ledger, "_current_targets_live_safety", side_effect=self.observation_transaction_proof):
+                    current = ledger.correct_resource_observations_cas(root, before.name, correction_request, **cas_arguments(before))
+                    worktree = next(row for row in current.document["artifacts"] if row["kind"] == "worktree")
+                    live = Path(worktree["current"]["path"])
+                    primary = Path(worktree["primitive_request"]["roots"]["wrapper"]["path"])
+                    classic = live / "classic"
+                    (classic / "server/README").write_text("accepted fixture source advance\n")
+                    git_run(classic, "add", "server/README")
+                    git_run(classic, "commit", "-m", "accepted fixture source advance")
+                    pins = copy.deepcopy(original)
+                    pins["CONSUMER_COMMIT"] = git_run(classic, "rev-parse", "HEAD").stdout.strip()
+                    if llvm:
+                        pins["METADATA_HASHES"]["compiler-evidence.json"] = "a" * 64
+                    malformed = []
+                    if llvm:
+                        for mutation, message in (("digest", "compiler-evidence.json is invalid"),
+                                                  ("missing", "producer metadata inventory has an unsupported shape"),
+                                                  ("extra", "producer metadata inventory has an unsupported shape")):
+                            bad = copy.deepcopy(pins)
+                            if mutation == "digest":
+                                bad["METADATA_HASHES"]["compiler-evidence.json"] = "not-a-digest"
+                            elif mutation == "missing":
+                                del bad["METADATA_HASHES"]["contract.json"]
+                            else:
+                                bad["METADATA_HASHES"]["unrelated.json"] = "b" * 64
+                            malformed.append((mutation, bad, message))
+                    correction = next(row["correction"] for row in current.document["resources"] if "correction" in row)
+                    request = {"stage": "declare", "correction_sha256": ledger.canonical_object_digest(correction),
+                               "build_slot": "advanced-build"}
+                    path = self.live_base / "advance-schema-request.json"
+                    path.write_bytes(ledger.canonical_bytes(request))
+                    for label, declared_pins, error in [*malformed, ("valid", pins, None)]:
+                        with self.subTest(declaration=label):
+                            pin_file = primary / "atrinik_workspace/linux_portable.py"
+                            pin_file.write_text("\n".join(f"{key} = {value!r}" for key, value in declared_pins.items()) + "\n")
+                            git_run(primary, "add", "atrinik_workspace/linux_portable.py")
+                            git_run(primary, "commit", "-m", "producer declaration fixture " + label)
+                            accepted = git_run(primary, "rev-parse", "HEAD").stdout.strip()
+                            candidate = next_generation(current)
+                            candidate["targets"][0]["base"]["current_sha"] = accepted
+                            candidate["targets"][0]["base"]["lineage"].append(accepted)
+                            current = ledger.target_refresh_cas(root, current.name, candidate, **cas_arguments(current))
+                            with redirect_stdout(io.StringIO()) as output, redirect_stderr(io.StringIO()) as errors:
+                                code = ledger.main(["advance-retained-dependency-cas", str(root), current.name, str(path),
+                                    "--expected-generation", str(current.document["generation"]), "--expected-digest", current.digest,
+                                    "--expected-path", current.path])
+                            installed = ledger.inspect(root, current.name)
+                            if error is not None:
+                                self.assertEqual(code, 2, output.getvalue())
+                                self.assertEqual(errors.getvalue().strip(), "delivery-ledger: retained advance " + error)
+                                self.assertEqual(installed.raw, current.raw)
+                            else:
+                                self.assertEqual(code, 0, errors.getvalue())
+                                self.assertEqual(installed.document["generation"], current.document["generation"] + 1)
+                                self.assertEqual(installed.document["dependency_advance"]["declaration"]["portable_pins"], pins)
+                                self.assertEqual(installed.document["resources"], current.document["resources"])
+                                self.assertEqual(next(row["correction"] for row in installed.document["resources"]
+                                                      if "correction" in row), correction)
+                                self.assertEqual(json.loads(output.getvalue())["digest"], installed.digest)
+                    self.assertFalse((live / "workspace/topologies/stopped-server").exists())
 
     def test_retained_content_only_advance_preserves_history_and_reconnects(self):
         self.retained_dependency_advance_forward(content=True, classic_advance=False)
@@ -13707,6 +13849,16 @@ class DeliveryLedgerTests(unittest.TestCase):
             ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
         spec_path.write_bytes(original_spec)
         self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+        # Unsafe default origins must fail even when their contents still match
+        # the producer's digest. This exercises the real retained origin guard.
+        self.observation_git_config.chmod(0o660)
+        try:
+            with self.assertRaisesRegex(ledger.LedgerError, "unsafe Git configuration origin"):
+                ledger.correct_resource_observations_cas(root, before.name, request, **cas_arguments(before))
+        finally:
+            self.observation_git_config.chmod(0o600)
+        self.assertEqual(ledger.inspect(root, before.name).raw, before.raw)
+        self.assertEqual(mutable_bytes(), data)
         corrected = public("correct-resource-observations-cas", before, request)
         proof = next(row["correction"] for row in corrected.document["resources"] if "correction" in row)
         topology = next(row for row in corrected.document["resources"] if row["kind"] == "topology")
@@ -14525,7 +14677,7 @@ class DeliveryLedgerTests(unittest.TestCase):
             )
             self.assertEqual(result.document, next_generation(current))
 
-    def test_public_helper_refuses_unproven_recorded_context_without_publication(self) -> None:
+    def test_public_helper_refuses_ineligible_context_without_publication(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             old, candidate, _, _, _ = target_refresh_setup(
@@ -14539,11 +14691,29 @@ class DeliveryLedgerTests(unittest.TestCase):
                        "revalidate-current-targets-cas", str(root), current.name]
             for key, value in cas_arguments(current).items():
                 command.extend(("--" + key.replace("_", "-"), str(value)))
-            process = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
-            self.assertEqual(process.returncode, 2, process.stderr)
-            self.assertIn("filesystem context is ineligible", process.stderr)
-            self.assertEqual(ledger.inspect(root, current.name).raw, current.raw)
-            self.assertEqual(before, {str(path.relative_to(self.live_base)) for path in self.live_base.rglob("*")})
+            # A native Linux host can legitimately be eligible. Supply explicit
+            # ineligible context evidence instead of depending on the test host.
+            for key, value in (
+                ("ATRINIK_COORDINATOR_NESTED", "true"),
+                ("ATRINIK_COORDINATOR_DEPTH", "1"),
+                ("ATRINIK_COORDINATOR_DEPTH", "invalid"),
+            ):
+                with self.subTest(key=key, value=value):
+                    environment = {
+                        **os.environ,
+                        "ATRINIK_COORDINATOR_NESTED": "false",
+                        "ATRINIK_COORDINATOR_DEPTH": "0",
+                        key: value,
+                    }
+                    process = subprocess.run(
+                        command, cwd=ROOT, env=environment, text=True, capture_output=True)
+                    self.assertEqual(process.returncode, 2, process.stderr)
+                    self.assertIn("filesystem context is ineligible", process.stderr)
+                    self.assertEqual(ledger.inspect(root, current.name).raw, current.raw)
+                    self.assertEqual(before, {
+                        str(path.relative_to(self.live_base))
+                        for path in self.live_base.rglob("*")
+                    })
 
     def test_current_targets_public_cli_has_no_candidate_argument(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

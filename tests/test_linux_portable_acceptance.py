@@ -9,7 +9,9 @@ from unittest import mock
 import os
 from pathlib import Path
 import shutil
+import shlex
 import subprocess
+import stat
 import sys
 import tarfile
 import tempfile
@@ -20,15 +22,830 @@ from atrinik_workspace import linux_portable as portable
 from atrinik_workspace.model import WorkspaceError
 
 
+def fixture_build_tools(root: Path) -> dict:
+    """Copy available host tools, never select or authenticate producer tools."""
+    root.mkdir(parents=True)
+    sources = {}
+    for role, candidates in {"cmake": ("cmake",), "ninja": ("ninja",),
+                             "pkg_config": ("pkgconf", "pkg-config")}.items():
+        selected = next((path for name in candidates if (path := shutil.which(name))), None)
+        if selected is None:
+            raise AssertionError("missing host fixture tool: " + role)
+        sources[role] = Path(selected).resolve(strict=True)
+    # Hosted CMake may be a launcher or live outside /usr. Ask the available
+    # command for its actual binary and module root without configuring a project.
+    probe = root / "probe.cmake"
+    probe.write_text('message("FIXTURE_COMMAND=${CMAKE_COMMAND}")\n'
+                     'message("FIXTURE_ROOT=${CMAKE_ROOT}")\n')
+    result = subprocess.run([str(sources["cmake"]), "-P", str(probe)], check=True,
+                            capture_output=True, text=True, timeout=15)
+    facts = {line.split("=", 1)[0]: line.split("=", 1)[1]
+             for line in result.stderr.splitlines() if line.startswith(("FIXTURE_COMMAND=", "FIXTURE_ROOT="))}
+    sources["cmake"] = Path(facts["FIXTURE_COMMAND"]).resolve(strict=True)
+    modules = Path(facts["FIXTURE_ROOT"]).resolve(strict=True)
+    (root / "share").mkdir()
+    (root / "share" / modules.name).symlink_to(modules, target_is_directory=True)
+    # CMake distributions may carry runtime libraries beside their bin directory.
+    libraries = sources["cmake"].parent.parent / "lib"
+    if libraries.is_dir(): (root / "lib").symlink_to(libraries, target_is_directory=True)
+    binary = root / "bin"
+    binary.mkdir()
+    records = {}
+    for role, source in sources.items():
+        target = binary / role
+        shutil.copyfile(source, target)
+        target.chmod(0o700)
+        records[role] = {"path": str(target), "resolved_path": str(target),
+                         "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+                         "size": target.stat().st_size, "executable": True,
+                         "version": subprocess.run([str(target), "--version"], check=True,
+                            capture_output=True, text=True, timeout=15,
+                            env={"PATH": os.defpath, "LC_ALL": "C"}).stdout}
+    return {"schema_version": 1, "tools": records}
+
+
+def fixture_tool_path_protected(info):
+    """Test-only private-copy policy; production remains root-owned and no-follow."""
+    return info.st_uid in {0, os.geteuid()} and (
+        not info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
+        or stat.S_ISDIR(info.st_mode) and info.st_uid == 0 and info.st_mode & stat.S_ISVTX)
+
+
+@unittest.skipUnless(sys.platform.startswith("linux"), "Linux copied build-tool fixtures")
+class PortableBuildToolTests(unittest.TestCase):
+    def setUp(self):
+        for method, result in (("capture_identity", {"fixture": "command shell"}), ("verify_identity", None)):
+            shell_patch = mock.patch.object(portable.command_shell, method, return_value=result)
+            shell_patch.start()
+            self.addCleanup(shell_patch.stop)
+        compiler_guard = mock.patch.object(portable, "_verify_compiler_bytes")
+        compiler_guard.start()
+        self.addCleanup(compiler_guard.stop)
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.root_only_policy = portable.PortableBuildContext._build_tool_path_protected
+        # Only fixture admission permits our private copied tools/ancestry and
+        # the test runner's root-owned sticky temporary anchor. Production is root-only.
+        patcher = mock.patch.object(portable.PortableBuildContext, "_build_tool_path_protected",
+                                    side_effect=fixture_tool_path_protected)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def context(self, *, capture=True):
+        installation = self.root / str(len(list(self.root.iterdir())))
+        expected = fixture_build_tools(installation)
+        root = installation / "bin"
+        paths = {name: record["path"] for name, record in expected["tools"].items()}
+        with mock.patch.dict(export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
+            context = portable.PortableBuildContext({}, {}, {}, {}, build_tools=expected)
+        if capture:
+            context.build_tools = context._capture_build_tools()
+            context.host_tools = {"command_shell": portable._capture_command_shell(),
+                                  "shader_python": context._capture_generator_python()}
+        return context, root
+
+    def test_actual_copied_tools_preserve_complete_producer_versions(self):
+        context, root = self.context()
+        context.verify_host_tools()
+        for name, receipt in context.build_tools.items():
+            self.assertEqual(receipt["sha256"], hashlib.sha256((root / name).read_bytes()).hexdigest())
+            self.assertEqual(receipt["version"], context.producer_build_tools[name]["version"])
+            self.assertTrue(receipt["version"].endswith("\n"))
+        binary = root / "build"
+        binary.mkdir()
+        (binary / "build.ninja").write_text("rule fixture\n  command = /bin/echo fixture\nbuild atrinik: fixture\n")
+        self.assertEqual(context._ninja(binary), "/bin/echo fixture\n")
+
+    def test_hosted_prefix_tools_need_no_fixed_producer_paths(self):
+        available = fixture_build_tools(self.root / "available-host-prefix")
+        commands = {"cmake": available["tools"]["cmake"]["path"],
+                    "ninja": available["tools"]["ninja"]["path"],
+                    "pkgconf": available["tools"]["pkg_config"]["path"]}
+        production_paths = dict(export.PORTABLE_BUILD_TOOL_PATHS)
+        with mock.patch.object(shutil, "which", side_effect=lambda name: commands.get(name)):
+            copied = fixture_build_tools(self.root / "owned-copy")
+        paths = {name: record["path"] for name, record in copied["tools"].items()}
+        with mock.patch.dict(export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
+            context = portable.PortableBuildContext({}, {}, {}, {}, build_tools=copied)
+        context.build_tools = context._capture_build_tools()
+        context.host_tools = {"command_shell": portable._capture_command_shell(),
+                                  "shader_python": context._capture_generator_python()}
+        context.verify_host_tools()
+        self.assertEqual(export.PORTABLE_BUILD_TOOL_PATHS, production_paths)
+        self.assertTrue(all(path.startswith(str(self.root / "owned-copy")) for path in paths.values()))
+
+    def test_production_policy_rejects_consumer_owned_execution_paths_before_probes(self):
+        context, _root = self.context(capture=False)
+        with mock.patch.object(portable.PortableBuildContext, "_build_tool_path_protected",
+                               side_effect=self.root_only_policy), mock.patch.object(export, "_tool_report") as report, \
+             self.assertRaisesRegex(ValueError, "build tool ancestor"):
+            context._capture_build_tools()
+        report.assert_not_called()
+
+    def test_writable_ancestor_and_intermediate_alias_are_rejected_before_probes(self):
+        for mutation in ("writable", "alias"):
+            context, root = self.context(capture=False)
+            if mutation == "writable": root.chmod(0o777)
+            else:
+                relocated = root.with_name("real-bin")
+                root.rename(relocated)
+                root.symlink_to(relocated.name, target_is_directory=True)
+            with self.subTest(mutation=mutation), mock.patch.object(export, "_tool_report") as report, \
+                 self.assertRaisesRegex(ValueError, "build tool"):
+                context._capture_build_tools()
+            report.assert_not_called()
+
+    def test_tool_size_mismatch_rejects_before_reading_replacement_bytes(self):
+        context, root = self.context(capture=False)
+        with (root / "cmake").open("ab") as stream: stream.write(b"larger untrusted executable")
+        with mock.patch.object(portable, "byte_record") as read, \
+             self.assertRaisesRegex(ValueError, "build tool bytes differ"):
+            context._capture_build_tools()
+        read.assert_not_called()
+
+    def test_changed_tool_is_rejected_before_any_version_execution(self):
+        for name in ("cmake", "ninja", "pkg_config"):
+            context, root = self.context(capture=False)
+            with (root / name).open("r+b") as stream:
+                original = stream.read(1)
+                stream.seek(0)
+                stream.write(bytes([original[0] ^ 1]))
+            with self.subTest(tool=name), mock.patch.object(export, "_tool_report") as report, \
+                 self.assertRaisesRegex(ValueError, "build tool bytes differ"):
+                context._capture_build_tools()
+            report.assert_not_called()
+
+    def test_missing_wrong_or_unmatched_pkg_config_record_cannot_probe_any_tool(self):
+        for mutation in ("missing", "wrong-role", "path", "digest"):
+            context, _root = self.context(capture=False)
+            value = {"schema_version": 1, "tools": json.loads(json.dumps(context.producer_build_tools))}
+            paths = {name: record["path"] for name, record in value["tools"].items()}
+            if mutation == "missing": del value["tools"]["pkg_config"]
+            elif mutation == "wrong-role": value["tools"]["pkg-config"] = value["tools"].pop("pkg_config")
+            elif mutation == "path": value["tools"]["pkg_config"]["path"] = "/usr/bin/pkg-config"
+            else: value["tools"]["pkg_config"]["sha256"] = "0" * 64
+            with self.subTest(mutation=mutation), mock.patch.dict(export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True), \
+                 mock.patch.object(export, "_tool_report") as report, self.assertRaises(ValueError):
+                rejected = portable.PortableBuildContext({}, {}, {}, {}, build_tools=value)
+                rejected._capture_build_tools()
+            report.assert_not_called()
+
+    def test_pkg_config_version_execution_is_fenced_before_receipt_acceptance(self):
+        context, root = self.context(capture=False)
+        report = export._tool_report
+        executed = []
+        def changed_pkg_config(command, **kwargs):
+            result = report(command, **kwargs)
+            if command[0] == str(root / "pkg_config"):
+                executed.append(command)
+                replacement = root / "pkg_config.replacement"
+                shutil.copyfile(root / "pkg_config", replacement)
+                replacement.chmod(0o700)
+                replacement.replace(root / "pkg_config")
+            return result
+        with mock.patch.object(export, "_tool_report", side_effect=changed_pkg_config), \
+             self.assertRaisesRegex(ValueError, "changed during version inspection"):
+            context._capture_build_tools()
+        self.assertEqual(executed, [[str(root / "pkg_config"), "--version"]])
+
+    def test_admitted_bytes_must_report_exact_complete_producer_version(self):
+        context, _root = self.context(capture=False)
+        context.producer_build_tools["cmake"]["version"] += "unmatched producer output\n"
+        with self.assertRaisesRegex(ValueError, "build tool version differs"):
+            context._capture_build_tools()
+
+    def test_actual_tool_drift_and_aliases_reject_existing_receipt(self):
+        for name in ("cmake", "ninja", "pkg_config"):
+            for mutation in ("bytes", "identity", "mode", "writable", "resolution"):
+                context, root = self.context()
+                path = root / name
+                if mutation == "bytes":
+                    with path.open("ab") as stream: stream.write(b"changed bytes")
+                elif mutation in {"identity", "resolution"}:
+                    replacement = path.with_suffix(".replacement")
+                    shutil.copyfile(path, replacement)
+                    replacement.chmod(0o700)
+                    if mutation == "identity": replacement.replace(path)
+                    else:
+                        path.unlink()
+                        path.symlink_to(replacement.name)
+                else:
+                    path.chmod(0o500 if mutation == "mode" else 0o720)
+                with self.subTest(tool=name, mutation=mutation), self.assertRaisesRegex(ValueError, "build tool"):
+                    context.verify_host_tools()
+
+    def test_version_probe_and_ninja_query_are_fenced_after_execution(self):
+        context, root = self.context(capture=False)
+        report = export._tool_report
+        def changed_version(command, **kwargs):
+            result = report(command, **kwargs)
+            with (root / "ninja").open("ab") as stream: stream.write(b"changed during version probe")
+            return result
+        with mock.patch.object(export, "_tool_report", side_effect=changed_version), \
+             self.assertRaisesRegex(ValueError, "build tool bytes differ"):
+            context._capture_build_tools()
+        context, root = self.context()
+        binary = root / "build"
+        binary.mkdir()
+        (binary / "build.ninja").write_text("rule fixture\n  command = /bin/echo fixture\nbuild atrinik: fixture\n")
+        run = subprocess.run
+        def changed_graph(command, **kwargs):
+            result = run(command, **kwargs)
+            with (root / "cmake").open("ab") as stream: stream.write(b"changed during graph query")
+            return result
+        with mock.patch.object(portable.subprocess, "run", side_effect=changed_graph), \
+             self.assertRaisesRegex(ValueError, "build tool bytes differ"):
+            context._ninja(binary)
+
+    def test_export_revalidation_rejects_actual_tool_drift_before_cache_read(self):
+        for name in ("cmake", "ninja", "pkg_config"):
+            context, root = self.context()
+            binary = root / "build"
+            binary.mkdir()
+            context.binary, context.source, context.baseline = binary, root, {}
+            with (root / name).open("ab") as stream: stream.write(b"changed before export")
+            with self.subTest(tool=name), self.assertRaisesRegex(WorkspaceError, "same-operation build receipt changed"):
+                portable.validate_portable_build(binary, {}, context=context)
+
+
+@unittest.skipUnless(sys.platform.startswith("linux"), "Linux portable compiler closure")
+class CompilerClosureTests(unittest.TestCase):
+    driver_evidence = lambda self: PortablePublicationTests.driver_evidence(self)
+    driver_report = lambda self, command, **kwargs: PortablePublicationTests.driver_report(self, command, **kwargs)
+
+    @staticmethod
+    def build_tool_fixture(root):
+        return fixture_build_tools(root)
+
+    def setUp(self):
+        self.capture_shell = portable.command_shell.capture_identity
+        self.verify_shell = portable.command_shell.verify_identity
+        for method, result in (("capture_identity", {"fixture": "command shell"}), ("verify_identity", None)):
+            shell_patch = mock.patch.object(portable.command_shell, method, return_value=result)
+            shell_patch.start()
+            self.addCleanup(shell_patch.stop)
+        compiler_guard = mock.patch.object(portable, "_verify_compiler_bytes")
+        compiler_guard.start()
+        self.addCleanup(compiler_guard.stop)
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.tools = self.build_tool_fixture(self.root / "host-tools")
+        policy = mock.patch.object(portable.PortableBuildContext, "_build_tool_path_protected",
+                                   side_effect=fixture_tool_path_protected)
+        policy.start()
+        self.addCleanup(policy.stop)
+
+    def fixture(self, *, before_capture=None, after_bind=None, before_output=None):
+        root = self.root / str(len(list(self.root.iterdir())))
+        root.mkdir()
+        selected, proofs, generations, views = {}, {}, {}, {}
+        payloads = {
+            "client": {"main.c": b"int core(void); int main(void) { return core(); }\n",
+                       "src/include/client.h": b"#define CLIENT 1\n",
+                       "shaders/SHA256SUMS": b"fixture pinned shader cohort\n",
+                       "tools/embed_gpu_shaders.py": (b"def header_bytes(directory, manifest): return b'proof-bound shader\\n'\n"
+                           b"if __name__ == '__main__':\n"
+                           b" import pathlib, sys\n"
+                           b" pathlib.Path(sys.argv[sys.argv.index('--output') + 1]).write_bytes(header_bytes(None, None))\n"),
+                       },
+            "libatrinik": {"core.c": b"int core(void) { return 0; }\n", "include/core.h": b"int core(void);\n"},
+            "protocol": {"include/protocol.h": b"#define PROTOCOL 1\n"},
+        }
+        for role, files in payloads.items():
+            origin = root / "generations" / role / "source"
+            view = (root / "sources/client-layout/client" if role == "client" else root / "sources" / role / "input")
+            selected[role], views[role] = origin, view
+            generations[role] = {"source_includes": {"cmake": "cmake"}}
+            proofs[role] = {}
+            supplemental = b"# verified supplemental CMake module\n"
+            for path in (origin.parent / "cmake/proof.cmake", view.parent / "cmake/proof.cmake"):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(supplemental)
+            proofs[role]["cmake/proof.cmake"] = {"sha256": hashlib.sha256(supplemental).hexdigest(), "size": len(supplemental)}
+            if role == "client":
+                toolchain = b"# proof-bound supplemental LLVM toolchain\n"
+                for path in (origin.parent / "cmake/toolchains/llvm.cmake", view.parent / "cmake/toolchains/llvm.cmake"):
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(toolchain)
+                proofs[role]["cmake/toolchains/llvm.cmake"] = {"sha256": hashlib.sha256(toolchain).hexdigest(), "size": len(toolchain)}
+            for name, data in files.items():
+                for path in (origin / name, view / name):
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(data)
+                proofs[role]["source/" + name] = {"sha256": hashlib.sha256(data).hexdigest(), "size": len(data)}
+        binary = root / "build/client"
+        (binary / "src/include").mkdir(parents=True)
+        (binary / "src/include/cmake.h").write_bytes(b"#define CMAKE_PROOF 1\n")
+        library_headers = binary / "_deps/libatrinik-build/include"
+        (library_headers / "toolkit").mkdir(parents=True)
+        (library_headers / "toolkit/core.h").write_bytes(payloads["libatrinik"]["include/core.h"])
+        (library_headers / "toolkit_cmake.h").write_bytes(b"#define LIBRARY_CMAKE_PROOF 1\n")
+        common = [portable.LLVM_ROOT + "/bin/clang", *portable.PORTABLE_C_FLAGS.split(), "-O2", "-DNDEBUG"]
+        main = [*common, "-I" + str(views["client"] / "src/include"), "-I" + str(binary / "src/include"),
+                "-c", str(views["client"] / "main.c"), "-o", "main.o"]
+        core = [*common, "-I" + str(library_headers), "-I" + str(views["libatrinik"] / "include"), "-c", str(views["libatrinik"] / "core.c"), "-o", "core.o"]
+        link = [*common, *portable.PORTABLE_LINK_FLAGS.split(), "main.o", "core.a", "-o", "atrinik"]
+        source = views["client"]
+        cache = "".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
+                        for argument in portable.portable_configure_arguments(source))
+        (binary / "CMakeCache.txt").write_text(cache + "CMAKE_HOME_DIRECTORY:INTERNAL=" + str(source) + "\n")
+        (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(source)}}))
+        database = [{"arguments": words, "directory": str(binary), "file": words[words.index("-c") + 1]} for words in (main, core)]
+        generator = "cd " + shlex.quote(str(binary)) + " && " + shlex.join([
+            str(portable.PORTABLE_GENERATOR_PYTHON), str(source / "tools/embed_gpu_shaders.py"), "--input", "/opt/atrinik-portable/shaders",
+            "--manifest", str(source / "shaders/SHA256SUMS"), "--output", str(binary / "src/include/gpu_shader_data.h")])
+        archive = ": && /usr/bin/cmake -E rm -f core.a && " + portable.LLVM_ROOT + "/bin/llvm-ar qc core.a core.o && " + portable.LLVM_ROOT + "/bin/llvm-ranlib core.a && :"
+        report = [generator, shlex.join(main), shlex.join(core), archive, ": && " + shlex.join(link) + " && :"]
+        state = {"report": "\n".join(report) + "\n", "database": database, "binary": binary,
+                 "main": main, "core": core, "views": views, "selected": selected, "proofs": proofs}
+        if before_capture:
+            before_capture(state)
+        (binary / "compile_commands.json").write_text(json.dumps(state["database"]))
+        evidence = self.driver_evidence()
+        evidence["tools"].update({"archiver": {"path": portable.LLVM_ROOT + "/bin/llvm-ar"},
+                                  "ranlib": {"path": portable.LLVM_ROOT + "/bin/llvm-ranlib"}})
+        paths = {name: record["path"] for name, record in self.tools["tools"].items()}
+        with mock.patch.dict(export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
+            context = portable.PortableBuildContext(selected, proofs, generations, evidence,
+                                                   build_tools=self.tools)
+        state.update(context=context, evidence=evidence)
+        context.validate_selected(selected)
+        context.bind_source_views(root, views)
+        (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(source)},
+                                                                  "portable_host_tools": context.host_tools,
+                                                                  "portable_build_tools": context.build_tools}))
+        run_patch = mock.patch.object(portable.PortableBuildContext, "_ninja", side_effect=lambda path: state["report"])
+        run_patch.start()
+        self.addCleanup(run_patch.stop)
+        def driver_with_real_missing_artifact_behavior(command, **kwargs):
+            if any(command == [record["path"], "--version"] for record in self.tools["tools"].values()):
+                return subprocess.run(command, check=True, capture_output=True, text=True, timeout=15,
+                                      env={"PATH": os.defpath, "LC_ALL": "C"}).stdout
+            if "-c" not in command and not (binary / "atrinik").exists():
+                raise AssertionError("configure-only validation invoked linker before build artifacts existed")
+            return self.driver_report(command, **kwargs)
+        state["driver_report"] = driver_with_real_missing_artifact_behavior
+        driver_patch = mock.patch.object(export, "_tool_report", side_effect=driver_with_real_missing_artifact_behavior)
+        driver_patch.start()
+        self.addCleanup(driver_patch.stop)
+        if after_bind:
+            after_bind(state)
+        context.capture_configure(binary, source)
+        if before_output:
+            before_output(state)
+        (binary / "src/include/gpu_shader_data.h").write_bytes(b"proof-bound shader\n")
+        (binary / "atrinik").write_bytes(b"built fixture executable")
+        context.capture_output(binary)
+        return state
+
+    def test_actual_command_shell_receipt_reaches_configure_and_output(self):
+        from tests.test_linux_portable_shell import ShellFixture
+        fixture = ShellFixture()
+        self.addCleanup(fixture.close)
+        with mock.patch.object(portable.command_shell, "capture_identity", self.capture_shell), \
+             mock.patch.object(portable.command_shell, "verify_identity", self.verify_shell):
+            state = self.fixture()
+            context = state["context"]
+            receipt = context.host_tools["command_shell"]
+            self.verify_shell(receipt)
+            self.assertEqual(receipt["path"], "/bin/sh")
+            self.assertEqual(receipt["resolved_path"], "/usr/bin/dash")
+            fingerprint = json.loads((state["binary"] / ".atrinik-configure.json").read_text())
+            self.assertEqual(fingerprint["portable_host_tools"]["command_shell"], receipt)
+            self.assertIsNotNone(context.output)
+            self.assertEqual(set(context.producer_build_tools), {"cmake", "ninja", "pkg_config"})
+
+    def test_actual_shell_drift_rejects_metadata_admission(self):
+        from tests.test_linux_portable_shell import ShellFixture
+        for change in ("bytes", "link", "mode"):
+            with self.subTest(change=change), ExitStack() as stack:
+                fixture = ShellFixture()
+                stack.callback(fixture.close)
+                stack.enter_context(mock.patch.object(portable.command_shell, "capture_identity", self.capture_shell))
+                stack.enter_context(mock.patch.object(portable.command_shell, "verify_identity", self.verify_shell))
+                portable._capture_command_shell()
+                if change == "bytes": fixture.target.write_bytes(fixture.raw[:-1] + b"x")
+                elif change == "mode": fixture.target.chmod(0o775)
+                else:
+                    link = fixture.root / "usr/bin/sh"
+                    link.unlink()
+                    link.symlink_to("./dash")
+                with mock.patch.object(portable, "_read_regular") as metadata, \
+                     self.assertRaisesRegex(export.ExportError, "portable-shell"):
+                    portable.installed_metadata()
+                metadata.assert_not_called()
+
+    def test_command_shell_is_authenticated_before_any_host_probe(self):
+        with mock.patch.object(portable.command_shell, "capture_identity", side_effect=portable.command_shell.LinuxPortableShellError("shell identity changed")), \
+             mock.patch.object(portable.PortableBuildContext, "_capture_build_tools") as versions, \
+             mock.patch.object(portable.PortableBuildContext, "_capture_generator_python") as python, \
+             self.assertRaisesRegex(export.ExportError, "shell identity changed"):
+            self.fixture()
+        versions.assert_not_called()
+        python.assert_not_called()
+
+    def test_command_shell_drift_during_version_probe_precedes_python(self):
+        capture = portable.PortableBuildContext._capture_build_tools
+        def versions(context):
+            result = capture(context)
+            portable.command_shell.verify_identity.side_effect = portable.command_shell.LinuxPortableShellError("shell identity changed")
+            return result
+        with mock.patch.object(portable.PortableBuildContext, "_capture_build_tools", versions), \
+             mock.patch.object(portable.PortableBuildContext, "_capture_generator_python") as python, \
+             self.assertRaisesRegex(export.ExportError, "shell identity changed"):
+            self.fixture()
+        python.assert_not_called()
+
+    def test_command_shell_drift_during_python_probe_precedes_configure(self):
+        capture = portable.PortableBuildContext._capture_generator_python
+        def python():
+            result = capture()
+            portable.command_shell.verify_identity.side_effect = portable.command_shell.LinuxPortableShellError("shell identity changed")
+            return result
+        with mock.patch.object(portable.PortableBuildContext, "_capture_generator_python", side_effect=python), \
+             mock.patch.object(portable.PortableBuildContext, "capture_configure") as configure, \
+             self.assertRaisesRegex(export.ExportError, "shell identity changed"):
+            self.fixture()
+        configure.assert_not_called()
+
+    def test_command_shell_receipt_is_retained_and_required_for_revalidation(self):
+        state = self.fixture()
+        context, binary = state["context"], state["binary"]
+        receipt = context.host_tools["command_shell"]
+        fingerprint = json.loads((binary / ".atrinik-configure.json").read_text())
+        self.assertEqual(fingerprint["portable_host_tools"]["command_shell"], receipt)
+        portable.command_shell.verify_identity.assert_called_with(receipt)
+        del context.host_tools["command_shell"]
+        with mock.patch.object(context, "_ninja") as probe, \
+             self.assertRaisesRegex(WorkspaceError, "same-operation build receipt changed"):
+            portable.validate_portable_build(binary, state["evidence"], context=context)
+        probe.assert_not_called()
+
+    def test_command_shell_cohort_cannot_follow_changed_wrapper_coordinates(self):
+        state = self.fixture()
+        for name in ("IMAGE", "PLATFORM_MANIFEST", "PRODUCER_COMMIT", "CONSUMER_COMMIT"):
+            with self.subTest(coordinate=name), mock.patch.object(portable, name, "foreign-cohort"), \
+                 mock.patch.object(portable.command_shell, "capture_identity") as capture, \
+                 mock.patch.object(portable.command_shell, "verify_identity") as verify, \
+                 mock.patch.object(portable, "_read_regular") as metadata:
+                with self.assertRaises(export.ExportError):
+                    portable._capture_command_shell()
+                with self.assertRaises(export.ExportError):
+                    state["context"].verify_host_tools()
+                with self.assertRaises(export.ExportError):
+                    portable.installed_metadata()
+                capture.assert_not_called()
+                verify.assert_not_called()
+                metadata.assert_not_called()
+
+    def test_installed_metadata_authenticates_shell_before_metadata_reads(self):
+        with mock.patch.object(portable.command_shell, "capture_identity", side_effect=portable.command_shell.LinuxPortableShellError("shell identity changed")), \
+             mock.patch.object(portable, "_read_regular") as metadata, \
+             self.assertRaisesRegex(export.ExportError, "shell identity changed"):
+            portable.installed_metadata()
+        metadata.assert_not_called()
+
+    def test_complete_off_graph_is_bound_to_caller_sources_and_build_receipt(self):
+        state = self.fixture()
+        toolchain = state["views"]["client"].parent / "cmake/toolchains/llvm.cmake"
+        self.assertTrue(toolchain.is_file())
+        self.assertIn(toolchain, state["context"].authored)
+        self.assertFalse((state["views"]["client"] / "cmake").exists())
+        self.assertIn("-DCMAKE_TOOLCHAIN_FILE=" + str(toolchain),
+                      portable.portable_configure_arguments(state["views"]["client"]))
+        self.assertIn(b"BUILD_TESTING:STRING=OFF", portable.validate_portable_build(
+            state["binary"], state["evidence"], context=state["context"]))
+
+    def test_managed_source_view_identity_survives_portable_configuration_validation(self):
+        from types import SimpleNamespace
+        from atrinik_workspace.workspace import (Workspace, MANAGED_MARKER,
+                                                 SCHEMA_VERSION, SOURCE_VIEW_METADATA,
+                                                 SOURCE_VIEW_SCHEMA_VERSION)
+        state = self.fixture()
+        source = state["views"]["client"]
+        metadata = {"schema_version": SOURCE_VIEW_SCHEMA_VERSION,
+                    "purpose": "source-view:portable-client-layout",
+                    "source": str(state["selected"]["client"]),
+                    "source_head": "a" * 40,
+                    "entries": state["proofs"]["client"]}
+        (source / SOURCE_VIEW_METADATA).write_text(json.dumps(metadata))
+        (source / MANAGED_MARKER).write_text(json.dumps({
+            "schema_version": SCHEMA_VERSION, "purpose": metadata["purpose"]}))
+        workspace = object.__new__(Workspace)
+        workspace.paths = SimpleNamespace(builds=self.root)
+        metadata_bytes = (source / SOURCE_VIEW_METADATA).read_bytes()
+        with mock.patch.object(workspace, "_source_generation_provenance", return_value=None), \
+             mock.patch.object(workspace, "_tool_identity", return_value={"path": "/fixture/tool"}), \
+             mock.patch.object(workspace, "_compiler_runtime_identity", return_value={}), \
+             mock.patch.object(workspace, "_cmake_configured_toolchain", return_value={}):
+            configure = workspace._configure_fingerprint(
+                source, state["binary"], ["cmake", "-S", str(source)], False, {}, None,
+                portable=True)
+        identity = configure["source"]
+        configure["portable_host_tools"] = state["context"].host_tools
+        configure["portable_build_tools"] = state["context"].build_tools
+        configure_path = state["binary"] / ".atrinik-configure.json"
+        configure_path.write_text(json.dumps(configure))
+        self.assertIn(b"BUILD_TESTING:STRING=OFF", portable.validate_portable_build(
+            state["binary"], state["evidence"], context=state["context"]))
+        self.assertEqual(identity, {**metadata, "path": str(source.resolve())})
+        self.assertEqual((source / SOURCE_VIEW_METADATA).read_bytes(), metadata_bytes)
+        for path in (str(state["selected"]["client"]), None):
+            with self.subTest(path=path):
+                configure["source"] = dict(identity)
+                if path is None:
+                    configure["source"].pop("path")
+                else:
+                    configure["source"]["path"] = path
+                configure_path.write_text(json.dumps(configure))
+                with self.assertRaisesRegex(WorkspaceError, "source identity is unavailable or invalid"):
+                    portable.validate_portable_build(state["binary"], state["evidence"],
+                                                    context=state["context"])
+
+    def test_only_copied_build_tool_version_probes_execute_real_processes(self):
+        state = self.fixture()
+        for command in ([portable.LLVM_ROOT + "/bin/clang", "--version"],
+                        [str(self.root / "outside-copy/bin/cmake"), "--version"]):
+            with self.subTest(command=command), mock.patch.object(self, "driver_report", return_value="synthetic report") as driver, \
+                 mock.patch.object(subprocess, "run") as execute:
+                self.assertEqual(state["driver_report"](command, cwd=state["binary"]), "synthetic report")
+                driver.assert_called_once_with(command, cwd=state["binary"])
+                execute.assert_not_called()
+
+    def test_real_generator_python_receipt_and_proof_ignore_caller_startup(self):
+        modules = self.root / "caller-modules"
+        modules.mkdir()
+        marker = self.root / "python-startup-executed"
+        (modules / "sitecustomize.py").write_text("import pathlib; pathlib.Path(" + repr(str(marker)) + ").touch()\n")
+        subprocess.run(["/usr/bin/python3", "-c", "pass"], check=True, timeout=10,
+                       env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(modules)})
+        self.assertTrue(marker.exists())
+        marker.unlink()
+        with mock.patch.dict(os.environ, {"PYTHONPATH": str(modules), "PYTHONHOME": "/foreign/python-home",
+                                          "PYTHONNOUSERSITE": "0", "HOME": str(self.root / "foreign-home")}):
+            state = self.fixture()
+        record = state["context"].host_tools["shader_python"]
+        self.assertEqual(record["path"], "/usr/bin/python3")
+        self.assertEqual(record["sha256"], hashlib.sha256(Path(record["resolved_path"]).read_bytes()).hexdigest())
+        self.assertEqual(record["version"]["implementation"], "cpython")
+        self.assertFalse(marker.exists())
+
+    def test_actual_generator_executable_drift_fails_before_proof_output_and_export(self):
+        original = Path("/usr/bin/python3").read_bytes()
+        for phase in ("capture-probe", "before-proof", "before-output", "export", "alias"):
+            executable = self.root / ("python-" + phase)
+            executable.write_bytes(original)
+            executable.chmod(0o700)
+            def replace(state):
+                replacement = executable.with_suffix(".replacement")
+                replacement.write_bytes(original + b"changed interpreter storage")
+                replacement.chmod(0o700)
+                replacement.replace(executable)
+            with self.subTest(phase=phase), mock.patch.object(portable, "PORTABLE_GENERATOR_PYTHON", executable):
+                if phase == "capture-probe":
+                    actual_run = subprocess.run
+                    def changing_probe(command, **kwargs):
+                        result = actual_run(command, **kwargs)
+                        if "-c" in command:
+                            replace(None)
+                        return result
+                    with mock.patch.object(portable.subprocess, "run", side_effect=changing_probe), \
+                         self.assertRaisesRegex(ValueError, "Python changed during inspection"):
+                        self.fixture()
+                elif phase in {"before-proof", "before-output"}:
+                    with self.assertRaisesRegex(ValueError, "Python executable changed"):
+                        self.fixture(**({"after_bind": replace} if phase == "before-proof" else {"before_output": replace}))
+                else:
+                    state = self.fixture()
+                    if phase == "alias":
+                        alias_target = executable.with_suffix(".alias-target")
+                        alias_target.write_bytes(original)
+                        alias_target.chmod(0o700)
+                        executable.unlink()
+                        executable.symlink_to(alias_target)
+                    else:
+                        replace(state)
+                    with self.assertRaisesRegex(WorkspaceError, "receipt changed"):
+                        portable.validate_portable_build(state["binary"], state["evidence"], context=state["context"])
+
+    def test_toolchain_requires_the_exact_supplemental_proof_member(self):
+        def missing_proof(state):
+            del state["proofs"]["client"]["cmake/toolchains/llvm.cmake"]
+            toolchain = state["views"]["client"].parent / "cmake/toolchains/llvm.cmake"
+            toolchain.unlink()
+            toolchain.parent.rmdir()
+        def fake_child(state):
+            missing_proof(state)
+            payload = b"# child toolchain cannot replace supplemental authority\n"
+            for root in (state["views"]["client"], state["selected"]["client"]):
+                path = root / "cmake/toolchains/llvm.cmake"
+                path.parent.mkdir(parents=True)
+                path.write_bytes(payload)
+            state["proofs"]["client"]["source/cmake/toolchains/llvm.cmake"] = {
+                "sha256": hashlib.sha256(payload).hexdigest(), "size": len(payload)}
+        for mutation in (missing_proof, fake_child):
+            with self.subTest(mutation=mutation.__name__), self.assertRaisesRegex(ValueError, "supplemental source proof"):
+                self.fixture(before_capture=mutation)
+
+    def test_fresh_target_scope_allows_proven_unrelated_library_database_target(self):
+        def extra_target(state):
+            words = list(state["core"])
+            words[words.index("-o") + 1] = "unrelated-pathfinding-target.o"
+            state["database"].append({"arguments": words, "directory": str(state["binary"]),
+                                      "file": words[words.index("-c") + 1]})
+        state = self.fixture(before_capture=extra_target)
+        self.assertEqual(len(state["database"]), 3)
+        self.assertEqual(state["context"].target_outputs,
+                         {state["binary"] / "main.o", state["binary"] / "core.o"})
+        portable.validate_portable_build(state["binary"], state["evidence"], context=state["context"])
+
+    def test_external_source_and_header_controls_are_rejected_before_build(self):
+        cases = [["-I/tmp/foreign"], ["-I", "/tmp/foreign"], ["-isystem", "/tmp/foreign"],
+                 ["-iquote/tmp/foreign"], ["-idirafter", "/tmp/foreign"], ["-include", "/tmp/foreign.h"],
+                 ["-imacros/tmp/foreign.h"], ["-include-pch", "/tmp/foreign.pch"], ["-Wp,-I,/tmp/foreign"],
+                 ["-Xpreprocessor", "-include"], ["-ivfsoverlay", "/tmp/overlay"], ["-fmodules-cache-path=/tmp/modules"]]
+        for extra in cases:
+            def mutate(state, extra=extra):
+                old = shlex.join(state["main"])
+                state["main"].extend(extra)
+                state["report"] = state["report"].replace(old, shlex.join(state["main"]))
+            with self.subTest(extra=extra), self.assertRaises((WorkspaceError, ValueError)):
+                self.fixture(before_capture=mutate)
+        def external_tu(state):
+            old = shlex.join(state["main"])
+            state["main"][state["main"].index("-c") + 1] = "/tmp/evil.c"
+            state["database"][0]["file"] = "/tmp/evil.c"
+            state["report"] = state["report"].replace(old, shlex.join(state["main"]))
+        with self.assertRaises(WorkspaceError):
+            self.fixture(before_capture=external_tu)
+
+    def test_effective_inputs_cannot_add_foreign_headers_or_change_main_source(self):
+        state = self.fixture()
+        source = state["views"]["client"] / "main.c"
+        context, binary = state["context"], state["binary"]
+        for extra in (["-internal-isystem", "/tmp/foreign"], ["-include", "/tmp/foreign.h"],
+                      ["-imacros", "/tmp/foreign.h"], ["-include-pch", "/tmp/foreign.pch"],
+                      ["-iwithprefixbefore", "/tmp/foreign"], ["-iframework", "/tmp/foreign"],
+                      ["-fmodule-map-file=/tmp/foreign.modulemap"], ["-ivfsoverlay", "/tmp/overlay"]):
+            with self.subTest(extra=extra), self.assertRaises(ValueError):
+                context.check_inputs(["clang", "-cc1", *extra, str(source)], binary,
+                                     effective=True, expected_source=source)
+        with self.assertRaises(ValueError):
+            context.check_inputs(["clang", "-cc1", "/tmp/evil.c"], binary,
+                                 effective=True, expected_source=source)
+
+    def test_unproven_aliases_and_build_translation_units_are_rejected(self):
+        state = self.fixture()
+        context, binary = state["context"], state["binary"]
+        alias = self.root / "alias.c"
+        alias.symlink_to(state["views"]["client"] / "main.c")
+        generated = binary / "generated.c"
+        generated.write_bytes(b"int main(void) { return 0; }\n")
+        header_alias = self.root / "alias-headers"
+        header_alias.symlink_to(state["views"]["client"] / "src/include", target_is_directory=True)
+        for extra in (["-c", str(alias)], ["-c", str(generated)],
+                      ["-c", str(state["views"]["client"] / "main.c"), "-I", str(header_alias)]):
+            with self.subTest(extra=extra), self.assertRaises(ValueError):
+                context.check_inputs(["clang", *extra], binary)
+
+    def test_complete_database_and_transitive_link_consumption_are_required(self):
+        def missing(state):
+            state["report"] = state["report"].replace(shlex.join(state["core"]) + "\n", "")
+        def unconsumed(state):
+            state["report"] = state["report"].replace("main.o core.a -o", "main.o -o")
+        for mutation in (missing, unconsumed):
+            with self.subTest(mutation=mutation.__name__), self.assertRaises((WorkspaceError, ValueError)):
+                self.fixture(before_capture=mutation)
+
+    def test_shader_child_cannot_change_the_fresh_configure_baseline(self):
+        def malicious_fixture_script(state):
+            script = state["views"]["client"] / "tools/embed_gpu_shaders.py"
+            payload = script.read_bytes().replace(b" import pathlib, sys\n",
+                b" import pathlib, sys\n (pathlib.Path(__file__).parents[4] / 'build/client/compile_commands.json').write_text('[]')\n")
+            script.write_bytes(payload)
+            (state["selected"]["client"] / "tools/embed_gpu_shaders.py").write_bytes(payload)
+            state["proofs"]["client"]["source/tools/embed_gpu_shaders.py"] = {
+                "sha256": hashlib.sha256(payload).hexdigest(), "size": len(payload)}
+        with self.assertRaisesRegex(WorkspaceError, "receipt changed"):
+            self.fixture(before_capture=malicious_fixture_script)
+
+    def test_configured_and_output_receipts_reject_mutation_and_joint_row_deletion(self):
+        for mutation in ("rows", "source", "source-identity", "source-alias", "supplemental", "header", "header-alias", "copied-header", "library-shadow", "shadow", "executable", "executable-identity", "host-tool-cache", "cache-root"):
+            state = self.fixture()
+            binary, context = state["binary"], state["context"]
+            if mutation == "rows":
+                state["database"].pop()
+                (binary / "compile_commands.json").write_text(json.dumps(state["database"]))
+                state["report"] = state["report"].replace(shlex.join(state["core"]) + "\n", "")
+            if mutation == "source": (state["views"]["client"] / "main.c").write_bytes(b"changed translation unit")
+            if mutation == "source-identity":
+                path = state["views"]["client"] / "main.c"
+                temporary = path.with_suffix(".replacement")
+                temporary.write_bytes(path.read_bytes())
+                temporary.replace(path)
+            if mutation == "source-alias":
+                path = state["views"]["client"] / "main.c"
+                external = self.root / "unproven.c"
+                external.write_bytes(path.read_bytes())
+                path.unlink()
+                path.symlink_to(external)
+            if mutation == "supplemental":
+                (state["views"]["protocol"].parent / "cmake/proof.cmake").write_bytes(b"changed supplemental module")
+            if mutation == "header": (binary / "src/include/cmake.h").write_bytes(b"changed configured header")
+            if mutation == "header-alias":
+                path = binary / "src/include/cmake.h"
+                external = self.root / "unproven.h"
+                external.write_bytes(path.read_bytes())
+                path.unlink()
+                path.symlink_to(external)
+            if mutation == "copied-header":
+                (binary / "_deps/libatrinik-build/include/toolkit/core.h").write_bytes(b"changed copied header")
+            if mutation == "library-shadow":
+                (binary / "_deps/libatrinik-build/include/stdio.h").write_bytes(b"shadow SDK header")
+            if mutation == "shadow": (binary / "src/include/stdio.h").write_bytes(b"foreign shadow header")
+            if mutation == "executable": (binary / "atrinik").write_bytes(b"replacement executable")
+            if mutation == "executable-identity":
+                path = binary / "atrinik"
+                temporary = binary / "replacement"
+                temporary.write_bytes(path.read_bytes())
+                temporary.replace(path)
+            if mutation == "host-tool-cache":
+                path = binary / ".atrinik-configure.json"
+                identity = json.loads(path.read_text())
+                identity["portable_host_tools"]["shader_python"]["resolved_path"] = "/foreign/python3"
+                path.write_text(json.dumps(identity))
+            if mutation == "cache-root":
+                source = str(state["views"]["client"])
+                path = binary / "CMakeCache.txt"
+                path.write_text(path.read_text().replace(source, "/tmp/foreign-client"))
+                (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": "/tmp/foreign-client"}}))
+            with self.subTest(mutation=mutation), self.assertRaises(WorkspaceError):
+                portable.validate_portable_build(binary, state["evidence"], context=context)
+
+
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux portable publication")
 class PortablePublicationTests(unittest.TestCase):
     def setUp(self):
+        inspector = shutil.which("llvm-readelf")
+        if inspector:
+            patcher = mock.patch.object(export, "LLVM_READELF", str(Path(inspector).absolute()))
+            patcher.start()
+            self.addCleanup(patcher.stop)
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
         self.root.chmod(0o700)
         self.output = self.root / "client"
         self.sources = {"atrinik/classic@main": "a" * 40}
+
+    def test_real_elf_cases_skip_when_only_gnu_readelf_is_available(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("missing_llvm_acceptance", __file__)
+        module = importlib.util.module_from_spec(spec)
+        with mock.patch("shutil.which", side_effect=lambda name: "/fixture/" + name
+                        if name in {"clang", "readelf"} else None):
+            spec.loader.exec_module(module)
+        methods = [name for name in dir(module.PortablePublicationTests)
+                   if getattr(getattr(module.PortablePublicationTests, name), "__unittest_skip_why__", "")
+                   == "Clang and LLVM readelf required"]
+        self.assertEqual(len(methods), 6)
+        result = unittest.TestResult()
+        unittest.TestSuite(module.PortablePublicationTests(name) for name in methods).run(result)
+        self.assertEqual(len(result.skipped), 6)
+        self.assertEqual(result.errors, [])
+
+    def driver_evidence(self):
+        return {"target": "x86_64-unknown-linux-gnu", "tools": {
+                    "compiler": {"path": portable.LLVM_ROOT + "/bin/clang"},
+                    "linker": {"path": portable.LLVM_ROOT + "/bin/ld.lld"}},
+                "runtime": {"path": portable.LLVM_ROOT + "/lib/clang/23/lib/linux/libclang_rt.builtins-x86_64.a"},
+                "unwinder": {"path": portable.LLVM_ROOT + "/lib/libunwind.a"}}
+
+    def driver_report(self, command, **kwargs):
+        evidence = self.driver_evidence()
+        if "-c" in command:
+            args = [str(Path(evidence["tools"]["compiler"]["path"]).resolve()), "-cc1", "-emit-obj",
+                    "-triple", evidence["target"], "-target-cpu", "x86-64", "-tune-cpu", "generic",
+                    "-resource-dir", portable.LLVM_ROOT + "/lib/clang/23", "-O2",
+                    "-o", command[command.index("-o") + 1], command[command.index("-c") + 1]]
+        else:
+            args = [evidence["tools"]["linker"]["path"], "-m", "elf_x86_64",
+                    "-o", command[command.index("-o") + 1],
+                    "-L" + portable.LLVM_ROOT + "/lib", evidence["runtime"]["path"], "-lunwind",
+                    *[word for word in command[1:] if word.endswith((".o", ".a"))]]
+        return " ".join(json.dumps(arg) for arg in args) + "\n"
+
+    def ninja_report(self, binary, source, compile_words, link_words, archive=None):
+        generator = ["/usr/bin/python3", str(source / "tools/embed_gpu_shaders.py"),
+                     "--input", "/opt/atrinik-portable/shaders", "--manifest", str(source / "shaders/SHA256SUMS"),
+                     "--output", str(binary / "src/include/gpu_shader_data.h")]
+        rows = ["cd " + shlex.quote(str(binary)) + " && " + shlex.join(generator), shlex.join(compile_words)]
+        if archive:
+            rows.append(archive)
+        rows.append(": && " + shlex.join(link_words) + " && :")
+        return "\n".join(rows) + "\n"
 
     def audio_archive(self, *, duplicate=False, linked=False):
         payload = b"Original attribution and license text\n"
@@ -51,6 +868,269 @@ class PortablePublicationTests(unittest.TestCase):
         record = {"library": {"sha256": digest, "members": {
             name: {"sha256": hashlib.sha256(payload).hexdigest(), "size": len(payload)}}}}
         return record, payload
+
+    def test_portable_build_refuses_compiler_optimization_linker_and_lto_drift(self):
+        binary = self.root / "build"
+        binary.mkdir()
+        original = "".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
+                           for argument in portable.portable_configure_arguments(self.root))
+        original += "CMAKE_HOME_DIRECTORY:INTERNAL=" + str(self.root) + "\n"
+        (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(self.root)}, "portable_host_tools": {}, "portable_build_tools": {}}))
+        compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
+                         "-O2", "-DNDEBUG", "--no-default-config", "-c", "fixture.c", "-o", "fixture.o"]
+        link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
+                      "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
+        for case in ("valid", "compiler", "release", "cxx", "lto", "linker", "compile-o3", "link-o3", "response", "wrapper", "toolchain", "source", "user-registry", "system-registry", "missing-registry"):
+            with self.subTest(case=case):
+                cache, commands, link = original, list(compile_words), list(link_words)
+                if case == "user-registry": cache = cache.replace("CMAKE_FIND_USE_PACKAGE_REGISTRY:STRING=FALSE", "CMAKE_FIND_USE_PACKAGE_REGISTRY:STRING=TRUE")
+                if case == "system-registry": cache = cache.replace("CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY:STRING=FALSE", "CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY:STRING=TRUE")
+                if case == "missing-registry": cache = cache.replace("CMAKE_FIND_USE_PACKAGE_REGISTRY:STRING=FALSE\n", "")
+                if case == "compiler": cache = cache.replace("/bin/clang\n", "/bin/gcc\n")
+                if case == "release": cache = cache.replace("-O2 -DNDEBUG", "-O3 -DNDEBUG")
+                if case == "cxx": cache = cache.replace("CMAKE_CXX_FLAGS:STRING=-O2", "CMAKE_CXX_FLAGS:STRING=-O3")
+                if case == "lto": commands.append("-flto=thin")
+                if case == "linker": link.remove("-fuse-ld=lld")
+                if case == "compile-o3": commands.append("-O3")
+                if case == "link-o3": link.append("-O3")
+                if case == "response": commands.append("@hidden-flags.rsp")
+                if case == "wrapper": link.insert(0, "/unverified-wrapper")
+                if case == "toolchain": cache = cache.replace(str(self.root.parent / "cmake/toolchains/llvm.cmake"), "/tmp/unverified.cmake")
+                if case == "source": cache = cache.replace("CMAKE_HOME_DIRECTORY:INTERNAL=" + str(self.root), "CMAKE_HOME_DIRECTORY:INTERNAL=/tmp/other-source")
+                (binary / "CMakeCache.txt").write_text(cache)
+                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": commands, "directory": str(binary), "file": commands[commands.index("-c") + 1]}]))
+                with mock.patch.object(portable.subprocess, "run", return_value=
+                    subprocess.CompletedProcess([], 0, stdout=self.ninja_report(binary, self.root, commands, link))), \
+                     mock.patch.object(export, "_tool_report", side_effect=self.driver_report):
+                    # This unit test isolates cached flag checks; actual caller
+                    # source/receipt authority is covered by CompilerClosureTests.
+                    context = mock.Mock(spec=portable.PortableBuildContext)
+                    context.source = self.root
+                    context.host_tools = {}
+                    context.build_tools = {}
+                    context.baseline = {"ninja": self.ninja_report(binary, self.root, commands, link)}
+                    context.target_outputs = {binary / "fixture.o"}
+                    if case == "valid": portable.validate_portable_build(binary, self.driver_evidence(), context=context)
+                    else:
+                        with self.assertRaises(WorkspaceError): portable.validate_portable_build(binary, self.driver_evidence(), context=context)
+
+    def test_ninja_graph_binds_outputs_compilers_archives_and_generator(self):
+        binary = self.root / "build"
+        binary.mkdir()
+        compiler = portable.LLVM_ROOT + "/bin/clang"
+        compile_words = [compiler, "-o", "fixture.o", "-c", "fixture.c"]
+        admitted = {binary / "fixture.o": compile_words}
+        ar = portable.LLVM_ROOT + "/bin/llvm-ar"
+        ranlib = portable.LLVM_ROOT + "/bin/llvm-ranlib"
+        evidence = {"tools": {"archiver": {"path": ar}, "ranlib": {"path": ranlib}}}
+        recipe = f": && /usr/bin/cmake -E rm -f owned.a && {ar} qc owned.a fixture.o && {ranlib} owned.a && :"
+        link_words = [compiler, "owned.a", "-o", "atrinik"]
+        normal = self.ninja_report(binary, self.root, compile_words, link_words, recipe)
+        self.assertEqual(portable._portable_ninja_commands(normal, binary, evidence, admitted, self.root)[1],
+                         {binary / "fixture.o", binary / "owned.a"})
+        deps = normal.replace("-o fixture.o -c", "-MD -MT fixture.o -MF fixture.o.d -o fixture.o -c")
+        portable._portable_ninja_commands(deps, binary, evidence, admitted, self.root)
+        (binary / "escape").symlink_to(self.root)
+        hostile = [normal.replace("-o atrinik", "-o /tmp/atrinik"),
+                   recipe + "\n" + normal.replace(recipe + "\n", ""),
+                   shlex.join(compile_words) + "\n" + normal.replace(shlex.join(compile_words) + "\n", ""),
+                   ": && " + shlex.join(link_words) + " && :\n" + normal,
+                   normal.replace("-o atrinik", "-o ../atrinik"),
+                   normal.replace("-o atrinik", "-o escape/atrinik"),
+                   normal.replace("-o atrinik", "-o nested/atrinik"),
+                   normal.replace("-o atrinik", "-o atrinik -o other"),
+                   normal.replace(ar, "/unrecorded/llvm-ar"),
+                   normal.replace(ranlib, "/unrecorded/llvm-ranlib"),
+                   normal.replace("rm -f owned.a", "rm -f other.a"),
+                   normal.replace("qc owned.a", "qc ../owned.a"),
+                   normal.replace("qc owned.a fixture.o", "qc owned.a unowned.o"),
+                   normal.replace("qc owned.a fixture.o", "qc owned.a fixture.o fixture.o"),
+                   normal.replace("qc owned.a fixture.o", "qc owned.a @members.rsp"),
+                   normal.replace("qc owned.a", "qT owned.a"),
+                   normal.replace(recipe, f"{ar} qc owned.a fixture.o\n{ranlib} owned.a"),
+                   normal.replace(shlex.join(compile_words), "/tmp/foreign-clang -o fixture.o -c fixture.c"),
+                   normal.replace("-o fixture.o", "-o fixture.o -oelsewhere.o"),
+                   normal.replace(shlex.join(compile_words), ""),
+                   deps.replace("-MT fixture.o", "-MT other.o"),
+                   deps.replace("-MF fixture.o.d", "-MF foreign.d"),
+                   normal + "/usr/bin/python3 -c \"open('fixture.o','wb').write(b'foreign')\"\n",
+                   normal + "cp /tmp/foreign.o fixture.o\n",
+                   normal.replace("fixture.c", "*.c"),
+                   normal.replace("qc owned.a fixture.o", "qc owned.a *.o"),
+                   normal.replace("cd " + str(binary), "cd /tmp"),
+                   normal.replace("gpu_shader_data.h", "unowned.h"),
+                   normal.replace("embed_gpu_shaders.py", "foreign.py"),
+                   normal.replace("/opt/atrinik-portable/shaders --manifest", "/tmp/shaders --manifest"),
+                   normal + shlex.join(compile_words) + "\n",
+                   normal + ": && " + shlex.join(link_words) + " && :\n"]
+        for report in hostile:
+            with self.subTest(report=report), self.assertRaises((ValueError, KeyError)):
+                portable._portable_ninja_commands(report, binary, evidence, admitted, self.root)
+        # Core-library sources do not consume the client shader header.
+        client_source = self.root / "client-source"
+        core_words = [compiler, "-o", "fixture.o", "-c", str(self.root / "libatrinik/core.c")]
+        core_report = self.ninja_report(binary, client_source, core_words, link_words, recipe)
+        core_report = shlex.join(core_words) + "\n" + core_report.replace(shlex.join(core_words) + "\n", "")
+        portable._portable_ninja_commands(core_report, binary, evidence, {binary / "fixture.o": core_words}, client_source)
+        for output in ("./atrinik", str(binary / "atrinik")):
+            portable._portable_ninja_commands(normal.replace("-o atrinik", "-o " + output),
+                                             binary, evidence, admitted, self.root)
+        orphan_link = [compiler, "missing.o", "-o", "atrinik"]
+        with mock.patch.object(export, "_tool_report", side_effect=self.driver_report):
+            with self.assertRaisesRegex(WorkspaceError, "effective compiler/linker contract changed"):
+                portable._portable_driver(orphan_link, self.driver_evidence(), binary,
+                                          link=True, admitted_build_inputs=set())
+        spaced = self.root / "build with spaces"
+        spaced.mkdir()
+        portable._portable_ninja_commands(self.ninja_report(spaced, self.root, compile_words, link_words, recipe),
+                                         spaced, evidence, {spaced / "fixture.o": compile_words}, self.root)
+        with self.assertRaises(ValueError):
+            portable._portable_compile_output([*compile_words, "-oelsewhere.o"], binary)
+        alias = self.root / "alias"
+        alias.symlink_to(binary, target_is_directory=True)
+        with self.assertRaisesRegex(WorkspaceError, "not canonical"):
+            portable.validate_portable_build(alias, {}, context=mock.Mock())
+        with self.assertRaisesRegex(export.ExportError, "missing build input producer"):
+            export.portable_link_inputs(["ld.lld", "missing.o"], binary=binary, admitted_build_inputs=set())
+        for report in (["ld.lld", "-L", str(binary), "-lfoo"], ["ld.lld", "-L" + str(binary), "-lfoo"]):
+            with self.assertRaises(export.ExportError):
+                export.portable_library_paths(report, binary=None, installed=True)
+
+    def test_effective_cxx_driver_uses_its_own_identity(self):
+        evidence = self.driver_evidence()
+        evidence["tools"]["cxx_compiler"] = {"path": str(self.root / "distinct-cxx")}
+        words = [portable.LLVM_ROOT + "/bin/clang++", "-c", "fixture.cpp", "-o", "fixture.o"]
+        c_report = self.driver_report(words)
+        cxx_report = c_report.replace(str(Path(evidence["tools"]["compiler"]["path"]).resolve()),
+                                     evidence["tools"]["cxx_compiler"]["path"])
+        with mock.patch.object(export, "_tool_report", return_value=cxx_report):
+            portable._portable_driver(words, evidence, self.root, link=False)
+        with mock.patch.object(export, "_tool_report", return_value=c_report):
+            with self.assertRaisesRegex(WorkspaceError, "effective compiler/linker contract changed"):
+                portable._portable_driver(words, evidence, self.root, link=False)
+
+    def test_actual_portable_flags_reject_additive_configuration_and_runtime_overrides(self):
+        words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
+                 "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "-o", "atrinik", "client.o"]
+        portable._portable_command(words, {}, link=True)
+        portable._portable_command([*words, *portable.PORTABLE_LINK_FLAGS.split()], {}, link=True)
+        portable._portable_command([*words, "-Xlinker", "--dependency-file=atrinik.d"], {}, link=True)
+        for flag in ("-fuse-ld=bfd", "--rtlib=libgcc", "--unwindlib=libgcc", "-msse4.2",
+                     "--config=/tmp/other.cfg", "--config-user-dir=/tmp/config", "-mavx2",
+                     "-B/tmp/unverified-tools", "-resource-dir=/tmp/unverified-runtime",
+                     "--sysroot=/tmp/unverified-sysroot", "--gcc-toolchain=/tmp/unverified-gcc"):
+            with self.subTest(flag=flag), self.assertRaises(WorkspaceError):
+                portable._portable_command([*words, flag], {}, link=True)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command([words[0], "-L/tmp/unverified-runtime", *words[1:]], {}, link=True)
+        for option in (["-L/tmp/unverified-runtime"], ["-L", "/tmp/unverified-runtime"],
+                       ["--library-path=/tmp/unverified-runtime"], ["-L/tmp/foreign/../../usr/lib"]):
+            with self.subTest(option=option), self.assertRaises(WorkspaceError):
+                portable._portable_command([*words, *option], {}, link=True)
+        portable._portable_command([*words, "-L/usr/local/lib"], {}, link=True)
+        portable._portable_command([*words, "-L", str(self.root / "owned")], {}, link=True, binary=self.root)
+        outside = self.root.parent / "outside"
+        (self.root / "escape").symlink_to(outside)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command([*words, "-L", str(self.root / "escape")], {}, link=True, binary=self.root)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command([*words, "-Wl,-L,/tmp/unverified-runtime"], {}, link=True)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command([*words, "-Xlinker", "-L/tmp/unverified-runtime"], {}, link=True)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command(["/tmp/unverified-launcher", *words],
+                                       {"CMAKE_C_COMPILER_LAUNCHER": "/tmp/unverified-launcher"}, link=True)
+        with self.assertRaises(WorkspaceError):
+            portable._portable_command([word for word in words if word != "--no-default-config"], {}, link=True)
+
+    def test_effective_driver_refuses_external_tools_and_codegen_runtime_changes(self):
+        evidence = self.driver_evidence()
+        compile_words = [portable.LLVM_ROOT + "/bin/clang", "-c", "fixture.c", "-o", "fixture.o"]
+        link_words = [portable.LLVM_ROOT + "/bin/clang", "fixture.o", "-o", "atrinik"]
+        cc1 = self.driver_report(compile_words)
+        linker = self.driver_report(link_words)
+        cases = [(cc1, False, True), (linker, True, True),
+                 (linker.replace('"atrinik"', '"/tmp/atrinik"'), True, False),
+                 (linker.rstrip() + ' "-o" "atrinik"\n', True, False),
+                 (linker.rstrip() + ' "--output=/tmp/atrinik"\n', True, False),
+                 (cc1.replace('"x86-64"', '"haswell"'), False, False),
+                 (cc1.replace('"fixture.o"', '"elsewhere.o"'), False, False),
+                 (cc1.rstrip() + ' "-oelsewhere.o"\n', False, False),
+                 (cc1.rstrip() + ' "--output=elsewhere.o"\n', False, False),
+                 (cc1.replace('"-O2"', '"-O3"'), False, False),
+                 (cc1.replace('/lib/clang/23"', '/foreign-runtime"'), False, False),
+                 (cc1.rstrip() + ' "-target-feature" "+avx2"\n', False, False),
+                 (cc1.rstrip() + ' "-load" "/tmp/plugin.so"\n', False, False),
+                 (cc1.rstrip() + ' "-fpass-plugin=/tmp/plugin.so"\n', False, False),
+                 (cc1 + '"/usr/bin/as" "fixture.s"\n', False, False),
+                 (linker.replace('/bin/ld.lld', '/bin/foreign-ld'), True, False),
+                 (linker.replace('"-lunwind"', ''), True, False),
+                 (linker.rstrip() + ' "-L/tmp/foreign"\n', True, False),
+                 (linker.rstrip() + ' "/tmp/foreign/libhidden.a"\n', True, False),
+                 (linker.rstrip() + ' "--version-script=/tmp/foreign.lds"\n', True, False),
+                 (linker.rstrip() + ' "-L" "/tmp/foreign"\n', True, False),
+                 (linker.rstrip() + ' "--library-path=/tmp/foreign"\n', True, False),
+                 (cc1.replace('"-cc1"', '"--forged" "-cc1"'), False, False),
+                 (linker.replace(evidence["runtime"]["path"], '/tmp/foreign-builtins.a'), True, False),
+                 (linker.replace('"-L' + portable.LLVM_ROOT, '"-L/tmp/foreign'), True, False)]
+        for option in ('"-l:../../../tmp/foreign/libhidden.a"', '"-l" ":../../../tmp/foreign/libhidden.a"',
+                       '"--library=../../../tmp/foreign/libhidden.a"', '"--library" "../../../tmp/foreign/libhidden.a"',
+                       '"--remap-inputs=owned.o=/tmp/foreign.o"', '"--remap-inputs-file=/tmp/map"',
+                       '"-R/tmp/foreign.o"'):
+            cases.append((linker.rstrip() + " " + option + "\n", True, False))
+        for output, link, valid in cases:
+            with self.subTest(output=output), mock.patch.object(export, "_tool_report", return_value=output):
+                words = link_words if link else compile_words
+                if valid: portable._portable_driver(words, evidence, self.root, link=link)
+                else:
+                    with self.assertRaises(WorkspaceError): portable._portable_driver(words, evidence, self.root, link=link)
+
+    @unittest.skipUnless(shutil.which("clang"), "Clang driver fixture")
+    def test_actual_llvm_driver_rejects_foreign_codegen_tools_and_missing_runtimes(self):
+        compiler = Path(shutil.which("clang")).absolute()
+        version = subprocess.check_output([str(compiler), "--version"], text=True)
+        prefix = compiler.resolve().parent.parent
+        linker = prefix / "bin/ld.lld"
+        if "clang version 23.1.3" not in version or not linker.is_file():
+            self.skipTest("exact LLVM 23.1.3 compiler/linker fixture required")
+        source = self.root / "driver.c"
+        source.write_text("int main(void) { return 0; }\n")
+        object_file = self.root / "driver.o"
+        subprocess.run([str(compiler), "--no-default-config", "-c", str(source), "-o", str(object_file)], check=True)
+        evidence = self.driver_evidence()
+        evidence["tools"]["compiler"]["path"] = str(compiler)
+        evidence["tools"]["linker"]["path"] = str(linker)
+        evidence["target"] = subprocess.check_output([str(compiler), "--no-default-config", "-dumpmachine"], text=True).strip()
+        evidence["runtime"]["path"] = subprocess.check_output([str(compiler), "--no-default-config", "--rtlib=compiler-rt", "--print-libgcc-file-name"], text=True).strip()
+        evidence["unwinder"]["path"] = str(prefix / "lib/libunwind.a")
+        base = [str(compiler), "--no-default-config", "-O2", "-march=x86-64", "-mtune=generic"]
+        compile_words = [*base, "-c", str(source), "-o", str(object_file)]
+        link_words = [*base, "-L" + str(prefix / "lib"), "--rtlib=compiler-rt", "--unwindlib=libunwind",
+                      "-fuse-ld=lld", str(object_file), "-o", str(self.root / "driver")]
+        # This real-driver fixture may run on the Ubuntu test worker. Its
+        # system library paths are fixture inputs; the separate frozen Debian
+        # report tests the production producer's exact directory contract.
+        report = export._tool_report([link_words[0], "-###", *link_words[1:]], cwd=self.root)
+        import shlex
+        default_spellings = {arg[2:] for line in report.splitlines()
+                               if line.lstrip().startswith('"') for arg in shlex.split(line)
+                               if arg.startswith("-L")}
+        default_directories = {os.path.normpath(path) for path in default_spellings}
+        with mock.patch.object(portable, "LLVM_ROOT", str(prefix)), \
+             mock.patch.object(export, "PORTABLE_LIBRARY_DIRECTORIES", default_directories | export.PORTABLE_LIBRARY_DIRECTORIES), \
+             mock.patch.object(export, "PORTABLE_LIBRARY_SPELLINGS", default_spellings | export.PORTABLE_LIBRARY_SPELLINGS):
+            portable._portable_driver(compile_words, evidence, self.root, link=False)
+            portable._portable_driver(link_words, evidence, self.root, link=True)
+            cases = [(compile_words + ["-fno-integrated-as"], False),
+                     (compile_words + ["-resource-dir=/tmp/foreign-resource"], False),
+                     (compile_words + ["--target=aarch64-linux-gnu"], False),
+                     (compile_words + ["-mllvm", "-force-vector-width=8"], False),
+                     (link_words + ["-nostdlib"], True), (link_words + ["-nodefaultlibs"], True),
+                     (link_words + ["-L/tmp/foreign"], True),
+                     (link_words + ["/tmp/foreign/libhidden.a"], True)]
+            for words, link in cases:
+                with self.subTest(words=words), self.assertRaises(WorkspaceError):
+                    portable._portable_driver(words, evidence, self.root, link=link)
 
     def test_audio_notices_preserve_verified_text_and_archive_provenance(self):
         record, payload = self.audio_archive()
@@ -213,7 +1293,7 @@ class PortablePublicationTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "provider escaped moved export"):
                 namespace["loaded_application_paths"](self.root)
 
-    @unittest.skipUnless(shutil.which("cc"), "native compiler")
+    @unittest.skipUnless(shutil.which("clang"), "native compiler")
     def test_real_launcher_helpers_are_separate_from_client_loader_trace(self):
         import runpy
         namespace = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
@@ -221,7 +1301,7 @@ class PortablePublicationTests(unittest.TestCase):
             (self.output / path).mkdir(parents=True)
         source = self.root / "client.c"
         source.write_text('#include <stdio.h>\nint main(void) { puts("client help"); return 0; }\n')
-        subprocess.run(["cc", str(source), "-o", str(self.output / "bin/atrinik")],
+        subprocess.run(["clang", str(source), "-o", str(self.output / "bin/atrinik")],
                        check=True, capture_output=True)
         launcher = self.output / "atrinik"
         launcher.write_bytes(export.launcher_script())
@@ -234,14 +1314,14 @@ class PortablePublicationTests(unittest.TestCase):
         self.assertFalse(any("libselinux" in path for path in paths))
         self.assertIn("initialize program:", (self.root / "client-loader.log").read_text())
 
-    @unittest.skipUnless(shutil.which("cc"), "native compiler")
+    @unittest.skipUnless(shutil.which("clang"), "native compiler")
     def test_real_loader_rejects_omitted_application_library_even_without_manifest_entry(self):
         import runpy
         namespace = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/linux_portable_acceptance.py"))
         source = self.root / "consumer.c"
         source.write_text("extern const char *zlibVersion(void); int main(void) { return !zlibVersion(); }\n")
         binary = self.root / "consumer"
-        subprocess.run(["cc", str(source), "-o", str(binary), "-lz"], check=True, capture_output=True)
+        subprocess.run(["clang", str(source), "-o", str(binary), "-l:libz.so.1"], check=True, capture_output=True)
         environment = dict(os.environ)
         environment.pop("LD_LIBRARY_PATH", None)
         listing = subprocess.check_output(["/lib64/ld-linux-x86-64.so.2", "--list", str(binary)],
@@ -305,6 +1385,7 @@ class PortablePublicationTests(unittest.TestCase):
                 workspace._build_resolved.assert_not_called()
 
     def test_export_source_copy_and_final_publication_guards(self):
+        build_tools = fixture_build_tools(self.root / "metadata-tools")
         from scripts.linux_portable_acceptance import SOUND_RELEASE
         from atrinik_workspace import sound
         cases = {"complete": None, "dirty": "clean committed", "classic": "requires Classic",
@@ -312,7 +1393,8 @@ class PortablePublicationTests(unittest.TestCase):
                  "configure": "CMake configuration changed", "sound-tree": "source tree",
                  "source-bytes": "source proof changed", "late-record": "source generation changed",
                  "late-proof": "source closure changed", "late-sound": "released sound changed",
-                 "late-metadata": "producer metadata changed", "late-configure": "build configuration changed"}
+                 "late-metadata": "producer metadata changed", "late-configure": "build configuration changed",
+                 "pre-runtime-tools": "runtime tool changed", "post-runtime-tools": "runtime tool changed"}
         for case, failure in cases.items():
             with self.subTest(case=case), ExitStack() as patches:
                 directory = self.root / case
@@ -335,8 +1417,18 @@ class PortablePublicationTests(unittest.TestCase):
                 binary = directory / "build/client"
                 binary.mkdir(parents=True)
                 cache = binary / "CMakeCache.txt"
-                cache.write_text("CMAKE_SKIP_RPATH:BOOL=ON\nCMAKE_BUILD_TYPE:STRING=Release\n"
-                                 "CMAKE_C_FLAGS:STRING=-O2 -march=x86-64 -mtune=generic\n")
+                cache.write_text("".join(argument[2:].split("=", 1)[0] + ":STRING=" + argument.split("=", 1)[1] + "\n"
+                                         for argument in portable.portable_configure_arguments(self.root)))
+                with cache.open("a") as stream:
+                    stream.write("CMAKE_HOME_DIRECTORY:INTERNAL=" + str(self.root) + "\n")
+                (binary / ".atrinik-configure.json").write_text(json.dumps({"source": {"path": str(self.root)}}))
+                compile_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
+                                 "-O2", "-DNDEBUG", "--no-default-config", "-c", "fixture.c", "-o", "fixture.o"]
+                (binary / "compile_commands.json").write_text(json.dumps([{"arguments": compile_words, "directory": str(binary), "file": compile_words[compile_words.index("-c") + 1]}]))
+                link_words = [portable.LLVM_ROOT + "/bin/clang", "-O2", "-march=x86-64", "-mtune=generic",
+                              "-O2", "-DNDEBUG", "--no-default-config", *portable.PORTABLE_LINK_FLAGS.split(), "fixture.o", "-o", "atrinik"]
+                patches.enter_context(mock.patch.object(portable.subprocess, "run", return_value=
+                    subprocess.CompletedProcess([], 0, stdout=self.ninja_report(binary, self.root, compile_words, link_words))))
                 released = directory / "released"
                 released.mkdir()
                 (released / "COPYING").write_bytes(b"released sound attribution")
@@ -372,6 +1464,20 @@ class PortablePublicationTests(unittest.TestCase):
                         (selected["client"] / "media.dat").write_bytes(b"changed source")
                     return binary.parent
                 workspace._build_resolved.side_effect = build
+                # Isolate export's source/publication guards from compilation;
+                # CompilerClosureTests exercises the real build receipt API.
+                export_context = mock.Mock(binary=binary, host_tools={}, build_tools={})
+                if case in {"pre-runtime-tools", "post-runtime-tools"}:
+                    export_context.verify_host_tools.side_effect = (
+                        [export.ExportError("runtime tool changed")] if case == "pre-runtime-tools" else
+                        [None, export.ExportError("runtime tool changed")])
+                patches.enter_context(mock.patch.object(portable, "PortableBuildContext", return_value=export_context))
+                def validated_cache(*args, **kwargs):
+                    data = cache.read_bytes()
+                    if case == "configure":
+                        raise WorkspaceError("portable CMake configuration changed")
+                    return data
+                patches.enter_context(mock.patch.object(portable, "validate_portable_build", side_effect=validated_cache))
                 def runtime(publication, documents, executable):
                     self.assertEqual(executable, binary / "atrinik")
                     publication.add_bytes("bin/atrinik", b"fixture client", executable=True)
@@ -391,16 +1497,20 @@ class PortablePublicationTests(unittest.TestCase):
                 if case == "sound": states["sound"]["head"] = "a" * 40
                 if case == "configure": cache.write_text("CMAKE_SKIP_RPATH:BOOL=OFF\n")
                 if case == "sound-tree": sound_record["source_tree"] = "e" * 40
-                metadata = ({"contract": b"authenticated fixture"}, {})
+                patches.enter_context(mock.patch.object(export, "_tool_report", side_effect=self.driver_report))
+                metadata = ({"contract": b"authenticated fixture"}, {"compiler-evidence.json": self.driver_evidence(),
+                            "installed.json": {"build_tools": build_tools}})
                 patches.enter_context(mock.patch.object(portable, "installed_metadata", side_effect=[
                     metadata, ({"contract": b"changed"}, {}) if case == "late-metadata" else metadata]))
-                patches.enter_context(mock.patch.object(portable, "add_runtime", side_effect=runtime))
-                patches.enter_context(mock.patch.object(portable, "add_corresponding_sources", side_effect=legal))
+                runtime_probe = patches.enter_context(mock.patch.object(portable, "add_runtime", side_effect=runtime))
+                legal_copy = patches.enter_context(mock.patch.object(portable, "add_corresponding_sources", side_effect=legal))
                 patches.enter_context(mock.patch.object(sound, "verify_release_tree", side_effect=verify_sound))
                 if failure:
                     with self.assertRaisesRegex((WorkspaceError, export.ExportError), failure):
                         portable.export_client(workspace, "qualified", destination)
                     self.assertFalse(destination.exists())
+                    if case == "pre-runtime-tools": runtime_probe.assert_not_called()
+                    if case in {"pre-runtime-tools", "post-runtime-tools"}: legal_copy.assert_not_called()
                     if case in ("dirty", "classic", "sound", "generation"):
                         workspace._build_resolved.assert_not_called()
                 else:
@@ -513,14 +1623,14 @@ class PortablePublicationTests(unittest.TestCase):
         with self.assertRaisesRegex(export.ExportError, "unresolved symbols in bin/client"):
             portable.symbol_closure(objects, entrypoint="bin/client")
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_portable_executable_rejects_custom_or_missing_loader(self):
         source = self.root / "main.c"
         source.write_text("int main(void) { return 0; }\n")
         for name, options in (("normal", []), ("custom", ["-Wl,--dynamic-linker=/tmp/private-loader"]),
                               ("missing", ["-shared", "-fPIC"])):
             target = self.root / name
-            subprocess.run(["cc", str(source), "-o", str(target), *options], check=True, capture_output=True)
+            subprocess.run(["clang", str(source), "-o", str(target), *options], check=True, capture_output=True)
             with target.open("rb") as stream:
                 if name == "normal":
                     self.assertEqual(portable.portable_executable(stream.fileno())["interpreter"],
@@ -533,17 +1643,19 @@ class PortablePublicationTests(unittest.TestCase):
         with target.open("rb") as stream, self.assertRaisesRegex(export.ExportError, "executable mode"):
             portable.portable_executable(stream.fileno())
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_real_versioned_symbol_definitions_and_missing_symbol(self):
         source = self.root / "sample.c"
         version = self.root / "version.map"
         library = self.root / "libsample.so"
         source.write_text("int sample(void) { return 7; }\n")
         version.write_text("SAMPLE_1 { global: sample; local: *; };\n")
-        subprocess.run(["cc", "-shared", "-fPIC", str(source), "-o", str(library),
+        subprocess.run(["clang", "-shared", "-fPIC", "-nostdlib", str(source), "-o", str(library),
                         "-Wl,--version-script=" + str(version)], check=True, capture_output=True)
         with library.open("rb") as stream:
             facts = export.inspect_elf(stream.fileno())
+        self.assertIsNone(facts["soname"])
+        self.assertEqual(facts["defined_versions"], ["SAMPLE_1"])
         self.assertIn("sample@SAMPLE_1", facts["symbols"]["defined"])
         self.assertIn("sample", facts["symbols"]["defined"])
         consumer = {"needed": ["lib"], "symbols": {"defined": ["main"], "required": ["sample@SAMPLE_1"]}}
@@ -888,13 +2000,13 @@ class PortablePublicationTests(unittest.TestCase):
         self.assertFalse((self.root / "client.tar").exists())
 
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_other_absolute_runpath_provider_remains_rejected(self):
         from contextlib import ExitStack
         source = self.root / "provider.c"
         library = self.root / "libother.so"
         source.write_text("int other(void) { return 0; }\n")
-        subprocess.run(["cc", "-shared", "-fPIC", str(source), "-o", str(library),
+        subprocess.run(["clang", "-shared", "-fPIC", str(source), "-o", str(library),
                         "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/pulseaudio"], check=True, capture_output=True)
         with library.open("rb") as stream, ExitStack() as stack:
             descriptor, _, derivative = portable.provider_payload(stack, library, stream.fileno(), portable.byte_record(stream.fileno()))
@@ -973,13 +2085,13 @@ class PortablePublicationTests(unittest.TestCase):
         versions = self.root / "versions.map"
         versions.write_text("SAMPLE_1 { global: sample; local: *; };\n")
         library = self.root / "provider.so"
-        subprocess.run(["cc", "-shared", "-fPIC", "-nostdlib", str(source), "-o", str(library),
+        subprocess.run(["clang", "-shared", "-fPIC", "-nostdlib", str(source), "-o", str(library),
                         "-Wl,-soname,libfixture.so.1", "-Wl,--version-script=" + str(versions)],
                        check=True, capture_output=True)
         client_source = self.root / "client.c"
         client_source.write_text("extern int sample(void); int main(void) { return sample(); }\n")
         binary = self.root / "client-binary"
-        subprocess.run(["cc", "-nostdlib", str(client_source), str(library), "-o", str(binary),
+        subprocess.run(["clang", "-nostdlib", str(client_source), str(library), "-o", str(binary),
                         "-Wl,-e,main", "-Wl,--dynamic-linker=/lib64/ld-linux-x86-64.so.2"],
                        check=True, capture_output=True)
         documents = {"runtime-abi.json": {"objects": [{
@@ -990,7 +2102,7 @@ class PortablePublicationTests(unittest.TestCase):
         }]}, "contract.json": {"runtime": {"unsupported_dlopen_features": []}}}
         return library, binary, documents
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_actual_runtime_elf_closure_is_copied_and_verified_after_relocation(self):
         library, binary, documents = self.compiled_runtime()
         with portable.Publication(self.output, self.sources) as publication:
@@ -1010,7 +2122,7 @@ class PortablePublicationTests(unittest.TestCase):
         self.assertFalse(report["audible_playback_verified"])
         self.assertEqual(report["derivatives"], [])
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_actual_runtime_rejects_provider_hash_dependency_dynamic_and_symbol_drift(self):
         import copy
         library, binary, original = self.compiled_runtime()
@@ -1037,7 +2149,7 @@ class PortablePublicationTests(unittest.TestCase):
                     portable.add_runtime(publication, documents, binary)
             self.assertFalse((self.root / label).exists())
 
-    @unittest.skipUnless(shutil.which("cc") and shutil.which("readelf"), "native ELF tools")
+    @unittest.skipUnless(shutil.which("clang") and shutil.which("llvm-readelf"), "Clang and LLVM readelf required")
     def test_declared_unsupported_dynamic_feature_is_excluded_explicitly(self):
         library, binary, documents = self.compiled_runtime()
         documents["contract.json"]["runtime"]["unsupported_dlopen_features"] = [
