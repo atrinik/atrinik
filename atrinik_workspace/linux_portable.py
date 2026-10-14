@@ -22,6 +22,7 @@ import tempfile
 from typing import Callable
 
 from . import linux_export as export
+from . import linux_portable_shell as command_shell
 
 IMAGE = "ghcr.io/atrinik/classic-portable-build@sha256:74761e930f5d57face2d81efb0dc50dd4ce32ce1204810e56580bf68a5972ebc"
 PLATFORM_MANIFEST = "sha256:5e30957e54277bdaadeeffa42246258dc9df2086f3fb41f2125d041735ac72aa"
@@ -239,6 +240,30 @@ def portable_configure_arguments(source: Path) -> list[str]:
     return ["-D" + name + "=" + value for name, value in settings.items()]
 
 
+def _verify_command_shell_cohort() -> None:
+    try:
+        command_shell.verify_cohort(image=IMAGE, platform_manifest=PLATFORM_MANIFEST,
+                                    producer_commit=PRODUCER_COMMIT, consumer_commit=CONSUMER_COMMIT)
+    except command_shell.LinuxPortableShellError as error:
+        raise export.ExportError(str(error)) from error
+
+
+def _capture_command_shell() -> dict:
+    _verify_command_shell_cohort()
+    try:
+        return command_shell.capture_identity()
+    except command_shell.LinuxPortableShellError as error:
+        raise export.ExportError(str(error)) from error
+
+
+def _verify_command_shell(receipt: dict) -> None:
+    _verify_command_shell_cohort()
+    try:
+        command_shell.verify_identity(receipt)
+    except command_shell.LinuxPortableShellError as error:
+        raise export.ExportError(str(error)) from error
+
+
 class PortableBuildContext:
     """Same-operation source authority and configure/build observations kept in memory.
 
@@ -333,8 +358,9 @@ class PortableBuildContext:
         # Never refresh its authority from mutable on-disk metadata during a build.
         _verify_compiler_bytes(self.evidence)
         self.verify_build_tools()
-        if self.host_tools is None:
-            raise ValueError("portable shader Python receipt is missing")
+        if self.host_tools is None or set(self.host_tools) != {"shader_python", "command_shell"}:
+            raise ValueError("portable host-tool receipt is missing")
+        _verify_command_shell(self.host_tools["command_shell"])
         record = self.host_tools["shader_python"]
         path = PORTABLE_GENERATOR_PYTHON
         if (record["path"] != str(path) or record["resolved_path"] != str(path.resolve(strict=True))
@@ -441,10 +467,12 @@ class PortableBuildContext:
         self._verify_authored()
         if self.source.parent / "cmake/toolchains/llvm.cmake" not in self.authored:
             raise ValueError("portable toolchain is outside the caller's supplemental source proof")
+        shell = _capture_command_shell()
         _verify_compiler_bytes(self.evidence)
         self.build_tools = self._capture_build_tools()
         _verify_compiler_bytes(self.evidence)
-        self.host_tools = {"shader_python": self._capture_generator_python()}
+        _verify_command_shell(shell)
+        self.host_tools = {"command_shell": shell, "shader_python": self._capture_generator_python()}
         self.verify_host_tools()
 
     def _verify_authored(self) -> None:
@@ -1009,6 +1037,7 @@ def _verify_compiler_bytes(evidence: dict) -> None:
 
 
 def installed_metadata() -> tuple[dict[str, bytes], dict[str, dict]]:
+    _capture_command_shell()
     root = Path("/opt/atrinik-portable")
     if set(METADATA_HASHES) != export.PORTABLE_METADATA_FILES:
         raise export.ExportError(

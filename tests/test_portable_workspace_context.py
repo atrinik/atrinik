@@ -4,6 +4,7 @@ from contextlib import ExitStack, contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 import hashlib
+import os
 import tempfile
 import threading
 import unittest
@@ -45,6 +46,12 @@ class RecordingContext:
 
 class PortableWorkspaceContextTests(unittest.TestCase):
     def setUp(self):
+        self.capture_shell = linux_portable.command_shell.capture_identity
+        self.verify_shell = linux_portable.command_shell.verify_identity
+        for method, result in (("capture_identity", {"fixture": "command shell"}), ("verify_identity", None)):
+            shell_patch = mock.patch.object(linux_portable.command_shell, method, return_value=result)
+            shell_patch.start()
+            self.addCleanup(shell_patch.stop)
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
@@ -122,7 +129,8 @@ class PortableWorkspaceContextTests(unittest.TestCase):
                 with mock.patch.dict(linux_portable.export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
                     admitted = AdmittedContext({}, {}, {}, {}, build_tools=expected)
                 admitted.build_tools = admitted._capture_build_tools()
-                admitted.host_tools = {"shader_python": admitted._capture_generator_python()}
+                admitted.host_tools = {"command_shell": linux_portable._capture_command_shell(),
+                                       "shader_python": admitted._capture_generator_python()}
                 self.context.build_tools = admitted.build_tools
                 self.context.host_tools = admitted.host_tools
                 self.context.verify_host_tools = admitted.verify_host_tools
@@ -188,7 +196,8 @@ class PortableWorkspaceContextTests(unittest.TestCase):
         python_patch = mock.patch.object(linux_portable, "PORTABLE_GENERATOR_PYTHON", python)
         python_patch.start()
         self.addCleanup(python_patch.stop)
-        admitted.host_tools = {"shader_python": {"path": str(python), "resolved_path": str(python),
+        admitted.host_tools = {"command_shell": linux_portable._capture_command_shell(),
+                               "shader_python": {"path": str(python), "resolved_path": str(python),
                                                 **admitted._record(python), "version": {}}}
         return admitted, records, evidence
 
@@ -234,6 +243,98 @@ class PortableWorkspaceContextTests(unittest.TestCase):
                     self.assertNotIn("output-evidence", actions)
                     if phase != "postbuild": self.assertNotIn("build", actions)
                     if phase in {"prefix", "fingerprint"}: self.assertNotIn("configure", actions)
+
+    @staticmethod
+    def change_shell(fixture, change):
+        if change == "bytes":
+            fixture.target.write_bytes(fixture.raw[:-1] + b"x")
+        elif change == "replacement":
+            replacement = fixture.root / "replacement"
+            replacement.write_bytes(fixture.raw)
+            replacement.chmod(0o755)
+            replacement.replace(fixture.target)
+        elif change == "link":
+            path = fixture.root / "usr/bin/sh"
+            path.unlink()
+            path.symlink_to("./dash")
+        elif change == "target-alias":
+            fixture.target.rename(fixture.root / "other")
+            fixture.target.symlink_to("../../other")
+        elif change == "mode":
+            fixture.target.chmod(0o775)
+        elif change == "hardlink":
+            os.link(fixture.target, fixture.root / "alias")
+        elif change == "missing":
+            (fixture.root / "usr/bin/sh").unlink()
+        else:
+            raise AssertionError("unknown shell fixture mutation")
+
+    def test_actual_shell_drift_stops_next_build_phase(self):
+        from tests.test_linux_portable_shell import ShellFixture
+        for phase in ("prefix", "fingerprint", "configure", "prebuild", "postbuild"):
+            for change in ("bytes", "replacement", "link", "target-alias", "mode", "hardlink", "missing"):
+                with self.subTest(phase=phase, change=change), ExitStack() as stack:
+                    self.events.clear()
+                    admitted, _, _ = self.compiler_context(self.root / (phase + change))
+                    fixture = ShellFixture()
+                    stack.callback(fixture.close)
+                    stack.enter_context(mock.patch.object(linux_portable.command_shell, "capture_identity", self.capture_shell))
+                    stack.enter_context(mock.patch.object(linux_portable.command_shell, "verify_identity", self.verify_shell))
+                    admitted.host_tools["command_shell"] = linux_portable._capture_command_shell()
+                    self.context.evidence = admitted.evidence
+                    self.context.verify_host_tools = admitted.verify_host_tools
+                    self.context.host_tools = admitted.host_tools
+                    self.context.build_tools = admitted.build_tools
+                    fingerprint = self.cmake_patches(real_compiler=True)
+                    def mutate(): self.change_shell(fixture, change)
+                    def prefix(*args, **kwargs):
+                        if phase == "prefix": mutate()
+                        return {}
+                    def probe(*args, **kwargs):
+                        if phase == "fingerprint": mutate()
+                        return fingerprint
+                    def run(command, **kwargs):
+                        action = "configure" if "-S" in command else "build"
+                        self.events.append((action, command))
+                        if (phase == "configure" and action == "configure") or (phase == "postbuild" and action == "build"):
+                            mutate()
+                    def capture(binary, source):
+                        self.events.append(("configure-evidence", binary, source))
+                        if phase == "prebuild": mutate()
+                    self.context.capture_configure = capture
+                    stack.enter_context(mock.patch.object(self.workspace, "_add_debug_prefix_environment", side_effect=prefix))
+                    stack.enter_context(mock.patch.object(self.workspace, "_configure_fingerprint", side_effect=probe))
+                    stack.enter_context(mock.patch("atrinik_workspace.workspace.run", side_effect=run))
+                    with self.assertRaisesRegex(WorkspaceError, "portable-shell"):
+                        self.workspace._cmake(self.source, self.binary, [], False,
+                                              portable=True, portable_context=self.context)
+                    actions = [event[0] for event in self.events]
+                    self.assertNotIn("output-evidence", actions)
+                    if phase != "postbuild": self.assertNotIn("build", actions)
+                    if phase in {"prefix", "fingerprint"}: self.assertNotIn("configure", actions)
+
+    def test_actual_shell_drift_precedes_capture_and_revalidation_probes(self):
+        from tests.test_linux_portable_shell import ShellFixture
+        for boundary in ("capture_output", "revalidate"):
+            for change in ("bytes", "replacement", "link", "target-alias", "mode", "hardlink", "missing"):
+                with self.subTest(boundary=boundary, change=change), ExitStack() as stack:
+                    admitted, _, _ = self.compiler_context(self.root / (boundary + change))
+                    fixture = ShellFixture()
+                    stack.callback(fixture.close)
+                    stack.enter_context(mock.patch.object(linux_portable.command_shell, "capture_identity", self.capture_shell))
+                    stack.enter_context(mock.patch.object(linux_portable.command_shell, "verify_identity", self.verify_shell))
+                    admitted.host_tools["command_shell"] = linux_portable._capture_command_shell()
+                    admitted.binary, admitted.source, admitted.baseline = self.binary, self.source, {}
+                    self.change_shell(fixture, change)
+                    with mock.patch.object(admitted, "_ninja") as ninja, \
+                         mock.patch.object(admitted, "_generated_inventory") as inventory, \
+                         mock.patch.object(linux_portable.export, "_tool_report") as driver, \
+                         self.assertRaisesRegex(linux_portable.export.ExportError, "portable-shell"):
+                        getattr(admitted, boundary)(self.binary)
+                    ninja.assert_not_called()
+                    inventory.assert_not_called()
+                    driver.assert_not_called()
+                    self.assertIsNone(admitted.output)
 
     def test_refreshed_disk_evidence_cannot_replace_caller_authority(self):
         self.cmake_patches()
