@@ -214,3 +214,13 @@ jobs:
 
           if __name__ == '__main__':
               main()
+      - name: Retain dependency review job summary
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: dependency-review-job-summary-${{ github.event.pull_request.head.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          # Retain only the runner's masked copies used for the actual job summary.
+          path: ${{ runner.temp }}/_runner_file_commands/step_summary_*-scrubbed
+          retention-days: 7
+          if-no-files-found: warn
