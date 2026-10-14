@@ -11039,6 +11039,7 @@ class WorkspaceTests(unittest.TestCase):
         source = self.workspace.paths.repositories / "content"
         binary = self.workspace.paths.builds / "profiles/test/build/portable-context"
         context = mock.Mock(spec=PortableBuildContext)
+        context.evidence = {}
         context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
         context.build_tools = self._portable_build_tool_receipt()
         context.verify_host_tools = mock.Mock()
@@ -11070,6 +11071,7 @@ class WorkspaceTests(unittest.TestCase):
         # Isolate proof capture from these environment assertions while retaining
         # the production type gate and checking every context boundary call.
         context = mock.Mock(spec=PortableBuildContext)
+        context.evidence = {}
         context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
         context.build_tools = self._portable_build_tool_receipt()
         context.verify_host_tools = mock.Mock()
@@ -11086,7 +11088,6 @@ class WorkspaceTests(unittest.TestCase):
              mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture 1"}) as identities, \
              mock.patch.object(self.workspace, "_compiler_supports_prefix_maps", return_value=False), \
              mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
-             mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes") as verify, \
              mock.patch("atrinik_workspace.workspace.run") as run:
             self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True, portable_context=context)
         configure = next(call for call in run.call_args_list if call.args[0][:2] == ["/usr/bin/cmake", "-S"])
@@ -11114,9 +11115,10 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(build.kwargs["env"]["PATH"], PORTABLE_PATH)
         self.assertEqual(configure.kwargs["env"]["PYTHONNOUSERSITE"], "1")
         self.assertEqual(build.kwargs["env"]["PYTHONNOUSERSITE"], "1")
-        verify.assert_called_once_with({})
         self.assertEqual(context.mock_calls, [
             mock.call.validate_source_binding(binary, source),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
             mock.call.verify_host_tools(),
             mock.call.verify_host_tools(),
             mock.call.verify_host_tools(),
@@ -11143,6 +11145,7 @@ class WorkspaceTests(unittest.TestCase):
                 configurations = []
                 contexts = [mock.Mock(spec=PortableBuildContext) for _ in range(3)]
                 for context in contexts:
+                    context.evidence = {}
                     context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
                     context.build_tools = self._portable_build_tool_receipt()
                     context.verify_host_tools = mock.Mock()
@@ -11182,6 +11185,8 @@ class WorkspaceTests(unittest.TestCase):
                         mock.call.verify_host_tools(),
                         mock.call.verify_host_tools(),
                         mock.call.verify_host_tools(),
+                        mock.call.verify_host_tools(),
+                        mock.call.verify_host_tools(),
                         mock.call.capture_configure(binary, source),
                         mock.call.verify_host_tools(),
                         mock.call.verify_host_tools(),
@@ -11199,14 +11204,14 @@ class WorkspaceTests(unittest.TestCase):
         (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
         binary = self.workspace.paths.builds / "profiles/test/build/portable-swap"
         context = mock.Mock(spec=PortableBuildContext)
+        context.evidence = {}
         context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
         context.build_tools = self._portable_build_tool_receipt()
-        context.verify_host_tools = mock.Mock()
+        context.verify_host_tools = mock.Mock(side_effect=[None] * 7 + [ExportError("archive tool bytes differ")])
         with mock.patch.object(self.workspace, "_tool_identity", return_value={"version": "fixture"}), \
              mock.patch("atrinik_workspace.linux_portable.installed_metadata", return_value=({}, {"compiler-evidence.json": {}})), \
-             mock.patch("atrinik_workspace.linux_portable._verify_compiler_bytes", side_effect=ExportError("archive tool bytes differ")), \
              mock.patch("atrinik_workspace.workspace.run") as run, \
-             self.assertRaisesRegex(ExportError, "bytes differ"):
+             self.assertRaisesRegex(WorkspaceError, "bytes differ"):
             self.workspace._cmake(source, binary, portable_configure_arguments(source), False, portable=True, portable_context=context)
         self.assertTrue(any(call.args[0][:2] == ["/usr/bin/cmake", "-S"] for call in run.call_args_list))
         self.assertFalse(any("--build" in call.args[0] for call in run.call_args_list))
@@ -11217,7 +11222,10 @@ class WorkspaceTests(unittest.TestCase):
             mock.call.verify_host_tools(),
             mock.call.verify_host_tools(),
             mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
             mock.call.capture_configure(binary, source),
+            mock.call.verify_host_tools(),
         ])
 
     def test_portable_host_tool_receipt_is_retained_and_drift_stops_before_build(self) -> None:
@@ -11226,9 +11234,10 @@ class WorkspaceTests(unittest.TestCase):
         (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
         binary = self.workspace.paths.builds / "profiles/test/build/portable-host-tool-swap"
         context = mock.Mock(spec=PortableBuildContext)
+        context.evidence = {}
         context.host_tools = {"shader_python": {"sha256": "admitted-python-digest"}}
         context.build_tools = self._portable_build_tool_receipt()
-        context.verify_host_tools = mock.Mock(side_effect=[None] * 5 + [
+        context.verify_host_tools = mock.Mock(side_effect=[None] * 7 + [
             ValueError("host tool bytes changed"),
         ])
         with (
@@ -11247,6 +11256,8 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(any("--build" in call.args[0] for call in run.call_args_list))
         self.assertEqual(context.mock_calls, [
             mock.call.validate_source_binding(binary, source),
+            mock.call.verify_host_tools(),
+            mock.call.verify_host_tools(),
             mock.call.verify_host_tools(),
             mock.call.verify_host_tools(),
             mock.call.verify_host_tools(),
@@ -11474,6 +11485,7 @@ class WorkspaceTests(unittest.TestCase):
         (source / "CMakeLists.txt").write_text("project(fixture NONE)\n")
         binary = self.workspace.paths.builds / "profiles/test/build/prefix-probe"
         context = mock.Mock(spec=PortableBuildContext)
+        context.evidence = {}
         context.host_tools = {"shader_python": {"sha256": "fixture-python-digest"}}
         context.build_tools = self._portable_build_tool_receipt()
         context.verify_host_tools = mock.Mock()

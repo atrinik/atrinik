@@ -11785,9 +11785,10 @@ class Workspace:
             managed_reset(binary, self.paths.builds, "cmake-binary")
         environment = os.environ.copy()
         if portable:
-            from .linux_portable import LLVM_ROOT, PORTABLE_PATH, installed_metadata, _verify_compiler_bytes
+            from .linux_portable import LLVM_ROOT, PORTABLE_PATH, installed_metadata
             _, producer_documents = installed_metadata()
-            producer_tools = producer_documents["compiler-evidence.json"]
+            if producer_documents["compiler-evidence.json"] != portable_context.evidence:
+                raise WorkspaceError("portable producer compiler evidence changed from caller context")
             environment["PATH"] = PORTABLE_PATH
             for name in tuple(environment):
                 if (name.startswith(("CCACHE_", "CCC_", "CLANG_CONFIG_FILE_", "LD_",
@@ -11818,10 +11819,12 @@ class Workspace:
             "-DCMAKE_C_COMPILER_LAUNCHER=",
             "-DCMAKE_CXX_COMPILER_LAUNCHER=",
         ]
+        verify_portable_tools()
         prefix_map_support = self._add_debug_prefix_environment(
             source, binary, environment, arguments,
             **({"probe_environment": environment} if portable else {}),
         )
+        verify_portable_tools()
         if ccache is not None:
             cache = self.paths.builds / COMPILER_CACHE_PURPOSE
             cache_inputs["compiler-cache"] = (
@@ -11961,7 +11964,6 @@ class Workspace:
                 portable_context.capture_configure(binary, source)
             except ValueError as error:
                 raise WorkspaceError(str(error)) from error
-            _verify_compiler_bytes(producer_tools)
         build_command = [cmake, "--build", str(binary), "--parallel"]
         # CTest is registered for the whole configured graph.  An explicit
         # validation request therefore has to materialize that graph before

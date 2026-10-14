@@ -74,6 +74,13 @@ def fixture_tool_path_protected(info):
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux copied build-tool fixtures")
 class PortableBuildToolTests(unittest.TestCase):
     def setUp(self):
+        for method, result in (("capture_identity", {"fixture": "command shell"}), ("verify_identity", None)):
+            shell_patch = mock.patch.object(portable.command_shell, method, return_value=result)
+            shell_patch.start()
+            self.addCleanup(shell_patch.stop)
+        compiler_guard = mock.patch.object(portable, "_verify_compiler_bytes")
+        compiler_guard.start()
+        self.addCleanup(compiler_guard.stop)
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
@@ -94,7 +101,8 @@ class PortableBuildToolTests(unittest.TestCase):
             context = portable.PortableBuildContext({}, {}, {}, {}, build_tools=expected)
         if capture:
             context.build_tools = context._capture_build_tools()
-            context.host_tools = {"shader_python": context._capture_generator_python()}
+            context.host_tools = {"command_shell": portable._capture_command_shell(),
+                                  "shader_python": context._capture_generator_python()}
         return context, root
 
     def test_actual_copied_tools_preserve_complete_producer_versions(self):
@@ -121,7 +129,8 @@ class PortableBuildToolTests(unittest.TestCase):
         with mock.patch.dict(export.PORTABLE_BUILD_TOOL_PATHS, paths, clear=True):
             context = portable.PortableBuildContext({}, {}, {}, {}, build_tools=copied)
         context.build_tools = context._capture_build_tools()
-        context.host_tools = {"shader_python": context._capture_generator_python()}
+        context.host_tools = {"command_shell": portable._capture_command_shell(),
+                                  "shader_python": context._capture_generator_python()}
         context.verify_host_tools()
         self.assertEqual(export.PORTABLE_BUILD_TOOL_PATHS, production_paths)
         self.assertTrue(all(path.startswith(str(self.root / "owned-copy")) for path in paths.values()))
@@ -270,6 +279,15 @@ class CompilerClosureTests(unittest.TestCase):
         return fixture_build_tools(root)
 
     def setUp(self):
+        self.capture_shell = portable.command_shell.capture_identity
+        self.verify_shell = portable.command_shell.verify_identity
+        for method, result in (("capture_identity", {"fixture": "command shell"}), ("verify_identity", None)):
+            shell_patch = mock.patch.object(portable.command_shell, method, return_value=result)
+            shell_patch.start()
+            self.addCleanup(shell_patch.stop)
+        compiler_guard = mock.patch.object(portable, "_verify_compiler_bytes")
+        compiler_guard.start()
+        self.addCleanup(compiler_guard.stop)
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
@@ -381,6 +399,113 @@ class CompilerClosureTests(unittest.TestCase):
         (binary / "atrinik").write_bytes(b"built fixture executable")
         context.capture_output(binary)
         return state
+
+    def test_actual_command_shell_receipt_reaches_configure_and_output(self):
+        from tests.test_linux_portable_shell import ShellFixture
+        fixture = ShellFixture()
+        self.addCleanup(fixture.close)
+        with mock.patch.object(portable.command_shell, "capture_identity", self.capture_shell), \
+             mock.patch.object(portable.command_shell, "verify_identity", self.verify_shell):
+            state = self.fixture()
+            context = state["context"]
+            receipt = context.host_tools["command_shell"]
+            self.verify_shell(receipt)
+            self.assertEqual(receipt["path"], "/bin/sh")
+            self.assertEqual(receipt["resolved_path"], "/usr/bin/dash")
+            fingerprint = json.loads((state["binary"] / ".atrinik-configure.json").read_text())
+            self.assertEqual(fingerprint["portable_host_tools"]["command_shell"], receipt)
+            self.assertIsNotNone(context.output)
+            self.assertEqual(set(context.producer_build_tools), {"cmake", "ninja", "pkg_config"})
+
+    def test_actual_shell_drift_rejects_metadata_admission(self):
+        from tests.test_linux_portable_shell import ShellFixture
+        for change in ("bytes", "link", "mode"):
+            with self.subTest(change=change), ExitStack() as stack:
+                fixture = ShellFixture()
+                stack.callback(fixture.close)
+                stack.enter_context(mock.patch.object(portable.command_shell, "capture_identity", self.capture_shell))
+                stack.enter_context(mock.patch.object(portable.command_shell, "verify_identity", self.verify_shell))
+                portable._capture_command_shell()
+                if change == "bytes": fixture.target.write_bytes(fixture.raw[:-1] + b"x")
+                elif change == "mode": fixture.target.chmod(0o775)
+                else:
+                    link = fixture.root / "usr/bin/sh"
+                    link.unlink()
+                    link.symlink_to("./dash")
+                with mock.patch.object(portable, "_read_regular") as metadata, \
+                     self.assertRaisesRegex(export.ExportError, "portable-shell"):
+                    portable.installed_metadata()
+                metadata.assert_not_called()
+
+    def test_command_shell_is_authenticated_before_any_host_probe(self):
+        with mock.patch.object(portable.command_shell, "capture_identity", side_effect=portable.command_shell.LinuxPortableShellError("shell identity changed")), \
+             mock.patch.object(portable.PortableBuildContext, "_capture_build_tools") as versions, \
+             mock.patch.object(portable.PortableBuildContext, "_capture_generator_python") as python, \
+             self.assertRaisesRegex(export.ExportError, "shell identity changed"):
+            self.fixture()
+        versions.assert_not_called()
+        python.assert_not_called()
+
+    def test_command_shell_drift_during_version_probe_precedes_python(self):
+        capture = portable.PortableBuildContext._capture_build_tools
+        def versions(context):
+            result = capture(context)
+            portable.command_shell.verify_identity.side_effect = portable.command_shell.LinuxPortableShellError("shell identity changed")
+            return result
+        with mock.patch.object(portable.PortableBuildContext, "_capture_build_tools", versions), \
+             mock.patch.object(portable.PortableBuildContext, "_capture_generator_python") as python, \
+             self.assertRaisesRegex(export.ExportError, "shell identity changed"):
+            self.fixture()
+        python.assert_not_called()
+
+    def test_command_shell_drift_during_python_probe_precedes_configure(self):
+        capture = portable.PortableBuildContext._capture_generator_python
+        def python():
+            result = capture()
+            portable.command_shell.verify_identity.side_effect = portable.command_shell.LinuxPortableShellError("shell identity changed")
+            return result
+        with mock.patch.object(portable.PortableBuildContext, "_capture_generator_python", side_effect=python), \
+             mock.patch.object(portable.PortableBuildContext, "capture_configure") as configure, \
+             self.assertRaisesRegex(export.ExportError, "shell identity changed"):
+            self.fixture()
+        configure.assert_not_called()
+
+    def test_command_shell_receipt_is_retained_and_required_for_revalidation(self):
+        state = self.fixture()
+        context, binary = state["context"], state["binary"]
+        receipt = context.host_tools["command_shell"]
+        fingerprint = json.loads((binary / ".atrinik-configure.json").read_text())
+        self.assertEqual(fingerprint["portable_host_tools"]["command_shell"], receipt)
+        portable.command_shell.verify_identity.assert_called_with(receipt)
+        del context.host_tools["command_shell"]
+        with mock.patch.object(context, "_ninja") as probe, \
+             self.assertRaisesRegex(WorkspaceError, "same-operation build receipt changed"):
+            portable.validate_portable_build(binary, state["evidence"], context=context)
+        probe.assert_not_called()
+
+    def test_command_shell_cohort_cannot_follow_changed_wrapper_coordinates(self):
+        state = self.fixture()
+        for name in ("IMAGE", "PLATFORM_MANIFEST", "PRODUCER_COMMIT", "CONSUMER_COMMIT"):
+            with self.subTest(coordinate=name), mock.patch.object(portable, name, "foreign-cohort"), \
+                 mock.patch.object(portable.command_shell, "capture_identity") as capture, \
+                 mock.patch.object(portable.command_shell, "verify_identity") as verify, \
+                 mock.patch.object(portable, "_read_regular") as metadata:
+                with self.assertRaises(export.ExportError):
+                    portable._capture_command_shell()
+                with self.assertRaises(export.ExportError):
+                    state["context"].verify_host_tools()
+                with self.assertRaises(export.ExportError):
+                    portable.installed_metadata()
+                capture.assert_not_called()
+                verify.assert_not_called()
+                metadata.assert_not_called()
+
+    def test_installed_metadata_authenticates_shell_before_metadata_reads(self):
+        with mock.patch.object(portable.command_shell, "capture_identity", side_effect=portable.command_shell.LinuxPortableShellError("shell identity changed")), \
+             mock.patch.object(portable, "_read_regular") as metadata, \
+             self.assertRaisesRegex(export.ExportError, "shell identity changed"):
+            portable.installed_metadata()
+        metadata.assert_not_called()
 
     def test_complete_off_graph_is_bound_to_caller_sources_and_build_receipt(self):
         state = self.fixture()
@@ -1268,7 +1393,8 @@ class PortablePublicationTests(unittest.TestCase):
                  "configure": "CMake configuration changed", "sound-tree": "source tree",
                  "source-bytes": "source proof changed", "late-record": "source generation changed",
                  "late-proof": "source closure changed", "late-sound": "released sound changed",
-                 "late-metadata": "producer metadata changed", "late-configure": "build configuration changed"}
+                 "late-metadata": "producer metadata changed", "late-configure": "build configuration changed",
+                 "pre-runtime-tools": "runtime tool changed", "post-runtime-tools": "runtime tool changed"}
         for case, failure in cases.items():
             with self.subTest(case=case), ExitStack() as patches:
                 directory = self.root / case
@@ -1340,8 +1466,12 @@ class PortablePublicationTests(unittest.TestCase):
                 workspace._build_resolved.side_effect = build
                 # Isolate export's source/publication guards from compilation;
                 # CompilerClosureTests exercises the real build receipt API.
-                patches.enter_context(mock.patch.object(portable, "PortableBuildContext",
-                                                        return_value=mock.Mock(binary=binary, host_tools={}, build_tools={})))
+                export_context = mock.Mock(binary=binary, host_tools={}, build_tools={})
+                if case in {"pre-runtime-tools", "post-runtime-tools"}:
+                    export_context.verify_host_tools.side_effect = (
+                        [export.ExportError("runtime tool changed")] if case == "pre-runtime-tools" else
+                        [None, export.ExportError("runtime tool changed")])
+                patches.enter_context(mock.patch.object(portable, "PortableBuildContext", return_value=export_context))
                 def validated_cache(*args, **kwargs):
                     data = cache.read_bytes()
                     if case == "configure":
@@ -1372,13 +1502,15 @@ class PortablePublicationTests(unittest.TestCase):
                             "installed.json": {"build_tools": build_tools}})
                 patches.enter_context(mock.patch.object(portable, "installed_metadata", side_effect=[
                     metadata, ({"contract": b"changed"}, {}) if case == "late-metadata" else metadata]))
-                patches.enter_context(mock.patch.object(portable, "add_runtime", side_effect=runtime))
-                patches.enter_context(mock.patch.object(portable, "add_corresponding_sources", side_effect=legal))
+                runtime_probe = patches.enter_context(mock.patch.object(portable, "add_runtime", side_effect=runtime))
+                legal_copy = patches.enter_context(mock.patch.object(portable, "add_corresponding_sources", side_effect=legal))
                 patches.enter_context(mock.patch.object(sound, "verify_release_tree", side_effect=verify_sound))
                 if failure:
                     with self.assertRaisesRegex((WorkspaceError, export.ExportError), failure):
                         portable.export_client(workspace, "qualified", destination)
                     self.assertFalse(destination.exists())
+                    if case == "pre-runtime-tools": runtime_probe.assert_not_called()
+                    if case in {"pre-runtime-tools", "post-runtime-tools"}: legal_copy.assert_not_called()
                     if case in ("dirty", "classic", "sound", "generation"):
                         workspace._build_resolved.assert_not_called()
                 else:
