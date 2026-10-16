@@ -652,7 +652,9 @@ ignore imported nested workflows and nested Dependabot files because GitHub
 does not activate them. The strict schema is checked without a third-party
 Python dependency. GitHub
 Actions and container images use immutable commits or
-digests with human-readable update hints, and every active repository enables
+digests with human-readable update hints. Workflows own the exact Action
+commits: the audit requires full-commit pins but does not repeat them in the
+catalog, so Dependabot Action updates need no catalog edit. Every active repository enables
 weekly Dependabot updates for its supported ecosystems. Git submodules are not
 a supported dependency path. The shared `deploy-control` checkout owns its
 Worker/agent package lock, action pins, runner contract, and release/deployment

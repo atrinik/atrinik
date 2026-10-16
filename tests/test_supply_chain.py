@@ -658,9 +658,14 @@ class InventoryTests(unittest.TestCase):
         document["dependencies"][0]["scope"] = ["server"]
         self.assert_invalid_document(document, "evidence repository must be present")
 
+        # Workflow pins own Action commits, so the inventory may omit them.
         document = self.inventory_document()
         document["dependencies"][0]["commit"] = None
-        self.assert_invalid_document(document, "GitHub Actions require a commit")
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "inventory.json"
+            path.write_text(json.dumps(document), encoding="utf-8")
+            inventory = Inventory.load(path, FIXTURE / "components.json")
+            self.assertIsNone(inventory.dependencies[0].commit)
 
         document = self.inventory_document()
         document["dependencies"][0]["locator"] = "not-an-action"
@@ -926,8 +931,6 @@ class InventoryTests(unittest.TestCase):
         cases = [
             (f"uses: unknown/action@{'a' * 40} # v1", "unowned GitHub Action"),
             ("uses: example/action@v1 # v1", "not pinned to a full commit"),
-            (f"uses: example/action@{'b' * 40} # v1", "differs from inventory"),
-            (f"uses: example/action@{'a' * 40} # v2", "updater hint"),
             ("runs-on: mystery-runner", "unowned workflow runner"),
             ("uses: ${{ matrix.action }}", "unsupported external Action"),
             ("uses: ./../outside", "local Action escapes"),
@@ -949,6 +952,24 @@ class InventoryTests(unittest.TestCase):
                     workflow.write_text(original, encoding="utf-8")
                     with self.assertRaisesRegex(WorkspaceError, expected):
                         semantic_inventory.audit({"fixture": root})
+        # Updater-owned pin moves need no inventory edit; only full commits are required.
+        for line in (
+            f"uses: example/action@{'b' * 40} # v1",
+            f"uses: example/action@{'a' * 40} # v2.1.0",
+            f"uses: example/action@{'c' * 40}",
+        ):
+            with self.subTest(accepted=line):
+                with tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    self.make_audit_repository(root)
+                    workflow = root / ".github" / "workflows" / "ci.yml"
+                    workflow.write_text(
+                        workflow.read_text(encoding="utf-8").replace(
+                            f"uses: example/action@{'a' * 40} # v1", line
+                        ),
+                        encoding="utf-8",
+                    )
+                    semantic_inventory.audit({"fixture": root})
 
     def test_content_1x_runner_policy_violation_fails_audit(self) -> None:
         repository = fixture_repository(
