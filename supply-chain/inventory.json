@@ -854,7 +854,7 @@
       "license": "MIT",
       "source_url": "https://github.com/actions/download-artifact",
       "locator": "actions/download-artifact",
-      "commit": "3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c",
+      "commit": "9000827ccba6bdab643e8b6fd33ac0654aef8333",
       "checksum": null,
       "acquisition": "GitHub Actions downloads the immutable reviewed commit",
       "update_cadence_days": 7,
@@ -867,37 +867,37 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/integration.yml",
-          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
-          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
         },
         {
           "repository": "client",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
         },
         {
           "repository": "devcontainer",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
         },
         {
           "repository": "editor",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8"
+          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
         }
       ]
     },
@@ -964,12 +964,12 @@
         "website"
       ],
       "required": true,
-      "version": "v7.0.0",
+      "version": "v7.1.0",
       "version_source": "Reviewed upstream major release",
       "license": "MIT",
       "source_url": "https://github.com/actions/setup-node",
       "locator": "actions/setup-node",
-      "commit": "820762786026740c76f36085b0efc47a31fe5020",
+      "commit": "949feb2413d6458794dcd2491c4babbbce0c15c1",
       "checksum": null,
       "acquisition": "GitHub Actions downloads the immutable reviewed commit",
       "update_cadence_days": 7,
@@ -982,87 +982,87 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "client",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "content",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "content-toolkit",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "deploy-control",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "devcontainer",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "editor",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "github-settings",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "playtester",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "protocol",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "renderer",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "resources",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "server",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "sound",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "tools",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         },
         {
           "repository": "website",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0"
+          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
         }
       ]
     },
@@ -1128,7 +1128,7 @@
       "license": "MIT",
       "source_url": "https://github.com/actions/upload-artifact",
       "locator": "actions/upload-artifact",
-      "commit": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+      "commit": "cf430e030ddbb5b0abf93d22962f4752f3646cd9",
       "checksum": null,
       "acquisition": "GitHub Actions downloads the immutable reviewed commit",
       "update_cadence_days": 7,
@@ -1141,37 +1141,37 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/integration.yml",
-          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
         },
         {
           "repository": "atrinik",
           "path": ".github/workflows/supply-chain.yml",
-          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
-          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
         },
         {
           "repository": "client",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
         },
         {
           "repository": "devcontainer",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
         },
         {
           "repository": "editor",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7"
+          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
         }
       ]
     },
