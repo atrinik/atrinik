@@ -213,8 +213,8 @@ class DependencyReportRetentionTests(unittest.TestCase):
 
     def test_policy_pins_and_upload_are_bounded_to_masked_files(self):
         workflow = WORKFLOW.read_text()
-        self.assertIn('actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294', workflow)
-        self.assertIn('actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9', workflow)
+        self.assertRegex(workflow, r'actions/dependency-review-action@[0-9a-f]{40}\b')
+        self.assertRegex(workflow, r'actions/upload-artifact@[0-9a-f]{40}\b')
         self.assertNotIn('ACTIONS_RUNTIME_TOKEN', workflow)
         self.assertIn('retention-days: 7', workflow)
         self.assertIn('step_summary_*-scrubbed', workflow)

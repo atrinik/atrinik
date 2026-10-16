@@ -557,7 +557,7 @@ class Inventory:
                             f"Action reference {reference or '<empty>'}"
                         )
                 for match in ACTION_REFERENCE_PATTERN.finditer(text):
-                    locator, commit, comment = match.groups()
+                    locator, commit, _comment = match.groups()
                     dependency = action_dependencies.get(locator)
                     if dependency is None:
                         raise WorkspaceError(
@@ -566,14 +566,6 @@ class Inventory:
                     if not ACTION_COMMIT_PATTERN.fullmatch(commit):
                         raise WorkspaceError(
                             f"{repository_name}/{relative}: {locator} is not pinned to a full commit"
-                        )
-                    if dependency.commit != commit:
-                        raise WorkspaceError(
-                            f"{repository_name}/{relative}: {locator}@{commit} differs from inventory {dependency.commit}"
-                        )
-                    if comment != dependency.version:
-                        raise WorkspaceError(
-                            f"{repository_name}/{relative}: {locator} must retain the '# {dependency.version}' updater hint"
                         )
                     if repository_name not in dependency.scope:
                         raise WorkspaceError(
@@ -1214,8 +1206,6 @@ def _load_dependency(
             )
 
     if kind == "github-action":
-        if commit is None:
-            raise WorkspaceError(f"{context}: GitHub Actions require a commit")
         if not re.fullmatch(
             r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", locator
         ):

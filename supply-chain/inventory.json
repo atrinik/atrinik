@@ -592,9 +592,9 @@
       "license": "MIT",
       "source_url": "https://github.com/actions/attest",
       "locator": "actions/attest",
-      "commit": "1e69f48acb82d1966a394da916b4c1698aa569d6",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade artifact provenance and SBOM attestations before the major is retired",
@@ -605,7 +605,7 @@
         {
           "repository": "classic",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4"
+          "contains": "actions/attest@"
         }
       ]
     },
@@ -623,9 +623,9 @@
       "license": "MIT",
       "source_url": "https://github.com/actions/cache",
       "locator": "actions/cache",
-      "commit": "55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade all cache consumers together or remove the cache step",
@@ -636,7 +636,7 @@
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6"
+          "contains": "actions/cache@"
         }
       ]
     },
@@ -654,9 +654,9 @@
       "license": "MIT",
       "source_url": "https://github.com/actions/cache",
       "locator": "actions/cache/restore",
-      "commit": "55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade all cache consumers together or remove the explicit restore step",
@@ -667,7 +667,7 @@
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6"
+          "contains": "actions/cache/restore@"
         }
       ]
     },
@@ -685,9 +685,9 @@
       "license": "MIT",
       "source_url": "https://github.com/actions/cache",
       "locator": "actions/cache/save",
-      "commit": "55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade all cache consumers together or remove the explicit save step",
@@ -698,7 +698,7 @@
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6"
+          "contains": "actions/cache/save@"
         }
       ]
     },
@@ -728,14 +728,14 @@
         "website"
       ],
       "required": true,
-      "version": "v7.0.1",
+      "version": "v7",
       "version_source": "Reviewed upstream major release",
       "license": "MIT",
       "source_url": "https://github.com/actions/checkout",
       "locator": "actions/checkout",
-      "commit": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade every repository in one coordinated policy change",
@@ -746,62 +746,62 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/integration.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "client",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "content-toolkit",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "deploy-control",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "editor",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "playtester",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "playtester",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "protocol",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "renderer",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "server",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         },
         {
           "repository": "website",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"
+          "contains": "actions/checkout@"
         }
       ]
     },
@@ -814,14 +814,14 @@
         "classic"
       ],
       "required": true,
-      "version": "v3.2.0",
+      "version": "v3",
       "version_source": "Reviewed signed upstream release",
       "license": "MIT",
       "source_url": "https://github.com/actions/create-github-app-token",
       "locator": "actions/create-github-app-token",
-      "commit": "bcd2ba49218906704ab6c1aa796996da409d3eb1",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade the Classic dependency updater after App-token workflow review or disable its mutation job",
@@ -832,7 +832,7 @@
         {
           "repository": "classic",
           "path": ".github/workflows/update-content.yml",
-          "contains": "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0"
+          "contains": "actions/create-github-app-token@"
         }
       ]
     },
@@ -854,9 +854,9 @@
       "license": "MIT",
       "source_url": "https://github.com/actions/download-artifact",
       "locator": "actions/download-artifact",
-      "commit": "9000827ccba6bdab643e8b6fd33ac0654aef8333",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade package aggregation workflows before the major is retired",
@@ -867,37 +867,37 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/integration.yml",
-          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
+          "contains": "actions/download-artifact@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
-          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
+          "contains": "actions/download-artifact@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
+          "contains": "actions/download-artifact@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
+          "contains": "actions/download-artifact@"
         },
         {
           "repository": "client",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
+          "contains": "actions/download-artifact@"
         },
         {
           "repository": "devcontainer",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
+          "contains": "actions/download-artifact@"
         },
         {
           "repository": "editor",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8"
+          "contains": "actions/download-artifact@"
         }
       ]
     },
@@ -911,14 +911,14 @@
         "server"
       ],
       "required": true,
-      "version": "v7.0.0",
+      "version": "v7",
       "version_source": "Reviewed upstream release",
       "license": "MIT",
       "source_url": "https://github.com/actions/setup-go",
       "locator": "actions/setup-go",
-      "commit": "b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade the action with the supported Go toolchain or replace it",
@@ -929,12 +929,12 @@
         {
           "repository": "protocol",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0"
+          "contains": "actions/setup-go@"
         },
         {
           "repository": "server",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0"
+          "contains": "actions/setup-go@"
         }
       ]
     },
@@ -964,14 +964,14 @@
         "website"
       ],
       "required": true,
-      "version": "v7.1.0",
+      "version": "v7",
       "version_source": "Reviewed upstream major release",
       "license": "MIT",
       "source_url": "https://github.com/actions/setup-node",
       "locator": "actions/setup-node",
-      "commit": "949feb2413d6458794dcd2491c4babbbce0c15c1",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Move CI and semantic-release to the next supported Node line",
@@ -982,87 +982,87 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "client",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "content",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "content-toolkit",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "deploy-control",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "devcontainer",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "editor",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "github-settings",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "playtester",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "protocol",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "renderer",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "resources",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "server",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "sound",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "tools",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         },
         {
           "repository": "website",
           "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0"
+          "contains": "actions/setup-node@"
         }
       ]
     },
@@ -1078,14 +1078,14 @@
         "playtester"
       ],
       "required": true,
-      "version": "v7.0.0",
+      "version": "v7",
       "version_source": "Reviewed upstream major release",
       "license": "MIT",
       "source_url": "https://github.com/actions/setup-python",
       "locator": "actions/setup-python",
-      "commit": "5fda3b95a4ea91299a34e894583c3862153e4b97",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade the action and supported Python matrix together",
@@ -1096,17 +1096,17 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/integration.yml",
-          "contains": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0"
+          "contains": "actions/setup-python@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0"
+          "contains": "actions/setup-python@"
         },
         {
           "repository": "playtester",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0"
+          "contains": "actions/setup-python@"
         }
       ]
     },
@@ -1128,9 +1128,9 @@
       "license": "MIT",
       "source_url": "https://github.com/actions/upload-artifact",
       "locator": "actions/upload-artifact",
-      "commit": "cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade package producer workflows before the major is retired",
@@ -1141,37 +1141,37 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/integration.yml",
-          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
+          "contains": "actions/upload-artifact@"
         },
         {
           "repository": "atrinik",
           "path": ".github/workflows/supply-chain.yml",
-          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
+          "contains": "actions/upload-artifact@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
-          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
+          "contains": "actions/upload-artifact@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
+          "contains": "actions/upload-artifact@"
         },
         {
           "repository": "client",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
+          "contains": "actions/upload-artifact@"
         },
         {
           "repository": "devcontainer",
           "path": ".github/workflows/validate.yml",
-          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
+          "contains": "actions/upload-artifact@"
         },
         {
           "repository": "editor",
           "path": ".github/workflows/package-release.yml",
-          "contains": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7"
+          "contains": "actions/upload-artifact@"
         }
       ]
     },
@@ -1190,9 +1190,9 @@
       "license": "MIT",
       "source_url": "https://github.com/codecov/codecov-action",
       "locator": "codecov/codecov-action",
-      "commit": "fb8b3582c8e4def4969c97caa2f19720cb33a72f",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit and authenticates with OIDC",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow and authenticates with OIDC",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Retain local coverage reports while replacing or upgrading the uploader",
@@ -1203,12 +1203,12 @@
         {
           "repository": "atrinik",
           "path": ".github/workflows/integration.yml",
-          "contains": "codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6"
+          "contains": "codecov/codecov-action@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/check.yml",
-          "contains": "codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6"
+          "contains": "codecov/codecov-action@"
         }
       ]
     },
@@ -1227,9 +1227,9 @@
       "license": "Apache-2.0",
       "source_url": "https://github.com/docker/build-push-action",
       "locator": "docker/build-push-action",
-      "commit": "53b7df96c91f9c12dcc8a07bcb9ccacbed38856a",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade image build workflows and verify both image families",
@@ -1240,17 +1240,17 @@
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
-          "contains": "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7"
+          "contains": "docker/build-push-action@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/package-release.yml",
-          "contains": "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7"
+          "contains": "docker/build-push-action@"
         },
         {
           "repository": "devcontainer",
           "path": ".github/workflows/validate.yml",
-          "contains": "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7"
+          "contains": "docker/build-push-action@"
         }
       ]
     },
@@ -1269,9 +1269,9 @@
       "license": "Apache-2.0",
       "source_url": "https://github.com/docker/login-action",
       "locator": "docker/login-action",
-      "commit": "dbcb813823bdd20940b903addbd779551569679f",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade all GHCR publisher jobs before the major is retired",
@@ -1282,17 +1282,17 @@
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
-          "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
+          "contains": "docker/login-action@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/package-release.yml",
-          "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
+          "contains": "docker/login-action@"
         },
         {
           "repository": "devcontainer",
           "path": ".github/workflows/publish-linux.yml",
-          "contains": "docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4"
+          "contains": "docker/login-action@"
         }
       ]
     },
@@ -1311,9 +1311,9 @@
       "license": "Apache-2.0",
       "source_url": "https://github.com/docker/setup-buildx-action",
       "locator": "docker/setup-buildx-action",
-      "commit": "bb05f3f5519dd87d3ba754cc423b652a5edd6d2c",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade alongside build-push-action and rebuild images",
@@ -1324,17 +1324,17 @@
         {
           "repository": "classic",
           "path": ".github/workflows/build-release-candidate.yml",
-          "contains": "docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4"
+          "contains": "docker/setup-buildx-action@"
         },
         {
           "repository": "classic",
           "path": ".github/workflows/package-release.yml",
-          "contains": "docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4"
+          "contains": "docker/setup-buildx-action@"
         },
         {
           "repository": "devcontainer",
           "path": ".github/workflows/validate.yml",
-          "contains": "docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4"
+          "contains": "docker/setup-buildx-action@"
         }
       ]
     },
@@ -1347,14 +1347,14 @@
         "classic"
       ],
       "required": true,
-      "version": "v4.37.6",
+      "version": "v4",
       "version_source": "Reviewed upstream release",
       "license": "MIT",
       "source_url": "https://github.com/github/codeql-action",
       "locator": "github/codeql-action/analyze",
-      "commit": "5595ccaf912efad79be6eef63a5619ff05969be3",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade the advanced CodeQL workflow before the release is retired",
@@ -1365,7 +1365,7 @@
         {
           "repository": "classic",
           "path": ".github/workflows/codeql.yml",
-          "contains": "github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6"
+          "contains": "github/codeql-action/analyze@"
         }
       ]
     },
@@ -1378,14 +1378,14 @@
         "classic"
       ],
       "required": true,
-      "version": "v4.37.6",
+      "version": "v4",
       "version_source": "Reviewed upstream release",
       "license": "MIT",
       "source_url": "https://github.com/github/codeql-action",
       "locator": "github/codeql-action/init",
-      "commit": "5595ccaf912efad79be6eef63a5619ff05969be3",
+      "commit": null,
       "checksum": null,
-      "acquisition": "GitHub Actions downloads the immutable reviewed commit",
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
       "update_cadence_days": 7,
       "update_mechanism": "Dependabot GitHub Actions update group",
       "eol_response": "Upgrade the advanced CodeQL workflow before the release is retired",
@@ -1396,7 +1396,7 @@
         {
           "repository": "classic",
           "path": ".github/workflows/codeql.yml",
-          "contains": "github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6"
+          "contains": "github/codeql-action/init@"
         }
       ]
     },
