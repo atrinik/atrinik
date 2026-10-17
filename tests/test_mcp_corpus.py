@@ -19,9 +19,9 @@ class CorpusTests(unittest.TestCase):
     def setUp(self):
         self.lock = json.loads((ROOT / 'deploy/mcp/source-lock.json').read_text())
 
-    def test_exact_public_twenty_pins(self):
+    def test_exact_public_twenty_one_pins(self):
         rows = corpus.validate(self.lock)
-        self.assertEqual(len(rows), 20)
+        self.assertEqual(len(rows), 21)
         self.assertEqual(rows[0]['path'], '.')
 
     def test_untrusted_origins_paths_and_pins_rejected(self):

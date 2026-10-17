@@ -103,6 +103,12 @@
       "commit": "08fc2333e4def7c1140ae088c570f97a415e03b0"
     },
     {
+      "repository": "atrinik/pathfinder",
+      "path": "pathfinder",
+      "branch": "main",
+      "commit": "1679d8704192815df7c609ebecd0ee936bc9de79"
+    },
+    {
       "repository": "atrinik/classic",
       "path": "classic",
       "branch": "main",

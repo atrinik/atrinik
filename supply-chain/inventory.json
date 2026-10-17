@@ -377,6 +377,29 @@
       "source": "."
     },
     {
+      "audit_ready": false,
+      "audit_mode": "full",
+      "branch": "main",
+      "cohorts": [
+        "default"
+      ],
+      "license": "MIT",
+      "commit": null,
+      "name": "pathfinder",
+      "repository": "atrinik/pathfinder",
+      "role": "Pathfinding and waypoint navigation service over the authored content",
+      "roles": [
+        "pathfinder"
+      ],
+      "stacks": [
+        "classic",
+        "default"
+      ],
+      "supported": true,
+      "checkout": "pathfinder",
+      "source": "."
+    },
+    {
       "audit_ready": true,
       "audit_mode": "full",
       "branch": "main",

@@ -207,6 +207,14 @@ presentation-package source. It has no wrapper build adapter or runtime
 dependency while its package and consumer contracts are being established;
 Classic never selects it.
 
+The shared `pathfinder` component occupies `atrinik/pathfinder@main` at
+`./pathfinder` and provides the MIT pathfinding and waypoint-planning service
+(Go, gRPC) over the shared content. Both stacks select the same provider,
+which requires `content`, so Classic tooling such as the playtester and the
+replacement server can consult one implementation. It has no wrapper build
+adapter or runtime yet; its build, tests and releases stay with
+`atrinik/pathfinder`.
+
 Manifest validation rejects duplicate checkout or component names, duplicate
 local destinations, unsafe or overlapping source roots within one checkout,
 unknown cohorts, checkouts, or roles, generation mismatches, dependency

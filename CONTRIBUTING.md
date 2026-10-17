@@ -213,7 +213,10 @@ source-only and default-only; package installation, release/deployment
 outputs, Cloudflare bindings, credentials, agent keys, host state, and mutable
 runtime state remain owned or stored outside this coordinator. The shared
 `atrinik/web-platform` package is source-only and default-cohort only until its
-package consumers and validation contract are established.
+package consumers and validation contract are established. The MIT
+`atrinik/pathfinder` service is a shared, source-only default-cohort checkout
+that both stacks select; its build, tests and releases stay with that
+repository.
 Plain `./atrinik init` is replacement/default-only. Exact
 `./atrinik init --with classic` adds the complete currently playable classic
 cohort: the `atrinik/classic` monorepo checkout, the independent MIT

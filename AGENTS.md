@@ -5,9 +5,9 @@
 - `./atrinik` (Python 3.11+) coordinates repos; `components.json` owns profiles,
   worktrees, builds, runtimes, cleanup, migration, and supply-chain reports.
 - `default` selects MIT replacement: Rust, Go, Protobuf, Astro, source-only
-  Observatory, shared `web-platform`, source-only `deploy-control`; M1
-  lacks wrapper integration. `classic` is playable C17/CMake/Ninja plus MIT
-  playtester; never mix providers.
+  Observatory/`deploy-control`, shared `web-platform`; M1 lacks wrapper
+  integration. `classic` is playable C17/CMake/Ninja plus MIT playtester;
+  both share source-only `pathfinder`; never mix providers.
 - [Source delivery](docs/SOURCE_DELIVERY.md); bound deliveries/shared resources
   retain live Linux authority checks.
 
