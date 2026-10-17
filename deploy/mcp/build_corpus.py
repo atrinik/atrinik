@@ -14,7 +14,7 @@ from pathlib import Path
 import re
 import subprocess
 
-NAMES = frozenset('client server protocol editor renderer content-toolkit website content sound resources metaserver-worker devcontainer github-settings observatory deploy-control web-platform classic playtester tools'.split())
+NAMES = frozenset('client server protocol editor renderer content-toolkit website content sound resources metaserver-worker devcontainer github-settings observatory deploy-control web-platform pathfinder classic playtester tools'.split())
 SHA = re.compile(r'[0-9a-f]{40}\Z')
 
 

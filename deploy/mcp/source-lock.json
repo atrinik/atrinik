@@ -3,7 +3,7 @@
   "wrapper": {
     "repository": "atrinik/atrinik",
     "branch": "main",
-    "commit": "8468115fea249d5aaf879ee8b5119ee7f7a6fe70"
+    "commit": "9ac6f831ea0c9fab094e74de1325cd96b7651e40"
   },
   "checkouts": [
     {
@@ -101,6 +101,12 @@
       "path": "web-platform",
       "branch": "main",
       "commit": "08fc2333e4def7c1140ae088c570f97a415e03b0"
+    },
+    {
+      "repository": "atrinik/pathfinder",
+      "path": "pathfinder",
+      "branch": "main",
+      "commit": "1679d8704192815df7c609ebecd0ee936bc9de79"
     },
     {
       "repository": "atrinik/classic",
