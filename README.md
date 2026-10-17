@@ -14,7 +14,7 @@ persistent server state safely.
 
 No checkout is a submodule. Primary repositories are ignored, independent Git
 checkouts directly beside this README (`./client`, `./server`, `./classic`,
-`./observatory`, `./deploy-control`, `./web-platform`, and so on). The `atrinik/classic` checkout at `./classic`
+`./observatory`, `./deploy-control`, `./web-platform`, `./pathfinder`, and so on). The `atrinik/classic` checkout at `./classic`
 contains the logical
 `classic-client`, `classic-server`, `classic-editor`,
 `classic-libatrinik`, and `classic-protocol` source roots. Generated worktrees,
@@ -935,7 +935,7 @@ identity are coordinated here, while installation and tests remain owned by
 
 Checkout entries have explicit local destinations; normally these are direct
 children of the wrapper root such as `./client`, `./classic`, `./content`,
-`./observatory`, `./deploy-control`, and `./web-platform`.
+`./observatory`, `./deploy-control`, `./web-platform`, and `./pathfinder`.
 Logical components name their owning checkout and a safe source root within
 it. Both stacks map role `content` to that one shared checkout. A local
 `./content-1x` directory may remain as preserved migration history, but it is

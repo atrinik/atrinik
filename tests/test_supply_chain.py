@@ -50,6 +50,9 @@ from atrinik_workspace.supply_chain import (
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "tests/fixtures/supply_chain"
+# Profile summaries handed to repository_roots(ROOT, ...) must list the live
+# manifest's stack components, which the frozen fixture does not follow.
+LIVE_MANIFEST = ROOT / "components.json"
 
 
 def fixture_dependency(**changes: object) -> Dependency:
@@ -1893,7 +1896,7 @@ jobs:
     def test_repository_root_overrides_are_strict_and_identity_checked(self) -> None:
         workspace = mock.Mock()
         default_components = json.loads(
-            (FIXTURE / "components.json").read_text(encoding="utf-8")
+            LIVE_MANIFEST.read_text(encoding="utf-8")
         )["stacks"]["default"]["components"]
         workspace.profile_summary.return_value = {
             "name": "profile",
@@ -2011,7 +2014,7 @@ jobs:
     def test_repository_override_accepts_fork_origin_and_canonical_upstream(self) -> None:
         workspace = mock.Mock()
         default_components = json.loads(
-            (FIXTURE / "components.json").read_text(encoding="utf-8")
+            LIVE_MANIFEST.read_text(encoding="utf-8")
         )["stacks"]["default"]["components"]
         workspace.profile_summary.return_value = {
             "name": "review",
@@ -2092,7 +2095,7 @@ jobs:
     def test_repository_roots_reject_incomplete_profiles(self) -> None:
         workspace = mock.Mock()
         classic_components = json.loads(
-            (FIXTURE / "components.json").read_text(encoding="utf-8")
+            LIVE_MANIFEST.read_text(encoding="utf-8")
         )["stacks"]["classic"]["components"]
         workspace.profile_summary.return_value = {
             "name": "classic-review",
@@ -2119,7 +2122,7 @@ jobs:
     def test_repository_roots_fail_closed_when_shared_content_is_missing(self) -> None:
         workspace = mock.Mock()
         document = json.loads(
-            (FIXTURE / "components.json").read_text(encoding="utf-8")
+            LIVE_MANIFEST.read_text(encoding="utf-8")
         )
         classic_components = document["stacks"]["classic"]["components"]
         workspace.profile_summary.return_value = {
@@ -2156,7 +2159,7 @@ jobs:
             repository_roots(ROOT, workspace, "classic")
 
         classic_components = json.loads(
-            (FIXTURE / "components.json").read_text(encoding="utf-8")
+            LIVE_MANIFEST.read_text(encoding="utf-8")
         )["stacks"]["classic"]["components"]
         workspace.profile_summary.return_value["components"] = [
             {
@@ -2177,7 +2180,7 @@ jobs:
     def test_repository_roots_add_one_classic_checkout_metadata_root(self) -> None:
         workspace = mock.Mock()
         document = json.loads(
-            (FIXTURE / "components.json").read_text(encoding="utf-8")
+            LIVE_MANIFEST.read_text(encoding="utf-8")
         )
         components = {
             component["name"]: component for component in document["components"]
@@ -2215,7 +2218,7 @@ jobs:
     def test_classic_override_resolves_the_logical_source_root(self) -> None:
         workspace = mock.Mock()
         manifest_document = json.loads(
-            (FIXTURE / "components.json").read_text(encoding="utf-8")
+            LIVE_MANIFEST.read_text(encoding="utf-8")
         )
         classic_components = manifest_document["stacks"]["classic"]["components"]
         component_documents = {
@@ -2312,7 +2315,7 @@ jobs:
     def test_report_component_commits_resolve_only_initialized_profile_stack(self) -> None:
         workspace = mock.Mock()
         classic_components = json.loads(
-            (FIXTURE / "components.json").read_text(encoding="utf-8")
+            LIVE_MANIFEST.read_text(encoding="utf-8")
         )["stacks"]["classic"]["components"]
         content_path = "/workspace/classic-review/content"
         workspace.profile_summary.return_value = {
@@ -2352,7 +2355,7 @@ jobs:
     def test_report_component_commits_deduplicates_the_classic_checkout(self) -> None:
         workspace = mock.Mock()
         document = json.loads(
-            (FIXTURE / "components.json").read_text(encoding="utf-8")
+            LIVE_MANIFEST.read_text(encoding="utf-8")
         )
         components = {
             component["name"]: component for component in document["components"]

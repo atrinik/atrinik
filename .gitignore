@@ -28,6 +28,7 @@
 /tools/
 /website/
 /web-platform/
+/pathfinder/
 *.log
 *.py[cod]
 __pycache__/

@@ -129,6 +129,7 @@ LOGICAL_ROLES = {
     "observatory",
     "deploy-control",
     "web-platform",
+    "pathfinder",
 }
 IMPLEMENTATION_ROLES = {
     "client",

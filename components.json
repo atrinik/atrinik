@@ -17,7 +17,8 @@
       "github-settings",
       "observatory",
       "deploy-control",
-      "web-platform"
+      "web-platform",
+      "pathfinder"
     ],
     "classic": [
       "classic",
@@ -44,7 +45,8 @@
         "github-settings",
         "observatory",
         "deploy-control",
-        "web-platform"
+        "web-platform",
+        "pathfinder"
       ],
       "providers": {
         "client": "client",
@@ -62,7 +64,8 @@
         "github-settings": "github-settings",
         "observatory": "observatory",
         "deploy-control": "deploy-control",
-        "web-platform": "web-platform"
+        "web-platform": "web-platform",
+        "pathfinder": "pathfinder"
       }
     },
     "classic": {
@@ -80,7 +83,8 @@
         "resources",
         "metaserver-worker",
         "devcontainer",
-        "github-settings"
+        "github-settings",
+        "pathfinder"
       ],
       "providers": {
         "client": "classic-client",
@@ -95,7 +99,8 @@
         "resources": "resources",
         "metaserver-worker": "metaserver-worker",
         "devcontainer": "devcontainer",
-        "github-settings": "github-settings"
+        "github-settings": "github-settings",
+        "pathfinder": "pathfinder"
       }
     }
   },
@@ -225,6 +230,14 @@
       "repository": "atrinik/web-platform",
       "branch": "main",
       "path": "web-platform",
+      "generation": "shared",
+      "license": "MIT"
+    },
+    {
+      "name": "pathfinder",
+      "repository": "atrinik/pathfinder",
+      "branch": "main",
+      "path": "pathfinder",
       "generation": "shared",
       "license": "MIT"
     },
@@ -415,6 +428,16 @@
       "generation": "shared",
       "provides": ["web-platform"],
       "requires": [],
+      "license": "MIT"
+    },
+    {
+      "name": "pathfinder",
+      "checkout": "pathfinder",
+      "source": ".",
+      "build": "none",
+      "generation": "shared",
+      "provides": ["pathfinder"],
+      "requires": ["content"],
       "license": "MIT"
     },
     {

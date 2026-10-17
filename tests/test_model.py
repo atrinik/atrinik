@@ -668,6 +668,7 @@ class ReleaseConfigurationTests(unittest.TestCase):
                 "observatory",
                 "deploy-control",
                 "web-platform",
+                "pathfinder",
             },
         )
         self.assertEqual(
@@ -726,6 +727,23 @@ class ReleaseConfigurationTests(unittest.TestCase):
             "web-platform",
         )
         self.assertNotIn("web-platform", manifest.cohorts["classic"])
+        pathfinder = manifest.by_name["pathfinder"]
+        self.assertEqual(
+            manifest.by_checkout["pathfinder"].repository,
+            "atrinik/pathfinder",
+        )
+        self.assertEqual(manifest.by_checkout["pathfinder"].path, "pathfinder")
+        self.assertEqual(pathfinder.generation, "shared")
+        self.assertEqual(pathfinder.build, "none")
+        self.assertEqual(pathfinder.provides, ("pathfinder",))
+        self.assertEqual(pathfinder.requires, ("content",))
+        # One shared service serves both stacks, like metaserver-worker.
+        for stack in ("default", "classic"):
+            self.assertEqual(
+                manifest.stack(stack).providers["pathfinder"].name,
+                "pathfinder",
+            )
+        self.assertNotIn("pathfinder", manifest.cohorts["classic"])
         self.assertEqual(manifest.effective_build("default", "content"), "none")
         self.assertEqual(
             manifest.effective_build("classic", "content"), "classic-content"
