@@ -6,8 +6,8 @@
   worktrees, builds, runtimes, cleanup, migration, and supply-chain reports.
 - `default` selects MIT replacement: Rust, Go, Protobuf, Astro, source-only
   Observatory/`deploy-control`, shared `web-platform`; M1 lacks wrapper
-  integration. `classic` is playable C17/CMake/Ninja plus MIT playtester;
-  both share source-only `pathfinder`; never mix providers.
+  integration. `classic` is C17/CMake/Ninja plus MIT playtester; both
+  share `pathfinder`; never mix providers.
 - [Source delivery](docs/SOURCE_DELIVERY.md); bound deliveries/shared resources
   retain live Linux authority checks.
 
