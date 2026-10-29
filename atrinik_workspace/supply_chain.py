@@ -15,6 +15,8 @@ from .model import (
     Manifest,
     Stack,
     WorkspaceError,
+    _validate_repository,
+    accepted_repository_coordinates,
     load_json,
     require_keys,
 )
@@ -233,8 +235,7 @@ class Inventory:
             )
             name = _identifier(value["name"], f"{context}.name")
             coordinate = _text(value["repository"], f"{context}.repository")
-            if not re.fullmatch(r"atrinik/[a-z0-9][a-z0-9._-]*", coordinate):
-                raise WorkspaceError(f"{context}.repository must be an Atrinik repository")
+            _validate_repository(coordinate, name, context)
             branch = _text(value["branch"], f"{context}.branch")
             checkout = _identifier(value["checkout"], f"{context}.checkout")
             source = _source_path(value["source"], f"{context}.source")
@@ -2092,7 +2093,8 @@ def _git_repository_remote(root: Path, repository: str) -> str:
     Git fetches the first URL configured for a remote.  A later URL that merely
     looks canonical must therefore not prove checkout identity.  Fork-based
     review worktrees remain valid when their effective ``origin`` is the fork
-    and their effective ``upstream`` is the Atrinik repository.
+    and their effective ``upstream`` is the expected repository. The two
+    registered Tilewright transfers also retain their exact historical URLs.
     """
 
     candidates: list[str] = []
@@ -2112,7 +2114,7 @@ def _git_repository_remote(root: Path, repository: str) -> str:
             continue
         url = urls[0].strip()
         candidates.append(f"{remote}={url}")
-        if _github_repository_from_url(url) == repository:
+        if _github_repository_from_url(url) in accepted_repository_coordinates(repository):
             return remote
     detail = ", ".join(candidates) or "no effective origin/upstream URLs"
     raise WorkspaceError(

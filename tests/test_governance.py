@@ -57,7 +57,11 @@ class ReplacementFoundationTests(unittest.TestCase):
         for record in records:
             with self.subTest(repository=record["repository"]):
                 self.assertEqual(set(record) - {"name"}, required)
-                self.assertTrue(record["repository"].startswith("atrinik/"))
+                self.assertEqual(
+                    record["repository"],
+                    next(checkout["repository"] for checkout in self.manifest["checkouts"]
+                         if checkout["name"] == record["name"]),
+                )
                 self.assertTrue(record["m1_issues"])
                 self.assertTrue(record["proof_pull_requests"])
                 self.assertTrue(record["machine_records"])

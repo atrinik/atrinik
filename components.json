@@ -131,7 +131,7 @@
     },
     {
       "name": "editor",
-      "repository": "atrinik/editor",
+      "repository": "seraphinastudios/tilewright-editor",
       "branch": "main",
       "path": "editor",
       "generation": "replacement",
@@ -139,7 +139,7 @@
     },
     {
       "name": "renderer",
-      "repository": "atrinik/renderer",
+      "repository": "seraphinastudios/tilewright-renderer",
       "branch": "main",
       "path": "renderer",
       "generation": "replacement",

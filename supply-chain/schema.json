@@ -26,7 +26,7 @@
         ],
         "properties": {
           "name": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
-          "repository": {"type": "string", "pattern": "^atrinik/[a-z0-9][a-z0-9._-]*$"},
+          "repository": {"type": "string", "pattern": "^(?:atrinik/[a-z0-9][a-z0-9._-]*|seraphinastudios/tilewright-(?:editor|renderer))$"},
           "branch": {"type": "string", "minLength": 1},
           "checkout": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
           "source": {
@@ -60,6 +60,14 @@
           "role": {"type": "string", "minLength": 1}
         },
         "allOf": [
+          {
+            "if": {"properties": {"repository": {"const": "seraphinastudios/tilewright-editor"}}},
+            "then": {"properties": {"name": {"const": "editor"}, "checkout": {"const": "editor"}}}
+          },
+          {
+            "if": {"properties": {"repository": {"const": "seraphinastudios/tilewright-renderer"}}},
+            "then": {"properties": {"name": {"const": "renderer"}, "checkout": {"const": "renderer"}}}
+          },
           {
             "if": {"properties": {"supported": {"const": true}}},
             "then": {"properties": {"commit": {"const": null}}}
