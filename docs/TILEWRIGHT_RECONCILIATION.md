@@ -29,11 +29,14 @@ to the Tilewright repositories above. Their old GitHub URLs redirect to the
 same repositories; they are not duplicate repositories awaiting deletion.
 Preserve those redirects and their history, issues, releases and attribution.
 
-The workspace currently retains the logical selectors and checkout paths
-`renderer` and `editor`. `components.json` still uses the redirected repository
-coordinates. Updating those coordinates requires handling existing checkout
-remote validation as well as new clones; a documentation update alone must not
-make existing checkouts fail repository identity checks.
+The workspace retains the logical selectors and checkout paths `renderer` and
+`editor`. `components.json` uses the canonical Tilewright repositories for new
+clones. Offline checkout and supply-chain validation also accept each one's
+exact historical Atrinik coordinate, without rewriting local remotes or making
+network requests. This fixed compatibility policy assumes the old paths remain
+redirects to the same repositories: do not recreate them for different projects.
+It neither discovers arbitrary redirects nor proves live repository identity.
+Foreign hosts, forks and editor/renderer coordinate swaps remain invalid.
 
 ## Crate transition
 
@@ -91,17 +94,17 @@ selection and mutable state isolated. Do not silently route a missing
 replacement adapter through Classic or open Classic player state with the new
 server. Tooling reconciliation does not establish protocol or save compatibility.
 
-The migration order between shared tooling, a new server and a later client
-needs its own accepted milestones. In particular, using a new server with the
-Classic client requires an explicit compatibility design; it is not implied by
-sharing a renderer or world format. Existing functional-equivalence and runtime
-cutover issues retain their acceptance responsibilities until reconciled.
+The first migration milestone is shared editor, world and content tooling.
+Server and client migration follow later; this priority does not hold up Classic
+development or fixes. Using a new server with the Classic client would require
+an explicit compatibility design; it is not implied by sharing a renderer or
+world format. Existing functional-equivalence and runtime cutover issues retain
+their acceptance responsibilities until reconciled.
 
 ## Reconciliation work remaining
 
-- Update the workspace manifest's transferred repository coordinates with
-  scoped compatibility for existing checkout remotes. Reconcile active
-  governance and dependency inventories while preserving immutable provenance.
+- Keep active governance and dependency inventories aligned with the canonical
+  transferred repository coordinates while preserving immutable provenance.
 - Assign the generic/toolkit boundary and decide whether Atrinik content toolkit
   remains a permanent importer/adapter or retires after its responsibilities
   have moved. Keep its existing consumers supported during that decision.
