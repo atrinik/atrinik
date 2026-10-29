@@ -95,7 +95,7 @@ from .model import (
     Paths,
     AtomicJsonCommitUncertain,
     WorkspaceError,
-    accepted_repository_coordinates,
+    repository_remote_matches,
     _reject_duplicate_keys,
     atomic_json,
     durable_atomic_json,
@@ -1876,16 +1876,7 @@ def _tree_references_path(root: Path, referenced: Path) -> bool:
 
 def _remote_matches(url: str, repository: str) -> bool:
     """Match exact GitHub coordinates and explicitly registered transfer aliases."""
-    normalized = url.strip().removesuffix(".git")
-    expected = {f"github.com/{coordinate}"
-                for coordinate in accepted_repository_coordinates(repository)}
-    if normalized.startswith("git@github.com:"):
-        normalized = "github.com/" + normalized.removeprefix("git@github.com:")
-    elif normalized.startswith("ssh://git@github.com/"):
-        normalized = "github.com/" + normalized.removeprefix("ssh://git@github.com/")
-    elif normalized.startswith("https://"):
-        normalized = normalized.removeprefix("https://")
-    return normalized in expected
+    return repository_remote_matches(url, repository)
 
 
 def _github_clone_url(template: str, repository: str) -> str | None:

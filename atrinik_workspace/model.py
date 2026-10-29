@@ -200,6 +200,20 @@ def accepted_repository_coordinates(repository: str) -> tuple[str, ...]:
     return (repository,)
 
 
+def repository_remote_matches(url: str, repository: str) -> bool:
+    """Match exact supported GitHub URLs, including registered transfer aliases."""
+    normalized = url.strip().removesuffix(".git")
+    expected = {f"github.com/{coordinate}"
+                for coordinate in accepted_repository_coordinates(repository)}
+    if normalized.startswith("git@github.com:"):
+        normalized = "github.com/" + normalized.removeprefix("git@github.com:")
+    elif normalized.startswith("ssh://git@github.com/"):
+        normalized = "github.com/" + normalized.removeprefix("ssh://git@github.com/")
+    elif normalized.startswith("https://"):
+        normalized = normalized.removeprefix("https://")
+    return normalized in expected
+
+
 CLASSIC_SERVER_LISTENERS = ("loopback", "all-ipv4")
 
 

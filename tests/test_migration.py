@@ -647,6 +647,52 @@ class RepositoryMigrationTests(unittest.TestCase):
         self.assertEqual(audit["status"], "complete", audit)
         self.assertEqual(self.status_bytes(replacement), status_before)
 
+    def test_audit_accepts_transferred_editor_at_reused_source_path(self) -> None:
+        source = self.make_repository("editor", "editor")
+        self.make_classic({"editor": source})
+        self.assertEqual(self.migration().execute("apply")["status"], "applied")
+        replacement = self.make_repository(
+            "editor", "editor", repository="atrinik/editor", classic=False,
+            text="replacement editor\n",
+        )
+        self.manifest.by_checkout["editor"] = SimpleNamespace(
+            name="editor", repository="seraphinastudios/tilewright-editor",
+            branch="main", path="editor", generation="replacement",
+        )
+        (replacement / "local-change.txt").write_text("preserve me\n", encoding="utf-8")
+        status_before = self.status_bytes(replacement)
+        for coordinate in ("atrinik/editor", "seraphinastudios/tilewright-editor"):
+            for url in (
+                f"https://github.com/{coordinate}.git",
+                f"git@github.com:{coordinate}.git",
+                f"ssh://git@github.com/{coordinate}.git",
+            ):
+                with self.subTest(url=url):
+                    command("git", "remote", "set-url", "origin", url, cwd=replacement)
+                    config_before = (replacement / ".git/config").read_bytes()
+                    audit = self.migration().execute("audit")
+                    self.assertEqual(audit["status"], "complete", audit)
+                    self.assertEqual(self.status_bytes(replacement), status_before)
+                    self.assertEqual((replacement / ".git/config").read_bytes(), config_before)
+        for url in (
+            "https://github.example/atrinik/editor.git",
+            "https://example.invalid/github.com/atrinik/editor.git",
+            "https://github.com/foreign/tilewright-editor.git",
+            "https://github.com/atrinik/editor-fork.git",
+            "https://github.com/atrinik/renderer.git",
+            "https://github.com/seraphinastudios/tilewright-renderer.git",
+        ):
+            with self.subTest(rejected=url):
+                command("git", "remote", "set-url", "origin", url, cwd=replacement)
+                audit = self.migration().execute("audit")
+                self.assertEqual(audit["status"], "incomplete", audit)
+                self.assertIn("source_archive_audit_failed", {row["code"] for row in audit["refusals"]})
+        command("git", "remote", "set-url", "--add", "origin",
+                "https://github.com/atrinik/editor.git", cwd=replacement)
+        audit = self.migration().execute("audit")
+        self.assertEqual(audit["status"], "incomplete", audit)
+        self.assertIn("source_archive_audit_failed", {row["code"] for row in audit["refusals"]})
+
     def test_audit_rejects_wrong_repository_at_reused_source_path(self) -> None:
         source = self.make_repository("client", "client")
         self.make_classic({"client": source})
