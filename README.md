@@ -21,6 +21,14 @@ contains the logical
 builds, profiles, and default state live under the ignored `workspace/`
 directory.
 
+## Shared tooling and Classic support
+
+Shared renderer, world toolkit and editor development belongs to Seraphina
+Studios' Tilewright projects. Atrinik owns its game rules, content and adapters.
+Classic remains an active development and release target while later server/client
+migration is prepared. See [ownership and reconciliation](docs/TILEWRIGHT_RECONCILIATION.md)
+for transferred repositories, crate compatibility and the staged migration work.
+
 ## Source changes and pull requests
 
 Use [source delivery](docs/SOURCE_DELIVERY.md) for new code, tests and guidance:

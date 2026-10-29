@@ -278,7 +278,7 @@
       "license": "MIT",
       "commit": null,
       "name": "editor",
-      "repository": "atrinik/editor",
+      "repository": "seraphinastudios/tilewright-editor",
       "role": "MIT Rust content editor replacement with an independently validated M1 foundation",
       "roles": [
         "editor"
@@ -453,7 +453,7 @@
       "license": "MIT",
       "commit": null,
       "name": "renderer",
-      "repository": "atrinik/renderer",
+      "repository": "seraphinastudios/tilewright-renderer",
       "role": "MIT shared Rust GPU renderer with an independently validated M1 foundation",
       "roles": [
         "renderer"
@@ -1986,7 +1986,7 @@
       "checksum": null,
       "acquisition": "Optional operator-managed Python environment",
       "update_cadence_days": 90,
-      "update_mechanism": "Manual GUI compatibility review pending the atrinik/editor replacement",
+      "update_mechanism": "Manual GUI compatibility review pending the seraphinastudios/tilewright-editor replacement",
       "eol_response": "Port or retire the GUI rather than pinning an unsupported Python/Qt stack",
       "validation": "Headless map-checker tests plus explicit GUI smoke test",
       "disposition": "replace",

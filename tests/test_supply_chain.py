@@ -545,7 +545,7 @@ class InventoryTests(unittest.TestCase):
 
         repository_mutations = [
             ("name", "Client", "lowercase identifier"),
-            ("repository", "example/client", "Atrinik repository"),
+            ("repository", "example/client", "repository must name"),
             ("branch", " padded ", "trimmed string"),
             ("checkout", "Bad Checkout", "lowercase identifier"),
             ("source", "../client", "safe repository-relative"),

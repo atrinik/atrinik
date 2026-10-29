@@ -62,7 +62,7 @@
     },
     {
       "name": "editor",
-      "repository": "atrinik/editor",
+      "repository": "seraphinastudios/tilewright-editor",
       "language": "Rust",
       "m1_issues": [1, 2, 15],
       "proof_pull_requests": [19],
@@ -101,7 +101,7 @@
     },
     {
       "name": "renderer",
-      "repository": "atrinik/renderer",
+      "repository": "seraphinastudios/tilewright-renderer",
       "language": "Rust",
       "m1_issues": [1, 2, 3, 4],
       "proof_pull_requests": [24, 26],

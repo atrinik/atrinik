@@ -27,6 +27,13 @@ MANIFEST_SCHEMA_VERSION = 3
 MANAGED_MARKER = ".atrinik-workspace-managed.json"
 NAME_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 REPOSITORY_PATTERN = re.compile(r"^atrinik/[a-z0-9][a-z0-9._-]*$")
+# These two repositories were transferred, preserving GitHub repository IDs
+# 1327106902 (editor) and 1327106998 (renderer). Keep this exception tied to
+# each logical checkout; it does not authorize other seraphinastudios repos.
+TRANSFERRED_REPOSITORIES = {
+    "editor": ("seraphinastudios/tilewright-editor", "atrinik/editor"),
+    "renderer": ("seraphinastudios/tilewright-renderer", "atrinik/renderer"),
+}
 BUILD_KINDS = {
     "classic-client",
     "classic-server",
@@ -166,6 +173,45 @@ CLASSIC_BUILD_ROLES = {
 
 class WorkspaceError(RuntimeError):
     """A workspace operation cannot be completed safely."""
+
+
+def _validate_repository(repository: object, name: str, context: str) -> None:
+    transferred = TRANSFERRED_REPOSITORIES.get(name)
+    if (not isinstance(repository, str)
+            or not (REPOSITORY_PATTERN.fullmatch(repository)
+                    or (transferred is not None and repository == transferred[0]))):
+        raise WorkspaceError(
+            f"{context}.repository must name an atrinik GitHub repository "
+            "or this checkout's transferred Tilewright repository"
+        )
+
+
+def accepted_repository_coordinates(repository: str) -> tuple[str, ...]:
+    """Return exact coordinates, including two one-way transfer aliases.
+
+    Offline compatibility assumes the historical Tilewright paths remain
+    redirects to the transferred repositories and are never recreated for
+    different repositories. This is a fixed compatibility policy, not a live
+    identity check: never discover aliases by following network redirects.
+    """
+    for canonical, historical in TRANSFERRED_REPOSITORIES.values():
+        if repository == canonical:
+            return canonical, historical
+    return (repository,)
+
+
+def repository_remote_matches(url: str, repository: str) -> bool:
+    """Match exact supported GitHub URLs, including registered transfer aliases."""
+    normalized = url.strip().removesuffix(".git")
+    expected = {f"github.com/{coordinate}"
+                for coordinate in accepted_repository_coordinates(repository)}
+    if normalized.startswith("git@github.com:"):
+        normalized = "github.com/" + normalized.removeprefix("git@github.com:")
+    elif normalized.startswith("ssh://git@github.com/"):
+        normalized = "github.com/" + normalized.removeprefix("ssh://git@github.com/")
+    elif normalized.startswith("https://"):
+        normalized = normalized.removeprefix("https://")
+    return normalized in expected
 
 
 CLASSIC_SERVER_LISTENERS = ("loopback", "all-ipv4")
@@ -655,10 +701,7 @@ class Manifest:
             repository = raw["repository"]
             branch = raw["branch"]
             build = raw["build"]
-            if not isinstance(repository, str) or not REPOSITORY_PATTERN.fullmatch(repository):
-                raise WorkspaceError(
-                    f"{context}.repository must name an atrinik GitHub repository"
-                )
+            _validate_repository(repository, name, context)
             if not isinstance(branch, str) or not branch or branch.startswith("-"):
                 raise WorkspaceError(f"{context}.branch is invalid")
             if not isinstance(build, str) or build not in V1_BUILD_KINDS:
@@ -805,10 +848,7 @@ class Manifest:
             path = validate_name(raw["path"], f"{context}.path")
             generation = raw["generation"]
             license_name = _validate_license(raw["license"], f"{context}.license")
-            if not isinstance(repository, str) or not REPOSITORY_PATTERN.fullmatch(repository):
-                raise WorkspaceError(
-                    f"{context}.repository must name an atrinik GitHub repository"
-                )
+            _validate_repository(repository, name, context)
             _validate_branch(branch, f"{context}.branch")
             if not isinstance(generation, str) or generation not in GENERATIONS:
                 raise WorkspaceError(f"{context}.generation is invalid")

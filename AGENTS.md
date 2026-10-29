@@ -22,7 +22,7 @@
 - Manifest repos, `workspace/`, `build/`: ignored and omitted from root status.
 - Resolve ownership via `components.json` and nearest `AGENTS.md`; keep
   implementation/tests/packages/releases with their physical owner.
-- `classic/` provides `classic-*`; stacks share `content@main`.
+- `classic/` provides active `classic-*`; stacks share `content@main`.
   `content-1x/` and former 1.x branch are historical: preserve migration
   evidence; never select, recreate, backport, or deliver to them. `playtester/`
   is classic-only; `tools/` is MIT-default except GPL-2.0-or-later
@@ -91,7 +91,7 @@
   historical evidence immutable.
 - PRs: `atrinik-github-governance`, Conventional Commits; preserve contributor
   text, verify rendered bodies; no implicit merge.
-- Actual conflicts block; continue other work. Compact handoffs; bounded CI watchers.
+- Tilewright and Classic: [ownership](docs/TILEWRIGHT_RECONCILIATION.md).
 
 ## Commands
 

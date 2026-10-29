@@ -176,6 +176,12 @@ prevents file changes, not API writes; refresh requires fresh actor/capability
 proof. Codex never launches or controls VS Code, its executable/URI or GUI
 automation, and never nests a coordinator.
 
+Shared renderer, world-format and editor ownership belongs to Seraphina Studios'
+Tilewright projects; Atrinik owns its game-specific adapters and runtime.
+[The reconciliation contract](TILEWRIGHT_RECONCILIATION.md) records the repository
+transfers, crate transition and continued Classic development policy. Shared
+tooling adoption does not imply runtime, protocol or persistent-state cutover.
+
 The `atrinik/classic@main` checkout at `./classic` provides five logical
 components: `classic-client` from `client/`, `classic-server` from `server/`,
 `classic-editor` from `editor/`, `classic-libatrinik` from `libatrinik/`, and

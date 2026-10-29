@@ -25,6 +25,7 @@ from .model import (
     WorkspaceError,
     durable_atomic_json,
     load_json,
+    repository_remote_matches,
     unlink_validated_json,
 )
 from .process_tree import bound_lease_locked, control_socket_path, lease_locked
@@ -3380,7 +3381,7 @@ class RepositoryMigration:
             if process.returncode:
                 continue
             urls = process.stdout.decode(errors="replace").splitlines()
-            if urls and self._repository_from_url(urls[0].strip()) == expected:
+            if urls and repository_remote_matches(urls[0].strip().lower(), expected):
                 return True
         return False
 
