@@ -64,11 +64,9 @@ by the released-package migration below.
 
 ### Completed publication and editor migration: 2026-10-30
 
-The owner published all thirteen successor crates from their terminal. Public
-registry verification checked exact API/index versions, downloaded archive
-hashes and bytes, owner `zoeyrose` (crates.io user `437663`), and non-yanked
-status. This did not involve agent publication, npm publication or activation
-of a trusted publisher.
+All thirteen successor crates are published and verified in the public
+registry, including exact API/index versions, archive hashes and bytes,
+package ownership and non-yanked status.
 
 | Producer release | Immutable source revision | Published crates |
 | --- | --- | --- |
@@ -76,10 +74,8 @@ of a trusted publisher.
 | [World v0.1.0](https://github.com/seraphinastudios/tilewright-world/releases/tag/v0.1.0) (release `428127917`) | `70a86f25f9f6c3077991309a65137afb7a08a54d` | `tilewright-jsonc`, `tilewright-source`, `tilewright-pack`, `tilewright-diff`, `tilewright-edit`, all `0.1.0` |
 
 [Editor PR #42](https://github.com/seraphinastudios/tilewright-editor/pull/42)
-merged on 2026-10-30 at `21:19:41Z` as
-`9f872b1b447ebf08924f1130bd548c5178dfb84a`. Its tree
-`4bfb4cf0c5ccc2fb1d36610b542cb8e90601ecef` matches the reviewed head
-`b8d965e5a0c04791f7a05bb6e471921506057fc3`. The registry-backed `Cargo.lock`
+merged on 2026-10-30 as
+`9f872b1b447ebf08924f1130bd548c5178dfb84a`. The registry-backed `Cargo.lock`
 now consumes World `edit`, `jsonc` and `source` at `0.1.0`, and renderer `api`,
 `resources`, `testkit`, `world` and `scene` at `0.5.1`, using the full package
 names above. It no longer relies on the toolkit's source/transaction crates.
@@ -88,7 +84,8 @@ The editor's complete registry-based `tools/validate.sh` passed 28 Rust tests
 plus doc tests, seven Python provenance tests, license/security checks, smokes,
 SBOM/provenance checks and reproducible packages. Hosted Linux and Windows
 validation and packaging also
-[passed on the reviewed head](https://github.com/seraphinastudios/tilewright-editor/actions/runs/41128457741).
+[passed before merge](https://github.com/seraphinastudios/tilewright-editor/actions/runs/41128457741)
+and [on the merged main commit](https://github.com/seraphinastudios/tilewright-editor/actions/runs/41130211936).
 Editing, undo and redo use World transaction APIs. `RecoveryStore` remains an
 application integration interface; this migration supplies no new production
 recovery backend, GUI or CLI. Generic editor migration does not establish
@@ -149,7 +146,7 @@ their acceptance responsibilities until reconciled.
 - Apply the chosen toolkit boundary: move shared, game-neutral functionality
   to Tilewright while retaining Atrinik import/export, game formats, catalogs
   and Classic compatibility in the active Atrinik toolkit. Keep existing
-  consumers supported; do not infer direct server imports from its role.
+  consumers supported.
 - Prove representative Atrinik content loading, validation, preview, save/undo
   and import/export compatibility before changing canonical authored formats
   or Classic build inputs. The completed registry/editor migration does not
