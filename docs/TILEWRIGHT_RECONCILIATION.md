@@ -13,7 +13,7 @@ compatibility, gameplay, packaging, operations and rollback acceptance is met.
 | [Tilewright renderer](https://github.com/seraphinastudios/tilewright-renderer) | Game-neutral scene types, GPU rendering, presentation bridges and offscreen rendering |
 | [Tilewright world](https://github.com/seraphinastudios/tilewright-world) | Game-neutral world format, validation, compilation, pack readers and editing transactions |
 | [Tilewright editor](https://github.com/seraphinastudios/tilewright-editor) | Shared desktop/headless editor and agent tooling, configured through game profiles |
-| [Atrinik content toolkit](https://github.com/atrinik/content-toolkit) | Existing Atrinik-format parsing, catalogs, validation and migration tooling, including the transition to shared tooling |
+| [Atrinik content toolkit](https://github.com/atrinik/content-toolkit) | Active Atrinik importer/exporter, game-format parsing, catalogs, validation and Classic compatibility adapters |
 | [Atrinik content](https://github.com/atrinik/content) | Authored maps, archetypes, quests and lore; `main` remains the sole mutable authored source |
 | [Atrinik Classic](https://github.com/atrinik/classic) | Maintained playable C client/server and Classic authoring support |
 | [Atrinik server](https://github.com/atrinik/server), [client](https://github.com/atrinik/client) and [protocol](https://github.com/atrinik/protocol) | Atrinik-specific replacement simulation, sessions, game UI, protocol and adapters to shared tooling |
@@ -23,6 +23,13 @@ Game rules, quests, protocol messages, gameplay validation and content licenses
 stay with Atrinik. Shared Tilewright packages must not acquire Atrinik-specific
 rules to replace an adapter. A game profile describes the game to the shared
 tools; it does not transfer authority over gameplay to the editor or renderer.
+
+The owner resolved the toolkit boundary on 2026-10-30: retain
+`atrinik/content-toolkit` as the Atrinik importer/exporter and Classic
+compatibility layer, and move shared, game-neutral functionality into
+Tilewright. Atrinik rules, formats and game-profile adapters remain with
+Atrinik. This is an ownership decision, not proof of content import/export
+parity or authority to change canonical formats or runtime inputs.
 
 The former `atrinik/renderer` and `atrinik/editor` repositories were transferred
 to the Tilewright repositories above. Their old GitHub URLs redirect to the
@@ -43,23 +50,57 @@ Foreign hosts, forks and editor/renderer coordinate swaps remain invalid.
 Repository names, Rust package names, released versions and import paths are
 separate contracts. A repository transfer does not rename a published crate.
 
-The source inventory on 2026-10-29 has these important boundaries:
+### Historical inventory: 2026-10-29
 
-- Tilewright renderer source uses `tilewright-*` package names.
-- Tilewright world source uses its own `tilewright-*` packages and a new world
-  format. Its release guide does not currently enable crates.io publication.
-- Tilewright editor still consumes the published `atrinik-scene`,
-  `atrinik-render-api`, `atrinik-render-resources`, `atrinik-render-testkit`,
-  `atrinik-source` and `atrinik-transaction` packages at version `0.1.0`.
-- Atrinik content toolkit still owns the `atrinik-source` and
-  `atrinik-transaction` implementations used by that editor. Tilewright world's
-  parser and transaction APIs must be assessed for compatibility; they are not
-  assumed to be package aliases.
-- `atrinik-protocol` remains an Atrinik gameplay protocol package. Its prefix
-  is not a reason to rename or remove it.
+The initial source inventory found Tilewright renderer and world source using
+`tilewright-*` names, while the editor still consumed published
+`atrinik-scene`, `atrinik-render-api`, `atrinik-render-resources`,
+`atrinik-render-testkit`, `atrinik-source` and `atrinik-transaction` at `0.1.0`.
+The world's release guide did not then enable crates.io publication. The
+content toolkit owned the editor's source/transaction implementations; the
+world parser and transaction APIs required compatibility assessment rather
+than being assumed to be package aliases. These are dated findings, superseded
+by the released-package migration below.
+
+### Completed publication and editor migration: 2026-10-30
+
+The owner published all thirteen successor crates from their terminal. Public
+registry verification checked exact API/index versions, downloaded archive
+hashes and bytes, owner `zoeyrose` (crates.io user `437663`), and non-yanked
+status. This did not involve agent publication, npm publication or activation
+of a trusted publisher.
+
+| Producer release | Immutable source revision | Published crates |
+| --- | --- | --- |
+| [Renderer v1.18.0](https://github.com/seraphinastudios/tilewright-renderer/releases/tag/v1.18.0) (release `428070421`) | `a061c6e66c6166d66c757745eb8a91b716bc9ab5` | `tilewright-scene`, `tilewright-render-resources`, `tilewright-render-ui`, `tilewright-render-world`, `tilewright-render-api`, `tilewright-render-testkit`, `tilewright-render-wgpu`, `tilewright-render-sdl3`, all `0.5.1` |
+| [World v0.1.0](https://github.com/seraphinastudios/tilewright-world/releases/tag/v0.1.0) (release `428127917`) | `70a86f25f9f6c3077991309a65137afb7a08a54d` | `tilewright-jsonc`, `tilewright-source`, `tilewright-pack`, `tilewright-diff`, `tilewright-edit`, all `0.1.0` |
+
+[Editor PR #42](https://github.com/seraphinastudios/tilewright-editor/pull/42)
+merged on 2026-10-30 at `21:19:41Z` as
+`9f872b1b447ebf08924f1130bd548c5178dfb84a`. Its tree
+`4bfb4cf0c5ccc2fb1d36610b542cb8e90601ecef` matches the reviewed head
+`b8d965e5a0c04791f7a05bb6e471921506057fc3`. The registry-backed `Cargo.lock`
+now consumes World `edit`, `jsonc` and `source` at `0.1.0`, and renderer `api`,
+`resources`, `testkit`, `world` and `scene` at `0.5.1`, using the full package
+names above. It no longer relies on the toolkit's source/transaction crates.
+
+The editor's complete registry-based `tools/validate.sh` passed 28 Rust tests
+plus doc tests, seven Python provenance tests, license/security checks, smokes,
+SBOM/provenance checks and reproducible packages. Hosted Linux and Windows
+validation and packaging also
+[passed on the reviewed head](https://github.com/seraphinastudios/tilewright-editor/actions/runs/41128457741).
+Editing, undo and redo use World transaction APIs. `RecoveryStore` remains an
+application integration interface; this migration supplies no new production
+recovery backend, GUI or CLI. Generic editor migration does not establish
+functional parity for Atrinik game content, Classic import/export compatibility,
+a canonical format change or a runtime cutover.
+
+`atrinik-protocol` remains an Atrinik gameplay protocol package. Its prefix is
+not a reason to rename or remove it.
 
 Verify current manifests, registry artifacts and release policy before each
-consumer change. Reconcile names through this sequence:
+additional consumer change. The completed editor transition does not waive
+this sequence for other consumers:
 
 1. Inventory each package's producer, exact consumer pins, release provenance,
    public API and ownership. Distinguish a historical coordinate from a live
@@ -105,10 +146,14 @@ their acceptance responsibilities until reconciled.
 
 - Keep active governance and dependency inventories aligned with the canonical
   transferred repository coordinates while preserving immutable provenance.
-- Assign the generic/toolkit boundary and decide whether Atrinik content toolkit
-  remains a permanent importer/adapter or retires after its responsibilities
-  have moved. Keep its existing consumers supported during that decision.
-- Publish and validate the crate transition above before switching editor pins.
+- Apply the chosen toolkit boundary: move shared, game-neutral functionality
+  to Tilewright while retaining Atrinik import/export, game formats, catalogs
+  and Classic compatibility in the active Atrinik toolkit. Keep existing
+  consumers supported; do not infer direct server imports from its role.
+- Prove representative Atrinik content loading, validation, preview, save/undo
+  and import/export compatibility before changing canonical authored formats
+  or Classic build inputs. The completed registry/editor migration does not
+  satisfy this content acceptance.
 - Update active roadmap issues and consumer guides to name the canonical
   Tilewright owners and continued Classic support. Preserve historical evidence
   and deliberate future cutover gates rather than mechanically replacing text.
@@ -117,6 +162,9 @@ their acceptance responsibilities until reconciled.
   identities and a disposition for owner approval before archival or deletion.
 
 No repository has been established as unused by this inventory. In particular,
-the content toolkit has an active editor consumer, and the replacement client,
-server and protocol still own future Atrinik-specific work. Their incomplete
-runtime integration is not evidence that they can be deleted.
+the content toolkit retains the explicitly chosen Atrinik import/export and
+Classic compatibility responsibilities despite the generic editor dependency
+migration. Classic, content, tools and the replacement client, server and
+protocol remain active owners. Incomplete runtime integration is not evidence
+that any of them can be deleted. Preserve repository history and redirects;
+archival requires an exact candidate audit and a separate owner decision.
