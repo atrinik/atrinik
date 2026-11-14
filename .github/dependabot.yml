@@ -8,7 +8,11 @@ updates:
       github-actions:
         patterns:
           - "*"
+    assignees:
+      - zoeyrose
   - package-ecosystem: pip
     directory: /
     schedule:
       interval: weekly
+    assignees:
+      - zoeyrose
