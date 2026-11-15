@@ -860,6 +860,60 @@
       ]
     },
     {
+      "id": "action/actions-dependency-review",
+      "name": "actions/dependency-review-action",
+      "kind": "github-action",
+      "owner": "github-settings",
+      "scope": [
+        "atrinik",
+        "classic",
+        "client",
+        "content",
+        "content-toolkit",
+        "deploy-control",
+        "devcontainer",
+        "editor",
+        "github-settings",
+        "metaserver-worker",
+        "observatory",
+        "playtester",
+        "protocol",
+        "renderer",
+        "resources",
+        "server",
+        "sound",
+        "tools",
+        "website"
+      ],
+      "required": false,
+      "version": "v5",
+      "version_source": "Reviewed upstream major release",
+      "license": "MIT",
+      "source_url": "https://github.com/actions/dependency-review-action",
+      "locator": "actions/dependency-review-action",
+      "commit": null,
+      "checksum": null,
+      "acquisition": "GitHub Actions downloads the full commit pinned in each workflow",
+      "update_cadence_days": 7,
+      "update_mechanism": "Dependabot GitHub Actions update group",
+      "eol_response": "Upgrade the advisory dependency review workflow in every repository before the major is retired",
+      "validation": "Actionlint and the advisory Dependency review pull request job",
+      "disposition": "retain",
+      "packages": [],
+      "evidence": [
+        {
+          "repository": "atrinik",
+          "path": ".github/workflows/dependency-review.yml",
+          "contains": "actions/dependency-review-action@"
+        },
+        {
+          "repository": "github-settings",
+          "path": ".github/workflows/dependency-review.yml",
+          "contains": "actions/dependency-review-action@"
+        }
+      ]
+    },
+    {
       "id": "action/actions-download-artifact",
       "name": "actions/download-artifact",
       "kind": "github-action",
@@ -975,7 +1029,6 @@
         "deploy-control",
         "devcontainer",
         "editor",
-        "github-settings",
         "metaserver-worker",
         "playtester",
         "protocol",
@@ -1039,11 +1092,6 @@
         },
         {
           "repository": "editor",
-          "path": ".github/workflows/release.yml",
-          "contains": "actions/setup-node@"
-        },
-        {
-          "repository": "github-settings",
           "path": ".github/workflows/release.yml",
           "contains": "actions/setup-node@"
         },
@@ -4794,7 +4842,6 @@
         "deploy-control",
         "devcontainer",
         "editor",
-        "github-settings",
         "metaserver-worker",
         "playtester",
         "protocol",
@@ -4861,11 +4908,6 @@
         },
         {
           "repository": "editor",
-          "path": ".github/workflows/release.yml",
-          "contains": "node-version: 24.18.1"
-        },
-        {
-          "repository": "github-settings",
           "path": ".github/workflows/release.yml",
           "contains": "node-version: 24.18.1"
         },
