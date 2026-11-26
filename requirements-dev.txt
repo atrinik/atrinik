@@ -1,1 +1,1 @@
-coverage>=7.17.3,<8
+coverage>=7.17.4,<8
